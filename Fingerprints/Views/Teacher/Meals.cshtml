@@ -1,0 +1,483 @@
+﻿@model FingerprintsModel.TeacherModel
+
+@{
+     @section Title
+{
+        Meals
+    }
+    ViewBag.Title = "ParentCheckIn";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+
+
+@Scripts.Render("~/bundles/jquery")
+<script type="text/javascript" src="code.jquery.com/jquery-migrate-1.2.1.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+<script src="jquery.signature.js"></script>
+<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/south-street/jquery-ui.css" rel="stylesheet">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/south-street/jquery-ui.css" rel="stylesheet">
+<link href="jquery.signature.css" rel="stylesheet">
+
+@section Script{
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+    <style>
+        .kbw-signature {
+            width: 400px;
+            height: 200px;
+        }
+
+        
+    </style>
+   
+  
+}
+
+
+@section MainContentHolder{
+    <form method="post" enctype="multipart/form-data">
+    <script>
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+
+             if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                    customAlert('@TempData["message"]');
+                }
+        });
+        $(window).on('popstate', function () {
+            var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+            $('a[href=' + anchor + ']').tab('show');
+        });
+
+
+        function isNumberKey(evt) {
+            isValid = true;
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57)){
+                customAlert("Enter Numbers only for Adult Meals. ");
+                plainValidation('#AdultMeals');
+                isValid = false;}
+
+            return isValid;
+        }
+
+
+        function ValidateData() {
+            isValid = true;
+            var meals = $("#MealType").val();
+            $('#MealTypeSelected').val(meals);
+
+
+            if ($("#MealType").val() == 0) {
+                isValid = false;
+                customAlert("Meal Type is Required. ");
+                plainValidation('#MealType');
+                return isValid;
+            }
+
+            return isValid;
+        }
+        function CheckAll(element) {
+            isValid = true;
+            var chk = element.checked;
+            var meals = $("#MealType").val();
+            $('#MealTypeSelected').val(meals);
+
+            if ($("#MealType").val() == 0) {
+                isValid = false;
+                customAlert("Meal Type is Required. ");
+                plainValidation('#MealType');
+                return isValid;
+            } else {
+                var mealtype = $("#MealType").val();
+                if (mealtype == "1") {
+
+                     if (chk) {
+                        $("input[name=ClientIDB]").attr('checked', 'checked')
+                    } else {
+                        $("input[name=ClientIDB]").removeAttr('checked');
+                    }
+                } else if (mealtype == "2") {
+
+                    if (chk) {
+                        $("input[name=ClientIDL]").attr('checked', 'checked')
+                    } else {
+                        $("input[name=ClientIDL]").removeAttr('checked');
+                    }
+                } else if (mealtype == "3") {
+
+                    if (chk) {
+                        $("input[name=ClientIDS]").attr('checked', 'checked')
+                    } else {
+                        $("input[name=ClientIDS]").removeAttr('checked');
+                    }
+                } else if (mealtype == "4") {
+
+                    if (chk) {
+                        $("input[name=ClientIDD]").attr('checked', 'checked')
+                    } else {
+                        $("input[name=ClientIDD]").removeAttr('checked');
+                    }
+                } else if (mealtype == "5") {
+
+                    if (chk) {
+                        $("input[name=ClientIDS2]").attr('checked', 'checked')
+                    } else {
+                        $("input[name=ClientIDS2]").removeAttr('checked');
+                    }
+                }
+                isValid = true;}
+
+            return isValid;
+
+        }
+
+        //function MealChanged() {
+        //    var mealtype = $("#MealType").val();
+        //    if (mealtype == "1") {
+
+
+        //        $("input[name=ClientIDB]").show()
+        //        $("input[name=ClientIDL]").hide()
+        //        $("input[name=ClientIDS]").hide()
+        //        $("input[name=ClientIDD]").hide()
+        //        $("input[name=ClientIDS2]").hide()
+        //        $('#AdultMeals').val($("#AdultBreakfast").val());
+        //    } else if (mealtype == "2") {
+        //        $("input[name=ClientIDB]").hide()
+        //        $("input[name=ClientIDL]").show()
+        //        $("input[name=ClientIDS]").hide()
+        //        $("input[name=ClientIDD]").hide()
+        //        $("input[name=ClientIDS2]").hide()
+        //        $('#AdultMeals').val($("#AdultLunch").val());
+        //    } else if (mealtype == "3") {
+        //        $("input[name=ClientIDB]").hide()
+        //        $("input[name=ClientIDL]").hide()
+        //        $("input[name=ClientIDS]").show()
+        //        $("input[name=ClientIDD]").hide()
+        //        $("input[name=ClientIDS2]").hide()
+        //        $('#AdultMeals').val($("#AdultSnack").val());
+        //    } else if (mealtype == "4") {
+        //    $("input[name=ClientIDB]").hide()
+        //    $("input[name=ClientIDL]").hide()
+        //    $("input[name=ClientIDS]").hide()
+        //    $("input[name=ClientIDD]").show()
+        //    $("input[name=ClientIDS2]").hide()
+        //    $('#AdultMeals').val($("#AdultDinner").val());
+        //    } else if (mealtype == "5") {
+        //        $("input[name=ClientIDB]").hide()
+        //        $("input[name=ClientIDL]").hide()
+        //        $("input[name=ClientIDS]").hide()
+        //        $("input[name=ClientIDD]").hide()
+        //        $("input[name=ClientIDS2]").show()
+        //        $('#AdultMeals').val($("#AdultSnack2").val());
+        //    } else {
+        //        $("input[name=ClientIDB]").hide()
+        //        $("input[name=ClientIDL]").hide()
+        //        $("input[name=ClientIDS]").hide()
+        //        $("input[name=ClientIDD]").hide()
+        //        $("input[name=ClientIDS2]").hide()
+        //        $('#AdultMeals').val();
+        //    }
+        //}
+
+        function MealChanged() {
+            var mealtype = $("#MealType").val();
+            if (mealtype == "1") {
+
+
+                $("input[name=ClientIDB]").removeAttr("disabled");
+                $("input[name=ClientIDL]").attr("disabled", "disabled");
+                $("input[name=ClientIDS]").attr("disabled", "disabled");
+                $("input[name=ClientIDD]").attr("disabled", "disabled");
+                $("input[name=ClientIDS2]").attr("disabled", "disabled");
+                $('#AdultMeals').val($("#AdultBreakfast").val());
+            } else if (mealtype == "2") {
+                $("input[name=ClientIDB]").attr("disabled", "disabled");
+                $("input[name=ClientIDL]").removeAttr("disabled");
+                $("input[name=ClientIDS]").attr("disabled", "disabled");
+                $("input[name=ClientIDD]").attr("disabled", "disabled");
+                $("input[name=ClientIDS2]").attr("disabled", "disabled");
+                $('#AdultMeals').val($("#AdultLunch").val());
+            } else if (mealtype == "3") {
+                $("input[name=ClientIDB]").attr("disabled", "disabled");
+                $("input[name=ClientIDL]").attr("disabled", "disabled");
+                $("input[name=ClientIDS]").removeAttr("disabled");
+                $("input[name=ClientIDD]").attr("disabled", "disabled");
+                $("input[name=ClientIDS2]").attr("disabled", "disabled");
+                $('#AdultMeals').val($("#AdultSnack").val());
+            } else if (mealtype == "4") {
+                $("input[name=ClientIDB]").attr("disabled", "disabled");
+                $("input[name=ClientIDL]").attr("disabled", "disabled");
+                $("input[name=ClientIDS]").attr("disabled", "disabled");
+                $("input[name=ClientIDD]").removeAttr("disabled");
+                $("input[name=ClientIDS2]").attr("disabled", "disabled");
+                $('#AdultMeals').val($("#AdultDinner").val());
+            } else if (mealtype == "5") {
+                $("input[name=ClientIDB]").attr("disabled", "disabled");
+                $("input[name=ClientIDL]").attr("disabled", "disabled");
+                $("input[name=ClientIDS]").attr("disabled", "disabled");
+                $("input[name=ClientIDD]").attr("disabled", "disabled");
+                $("input[name=ClientIDS2]").removeAttr("disabled");
+                $('#AdultMeals').val($("#AdultSnack2").val());
+            } else {
+                $("input[name=ClientIDB]").removeAttr("disabled");
+                $("input[name=ClientIDL]").removeAttr("disabled");
+                $("input[name=ClientIDS]").removeAttr("disabled");
+                $("input[name=ClientIDD]").removeAttr("disabled");
+                $("input[name=ClientIDS2]").removeAttr("disabled");
+                $('#AdultMeals').val();
+            }
+        }
+    </script>
+
+    <input type="hidden" id="profileindex" name="profileindex" />
+    <input type="hidden" id="eduindex" name="eduindex" />
+    @using (Html.BeginForm("Meals", "Teacher"))
+    {
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+                <h2 class="page-header">
+                    Meal Detail <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
+                    <span></span>
+
+                </h2>
+
+            </div>
+
+            <!-- /.col-lg-12 -->
+        </div>
+        <div class="add-useragform">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+
+                 
+                    <label>Meals Offered: </label>
+
+                    <select id="MealType" class="form-control" onchange="MealChanged();">
+                        @{
+                            <option value="0">
+                                -Select One-
+                            </option>
+                            foreach (var item in Model.Meallst)
+                            {
+                                <option value="@item.MealID" class="box-header" id="MealType" name="MealType">
+                                    @item.MealType
+                                </option>
+                            }
+                        }
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <label>The Number of Adult Meals Served: </label>
+                   
+
+                    <label> @Html.TextBox("AdultMeals", 0, new { @class = "form-control", onkeypress = "return isNumberKey(event);" })</label>
+
+
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                <div class="add-useragform student-scroll full-border full-border-margin add-useragform5">
+                    <div class="table-responsive">
+
+                        <table class="table" id="MealTable">
+
+                            <tbody style="text-align:left">
+                            <thead class="page-header">
+
+                                <tr class="page-header">
+                                    <th colspan="7">
+
+                                        <label class="alert">Check All <input type="checkbox" onchange="return CheckAll(this)" /></label>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var j in Model.Itemlst)
+                                {
+                                    <tr>
+
+
+                                        @if (j.AttendanceType == "1")
+                                        {
+
+                                            <th style="text-align:left;">@Html.CheckBox("ClientIDB", j.Breakfast, new { value = j.ClientID, style = "width:auto !important;" })</th>
+                                            <th style="text-align:left;">@Html.CheckBox("ClientIDL", j.Lunch, new { value = j.ClientID, style = "width:auto !important;" })</th>
+                                            <th style="text-align:left;">@Html.CheckBox("ClientIDS", j.Snack, new { value = j.ClientID, style = "width:auto !important;" })</th>
+                                            <th style="text-align:left;">@Html.CheckBox("ClientIDD", j.Dinner, new { value = j.ClientID, style = "width:auto !important;" })</th>
+                                            <th style="text-align:left;">@Html.CheckBox("ClientIDS2", j.Snack2, new { value = j.ClientID, style = "width:auto !important;" })</th>
+                                            <th style="text-align:left;">@j.CName</th>
+
+                     <!-- THIS NEEDS TO GO TO CASE NOTES FOR MEALS OBSERVATIONS -->
+                                            <th style="color:slategrey;text-align:left;"><a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="~/Roster/CaseNotesclient/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(j.ClientID)&Householdid=0&centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(j.CenterID)&Programid=@FingerprintsModel.EncryptDecrypt.Encrypt64(j.Programid)"><img src="~/Images/referral.png" />Meal Observation Notes</a> </th>
+
+
+                                        }
+
+                                    </tr>
+
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+   
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                <div class="add-useragform student-scroll full-border full-border-margin">
+                    <div id="sig"></div>
+
+                    <input type="hidden" id="childid" value="@Model.ClientID" />
+
+
+
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                    <div class="add-useragform student-scroll full-border full-border-margin">
+                        <input type="hidden" name="CenterID" id="CenterID" value="@Model.CenterID" />
+                        <input type="hidden" name="ClassroomID" id="ClassroomID" value="@Model.ClassID" />
+                        <input type="hidden" name="MealTypeSelected" id="MealTypeSelected" value="" />
+
+                        <button class="btnPassword" id="post" onclick="return ValidateData();">Submit</button>
+                        <button class="btnPassword" onclick="location.href='@Url.Action("Roster", "Teacher")';return false;">
+                            Exit
+                        </button>
+                    </div>
+                </div>
+
+
+
+
+
+
+            </div>
+            <h2 class="page-header"></h2>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                        @foreach (var A in Model.Itemlst)
+                        {
+                           <label class="form-area">
+                            Adult Breakfast: @A.ABreakfast 
+                            Adult Lunch: @A.ALunch 
+                            Adult Snack: @A.ASnack 
+                            Adult Dinner: @A.ADinner 
+                            Adult Snack2: @A.ASnack2</label>
+                            
+                            @Html.Hidden("AdultBreakfast", A.ABreakfast)
+                            @Html.Hidden("AdultSnack", A.ASnack)
+                            @Html.Hidden("AdultLunch", A.ALunch)
+                            @Html.Hidden("AdultDinner", A.ADinner)
+                            @Html.Hidden("AdultSnack2", A.ASnack2)
+                            break;
+                        }
+                    </div>
+                </div>
+            
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                            <div class="add-useragform student-scroll full-border full-border-margin">
+                                <div class="table-fixed">
+                                    <table class="table">
+
+                                        <tbody style="text-align:left">
+                                        <thead>
+                                            <tr class="main-header" style="background-color:lightgrey;">
+                                                <th>Client Name</th>
+                                                <th>Breakfast</th>
+                                                <th>Lunch</th>
+                                                <th>Snack</th>
+                                                <th>Dinner</th>
+                                                <th>Snack2</th>
+                                            </tr>
+
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var j in Model.Itemlst)
+                                            {
+                                                <tr>
+                                                    <th style="text-align:left;">@j.CName</th>
+                                                    <!-- THIS NEEDS TO GO TO CASE NOTES FOR MEALS OBSERVATIONS -->
+                                                    @if (j.Breakfast == true)
+                                                    {
+                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                                    }
+                                                    else
+                                                    {
+                                                        <th><img src="~/Images/whiteX.gif" /> </th>
+                                                    }
+
+                                                    @if (j.Lunch == true)
+                                                    {
+                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                                    }
+                                                    else
+                                                    {
+                                                        <th><img src="~/Images/whiteX.gif" /> </th>
+                                                    }
+                                                    @if (j.Snack == true)
+                                                    {
+                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                                    }
+                                                    else
+                                                    {
+                                                        <th><img src="~/Images/whiteX.gif" /> </th>
+                                                    }
+                                                    @if (j.Dinner == true)
+                                                    {
+                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                                    }
+                                                    else
+                                                    {
+                                                        <th><img src="~/Images/whiteX.gif" /> </th>
+                                                    }
+                                                    @if (j.Snack2 == true)
+                                                    {
+                                                        <th><img src="~/Images/whiteCheck.jpg" /> </th>
+                                                    }
+                                                    else
+                                                    {
+                                                        <th><img src="~/Images/whiteX.gif" /> </th>
+                                                    }
+
+                                                </tr>
+
+                                            }
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+</form>
+
+                        }
+
+<h2>Meal</h2>

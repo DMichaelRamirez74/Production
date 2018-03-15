@@ -1,0 +1,1587 @@
+﻿@model IEnumerable<FingerprintsModel.YakkrClientDetail>
+@{
+    @section Title{
+        YakkrList
+    }
+    ViewBag.Title = "YakkrList";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+    string typeofdatacount = string.Empty;
+    string mode = string.Empty;
+
+
+}
+
+<h2>YakkrList</h2>
+@Scripts.Render("~/bundles/jquery")
+
+
+@section MainContentHolder{
+    <style>
+        .form-group-al {
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            text-align: left;
+            padding-left: 20px;
+        }
+            /*.form-group span{width:42%!important;display:inline-block;}*/
+            .form-group label {
+                display: inline-block;
+                /* width: 100%; */
+                line-height: 26px;
+                width: auto;
+                float: none;
+                margin-left: 0 !important;
+            }
+
+        .alert-dismissable, .alert-dismissible {
+            padding-right: 0;
+            font-size: 20px;
+            color: #295b8f;
+        }
+
+        .form-group span {
+            width: auto !important;
+            display: inline-block;
+            font-size: 13px;
+            line-height: 18px;
+            padding-left: 10px;
+        }
+
+        .form-group select {
+            width: auto !important;
+            display: inline-block;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 13px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+            -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        }
+
+        .err-container {
+            height: 10px;
+        }
+
+        .error-message {
+            display: none;
+            font-size: 12px;
+            color: red;
+        }
+
+        .file {
+            visibility: hidden;
+        }
+
+        .classroom-panel {
+            padding-left: 20px !important;
+        }
+
+        .classroom-panel-accept-reject {
+            padding-left: 20px !important;
+        }
+
+        .classroom-panel-staff {
+            padding-left: 20px !important;
+        }
+    </style>
+    <style>
+        .billing-inner-label label, .billing-inner-label span {
+            color: #333;
+            font-weight: normal !important;
+            font-size: 15px;
+            margin-bottom: 0;
+            margin-top: 10px;
+        }
+
+        .bill-radio {
+            margin: 0.5rem;
+            display: inline-block;
+        }
+
+            .bill-radio input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+            }
+
+        .billing-inner input {
+            background: transparent;
+            color: #333;
+            border: 1px solid #333;
+            border-radius: 8px !important;
+            height: 40px;
+        }
+
+        .bill-radio label {
+            padding-left: 0;
+            color: #333;
+        }
+
+        .bill-radio input[type="radio"]:checked + .radio-label:before {
+            background-color: #295b8f;
+            box-shadow: inset 0 0 0 4px #fff;
+        }
+
+        .bill-radio input[type="radio"] + .radio-label:before {
+            content: '';
+            background: none;
+            border-radius: 100%;
+            border: 1px solid #333;
+            display: inline-block;
+            width: 1.4em;
+            height: 1.4em;
+            position: relative;
+            top: -0.2em;
+            margin-right: 1em;
+            vertical-align: top;
+            cursor: pointer;
+            text-align: center;
+            -webkit-transition: all 250ms ease;
+            transition: all 250ms ease;
+        }
+
+        .control-label {
+            width: 200px;
+        }
+
+        .ch-form .form-group {
+            min-height: initial;
+            padding-bottom: 10px;
+        }
+
+        .brow_option {
+            position: relative;
+        }
+
+        .brow_option {
+            float: left;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .form-group {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 0px !important;
+            min-height: 45px;
+            padding-left: 0;
+        }
+
+        .brow_option .form-control.input-lg {
+            background: #ffffff none repeat scroll 0 0;
+            border: 0 none;
+            border-radius: 0;
+            color: #163b69;
+            float: left;
+            font-size: 15px;
+            height: 41px;
+            margin-right: 0;
+            width: 66%;
+            border: 1px solid #ddd;
+            font-weight: 700;
+        }
+
+        .brow_option .input-group-btn {
+            float: left;
+            width: 25% !important;
+        }
+
+            .brow_option .input-group-btn button {
+                background: #f9c751 none repeat scroll 0 0;
+                border-radius: 10px !important;
+                border-color: #f9c751;
+                color: #000000;
+                font-size: 16px;
+                font-weight: 700;
+                height: 44px;
+                width: 118px;
+                float: left;
+            }
+
+        .upl img {
+            margin-left: 10px;
+            float: left;
+        }
+
+        .brow_option .AddAttachments {
+            float: right;
+            position: absolute;
+            right: 0;
+            top: 24px;
+        }
+
+        .download-ic {
+            font-size: 25px !important;
+            padding: 5px !important;
+        }
+
+        .download-ic {
+            color: #163b69;
+        }
+    </style>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Yakkr Code -<span class="yakkr-code"> @Model.Select(a => a.YakkrCode).FirstOrDefault()</span>
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <a href="~/Yakkr/YakkrDetails" class="backto_list">Back to list</a>
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+                <div class="table-responsive">
+                    <table class="table table_size" id="Gridclient">
+                        <thead style="cursor:pointer;">
+                            <tr>
+                                <th></th>
+                                <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                                <th id="thCust">DOB<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                                <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @if (Model.Count() > 0)
+                            {
+                                foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                {
+                                    if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+                                    {
+                                        <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                    }
+                                    else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
+                                    {
+                                        <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.FromUserID)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                        @*<tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@detail.FromUserID">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>*@
+
+                                    }
+                                    else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
+                                    {
+                                        <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                    }
+                                    else if (ViewBag.YakkrCode == "704")
+                                    {
+                                        <tr>
+                                            <td class="ClientName">
+                                                <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
+                                            </td>
+                                            <td>@detail.ClientName</td>
+                                            <td>@detail.DOB</td>
+                                            <td>@detail.CenterName</td>
+                                            <td>@detail.FromUser</td>
+                                            <td>@detail.Date</td>
+                                        </tr>
+                                    }
+
+                                    else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303")
+                                    {
+
+
+                                        // typeofdatacount= (@ViewBag.YakkrCode == "300")?
+                                        if (ViewBag.YakkrCode == "300")
+                                        {
+                                            typeofdatacount = "Indicated";
+                                            mode = "Pending";
+                                        }
+                                        if (ViewBag.YakkrCode == "301")
+                                        {
+                                            typeofdatacount = "Pending";
+                                            mode = "QualifyReleased";
+                                        }
+                                        if (ViewBag.YakkrCode == "302")
+                                        {
+                                            typeofdatacount = "Qualified";
+                                            mode = "Released";
+                                        }
+                                        if (ViewBag.YakkrCode == "303")
+                                        {
+                                            typeofdatacount = "Released";
+                                            mode = "All";
+                                        }
+
+                                        <tr>
+                                            <td class="ClientName" onclick="LoadPendingDisable(this,true);" accesskey="@detail._EncCenterId" typeofdatacount="@typeofdatacount" mode="@mode">
+                                                <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                <a href="javascript:void(0);" id="disabilitySelect">Select</a>
+                                            </td>
+                                            <td>@detail.ClientName</td>
+                                            <td>@detail.DOB</td>
+                                            <td>@detail.CenterName</td>
+                                            <td>@detail.FromUser</td>
+                                            <td>@detail.Date</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td class="ClientName">
+                                                <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                <a href="javascript:void(0)">Select</a>
+                                            </td>
+                                            <td>@detail.ClientName</td>
+                                            <td>@detail.DOB</td>
+                                            <td>@detail.CenterName</td>
+                                            <td>@detail.FromUser</td>
+                                            <td>@detail.Date</td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="5">No Result Found</td></tr>
+                            }
+
+                        </tbody>
+                    </table>
+                    <div id="div1" style="text-align:center;display:none;">
+                        <label>No result found.</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Mail Modal-->
+    <div class="modal fade" id="myModalApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Address Change Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Old Address:</label>
+                        <span class="old-address"></span>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">New Address:</label>
+                        <span class="new-address"></span>
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-address-change" data-dismiss="modal">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalEmploymentApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Employment Status Change Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Old Status:</label>
+                        <span class="old-employment-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">New Status:</label>
+                        <span class="new-employment-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Notes:</label>
+                        <span class="new-employment-notes"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-employee-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalMilitaryApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Military Status Change Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Old Status:</label>
+                        <span class="old-military-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">New Status:</label>
+                        <span class="new-military-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Notes:</label>
+                        <span class="new-military-notes"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-military-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalHomelessApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Homeless Status Change Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Old Status:</label>
+                        <span class="old-homeless-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">New Status:</label>
+                        <span class="new-homeless-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Notes:</label>
+                        <span class="new-homeless-notes"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-homeless-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalEducationApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Education Update Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Old Status:</label>
+                        <span class="old-education-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">New Status:</label>
+                        <span class="new-education-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Notes:</label>
+                        <span class="new-education-notes"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-education-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalVolunteerApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Volunteer Update Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Old Status:</label>
+                        <span class="old-volunteer-status"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">New Status:</label>
+                        <span class="new-volunteer-status"></span>
+                    </div>
+                    <div class="form-group div-day-hour">
+                        <label class="control-label" for="current_password">Days of volunteer:</label>
+                        <span class="new-volunteer-days"></span>
+                    </div>
+                    <div class="form-group div-day-hour">
+                        <label class="control-label" for="current_password">Hours of volunteer:</label>
+                        <span class="new-volunteer-hours"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-volunteer-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalAbsentApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Child Absent Request</label>
+                </div>
+               
+                    <div class="form-group">
+                        <label style="padding-left: 170px;font-size: 15px;" class="control-label" for="current_password">Reason:</label>
+                        <span style="font-size: 14px;" class="new-absent-status"></span>
+                    </div>
+                    @*<div class="form-group">
+                        <label class="control-label" for="current_password">Notes:</label>
+                        <span class="new-absent-notes"></span>
+                    </div>*@
+              
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-absent-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalEngagementApproval" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Parent Engagment Request</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Date:</label>
+                        <span class="engagement-date"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Hours:</label>
+                        <span class="engagement-hours"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Minutes:</label>
+                        <span class="engagement-minutes"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Engagement:</label>
+                        <span class="engagement-activity"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Notes:</label>
+                        <span class="engagement-notes"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-engagement-change">Approve</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalMailMessage" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Message</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">From:</label>
+                        <span class="client-message-from"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Message:</label>
+                        <span class="client-message"></span>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    @*<button class="btnPassword address-btn btn-absent-change">Approve</button>*@
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Mail Modal-->
+    <div class="modal fade" id="myModalApprovalForClassRoomOpenCloseRequest" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible classroom-header" for="current_password" style="text-transform:capitalize;">Classroom close request</label>
+                </div>
+                <div class="form-group classroom-panel cls-centerName" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Center Name:</label>
+                    <span class="closed-request-centername" style="font-size:14px;"></span>
+                </div>
+
+                <div class="form-group  cls-classroom" style="text-align:left;padding-left: 20px !important;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Classroom:</label>
+                    <span class="closed-request-classroom" style="font-size:14px;"></span>
+                </div>
+
+                <div class="form-group  cls-teachername" style="text-align:left;padding-left: 20px !important;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Teacher Name:</label>
+                    <span class="closed-request-teachername" style="font-size:14px;"></span>
+                </div>
+
+
+                <div class="form-group classroom-panel" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Message:</label>
+                    <span class="sp-class-message" style="font-size:14px;"></span>
+                </div>
+
+                <div class="form-group classroom-panel-accept-reject" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Accept/Reject Request:</label>
+                    <span class="accept-reject-span" style="font-size:14px;">
+                        <input type="radio" name="acceptradio" value="1" />&nbsp; Accept &nbsp;&nbsp;
+                        <input type="radio" name="acceptradio" value="0" />&nbsp; Reject
+                    </span>
+                    <span id="accept_reject_error" style="color:red;"> </span>
+                </div>
+
+                <div class="form-group  notes-panel" style="text-align:left;display:none;padding-left: 20px !important;">
+                    <label class="control-label" for="current_password" style="font-size:16px;position:absolute;">Notes:</label>
+                    <span class="accept-reject-span" style="font-size:14px;">
+                        <textarea style="resize:none;width:100%;height:60px;display:inline-block;margin-left:54px;margin-bottom:20px;" class="form-control txt-classroom-notes" id="CNotes" placeholder="Classroom close decline notes"></textarea>
+                    </span>
+                    <span id="notes_error" style="color:red;position:absolute;margin-left:65px;margin-top:20px;"> </span>
+
+                </div>
+
+                <div class="form-group classroom-panel-staff" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Staff reports to office ?</label>
+                    <span class="staff-come-span" style="font-size:14px;">
+                        <span style="width: auto;display: inline-block;"><input type="radio" class="staff-come" name="staffComeRadio" value="1" style="margin-left:0;">&nbsp;Yes&nbsp;&nbsp;</span>
+                        <span style="width: auto;display: inline-block;"><input type="radio" class="staff-come" name="staffComeRadio" value="0" style="margin-left:0;">&nbsp;No</span>
+                    </span>
+                    <span id="staff_radio_error" style="color:red;"></span>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-classroom-close">Submit</button>
+                    @*<button class="btnPassword address-btn btn-classroom-open">Reject</button>*@
+                    <button class="btnPassword address-btn btn-classroom-cancel" data-dismiss="modal">Exit</button>
+                    @*<button class="btnPassword address-btn btn-open-approve" style="display:none;">Submit</button>
+                        <button class="btnPassword address-btn btn-open-back" style="display:none;">Back</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="myModalChildReferralNotes" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible classroom-header" for="current_password" style="text-transform:capitalize;">Child Referral Notes</label>
+                </div>
+                <div class="form-group classroom-panel cls-teachername" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Teacher Name:</label>
+                    <span class="child-referral-teachername" style="font-size:14px;"></span>
+                </div>
+                <div class="form-group classroom-panel cls-classroom" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Client Name:</label>
+                    <span class="child-referral-clientroom" style="font-size:14px;"></span>
+                </div>
+                <div class="form-group classroom-panel" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Class Name:</label>
+                    <span class="child-referral-classname" style="font-size:14px;"></span>
+                </div>
+                <div class="form-group classroom-panel" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Center Name:</label>
+                    <span class="child-referral-centername" style="font-size:14px;"></span>
+                </div>
+                <div class="form-group classroom-panel" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Message:</label>
+                    <span class="child-referral-message" style="font-size:14px;"></span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn btn-classroom-cancel" data-dismiss="modal">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Transportation modal-->
+    <div class="modal fade in" id="transportation1" role="dialog" style="display: none;background: rgba(0,0,0,0.4);" aria-hidden="false">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content col-xs-12">
+                <div class="modal-header col-xs-12">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible transportation-header-text" for="current_password" style="font-size: 20px;color: #295b8f;">Transportation Request</label>
+                    <input type="hidden" class="transportation-id" />
+                </div>
+                <div class="col-xs-12 ch-form" style="padding:0;">
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password" style="margin-left: 0;width:200px;float:left;display:inline-block;">Client Name:</label>
+                        <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                            <p style="margin:0;font-size:14px;color:#333;" class="client-name"></p>
+                        </div>
+                    </div>
+                    <div class="form-group input-container">
+                        <label class="control-label" style="margin-left: 0;display:inline-block;font-size: 18px;color: #295b8f;width:100%;">Pick up details</label>
+                    </div>
+                    <div class="form-group input-container pick-up-status">
+                        <label class="control-label" style="margin-left: 0;display:inline-block;width:200px;float:left;">Pick up status</label>
+                        <div class="col-xs-12 billing-form-div no-padding" style="padding:0;width:61%;float:left;display:inline-block;word-break: break-all;">
+                            <div class="col-xs-12" style="padding:0;">
+                                <p style="margin:0;font-size:14px;color:#333;">Not Needed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pick-up-details">
+                        <div class="form-group input-container">
+                            <label class="control-label" for="current_password" style="margin-left: 0;width:200px;float:left;display:inline-block;">Address</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="pick-up-address"></p>
+                            </div>
+                        </div>
+                        <div class="form-group input-container">
+                            <label class="control-label lbl-required" for="current_password" style="margin-left: 0;width:200px;float:left;display:inline-block;">ZIP Code</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="pick-up-zipcode"></p>
+                            </div>
+                        </div>
+                        <div class="form-group input-container">
+                            <label class="control-label lbl-required" for="current_password" style="margin-left: 0;width:200px;float:left;display:inline-block;">City</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="pick-up-city"></p>
+                            </div>
+                        </div>
+                        <div class="form-group input-container">
+                            <label class="control-label lbl-required" for="current_password" style="margin-left: 0;width:200px;float:left;display:inline-block;">State</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="pick-up-state"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 ch-form" style="margin-top:20px;padding:0;">
+                    <div class="form-group input-container">
+                        <label class="control-label" style="font-size: 18px;color: #295b8f;margin-left: 0;display:inline-block;width:100%;">Drop off details</label>
+                    </div>
+                    <div class="form-group input-container drop-status">
+                        <label class="control-label" style="margin-left: 0;display:inline-block;float:left;width:200px;">Drop off status</label>
+                        <div class="col-xs-12 billing-form-div no-padding" style="word-break: break-all;float:left;padding:0;width:61%;display:inline-block;">
+                            <div class="col-xs-12" style="padding:0;">
+                                <p style="margin:0;font-size:14px;color:#333;">Not Needed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="drop-details">
+                        <div class="form-group input-container">
+                            <label class="control-label" for="current_password" style="margin-left: 0;float:left;width:200px;display:inline-block;">Address</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="drop-address"></p>
+                            </div>
+                        </div>
+                        <div class="form-group input-container">
+                            <label class="control-label lbl-required" for="current_password" style="margin-left: 0;float:left;width:200px;display:inline-block;">ZIP Code</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="drop-zipcode"></p>
+                            </div>
+                        </div>
+                        <div class="form-group input-container">
+                            <label class="control-label lbl-required" for="current_password" style="margin-left: 0;float:left;width:200px;display:inline-block;">City</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="drop-city"></p>
+                            </div>
+                        </div>
+                        <div class="form-group input-container">
+                            <label class="control-label lbl-required" for="current_password" style="margin-left: 0;float:left;width:200px;display:inline-block;">State</label>
+                            <div style="float:left;width:61%;display:inline-block;word-break: break-all;">
+                                <p style="margin:0;font-size:14px;color:#333;" class="drop-state"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12" style="text-align:center;padding: 15px;border-top: 1px solid #e5e5e5;">
+                    <button class="btn-approve-transportation btn-success btn">Approve</button>
+                    <button class="btn-reject-transportation btn-danger btn">Reject</button>
+                    <button class="btn-primary btn btn-close-transportaion" data-dismiss="transportation1">Back</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <input type="hidden" id="centerIdGrid" />
+
+    <input type="hidden" id="isDisabilityRole" value="@Session["RoleID"].ToString()" />
+    @Html.Partial("~/Views/Partialviews/DisabilityClient.cshtml")
+
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script>
+
+
+
+        $(function () {
+            $('#DocumentDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            if ($('#isDisabilityRole').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80' || $('#isDisabilityRole').val() == '9c34ec8e-2359-4704-be89-d9f4b7706e82') {
+                BindDropdownDisable();
+            }
+
+
+            var HouseHoldId = "", ClientId = "", YakkrID = "";
+
+            $('.btn-classroom-open').click(function () {
+                $('.classroom-panel').hide();
+                $('.classroom-open-panel').show();
+
+                $('.btn-classroom-open').hide();
+                $('.btn-classroom-close').hide();
+                $('.btn-classroom-cancel').hide();
+
+                $('.btn-open-approve').show();
+                $('.btn-open-back').show();
+
+                if ($(this).siblings('.btn-classroom-close').attr('record-type') == 2) {
+                    $('.txt-classroom-notes').attr('placeholder', 'Center close decline notes');
+                }
+                else {
+                    $('.txt-classroom-notes').attr('placeholder', 'Classroom close decline notes');
+
+                }
+            });
+
+            $('.btn-open-back').click(function () {
+
+                if ($(this).siblings('.btn-classroom-close').attr('record-type') == 2) {
+                    $('.classroom-panel').show();
+                    $('.cls-classroom').hide();
+                    $('.btn-open-approve').hide();
+                    $('.btn-open-back').hide();
+                    $('.cls-teachername').hide();
+                    $('.classroom-open-panel').hide();
+                    $('.btn-classroom-close').show();
+                    $('.btn-classroom-open').show();
+                    $('.btn-classroom-cancel').show();
+                }
+                else {
+                    $('.btn-classroom-open').show();
+                    $('.btn-classroom-close').show();
+                    $('.btn-classroom-cancel').show();
+
+                    $('.btn-open-approve').hide();
+                    $('.btn-open-back').hide();
+
+                    $('.classroom-panel').show();
+                    $('.classroom-open-panel').add('.error-message-classroom').hide();
+                }
+
+            });
+
+            $('.txt-classroom-notes').keyup(function () {
+                $('.error-message-classroom').hide();
+            });
+
+            $('.btn-open-approve').click(function () {
+                if ($('.txt-classroom-notes').val().trim() == "") {
+                    $('.error-message-classroom').show();
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/ClassroomOpenrequestApproval",
+                        data: { 'RouteCode': '73', 'Notes': $('.txt-classroom-notes').val(), 'YakkrID': YakkrID },
+                        success: function (data) {
+                            window.location.href = "/Yakkr/YakkrDetails";
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+            });
+
+            $('.btn-address-change').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/UpdateAddressChange",
+                    data: { 'HouseHoldId': HouseHoldId, 'YakkrId': YakkrID },
+                    //data:{TextExpire: JSON.stringify('test')},
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-employee-change').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveEmploymentRequest",
+                    data: { 'YakkrId': YakkrID },
+                    //data:{TextExpire: JSON.stringify('test')},
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-military-change').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveMilitaryRequest",
+                    data: { 'YakkrId': YakkrID },
+                    //data:{TextExpire: JSON.stringify('test')},
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-education-change').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveEducationRequest",
+                    data: { 'YakkrId': YakkrID },
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-homeless-change').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveHomelessRequest",
+                    data: { 'YakkrId': YakkrID },
+                    //data:{TextExpire: JSON.stringify('test')},
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-volunteer-change').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveVolunteerRequest",
+                    data: { 'YakkrId': YakkrID },
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-absent-change').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveAbsentRequest",
+                    data: { 'YakkrId': YakkrID },
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-engagement-change').click(function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Parent/ApproveParentEngagementRequest",
+                    data: { 'YakkrId': YakkrID },
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+
+                        console.log('Error');
+                    }
+                });
+            });
+
+            $('.btn-classroom-close').click(function () {
+
+                $('#accept_reject_error').text('');
+                $('#notes_error').text('');
+                $('#staff_radio_error').text('');
+
+                if (!$('input[name=acceptradio]').is(':checked')) {
+                    $('#accept_reject_error').text('Please select Accept or Reject');
+                    return false;
+                }
+                else if ($('input[name=acceptradio]:checked').attr('value') == '1' && $('#CNotes').val().trim() == '') {
+                    $('#notes_error').text('Please enter Notes');
+                    return false;
+                }
+
+                else if ($('input[name=acceptradio]:checked').attr('value') == '1' && !$('input[name=staffComeRadio]').is(':checked')) {
+                    $('#staff_radio_error').text('Please select Yes or No');
+                    return false;
+                }
+                var arr = [];
+
+                var clsId = $('#myModalApprovalForClassRoomOpenCloseRequest').find('.closed-request-classroom').attr('cls-id');
+                var clsName = $('#myModalApprovalForClassRoomOpenCloseRequest').find('.closed-request-classroom').html();
+                var notes = ($('input[name=acceptradio]:checked').attr('value') == '1') ? $('#CNotes').val() : '';
+                var ctrId = $('.closed-request-centername').attr('center-id');
+                var yakkrId = $('.closed-request-classroom').attr('yakkrId');
+
+                if ($('input[name=acceptradio]:checked').attr('value') == '1') {
+                    arr.push({ 'DaysOffId': 0, 'ClassRoomId': clsId, 'ClassRoomName': clsName, 'CenterId': ctrId, 'OffDayComments': notes, 'Status': true });
+
+                }
+
+                var clientArray = [];
+
+                clientArray.push(
+                               {
+                                   'Selected': ($('input[name=acceptradio]:checked').attr('value') == '1') ? true : false,
+                                   'Text': yakkrId, 'Value': clsId,
+                               });
+
+                var dateEntered = $('.closed-request-centername').attr('date');
+
+                var date = getFormattedDate(new Date(dateEntered));
+
+                var isStaff = ($('input[name=staffComeRadio]:checked').val() == '1') ? true : false;
+                var daysOff = {};
+                daysOff.CenterId = parseInt($('.text-heading').attr('center-id'));
+                daysOff.DaysOffID = '0';
+                daysOff.ClassRoomIdArray = arr;
+                daysOff.OffDayComments = '';
+                daysOff.FromDate = getFormattedDate(new Date(dateEntered));
+                daysOff.ToDate = getFormattedDate(new Date(dateEntered));
+                daysOff.RecordType = '3';
+                daysOff.IsStaff = isStaff;
+
+
+                if ($('input[name=acceptradio]:checked').attr('value') == '1') {
+                    $.ajax({
+                        url: '/Home/GetOffDayValidation',
+                        type: 'post',
+                        datatype: 'json',
+                        data: { fromDate: date, toDate: date, centerId: ctrId, classroomArray: JSON.stringify(arr), daysOffType: '3', daysOffId: 0 },
+                        success: function (data) {
+                            if (data) {
+
+                                customAlert('Classroom is already in days off list');
+                                return false;
+                            }
+                            else {
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/Teacher/AcceptRejectRequest",
+                                    data: { 'daysOffString': JSON.stringify(daysOff), 'YakkrArray': JSON.stringify(clientArray), 'centerId': $('.text-heading').attr('center-id'), 'isStaff': isStaff },
+                                    async: false,
+                                    success: function (data) {
+                                        window.location.href = "/Home/Dashboard";
+
+                                    },
+                                    error: function (data) {
+                                        console.log('error');
+                                    }
+                                });
+                            }
+                        },
+                        error: function (data) {
+
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Teacher/AcceptRejectRequest",
+                        data: { 'daysOffString': JSON.stringify(daysOff), 'YakkrArray': JSON.stringify(clientArray), 'centerId': $('.text-heading').attr('center-id'), 'isStaff': isStaff },
+                        async: false,
+                        success: function (data) {
+                            window.location.href = "/Home/Dashboard";
+
+                        },
+                        error: function (data) {
+                            console.log('error');
+                        }
+                    });
+                }
+
+                var record_type = $(this).attr('record-type');
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: "/Yakkr/SenMailToParentsAndTeachers",
+                //    data: { 'YakkrID': YakkrID, 'RouteCode': '73', 'recordType': record_type },
+                //    async: false,
+                //    success: function (data) {
+                //        window.location.href = "/Yakkr/YakkrDetails";
+                //    },
+                //    error: function (data) {
+
+                //        console.log('Error');
+                //    }
+                //});
+            });
+
+            $('input[name=acceptradio]').on('change', function () {
+
+                if ($(this).attr('value') == '1') {
+                    $('.notes-panel').show();
+                }
+                else {
+                    $('.notes-panel').hide();
+                }
+            });
+
+            $('body').on('click', '.ClientName', function () {
+                HouseHoldId = $(this).closest('tr').find('.HouseHoldId').text();
+                ClientId = $(this).closest('tr').find('.ClientId').text();
+                var Date = $(this).closest('tr').find('td').eq(5).text();
+                var Center = $(this).closest('tr').find('td').eq(3).text();
+                var User = $(this).closest('tr').find('.FromUserID').text();
+                var TeacherName = $(this).closest('tr').find('td').eq(4).text();
+                var ClientName = $(this).closest('tr').find('td').eq(1).text();
+                YakkrID = $(this).closest('tr').find('.YakkrID').text();
+                if ($('.yakkr-code').text().trim() == "090") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetAddressByHouseHoldId",
+                        data: { 'YakkrID': YakkrID, 'HouseHoldId': HouseHoldId },
+                        success: function (data) {
+                            $('.old-address').text(data[1]);
+                            $('.new-address').text(data[0]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "091") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetEmploymentStatus",
+                        data: { 'HouseHoldId': HouseHoldId, 'ClientId': ClientId, 'YakkrId': YakkrID },
+                        success: function (data) {
+
+                            $('.old-employment-status').text(data[0]);
+                            $('.new-employment-status').text(data[1]);
+                            $('.new-employment-notes').text(data[2]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalEmploymentApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "092") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetMilitaryStatus",
+                        data: { 'HouseHoldId': HouseHoldId, 'ClientId': ClientId, 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.old-military-status').text(data[0]);
+                            $('.new-military-status').text(data[1]);
+                            $('.new-military-notes').text(data[2]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalMilitaryApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "093") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetHomelessStatus",
+                        data: { 'HouseHoldId': HouseHoldId, 'ClientId': ClientId, 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.old-homeless-status').text(data[0]);
+                            $('.new-homeless-status').text(data[1]);
+                            $('.new-homeless-notes').text(data[2]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalHomelessApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "094") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetEducationStatus",
+                        data: { 'HouseHoldId': HouseHoldId, 'ClientId': ClientId, 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.old-education-status').text(data[0]);
+                            $('.new-education-status').text(data[1]);
+                            $('.new-education-notes').text(data[2]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalEducationApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "080") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetVolunteerRequest",
+                        data: { 'HouseHoldId': HouseHoldId, 'ClientId': ClientId, 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.old-volunteer-status').text(data[0]);
+                            $('.new-volunteer-status').text(data[1]);
+                            if (data[1] == "Started") {
+                                $('.div-day-hour').show();
+                                $('.new-volunteer-days').text(data[2]);
+                                $('.new-volunteer-hours').text(data[3]);
+                            }
+                            else {
+                                $('.div-day-hour').hide();
+                            }
+
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalVolunteerApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "266") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetAbsentRequest",
+                        data: { 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.new-absent-status').text(data[0]);
+                           // $('.new-absent-notes').text(data[1]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalAbsentApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "265") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetParentEngagementRequest",
+                        data: { 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.engagement-date').text(data[0]);
+                            $('.engagement-hours').text(data[1]);
+                            $('.engagement-minutes').text(data[2]);
+                            $('.engagement-notes').text(data[3]);
+                            $('.engagement-activity').text(data[4]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalEngagementApproval').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "070" || $('.yakkr-code').text().trim() == "071" || $('.yakkr-code').text().trim() == "072") {
+                    var Route = $('.yakkr-code').text().trim() == "070" ? "41" : $('.yakkr-code').text().trim() == "071" ? "42" : $('.yakkr-code').text().trim() == "072" ? "43" : "";
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetParentMessages",
+                        data: { 'YakkrId': YakkrID },
+                        success: function (data) {
+                            $('.client-message').text(data[0]);
+                            $('.client-message-from').text(TeacherName);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+
+                    $('#myModalMailMessage').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "267") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetAlert",
+                        data: { 'HouseHoldId': 0, 'RouteCode': '267', 'Date': Date },
+                        success: function (data) {
+                            console.log(data);
+                            $('.closed-request-teachername').text(data[1]);
+                            var centerID = (data[2] != null) ? data[2].split('$')[0] : 0;
+                            var ClassID = (data[2] != null) ? data[2].split('$')[1] : 0;
+                            var ClassName = (data[2] != null) ? data[2].split('$')[2] : "";
+
+                            $('.closed-request-centername').text(Center).attr('center-id', centerID).attr('date', Date);
+                            $('.closed-request-classroom').text(ClassName).attr({ 'cls-id': ClassID, 'yakkrId': YakkrID });
+
+
+                            $('.btn-classroom-close').show();
+                            $('.btn-classroom-open').show();
+
+                            //if center manager//
+                            if (User == data[3]) {
+                                $('.btn-classroom-close,.btn-classroom-open').hide();
+                                setTimeout(function () {
+                                    $('.cls-teachername,.cls-classroom').hide();
+                                    $('.sp-class-message').text("Center has been closed");
+                                }, 100);
+
+                                $('.classroom-header').text("Center Closure Request");
+                                $('.notes-panel').hide();
+                                $('.classroom-panel-accept-reject').hide();
+                                $('.classroom-panel-staff').hide();
+                            }
+                                //if center manager//
+
+                            else {
+
+                                $('input[name=acceptradio]').prop('checked', false);
+                                $('#CNotes').val(data[4].trim().slice(0, -1));
+                                $('.notes-panel').show();
+                                $('input[name=staffComeRadio]').prop('checked', false);
+
+                                $('.btn-classroom-close,.btn-classroom-open').show();
+                                setTimeout(function () {
+                                    $('.cls-teachername,.cls-classroom').show();
+                                    $('.sp-class-message').text("Teacher wants to close a classroom");
+                                }, 100);
+                                $('.classroom-header').text("Classroom Closure Request");
+                                $('.notes-panel').show();
+                                $('.classroom-panel-accept-reject').show();
+                                $('.classroom-panel-staff').show();
+                            }
+
+                            $('.classroom-panel').show();
+                            $('.btn-classroom-cancel').show();
+
+                            $('.classroom-open-panel').hide();
+                            $('.btn-open-approve').hide();
+                            $('.btn-open-back').hide();
+                            $('.error-message-classroom').hide();
+
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalApprovalForClassRoomOpenCloseRequest').modal('show');
+                }
+
+                else if ($('.yakkr-code').text().trim() == "292") {
+                    $.ajax({
+                        type: "POST",
+                        url: "/Parent/GetAlert",
+                        data: { 'HouseHoldId': YakkrID, 'RouteCode': '292', 'Date': Date },
+                        success: function (data) {
+                            $('.child-referral-teachername').text(TeacherName);
+                            $('.child-referral-centername').text(Center);
+                            $('.child-referral-clientroom').text(ClientName);
+                            $('.child-referral-classname').text(data[0]);
+                            $('.child-referral-message').text(data[1]);
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                    $('#myModalChildReferralNotes').modal('show');
+                }
+                else if ($('.yakkr-code').text().trim() == "700" || $('.yakkr-code').text().trim() == "703") {
+                    if ($('.yakkr-code').text().trim() == "703") {
+                        $('.transportation-header-text').text("Transportation Route Request");
+                        $('.btn-approve-transportation,.btn-reject-transportation').remove();
+                    }
+                    //Transportation request
+                    $('.client-name').text(ClientName);
+                    $.ajax({
+                        dataType: 'json',
+                        type: "POST",
+                        async: false,
+                        url: "/Transportation/GetTransportationandHouseholdDetails",
+                        data: { 'ClientId': ClientId },
+                        success: function (data) {
+
+                            var result = JSON.parse(data);
+                            if (result.Table.length > 0) {
+                                $('.transportation-id').val(result.Table[0].Id);
+                                if (result.Table[0].PickupStatus == "2") {
+                                    $('.pick-up-status').show();
+                                    $('.pick-up-details').hide();
+                                }
+                                else if (result.Table[0].PickupStatus == "1") {
+                                    $('.pick-up-status').hide();
+                                    $('.pick-up-details').show();
+                                    $('.pick-up-address').text(result.Table1[0].Address);
+                                    $('.pick-up-zipcode').text(result.Table1[0].ZipCode);
+                                    $('.pick-up-city').text(result.Table1[0].City);
+                                    $('.pick-up-state').text(result.Table1[0].State);
+                                }
+                                else {
+                                    $('.pick-up-status').hide();
+                                    $('.pickup-details').show();
+                                    $('.pick-up-address').text(result.Table[0].PickupAddress);
+                                    $('.pick-up-zipcode').text(result.Table[0].PickupZipcode);
+                                    $('.pick-up-city').text(result.Table[0].PickupCity);
+                                    $('.pick-up-state').text(result.Table[0].PickupState);
+                                }
+                                if (result.Table[0].DropStatus == "2") {
+                                    $('.drop-status').show();
+                                    $('.drop-details').hide();
+                                }
+                                else if (result.Table[0].DropStatus == "1") {
+                                    $('.drop-status').hide();
+                                    $('.drop-details').show();
+                                    $('.drop-address').text(result.Table1[0].Address);
+                                    $('.drop-zipcode').text(result.Table1[0].ZipCode);
+                                    $('.drop-city').text(result.Table1[0].City);
+                                    $('.drop-state').text(result.Table1[0].State);
+                                }
+                                else {
+                                    $('.drop-status').hide();
+                                    $('.drop-details').show();
+                                    $('.drop-address').text(result.Table[0].DropAddress);
+                                    $('.drop-zipcode').text(result.Table[0].DropZipcode);
+                                    $('.drop-city').text(result.Table[0].DropCity);
+                                    $('.drop-state').text(result.Table[0].DropState);
+                                }
+                            }
+
+                            $('#transportation').modal('show');
+                        },
+                        error: function (data) {
+                        }
+                    });
+                    $('#transportation1').modal('show');
+                }
+
+            });
+
+            $('.btn-close-transportaion').click(function () {
+                $('#transportation1').modal('hide');
+            });
+
+            $('.btn-approve-transportation').click(function () {
+                $.ajax({
+                    dataType: 'json',
+                    type: "POST",
+                    async: false,
+                    url: "/Transportation/AcceptRejectTransportationRequest",
+                    data: { 'ClientId': ClientId, 'YakkrId': YakkrID, 'Status': '1' },
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+                    }
+                });
+            });
+
+            $('.btn-reject-transportation').click(function () {
+                $.ajax({
+                    dataType: 'json',
+                    type: "POST",
+                    async: false,
+                    url: "/Transportation/AcceptRejectTransportationRequest",
+                    data: { 'ClientId': ClientId, 'YakkrId': YakkrID, 'Status': '0' },
+                    success: function (data) {
+                        window.location.href = "/Yakkr/YakkrDetails";
+                    },
+                    error: function (data) {
+                    }
+                });
+            });
+        });
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+    </script>
+}

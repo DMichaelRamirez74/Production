@@ -1,0 +1,413 @@
+﻿@{
+
+    @section Title
+{
+
+       Screening List
+    }
+    ViewBag.Title = "Screening list";
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        $(document).ready(function () {
+            $('#spinner').hide();
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#dashboard').removeClass("active");
+            $('#ClassAssign').removeClass("active");
+            $('#Yakkr').removeClass("active");
+            $('#AddCenter').removeClass("active");
+            $('#Aliadd').removeClass("active");
+            $('#alistaff').removeClass("active");
+            $('#ali1').removeClass("active");
+            $('#ali2').removeClass("active");
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            $('#a2').addClass("active");
+            $('#a1').removeClass("active");
+            drawgrid();
+            $('#gridViewAgency > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    fnChangePage("First");
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/listScreening",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            //getTotalRecord();
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function openScreeningListById(value) {
+            $('#spinner').show();
+            var ScreeningId = $(value).attr("ScreeningId");
+            var url = HostedDir + '/SuperAdmin/ScreeningSuperAdmin/' + ScreeningId;
+            window.location.href = url;
+        }
+        function bindGridUser(data, num_cols) {
+            $('#gridViewAgency > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#divPaging').show();
+                $('#div1').hide();
+                var tbody = $('#gridViewAgency > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+
+                    tr += '<td><a  style="text-decoration: underline;" ScreeningId="' + data.list[i].ScreeningId + '" accesskey="' + data.list[i].ScreeningId + '" onclick=" openScreeningListById(this);" href="#"  >'+ ((typeof (data.list[i].ScreeningName) != 'undefined') && (data.list[i].ScreeningName != null) ? data.list[i].ScreeningName : '') + '</a></td>';
+                    //tr += '<td><a  style="text-decoration: underline;" href="' + HostedDir + '/SuperAdmin/ScreeningSuperAdmin/' + data.list[i].ScreeningId + '" accesskey="' + data.list[i].ScreeningId + '" >' + ((typeof (data.list[i].ScreeningName) != 'undefined') && (data.list[i].ScreeningName != null) ? data.list[i].ScreeningName : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data.list[i].AgencyName) != 'undefined') && (data.list[i].AgencyName != null) ? data.list[i].AgencyName : '') + " </td>";
+                    tr += "<td>" + ((typeof (data.list[i].ScreeningFor) != 'undefined') && (data.list[i].ScreeningFor != null) ? data.list[i].ScreeningFor : '') + " </td>";
+                    tr += "<td>" + ((typeof (data.list[i].CreatedOn) != 'undefined') && (data.list[i].CreatedOn != null) ? data.list[i].CreatedOn : '') + "</td>";
+                    tr += "<td><a href='#' onclick='deleteScreening(this);' accesskey=" + data.list[i].ScreeningId + ">Delete</td></tr>";
+                    $('#gridViewAgency > tbody').append(tr);
+                }
+            }
+        }
+        
+       
+        function deleteScreening(value) {
+            BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/SuperAdmin/DeleteScreening",
+                        type: "POST",
+                        data: {
+                            id: $(value).attr("accesskey")
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Record deleted successfully.");
+                                cleargrid();
+                            }
+                            if (response == 3) {
+                                customAlert("Cannot remove record. Already used in child screening.");
+                                
+                            }
+                        }
+                      , error: function (response) {
+                             customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                      }
+                    });
+                }
+            });
+
+        }
+</script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Screening List
+                <span class="view-btn">
+                    <a href="~/SuperAdmin/ScreeningSuperAdmin"><button type="button">Add New Screening</button> </a>
+
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th id="thIN">Screening Name<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                            <th id="thCust">Agency Name<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thSN">Screening For<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thMN">Created On<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                            <th id="thCN">Delete<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align: center; display: none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+

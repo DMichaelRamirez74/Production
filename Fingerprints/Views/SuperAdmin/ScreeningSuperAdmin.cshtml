@@ -1,0 +1,961 @@
+﻿@model FingerprintsModel.ScreeningSuperAdmin
+@using System.Data
+@{
+    @section Title
+{
+
+        Screening
+    }
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        var questioncount = 1;
+        var isValid = true;
+        $(document).ready(function () {
+
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#dashboard').removeClass("active");
+            $('#ClassAssign').removeClass("active");
+            $('#Aliadd').removeClass("active");
+            $('#alistaff').removeClass("active");
+            $('#ali1').removeClass("active");
+            $('#ali2').removeClass("active");
+            $('#Yakkr').removeClass("active");
+            if ($('.Question0').val() == "")
+                $('.empty0').val("");
+            $("#ScreeningDate").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            if ($('#HiddenRoleID').val() == "") {
+                $('#Rolename').val("");
+
+            }
+
+
+            try {
+                $("#AgencyName").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/Agency/AutoCompleteAgency",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term, Active: "1" },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.agencyName, id: item.agencyId
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#HiddenAgencyId').val(ui.item.id);
+                    },
+                    messages: {
+                        noResults: "", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+
+        });
+
+        function AddOption(object) {
+            $(object).parent().parent().parent().append('<div class="col-lg-12 col-md-12 col-sm-12"><div class="col-lg-2 col-md-2 col-sm-2">' +
+                                        '<div class="form-group"></div> </div> <div class="col-lg-4 col-md-4 col-sm-4"><div class="form-group">' +
+                                        '<input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" /> <input value="0" type="hidden" /> <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a></div> </div></div>');
+        }
+        function AddQuestion(object) {
+            $('#divquestion').prepend('   <div class="col-sm-12 income-box Question">  ' +
+    '                                       <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>  ' +
+    '                                       <div class="col-lg-12 col-md-12 col-sm-12">  ' +
+    '                                           <div class="col-lg-6 col-md-6 col-sm-6">  ' +
+    '                                               <div class="form-group">  ' +
+    '                                                   <label for="email">Question<sup>*</sup></label>  ' +
+    '                                                   <input name="Question" id="Question" placeholder="Question" maxlength="100" class="form-control Ques Question' + questioncount + '" /> <input value="0" type="hidden" />  ' +
+    '                                               </div>  ' +
+    '                                           </div><div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">  <input type="checkbox" class="required" style="float:none;" />' +
+                                             '    <span style="color:red;"> Is Mandatory? </span> </div>' +
+    '                                       </div>  ' +
+    '                                       <div class="col-lg-12 col-md-12 col-sm-12">  ' +
+    '                                           <div class="col-lg-6 col-md-6 col-sm-6">  ' +
+    '                                               <div class="form-group">  ' +
+    '                                                   <label for="email">Question Type  <sup>*</sup></label>  ' +
+    '                                                   <select class="form-control selectquetion empty' + questioncount + '" onchange="RemoveAddoption(this);">  ' +
+    '                                                       <option value="1">Checkbox</option>  ' +
+    '                                                       <option value="2">Date</option>  ' +
+    '                                                       <option value="3">Dropdown</option>  ' +
+    '                                                       <option value="4">Radio</option>  ' +
+    '                                                       <option value="5">Text</option><option value="6">Integer</option>  ' +
+    '                                                   </select>  ' +
+    '                                               </div>  ' +
+    '                                           </div>  ' +
+    '                                       </div>  ' +
+    '                                  </div>  ');
+            if ($('.Question' + questioncount).val() == "")
+                $('.empty' + questioncount).val("");
+            questioncount = questioncount + 1;
+        }
+        function RemoveAddoption(object) {
+
+            if ($(object).val() == 2 || $(object).val() == 5 || $(object).val() == 6) {
+
+                $(object).parent().parent().parent().parent().children("div.Addoption").hide();
+
+            }
+            else {
+
+                if ($(object).parent().parent().parent().parent().children("div.Addoption").length < 1) {
+
+
+                    $(object).parent().parent().parent().parent().append(' <div class="Addoption">  ' +
+     '                                           <div class="col-lg-12 col-md-12 col-sm-12">  ' +
+     '                                               <div class="col-lg-6 col-md-6 col-sm-6">  ' +
+     '                                                   <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>  ' +
+     '                                               </div></div><div class="col-lg-12 col-md-12 col-sm-12">  ' +
+     '                                               <div class="col-lg-2 col-md-2 col-sm-2"><div class="form-group"></div>  </div> <div class="col-lg-4 col-md-4 col-sm-4">  ' +
+     '                                                   <div class="form-group">  ' +
+     '                                                       <input  placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" /> <input value="0" type="hidden" />  ' +
+     '                                                       <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>  ' +
+                                                     '</div>   </div> </div> <div class="col-lg-12 col-md-12 col-sm-12"><div class="col-lg-2 col-md-2 col-sm-2">' +
+                                            '<div class="form-group"></div> </div> <div class="col-lg-4 col-md-4 col-sm-4"><div class="form-group">' +
+                                            '<input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" /> <input value="0" type="hidden" /> <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a></div> </div></div>  </div>  ');
+
+
+                }
+                else {
+                    $(object).parent().parent().parent().parent().children("div.Addoption").show();
+
+                }
+
+            }
+        }
+        function isValidScreening() {
+            $('#spinner').show();
+            cleanValidation();
+            var isValid = true;
+            if ($('#HiddenAgencyId').val() == "" || $('#HiddenAgencyId').val() == "0") {
+                customAlert("Agency is required.");
+                plainValidation('#AgencyName');
+            }
+            else if ($('#ScreeningName').val().trim() == "") {
+                customAlert("Screening name is required.");
+                plainValidation('#ScreeningName');
+            }
+            else if ($('#Rolename').val() == "" || $('#Rolename').val() == null) {
+                customAlert("Screening for is required.");
+                plainValidation('#Rolename');
+            }
+
+            else if (!$("input:radio[name='Programtype']").is(":checked")) {
+                customAlert("Program type is required. ");
+            }
+            //else if ($('#ScreeningDate').val().trim() == "" || $('#ScreeningDate').val() == "MM/DD/YYYY") {
+            //    customAlert("Screening date is required.");
+            //    plainValidation('#ScreeningDate');
+            //}
+            else {
+                var question = [];
+                var _question = [];
+                var option = [];
+                var _option = [];
+                $('.Question').each(function () {
+                    if (!isValid)
+                        return false;
+                    if ($(this).children().find('.Ques').val().trim() == "") {
+                        customAlert("Question is required.");
+                        plainValidation($(this).children().find('.Ques'));
+                        isValid = false;
+                        return false;
+                    }
+                    else {
+                        question.push($(this).children().find('.Ques').val().trim().toUpperCase());
+                    }
+                    if ($(this).children().find('.selectquetion').val() == "" || $(this).children().find('.selectquetion').val() == null) {
+                        customAlert("Question type is required.");
+                        plainValidation($(this).children().find('.selectquetion'));
+                        isValid = false;
+                        return false;
+                    }
+                    if ($(this).children().find('.selectquetion').val() == 1 || $(this).children().find('.selectquetion').val() == 3
+                          || $(this).children().find('.selectquetion').val() == 4) {
+                        $(this).children().find('.Option').each(function () {
+                            if ($(this).val().trim() == "") {
+                                customAlert("Option is required.");
+                                plainValidation($(this));
+                                isValid = false;
+                                return false;
+                            }
+                            else {
+                                option.push($(this).val().trim().toUpperCase());
+                            }
+                        });
+                        if (isValid) {
+                            if ($(this).children().find('.Option').length > 0 && $(this).children().find('.Option').length < 2) {
+                                customAlert("There should be atleast two options in question.");
+                                isValid = false;
+                                return false;
+                            }
+                        }
+                        if (option.length > 0) {
+                            _option = option.sort();
+                            for (var i = 0; i < _option.length - 1; i++) {
+                                if (_option[i + 1] == _option[i]) {
+                                    isValid = false;
+                                    customAlert("Option can't be duplicate in question.");
+                                    $(this).children().find('.Option').each(function () {
+                                        plainValidation($(this));
+                                    });
+
+                                    return isValid;
+                                }
+                            }
+                        }
+                        option = [];
+                        _option = [];
+                    }
+                });
+
+                if (question.length > 0) {
+                    _question = question.sort();
+                    for (var i = 0; i < _question.length - 1; i++) {
+                        if (_question[i + 1] == _question[i]) {
+                            isValid = false;
+                            customAlert("Question can't be duplicate in screening.");
+                            $('.Question').each(function () {
+                                plainValidation($(this).children().find('.Ques'));
+                            });
+                            return isValid;
+                        }
+                    }
+                }
+                if (isValid) {
+                    var Questionlist = [];
+                    var _Questionlist = [];
+                    var OptionList = new Array();
+                    var question = null;
+                    var questiontype = null;
+                    var required = null;
+                    $('.Question').each(function () {
+                        question = $(this).children().find('.Ques').val();
+                        questionid = $(this).children().find('.Ques').next().val();
+                        required = $(this).children().find('.required').prop("checked");
+                        questiontype = $(this).children().find('.selectquetion').val();
+                        var i = 0;
+
+                        if (questiontype == 1 || questiontype == 3 || questiontype == 4) {
+                            $(this).children().find('.Option').each(function () {
+                                var _OptionList = [];
+                                _OptionList = {
+                                    Option: $(this).val().replace("$", ""),
+                                    OptionId: $(this).next().val()
+                                };
+                                OptionList[i] = _OptionList;
+                                i = i + 1;
+                            });
+                        }
+
+
+                        _Questionlist = {
+                            QuestionId: questionid,
+                            Question: question,
+                            QuestionType: questiontype,
+                            OptionList: OptionList,
+                            Required: required
+                        };
+                        Questionlist.push(_Questionlist);
+                        OptionList = [];
+                        question = null;
+                        questiontype = null;
+                        i = 0;
+                    });
+
+                    if (Questionlist != null && Questionlist.length > 0) {
+                        $.ajax({
+                            contentType: 'application/json; charset=utf-8',
+                            url: HostedDir + "/SuperAdmin/Screening",
+                            type: "POST",
+                            data:
+                                JSON.stringify({
+                                    'Questionlist': Questionlist,
+                                    ScreeningId: $('#ScreeningId').val(),
+                                    ScreeningName: $('#ScreeningName').val(),
+                                    AgencyId: $('#HiddenAgencyId').val(),
+                                    Screeningfor: $('#Rolename').val(),
+                                    Programtype: $('input[name=Programtype]:checked').val(),
+                                    Document: $('#Allowdoc').prop("checked"),
+                                    ScreeningDate: $('#ScreeningDate').val(),
+                                    Inintake: $('#Inintake').prop("checked")
+                                }),
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            success: function (response) {
+                                if (response == 1) {
+                                    window.location.href = HostedDir + '/SuperAdmin/Screeninglist/';
+                                }
+                                else if (response == 2) {
+                                    customAlert("Screening name already exists.");
+                                }
+                                else {
+                                    customAlert("Error occured please try again later.");
+
+                                }
+
+
+                            }
+                                        , error: function (response) {
+                                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                                        }
+                        });
+
+
+                    }
+                    else {
+                        customAlert("No record to save.");
+                    }
+                }
+            }
+            $('#spinner').hide();
+        }
+        function DeleteQuestion(value) {
+            if ($(value).attr("accesskey")) {
+
+                if ($('.Question').length > 1) {
+
+                    BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: HostedDir + "/SuperAdmin/DeleteQuestion",
+                                type: "POST",
+                                data: {
+                                    Questionid: $(value).attr("accesskey"),
+                                    Screeningid: $('#ScreeningId').val()
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response == 1) {
+                                        customAlert("Record removed successfully.");
+                                        $(value).parent().parent().remove();
+                                    }
+                                    if (response == 3) {
+                                        customAlert("Cannot remove record. Already used in child screening.");
+                                    }
+                                }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                            });
+                        }
+                    });
+
+                }
+                else {
+                    customAlert("There should be atleast one question in screening.");
+
+                }
+            }
+            else {
+
+                if ($('.Question').length > 1) {
+                    $(value).parent().parent().remove();
+                }
+                else {
+                    customAlert("There should be atleast one question in screening.");
+
+                }
+            }
+
+        }
+        function Removeoption(value) {
+
+            if ($(value).attr("accesskey")) {
+                if ($(value).parents('Div.Addoption').children().find('.Option').length > 2) {
+                    BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: HostedDir + "/SuperAdmin/DeleteOption",
+                                type: "POST",
+                                data: {
+                                    Optionid: $(value).attr("accesskey")
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response == 1) {
+                                        customAlert("Record removed successfully.");
+                                        $(value).parent().parent().parent().remove();
+                                    }
+                                    if (response == 3) {
+                                        customAlert("Cannot remove record. Already used in child screening.");
+                                    }
+                                }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                            });
+                        }
+                    });
+
+                }
+                else {
+                    customAlert("There should be atleast two options in question.");
+
+                }
+            }
+            else {
+
+
+                if ($(value).parents('Div.Addoption').children().find('.Option').length > 2) {
+                    $(value).parent().parent().parent().remove();
+                }
+                else {
+
+                    customAlert("There should be atleast two options in question.");
+                }
+
+
+            }
+
+        }
+        function Golist() {
+            window.location.href = HostedDir + '/SuperAdmin/Screeninglist/';
+
+        }
+
+
+
+        function validatedate1(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+
+                    var date = new Date();
+                    var currentdate = Date.parse(date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear());
+                    if (Date.parse($(inputTextObject).val()) < currentdate) {
+                        customAlert("Screening date must be equal or  greater than today date. ");
+                        $(inputTextObject).val('');
+                        plainValidation(inputTextObject);
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+
+                }
+                else {
+                    customAlert("Invalid Date. ");
+                    $(inputTextObject).val('');
+                    plainValidation(inputTextObject);
+                    return false;
+                }
+
+            }
+        }
+
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+
+
+                @if (ViewBag.mode == 0)
+                {
+                    <span>Add Screening</span>
+                }
+                else
+                {
+
+                    <span>Edit Screening</span>
+                }
+
+
+
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <a href="~/SuperAdmin/Screeninglist" class="backto_list">Back to list</a>
+                </span>
+            </h2>
+        </div>
+    </div>
+    @{
+        string screeningid = "0";
+        string screeningname = "";
+        string Agencyid = "";
+        string AgencyName = "";
+        string roleid = "";
+        string programtype = "";
+        bool Documentupload = false;
+        //string screeningdate = "";
+        bool Familyintake = false;
+        try
+        {
+
+            if (ViewBag.screening != null && (DataTable)ViewBag.screening != null && ((DataTable)ViewBag.screening).Rows.Count > 0)
+            {
+                DataTable Screening = ((DataTable)ViewBag.screening).DefaultView.ToTable(true, "ScreeningID", "ScreeningName", "AgencyId", "AgencyName", "Screeningfor", "Programtype", "DocumentUpload",  "InIntake");
+                foreach (DataRow Row in Screening.Rows)
+                {
+                    screeningid = Convert.ToString(@Row["ScreeningID"]);
+                    screeningname = Convert.ToString(@Row["ScreeningName"]);
+                    Agencyid = Convert.ToString(@Row["AgencyId"]);
+                    AgencyName = Convert.ToString(@Row["AgencyName"]);
+                    roleid = Convert.ToString(@Row["Screeningfor"]);
+                    programtype = Convert.ToString(@Row["Programtype"]);
+                    Documentupload = Convert.ToBoolean(@Row["DocumentUpload"]);
+                    //screeningdate = Convert.ToDateTime(@Row["ScreeningExpiringDate"]).ToString("MM/dd/yyyy");
+                    Familyintake = Convert.ToBoolean(@Row["InIntake"]);
+                }
+            }
+            
+        }
+        catch (Exception Ex)
+        {
+            FingerprintsModel.clsError.WriteException(Ex);
+        }
+    }
+    <form method="post" role="form" id="form1" autocomplete="off">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="add-useragform add-screening add-screeningcheckbox ">
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="email">Agency Name  <sup>*</sup></label>
+                                @if (ViewBag.mode == 0)
+                                {
+                                    <input type="text" placeholder="Agency Name" value="@AgencyName" name="AgencyName" id="AgencyName" class="form-control" maxlength="50" />
+                                }
+                                else
+                                {
+                                    <input type="text" readonly="readonly" placeholder="Agency Name" value="@AgencyName" name="AgencyName" id="AgencyName" class="form-control" maxlength="50" />
+                                }
+                                <input name="HiddenAgencyId" id="HiddenAgencyId" type="hidden" value="@Agencyid" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="email">Screening Name  <sup>*</sup></label>
+                                <input placeholder="Screening Name" id="ScreeningName" value="@screeningname" name="ScreeningName" class="form-control" maxlength="30" />
+                                <input name="ScreeningId" id="ScreeningId" value="@screeningid" type="hidden" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="email">Screening For  <sup>*</sup></label>
+                                <select id="Rolename" class="form-control">
+
+                                    <option value="1" @if (@roleid == "1") { <text> selected="selected" </text>  }>Health/Nurse</option>
+                                    <option value="2" @if (@roleid == "2") { <text> selected="selected" </text>   }>Home Visitor/Teacher</option>
+
+                                </select>
+                                <input name="HiddenRoleID" id="HiddenRoleID" value="@roleid" type="hidden" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full"> Program Type <sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                        <input name="Programtype" id="Programtype1" @if (@programtype == "1") { <text> checked="checked" </text>    } type="radio" value="1">
+
+                                        <span>EHS</span>
+                                    </div>
+                                    <div class="col-sm-6 col-md-6 col-lg-6">
+                                        <input name="Programtype" id="Programtype2" @if (@programtype == "2") { <text> checked="checked" </text>    } type="radio" value="2">
+
+                                        <span>HS</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+
+                        @*<div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="email">Screening Date <sup>*</sup></label>
+                                <input id="ScreeningDate" value="@screeningdate" placeholder="MM/DD/YYYY" onblur="validatedate1(this);" class="form-control" maxlength="30" />
+
+                            </div>
+                        </div>*@
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full"> Document Upload?</label>
+                                <div class="cont-sz">
+                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                        <input type="checkbox" id="Allowdoc" @if (@Documentupload) { <text> checked="checked" </text>    } style="float:left;margin-top:auto;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full"> Used for Intake?</label>
+                                <div class="cont-sz">
+                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                        <input type="checkbox" id="Inintake" @if (@Familyintake) { <text> checked="checked" </text>      } style="float:left;margin-top:auto;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                     
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-5 col-md-5 col-sm-5">
+                            <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddQuestion(this);"> Add Question <i class="fa fa-plus"></i></a>
+                        </div>
+                    </div>
+                    <div id="divquestion">
+                        @{
+                            try
+                            {
+
+                                if (ViewBag.mode == 0)
+                                {
+
+                                    <div class="col-sm-12 income-box Question">
+                                        <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Question<sup>*</sup></label>
+                                                    <input placeholder="Question" maxlength="100" class="form-control Ques Question0" />
+                                                    <input value="0" type="hidden" />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
+                                                <input type="checkbox" class="required" style="float:none;" />
+                                                <span style="color:red;"> Is Mandatory? </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Question Type  <sup>*</sup></label>
+                                                    <select class="form-control selectquetion empty0" onchange="RemoveAddoption(this);">
+                                                        <option value="1">Checkbox</option>
+                                                        <option value="2">Date</option>
+                                                        <option value="3">Dropdown</option>
+                                                        <option value="4">Radio</option>
+                                                        <option value="5">Text</option>
+                                                        <option value="6">Integer</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 income-box Question">
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Question<sup>*</sup></label>
+                                                    <input placeholder="Question" maxlength="100" value="Status" readonly="readonly" class="form-control Ques" />
+                                                    <input value="0" type="hidden" />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
+                                                <input type="checkbox" class="required" style="float:none;" checked="checked" disabled="disabled" />
+                                                <span style="color:red;"> Is Mandatory? </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Question Type  <sup>*</sup></label>
+                                                    <select class="form-control selectquetion" disabled="disabled" onchange=" removeaddoption(this);">
+                                                        <option value="1">Checkbox</option>
+                                                        <option value="2">Date</option>
+                                                        <option selected="selected" value="3">Dropdown</option>
+                                                        <option value="4">Radio</option>
+                                                        <option value="5">Text</option>
+                                                        <option value="6">Integer</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="Addoption">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>
+                                                </div>
+                                            </div>
+
+                                        
+                                         
+
+                                            @*Start of fixed status option*@
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="col-lg-2 col-md-2 col-sm-2">
+                                                    <div class="form-group">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="form-group">
+                                                        <input placeholder="Option" style="width:93%;" maxlength="100" value="Pass" readonly="readonly" class="form-control Option" />
+                                                        <input value="0" type="hidden" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="col-lg-2 col-md-2 col-sm-2">
+                                                    <div class="form-group">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="form-group">
+                                                        <input placeholder="Option" style="width:93%;" value="Fail" readonly="readonly" maxlength=" 100" class="form-control Option" />
+                                                        <input value="0" type="hidden" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="col-lg-2 col-md-2 col-sm-2">
+                                                    <div class="form-group">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="form-group">
+                                                        <input placeholder="Option" style="width:93%;" maxlength="100" value="Rescreen" readonly="readonly" class="form-control Option" />
+                                                        <input value="0" type="hidden" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="col-lg-2 col-md-2 col-sm-2">
+                                                    <div class="form-group">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="form-group">
+                                                        <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="Follow-up" readonly="readonly" />
+                                                        <input value="0" type="hidden" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @*End of fixed status option*@
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="col-lg-2 col-md-2 col-sm-2">
+                                                    <div class="form-group">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                                    <div class="form-group">
+                                                        <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" />
+                                                        <input value="0" type="hidden" />
+                                                        <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                   <div class="col-sm-12 income-box Question">
+                                        <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Question<sup>*</sup></label>
+                                                    <input value="Screening Date" readonly="readonly" Question" maxlength="100" class="form-control Ques"> 
+                                                    <input value="0" type="hidden">
+                                                </div>
+                                            </div><div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
+                                                      <input type="checkbox" checked="checked" disabled="disabled" class="required" style="float:none;">
+                                                <span style="color:red;"> Is Mandatory? </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Question Type  <sup>*</sup></label>
+                                                    <select disabled="disabled" class="form-control selectquetion" onchange="RemoveAddoption(this);">
+                                                        <option value="1">Checkbox</option>
+                                                        <option selected="selected" value="2">Date</option>
+                                                        <option value="3">Dropdown</option>
+                                                        <option value="4">Radio</option>
+                                                        <option value="5">Text</option>
+                                                        <option value="6">Integer</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (ViewBag.screening != null && (DataTable)ViewBag.screening != null && ((DataTable)ViewBag.screening).Rows.Count > 0)
+                                    {
+                                        DataTable Questions = ((DataTable)ViewBag.screening).DefaultView.ToTable(true, "QuestionID", "Question", "QuestionType", "Required");
+                                        foreach (DataRow Row in Questions.Rows)
+                                        {
+
+                                            <div class="col-sm-12 income-box Question">
+                                                <div class="income-close"><a onclick="DeleteQuestion(this);" accesskey="@Convert.ToString(@Row["QuestionID"])" href="#"><i class="fa fa-times"></i></a></div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                                        <div class="form-group">
+                                                            <label for="email">Question<sup>*</sup></label>
+                                                            @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
+                                                            {
+                                                                <input placeholder="Question" readonly="readonly" value="@Convert.ToString(@Row["Question"])" maxlength="100" class="form-control Ques" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input placeholder="Question" value="@Convert.ToString(@Row["Question"])" maxlength="100" class="form-control Ques" />
+                                                            }
+                                                            <input value="@Convert.ToString(@Row["QuestionID"])" type="hidden" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
+                                                        @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
+                                                        {
+
+
+                                                            if (@Convert.ToBoolean(@Row["Required"]))
+                                                            {
+                                                                <input type="checkbox" disabled="disabled" checked="checked" class="required" style="float:none;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="checkbox" disabled="disabled" class="required" style="float:none;" />
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+
+                                                            if (@Convert.ToBoolean(@Row["Required"]))
+                                                            {
+                                                                <input type="checkbox" checked="checked" class="required" style="float:none;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="checkbox" class="required" style="float:none;" />
+                                                            }
+                                                        }
+                                                        <span style="color:red;"> Is Mandatory? </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                                        <div class="form-group">
+                                                            <label for="email">Question Type  <sup>*</sup></label>
+                                                            @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
+                                                            {
+                                                                <select disabled="disabled" class="form-control selectquetion" onchange="RemoveAddoption(this);">
+                                                                    <option value="1" @if (Convert.ToString(@Row["QuestionType"]) == "1") { <text> selected="selected" </text>           }>Checkbox</option>
+                                                                    <option value="2" @if (Convert.ToString(@Row["QuestionType"]) == "2") { <text> selected="selected" </text>           }>Date</option>
+                                                                    <option value="3" @if (Convert.ToString(@Row["QuestionType"]) == "3") { <text> selected="selected" </text>           }>Dropdown</option>
+                                                                    <option value="4" @if (Convert.ToString(@Row["QuestionType"]) == "4") { <text> selected="selected" </text>           }>Radio</option>
+                                                                    <option value="5" @if (Convert.ToString(@Row["QuestionType"]) == "5") { <text> selected="selected" </text>           }>Text</option>
+                                                                    <option value="6" @if (Convert.ToString(@Row["QuestionType"]) == "6") { <text> selected="selected" </text>           }>Integer</option>
+                                                                </select>
+                                                            }
+                                                            else
+                                                            {
+                                                                <select class="form-control selectquetion" onchange="RemoveAddoption(this);">
+                                                                    <option value="1" @if (Convert.ToString(@Row["QuestionType"]) == "1") { <text> selected="selected" </text>           }>Checkbox</option>
+                                                                    <option value="2" @if (Convert.ToString(@Row["QuestionType"]) == "2") { <text> selected="selected" </text>           }>Date</option>
+                                                                    <option value="3" @if (Convert.ToString(@Row["QuestionType"]) == "3") { <text> selected="selected" </text>           }>Dropdown</option>
+                                                                    <option value="4" @if (Convert.ToString(@Row["QuestionType"]) == "4") { <text> selected="selected" </text>           }>Radio</option>
+                                                                    <option value="5" @if (Convert.ToString(@Row["QuestionType"]) == "5") { <text> selected="selected" </text>           }>Text</option>
+                                                                    <option value="6" @if (Convert.ToString(@Row["QuestionType"]) == "6") { <text> selected="selected" </text>           }>Integer</option>
+                                                                </select>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (Convert.ToString(@Row["QuestionType"]) == "1" || Convert.ToString(@Row["QuestionType"]) == "3" || Convert.ToString(@Row["QuestionType"]) == "4")
+                                                {
+
+                                                    DataRow[] rows = ((DataTable)ViewBag.screening).Select("QuestionID=" + Convert.ToString(@Row["QuestionID"]));
+                                                    <div class="Addoption">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>
+                                                            </div>
+                                                        </div>
+                                                        @foreach (var items in rows)
+                                                        {
+                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                <div class="col-lg-2 col-md-2 col-sm-2"><div class="form-group"></div>  </div> <div class="col-lg-4 col-md-4 col-sm-4">
+                                                                    <div class="form-group">
+
+                                                                        @if (Convert.ToString(Row["Question"]) == "Status")
+                                                                        {
+                                                                            if (Convert.ToString(items["Optionname"]).ToUpper() == "PASS" || Convert.ToString(items["Optionname"]).ToUpper() == "FAIL"
+                                                                                || Convert.ToString(items["Optionname"]).ToUpper() == "RESCREEN" || Convert.ToString(items["Optionname"]).ToUpper() == "FOLLOW-UP")
+                                                                            {
+                                                                              <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="@Convert.ToString(@items["Optionname"])"  readonly="readonly"/>   
+                                                                              <input value="@Convert.ToString(@items["Optionid"])" type="hidden" />
+                                                                            }
+                                                                            else
+                                                                            {   
+                                                                             <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="@Convert.ToString(@items["Optionname"])" />    
+                                                                             <input value="@Convert.ToString(@items["Optionid"])" type="hidden" />
+                                                                             <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" accesskey="@Convert.ToString(@items["Optionid"])" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
+                                                                            }
+                                                                            
+                                                                            
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="@Convert.ToString(@items["Optionname"])" /> 
+                                                                             <input value="@Convert.ToString(@items["Optionid"])" type="hidden" />
+                                                                             <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" accesskey="@Convert.ToString(@items["Optionid"])" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception Ex)
+                            {
+                                FingerprintsModel.clsError.WriteException(Ex);
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+                            <button type="button" class="my-btn" onclick="return isValidScreening();">Submit</button>
+
+                            <button onclick="Golist();" class="my-btn" type="button">Cancel</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+
+
+

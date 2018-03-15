@@ -1,0 +1,335 @@
+﻿@model FingerprintsModel.DomainObservationResults
+@{
+    @section Title{
+        Domain Observation Results
+    }
+    ViewBag.Title = "DomainObservationResults";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+    var Domainname = "";
+}
+
+
+@section Script{
+
+}
+@section MainContentHolder{
+    <link href="~/Content/csschild/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/csschild/style.css" rel="stylesheet" />
+    <link href="~/Content/csschild/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .pad-change .Sequence-content-desc2 p {
+    font-size: 15px !important;
+    height: auto !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+    </style>
+    <div class="container-fluid">
+        <div class="row" style="background: url('../../Content/imagechild/body-bg.jpg') center no-repeat;background-size:cover;">
+            <div class="col-xs-12 no-padding">
+                <div class="observation-title-client">
+                    <h1>OBSERVATION NOTE</h1>
+                </div>
+            </div>
+
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12">
+                    <div class="obn_observation-btn">
+                        @if (!string.IsNullOrEmpty(Model.ChildName))
+                        {
+                            <a href="~/Roster/ObservationNote?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@Model.ChildId.ToString())&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@Model.ChildName.ToString())">Add New Observation Notes</a>
+                        }
+                        else
+                        {
+                            <a href="~/Roster/ObservationNote">Add New Observation Notes</a>
+                        }
+                        
+                    </div>
+                </div>
+                <div class="col-xs-12 serch-client-block">
+                    <div class="domain-top-header-title-client">
+                        <h1>Domain Observation Results</h1>
+                    </div>
+
+                    <div class="col-xs-12" style="background: rgb(241, 245, 248);border-radius: 0px 0px 5px 5px;padding: 10px;">
+                        <div class="col-xs-12 no-padding">
+
+                            <!--Domain Section-->
+
+                            <div class="col-lg-2 col-md-3 col-sm-12 col-xs-12 domain-pad-change">
+                                <div class="domain-education-content-desc2">
+                                    <p>DOMAIN</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-10 col-md-9 col-sm-12 col-xs-12 domain-pad-change">
+                                <div class="domain-education-content-desc">
+                                    @foreach (var domain in Model.lstDomain)
+                                    {
+                                        
+                                        <div class="dor_1 dor_col">
+                                            <a title="@domain.Name">
+                                                <p>@domain.Id</p>
+                                            </a>
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!--Count Section-->
+                        <div class="col-xs-12 no-padding">
+                            <div class="col-lg-2 col-md-3 col-sm-12 col-xs-12 count-pad-change">
+                                <div class="count-education-content-desc2">
+                                    <p>COUNT</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-10 col-md-9 col-sm-12 col-xs-12 count-pad-change">
+                                <div class="count-education-content-desc">
+                                    @foreach (var domain in Model.lstDomain)
+                                    {
+
+                                        <div class="dor_1 dor_col">
+                                            <p>@domain.Count</p>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-xs-12 serch-client-block">
+                    <div class="domain-top-header-title-client">
+                        <h1>List of Notes in Domain Sequence</h1>
+                    </div>
+                    <div class="col-xs-12" style="background: rgb(241, 245, 248);border-radius: 0px 0px 5px 5px;padding: 10px;">
+                        <div class="col-xs-12 no-padding">
+
+                            <div class="col-xs-12 pad-change">
+                                <div class="Sequence-content-desc2">
+                                    <p style="background: none;border: none;text-align: right;padding:0;">By Date</p>
+                                </div>
+                            </div>
+
+                        </div>
+                        @foreach (var objNotes in Model.lstNotes)
+                        {
+                            if (Domainname != @objNotes.Name)
+                            {
+                                Domainname = @objNotes.Name;
+                                <div class="col-xs-12 pad-change">
+                                    <div class="Sequence-content-desc2">
+                                        <h1 style="background: none;border: none;text-align: left; font-weight:800;">@objNotes.Name</h1>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="background: none;border: none;text-align: left; font-weight:bold;font-size:16px;color:#333;padding-left:0;">Date</p>
+                                        </div>
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Date</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="background: none;border: none;text-align: left; font-weight:bold;font-size:16px;color:#333;padding-left:0;">Title</p>
+                                        </div>
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;"><a href="~/Roster/ObservationNote?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@Model.ChildId.ToString())&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@Model.ChildName.ToString())&NoteId=@objNotes.NoteId">@objNotes.Title</a></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="background: none;border: none;text-align: left; font-weight:bold;font-size:16px;color:#333;padding-left:0;">Notes</p>
+                                        </div>
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Note</p>
+                                        </div>
+                                    </div>
+                                  
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="background: none;border: none;text-align: left; font-weight:bold;font-size:16px;color:#333;padding-left:0;">Element</p>
+                                        </div>
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Element</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="background: none;border: none;text-align: left; font-weight:bold;font-size:16px;color:#333;padding-left:0;">Attachments</p>
+                                        </div>
+                                        @*<div class="Sequence-content-desc2">
+                                            <input type="hidden" class="hdn-note-id" value="@objNotes.NoteId" />
+                                            <p style="height: 45px;" class="det_btn"><a href="javascript:void(0);" class="show-attachments">Detail</a></p>
+                                        </div>*@
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Attchment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-xs-12 no-padding">
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Date</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;"><a href="~/Roster/ObservationNote?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@Model.ChildId.ToString())&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@Model.ChildName.ToString())&NoteId=@objNotes.NoteId">@objNotes.Title</a></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Note</p>
+                                        </div>
+                                    </div>
+                                   
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Element</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <p style="height: 45px;">@objNotes.Attchment</p>
+                                        </div>
+                                    </div>
+                                    @*<div class="col-lg-2 col-sm-6 col-md-6 col-xs-12 pad-change">
+                                        <div class="Sequence-content-desc2">
+                                            <input type="hidden" class="hdn-note-id" value="@objNotes.NoteId" />
+                                            <p style="height: 45px;" class="det_btn"><a href="javascript:void(0);" class="show-attachments">Detail</a></p>
+                                        </div>
+                                    </div>*@
+                                </div>
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModalAttachments" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Attachment Details</label>
+                </div>
+                @*<div class="form-group-al">*@
+                <div class="form-group">
+                    <div class="div-screen-results">
+                        <table class="table table_size table-change" id="tblAttchments">
+                            <thead style="cursor:pointer;">
+                                <tr><th>S.No</th><th>Filename</th><th>Action</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                @*</div>*@
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Content/scriptchild/jquery.js"></script>
+    <script src="~/Content/scriptchild/bootstrap.js"></script>
+    <script src="~/Content/scriptchild/script.js"></script>
+    <script src="~/Content/scriptchild/jquery.mCustomScrollbar.min.js"></script>
+    @*<script src="~/Content/Scripts/jquery.min.js"></script>*@
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var linkys = document.getElementsByClassName('dropdown-toggle');
+            for (var i = 0; i < linkys.length; ++i) {
+                linkys[i].onclick = function (e) {
+                    this.focus();
+                    e.preventDefault();
+                };
+            }
+            $('body').on('click', '.show-attachments', function () {
+                var NoteId=$(this).closest('div').find('.hdn-note-id').val();
+                $.ajax({
+                    type: "POST",
+                    url: "/Teacher/GetAttachmentByNoteId",
+                    data: { 'NoteId': NoteId },
+                    success: function (data) {
+                        console.log(data);
+                        console.log(JSON.parse(data));
+                        $('#tblAttchments tbody').empty();
+                        if (JSON.parse(data).length > 0)
+                        {
+                            $.each(JSON.parse(data), function (i, val) {
+
+                                var filename = val["Attachment"].toString().split('/');
+                                var name = filename[filename.length - 1].toString().split('.');
+                                var fname = name[0].split('_');
+                                fname[0] = fname[0] + "." + name[1];
+                                var data = "<tr><td>" + val["SNo"] + "</td><td>" + fname[0] + "</td><td><a target='_blank' filepath='' href='/Teacher/DownloadDocuments/?FilePath=" + val["Attachment"].toString() + "'>Select</a></td></tr>;"
+                                //var data = "<tr><td>" + val["SNo"] + "</td><td><a target='_blank' filepath='" + val["Attachment"].toString() + "." + extension + "' href='javascript:void(0);' class='download-file'>" + name + "</a></td></tr>;"
+                                $('#tblAttchments tbody').append(data);
+                            });
+                        }
+                        else
+                            $('#tblAttchments tbody').append("<tr><td colspan='3'>No Attachment Found</td></tr>;");
+                        $('#myModalScreeningResults').modal('show');
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+                $('#myModalAttachments').modal('show');
+            });
+            $('body').on('click', '.dropdown', function () {
+                setTimeout(function ()
+                { $('.dropdown').addClass('open'); }, 100);
+
+            });
+            $('body').on('click', '.download-file', function () {
+                var path = $(this).attr('filepath');
+                $.ajax({
+                    type: "POST",
+                    url: "/Teacher/DownloadDocuments",
+                    data: { 'FilePath': path },
+                    success: function (data) {
+                        console.log(data);                        
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+                $('#myModalAttachments').modal('show');
+            });
+        });
+    </script>
+
+
+
+}

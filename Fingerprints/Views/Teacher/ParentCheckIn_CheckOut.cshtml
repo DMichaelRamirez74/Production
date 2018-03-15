@@ -1,0 +1,184 @@
+﻿@model FingerprintsModel.TeacherModel
+
+
+@{
+    ViewBag.Title = "CheckIn";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+<h2>CheckIn</h2>
+
+@Scripts.Render("~/bundles/jquery")
+
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
+
+
+@section Script{
+    }
+
+
+@section MainContentHolder{
+
+   
+
+  
+        <script>
+           
+            $(document).ready(function () {
+                $('input').keypress(function () {
+                    if ($(this).val() == 'MM/DD/YYYY') {
+                        $(this).val('');
+                        // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                    }
+                });
+                $('#MyModal').modal('show');
+                $('#side-menu').hide();
+                  if(location.hash) {
+                     $('a[href=' + location.hash + ']').tab('show');
+                    }
+                     $(document.body).on("click", "a[data-toggle]", function(event) {
+                      location.hash = this.getAttribute("href");
+                     });
+       
+
+                 });
+    $(window).on('popstate', function() {
+        var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+        $('a[href=' + anchor + ']').tab('show');
+    });
+
+    $(function () {
+        $('.office').click(function () {
+            var ipvalue = $("#trythis").val();
+            this.href = this.href.replace("xxx", ipvalue);
+        });
+
+       $('#menu-head').hide();
+    });
+
+
+    function TeacherView() {
+        //debugger
+        var AreThey = $("#TeacherMenu").val();
+          if (AreThey == 1971) {
+              $('#side-menu').show()
+              $('#menu-head').show();
+          }else {$('#side-menu').hide();}
+    }
+
+    
+
+ 
+   
+       
+        </script>
+
+        <input type="hidden" id="profileindex" name="profileindex" />
+        <input type="hidden" id="eduindex" name="eduindex" />
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+                <h2 class="page-header">
+                    Parent Check In / Check Out <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
+                </h2>
+                
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                <div class="add-useragform student-scroll full-border full-border-margin">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-striped">
+                                <tr style="background-color:#285B90;color:#ffffff">
+                                   <th  align="left">Child's Name</th>
+                                    @*<th>Child's Picture</th>*@
+                                    <th>DOB</th>
+                                    <th>Check-In Status</th>
+                                    <th>% Absent</th>
+                                    
+                                </tr>
+
+                            </thead>
+                            <tbody>
+
+
+
+                                   @foreach (var j in Model.Itemlst)
+                {
+                                    <tr>
+
+                                        @if ((j.TimeIn == "0" || j.TimeOut != "0") && j.TimeIn2 == "0")
+{
+
+
+    <th>
+        <a class="office" EClientId="@j.Enc_ClientId"  href="~/Teacher/ParentCheckIn?clientid=@j.ClientID&accesstype=1&available=xxx">@j.CName</a>
+    </th>
+
+}
+                                        else
+                                        {
+                                            
+                                            <th>
+                                                <a class="office" EClientId="@j.Enc_ClientId" href="~/Teacher/ParentCheckOut?clientid=@j.ClientID&accesstype=1&available=xxx">@j.CName</a>
+
+
+                                        @*@Html.ActionLink(@j.CName, "ParentCheckOut", "Teacher", new { clientid = @j.ClientID, accesstype = 1, available = "xxx" }, null)*@
+                                            
+                                            
+                                            </th>
+
+
+                                        }
+                                        @*@if (j.CImage.Length != 0)
+                                        {
+                                            <th><img src="data:image;base64,@System.Convert.ToBase64String(@j.CIFileData)" alt="image" height="70" width="50" /></th>
+                                        }
+                                        else*@
+                                        @*{
+                                            <th><img src="~/Images/ic_male.png" alt="image" height="50" width="50" /></th>
+                                        }*@
+                                        <th>@j.CDOB</th>
+                                        @if (j.AttendanceType == "Not Checked In")
+                                        {
+
+                                            <th style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
+
+                                        }
+                                        else
+                                        {
+                                            <th style="font-family:Arial;color:rebeccapurple;">
+                                               @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
+
+                                                
+                                            </th>
+
+                                        }
+                                       
+                                        <th>@j.PercentAbsent %</th>
+                                       
+                                    </tr>
+
+                                   }
+
+                            </tbody>
+
+                            </table>
+                       
+                        </div>
+                    </div>
+                </div>
+                        <!-- /.col-lg-12 -->
+            <div class="col-lg-6 col-md-6 col-sm-12">
+    
+               <input type="hidden" class="text" id="trythis" value="@(ViewData["Available"])">
+            </div>
+            @Html.Password("TeacherMenu", "")
+                <img src="~/Images/referral.png" onclick="TeacherView();" />
+
+
+            </div>
+
+
+
+
+
+}

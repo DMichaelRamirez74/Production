@@ -1,0 +1,596 @@
+﻿@model FingerprintsModel.Yakkr
+@{
+   @section Title
+    {
+        Yakkr 
+    }
+            Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $("#side-menu li a").removeClass("active");
+            $('#Yakkr').addClass("active");
+        });
+    </script>
+
+
+<script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+        $(document).ready(function () {
+            //$('#li8 a').removeClass("active");
+            //$('#li9').removeClass("active");
+            //$('#hdnRaceSubCategoryID').val(0);
+            //$('#txtSubcategoryName')[0].value = "";
+            //$('#RaceSubCatDesc')[0].value = "";
+            debugger;
+            drawgrid();
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#form1 input:radio').attr('disabled', true);
+
+                        $(".my-btn22").attr("disabled", true);
+                        $(".my-btn22").bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                    }
+                }
+            }
+
+            $('#gridViewAgency > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+          
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            debugger;
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/YakkrDetails",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            debugger;
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+           
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+            debugger;
+            $('#gridViewAgency > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewAgency > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+
+                    tr += "<td><a href='#' onclick='Getyakkr(this);' accesskey=" + data.list[i].YakkrRoleID + ">" + ((typeof (data.list[i].YakkrID) != 'undefined') && (data.list[i].YakkrID != null) ? data.list[i].YakkrID : '') + "</td>";
+
+                    tr += "<td>" + ((typeof (data.list[i].Value) != 'undefined') && (data.list[i].Value != null) ? data.list[i].Value : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + " </span></td>";
+                    //tr += "<td>" + ((typeof (data.list[i].StaffRoleName) != 'undefined') && (data.list[i].StaffRoleName != null) ? data.list[i].StaffRoleName : '') + " </span></td>";
+                    //tr += "<td>" + ((typeof (data.list[i].OptionalRoleName) != 'undefined') && (data.list[i].OptionalRoleName != null) ? data.list[i].OptionalRoleName : '') + " </span></td>";
+                    //tr += "<td>" + ((typeof (data.list[i].DateEntered) != 'undefined') && (data.list[i].DateEntered != null) ? data.list[i].DateEntered : '') + "</td>";
+                    tr += "<td><a href='#' onclick='deleteYakkr(this);' accesskey=" + data.list[i].YakkrRoleID + ">Delete</td>";
+                    tr += "</tr>";
+                    $('#gridViewAgency > tbody').append(tr);
+
+                }
+            }
+        }
+        function Getyakkr(value) {
+            debugger;
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/Getyakkrdetails",
+                type: "POST",
+                data: {
+                    YakkrRoleID: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditYakkr(data);
+                }
+               , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function EditYakkr(data) {
+
+          
+            $('#hdnYakkrRoleID').val(data.YakkrRoleID);
+            $('#yakkrValue').val(data.Value);
+            $('#DdlYakkrList').val(data.YakkrID);
+            $('#txtDescription').val(data.Description);
+
+          //  $('#DdlStaffList').val(data.StaffRoleID);
+            //$('#DdlStaffSecondaryList').val(data.SecondaryRoleID);
+            //if (data.FormalAgreement == true)
+            //    $('#txtFormalAgreement').prop("checked", true);
+            // $('#txtFormalAgreement').val(data.FormalAgreement);
+
+        }
+        function deleteYakkr(value) {
+            BootstrapDialog.confirm('Do you want to delete this yakkr record?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/SuperAdmin/Deleteyakkr",
+                        type: "POST",
+                        data: {
+                            YakrrId: $(value).attr("accesskey"),
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            if (response == 1) {
+                                customAlert("Yakkr record deleted successfully.");
+                                $(value).closest('tr').remove();
+                                //if ($('#gridViewCommunity > tbody tr').length == 0)
+                                //    $('#div1').show();
+                            }
+                        }
+                    , error: function (response) {
+                           customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+
+</script>
+
+<script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+
+            if ('@ViewBag.mode' == 0) {
+                //$('#DdlYakkrList').val('');
+                //$('#DdlStaffList').val('');
+                //$('#DdlStaffSecondaryList').val('');
+            }
+            if ('@ViewBag.result' == 'Sucess') {
+                clearcontrols();
+            }
+        });
+
+        function clearcontrols() {
+            $('#DdlYakkrList')[0].value = "";
+          
+            //Description
+          
+            $('#hdnYakkrRoleID')[0].value = "";
+            $('#btnSubmit').enabled = true;
+            $('#hdnYakkrRoleID').val(0);
+            $('#txtDescription').val('');
+            $('#yakkrValue').val('');
+        }
+        function isValidyakkrInfo() {
+
+            cleanValidation();
+           
+            if ($('#DdlYakkrList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter yakrr code.");
+                plainValidation('#DdlYakkrList');
+                return isValid;
+            }
+            if ($('#yakkrValue')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter yakkr value.");
+                plainValidation('#yakkrValue');
+                return isValid;
+            }
+            
+            $('#btnSubmit').enabled = false;
+            return true;
+        }
+        //function CheckRole() {
+        //    if ($('#DdlStaffSecondaryList').val() == $('#DdlStaffList').val()) {
+        //        isValid = false;
+        //        customAlert("Assigned role and management role cannnot be same.");
+        //        plainValidation('#DdlStaffSecondaryList');
+        //        return isValid;
+        //    }
+        //}
+        //function CheckRole1() {
+        //    if ($('#DdlStaffSecondaryList').val() == $('#DdlStaffList').val()) {
+        //        isValid = false;
+        //        customAlert("Assigned role and management role cannnot be same.");
+        //        plainValidation('#DdlStaffList');
+        //        return isValid;
+        //    }
+        //}
+</script>
+}
+@section MainContentHolder{
+    @{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Yakkr 
+            </h2>
+        </div>
+    </div>
+        
+     
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                     @Html.HiddenFor(m => m.YakkrRoleID, new { id = "hdnYakkrRoleID" })
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="DdlYakkrList">Yakkr Code<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.YakkrID, new { placeholder = "Yakkr Code", id = "DdlYakkrList", maxlength = "5", @class = "form-control", tabIndex = "1",onblur="checkIfNumeric(this);" })
+                                @*@Html.DropDownListFor(m => m.YakkrID, new SelectList(Model.YakkrList, "_YakkrID", "_YakkrCode", Model.YakkrID), new { id = "DdlYakkrList", Name = "DdlYakkrList", @class = "form-control", tabIndex = "1" })*@
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtValue">Yakkr Label <sup>*</sup></label>
+                                
+                                    @Html.TextBoxFor(m => m.Value, new { placeholder = "Yakkr Label", id = "yakkrValue", maxlength = "50", @class = "form-control", tabIndex = "2" })
+                               
+                            </div>
+                        </div>
+                        
+                        
+
+                       <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtDescription">Description</label>
+                                @Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "txtDescription", maxlength = "80", @class = "form-control", tabIndex = "3" })
+                            </div>
+                        </div>
+
+                      @*  <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="form-group">
+            <label for="DdlStaffList">Assigned Role <sup>*</sup></label>
+
+            @Html.DropDownListFor(m => m.StaffRoleID, new SelectList(Model._YakkrRolesList, "_RoleID", "_RoleName", Model.StaffRoleID),
+                              new { id = "DdlStaffList", Name = "DdlStaffList", @class = "form-control", tabIndex = "4", @onchange = "CheckRole1();" })
+
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="form-group">
+            <label for="DdlStaffList">Management Role </label>
+
+            @Html.DropDownListFor(m => m.SecondaryRoleID, new SelectList(Model._YakkrRolesList, "_RoleID", "_RoleName", Model.StaffRoleID),
+                                                new { id = "DdlStaffSecondaryList", Name = "DdlStaffSecondaryList", @class = "form-control", tabIndex = "5", @onchange = "CheckRole();" })
+
+        </div>
+    </div>*@
+                    </div>
+                   
+                </div>
+               
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+                            <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidyakkrInfo();" tabindex="4">Submit</button>
+                            <button id="btnExit" class="my-btn" type="button" tabindex="5" onclick="clearcontrols(); return false;">Cancel</button>
+                           
+                        </div>
+                      
+                    </div>
+              
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Yakkr List  </h2>
+        </div>
+    </div>
+     <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                           
+                            <th id="thIN">Yakkr Code<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                            <th id="THMN">Yakkr Label<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="THMN">Description<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            @*<th id="THDE">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
+                            <th id="thCN" >Status<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align: center; display: none;">@*display:none;*@
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>   
+        
+    }    
+}

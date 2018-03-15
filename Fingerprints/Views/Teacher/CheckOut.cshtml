@@ -1,0 +1,358 @@
+﻿@model FingerprintsModel.TeacherModel
+
+
+@{
+    ViewBag.Title = "CheckIn";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+<h2>CheckIn</h2>
+
+@Scripts.Render("~/bundles/jquery")
+
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
+
+
+@section Script{
+}
+
+
+@section MainContentHolder{
+<style>
+    .childName .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        /*background-color: rgba(0, 0, 0, 0.18);*/
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        /*top: 28px;*/
+        /*left: 128px;*/
+        left: 165px;
+        margin-top: -38px;
+        line-height: 25px;
+        border: 1px solid black;
+    }
+
+
+        .childName .tooltiptext::after {
+            content: " ";
+            position: absolute;
+            top: 50%;
+            right: 100%; /* To the left of the tooltip */
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent black transparent transparent;
+        }
+
+    .childName:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .childName:not( :hover ) .tooltiptext {
+        visibility: hidden;
+    }
+</style>
+
+
+    <form method="post" enctype="multipart/form-data">
+        <script>
+
+            $(document).ready(function () {
+
+                $('input').keypress(function () {
+                    if ($(this).val() == 'MM/DD/YYYY') {
+                        $(this).val('');
+                        // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                    }
+                });
+        if(location.hash) {
+            $('a[href=' + location.hash + ']').tab('show');
+        }
+        $(document.body).on("click", "a[data-toggle]", function(event) {
+            location.hash = this.getAttribute("href");
+        });
+    });
+    $(window).on('popstate', function() {
+        var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+        $('a[href=' + anchor + ']').tab('show');
+    });
+
+    $(document).on("click", ".open-myModal", function () {
+        var childnameID = $(this).data('id');
+        var l = childnameID.length;
+        var n = childnameID.indexOf("-");
+        var CID = childnameID.substring(0, n);
+        var CN = childnameID.substring(n+1, l);
+
+        $(".modal-header #childname").val(CN);
+        $(".modal-header #childid").val(CID);
+        $(".modal-header #childlbl").text(CN);
+        // As pointed out in comments,
+        // it is superfluous to have to manually call the modal.
+        // $('#addBookDialog').modal('show');
+    });
+
+    $(document).on("click", ".open-myModalStudent", function () {
+        var childnameID = $(this).data('id');
+        var l = childnameID.length;
+        var n = childnameID.indexOf("-");
+        var CID = childnameID.substring(0, n);
+        var CN = childnameID.substring(n + 1, l) + "'s Attendance Detail";
+        var parent1 = $(this).data('Parent1Name');
+        var parent2 = $(this).data('Parent2Name');
+
+        $(".modal-header #childname").text(CN);
+        $(".modal-header #childid").val(CID);
+        $(".modal-header #childlbl").text(CN);
+        $(".form-group #Parent1").text(parent1);
+        $(".form-group #Parent2").text(parent2);
+
+        // As pointed out in comments,
+        // it is superfluous to have to manually call the modal.
+        // $('#addBookDialog').modal('show');
+    });
+
+    $(document).on("click", ".open-myModalPresent", function () {
+
+    });
+
+    function isValidInfo() {
+        cleanValidation();
+        isValid = true;
+        if ($("#AbsentType").val() == 0) {
+            isValid = false;
+            customAlert("Please choose an Absent Type")
+        }
+        return isValid;
+        }
+
+    function getProfilePicture(pic) {
+
+        // $('.tooltiptext').css({ 'visibility': 'hidden' });
+
+        var enc_id = $(pic).attr('enc_clientId');
+        var position = $(pic).position();
+        var topalignment = position.top;
+        var leftalignment = position.left;
+        $.ajax({
+            url: '/Teacher/GetChildrenImage',
+            dataType: 'json',
+            type: 'post',
+            data: { enc_clientId: enc_id },
+            success: function (data) {
+
+                var image = '';
+                if (data.Text == "" && data.Value == "2") {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
+                }
+                else if (data.Text == "" && data.Value == "1") {
+                    image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
+                }
+                else if (data.Text == "" && ata.Text == "3") {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
+                }
+                else if (data.Text != "") {
+                    image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                }
+                else {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
+                }
+
+                $(pic).children('.tooltiptext').html(image).css({ 'top': (topalignment), 'left': (leftalignment + 150), 'height': '110px', 'width': '120px' });
+                // $(pic).parent('td').find('.roundimage').zoomify();
+
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+
+        </script>
+
+        <input type="hidden" id="profileindex" name="profileindex" />
+        <input type="hidden" id="eduindex" name="eduindex" />
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+                <h2 class="page-header">
+                    Classroom Roster <span class="attend-date"><font size="3"><i>for</i></font></span>  @Model.Tdate
+                    <span>Check Out</span>
+
+                </h2>
+
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                <div class="add-useragform student-scroll full-border full-border-margin">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-striped">
+                                <tr style="background-color:#285B90;color:#ffffff">
+                                    <th align="left">Child's Name</th>
+                                    @*<th>Child's Picture</th>*@
+                                    <th>DOB</th>
+                                    <th>Check-In Status</th>
+                                    <th>% Absent</th>
+                                    <th>Enrollment Days</th>
+                                    <th>Case Note</th>
+                                    <th>Mark Absent</th>
+                                    <th>Referrals</th>
+                                    <th>Disabilities</th>
+                                </tr>
+
+                            </thead>
+                            <tbody>
+
+
+                                @foreach (var j in Model.Itemlst)
+                                {
+                                    <tr>
+                                        @if (j.AttendanceType == "Present")
+                                        {
+                                        <th class="childName"  enc_clientId="@j.Enc_ClientId" onmouseover="getProfilePicture(this);" style="text-decoration:underline;">@Html.ActionLink(@j.CName, "ParentCheckOut", "Teacher", new { clientid = @j.ClientID, accesstype = 1 }, null)<span class="tooltiptext"></span></th>
+                                        }
+                                        else
+                                        {
+                                          <th class="childName" enc_clientId="@j.Enc_ClientId" onmouseover="getProfilePicture(this);" style="text-decoration:underline;">@j.CName<span class="tooltiptext"></span></th>
+                                        }
+                                        @*<th><img src="data:image;base64,@System.Convert.ToBase64String(@j.CIFileData)" alt="image" height="100" width="50" /></th>*@
+                                        <th>@j.CDOB</th>
+                                        @if (j.AttendanceType == "Not Checked In")
+                                        {
+
+                                            <th style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
+
+                                        }
+                                        else
+                                        {
+                                            <th style="font-family:Arial;color:rebeccapurple;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
+                                        }
+                                        <th>@j.PercentAbsent %</th>
+                                        <th>@j.EnrollmentDays</th>
+                                        <th><img src="~/Images/referral.png" /></th>
+                                        <th><a href="#myModal" data-toggle="modal" class="open-myModal" data-id="@j.ClientID-@j.CName"> <i class="fa fa-arrow-up"></i></a></th>
+                                        <th><img src="~/Images/referral.png" /></th>
+                                        <th><img src="~/Images/referral.png" /></th>
+                                    </tr>
+
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        @using (Html.BeginForm("CheckIn", "Teacher"))
+        {
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <input type="hidden" name="childid" id="childid" value="" />
+                            <input type="hidden" name="childname" id="childname" value="" />
+                            <h3>Mark Absent for <label id="childlbl" text="" /> </h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="current_password">Absent Type <span style="color:red;">*</span> </label>
+                            <select name="AbsentType" id="AbsentType" placeholder="Select" required>
+                                <option value="0">Choose...</option>
+                                <option value="2">Absent Excused</option>
+                                <option value="3">Absent No Show</option>
+                                <option value="4">Present Other</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="current_password">Absent Notes </label>
+                            <input name="CNotes" class="form-control" id="CNotes" style="width:50% !important;" type="text" maxlength="50" placeholder="Absent Notes" value="">
+
+
+                        </div>
+                        <div class="modal-footer">
+
+
+                            <button class="btnPassword" id="submit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
+
+                            <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        @using (Html.BeginForm("CheckIn", "Teacher"))
+        {
+            <div class="modal fade" id="myModalPresent" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <input type="hidden" name="childid" id="childid" value="" />
+                            <input type="hidden" name="childname" id="childname" value="" />
+
+                            <label class="alert-dismissible" for="current_password">This will mark ALL non-checked in children present for @Model.Tdate </label>
+                        </div>
+
+
+                        <div class="modal-footer">
+
+
+                            <button class="btnPassword" id="submit" type="submit" value="Submit">Continue</button>
+
+                            <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        @using (Html.BeginForm("CheckIn", "Teacher"))
+        {
+            <div class="modal fade" id="myModalStudent" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <input type="hidden" name="childid" id="childid" value="" />
+                            <input type="hidden" name="childname" id="childname" value="" />
+                            <label id="childname" text="" /><h3>@Model.Tdate </h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label id="Parent1" />
+                            <label id="Parent2" />
+                        </div>
+
+                        <div class="modal-footer">
+
+
+                            <button class="btnPassword" id="submit" type="submit" value="Submit">Continue</button>
+
+                            <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </form>
+
+}

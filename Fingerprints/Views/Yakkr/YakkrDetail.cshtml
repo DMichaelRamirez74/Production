@@ -1,0 +1,89 @@
+﻿@{
+    @section Title
+{
+        Yakkr
+    }
+    ViewBag.Title = "Yakkr";
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#DashboardHV').removeClass("active");
+        });
+     </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Yakkr</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                @{
+                    int count = 0;
+                }
+                <table class="table table_size">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th>Status</th>
+                            <th>Child Name</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Center</th>
+                            <th>From</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.YakkrDetail != null)
+                        {
+                            
+                            foreach (FingerprintsModel.YakkrDetails Yakkr in ViewBag.YakkrDetail)
+                            {
+                                count++;
+                                <tr>
+                                    <td title="@Yakkr.Status"><a href="~/AgencyUser/FamilyDetails/?id=@Yakkr.HouseholdId&Yakkrid=@Yakkr.Yakkrid&Staffid=@Yakkr.StaffId">@Yakkr.Status</a></td>
+                                    <td>N/A</td>
+                                    <td>@Yakkr.Description</td>
+                                    <td>@Yakkr.Date</td>
+                                    <td>N/A</td>
+                                    <td>@Yakkr.StaffName</td>
+                                </tr>
+                            }
+                        }
+                       
+                            
+                        
+                    </tbody>
+                </table>
+                @if(count==0)
+                {
+                <div style="text-align:center;">
+                    <label>No result found.</label>
+                </div>
+                 }   
+            </div>
+        </div>
+    </div>
+}
+
+

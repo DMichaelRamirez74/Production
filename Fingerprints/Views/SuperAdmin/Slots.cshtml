@@ -1,0 +1,625 @@
+﻿@model FingerprintsModel.Slots
+@{
+    @section Title
+    {
+     Slots
+       
+
+    }
+
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+
+@section Script{
+<script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        $(document).ready(function () {
+            
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+
+            $('#dashboard').removeClass('active');
+            $('#ClassAssign').removeClass('active');
+            $('#Yakkr').removeClass('active');
+            $('#Aliadd').removeClass('active');
+            $('#alistaff').removeClass('active');
+            $('#ali1').removeClass('active');
+            $('#ali2').removeClass('active');
+            $('#ProgramYear').mask("99-99", { placeholder: 'YY-YY' });
+            try {
+                $("#AgencyName").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/Agency/AutoCompleteAgency",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term, Active: "1" },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    $('#AgencyId').val('');
+                                    $('#ProgramYear').val('');
+                                    return {
+                                        label: item.agencyName, id: item.agencyId, ActiveProgYear: item.ActiveProgYear
+                                       
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#AgencyId').val(ui.item.id);
+                        $('#ProgramYear').val(ui.item.ActiveProgYear);
+                     
+                    },
+                    messages: {
+                        noResults: "", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+            drawgrid();
+            $('#GridViewSlot > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#GridViewSlot > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#GridViewSlot").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#GridViewSlot > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#GridViewSlot").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/SlotsDetails",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#GridViewSlot > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#GridViewSlot").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#GridViewSlot").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#GridViewSlot").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+            
+            $('#GridViewSlot > tbody > tr').remove();
+            if (data.list != null && data.list.Slots != null && data.list.Slots.length > 0) {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#GridViewSlot > tbody');
+                for (var i = 0; i < data.list.Slots.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += "<td><a href='#' onclick='GetSlot(this);' agencyid='" + data.list.Slots[i].AgencyId + "' accesskey='" + data.list.Slots[i].SlotId + "'>" + data.list.Slots[i].AgencyName + "</td>";
+                    tr += "<td>" + ((typeof (data.list.Slots[i].Slot) != 'undefined') && (data.list.Slots[i].Slot != null) ? data.list.Slots[i].Slot : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list.Slots[i].ProgramYear) != 'undefined') && (data.list.Slots[i].ProgramYear != null) ? data.list.Slots[i].ProgramYear : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list.Slots[i].Createddate) != 'undefined') && (data.list.Slots[i].Createddate != null) ? data.list.Slots[i].Createddate : '') + "</td>";
+                    tr += "<td><a href='#' onclick='DeleteSlot(this);' accesskey=" + data.list.Slots[i].SlotId + ">Delete</td>";
+                    tr += "</tr>";
+                    $('#GridViewSlot > tbody').append(tr);
+                    
+                }
+            
+            }
+            else {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+           
+
+
+        }
+        function checkNumeric(inputTextObject) {
+            var ret = true;
+            var ex = /^[0-9]*$/;
+            if ($(inputTextObject).val().trim() != "") {
+                if (!ex.test($(inputTextObject).val())) {
+                    $(inputTextObject).val('');
+                    customAlert("Slots must be numeric. ");
+                    var ret = false;
+                }
+                else if ($(inputTextObject).val() == "0") {
+                    $(inputTextObject).val('');
+                    customAlert("Slots can't be zero. ");
+                    var ret = false;
+                }
+            }
+            return ret;
+        }
+        function isValidSlot() {
+            cleanValidation();
+            var isValid = true;
+            if ($('#AgencyId').val() == "" && $('#AgencyName').val().trim() == "") {
+                isValid = false;
+                customAlert("Agency is required.");
+                plainValidation('#AgencyName');
+                return isValid;
+            }
+          else if ($('#Slot').val().trim() == "") {
+                isValid = false;
+                customAlert("Slots is required.");
+                plainValidation('#Slot');
+                return isValid;
+          }
+          else if ($('#ProgramYear').val().trim() == "") {
+              isValid = false;
+              customAlert("Program year is required.");
+              plainValidation('#ProgramYear');
+              return isValid;
+          }
+          else
+          {  
+              $.ajax({
+                  url: HostedDir + "/SuperAdmin/AddSlots",
+                  type: "POST",
+                  data: {
+                      AgencyId: $('#AgencyId').val(),
+                      Slot: $('#Slot').val(),
+                      ProgramYear: $('#ProgramYear').val(),
+                      SlotId: $('#SlotId').val()                
+                  },
+                  dataType: "json",
+                  secureuri: false,
+                  async: false,
+
+                  
+                  
+                  success: function (Data) {
+                      if(Data==1)
+                      {
+                          $('#AgencyName').val('');
+                          $('#AgencyId').val('');
+                          $('#Slot').val('');
+                          $('#ProgramYear').val('');
+                          $('#ProgramYear').attr("readonly", false);
+                          cleargrid();
+                          customAlert("Record added successfully.");
+                          //$('#spinner').hide();
+                      }
+                      else if (Data == 2) {
+                          customAlert("Slot already assigned to agency for entered program year.");
+                      }
+                      else if (Data == 3) {
+                          customAlert("Slots can only be increase for active program year.");
+                      }
+                      else if (Data == 4) {
+                          $('#HSlot').text('Add Slot');
+                          $('#AgencyName').val('');
+                          $('#AgencyId').val('');
+                          $('#Slot').val('');
+                          $('#SlotId').val(0);
+                          $('#ProgramYear').val('');
+                          $('#AgencyName').attr("readonly", false);
+                          cleargrid();
+                          $('#ProgramYear').attr("readonly", false);
+                          customAlert("Record updated successfully.");
+                          //$('#spinner').hide();
+                      }
+                      else if (Data == 5) {
+                          customAlert("Slots can only be modified once for program year.");
+                      }
+                    else
+                    {
+                        customAlert("Please try again.");
+
+                    }
+
+                     
+                     
+
+
+                  }
+               , error: function (Data) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+              });
+
+          }
+            //$('#spinner').show();
+            return isValid;
+        }
+
+        function GetSlot(object)
+        {
+            //$('#spinner').show();
+            $('#HSlot').text('Edit Slot');   
+            $('#AgencyName').attr("readonly",true);
+            $('#AgencyId').val($(object).closest('tr').find('td:eq(0)').find('a').attr("agencyid"));
+            $('#SlotId').val($(object).closest('tr').find('td:eq(0)').find('a').attr("accesskey"));
+            $('#AgencyName').val($(object).closest('tr').find('td:eq(0)').find('a').text());
+            $('#Slot').val($(object).closest('tr').find('td:eq(1)').text());
+            $('#ProgramYear').val($(object).closest('tr').find('td:eq(2)').text());
+            $('#ProgramYear').attr("readonly", true);
+            //$('#spinner').hide();
+        }
+        
+        function ClearAllslot()
+        { 
+            $('#HSlot').text('Add Slot');
+            $('#AgencyName').attr("readonly", false);
+            $('#AgencyName').val('');
+            $('#AgencyId').val('');
+            $('#Slot').val('');
+            $('#SlotId').val(0);
+            $('#ProgramYear').val('');
+            $('#ProgramYear').attr("readonly", false);
+            //$('#spinner').hide();
+        }
+        function DeleteSlot(value) {
+            if ($('#SlotId').val().trim() == "0") {
+                BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: HostedDir + "/SuperAdmin/DeleteSlot",
+                            type: "POST",
+                            data: {
+                                SlotId: $(value).attr("accesskey")
+                            },
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            success: function (response) {
+
+                                if (response == 1) {
+                                    customAlert("Slots assigned cannot delete the record.");
+
+                                }
+                                if (response ==2) {
+                                    customAlert("Record deleted successfully.");
+                                    cleargrid();
+                                }
+                            }
+                        , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        }
+                        });
+                    }
+                });
+            }
+            else
+                customAlert("Cannot delete record in edit mode.");
+        }
+</script>
+}
+
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 id="HSlot" class="page-header">
+            Add  Slots
+            </h2>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+          
+                <div class="add-useragform">
+                    <div class="row">
+                        <input type="hidden" id="SlotId" name="SlotId" value="0" /> 
+                        @Html.HiddenFor(m => m.AgencyId)
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Agency<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AgencyName, new { placeholder = "Agency", maxlength = "100", @class = "form-control", tabIndex = "1" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Slots <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Slot, new { placeholder = "Slots", maxlength = "5", @class = "form-control", tabIndex = "2", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>
+                       
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Program Year<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.ProgramYear, new { placeholder = "YY-YY", maxlength = "10", @class = "form-control", tabIndex = "3" })
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button  type="submit" class="my-btn" onclick="return isValidSlot();" tabindex="5">Submit</button>
+                                <button onclick="ClearAllslot();"  class="my-btn" type="button" tabindex="6">Cancel</button>
+                                <div class="clear"></div>
+                            </div>	
+                        </div>
+                    </div>
+                
+            </div>
+        </div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">Slots List  </h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="search-box">
+            <ul>
+                <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+        <div class="table-responsive">
+            <table class="table table_size" id="GridViewSlot">
+                <thead style="cursor:pointer;">
+                    <tr>
+                        <th id="thIN">Agency<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                        <th id="THMN">Slots<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                        <th id="THCN">Program Year<img id="thStaff" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionStaff" /></th>
+                        <th id="THDE">Created On<img id="thStaff" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionStaff" /></th>
+                        <th id="thEN">Status<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div id="div1" style="text-align: center; display: none;">
+            <label>No result found.</label>
+        </div>
+    </div>
+</div>
+</div>
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+        <div class="pages_display">
+            <ul>
+                <li>Display</li>
+                <li>
+                    <select id="ddlpagetodisplay" onchange="drawgrid();">
+                        <option value="10" selected="selected">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </li>
+                <li>Records Per Page</li>
+            </ul>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div id="divPaging" class="pagination_wrp">
+            <ul id="ulPaging" class="pagination">
+                <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                <li title="Select">
+                    <select class="select_cl" id="ddlpaging"></select>
+                </li>
+                <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+            </ul>
+        </div>
+    </div>
+</div>   
+}

@@ -1,0 +1,68 @@
+﻿@model IEnumerable<FingerprintsModel.YakkrDetail>
+@{
+    @section Title{
+        YakkrDetails
+    }
+    ViewBag.Title = "YakkrDetails";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+<h2>YakkrDetails</h2>
+
+@Scripts.Render("~/bundles/jquery")
+
+@section MainContentHolder{
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">Yakkr           
+        </h2>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="table-responsive">
+                    <table class="table table_size" id="Gridclient">
+                        <thead style="cursor:pointer;">
+                            <tr>
+                                <th id="thIN">Yakkr Code<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                                <th id="thCust">Description<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                                <th id="thMN">Number<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>                                
+                            </tr>
+                        </thead>
+                        
+                        <tbody id="yakkrCount">
+                            @if (Model.Count() > 0)
+                            {
+                                foreach (FingerprintsModel.YakkrDetail detail in Model)
+                                {
+                                    <tr><td><a href="/Yakkr/YakkrList?YakkrCode=@detail.YakkrCode">@detail.YakkrCode</a></td><td>@detail.Description</td><td>@detail.Number</td></tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="3">No result found.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div id="div1" style="text-align:center;display:none;">
+                        <label>No result found.</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="~/Scripts/SiteScript.js"></script>
+    <script>
+        $(function () {
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+        });
+        
+      
+    </script>
+}

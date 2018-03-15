@@ -1,0 +1,1678 @@
+﻿@model FingerprintsModel.TeacherModel
+@using Newtonsoft
+@using System.Collections.Generic
+
+@{
+    ViewBag.Title = "WeeklyAttendance";
+    //Layout = "~/Views/Shared/OfflineLayout.cshtml";
+    int varCount = 0;
+
+}
+<!DOCTYPE html>
+<html manifest="/Offline/cache.appcache">
+
+@*<html>*@
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+    <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/css/weekly-attendance.css" rel="stylesheet" />
+    <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
+    <link href="~/Scripts/jquery.signature.css" rel="stylesheet" />
+
+
+    <style>
+
+         .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: #a94442;
+        }
+
+        .weekly-block #class-para select {
+            width: 220px;
+            font-size: 16px;
+            color: #fff;
+            padding: 5px;
+            resize: none;
+            background: transparent;
+            height: 35px;
+            margin-right: 0px;
+            border: 1px solid #fff !important;
+            border-radius: 4px;
+            position: relative;
+            line-height: 35px;
+        }
+
+        .weekly-block #center-para select {
+            width: 220px;
+            font-size: 16px;
+            color: #fff;
+            padding: 5px;
+            resize: none;
+            background: transparent;
+            height: 35px;
+            margin-right: 0px;
+            border: 1px solid #fff !important;
+            border-radius: 4px;
+            position: relative;
+            line-height: 35px;
+        }
+
+        select option {
+            background: #1f4f7d;
+        }
+
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .transportation-table-head p {
+            font-size: 14px;
+            padding: 2px;
+        }
+
+        .assign-search-btn {
+            display: inline-block;
+            width: 100%;
+            float: right;
+            text-align: right;
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+        }
+
+            .assign-search-btn a {
+                font-size: 14px;
+                text-transform: capitalize;
+                text-align: center;
+                display: inline-block;
+                background: #f9c751;
+                color: #000;
+                margin: 0;
+                border-radius: 4px;
+                width: 100px;
+                padding: 8px 9px;
+                margin: auto;
+                font-weight: bold;
+            }
+
+        .normal-sig-btn, .btnPassword {
+            padding: 4px 12px;
+            line-height: 26px;
+            vertical-align: middle;
+            cursor: pointer;
+            padding: 4px 12px;
+            cursor: pointer;
+            background: #295b8f;
+            *width: 13%;
+            border: 0;
+            color: #ffffff;
+            -webkit-transition: 0.3s ease;
+            transition: 0.3s ease;
+        }
+
+        .added-sig-btn {
+            padding: 4px 12px;
+            line-height: 26px;
+            vertical-align: middle;
+            cursor: pointer;
+            padding: 4px 12px;
+            cursor: pointer;
+            background: green;
+            *width: 13%;
+            border: 0;
+            color: #fff;
+            -webkit-transition: 0.3s ease;
+            transition: 0.3s ease;
+        }
+
+        .err-sig-btn {
+            padding: 4px 12px;
+            line-height: 26px;
+            vertical-align: middle;
+            cursor: pointer;
+            padding: 4px 12px;
+            cursor: pointer;
+            background: #FF9494;
+            *width: 13%;
+            border: 0;
+            color: #333;
+            -webkit-transition: 0.3s ease;
+            transition: 0.3s ease;
+        }
+
+        .transportation-table-head p {
+            font-size: 15px;
+            padding: 11px 2px;
+        }
+
+        .weekly-div-radio-btn .radio.radio-info {
+            margin-top: 0;
+            width: auto;
+            display: inline-block;
+            float: none;
+        }
+
+        .weekly-div-radio-btn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .weekly-div-radio-btn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            color: #fff;
+            font-size: 18px;
+        }
+
+            .weekly-div-radio-btn .radio label:before {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                left: 0;
+                margin-left: -20px;
+                border: 1px solid #cccccc;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transition: border 0.15s ease-in-out;
+                -o-transition: border 0.15s ease-in-out;
+                transition: border 0.15s ease-in-out;
+                top: 4px;
+            }
+
+            .weekly-div-radio-btn .radio label::after {
+                display: inline-block;
+                position: absolute;
+                content: " ";
+                width: 8px;
+                height: 8px;
+                left: 4px;
+                top: 8px;
+                margin-left: -20px;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transform: scale(0, 0);
+                -ms-transform: scale(0, 0);
+                -o-transform: scale(0, 0);
+                transform: scale(0, 0);
+                -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            }
+
+        .weekly-div-radio-btn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #f9c751;
+            color: #f9c751;
+        }
+
+        .weekly-div-radio-btn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #f9c751;
+            color: #f9c751;
+        }
+
+        .weekly-div-radio-btn {
+            margin-top: 25px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+            .weekly-div-radio-btn .radio-info input[type="radio"]:checked + label {
+                color: #f9c751;
+            }
+
+
+        .weekly-div-radio-btn2 .radio.radio-info {
+            margin-top: 0;
+            width: auto;
+            display: inline-block;
+            float: left;
+        }
+
+        .weekly-div-radio-btn2 .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .weekly-div-radio-btn2 .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+            .weekly-div-radio-btn2 .radio label:before {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                left: 0;
+                margin-left: -20px;
+                border: 1px solid #333;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transition: border 0.15s ease-in-out;
+                -o-transition: border 0.15s ease-in-out;
+                transition: border 0.15s ease-in-out;
+                top: 2px;
+            }
+
+            .weekly-div-radio-btn2 .radio label:after {
+                display: inline-block;
+                position: absolute;
+                content: " ";
+                width: 8px;
+                height: 8px;
+                left: 4px;
+                top: 6px;
+                margin-left: -20px;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transform: scale(0, 0);
+                -ms-transform: scale(0, 0);
+                -o-transform: scale(0, 0);
+                transform: scale(0, 0);
+                -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            }
+
+        .weekly-div-radio-btn2 .radio-info input[type="radio"]:checked + label:after {
+            background-color: #174d7b;
+            color: #174d7b;
+        }
+
+        .weekly-div-radio-btn2 .radio-info input[type="radio"]:checked + label:before {
+            border-color: #174d7b;
+            color: #174d7b;
+        }
+
+        .weekly-div-radio-btn2 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+            .weekly-div-radio-btn2 .radio-info input[type="radio"]:checked + label {
+                color: #174d7b;
+            }
+
+
+
+        .weekly-div-radio-btn3 {
+            margin-top: 0px;
+            margin-bottom: 0px;
+            text-align: center;
+        }
+
+            .weekly-div-radio-btn3 .radio.radio-info {
+                margin-top: 0;
+                width: auto;
+                display: inline-block;
+                float: none;
+                margin: 3px;
+            }
+
+            .weekly-div-radio-btn3 .radio input[type="radio"] {
+                opacity: 0;
+                z-index: 1;
+                /* margin-right: 0; */
+            }
+
+            .weekly-div-radio-btn3 .radio-info input[type="radio"]:checked + label {
+                color: #174d7b;
+            }
+
+                .weekly-div-radio-btn3 .radio-info input[type="radio"]:checked + label:before {
+                    border-color: #174d7b;
+                    color: #174d7b;
+                }
+
+                .weekly-div-radio-btn3 .radio-info input[type="radio"]:checked + label:after {
+                    background-color: #174d7b;
+                    color: #174d7b;
+                }
+
+            .weekly-div-radio-btn3 .radio label {
+                display: inline-block;
+                vertical-align: middle;
+                position: relative;
+                padding-left: 5px;
+                color: #333;
+                font-size: 14px;
+                /* font-weight: bold; */
+                position: relative;
+            }
+
+            .weekly-div-radio-btn3 .radio-info input[type="radio"]:checked + label {
+                color: #174d7b;
+            }
+
+            .weekly-div-radio-btn3 .radio label:before {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: 12px;
+                height: 12px;
+                left: 0;
+                margin-left: -14px;
+                border: 1px solid #333;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transition: border 0.15s ease-in-out;
+                -o-transition: border 0.15s ease-in-out;
+                transition: border 0.15s ease-in-out;
+                top: 4px;
+            }
+
+            .weekly-div-radio-btn3 .radio label:after {
+                display: inline-block;
+                position: absolute;
+                content: " ";
+                width: 6px;
+                height: 6px;
+                left: 3px;
+                top: 7px;
+                margin-left: -14px;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transform: scale(0, 0);
+                -ms-transform: scale(0, 0);
+                -o-transform: scale(0, 0);
+                transform: scale(0, 0);
+                -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            }
+
+        .right-side-container-ch {
+            min-height: 637px;
+        }
+
+        .time-text {
+            width: 87%;
+            height: 20px;
+            text-align: center;
+            margin-bottom: 5px;
+            display: none;
+        }
+
+        .kbw-signature {
+            width: 325px;
+            height: 200px;
+        }
+
+        .table-change-div p {
+            padding: 0 !important;
+        }
+
+        .table-change-div .weekly-table-text-al td {
+            width: 94px;
+        }
+
+        .selectd-day {
+            background: #4CAF50 !important;
+            color: #fff !important;
+        }
+
+        .normal-day {
+            background: #4CAF50 !important;
+            color: #fff !important;
+        }
+
+
+        /*error message*/
+        .error-msg {
+            position: fixed;
+            z-index: 99;
+            right: 0;
+            top: 19px;
+        }
+
+        .btn-reason-normal {
+            cursor: pointer;
+            width: auto;
+            height: 20px;
+            text-align: center;
+            margin-bottom: 5px;
+            padding: 0px;
+            font-size: 12px;
+            line-height: 9px;
+            display: inline-block;
+            padding: 5px;
+            margin-right: 0px;
+            background: #295b8f;
+            color: #ffffff;
+            border: 0;
+        }
+
+
+        .btn-reason-success {
+            cursor: pointer;
+            width: auto;
+            height: 20px;
+            text-align: center;
+            margin-bottom: 5px;
+            padding: 0px;
+            font-size: 12px;
+            line-height: 9px;
+            display: inline-block;
+            padding: 5px;
+            margin-right: 0px;
+            background: green;
+            color: #ffffff;
+            border: 0;
+        }
+
+        #absenceReasonSelect option {
+            background: #164273;
+            color: #fff;
+        }
+
+        #absenceReasonSelect {
+            width: 100%;
+        }
+
+        .table-left td, .table-right td, .table-left th, .table-right th {
+            padding: 0 !important;
+            line-height: initial !important;
+        }
+
+        #day-heading-row td {
+            border-top: 0 !important;
+            height: 31px !important;
+        }
+
+        .weekly-table1-ht {
+            border-top: 0 !important;
+            height: 31px !important;
+        }
+
+        .weekly-table-text-al1 {
+            height: 54px !important;
+        }
+
+        .time-td {
+            width: 87px !important;
+            height: 54px !important;
+        }
+    </style>
+    <script src="~/Scripts/jquery-2.0.0.min.js"></script>
+
+
+
+    <script src="~/Scripts/OfflineStorage/cache.js"></script>
+    <script src="~/Content/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/OfflineStorage/Config.js"></script>
+    <script src="~/Scripts/OfflineStorage/weeklyattendance.js"></script>
+    <script src="~/Scripts/OfflineStorage/db.js"></script>
+    <script src="~/Scripts/OfflineStorage/DbManager.js"></script>
+    <script src="~/Scripts/Samplescript/jqueryui.js"></script>
+    <script src="~/Scripts/jquery.signature.js"></script>
+    <script src="~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"></script>
+
+    <script>
+        jQuery.browser = {};
+        (function () {
+            jQuery.browser.msie = false;
+            jQuery.browser.version = 0;
+            if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
+                jQuery.browser.msie = true;
+                jQuery.browser.version = RegExp.$1;
+            }
+        })();
+    </script>
+
+</head>
+<body>
+    <!--Draw Signature Modal-->
+    <div id="drawSignatureModal" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 390px;">
+
+            <!-- Modal content-->
+            <div class="modal-content col-xs-12" style="width: 390px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" style="text-align:center;">Add Signature</h4>
+                </div>
+                <div class="modal-body" style="height: 200px;">
+                    <div class="" style="float: left; width: 100%;">
+
+                        <div class="weekly-div-radio-btn3 col-xs-12 no-padding" style="text-align:center;">
+                            
+                            <div id="parentNameDiv">
+                              
+
+                            </div>
+                        </div>
+
+                        <div class="add-useragform student-scroll full-border full-border-margin">
+                            <div id="sigParent"></div>
+
+                            <input type="hidden" id="childid" value="@Model.ClientID" />
+
+                            @Html.Hidden("imageSig", "")
+                            <input type="hidden" id="ConvertedImage" value="0" />
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals text-center" style="margin-bottom:20px;">
+                                    <div class="add-useragform student-scroll full-border full-border-margin">
+                                        <h4> </h4>
+                                        <button class="btnPassword" id="clear">Clear</button>
+                                        <button class="btnPassword" id="accept">Accept Signature</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="display: none">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--Draw Signature Modal-->
+    <!---Reason Select Modal Start-->
+
+    <div id="addReasonModal" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 390px;">
+
+            <!-- Modal content-->
+            <div class="modal-content col-xs-12" style="width: 390px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" style="text-align:center;">Add Absence Reason</h4>
+                </div>
+                <div class="modal-body" style="height: 200px;">
+                    <div class="" style="float: left; width: 100%;">
+                        <div class="add-useragform student-scroll full-border full-border-margin" style="text-align:center;">
+
+                            <select id="absenceReasonSelect"></select>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals text-center" style="margin-bottom:20px;">
+                                    <div class="add-useragform student-scroll full-border full-border-margin">
+                                        <h4> </h4>
+
+                                        <button class="btnPassword" id="acceptReason">Add Reason</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="display: none">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--Reason Select Modal End-->
+    <!---success/error Window-->
+    <div class="error-msg">
+        <ul class="i-am-new">
+            <li id="noty_topRight_layout_container" style="overflow: hidden; display:none; background: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAoCAYAAAAPOoFWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAPZJREFUeNq81tsOgjAMANB2ov7/7ypaN7IlIwi9rGuT8QSc9EIDAsAznxvY4pXPKr05RUE5MEVB+TyWfCEl9LZApYopCmo9C4FKSMtYoI8Bwv79aQJU4l6hXXCZrQbokJEksxHo9KMOgc6w1atHXM8K9DVC7FQnJ0i8iK3QooGgbnyKgMDygBWyYFZoqx4qS27KqLZJjA1D0jK6QJcYEQEiWv9PGkTsbqxQ8oT+ZtZB6AkdsJnQDnMoHXHLGKOgDYuCWmYhEERCI5gaamW0bnHdA3k2ltlIN+2qKRyCND0bhqSYCyTB3CAOc4WusBEIpkeBuPgJMAAX8Hs1NfqHRgAAAABJRU5ErkJggg==&quot;) repeat-x scroll left top #a94442;  color: rgb(255, 255, 255); width: 270px;float:right; cursor: pointer; ">
+                <div id="noty_237439575065076060" class="noty_bar">
+                    <div style="font-size: 13px; line-height: 30px; text-align: left; padding-left:10px; width: auto; position: relative; font-weight: bold;" class="noty_message">
+                        <span class="noty_text">.</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    
+
+    <!---success/error window---->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header-title-client">
+                        <h1 id="attendanceHeading">Daily Attendance</h1>
+                    </div>
+
+                </div>
+
+                <!----closed agency or center or classroom div--->
+                <div id="closed-agency-section">
+
+                </div>
+                <!--closed agency or center or classroom div-->
+
+                <div class="col-xs-12 no-padding">
+
+                    <div class="col-xs-12 no-padding" style="position: relative;margin-top: 30px;">
+                        <div class="col-lg-9 col-sm-8" style="position: relative;">
+
+                            <div class="col-xs-12 text-center weekly-block no-padding" style="position: relative;">
+
+                                @if (Model.CenterList.Count() > 0)
+                                {
+
+
+                                    <div class="col-lg-6 col-xs-12">
+                                        <p class="weekly-text1" id="center-para">
+                                            <label style="display:initial;color: #f9c751;width:180px;text-align:left;float:left;">Center</label>
+                                            <select>
+                                                <option value="0">--Select Center--</option>
+
+                                                @foreach (var item in Model.CenterList)
+                                                {
+                                                    <option value="@item.Enc_CenterId" minudiff="@item.TimeZoneMinuteDiff">@item.CenterName</option>
+                                                }
+                                            </select>
+
+                                        </p>
+                                    </div>
+
+                                    <div class="col-lg-6 col-xs-12">
+                                        <p class="weekly-text1" id="class-para">
+                                            <label style="display:initial;color: #f9c751;width: 180px;text-align:left;float:left;">Classroom</label>
+                                            <select>
+                                                <option>--Select Classroom--</option>
+                                            </select>
+                                        </p>
+                                    </div>
+
+
+
+                                        <div class="col-lg-6 col-xs-12 text-center weekly-block" style="position:relative;display:none;" id="teacherName_div">
+                                            <p class="weekly-text" style="text-align:left;float:left;width:100%;"><label style="display:initial;width: 180px;text-align:left;float:left;">Teacher</label><span style="color:#fff;float:left;" id="teacherNameSpan"></span></p>
+
+                                        </div>
+                                        <div class="col-lg-6 col-xs-12 text-center weekly-block" style="position:relative;display:none;" id="fswName_div">
+                                            <p class="weekly-text" style="text-align:left;float:left;width:100%;"><label style="display:initial;width: 180px;text-align:left;float:left;">FSW</label><span style="color:#fff;float:left;" id="fswNameSpan"></span></p>
+
+                                            <input type="hidden" id="teacherTimeDiff" />
+                                            <input type="hidden" id="fswTimeDiff" />
+                                        </div>
+
+                                }
+                            </div>
+
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-4">
+                            <div class="assign-search-btn assign-btn2">
+                                <a href="javascript:void(0);" style="margin-right:10px;background:#333;color:#fff;margin-right:0;" id="back-to-roster" class="btn btn-primary">Back</a>
+                                <span id="offlineSpan" style="display:none;width:100%;margin-top:10px;display:block;">
+                                    <span style="font-size: 16px;color: #fff;">Network:</span>
+                                    <span style="background: #4CAF50;color:#fff;height: 15px;width: 30px;display: inline-block;position: relative;top: 2px;" id="network-status"></span>
+                                    <span style="font-size: 16px;color: #fff;" id="network-span">Online</span>
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 no-padding" id="working-days-div" style="display:none;">
+                        <div class="col-lg-6 col-sm-10 no-padding">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1 table-change-div">
+                                <tbody>
+                                    <tr>
+                                        <th rowspan="2" style="background: none;text-align: right;padding: 5px 10px;color:#f9c751; font-size:17px;font-weight:normal;width:140px;line-height: 30px;font-weight:bold;padding-left: 30px;text-align:left;">Working Days</th>
+                                        <td style="width:300px;">
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    @if (Model.CenterList.Count() == 1)
+                                                    {
+                                                        if (Model.CenterList[0].Classroom.Count() == 1)
+                                                        {
+                                                            <tr class="weekly-table-text-al" id="workingDaysheader">
+                                                                <td> <p day="0" class="@(Model.CenterList[0].Classroom[0].Monday  ? "selectd-day" : "")">Mon</p></td>
+                                                                <td> <p day="1" class="@(Model.CenterList[0].Classroom[0].Tuesday  ? "selectd-day" : "")">Tue</p></td>
+                                                                <td> <p day="2" class="@(Model.CenterList[0].Classroom[0].Wednesday  ? "selectd-day" : "")">Wed</p></td>
+                                                                <td> <p day="3" class="@(Model.CenterList[0].Classroom[0].Thursday  ? "selectd-day" : "")">Thu</p></td>
+                                                                <td> <p day="4" class="@(Model.CenterList[0].Classroom[0].Friday  ? "selectd-day" : "")">Fri</p></td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr class="weekly-table-text-al" id="workingDaysheader">
+                                                                <td><p day="0">Mon</p></td>
+                                                                <td><p day="1">Tue</p></td>
+                                                                <td><p day="2">Wed</p></td>
+                                                                <td><p day="3">Thu</p></td>
+                                                                <td><p day="4">Fri</p></td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr class="weekly-table-text-al" id="workingDaysheader">
+                                                            <td><p day="0">Mon</p></td>
+                                                            <td><p day="1">Tue</p></td>
+                                                            <td><p day="2">Wed</p></td>
+                                                            <td><p day="3">Thu</p></td>
+                                                            <td><p day="4">Fri</p></td>
+                                                        </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:300px;">
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                <tbody>
+
+                                                    @if (Model.CenterList.Count() == 1)
+                                                    {
+                                                        if (Model.CenterList[0].Classroom.Count == 1)
+                                                        {
+                                                            <tr class="weekly-table-text-al" id="working-days-check">
+                                                                @if (Model.CenterList[0].Classroom[0].Monday)
+                                                                {
+                                                                    <td><p><input type="checkbox" id="mon-check" day="0" checked>Mon</p></td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td><p><input type="checkbox" id="mon-check" day="0"></p>Mon</td>
+
+                                                                }
+                                                                @if (Model.CenterList[0].Classroom[0].Tuesday)
+                                                                {
+                                                                    <td><p><input type="checkbox" id="tue-check" checked day="1">Tue</p></td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td><p><input type="checkbox" id="tue-check" day="1">Tue</p></td>
+
+                                                                }
+                                                                @if (Model.CenterList[0].Classroom[0].Wednesday)
+                                                                {
+                                                                    <td><p><input type="checkbox" id="wed-check" checked day="2">Wed</p></td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td><p><input type="checkbox" id="wed-check" day="2">Wed</p></td>
+
+                                                                }
+                                                                @if (Model.CenterList[0].Classroom[0].Thursday)
+                                                                {
+                                                                    <td><p><input type="checkbox" id="thu-check" checked day="3">Thu</p></td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td><p><input type="checkbox" id="thu-check" day="3">Thu</p></td>
+
+                                                                }
+                                                                @if (Model.CenterList[0].Classroom[0].Friday)
+                                                                {
+                                                                    <td><p><input type="checkbox" id="fri-check" checked day="4">Fri</p></td>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <td><p><input type="checkbox" id="fri-check" day="4">Fri</p></td>
+
+                                                                }
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr class="weekly-table-text-al" id="working-days-check">
+
+                                                                <td><p><input type="checkbox" day="0"></p></td>
+                                                                <td><p><input type="checkbox" day="1"></p></td>
+                                                                <td><p><input type="checkbox" day="2"></p></td>
+                                                                <td><p><input type="checkbox" day="3"></p></td>
+                                                                <td><p><input type="checkbox" day="4"></p></td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr class="weekly-table-text-al" id="working-days-check">
+
+                                                            <td><p><input type="checkbox" day="0"></p></td>
+                                                            <td><p><input type="checkbox" day="1"></p></td>
+                                                            <td><p><input type="checkbox" day="2"></p></td>
+                                                            <td><p><input type="checkbox" day="3"></p></td>
+                                                            <td><p><input type="checkbox" day="4"></p></td>
+                                                        </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 no-padding">
+
+                        <div class="col-lg-12 col-xs-12">
+                            <div class="col-lg-6 col-xs-12 text-center weekly-block" style="position: relative;display:initial;margin-top:25px;" id="working-time-div">
+                                <label style="display:inline-block;color:#f9c751;float:left;width:auto;font-size:17px;font-weight:700;width: 180px;text-align:left;float:left;">Working Hours</label>
+                                <p class="weekly-text1" style="float:left;width:auto;display:inline-block;" id="working-time-para"></p>
+                            </div>
+
+                            <div class="col-lg-12 col-xs-12" id="offline-hist-div">
+                                <div class="weekly-div-radio-btn col-xs-12 no-padding">
+                                    <div class="radio radio-info">
+                                        <input type="radio" name="attentyperadio" id="historicalatt" value="1">
+                                        <label>Historical Data Entry</label>
+                                    </div>
+
+                                    <div class="radio radio-info" style="margin-right:0;">
+                                        <input type="radio" name="attentyperadio" id="offlineatt" value="2">
+                                        <label>Offline Attendance</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-xs-12 no-padding">
+
+                        </div>
+                    </div>
+
+
+                    <!---Attendance Div Start-->
+                    <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;margin-bottom: 40px;display:none;" id="attendance-div">
+
+                        <div class="col-xs-5" style="float:left;margin-top:12px;" id="viewDiv">
+                            <p class="weekly-label" style="display:initial;color:#1a5380;margin-right:10px;font-size: 16px;"><strong>P</strong>-Present</p>
+                            <p class="weekly-label" style="display:initial;color:#1a5380;margin-right:10px;font-size: 16px;"><strong>A</strong>-Absent Excused</p>
+                            <p class="weekly-label" style="display:initial;color:#1a5380;font-size: 16px;"><strong>N</strong>-Absent Not Excused</p>
+                        </div>
+                        <div class="col-xs-7">
+                            <div class="assign-search-btn icr-ipad">
+                                <label class="weekly-label" style="display:initial;color:#1a5380;">Date</label>
+                                <input type="text" placeholder="select date" id="datetimepicker1" class="weekly-select weekly-date" style="border:1px solid #333!important;color:#1a5380;background:#fff!important;height:36px;">
+                                <span style="position:relative;right:32px;top:-1px;" class="weekly-date">&#128197;</span>
+                                <input type="text" id="datetimepicker2" class="weekly-select weekly-date" style="border:1px solid #333!important;color:#1a5380;background:#fff!important;height:36px;">
+
+
+
+                                <a href="javascript:void(0);" style="width:auto;background:#4CAF50;color:#fff;" id="push-to-server">Push to Server</a>
+
+                            </div>
+                        </div>
+
+                        <!---Weekly Attendance Div Start-->
+                        <div class="col-xs-12" style="margin-top:20px;margin-bottom:20px;" id="weekDaysAttendance">
+
+                            <div class="table-left col-md-3 col-sm-5" style="padding:0;">
+                                <div class="col-xs-12" style="padding:0;">
+
+                                    <table class="col-xs-12 table-striped table-condensed cf table-change transportation-table">
+                                        <thead class="table-hd">
+                                            <tr class="line-ht">
+                                                <th style="text-align: left!important;font-size: 16px;border-right:0;height:62px;border-top:0;">Client</th>
+                                                <th style="text-align: left!important;font-size: 16px;border-right:0;height:62px;border-top:0;">Date of Birth</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="transportation-table-head" id="weekly-child-info-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="table-right col-md-9 col-sm-7" style="padding:0;overflow:auto;">
+                                <div class="col-xs-12" style="padding:0;width:2100px" id="table-width-change">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1">
+                                        <tbody>
+                                            <tr class="weekly-table1" id="day-heading-row">
+                                                <td style="width: 258px;border-left:0;" id="week-monday" day="0"></td>
+                                                <td style="width: 258px;" id="week-tuesday" day="1"></td>
+                                                <td style="width: 258px;" id="week-wednesday" day="2"></td>
+                                                <td style="width: 258px;" id="week-thursday" day="3"></td>
+                                                <td style="width: 258px;" id="week-friday" day="4"></td>
+
+                                            </tr>
+                                            <tr id="day-in-out-row">
+                                                <td day="0">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table1 weekly-table1-ht">
+
+                                                                <td style="background:#2fcc71;width: 87px;border-left:0;">In Time</td>
+                                                                <td style="background:#e84c3d;width: 87px;">Out Time</td>
+                                                                <td style="background:#3598db;width: 87px;">Meals</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td day="1">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table1 weekly-table1-ht">
+                                                                <td style="background:#2fcc71;width: 87px;">In Time</td>
+                                                                <td style="background:#e84c3d;width: 87px;">Out Time</td>
+                                                                <td style="background:#3598db;width: 87px;">Meals</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td day="2">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table1 weekly-table1-ht">
+                                                                <td style="background:#2fcc71;width: 87px;">In Time</td>
+                                                                <td style="background:#e84c3d;width: 87px;">Out Time</td>
+                                                                <td style="background:#3598db;width: 87px;">Meals</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+
+                                                <td day="3">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table1 weekly-table1-ht">
+                                                                <td style="background:#2fcc71;width: 87px;">In Time</td>
+                                                                <td style="background:#e84c3d;width: 87px;">Out Time</td>
+                                                                <td style="background:#3598db;width: 87px;">Meals</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+
+                                                <td day="4">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table1 weekly-table1-ht">
+                                                                <td style="background:#2fcc71;width: 87px;">In Time</td>
+                                                                <td style="background:#e84c3d;width: 87px;">Out Time</td>
+                                                                <td style="background:#3598db;width: 87px;">Meals</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="day-table" day="0">
+                                                        <tbody id="day-body" day-attr="0"></tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="day-table" day="1">
+                                                        <tbody id="day-body" day-attr="1"></tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="day-table" day="2">
+                                                        <tbody id="day-body" day-attr="2"></tbody>
+                                                    </table>
+                                                </td>
+
+
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="day-table" day="3">
+                                                        <tbody id="day-body" day-attr="3"></tbody>
+                                                    </table>
+                                                </td>
+
+
+
+
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="day-table" day="4">
+                                                        <tbody id="day-body" day-attr="4"></tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr></tr>
+                                            <tr></tr>
+                                            <tr></tr>
+                                            <tr></tr>
+
+                                        </tbody>
+                                    </table>
+
+
+
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1" id="total-meals-count-table">
+                                        <tbody>
+                                            <tr id="child-meals-row">
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="0">
+                                                        <tbody>
+                                                            <tr day="0">
+                                                                <td style="width:169px;background: none;"><p style="background: none;text-align:right;">Child Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td><p class="child-breakfastcout">0</p></td>
+                                                                                <td><p class="child-lunchcount">0</p></td>
+                                                                                <td><p class="child-snackscount">0</p></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="1">
+                                                        <tbody>
+                                                            <tr day="1">
+                                                                <td style="width:169px;background: none;"><p style="background: none;text-align: right;">Child Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td><p class="child-breakfastcout">0</p></td>
+                                                                                <td><p class="child-lunchcount">0</p></td>
+                                                                                <td><p class="child-snackscount">0</p></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="2">
+                                                        <tbody>
+                                                            <tr day="2">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Child Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td><p class="child-breakfastcout">0</p></td>
+                                                                                <td><p class="child-lunchcount">0</p></td>
+                                                                                <td><p class="child-snackscount">0</p></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="3">
+                                                        <tbody>
+                                                            <tr day="3">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Child Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td><p class="child-breakfastcout">0</p></td>
+                                                                                <td><p class="child-lunchcount">0</p></td>
+                                                                                <td><p class="child-snackscount">0</p></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="4">
+                                                        <tbody>
+                                                            <tr day="4">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Child Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td><p class="child-breakfastcout">0</p></td>
+                                                                                <td><p class="child-lunchcount">0</p></td>
+                                                                                <td><p class="child-snackscount">0</p></td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr id="adult-meals-row">
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="0">
+                                                        <tbody>
+                                                            <tr day="0">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Adult Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-breakfastcout" maxlength="3" day="0" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-lunchcount" maxlength="3" day="0" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-snackscount" maxlength="3" day="0" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="1">
+                                                        <tbody>
+                                                            <tr day="1">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Adult Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-breakfastcout" maxlength="3" day="1" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-lunchcount" maxlength="3" day="1" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-snackscount" maxlength="3" day="1" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="2">
+                                                        <tbody>
+                                                            <tr day="2">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Adult Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-breakfastcout" maxlength="3" day="2" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-lunchcount" maxlength="3" day="2" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-snackscount" maxlength="3" day="2" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="3">
+                                                        <tbody>
+                                                            <tr day="3">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Adult Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-breakfastcout" maxlength="3" day="3" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-lunchcount" maxlength="3" day="3" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-snackscount" maxlength="3" day="3" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td>
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="4">
+                                                        <tbody>
+                                                            <tr day="4">
+                                                                <td style="width: 169px;background: none;"><p style="background: none;text-align: right;">Adult Meals Total</p></td>
+                                                                <td style="width:84px;">
+                                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                        <tbody>
+                                                                            <tr class="weekly-table-text-al">
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-breakfastcout" maxlength="3" day="4" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-lunchcount" maxlength="3" day="4" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                                <td style="width:72px;">
+                                                                                    <input class="adult-snackscount" maxlength="3" day="4" style="width: 96%;margin:2%;padding-right: -19px;background-color: white;/* margin-right: -26px; */text-align: center;/* margin-left: 0px; *//* margin-top: -13px; *//* height: 30px; *//* margin-bottom: -4px; */">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1" id="daily-attendance-count">
+                                        <tbody>
+                                            <tr>
+                                                <td class="weekly-table-text-al1" style="width: 200px;"><p style="text-align:left;">Daily Attendance Total</p></td>
+                                                <td style="width: 280px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al" day="0">
+                                                                <td style="background: none;"><p style="background: none;">p</p></td>
+                                                                <td><p class="present-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">A</p></td>
+                                                                <td><p class="execuse-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">N</p></td>
+                                                                <td><p class="unexecuse-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width: 500px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="1">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al" day="1">
+                                                                <td style="background: none;"><p style="background: none;">p</p></td>
+                                                                <td><p class="present-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">A</p></td>
+                                                                <td><p class="execuse-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">N</p></td>
+                                                                <td><p class="unexecuse-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width: 500px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="2">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al" day="2">
+                                                                <td style="background: none;"><p style="background: none;">p</p></td>
+                                                                <td><p class="present-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">A</p></td>
+                                                                <td><p class="execuse-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">N</p></td>
+                                                                <td><p class="unexecuse-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width: 500px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="3">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al" day="3">
+                                                                <td style="background: none;"><p style="background: none;">p</p></td>
+                                                                <td><p class="present-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">A</p></td>
+                                                                <td><p class="execuse-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">N</p></td>
+                                                                <td><p class="unexecuse-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width: 500px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" day="4">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al" day="4">
+                                                                <td style="background: none;"><p style="background: none;">p</p></td>
+                                                                <td><p class="present-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">A</p></td>
+                                                                <td><p class="execuse-count">0</p></td>
+                                                                <td style="background: none;"><p style="background: none;">N</p></td>
+                                                                <td><p class="unexecuse-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+
+
+                            <!---Weekly Meals and Attendance Total Start-->
+                            <div class="col-xs-12 no-padding" style="margin-bottom:20px;margin-top:20px;">
+                               
+                                <div class="col-sm-4 no-padding">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1">
+                                        <tbody>
+                                            <tr>
+                                                <th rowspan="2" style="background: none;text-align: right;padding: 5px 55px;color: #163b69;font-size:14px;font-weight:normal;width:174px;line-height: 30px;">Child Weekly Meals Total</th>
+                                                <td style="width:84px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al">
+                                                                <td><p>B</p></td>
+                                                                <td><p>L</p></td>
+                                                                <td><p>S</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:84px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al">
+                                                                <td><p id="child-week-breakfast-count">0</p></td>
+                                                                <td><p id="child-week-lunch-count">0</p></td>
+                                                                <td><p id="child-week-snacks-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-4 no-padding">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1">
+                                        <tbody>
+                                            <tr>
+                                                <th rowspan="2" style="background: none;text-align: right;padding: 5px 55px;color: #163b69;font-size:14px;font-weight:normal;width:174px;line-height: 30px;">Adult Weekly Meals Total</th>
+                                                <td style="width:84px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al">
+                                                                <td><p>B</p></td>
+                                                                <td><p>L</p></td>
+                                                                <td><p>S</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:84px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al">
+                                                                <td><p id="adult-week-breakfast-count">0</p></td>
+                                                                <td><p id="adult-week-lunch-count">0</p></td>
+                                                                <td><p id="adult-week-snacks-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-4 no-padding">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1">
+                                        <tbody>
+                                            <tr>
+                                                <th rowspan="2" style="background: none;text-align: right;padding: 5px 55px;color: #163b69;font-size:14px;font-weight:normal;width:174px;line-height:20px;">Weekly Attendance Total</th>
+                                                <td style="width:84px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al">
+                                                                <td><p>P</p></td>
+                                                                <td><p>E</p></td>
+                                                                <td><p>U</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:84px;">
+                                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                        <tbody>
+                                                            <tr class="weekly-table-text-al">
+                                                                <td><p id="weekly-present-count">0</p></td>
+                                                                <td><p id="weekly-excuse-count">0</p></td>
+                                                                <td><p id="weekly-unexcuse-count">0</p></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!--Wekly Meals and Attendance Total End-->
+
+
+                        </div>
+                        <!---Weekly Attendance Div End-->
+                        <!---Off-line Attendance Div Start-->
+
+                        <div class="col-xs-12" id="singleDayAttance" style="display:none;">
+
+                            <div class="col-xs-12" style="padding:0;margin-top:20px;margin-bottom:20px;">
+                                <div class="table-left col-md-3 col-sm-5" style="padding:0;">
+                                    <div class="col-xs-12" style="padding:0;">
+
+                                        <table class="col-xs-12 table-striped table-condensed cf table-change transportation-table">
+                                            <thead class="table-hd">
+                                                <tr class="line-ht">
+                                                    <th style="text-align: left!important;font-size: 16px;border-right:0;height:62px;border-top:0;">Client</th>
+                                                    <th style="text-align: left!important;font-size: 16px;border-right:0;height:62px;border-top:0;">Date of Birth</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="transportation-table-head transport_table_body" id="offline-child-info-tbody">
+                                                <tr>
+                                                    <td class="weekly-table-text-al1"><p style="text-align:left;"></p></td>
+                                                    <td class="weekly-table-text-al1"><p style="text-align:left;"></p></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="weekly-table-text-al1"><p style="text-align:left;"></p></td>
+                                                    <td class="weekly-table-text-al1"><p style="text-align:left;"></p></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                                <div class="table-right col-md-9 col-sm-7" style="padding:0;overflow:auto;">
+                                    <div class="col-xs-12" style="padding:0;width: 100%;">
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1">
+                                            <tbody>
+                                                <tr class="weekly-table1" id="day-heading-row">
+                                                    <td style="width: 258px;border-left:0;" id="week-monday" date="" day="0"></td>
+
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                            <tbody>
+                                                                <tr class="weekly-table1 weekly-table1-ht">
+
+                                                                    <td style="background:#2fcc71;width: 87px;border-left:0;">Sign-In</td>
+                                                                    <td style="background:#2fcc71;width: 87px;">In Time</td>
+                                                                    <td style="background:#e84c3d;width: 87px;">Sign-Out</td>
+                                                                    <td style="background:#e84c3d;width: 87px;">Out Time</td>
+                                                                    <td style="background:#3598db;width: 87px;">Meals</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+
+
+
+
+
+
+                                                </tr>
+                                                <tr>
+
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="day-table" day="0">
+                                                            <tbody id="day-body"></tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr></tr>
+                                                <tr></tr>
+                                                <tr></tr>
+                                                <tr></tr>
+
+                                            </tbody>
+                                        </table>
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1" id="total-meals-count-table">
+                                            <tbody>
+                                                <tr>
+
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                            <tbody>
+                                                                <tr id="child-meals-row">
+                                                                    <td style="width:396px;background: none;"><p style="background: none;text-align:left;">Child Meals Total</p></td>
+                                                                    <td style="width:100px;">
+                                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                                            <tbody>
+
+                                                                                <tr class="weekly-table-text-al" day="0">
+                                                                                    <td><p class="child-breakfastcout">0</p></td>
+                                                                                    <td><p class="child-lunchcount">0</p></td>
+                                                                                    <td><p class="child-snackscount">0</p></td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+
+
+
+
+                                                </tr>
+                                                <tr>
+
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                                            <tbody>
+                                                                <tr id="adult-meals-row">
+                                                                    <td style="width: 396px;background: none;"><p style="background: none;text-align: left;">Adult Meals Total</p></td>
+                                                                    <td style="width:100px;">
+                                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" day="0">
+                                                                            <tbody>
+
+                                                                                <tr class="weekly-table-text-al" style="height:40px;">
+                                                                                    <td style="height:40px;padding-left:7px;">
+                                                                                        <input class="adult-breakfastcout" maxlength="3" day="0" style="width: 45px;padding-right: -19px;background-color: white; margin-right: -26px;text-align: center;margin-left: 0px;margin-top: -13px;height: 30px;margin-bottom: -4px;">
+                                                                                    <td style="height:40px;padding-left:7px;">
+                                                                                        <input class="adult-lunchcount" maxlength="3" day="0" style="width: 45px;padding-right: -19px;background-color: white; margin-right: -26px;text-align: center;margin-left: 0px;margin-top: -13px;height: 30px;margin-bottom: -4px;">
+                                                                                    </td>
+                                                                                    <td style="height:40px;padding-left:7px;">
+                                                                                        <input class="adult-snackscount" maxlength="3" day="0" style="width: 45px;padding-right: -19px;background-color: white; margin-right: -26px;text-align: center;margin-left: 0px;margin-top: -13px;height: 30px;margin-bottom: -4px;">
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+
+
+
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="weekly-table-head1" id="daily-attendance-count">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="weekly-table-text-al1" style="width: 200px;"><p style="text-align:left;">Daily Attendance Total</p></td>
+                                                    <td style="width: 300px;">
+                                                        <table width="100%" border="0" cellspacing="0" cellpadding="0" day="0">
+                                                            <tbody>
+                                                                <tr class="weekly-table-text-al">
+                                                                    <td style="background: none;"><p style="background: none;">p</p></td>
+                                                                    <td><p class="present-count">0</p></td>
+                                                                    <td style="background: none;"><p style="background: none;">A</p></td>
+                                                                    <td><p class="execuse-count">0</p></td>
+                                                                    <td style="background: none;"><p style="background: none;">N</p></td>
+                                                                    <td><p class="unexecuse-count">0</p></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+
+
+
+
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <!---Off-line Attendance Div Start-->
+
+                    </div>
+                    <!--Attendance Div End-->
+                    <!---no data div start-->
+                    <div style="color: #fff;text-align:center;font-size: 19px;display:none;" id="no-data-div"> Records not found </div>
+                    <!--- no data div End-->
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.Hidden("WeeklyAttendancestring", "")
+    @Html.Hidden("childInfoString", "")
+    @Html.Hidden("centerInfoString", "")
+    @Html.Hidden("absenceListString", "")
+
+    @Html.Hidden("userId", Model.UserId)
+    @Html.Hidden("agencyId", Model.AgencyId)
+    @Html.Hidden("roleId",Model.RoleId)
+
+    <script src="~/Scripts/jquery.touchsupport.js"></script>
+
+</body>
+</html>
