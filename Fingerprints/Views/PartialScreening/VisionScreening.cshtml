@@ -1,0 +1,256 @@
+﻿@model FingerprintsModel.Screening
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        $('#v022date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v025dateR1').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v028dateR2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v031ReferralDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v034Completedate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        if ('@Model.v023results' == "")
+            $('#v023results').val("");
+        if ('@Model.v026resultsR1' == "")
+            $('#v026resultsR1').val("");
+        if ('@Model.v029resultsR2' == "")
+            $('#v029resultsR2').val("");
+        if ('@Model.v032Treatment' == "")
+            $('#v032Treatment').val("");
+        if ('@Model.v035ExamStatus' == "")
+            $('#v035ExamStatus').val("");
+
+
+
+    });
+</script>
+<div class="row add-useragform1">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Vision Screening Date <sup>*</sup> </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v022date" maxlength="50" name="v022date" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v022date" @if (!string.IsNullOrEmpty(Model.v022date))     { <text> readonly="readonly" </text> } />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Vision Screening Results </label>
+
+                    <select name="v023results" class="form-control" id="v023results">
+                        <option value="1" @if (@Model.v023results == "1") { <text> selected="selected" </text>               }>Pass</option>
+                        <option value="2" @if (@Model.v023results == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Vision Screening Comments </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v024comments" maxlength="100" name="v024comments" type="text" value="@Model.v024comments" />
+                    </div>
+                </div>
+            </div>
+           
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Rescreening Date 1 </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v025dateR1" maxlength="50" name="v025dateR1" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v025dateR1" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Rescreening Results 1 </label>
+
+                    <select name="v026resultsR1" class="form-control" id="v026resultsR1">
+                        <option value="1" @if (@Model.v026resultsR1 == "1") { <text> selected="selected" </text>               }>Pass</option>
+                        <option value="2" @if (@Model.v026resultsR1 == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Rescreening Comments 1</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v027commentsR1" maxlength="100" name="v027commentsR1" type="text" value="@Model.v027commentsR1" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Rescreening Date 2 </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v028dateR2" maxlength="50" name="v028dateR2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v028dateR2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Rescreening Results 2</label>
+
+                    <select name="v029resultsR2" class="form-control" id="v029resultsR2">
+                        @*<option value="" @if (@Model.v029resultsR2 == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.v029resultsR2 == "1") { <text> selected="selected" </text>               }>Pass</option>
+                        <option value="2" @if (@Model.v029resultsR2 == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Rescreening Comments 2</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v030commentsR2" maxlength="100" name="v030commentsR2" type="text" value="@Model.v030commentsR2" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Vision Referral Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v031ReferralDate" maxlength="50" name="v031ReferralDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v031ReferralDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Vision Treatment</label>
+
+                    <select name="v032Treatment" class="form-control" id="v032Treatment">
+                        @*<option value="" @if (@Model.v032Treatment == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.v032Treatment == "1") { <text> selected="selected" </text>               }>No Treatment Needed</option>
+                        <option value="2" @if (@Model.v032Treatment == "2") { <text> selected="selected" </text>               }>Treatment Needed, Not Received</option>
+                        <option value="3" @if (@Model.v032Treatment == "3") { <text> selected="selected" </text>               }>Treatment Needed, Received</option>
+                        <option value="4" @if (@Model.v032Treatment == "4") { <text> selected="selected" </text>               }>Treatment Received, Further Treatment Needed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Vision Treatment Comments</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v033TreatmentComments" maxlength="100" name="v033TreatmentComments" type="text" value="@Model.v033TreatmentComments" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Vision Treatment Completion Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="v034Completedate" maxlength="50" name="v034Completedate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v034Completedate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Vision Exam Status</label>
+
+                    <select name="v035ExamStatus" class="form-control" id="v035ExamStatus">
+                        @*<option value="" @if (@Model.v035ExamStatus == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.v035ExamStatus == "1") { <text> selected="selected" </text>               }>Complete</option>
+                        <option value="2" @if (@Model.v035ExamStatus == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                <div class="form-group">
+                    <label class="custom-file-upload">
+                        <input name="ScreeningDocument" id="ScreeningDocument" class="form-control" onchange="ValidateSingleInputpdf(this)" style="display:none" type="file" value="">
+                        <i class="fa fa-cloud-upload"></i> Add new document
+                    </label>
+                    <label style="margin-top: 8px;margin-left: 6px;" id="documentlabel"></label>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+
+
+
+
+                @if (!string.IsNullOrEmpty(Model.PhysicalFileName))
+                {
+                    if (Model.PhysicalFileExtension == ".pdf")
+                    {
+                        string url = Path.GetFileNameWithoutExtension(Model.PhysicalFileName) + Guid.NewGuid().ToString() + ".pdf";
+                        System.IO.FileStream file = System.IO.File.Create(Server.MapPath("~//TempAttachment//") + url);
+                        url = "..\\TempAttachment\\" + url;
+                        try
+                        {
+                            file.Write(Model.PhysicalImageByte, 0, Model.PhysicalImageByte.Length);
+                            file.Close();
+                        }
+                        catch (Exception Ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(Ex);
+                        }
+                        finally
+                        {
+                            file.Close();
+                        }
+                        <div style="display:none;" id="ScreeninguploadDocument">
+                        </div>
+                        <iframe class="iframestyle" src="@url" frameborder="0" scrolling="no"></iframe>
+                    }
+                    else
+                    {
+                        string imagedata = Convert.ToBase64String(Model.PhysicalImageByte);
+                        <div id="ScreeninguploadDocument">
+                            <script type="text/javascript">
+
+                                $(document).ready(function () {
+                                    $('#ScreeninguploadDocument').ZoomCrop(
+                                  {
+                                      image: "data:image/png;base64," + '@imagedata',
+                                      updated: function (size, crop, position) {
+                                          console.log(size, crop, position);
+                                      }
+                                  });
+                                });
+                            </script>
+
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    <div id="ScreeninguploadDocument">
+                        <script type="text/javascript">
+
+                            $(document).ready(function () {
+                                $('#ScreeninguploadDocument').ZoomCrop(
+                              {
+                                  image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                  updated: function (size, crop, position) {
+                                      console.log(size, crop, position);
+                                  }
+                              });
+                            });
+                        </script>
+                    </div>
+
+                }
+
+
+
+
+            </div>
+            </div>
+    </div>
+</div>

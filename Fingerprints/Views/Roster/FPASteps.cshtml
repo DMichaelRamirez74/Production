@@ -1,0 +1,593 @@
+﻿@model FingerprintsModel.FPASteps
+
+@{
+    @section Title
+{
+    Family Partnership Agreement (FPA) Steps
+    }
+    ViewBag.Title = "Roster";
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+@section Script{
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#DdlStatusList').val('');
+            $('#month').val('');
+            $('#week').val('');
+            $('select[id^=Status]').each(function () {
+                $(this).val("");
+            });
+            //   document.getElementById("GoalDate").value = getDate();
+            // document.getElementById('GoalDate').placeholder = Date();
+            // $('#GoalDate').attr("placeholder", Date());
+            $('#StepsCompletionDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            var totalticks = 0;
+            totalticks = (parseInt('@ViewBag.Maxcomplitiondate')) / 10000;
+            var epochMicrotimeDiff = Math.abs(new Date(0, 0, 1).setFullYear(1));
+
+            var actualdate = totalticks - epochMicrotimeDiff;
+            var min = new Date();
+
+            var date = new Date(actualdate);
+
+            $("#StepsCompletionDate").datetimepicker({
+                timepicker: false,
+                maxDate: date,
+                minDate: min,
+                format: 'm/d/Y'
+            });
+
+            // $("#datepicker").datepicker({ maxDate: new Date() });
+            //$("#GoalDate").on("keypress paste", function (event) {
+            //    event.preventDefault();
+            //});
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            //$("#userName").on('change keypress paste', function (e) {
+            //    if (e.which === 32)
+            //        return false;
+            //    if ($(this).val().match(/\s/g)) {
+            //        $(this).val($(this).val().replace(/\s/g, ''));
+            //    }
+            //});
+            if ('@ViewBag.mode' == 0) {
+                //$('#ReferenceProg').val('');
+
+                $('#TimeZoneID').val('');
+
+            }
+            $('#form1').submit(function () {
+                $('#btnSubmit').attr('disabled', 'disabled');
+            });
+            //$('#userName').bind("cut copy paste", function (e) {
+            //    e.preventDefault();
+            //})
+
+            //$('#btnCancel').click(function () {
+            //    $('#emailid')[0].value = "";
+
+            //    $('#firstname')[0].value = "";
+            //    $('#lastname')[0].value = "";
+            //    $('#mobileno')[0].value = "";
+            //    $('#userName')[0].value = "";
+            //    $('#address')[0].value = "";
+            //    $("#message").text('');
+            //    cleanValidation();
+            //});
+            $('#btnExit').click(function () {
+                window.location.href = HostedDir + "/Roster/FPA?id=@Model.EncyrptedClientId";
+            });
+        });
+        function isValidagencyInfo() {
+            cleanValidation();
+            $("#message").text('');
+            if ($('#Name')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Name is required.");
+                plainValidation('#Name');
+                return isValid;
+            }
+
+            else if ($('#Description')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Description is required.");
+                plainValidation('#Description');
+                return isValid;
+            }
+            else if ($('#Status')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Status is required.");
+                plainValidation('#Status');
+                return isValid;
+            }
+
+            else if ($('#StepsCompletionDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Completion Date is required.");
+                plainValidation('#StepsCompletionDate');
+                return isValid;
+            }
+
+            $('.Steps').each(function () {
+                if ($(this).children().find('.Description').val().trim() == "") {
+                    customAlert("Description is required.");
+                    plainValidation($(this).children().find('.Ques'));
+                    isValid = false;
+                    return false;
+                }
+                else {
+                    question.push($(this).children().find('.Description').val().trim().toUpperCase());
+                }
+                if ($(this).children().find('.status').val().trim() == "") {
+                    customAlert("Status is required.");
+                    plainValidation($(this).children().find('.status'));
+                    isValid = false;
+                    return false;
+                }
+                else {
+                    question.push($(this).children().find('.status').val().trim().toUpperCase());
+                }
+                if ($(this).children().find('.StepsCompletionDate').val().trim() == "") {
+                    customAlert("Completion Date is required.");
+                    plainValidation($(this).children().find('.StepsCompletionDate'));
+                    isValid = false;
+                    return false;
+                }
+                else {
+                    question.push($(this).children().find('.StepsCompletionDate').val().trim().toUpperCase());
+                }
+            });
+
+
+
+
+
+
+            isValid = true;
+            return isValid;
+        }
+        function AddSteps() {
+
+            var numItems = $('.Step').length
+            round = numItems;
+            var stepsdiv = '<div id="AddSteps' + round + '" class="row">  <div class="col-lg-12"><h5 class="page-header Step">Steps'
+                 + '<span class="view-btn backto_listspan" id="BackToList"><a onclick="DeleteStepSecond(this,' + round + ');" style="cursor:pointer;" class="backto_list">Delete</a>' +
+                  '</span></h5></div><div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group"> <label for="email">Description <sup>*</sup></label>' +
+                '<input type="text" name="StepsData[' + round + '].Description" class="form-control Description" id="Description" placeholder="Description" maxlength="50">  </div>   </div>' +
+                '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group">  <label for="email">Status<sup>*</sup></label>' +
+                '<select class="form-control status" style="width:65%;" name="StepsData[' + round + '].Assignment" id="Status" >  <option value="0">Open</option> <option value="1">Complete</option> <option value="2">Abandoned</option></select></div> </div>' +
+                 ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Completion Date<sup>*</sup></label>' +
+                 '<input type="text" name="StepsData[' + round + '].StepsCompletionDate" class="form-control" id="StepsCompletionDate" placeholder="MM/DD/YYYY" maxlength="11"> </div> </div>' +
+                  ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Email</label>' +
+                 '<a accesskey="0" title="Click here to send Email" onclick="SendEmail(this);" class="pull-right" href=" javascript:void(0)" style="padding-right: 57%;"><i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;" ></i> </a> </div> </div>' +
+                ' <input id ="trStepId' + round + '" type="hidden" name="StepsData[' + round + '].StepsID" />' +
+                 '<div class="col-lg-6 col-md-6 col-sm-12">' +
+                                            '<div class="form-group">' +
+                                                '<label for="email">Days For Reminder <sup>*</sup></label>' +
+                                                '<input type="text" name="StepsData[' + round + '].Reminderdays" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="50">'
+            '</div>' +
+       '</div>' +
+' </div>'
+            $(stepsdiv).insertAfter('#addStepsDiv');
+            round = round + 1;
+            $("input[id^='StepsCompletionDate']").each(function () {
+                var totalticks = 0;
+                totalticks = (parseInt('@ViewBag.Maxcomplitiondate')) / 10000;
+                var epochMicrotimeDiff = Math.abs(new Date(0, 0, 1).setFullYear(1));
+
+                var actualdate = totalticks - epochMicrotimeDiff;
+                var min = new Date();
+
+                var date = new Date(actualdate);
+                $(this).datetimepicker({
+                    timepicker: false,
+                    maxDate: date,
+                    minDate: min,
+                    format: 'm/d/Y'
+                });
+                $(this).mask(date, { placeholder: 'MM/DD/YYYY' });
+            });
+            //$('select[id^=Status]').each(function () {
+            //    $(this).val("");
+            //});
+
+        }
+        function getmonth() {
+
+            var x = document.getElementById("month").value;
+            if (x != "") {
+                document.getElementById("week").value = "";
+                var todaydate = new Date();
+                var day = todaydate.getDate();
+                var month = todaydate.getMonth() + 1 + parseInt(x);
+
+                //if (month >12)
+                //{
+                //    month=
+                //}
+                var year = todaydate.getFullYear();
+                if (month > 12) {
+                    month = month - 12;
+                    year = todaydate.getFullYear() + 1;
+                }
+                var datestring = month + "/" + day + "/" + year;
+                document.getElementById("StepsCompletionDate").value = datestring;
+
+
+            }
+            else {
+                document.getElementById("StepsCompletionDate").value = "";
+            }
+
+
+            //var x = document.getElementById("month").value; //or whatever offset
+            //var CurrentDate = new Date();
+            //document.getElementById("CompletionDate").value = CurrentDate.setMonth(CurrentDate.getMonth() + x);
+        }
+        function getweek() {
+
+            var x = document.getElementById("week").value;
+            if (x != "") {
+                document.getElementById("month").value = "";
+                x = parseInt(x) * 7;
+                var todaydate = new Date();
+                var day = todaydate.getDate() + parseInt(x);
+                var month = todaydate.getMonth() + 1;
+
+                //if (month >12)
+                //{
+                //    month=
+                //}
+                var year = todaydate.getFullYear();
+                if (day > 31) {
+                    day = day - 31;
+                    month = month + 1;
+                    // year = todaydate.getFullYear() + 1;
+                }
+                var datestring = month + "/" + day + "/" + year;
+                document.getElementById("StepsCompletionDate").value = datestring;
+            }
+            else {
+                document.getElementById("StepsCompletionDate").value = "";
+            }
+        }
+        function getweeksreview() {
+            var todaydate = new Date();
+            var years = todaydate.getFullYear();
+            var weeks = $('#week').val();
+            var month = todaydate.getMonth() + 1;
+
+            var d = new Date(years, 0, month);
+            var dayNum = d.getDay();
+            var diff = --weeks * 7;
+
+
+            if (!dayNum || dayNum > 4) {
+                diff += 7;
+            }
+
+
+            d.setDate(d.getDate() - d.getDay() + ++diff);
+            $('#CompletionDate').val(d);
+        }
+        function SendEmail() {
+
+            $.ajax({
+                url: HostedDir + "/Roster/SendEmail",
+                type: "POST",
+                data: {
+                    ParentName: '@Model.ParentName',
+                    ChildName: '@Model.ChildName',
+                    FSWName: '@Model.FSWName',
+                    ParentEmail: '@Model.ParentEmailId',
+                    Goal: '@Model.Name'
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    if (data != null) {
+                        customAlert(data);
+                    }
+
+                }
+                           , error: function (data) {
+                               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                           }
+            });
+        }
+
+
+
+        function DeleteStep(value) {
+
+            $('#AddSteps').remove();
+
+        }
+        function DeleteStepSecond(value, round) {
+            var divclass = 'AddSteps' + round;
+            $("#" + divclass).remove();
+        }
+        function DeleteStepView(value, round, StepID) {
+            var divclass = 'EditDIv_' + round;
+            BootstrapDialog.confirm('Do you want to delete this Step?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/Roster/DeleteStepView",
+                        type: "POST",
+                        data: {
+                            StepId: StepID
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Step deleted successfully. ");
+                                $("#" + divclass).remove();
+                            }
+                        }
+                    , error: function (response) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <div>
+                <h2 class="page-header">Family Partnership Agreement (FPA) Steps
+                </h2>
+            </div>
+            <div style="float: right">
+                <button id="btnExit" class="my-btn" type="button">Back To List</button>
+            </div>
+        </div>
+
+    </div>
+    <div>
+        <form method="post" role="form" id="form1" autocomplete="off">
+            <div class="row">
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                    <div class="add-useragform">
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Name <sup>*</sup></label>
+                                    @Html.TextBoxFor(m => m.Name, new { placeholder = "Name", id = "Name", maxlength = "50", autocomplete = "off", @class = "form-control", @readonly = "true", tabIndex = "2" })
+                                    @Html.HiddenFor(m => m.ClientId)
+                                    @Html.HiddenFor(m => m.EncyrptedClientId)
+                                    @Html.HiddenFor(m => m.FPAID)
+                                    @Html.HiddenFor(m => m.ChildName)
+                                    @Html.HiddenFor(m => m.ParentName)
+                                    @Html.HiddenFor(m => m.FSWName)
+                                    @Html.HiddenFor(m => m.ParentEmailId)
+                                    @Html.HiddenFor(m => m.maxCompletionDate)
+                                    @Html.HiddenFor(m => m.Reminderdays)
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-6 col-sm-12" id="AddStepsplus">
+                                <div class="form-group">
+                                    <a href="javascript:void(0)" title="Add Services" onclick="AddSteps();">Add Steps <i class="fa fa-plus-square"></i></a>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+
+                        <div id="addStepsDiv"></div>
+                        <div id="AddSteps" class="row ">
+                            @{
+                                if (ViewBag.mode == 0)
+                                {
+                                <div>
+                                    <div class="col-lg-12">
+                                        <h5 class="page-header Step">Steps
+                                                 <span class="view-btn backto_listspan" id="BackToList">
+                                                     <a onclick="DeleteStep(this);" style="cursor: pointer;" class="backto_list">Delete</a>
+                                                 </span>
+                                        </h5>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Description <sup>*</sup></label>
+                                            @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                            <input type="text" name="StepsData[0].Description" class="form-control Description" id="Description" placeholder="Description" maxlength="50">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Status<sup>*</sup></label>
+
+                                            <select id="Status" name="StepsData[0].Assignment" style="height: 38px !important;" class="form-control status">
+                                                <option value="0">Open</option>
+                                                <option value="1">Complete</option>
+                                                <option value="2">Abandoned</option>
+                                            </select>
+                                            @*@Html.DropDownListFor(m => m.Category, new { @class = "form-control",new SelectList(Model.Category, "TimZoneId", "TimZoneName", Model.TimeZoneID), tabIndex = "3" })*@
+                                            @*@Html.TextBoxFor(m => m.Category, new { placeholder = "Category", id = "Category", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Completion Date <sup>*</sup></label>
+                                            <input type="text" name="StepsData[0].StepsCompletionDate" class="form-control StepsCompletionDate" id="StepsCompletionDate" placeholder="MM/DD/YYYY" maxlength="50">
+                                            @*@Html.TextBoxFor(m => m.StepsCompletionDate, new { @class = "form-control", placeholder = "MM/DD/YYYY", id = "StepsCompletionDate", maxlength = "15", autocomplete = "off", tabIndex = "4" })*@
+                                            @*@Html.HiddenFor(m => m.StepsID)*@
+                                            <input id="hdnStepId" type="hidden" name="StepsData[0].StepsID">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <a accesskey="0" onclick="SendEmail(this);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" style="padding-right: 57%;">
+                                                @*<img src="Images/ic_mail.png" />*@<i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Days For Reminder <sup>*</sup></label>
+                                            @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                            <input type="text" name="StepsData[0].Reminderdays" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="50">
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+                                else
+                                {
+                                <div>
+                                    @{
+                                    int i = 0;
+                                    }
+                                    @if (@ViewBag.mode == 1)
+                                    {
+                                        foreach (var item in Model.StepsData)
+                                        {
+                                        <div id="EditDIv_@i">
+                                            <div class="col-lg-12">
+                                                <h5 class="page-header fundservice">Steps
+                                      <span class="view-btn backto_listspan" id="BackToList">
+                                          <a onclick="DeleteStepView(this,'@i','@item.StepsID');" style="cursor:pointer;" class="backto_list">Delete</a>
+                                      </span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Description<sup>*</sup></label>
+
+                                                    <input type="text" name="StepsData[@i].Description" class="form-control" value="@item.Description" id="Description" placeholder="Description" maxlength="50">
+                                                    @Html.HiddenFor(m => m.StepsData[@i].StepsID)
+                                                </div>
+                                            </div>
+
+
+                                            @*List<SelectListItem> Status = new List<SelectListItem>();
+                                        Status.Add(new SelectListItem() { Text = "Open", Value = "0" });
+                                        Status.Add(new SelectListItem() { Text = "Complete", Value = "1" });
+                                        Status.Add(new SelectListItem() { Text = "Abandoned", Value = "2" });
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd"> Status </label>
+                                                @Html.DropDownListFor(m => m.StepsData[@i].Assignment, new SelectList(Status, "Value", "Text"), new { @class = "form-control" })
+                                                @Html.HiddenFor(m => m.StepsData[@i].StepsID)
+                                            </div>
+                                        </div>*@
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="pwd">Status <sup>*</sup></label>
+                                                    <select class="form-control" id="StepsData[@i].Assignment" name="StepsData[@i].Assignment">
+                                                        @if (@item.Assignment == "0")
+                                                        {
+                                                            <option value="0" selected="selected">Open</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="0">Open</option>
+                                                        }
+                                                        @if (@item.Assignment == "1")
+                                                        {
+                                                            <option value="1" selected="selected">Complete</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="1">Complete</option>
+                                                        }
+                                                        @if (@item.Assignment == "2")
+                                                        {
+                                                            <option value="2" selected="selected">Abandoned</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="2">Abandoned</option>
+                                                        }
+
+                                                    </select>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Completion Date<sup>*</sup></label>
+
+                                                    <input type="text" name="StepsData[@i].StepsCompletionDate" class="form-control" value="@item.StepsCompletionDate" id="StepsCompletionDate" placeholder="MM/DD/YYYY" maxlength="50">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Email</label>
+                                                    <a accesskey="0" onclick="SendEmail(this);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" style="padding-right: 57%;">
+                                                        @*<img src="/Images/ic_mail.png" />*@<i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Days For Reminder <sup>*</sup></label>
+                                                    @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                                    <input type="text" name="StepsData[@i].Reminderdays" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="50">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <input type="hidden" value="@item.StepsID" name="ServiceData[@i].StepsID">
+                                            </div>
+                                        </div>
+                                                        i++;
+                                        }
+                                    }
+
+                                </div>
+                                }
+                            }
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="btnwrp_subcal">
+                                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidagencyInfo();">Submit</button>
+                                        @* <button id="btnExit" class="my-btn" type="button">Back</button></a>*@
+                                        <div class="clear"></div>
+                                    </div>
+                                    <!--btnwrp_subcal--->
+                                </div>
+                            </div>
+                        </div>
+                        <!--add-useragform--->
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+}

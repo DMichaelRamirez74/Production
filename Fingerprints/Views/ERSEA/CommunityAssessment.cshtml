@@ -1,0 +1,1202 @@
+﻿@{
+    ViewBag.Title = "CommunityAssessment";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section MainContentHolder{
+    <link href="~/Content/ERSEA/erseamain.css" rel="stylesheet" />
+    <link href="~/Content/ERSEA/communityassessment.css" rel="stylesheet" />
+    <link href="~/Content/css/d8c0ee6cb173812108ee72a43aea775d4ab7eac5.automin.cache_extend.1504111951.css" rel="stylesheet" />
+    <link href="~/Content/nv.d3.min.css" rel="stylesheet" />
+    <script src="~/Scripts/d3/d3.min.js"></script>
+    <script src="~/Scripts/nv.d3.min.js"></script>
+
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <div class="right-side-container-ch">
+
+
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-xs-12 ersea-detl-title">
+                            <h2>Community Assessment</h2>
+                            <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                        </div>
+                        <div class="col-xs-12 text-center serch-billing-block" style="margin-bottom:20px;">
+                            <div class="twitter-typeahead-append-input-group">
+                                <span class="twitter-typeahead" style="position: relative; display: inline-block;">
+
+                                    <input type="text" placeholder="Search by ZIP, address, city, or county" id="q" class="txt-searchtext ersa-select add_input txt-location tt-input" style="vertical-align:inherit;text-transform:capitalize;">
+                                    <pre aria-hidden="true" style="position: absolute; visibility: hidden; white-space: pre; font-family: &quot;Helvetica Neue&quot;,Helvetica, Arial, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; word-spacing: 0px; letter-spacing: 0px; text-indent: 0px; text-rendering: auto; text-transform: none;"></pre><div class="tt-menu" style="position: absolute; top: 100%; left: 0px; z-index: 100; display: none;">
+                                        <div class="tt-dataset tt-dataset-0"></div>
+                                    </div>
+                                </span>
+                            </div>
+                            <div class="ersa-search-btn">
+                                <a href="javascript:void(0);" class="btn-search btn-search-location">Search</a>
+                            </div>                                
+                        </div>
+
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-lg-7 map_image">
+                            <div id="map_canvas" style="width:100%; height:400px;"></div>
+                        </div>
+                        <div class="col-lg-5 zip_title hidden">
+                            <div class="ersa_title">
+                                <h4>ZIP Code <span class="zip_heading"></span></h4>
+                            </div>
+
+                            <div class="list_info" style="border-radius: 10px;background: #f1f5f8;padding: 10px; border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0; width:100%; float:left;">
+                                <div class="icon_sec hidden">
+                                    <img src="/images/Population.png" /><a href="javascript:void(0);" id="population_tile">Population</a>
+                                </div>
+                                <div class="icon_sec green_clr hidden">
+                                    <img src="/images/Real_Estate.png" /><a href="javascript:void(0);" id="real_estate_tile">Real Estate</a>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec " style="position: relative;">
+                                        <p>Primary City</p>
+                                        <p id="primary_city"></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>County</p>
+                                        <p id="county"></p>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>Area Code</p>
+                                        <p id="area_code"></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>Coordinates</p>
+                                        <p id="coordinates"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5 State_title hidden">
+                            <div class="ersa_title">
+                                <h4><span class="state_heading"></span> Zip Codes</h4>
+                            </div>
+
+                            <div class="list_info" style="border-radius: 10px;background: #f1f5f8;padding: 10px; border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0; width:100%; float:left;">
+                                <div class="icon_sec">
+                                    <i class="fa fa-list" aria-hidden="true" style="float:left;margin-top:5px;"></i><a href="javascript:void(0);" id="zip_code_tile"> Zip Code List</a>
+                                </div>
+
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>Coordinates</p>
+                                        <p id="coordinates_state"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5 City_State_title hidden">
+                            <div class="ersa_title">
+                                <h2 style="text-align: center; margin-top: 10px">
+                                    <span class="state_city_span"></span><br><small style="color: #fff">
+                                        <a href="#zipCode_city_state" id="zip_count" style="color: #fff;"></a><br>
+                                        <span style="font-size: 75%">(Most Populated ZIP: <a href="javascript:void(0);" id="most_pop_zip" style="color:blue;text-decoration:underline;"></a>)</span>
+                                    </small>
+                                </h2>
+                            </div>
+
+                            <div class="list_info" style="border-radius: 10px;background: #f1f5f8;padding: 10px; border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0; width:100%; float:left;">
+
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>County</p>
+                                        <p id="county"></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>Area Code</p>
+                                        <p id="area_code"></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="ersa-content-desc information_sec" style="position: relative;">
+                                        <p>Coordinates</p>
+                                        <p id="coordinates"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12" id="full_chart_section">
+                        <div class="col-xs-12 detail_abt_zip hidden">
+                            <div class="city-zip">
+                                <h2>Cities in ZIP code <span class="zip_code_detail"></span></h2>
+                                <p>
+                                    The cities below are at least partially located in ZIP code <span class="zip_code_detail"></span>. In addition to the primary city for a ZIP code,
+                                    USPS also publishes a list of other acceptable cities that can be used with ZIP code <span class="zip_code_detail"></span>. However, if you are mailing something
+                                    to ZIP code <span class="zip_code_detail"></span>, you should not use any of the cities listed as unacceptable. Choose from the primary or acceptable cities when mailing
+                                    your package or letter.
+                                </p>
+                                <dl class="dl-horizontal">
+                                    <dt>Primary city:</dt>
+                                    <dd id="primary_city_acc"></dd>
+                                    <dt>Acceptable:</dt>
+                                    <dd id="acceptable"></dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="city-zip">
+                                <h2>Stats and Demographics for the <span class="zip_heading_stats"></span> ZIP Code</h2>
+                            </div>
+                            <div class="city-zip div_statistics hidden" id="stats">
+                                <p>ZIP code <span class="zip_heading_stats">94115</span> is located in State of <a href="javascrip:void(0);" id="state_demographics"></a> and covers a slightly less than average land area compared to other ZIP codes in the United States. It also has an extremely large population density. </p>
+                                <p>The people living in ZIP code <span class="zip_heading_stats">94115</span> are primarily white. The number of people in their late 20s to early 40s is extremely large while the number of seniors is small. There are also an extremely large number of single adults and an extremely small number of families. The percentage of children under 18 living in the <span class="zip_heading_stats">94115</span> ZIP code is extremely small compared to other areas of the country. </p>
+                            </div>
+                        </div>
+                        <div class="row div_statistics hidden">
+                            <div class="col-xs-12 col-lg-6 pad-statics">
+                                <table class="table table-hover" style="background:#fff;margin:20px 0;">
+                                    <tbody>
+                                        <tr>
+                                            <th class="text-left">Population</th>
+                                            <td class="text-right" id="population"></td>
+                                            <td style="width: 106px;"></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="text-left">Population Density</th>
+                                            <td class="text-right" id="population_density"></td>
+                                            <td style="text-align: right; white-space: nowrap;"><small>people per sq mi</small></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-left">Housing Units</th>
+                                            <td class="text-right" id="housing_units"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-left">Median Home Value</th>
+                                            <td class="text-right" id="median_home_value"></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-xs-12 col-lg-6 pad-statics">
+                                <table class="table table-hover" style="background:#fff;margin:20px 0;">
+                                    <tbody>
+                                        <tr>
+                                            <th class="text-left">Land Area</th>
+                                            <td class="text-right" id="land_area"></td>
+                                            <td style="width: 106px;"><small>sq mi</small></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="text-left">Water Area</th>
+                                            <td class="text-right" id="water_area"></td>
+                                            <td><small>sq mi</small></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="text-left">Occupied Housing Units</th>
+                                            <td class="text-right" id="occ_housing_units"></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-left">Median Household Income</th>
+                                            <td class="text-right" id="median_household_income"></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                        </div>
+
+                            <div style="padding: 0 30px;padding:25px;" class="no_stats_found hidden alert alert-danger text-center col-xs-12"> Stats and other demographics information for ZIP code <span class="zip_heading_stats"></span> are not available</div>
+                        
+                        <div id="all_chart_section">
+
+                            <div class="col-xs-12 population hidden">
+                                <div class="well well-sm chart-section">
+                                    <h3>Estimated Population over Time</h3>
+                                    <div class="D3ChartOuterContainer">
+                                        <div class="D3ChartContainer">
+                                            <div class="D3SizingContainer">
+                                                <svg id="LineChart0" class="LineChart nvd3-svg">
+
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 population_by_age hidden">
+                                <div class="well well-sm chart-section">
+                                    <h3>Total Population by Age</h3>
+                                    <center>
+                                        <table cellspacing="0" class="slightly_padded" style="font-weight: bold; margin: 0 auto" align="center">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Median Age: </td>
+                                                    <td align="right" id="median_age"></td>
+                                                    <td width="50"></td>
+                                                    <td>Male Median Age: </td>
+                                                    <td align="right" id="male_median_age"></td>
+                                                    <td width="50"></td>
+                                                    <td>Female Median Age: </td>
+                                                    <td align="right" id="female_median_age"></td>
+                                                    <td width="50"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </center>
+                                    <br>
+                                    <div style="text-align:center;">
+                                        <div class="D3ChartOuterContainer">
+                                            <div class="D3ChartContainer">
+                                                <div class="D3SizingContainer">
+                                                    <svg id="LineChart1" class="LineChart nvd3-svg">
+
+                                                    </svg>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="too-wide">
+                                        <table cellspacing="0" class="lined" style="font-size: 11px; width: 100%">
+                                            <tbody>
+                                                <tr class="header_row">
+                                                    <td></td>
+                                                    <td align="right">Under 5</td>
+                                                    <td align="right">5-9</td>
+                                                    <td align="right">10-14</td>
+                                                    <td align="right">15-19</td>
+                                                    <td align="right">20-24</td>
+                                                    <td align="right">25-29</td>
+                                                    <td align="right">30-34</td>
+                                                    <td align="right">35-39</td>
+                                                    <td align="right">40-44</td>
+                                                    <td align="right">45-49</td>
+                                                    <td align="right">50-54</td>
+                                                    <td align="right">55-59</td>
+                                                    <td align="right">60-64</td>
+                                                    <td align="right">65-69</td>
+                                                    <td align="right">70-74</td>
+                                                    <td align="right">75-79</td>
+                                                    <td align="right">80-84</td>
+                                                    <td align="right">85 Plus</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Male</td>
+                                                    <td align="right" id="male_under5"></td>
+                                                    <td align="right" id="male_5to9"></td>
+                                                    <td align="right" id="male_10to14"></td>
+                                                    <td align="right" id="male_15to19"></td>
+                                                    <td align="right" id="male_20to24"></td>
+                                                    <td align="right" id="male_25to29"></td>
+                                                    <td align="right" id="male_30to34"></td>
+                                                    <td align="right" id="male_35to39"></td>
+                                                    <td align="right" id="male_40to44"></td>
+                                                    <td align="right" id="male_45to49"></td>
+                                                    <td align="right" id="male_50to54"></td>
+                                                    <td align="right" id="male_55to59"></td>
+                                                    <td align="right" id="male_60to64"></td>
+                                                    <td align="right" id="male_65to69"></td>
+                                                    <td align="right" id="male_70to74"></td>
+                                                    <td align="right" id="male_75to79"></td>
+                                                    <td align="right" id="male_80to84"></td>
+                                                    <td align="right" id="male_85plus"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Female</td>
+                                                    <td align="right" id="female_under5"></td>
+                                                    <td align="right" id="female_5to9"></td>
+                                                    <td align="right" id="female_10to14"></td>
+                                                    <td align="right" id="female_15to19"></td>
+                                                    <td align="right" id="female_20to24"></td>
+                                                    <td align="right" id="female_25to29"></td>
+                                                    <td align="right" id="female_30to34"></td>
+                                                    <td align="right" id="female_35to39"></td>
+                                                    <td align="right" id="female_40to44"></td>
+                                                    <td align="right" id="female_45to49"></td>
+                                                    <td align="right" id="female_50to54"></td>
+                                                    <td align="right" id="female_55to59"></td>
+                                                    <td align="right" id="female_60to64"></td>
+                                                    <td align="right" id="female_65to69"></td>
+                                                    <td align="right" id="female_70to74"></td>
+                                                    <td align="right" id="female_75to79"></td>
+                                                    <td align="right" id="female_80to84"></td>
+                                                    <td align="right" id="female_85plus"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td align="right" id="total_under5"></td>
+                                                    <td align="right" id="total_5to9"></td>
+                                                    <td align="right" id="total_10to14"></td>
+                                                    <td align="right" id="total_15to19"></td>
+                                                    <td align="right" id="total_20to24"></td>
+                                                    <td align="right" id="total_25to29"></td>
+                                                    <td align="right" id="total_30to34"></td>
+                                                    <td align="right" id="total_35to39"></td>
+                                                    <td align="right" id="total_40to44"></td>
+                                                    <td align="right" id="total_45to49"></td>
+                                                    <td align="right" id="total_50to54"></td>
+                                                    <td align="right" id="total_55to59"></td>
+                                                    <td align="right" id="total_60to64"></td>
+                                                    <td align="right" id="total_65to69"></td>
+                                                    <td align="right" id="total_70to74"></td>
+                                                    <td align="right" id="total_75to79"></td>
+                                                    <td align="right" id="total_80to84"></td>
+                                                    <td align="right" id="total_85plus_age"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 population_by_gender hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Gender</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+                                                <div class="D3ChartOuterContainer">
+                                                    <div class="D3ChartContainer" style="padding-bottom:100%;">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart0" class="PieChart nvd3-svg" gender_total="0">
+
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left"><span class="legend-color" style="background-color: #1f77b4;"></span>&nbsp;<span class="legend-label">Male</span></th>
+                                                        <td class="text-right"><span class="value" id="maleCount">18,396</span></td>
+                                                        <td class="text-right" id="malePercent">59%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left"><span class="legend-color" style="background-color: #aec7e8;"></span>&nbsp;<span class="legend-label">Female</span></th>
+                                                        <td class="text-right"><span class="value" id="femaleCount">12,728</span></td>
+                                                        <td class="text-right" id="femalePercent">41%</td>
+                                                    </tr>
+                                                </tbody>
+                                                <caption>Gender</caption>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 population_by_race hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Race</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+
+                                                <div class="D3ChartOuterContainer">
+
+                                                    <div class="D3ChartContainer" style="padding-bottom:100%;">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart1" class="PieChart nvd3-svg" race_total="0">
+
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left">
+                                                            <span class="legend-color" style="background-color: #1f77b4;"></span>&nbsp;
+                                                            <span class="legend-label">White</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_white_count"></span></td>
+                                                        <td class="text-right" id="pie_white_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left">
+                                                            <span class="legend-color" style="background-color: #aec7e8;"></span>&nbsp;
+                                                            <span class="legend-label">Black Or African American</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="bar_black_count"></span></td>
+                                                        <td class="text-right" id="pie_black_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ff7f0e" class="text-left">
+                                                            <span class="legend-color" style="background-color: #ff7f0e;">
+                                                            </span>&nbsp;<span class="legend-label">American Indian Or Alaskan Native</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_Native"></span></td>
+                                                        <td class="text-right" id="pie_native_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ffbb78" class="text-left">
+                                                            <span class="legend-color" style="background-color: #ffbb78;">
+                                                            </span>&nbsp;<span class="legend-label">Asian</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_asian_count"></span></td>
+                                                        <td class="text-right" id="pie_asian_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#2ca02c" class="text-left">
+                                                            <span class="legend-color" style="background-color: #2ca02c;">
+                                                            </span>&nbsp;<span class="legend-label">Native Hawaiian &amp; Other Pacific Islander</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_hawaai_count"></span></td>
+                                                        <td class="text-right" id="pie_hawaai_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#98df8a" class="text-left">
+                                                            <span class="legend-color" style="background-color: #98df8a;"></span>&nbsp;
+                                                            <span class="legend-label">Other Race</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_other_count"></span></td>
+                                                        <td class="text-right" id="pie_other_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#d62728" class="text-left">
+                                                            <span class="legend-color" style="background-color: #d62728;"></span>&nbsp;
+                                                            <span class="legend-label">Two Or More Races</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_two_More_count"></span></td>
+                                                        <td class="text-right" id="pie_two_more_percent"></td>
+                                                    </tr>
+                                                </tbody>
+                                                <caption>Race</caption>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 head_of_household hidden">
+                                <div class="well well-sm chart-section">
+                                    <h3>Head of Household by Age</h3>
+                                    <div style="text-align:center;">
+                                        <div class="D3ChartOuterContainer">
+                                            <div class="D3ChartContainer">
+                                                <div class="D3SizingContainer">
+                                                    <svg id="LineChart2" class="LineChart nvd3-svg">
+
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="too-wide">
+                                        <table cellspacing="0" class="lined" style="font-size: 11px; width: 100%">
+                                            <tbody>
+                                                <tr class="header_row">
+                                                    <td></td>
+                                                    <td align="right">15-24</td>
+                                                    <td align="right">25-34</td>
+                                                    <td align="right">35-44</td>
+                                                    <td align="right">45-54</td>
+                                                    <td align="right">55-64</td>
+                                                    <td align="right">65-74</td>
+                                                    <td align="right">75-84</td>
+                                                    <td align="right">85 Plus</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Owner</td>
+                                                    <td align="right" id="owner_15to24"></td>
+                                                    <td align="right" id="owner_25to34"></td>
+                                                    <td align="right" id="owner_35to44"></td>
+                                                    <td align="right" id="owner_45to54"></td>
+                                                    <td align="right" id="owner_55to64"></td>
+                                                    <td align="right" id="owner_65to74"></td>
+                                                    <td align="right" id="owner_75to84"></td>
+                                                    <td align="right" id="owner_85plus"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Renter</td>
+                                                    <td align="right" id="renter_15to24"></td>
+                                                    <td align="right" id="renter_25to34"></td>
+                                                    <td align="right" id="renter_35to44"></td>
+                                                    <td align="right" id="renter_45to54"></td>
+                                                    <td align="right" id="renter_55to64"></td>
+                                                    <td align="right" id="renter_65to74"></td>
+                                                    <td align="right" id="renter_75to84"></td>
+                                                    <td align="right" id="renter_85plus"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td align="right" id="total_15to24"></td>
+                                                    <td align="right" id="total_25to34"></td>
+                                                    <td align="right" id="total_35to44"></td>
+                                                    <td align="right" id="total_45to54"></td>
+                                                    <td align="right" id="total_55to64"></td>
+                                                    <td align="right" id="total_65to74"></td>
+                                                    <td align="right" id="total_75to84"></td>
+                                                    <td align="right" id="total_85plus_head"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 families_singles hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Families vs Singles</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+                                                <div class="D3ChartOuterContainer">
+                                                    <div class="D3ChartContainer" style="padding-bottom: 100%">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart2" class="PieChart nvd3-svg" fam_sing_total="0">
+
+
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left">
+                                                            <span class="legend-color" style="background-color: #1f77b4;">
+                                                            </span>&nbsp;<span class="legend-label">Husband Wife Family Households</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="housband_wife_family"></span></td>
+                                                        <td class="text-right" id="housband_wife_family_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left">
+                                                            <span class="legend-color" style="background-color: #aec7e8;">
+                                                            </span>&nbsp;<span class="legend-label">Single Guardian</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="singleguardian"></span></td>
+                                                        <td class="text-right" id="singleGuardian_percentage"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ff7f0e" class="text-left">
+                                                            <span class="legend-color" style="background-color: #ff7f0e;"></span>&nbsp;
+                                                            <span class="legend-label">Singles</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="singles"></span></td>
+                                                        <td class="text-right" id="singles_percentage"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ffbb78" class="text-left">
+                                                            <span class="legend-color" style="background-color: #ffbb78;">
+                                                            </span>&nbsp;<span class="legend-label">Singles With Roommate</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="single_withRoomate"></span></td>
+                                                        <td class="text-right" id="singleswithroomatepercentage"></td>
+                                                    </tr>
+                                                </tbody>
+                                                <caption>Families vs Singles</caption>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 households_kids hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Households with Kids</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+                                                <div class="D3ChartOuterContainer">
+                                                    <div class="D3ChartContainer" style="padding-bottom: 100%">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart3" class="PieChart nvd3-svg" house_kids_total="0">
+
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="3" class="text-left">
+                                                            Average Household Size: <span id="avghouseholdsize"></span>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left"><span class="legend-color" style="background-color: #1f77b4;"></span>&nbsp;<span class="legend-label">Households without Kids</span></th>
+                                                        <td class="text-right"><span class="value" id="householdwithoutkids"></span></td>
+                                                        <td class="text-right" id="householdwithoutkidsPercent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left"><span class="legend-color" style="background-color: #aec7e8;"></span>&nbsp;<span class="legend-label">Households with Kids</span></th>
+                                                        <td class="text-right"><span class="value" id="householdwithkids"></span></td>
+                                                        <td class="text-right" id="householdwithkidspercent"></td>
+                                                    </tr>
+                                                </tbody>
+                                                <caption>Households with Kids</caption>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 children_by_age hidden">
+                                <div class="well well-sm chart-section">
+                                    <h3>Children by Age</h3>
+                                    <div style="text-align:center;">
+                                        <div class="D3ChartOuterContainer">
+                                            <div class="D3ChartContainer">
+                                                <div class="D3SizingContainer">
+                                                    <svg id="LineChart3" class="LineChart nvd3-svg">
+
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="too-wide">
+                                        <table cellspacing="0" class="lined" style="font-size: 11px; width: 100%">
+                                            <tbody>
+                                                <tr class="header_row">
+                                                    <td></td>
+                                                    <td align="right">1</td>
+                                                    <td align="right">2</td>
+                                                    <td align="right">3</td>
+                                                    <td align="right">4</td>
+                                                    <td align="right">5</td>
+                                                    <td align="right">6</td>
+                                                    <td align="right">7</td>
+                                                    <td align="right">8</td>
+                                                    <td align="right">9</td>
+                                                    <td align="right">10</td>
+                                                    <td align="right">11</td>
+                                                    <td align="right">12</td>
+                                                    <td align="right">13</td>
+                                                    <td align="right">14</td>
+                                                    <td align="right">15</td>
+                                                    <td align="right">16</td>
+                                                    <td align="right">17</td>
+                                                    <td align="right">18</td>
+                                                    <td align="right">19</td>
+                                                    <td align="right">20</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Male</td>
+                                                    <td align="right" id="male1"></td>
+                                                    <td align="right" id="male2"></td>
+                                                    <td align="right" id="male3"></td>
+                                                    <td align="right" id="male4"></td>
+                                                    <td align="right" id="male5"></td>
+                                                    <td align="right" id="male6"></td>
+                                                    <td align="right" id="male7"></td>
+                                                    <td align="right" id="male8"></td>
+                                                    <td align="right" id="male9"></td>
+                                                    <td align="right" id="male10"></td>
+                                                    <td align="right" id="male11"></td>
+                                                    <td align="right" id="male12"></td>
+                                                    <td align="right" id="male13"></td>
+                                                    <td align="right" id="male14"></td>
+                                                    <td align="right" id="male15"></td>
+                                                    <td align="right" id="male16"></td>
+                                                    <td align="right" id="male17"></td>
+                                                    <td align="right" id="male18"></td>
+                                                    <td align="right" id="male19"></td>
+                                                    <td align="right" id="male20">542</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Female</td>
+                                                    <td align="right" id="female1"></td>
+                                                    <td align="right" id="female2"></td>
+                                                    <td align="right" id="female3"></td>
+                                                    <td align="right" id="female4"></td>
+                                                    <td align="right" id="female5"></td>
+                                                    <td align="right" id="female6"></td>
+                                                    <td align="right" id="female7"></td>
+                                                    <td align="right" id="female8"></td>
+                                                    <td align="right" id="female9"></td>
+                                                    <td align="right" id="female10"></td>
+                                                    <td align="right" id="female11"></td>
+                                                    <td align="right" id="female12"></td>
+                                                    <td align="right" id="female13"></td>
+                                                    <td align="right" id="female14"></td>
+                                                    <td align="right" id="female15"></td>
+                                                    <td align="right" id="female16"></td>
+                                                    <td align="right" id="female17"></td>
+                                                    <td align="right" id="female18"></td>
+                                                    <td align="right" id="female19"></td>
+                                                    <td align="right" id="female20"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td align="right" id="totalage1"></td>
+                                                    <td align="right" id="totalage2"></td>
+                                                    <td align="right" id="totalage3"></td>
+                                                    <td align="right" id="totalage4"></td>
+                                                    <td align="right" id="totalage5"></td>
+                                                    <td align="right" id="totalage6"></td>
+                                                    <td align="right" id="totalage7"></td>
+                                                    <td align="right" id="totalage8"></td>
+                                                    <td align="right" id="totalage9"></td>
+                                                    <td align="right" id="totalage10"></td>
+                                                    <td align="right" id="totalage11"></td>
+                                                    <td align="right" id="totalage12"></td>
+                                                    <td align="right" id="totalage13"></td>
+                                                    <td align="right" id="totalage14"></td>
+                                                    <td align="right" id="totalage15"></td>
+                                                    <td align="right" id="totalage16"></td>
+                                                    <td align="right" id="totalage17"></td>
+                                                    <td align="right" id="totalage18"></td>
+                                                    <td align="right" id="totalage19"></td>
+                                                    <td align="right" id="totalage20"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!--Aravind-->
+                            <div class="col-xs-12 city-zip" id="real_estate">
+                                <h2>Real Estate and Housing</h2>
+                                <p>
+                                    ZIP code <span class="zip_heading"></span>. has a slightly less than average percentage of vacancies. The Census also indicates that there are one or more nursing homes and universities nearby.
+                                </p>
+                                <br />
+                                @*<p>
+                                        The majority of household are rented. Homes in ZIP code <span class="zip_heading"></span> were primarily built in 1939 or earlier. Looking at <span class="zip_heading"></span> real estate data, the median home value of $237,800 is high compared to the rest of the country. It is also extremely high compared to nearby ZIP codes. So you are less likely to find inexpensive homes in <span class="zip_heading"></span>. Rentals in <span class="zip_heading"></span> are most commonly 1 bedrooms. The rent for 1 bedrooms is normally $1,000+/month including utilities. Prices for rental property include ZIP code <span class="zip_heading"></span> apartments, townhouses, and homes that are primary residences.
+
+                                    </p>*@
+
+                            </div>
+                            <div class="col-xs-12 housing_type hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Housing Type</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+
+                                                <div class="D3ChartOuterContainer">
+
+                                                    <div class="D3ChartContainer" style="padding-bottom:100%;">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart4" class="PieChart nvd3-svg" hous_type_total="0">
+
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left">
+                                                            <span class="legend-color" style="background-color: #1f77b4;"></span>&nbsp;
+                                                            <span class="legend-label"> In Occupied Housing Units</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_occupied_housing"></span></td>
+                                                        <td class="text-right" id="pie_occupied_housing_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left">
+                                                            <span class="legend-color" style="background-color: #aec7e8;"></span>&nbsp;
+                                                            <span class="legend-label">Correctional Facility For Adults</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_correctional"></span></td>
+                                                        <td class="text-right" id="pie_correctional_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ff7f0e" class="text-left">
+                                                            <span class="legend-color" style="background-color: #ff7f0e;">
+                                                            </span>&nbsp;<span class="legend-label">Juvenile Facilities</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_Juvenile"></span></td>
+                                                        <td class="text-right" id="pie_Juvenile_percent"></td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th data-color="#ffbb78" class="text-left">
+                                                            <span class="legend-color" style="background-color: #ffbb78;">
+                                                            </span>&nbsp;<span class="legend-label">Nursing Facilities</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_Nursing"></span></td>
+                                                        <td class="text-right" id="pie_Nursing_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#2ca02c" class="text-left">
+                                                            <span class="legend-color" style="background-color: #2ca02c;"></span>&nbsp;
+                                                            <span class="legend-label">Other Institutional</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_Institutional_count"></span></td>
+                                                        <td class="text-right" id="pie_Institutional_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#98df8a" class="text-left">
+                                                            <span class="legend-color" style="background-color: #98df8a;"></span>&nbsp;
+                                                            <span class="legend-label">College Student Housing</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_College_count"></span></td>
+                                                        <td class="text-right" id="pie_College_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#d62728" class="text-left">
+                                                            <span class="legend-color" style="background-color: #d62728;"></span>&nbsp;
+                                                            <span class="legend-label">Military Quarters</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_Military_count"></span></td>
+                                                        <td class="text-right" id="pie_Military_percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ff9896" class="text-left">
+                                                            <span class="legend-color" style="background-color:#ff9896;"></span>&nbsp;
+                                                            <span class="legend-label">Other Noninstitutional</span>
+                                                        </th>
+                                                        <td class="text-right"><span class="value" id="pie_Noninstitutional_count"></span></td>
+                                                        <td class="text-right" id="pie_Noninstitutional_percent"></td>
+                                                    </tr>
+
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 housing_occupancy hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Housing Occupancy</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+                                                <div class="D3ChartOuterContainer">
+                                                    <div class="D3ChartContainer" style="padding-bottom: 100%">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart5" class="PieChart nvd3-svg" hous_occ_total="0"></svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left"><span class="legend-color" style="background-color: #1f77b4;"></span>&nbsp;<span class="legend-label">Owned Households With A Mortgage</span></th>
+                                                        <td class="text-right"><span id="pie-occupancy-mortgage" class="value"></span></td>
+                                                        <td class="text-right" id="pie-occupancy-mortgage-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left"><span class="legend-color" style="background-color: #aec7e8;"></span>&nbsp;<span class="legend-label">Owned Households Free &amp; Clear</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-occupancy-free"></span></td>
+                                                        <td class="text-right" id="pie-occupancy-free-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ff7f0e" class="text-left"><span class="legend-color" style="background-color: #ff7f0e;"></span>&nbsp;<span class="legend-label">Renter Occupied Households</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-occupancy-renter"></span></td>
+                                                        <td class="text-right" id="pie-occupancy-renter-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ffbb78" class="text-left"><span class="legend-color" style="background-color: #ffbb78;"></span>&nbsp;<span class="legend-label">Households Vacant</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-occupancy-vacant"></span></td>
+                                                        <td class="text-right" id="pie-occupancy-vacant-percent"></td>
+                                                    </tr>
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 vacancy_reasons hidden">
+                                <div class="well well-sm chart-section">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <h3>Vacancy Reasons</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row pie-chart-section">
+                                        <div class="col-xs-12 col-md-4 text-center">
+                                            <div class="pie-chart text-center">
+                                                <div class="D3ChartOuterContainer">
+                                                    <div class="D3ChartContainer" style="padding-bottom: 100%">
+                                                        <div class="D3SizingContainer">
+                                                            <svg id="PieChart6" class="PieChart nvd3-svg" vac_rea_total="0"></svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-8">
+                                            <table class="chart-legend table table-striped table-hover table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <th data-color="#1f77b4" class="text-left"><span class="legend-color" style="background-color: #1f77b4;"></span>&nbsp;<span class="legend-label">For Rent</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-rent"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-rent-perent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#aec7e8" class="text-left"><span class="legend-color" style="background-color: #aec7e8;"></span>&nbsp;<span class="legend-label">Rented &amp; Unoccupied</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-unoccupied"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-unoccupied-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ff7f0e" class="text-left"> <span class="legend-color" style="background-color: #ff7f0e;"></span>&nbsp;<span class="legend-label">For Sale Only</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-sale"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-sale-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#ffbb78" class="text-left"><span class="legend-color" style="background-color: #ffbb78;"></span>&nbsp;<span class="legend-label">Sold &amp; Unoccupied</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-sold"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-sold-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#2ca02c" class="text-left"><span class="legend-color" style="background-color: #2ca02c;"></span>&nbsp;<span class="legend-label">For Season Recreational Or Occasional Use</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-season"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-season-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#98df8a" class="text-left"><span class="legend-color" style="background-color: #98df8a;"></span>&nbsp;<span class="legend-label">For Migrant Workers</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-workers"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-workers-percent"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th data-color="#d62728" class="text-left"><span class="legend-color" style="background-color: #d62728;"></span>&nbsp;<span class="legend-label">Vacant For Other Reasons</span></th>
+                                                        <td class="text-right"><span class="value" id="pie-vacancy-otherreasons"></span></td>
+                                                        <td class="text-right" id="pie-vacancy-otherreasons-percent"></td>
+                                                    </tr>
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Aravind end-->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zipcodeSection col-xs-12 hidden" style="padding: 0 30px;">
+                    <div class="col-xs-12 city-zip">
+                        <h2 id="zips-list">ZIP Codes in  <span class="state_heading" style="text-transform:capitalize;"></span></h2>
+                        <br>
+                        <div class="panel panel-default panel-prefixes">
+                            <div class="panel-heading visible-md visible-lg">
+                                <div class="row">
+                                    <div class="col-xs-12 prefix-col1">
+                                        ZIP Code
+                                    </div>
+                                    <div class="col-xs-12 prefix-col2">
+                                        Type
+                                    </div>
+                                    <div class="col-xs-12 prefix-col3">
+                                        Common Cities
+                                    </div>
+                                    <div class="col-xs-12 prefix-col4">
+                                        County
+                                    </div>
+                                    <div class="col-xs-12 prefix-col5">
+                                        Area Codes
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group zip_code_appendDiv">
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 city-zip1 zip_state_city_section hidden" id="zipCode_city_state" style="padding: 0 30px;">
+                    <h2>ZIP Codes Designated for <span class="state_city_span"></span></h2>
+                    <div class="col-xs-12 table-responsive no-padding" style="background-color:white;">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>ZIP</th>
+                                    <th style="text-align: right">% of City Population</th>
+                                    <th>Type</th>
+                                    <th nowrap="">Primary City</th>
+                                    <th>Acceptable Cities</th>
+                                    <th>Unacceptable Cities</th>
+                                </tr>
+                            </thead>
+                            <tbody class="zip_state_city_div"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-xs-12 pad-statics">
+                    <div class="alert alert-danger text-center no_zip_code hidden" style="padding: 0 30px;padding:25px  ;"></div>
+                </div>
+                <div class="col-xs-12" style="padding: 0 30px;">
+                    <div class="state-list">
+                        <a name="by_state"></a>
+                        <h2>Zip Codes by State</h2>
+
+                        <ul class="list-unstyled state-links">
+                            <li><a href="/al/">Alabama</a></li>
+                            <li><a href="/ak/">Alaska</a></li>
+                            <li><a href="/az/">Arizona</a></li>
+                            <li><a href="/ar/">Arkansas</a></li>
+                            <li><a href="/ca/">California</a></li>
+                            <li><a href="/co/">Colorado</a></li>
+                            <li><a href="/ct/">Connecticut</a></li>
+                            <li><a href="/de/">Delaware</a></li>
+                            <li><a href="/fl/">Florida</a></li>
+                            <li><a href="/ga/">Georgia</a></li>
+                            <li><a href="/hi/">Hawaii</a></li>
+                            <li><a href="/id/">Idaho</a></li>
+                            <li><a href="/il/">Illinois</a></li>
+                            <li><a href="/in/">Indiana</a></li>
+                            <li><a href="/ia/">Iowa</a></li>
+                            <li><a href="/ks/">Kansas</a></li>
+                            <li><a href="/ky/">Kentucky</a></li>
+                            <li><a href="/la/">Louisiana</a></li>
+                            <li><a href="/me/">Maine</a></li>
+                            <li><a href="/md/">Maryland</a></li>
+                            <li><a href="/ma/">Massachusetts</a></li>
+                            <li><a href="/mi/">Michigan</a></li>
+                            <li><a href="/mn/">Minnesota</a></li>
+                            <li><a href="/ms/">Mississippi</a></li>
+                            <li><a href="/mo/">Missouri</a></li>
+                            <li><a href="/mt/">Montana</a></li>
+                            <li><a href="/ne/">Nebraska</a></li>
+                            <li><a href="/nv/">Nevada</a></li>
+                            <li><a href="/nh/">New Hampshire</a></li>
+                            <li><a href="/nj/">New Jersey</a></li>
+                            <li><a href="/nm/">New Mexico</a></li>
+                            <li><a href="/ny/">New York</a></li>
+                            <li><a href="/nc/">North Carolina</a></li>
+                            <li><a href="/nd/">North Dakota</a></li>
+                            <li><a href="/oh/">Ohio</a></li>
+                            <li><a href="/ok/">Oklahoma</a></li>
+                            <li><a href="/or/">Oregon</a></li>
+                            <li><a href="/pa/">Pennsylvania</a></li>
+                            <li><a href="/pr/">Puerto Rico</a></li>
+                            <li><a href="/ri/">Rhode Island</a></li>
+                            <li><a href="/sc/">South Carolina</a></li>
+                            <li><a href="/sd/">South Dakota</a></li>
+                            <li><a href="/tn/">Tennessee</a></li>
+                            <li><a href="/tx/">Texas</a></li>
+                            <li><a href="/ut/">Utah</a></li>
+                            <li><a href="/vt/">Vermont</a></li>
+                            <li><a href="/va/">Virginia</a></li>
+                            <li><a href="/wa/">Washington</a></li>
+                            <li><a href="/dc/">Washington, DC</a></li>
+                            <li><a href="/wv/">West Virginia</a></li>
+                            <li><a href="/wi/">Wisconsin</a></li>
+                            <li><a href="/wy/">Wyoming</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        var latitutde = '';
+        var longitude = '';
+    </script>
+    
+    <script src="~/Scripts/twittertypeahead.js"></script>
+    <script src="~/Scripts/CommunityAssessment.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+
+
+       
+    </script>
+    <script type="text/javascript">
+        function toggleIcon(e) {
+            $(e.target)
+                    .prev('.panel-heading')
+                    .find(".more-less")
+                    .find(".more-less1")
+                    .toggleClass('glyphicon-plus glyphicon-minus');
+        }
+        $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+        $('.panel-group').on('shown.bs.collapse', toggleIcon);
+    </script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC0thYYB4SiMHtBhBtrTZWYOY9crnXpK90&callback=initMap&libraries=places" async defer></script>
+
+
+}

@@ -1,0 +1,1712 @@
+﻿@model FingerprintsModel.FPA
+
+@{
+    @section Title
+{
+        Family Partnership Agreement(FPA)- @TempData["clientName"]
+
+    }
+
+    ViewBag.Title = "Roster";
+    TempData.Keep();
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    {
+        Layout = "~/Views/Shared/HomeVisitorLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+@section Script{
+    <style>
+        .btnmy {
+            color: #fff;
+            background-color: #295b8f;
+            border-color: #295b8f;
+        }
+        /* Styles for signature plugin v1.1.2. */
+        .kbw-signature {
+            display: inline-block;
+            border: 1px solid #a0a0a0;
+            -ms-touch-action: none;
+        }
+    </style>
+    <script type="text/javascript">
+        var isValid = true;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+
+            var needtoshow = 0;
+            $('.Steps').each(function (i) {
+                if ($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').val().length > 0 && $('input[name="GoalSteps[' + i + '].Description"]').val().length > 0) {
+                    needtoshow = 1;
+                }
+
+            });
+
+            if (needtoshow == 1) {
+                $('.divforS').show();
+            }
+            else {
+                $('.divforS').hide();
+            }
+
+            $('#month').val('');
+            $('#week').val('');
+            getDate();
+            if ($('#imagedata').src) {
+                if ($('#imagedata').src.length > 0) {
+                    $('#btnsign').text("Update Signature")
+                }
+                else {
+                    $('#btnsign').text("Add Signature")
+                }
+            }
+            var date = new Date();
+            var Mindate = new Date().setDate(date.getDate() - 30)
+            $("#GoalDate").datetimepicker({
+                timepicker: false,
+                minDate: Mindate,
+                maxDate: new Date(),
+                format: 'm/d/Y',
+                scrollMonth: false,
+                scrollInput: false,
+            });
+            var d = new Date(),
+       date = (d.getUTCFullYear()) + '/' + (d.getUTCMonth() + 1) + '/' + (d.getUTCDate());
+            var currentdate = new Date();
+            var mindate = new Date(currentdate.setDate(currentdate.getDate() - 30));
+
+            if ($("#CompletionDate").val()) {
+                $("#CompletionDate").datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: mindate,
+                    scrollMonth: false,
+                    scrollInput: false,
+
+                });
+            }
+            else {
+                $("#CompletionDate").datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: mindate,
+                    value: date,
+                    scrollMonth: false,
+                    scrollInput: false,
+
+                });
+            }
+            var maxndate = new Date($('#CompletionDate').val());
+            var min = new Date();
+            
+            $('.Steps').each(function (i) {
+                $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').datetimepicker({
+                    timepicker: false,
+                    maxDate: maxndate,
+                    minDate: min,
+                    format: 'm/d/Y',
+                    scrollMonth: false,
+                    scrollInput: false
+                });
+            });
+            var allstaus = true;
+            $('.Steps').each(function (i) {
+                if ($('.Steps #Status')[i].value == 1) {
+                    $('.Steps .Actual')[i].style.display = "block";
+                }
+                else {
+                    allstaus = false;
+                }
+            });
+            if (allstaus) {
+                $('.goalActual')[0].style.display = "block";
+            }
+            // $("#datepicker").datepicker({ maxDate: new Date() });
+            //$("#GoalDate").on("keypress paste", function (event) {
+            //    event.preventDefault();
+            //});
+            if ('@ViewBag.result' == 'Sucess') {
+                clearcontrols();
+            }
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            //$("#userName").on('change keypress paste', function (e) {
+            //    if (e.which === 32)
+            //        return false;
+            //    if ($(this).val().match(/\s/g)) {
+            //        $(this).val($(this).val().replace(/\s/g, ''));
+            //    }
+            //});
+            if ('@ViewBag.mode' == 0) {
+                //$('#ReferenceProg').val('');
+                $('#DdlStatusList').val('');
+                // $('#DdlDomList').val('');
+                $('#DdlCateList').val('');
+
+
+            }
+            if ('@ViewBag.mode' == 1) {
+
+                FillElementListEdit(@Model.Domain);
+            }
+
+
+
+            $('#form1').submit(function () {
+                //  $('#btnSubmit').attr('disabled', 'disabled');
+            });
+            $('#btnExit').click(function () {
+                window.location.href = HostedDir + "/Roster/FPAList?id=@Model.EncyrptedClientId";
+            });
+            $('#btntopclear').click(function () {
+                window.location.href = HostedDir + "/Roster/FPAList?id=@Model.EncyrptedClientId";
+            });
+        });
+
+
+        function delFPA(value) {
+
+
+            $.ajax({
+                url: HostedDir + "/Roster/delFPAInfo",
+                type: "POST",
+                data: {
+                    FPAID: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    cleargrid();
+                    drawgrid();
+
+                }
+               , error: function (response) {
+               }
+            });
+
+        }
+        function clearcontrols() {
+            $('#Goal')[0].value = "";
+            $('#GoalDate')[0].value = "";
+            $('#week')[0].value = "";
+            $('#CompletionDate')[0].value = "";
+            $('#month')[0].value = "";
+
+            // $('#hdnCommunityID')[0].value = "";
+            $('#btnSubmit').enabled = true;
+            //  $('#txtNotes')[0].value = "";
+            //  $('#hdnCommunityID').val(0);
+        }
+        function clearfields() {
+            $('#Goal')[0].value = "";
+            $('#DdlCateList').val('');
+            $('#GoalDate').val('');
+            getDate();
+            $('#DdlStatusList').val('');
+            // $('#DdlDomList').val('');
+            $('#CompletionDate').val('');
+            // $('#Element').val('');
+            event.preventDefault();
+        }
+        function isValidagencyInfo() {
+            isValid = true;
+            cleanValidation();
+            $("#message").text('');
+            if ($('#Goal')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Goal is required.");
+                plainValidation('#Goal');
+                return isValid;
+            }
+            else if ($('#DdlCateList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Category is required.");
+                plainValidation('#DdlCateList');
+                return isValid;
+            }
+            else if ($('#GoalDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Goal Date is required.");
+                plainValidation('#GoalDate');
+                return isValid;
+            }
+
+            else if ($('#CompletionDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Completion Date is required.");
+                plainValidation('#CompletionDate');
+                return isValid;
+            }
+            if ($("#parent1")[0] || $("#parent2")[0]) {
+                if ($("#parent1")[0].checked == true || $("#parent2")[0].checked) {
+                }
+                else {
+                    isValid = false;
+                    customAlert("Atleast one parent is required.");
+                    plainValidation('#parent1');
+                    return isValid;
+                }
+            }
+            $('.Steps').each(function (i) {
+                if ($('input[name="GoalSteps[' + i + '].Description"]').val().trim() == "") {
+                    customAlert("Step description is required.");
+                    plainValidation($('input[name="GoalSteps[' + i + '].Description"]'));
+                    isValid = false;
+                    return isValid;
+                }
+                if ($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').val().trim() == "") {
+                    customAlert("Step completion date is required.");
+                    plainValidation($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]'));
+                    isValid = false;
+                    return isValid;
+                }
+                else if ($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').val().trim().length > 0) {
+                    debugger;
+                    var maxdate = new Date($('#CompletionDate').val());
+                    var stepdate = new Date($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').val().trim());
+                    if (stepdate != "InvalidDate") {
+                        var diff = 0;
+                        if (maxdate - stepdate > 0) {
+
+                        }
+                        else {
+                            customAlert("Step completion date can not be greater than goal complition Date.");
+                            plainValidation($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]'));
+                            isValid = false;
+                            return isValid;
+                        }
+                    }
+                }
+
+
+            });
+
+            //$('.Steps').each(function (i) {
+            //    if ($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').val().trim() == "") {
+            //        customAlert("Step completion date is required.");
+            //        plainValidation($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]'));
+            //        isValid = false;
+            //        return isValid;
+            //    }
+            //});
+
+
+            return isValid;
+        }
+
+        function AddSteps() {
+            var numItems = $('.Steps').length
+            for (var i = 0; i < numItems; i++) {
+
+                $('.Steps #Description')[i].name = 'GoalSteps[' + i + '].Description';
+                $('.Steps #dfReminder')[i].name = 'GoalSteps[' + i + '].Reminderdays';
+                $('.Steps #Status')[i].name = 'GoalSteps[' + i + '].Status';
+                $('.Steps #StepsCompletionDate')[i].name = 'GoalSteps[' + i + '].StepsCompletionDate';
+                if ($('.Steps #StepsID')[i]) {
+                    $('.Steps #StepsID')[i].name = 'GoalSteps[' + i + '].StepsID';
+                }
+                //        $(this).find('[name^="StepsID"]').attr("name", "GoalSteps[" + i + "].StepsID");
+                //    }
+            }
+
+            round = numItems;
+            var stepsdiv = '<div id="AddSteps' + round + '" class="row Steps">  <div class="col-lg-12"><h5 class="page-header Step">Steps'
+                + '<span class="view-btn backto_listspan" id="BackToList"><a onclick="DeleteStepSecond(this,' + round + ');" style="cursor:pointer;" class="backto_list">Delete</a>' +
+                  '</span></h5></div><div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group"> <label for="email">Description <sup>*</sup></label>' +
+                  '<input type="text" name="GoalSteps[' + round + '].Description" onblur="isabletosign()" class="form-control Description" id="Description" placeholder="Description" maxlength="50">  </div>   </div>' +
+                  '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group">  <label for="email">Status<sup>*</sup></label>' +
+                  '<select class="form-control status" style="width:65%;"  onchange="isabletosign()" name="GoalSteps[' + round + '].Status" id="Status" >  <option value="0">Open</option> <option value="1">Complete</option> <option value="2">Abandoned</option></select></div> </div>' +
+                  '<div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Completion Date<sup>*</sup></label>' +
+                  '<input type="text" name="GoalSteps[' + round + '].StepsCompletionDate" onchange="isabletosign()" class="form-control"  id="StepsCompletionDate" placeholder="MM/DD/YYYY" maxlength="11"> </div> </div>' +
+                  ' <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group Actual" style="display: none"><label for="email">Actual Completion Date</label><input type="text" name="GoalSteps[' + round + '].ActualCompletionDate" readonly="True" class="form-control"  id="ActualCompletionDate" placeholder="MM/DD/YYYY" maxlength="50"></div></div>' +
+                  '<input id ="StepsID' + round + '" type="hidden" name="GoalSteps[' + round + '].StepsID" />' +
+                 '<div class="col-lg-6 col-md-6 col-sm-12">' +
+                  '<div class="form-group">' +
+                  '<label for="email">Days For Reminder </label>' +
+                  '<input  name="GoalSteps[' + round + '].Reminderdays" type="number" min="0" class="form-control Description" id="dfReminder" onkeydown="setmxlength(this)" onkeypress="validate(event)" placeholder="Days For Reminder" maxlength="2">'
+            '</div></div></div>'
+          
+            $(stepsdiv).insertAfter('#addStepsDiv');
+
+            var maxndate = new Date($('#CompletionDate').val());
+            var mindate = new Date();
+            $('#StepsCompletionDate').datetimepicker({
+                timepicker: false,
+                maxDate: maxndate,
+                minDate: mindate,
+                format: 'm/d/Y',
+                scrollMonth: false,
+                scrollInput: false
+            });
+
+            round = round + 1;
+        }
+
+        function validate(evt) {
+            var theEvent = evt || window.event;
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+            var regex = /[0-9]|\./;
+            if (!regex.test(key)) {
+                theEvent.returnValue = false;
+                if (theEvent.preventDefault) theEvent.preventDefault();
+            }
+        }
+
+        function setmxlength(e) {
+
+            $(".Steps").each(function (i) {
+
+                if ($('input[name="GoalSteps[' + i + '].Reminderdays"]').val().length > 0) {
+                    var val = $('input[name="GoalSteps[' + i + '].Reminderdays"]').val().substring(0, 2);
+                    val = val.replace('e', '');
+                    val = val.replace('/\+/g', '');
+                    $('input[name="GoalSteps[' + i + '].Reminderdays"]').val(val);
+                }
+
+            });
+        }
+        function getDate() {
+
+            var todaydate = new Date();
+            var day = todaydate.getDate();
+            var month = todaydate.getMonth() + 1;
+            var year = todaydate.getFullYear();
+            var datestring = month + "/" + day + "/" + year;
+            document.getElementById("GoalDate").value = datestring; //don't need ()
+
+        }
+
+        function addDays(n) {
+            var t = new Date();
+            t.setDate(t.getDate() + n);
+            alert(t);
+            // var date = ((t.getDate() < 10) ? '0' + t.getDate() : t.getDate()) + "/" + (((t.getMonth() + 1) < 10) ? '0' + (t.getMonth() + 1) : (t.getMonth() + 1)) + "/" + t.getFullYear();
+            alert(date);
+        }
+
+
+        function getmonth() {
+
+            var x = document.getElementById("month").value;
+            if (x != "") {
+                document.getElementById("week").value = "";
+                var todaydate = new Date();
+                var day = todaydate.getDate();
+                var month = todaydate.getMonth() + 1 + parseInt(x);
+
+                //if (month >12)
+                //{
+                //    month=
+                //}
+                var year = todaydate.getFullYear();
+                if (month > 12) {
+                    month = month - 12;
+                    year = todaydate.getFullYear() + 1;
+                }
+                var datestring = month + "/" + day + "/" + year;
+                document.getElementById("CompletionDate").value = datestring;
+
+
+            }
+            else {
+
+            }
+            var maxDate = new Date(datestring);
+            var mindate = new Date();
+            $('.Steps').each(function (i) {
+                $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').datetimepicker({
+                    timepicker: false,
+                    maxDate: maxDate,
+                    minDate: mindate,
+                    format: 'm/d/Y',
+                    scrollMonth: false,
+                    scrollInput: false
+                });
+            });
+
+            //var x = document.getElementById("month").value; //or whatever offset
+            //var CurrentDate = new Date();
+            //document.getElementById("CompletionDate").value = CurrentDate.setMonth(CurrentDate.getMonth() + x);
+        }
+
+        function setGoalfor(val) {
+            var chk1;
+            var chk2;
+            if ('@Model.IsSingleParent' == 'True') {
+                document.getElementById('GoalFor').value = 1;
+                return;
+            }
+            else {
+                chk1 = $("#parent1")[0].checked;
+                chk2 = $("#parent2")[0].checked;
+            }
+            if (chk1 && chk2) {
+
+                document.getElementById('GoalFor').value = 3;
+
+            }
+            else if (chk1) {
+
+                document.getElementById('GoalFor').value = 1;
+
+            }
+            else if (chk2) {
+
+                document.getElementById('GoalFor').value = 2;
+
+            }
+            else {
+                document.getElementById('GoalFor').value = 0;
+            }
+
+        }
+
+        function getmonthnew() {
+            var x = document.getElementById("month").value;
+            if (x != "") {
+                document.getElementById("week").value = "";
+                var t = new Date();
+                t.setMonth(t.getMonth() + parseInt(x));
+                //alert(t);
+                //if (month >12)
+                //{
+                //    month=
+                //}
+                var cmpdate = t.getMonth() + 1 + "/" + t.getDate() + "/" + t.getFullYear();
+                document.getElementById("CompletionDate").value = cmpdate;
+                var maxDate = new Date(cmpdate);
+                $('.Steps').each(function (i) {
+                    $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                    $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').datetimepicker({
+                        timepicker: false,
+                        maxDate: maxDate,
+                        format: 'm/d/Y',
+                        scrollMonth: false,
+                        scrollInput: false
+                    });
+                });
+
+
+            }
+            else {
+                //  document.getElementById("CompletionDate").value = "";
+            }
+        }
+
+
+
+
+
+        function getweeknew() {
+            var x = document.getElementById("week").value;
+            if (x != "") {
+                document.getElementById("month").value = "";
+                var t = new Date();
+                t.setDate(t.getDate() + 7 * (x));
+                // alert(t);
+                //  var cmpdate = Date.parseExact(t, "dd/mm/yyyy");
+                ///   var cmpdate = dateFormat(new Date("t"), 'dd/mm/yyyy');
+                var cmpdate = t.getMonth() + 1 + "/" + t.getDate() + "/" + t.getFullYear();
+                document.getElementById("CompletionDate").value = cmpdate;
+                var maxDate = new Date(cmpdate);
+                $('.Steps').each(function (i) {
+                    $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                    $('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').datetimepicker({
+                        timepicker: false,
+                        maxDate: maxDate,
+                        format: 'm/d/Y',
+                        scrollMonth: false,
+                        scrollInput: false
+                    });
+                });
+
+            }
+            else {
+                // document.getElementById("CompletionDate").value = "";
+            }
+        }
+
+
+        function getweek() {
+
+            var x = document.getElementById("week").value;
+            if (x != "") {
+                document.getElementById("month").value = "";
+                x = parseInt(x) * 7;
+                var todaydate = new Date();
+                var day = todaydate.getDate() + parseInt(x);
+                var month = todaydate.getMonth() + 1;
+
+                //if (month >12)
+                //{
+                //    month=
+                //}
+                var year = todaydate.getFullYear();
+                if (day > 31) {
+                    day = day - 31;
+                    month = month + 1;
+                    // year = todaydate.getFullYear() + 1;
+                }
+                var datestring = month + "/" + day + "/" + year;
+                document.getElementById("CompletionDate").value = datestring;
+            }
+            else {
+                document.getElementById("CompletionDate").value = "";
+            }
+        }
+        function getweeksreview() {
+            var todaydate = new Date();
+            var years = todaydate.getFullYear();
+            var weeks = $('#week').val();
+            // var month = todaydate.getMonth() + 1;
+
+            var d = new Date(years, 0, 1);
+            var dayNum = d.getDay();
+            var diff = --weeks * 7;
+
+
+            if (!dayNum || dayNum > 4) {
+                diff += 7;
+            }
+
+
+            d.setDate(d.getDate() - d.getDay() + ++diff);
+            $('#CompletionDate').val(d);
+        }
+
+        function FillElementList(Select) {
+
+            $.ajax({
+                url: HostedDir + "/Roster/GetElement",
+                type: "POST",
+                data: {
+                    DomainId: $(Select).val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].Id + '">' + response[i].Name + '</option>';
+                        }
+                        $('#Element').find('option').remove().end().append(option);
+                        $('#Element').val('');
+                    }
+                    else {
+                        $('#Element').find('option').remove();
+                    }
+                }
+                   , error: function (response) {
+                       customAlert("Error occured please try again later. ");
+                   }
+            });
+
+        }
+        function FillElementListEdit(Select) {
+
+            $.ajax({
+                url: HostedDir + "/Roster/GetElement",
+                type: "POST",
+                data: {
+                    DomainId: Select
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].Id + '">' + response[i].Name + '</option>';
+                        }
+                        $('#Element').find('option').remove().end().append(option);
+
+                        $('#Element').val(@Model.Element).attr("selected", "selected");
+                        //$('#Element').val('');
+                    }
+                    else {
+                        $('#Element').find('option').remove();
+                    }
+                }
+                   , error: function (response) {
+                       customAlert("Error occured please try again later. ");
+                   }
+            });
+
+        }
+
+
+
+
+
+        if ('@ViewBag.message' != '')
+            customAlert('@ViewBag.message');
+        if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+            customAlert('@TempData["message"]');
+        }
+
+
+
+
+
+        function DisableControlls() {
+            // If super admin login into agency Making entire form read only
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        //  $('.custom select').attr('disabled', true);
+                        $(".custom").attr("disabled", true);
+                        $('.custom').bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                        // $('#divContent input').attr('readonly', true);
+
+                    }
+                }
+            }
+            // end of code
+        }
+
+        //function GetFPA(value) {
+        //    
+        //    $.ajax({
+        //        url: HostedDir + "/Roster/GetFPAInfo",
+        //        type: "POST",
+        //        data: {
+        //            FPAID: $(value).attr("accesskey")
+        //        },
+        //        dataType: "json",
+        //        secureuri: false,
+        //        async: false,
+        //        success: function (data) {
+        //            EditFPA(data);
+        //        }
+        //       , error: function (response) {
+        //       }
+        //    });
+        //}
+        @* function EditFPA(data) {
+        
+        //  $('#hdnCommunityID').val($(value).attr("accesskey"));
+        //   $('#hdnCommunityID').val(data.CommunityID);
+        // $('#CommunityID').val($(value).attr("accesskey"));
+        $('#FPAID').val(data.FPAID);
+        $('#ClientId').val(data.ClientId);
+        $('#Goal').val(data.Goal);
+        $('#DdlCateList').val(data.Category);
+        $('#GoalDate').val(data.GoalDate);
+        $('#DdlStatusList').val(data.Status);
+      //  $('#DdlDomList').val(data.Domain);
+        //  $('#Element').val(data.Companyname);
+       // FillElementListEdit(data.Domain);
+        // $('#Element').find('option').remove().end().append(option);
+      //  $('#Element').val(data.Element);
+
+        // $('#Element').find('option').remove().end().append("<option value='@Model.Element' selected=selected>" + data.ElemDesc + "</option>");
+        // $('#Element').find('option').remove().end().append("<option selected=selected>" + data.ElemDesc + "</option>");
+        $('#CompletionDate').val(data.CompletionDate);
+
+    }*@
+      @*  function SendEmail() {
+            if (('@Model.IsEmail1' == 'True' || '@Model.IsEmail2' == 'True') && '@Model.GoalFor' == 3) {
+                sendEmail1();
+                if ('@Model.IsSingleParent' == 'False') {
+                    sendEmail2();
+                }
+            }
+            else if ('@Model.IsEmail1' == 'True' && '@Model.GoalFor' == 1) {
+                sendEmail1();
+            }
+            else if ('@Model.IsEmail2' == 'True' && '@Model.GoalFor' == 2) {
+                sendEmail2();
+            }
+    }
+
+    function sendEmail1() {
+        $.ajax({
+            url: HostedDir + "/Roster/SendEmail",
+            type: "POST",
+            data: {
+                FPAID: '@Model.EncriptedFPAID',
+                ClientId: '@Model.EncyrptedClientId',
+                ParentName: '@Model.ParentName1',
+                ChildName: '@Model.ChildName',
+                FSWName: '@Model.FSWName',
+                ParentEmail: '@Model.ParentEmailId1',
+                Goal: '@Model.Goal'
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                if (data != null) {
+                    customAlert(data);
+                }
+
+            }
+                           , error: function (data) {
+                               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                           }
+        });
+    }
+    function sendEmail2() {
+        $.ajax({
+            url: HostedDir + "/Roster/SendEmail",
+            type: "POST",
+            data: {
+                FPAID: '@Model.EncriptedFPAID',
+                    ClientId: '@Model.EncyrptedClientId',
+                    ParentName: '@Model.ParentName2',
+                    ChildName: '@Model.ChildName',
+                    FSWName: '@Model.FSWName',
+                    ParentEmail: '@Model.ParentEmailId2',
+                    Goal: '@Model.Goal'
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    if (data != null) {
+                        customAlert(data);
+                    }
+
+                }
+                           , error: function (data) {
+                               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                           }
+            });
+        }*@
+
+
+
+        function DeleteStep(value) {
+            if ($('.Steps').length > 1) {
+                DeleteStepSecond(value, 0);
+            }
+            else {
+                $('input[name="GoalSteps[0].Description"]').val("");
+                $('input[name="GoalSteps[0].Status"]').val("0");
+                var currentdate = new Date();
+                $('input[name="GoalSteps[0].Reminderdays"]').val("");
+                var maxndate = new Date($('#CompletionDate').val());
+                $('input[name="GoalSteps[0].StepsCompletionDate"]').val("");
+                $('input[name="GoalSteps[0].StepsCompletionDate"]').datetimepicker({
+                    timepicker: false,
+                    maxDate: maxndate,
+                    format: 'm/d/Y'
+                });   // depends on only goal-- CompletionDate
+               
+            }
+        }
+        function DeleteStepSecond(value, round) {
+            if ($('.Steps').length == 1) {
+                $('input[name="GoalSteps[' + round + '].Description"]').val("");
+                $('input[name="GoalSteps[' + round + '].Status"]').val("0");
+                var currentdate = new Date();
+                $('input[name="GoalSteps[' + round + '].Reminderdays"]').val("");
+                var maxndate = new Date($('#CompletionDate').val());
+                $('input[name="GoalSteps[' + round + '].StepsCompletionDate"]').val("");
+                $('input[name="GoalSteps[' + round + '].StepsCompletionDate"]').datetimepicker({
+                    timepicker: false,
+                    maxDate: maxndate,
+                    format: 'm/d/Y'
+                });
+            } else {
+                var divclass = 'AddSteps' + round;
+                $("#" + divclass).remove();
+                var s = $('.Steps').length;
+                for (var i = 0; i < s; i++) {
+                    $('.Steps a')[i].attributes.onclick.nodeValue = "DeleteStepSecond(this, " + i + ")";
+                    $('.Steps #Description')[i].name = 'GoalSteps[' + i + '].Description';
+                    $('.Steps #dfReminder')[i].name = 'GoalSteps[' + i + '].Reminderdays';
+                    $('.Steps #Status')[i].name = 'GoalSteps[' + i + '].Status';
+                    $('.Steps #StepsCompletionDate')[i].name = 'GoalSteps[' + i + '].StepsCompletionDate';
+                    if ($('.Steps #StepsID')[i]) {
+                        $('.Steps #StepsID')[i].name = 'GoalSteps[' + i + '].StepsID';
+                    }
+                    //        $(this).find('[name^="StepsID"]').attr("name", "GoalSteps[" + i + "].StepsID");
+                    //    }
+                }
+            }
+        }
+        function DeleteStepView(value, round, StepID) {
+            var divclass = 'EditDIv_' + round;
+            BootstrapDialog.confirm('Do you want to delete this Step?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/Roster/DeleteStepView",
+                        type: "POST",
+                        data: {
+                            StepId: StepID
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Step deleted successfully. ");
+                                if ($('.Steps').length == 1) {
+                                    $('input[name="GoalSteps[' + round + '].Description"]').val("");
+                                    $('input[name="GoalSteps[' + round + '].Status"]').val("0");
+                                    var currentdate = new Date();
+                                    $('input[name="GoalSteps[' + round + '].Reminderdays"]').val("");
+                                    var maxndate = new Date($('#CompletionDate').val());
+                                    $('input[name="GoalSteps[' + round + '].StepsCompletionDate"]').val("");
+                                    $('input[name="GoalSteps[' + round + '].StepsCompletionDate"]').datetimepicker({
+                                        timepicker: false,
+                                        maxDate: maxndate,
+                                        format: 'm/d/Y'
+                                    });
+                                    $('.Steps a')[round].attributes.onclick.nodeValue = "DeleteStep(this)";
+                                } else {
+                                    $("#" + divclass).remove();
+                                }
+                                //$('.Steps').each(function (i) {
+
+
+                                //    $(this).find('[name^="Description"]').attr("name", "GoalSteps[" + i + "].Description");
+                                //    $(this).find('[name^="Reminderdays"]').attr("name", "GoalSteps[" + i + "].Reminderdays");
+                                //    $(this).find('[name^="Status"]').attr("name", "GoalSteps[" + i + "].Status");
+                                //    $(this).find('[name^="StepsCompletionDate"]').attr("name", "GoalSteps[" + i + "].StepsCompletionDate");
+                                //    if ($(this).find('[name^="StepsID"]')) {
+                                //        $(this).find('[name^="StepsID"]').attr("name", "GoalSteps[" + i + "].StepsID");
+                                //    }
+                                //    //$('.Steps #dfReminder')[i].name = 'GoalSteps[' + i + '].Reminderdays';
+                                //    //   $('.Steps #Status')[i].name = 'GoalSteps[' + i + '].Status';
+                                //    //   $('.Steps #StepsCompletionDate')[i].name = 'GoalSteps[' + i + '].StepsCompletionDate';
+
+
+                                //});
+
+
+
+                                var s = $('.Steps').length;
+                                for (var i = 0; i < s; i++) {
+                                   
+                                    $('.Steps #Description')[i].name = 'GoalSteps[' + i + '].Description';
+                                    $('.Steps #dfReminder')[i].name = 'GoalSteps[' + i + '].Reminderdays';
+                                    $('.Steps #Status')[i].name = 'GoalSteps[' + i + '].Status';
+                                    $('.Steps #StepsCompletionDate')[i].name = 'GoalSteps[' + i + '].StepsCompletionDate';
+                                    if ($('.Steps #StepsID')[i]) {
+                                        $('.Steps #StepsID')[i].name = 'GoalSteps[' + i + '].StepsID';
+                                    }
+                                  
+                                    $('.Steps a')[i].attributes.onclick.nodeValue = "DeleteStep(this, " + i + ", " + $('.Steps #StepsID')[i].val() + ")";
+                                    //        $(this).find('[name^="StepsID"]').attr("name", "GoalSteps[" + i + "].StepsID");
+                                    //    }
+                                }
+                                //for (var i = 0; i < s ; i++) {
+
+                                //    modifyName($("#Description")[i], 'GoalSteps[', '].Description', round);
+                                //    modifyName($("#dfReminder")[i], 'GoalSteps[', '].Reminderdays', round);
+                                //    modifyName($("#Status")[i], 'GoalSteps[', '].Status', round);
+                                //    modifyName($("#StepsCompletionDate")[i], 'GoalSteps[', '].StepsCompletionDate', round);
+
+                                //}
+
+                            }
+                        }
+                    , error: function (response) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+
+        function isabletosign() {
+
+            var needtoshow = 0;
+            $('.Steps').each(function (i) {
+                if ($('input[name="GoalSteps[' + i + '].StepsCompletionDate"]').val().length > 0 && $('input[name="GoalSteps[' + i + '].Description"]').val().length > 0) {
+                    needtoshow = 1;
+                }
+
+            });
+
+            if (needtoshow == 1) {
+                $('.divforS').show();
+            }
+            else {
+                $('.divforS').hide();
+            }
+
+        }
+        function modifyName(control, name1, name2, round) {
+            var name = control.name;
+            var desc = name.replace(name1, '').replace(name2, '');
+            if (desc < round) {
+            }
+            else {
+                var newind = (desc - 1);
+                this.name = name1 + newind + name2;
+            }
+
+        }
+
+
+        function onchangeevent() {
+            var maxndate = new Date($('#CompletionDate').val());
+            $('#StepsCompletionDate').datetimepicker({
+                timepicker: false,
+                maxDate: maxndate,
+                format: 'm/d/Y'
+            });
+
+        }
+        function Generatepdf() {
+            $.ajax({
+                url: '/roster/GeneratePdf',
+
+            });
+        }
+        function updatecomplitionDate(i) {
+            var allstaus = true;
+            $('.Steps').each(function (i) {
+                if ($('.Steps #Status')[i].value == 1) {
+                    $('.Steps .Actual')[i].style.display = "block";
+                }
+                else {
+                    allstaus = false;
+                }
+            });
+            if (allstaus) {
+                $('.goalActual')[0].style.display = "block";
+            }
+            var date = new Date();
+            var dt = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+            $('input[name="GoalSteps[' + i + '].ActualCompletionDate"]').val(dt);
+            isvalid = true;
+            $('.Steps').each(function (i) {
+                if ($('select[name="GoalSteps[' + i + '].Status"]').val() == 0) {
+                    $('input[name="GoalSteps[' + i + '].ActualCompletionDate"]').val('');
+                    $('input[name="GoalSteps[' + i + '].ActualCompletionDate"]').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                    isvalid = false;
+                }
+            });
+            if (isvalid) {
+                var date = new Date();
+                var dt = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+                $('#ActualGoalCompletionDate').val(dt);
+                $('select[name="GoalStatus"]').val("1");
+            }
+            else {
+                $('#ActualGoalCompletionDate').val('');
+                $('select[name="GoalStatus"]').val("0");
+
+            }
+        }
+        function updateGoalComplitiondate() {
+
+        }
+
+    </script>
+
+
+    <script type="text/javascript">
+
+
+
+       @* $(function () {
+            $('#sig').signature();
+
+            $('#sig').signature('draw', ('@Html.Raw(Model.SignatureData)'));
+        });
+        function ClearSignature() {
+
+            $('#clear').click(function () {
+                $('#sig').signature('clear');
+            });
+            event.preventDefault();
+            return isValid;
+        }
+        function SaveSignature() {
+
+            var sigToImage = $('#sig').signature('toJSON');
+            $('#imagedata').val(sigToImage);
+            event.preventDefault();
+        }
+        function redraw() {
+            $('#imagedata').signature('draw', json)
+        }*@
+        //old sign
+
+        var base64 = '';
+        $(function () {
+            $('#colors_sketch').sketch();
+            //$(".tools a").eq(0).addClass("btn bt-default");
+            ////$(".tools a").eq(0).attr('style', 'margin-right:15px');
+
+            //$(".tools a").click(function () {
+            //    $(".tools a").addclass("my-btn");
+            //    $(this).addClass("btn bt-default");
+            //    $(this).attr('style', 'margin-right:15px');
+            //});
+
+            $("#btnSave").bind("click", function () {
+                base64 = $('#colors_sketch')[0].toDataURL();
+                $("#imgCapture").val(base64);
+                $("#imgCapture").val(base64);
+                $("#imagedata").attr("src", base64);
+
+                $("#imagedata").show();
+                //imgCapture
+            });
+            $("a.mybtnclear").bind("click", function () {
+                $('#colors_sketch').click(function () {
+
+                });
+                //imgCapture
+            });
+
+        });
+
+
+        function loadCanvas(dataURL) {
+            var canvas = document.getElementById('#colors_sketch');
+            var context = canvas.getContext('2d');
+
+            // load image from data url
+            var imageObj = new Image();
+            imageObj.onload = function () {
+                context.drawImage(this, 0, 0);
+            };
+
+            imageObj.src = dataURL;
+        }
+
+        // old sign
+
+    </script>
+
+
+
+
+
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                <span>Family Partnership Agreement (FPA)- @TempData["clientName"].ToString()</span>
+
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <button id="btnExit" class="backto_list" type="button">Back To List</button>
+
+                </span>
+            </h2>
+        </div>
+    </div>
+    <form method="post" role="form" id="form1" autocomplete="off">
+        @*<div style="float: right">
+            @if (Model.FPAID > 0)
+            {
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <button name="command" value="pdf" title="Export to pdf">
+                            <img src="~/Content/img/pdf.png" />
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>*@
+        <div class="row">
+            @Html.HiddenFor(m => m.ParentName1)
+            @Html.HiddenFor(m => m.ParentName2)
+            @Html.HiddenFor(m => m.IsEmail1)
+            @Html.HiddenFor(m => m.IsEmail2)
+            @Html.HiddenFor(m => m.IsEmail1)
+            @Html.HiddenFor(m => m.IsEmail2)
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="add-useragform">
+
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Goal <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Goal, new { placeholder = "Goal", id = "Goal", maxlength = "50", autocomplete = "off", spellcheck = "true", @class = "form-control", tabIndex = "2" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email" title="Family Engagements Outcome">FEO<sup>*</sup></label>
+                                @{
+                                   
+                                    List<SelectListItem> cate = new List<SelectListItem>();
+                                    foreach (var item in ViewBag.CateList)
+                                    {
+                                        cate.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                    }
+                                }
+                                @Html.DropDownListFor(m => m.Category, new SelectList(cate, "Value", "Text"), new { id = "DdlCateList", Name = "DdlCateList", @class = "form-control", tabIndex = "6" })
+                                @*<select id="Category" style="height:38px !important;" class="form-control"></select>*@
+                                @*@Html.DropDownListFor(m => m.Category, new { @class = "form-control",new SelectList(Model.Category, "TimZoneId", "TimZoneName", Model.TimeZoneID), tabIndex = "3" })*@
+                                @*@Html.TextBoxFor(m => m.Category, new { placeholder = "Category", id = "Category", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                            </div>
+                        </div>
+                        @if (ViewBag.mode == 0)
+                        {
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="pwd">Date of Goal<sup>*</sup></label>
+                                    @Html.TextBoxFor(m => m.GoalDate, new { @class = "form-control", placeholder = "MM/DD/YYYY", id = "GoalDate", maxlength = "50", autocomplete = "off", tabIndex = "3" })
+
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="pwd">Date of Goal<sup>*</sup></label>
+                                    @Html.TextBoxFor(m => m.GoalDate, new { @class = "form-control", disabled = "True", placeholder = "MM/DD/YYYY", id = "GoalDate", maxlength = "50", autocomplete = "off", tabIndex = "3" })
+
+                                </div>
+                            </div>
+                        }
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="contactForm">
+                            <div class="form-group">
+                                <label for="email">Status<sup>*</sup></label>
+                                <select class="form-control" id="GoalStatus" name="GoalStatus">
+                                    @if (Model.GoalStatus == 0)
+                                    {
+                                        <option value="0" selected="selected">Open</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="0">Open</option>
+                                    }
+                                    @if (Model.GoalStatus == 1)
+                                    {
+                                        <option value="1" selected="selected">Complete</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="1">Complete</option>
+                                    }
+                                    @if (Model.GoalStatus == 2)
+                                    {
+                                        <option value="2" selected="selected">Abandoned</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="2">Abandoned</option>
+                                    }
+                                    @if (Model.GoalStatus == 3)
+                                    {
+                                        <option value="3" selected="selected">Refused to do a FPA</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="3">Refused to do a FPA</option>
+                                    }
+
+
+                                </select>
+                                @* @{
+                                    List<SelectListItem> StatusList = new List<SelectListItem>();
+                                    //  AccessTypeList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                    StatusList.Add(new SelectListItem() { Text = "Open", Value = "0" });
+                                    StatusList.Add(new SelectListItem() { Text = "Complete", Value = "1" });
+                                    StatusList.Add(new SelectListItem() { Text = "Abandoned", Value = "2" });
+                                    StatusList.Add(new SelectListItem() { Text = "Refused to do a FPA", Value = "3" });
+                                }
+                                @Html.DropDownListFor(m => m.Status, new SelectList(StatusList, "Value", "Text"), new { id = "DdlStatusList", Name = "DdlStatusList", @class = "form-control", tabIndex = "19" })*@
+
+                                @Html.HiddenFor(m => m.ClientId)
+                                @Html.HiddenFor(m => m.FPAID)
+
+
+                                @*@Html.TextBoxFor(m => m.Status, new { @class = "form-control", placeholder = "Status", id = "Status", maxlength = "15", autocomplete = "off", tabIndex = "4" })*@
+                                @*@Html.HiddenFor(m => m.superadminId)*@
+                            </div>
+                        </div>
+
+                        @* commented after client request*@
+                        @* https://trello.com/c/NuxrQrrQ/137-family-partnership-agreement*@
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Domain<sup>*</sup></label>
+
+                                @{
+                                    List<SelectListItem> dom = new List<SelectListItem>();
+                                    foreach (var item in ViewBag.DomList)
+                                    {
+                                        dom.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                    }
+                                }
+                                @Html.DropDownListFor(m => m.Domain, new SelectList(dom, "Value", "Text"), new { id = "DdlDomList", Name = "DdlDomList", @class = "form-control", tabIndex = "6", onchange = "FillElementList(this);" })
+                                @*<select id="Domain" style="height:38px !important;" class="form-control"></select>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Element<sup>*</sup></label>
+                                <select id="Element" name="Element" style="height: 38px !important;" class="form-control">
+                                    @if (ViewBag.mode == 0)
+                                    { 
+                                        <option value="@Model.Element">@Model.ElemDesc</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@Model.Element" selected="selected">@Model.ElemDesc</option>
+                                    }
+                                </select>*@
+                        @*@Html.TextBoxFor(m => m.Domain, new { @class = "form-control", placeholder = "Domain", id = "Domain", maxlength = "50", autocomplete = "off", tabIndex = "3" })*@
+                        @*
+                            </div>
+                        </div>*@
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label>Completion Date <sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-xs-3 col-sm-2" style="padding-left: 0%;">
+                                        @Html.TextBoxFor(m => m.month, new { @class = "form-control", onkeypress = "validate(event)", placeholder = "Month", id = "month", maxlength = "2", autocomplete = "off", tabIndex = "4", onblur = "getmonthnew();" })
+
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3">
+                                        @Html.TextBoxFor(m => m.week, new { @class = "form-control", placeholder = "Week", onkeypress = "validate(event)", id = "week", maxlength = "2", autocomplete = "off", tabIndex = "4", onblur = "getweeknew();" })
+
+                                    </div>
+                                    <div class="col-xs-2 col-sm-3">
+                                        @Html.TextBoxFor(m => m.CompletionDate, new { @class = "form-control", placeholder = "CompletionDate", style = "max-width:176px !important", id = "CompletionDate", onblur = "onchangeevent();", maxlength = "15", autocomplete = "off", tabIndex = "4" })
+                                        @Html.HiddenFor(m => m.EncyrptedClientId)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group goalActual" style="display: none">
+                                <label>Actual Completion Date </label>
+                                @Html.TextBoxFor(m => m.ActualGoalCompletionDate, new { @class = "form-control", ReadOnly = "true", placeholder = "MM/DD/YYYY", id = "ActualGoalCompletionDate", maxlength = "15", autocomplete = "off", tabIndex = "4" })
+                                @Html.HiddenFor(m => m.EncyrptedClientId)
+
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group ">
+                                <div class="divforS">
+                                    <label>Signature</label>
+                                    <button type="button" id="btnsign" class="backto_list" data-toggle="modal" data-target="#myModal">@(!string.IsNullOrEmpty(Model.SignatureData) ? "Update Signature" : "Add Signature")</button>
+                                    <!-- Modal -->
+                                    <div id="myModal" class="modal fade" role="dialog">
+                                        <div class="modal-dialog" style="width: 390px;">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content" style="width: 390px;">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h4 class="modal-title">Draw Signature</h4>
+                                                </div>
+                                                <div class="modal-body" style="height: 200px;">
+
+
+                                                    @*<div id="sig"></div>
+
+                                                @Html.Hidden("imageSig", "")
+
+                                                <div class="add-useragform student-scroll full-border full-border-margin">
+                                                    <button class="btnPassword" id="clear" onclick="return ClearSignature();">Clear</button>
+                                                    <button class="btnPassword" id="accept" onclick="return SaveSignature();">Accept Signature</button>
+
+                                                </div>*@
+
+
+
+
+
+                                                    <div class="" style="float: left; width: 100%;">
+                                                        <canvas id="colors_sketch" class="signature_1" style="border: 1px solid #c1c1c1;" width="356px" height="120px"></canvas>
+                                                        @Html.TextBoxFor(m => m.SignatureData, new { style = "display:none;", id = "imgCapture" })
+
+
+                                                        <div id="buttondiv" style="margin-top: 15px;">
+                                                            <input type="button" class="btnPassword tools" style="width: 30%" id="btnSave" data-dismiss="modal" value="Add" />
+                                                            <a class="btnPassword mybtnclear" style="display: inline-block !important; margin-bottom: 0px !important; background-color: #295b8f !important; color: #fff; float: right !important" href="#colors_sketch" data-tool="eraser">Clear</a>
+                                                            &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp;<a class="btnPassword marker" style="margin-right: 12px; display: inline-block !important; margin-bottom: 0px !important; background-color: #295b8f !important; color: #fff; float: right !important" href="#colors_sketch" data-tool="marker">Draw</a>
+                                                            @*  <a id="erase" class="my-btn tools" type="button" accesskey="#colors_sketch" data-tool="eraser" style="margin-top:10px; float:right !important; padding:0;" value="Eraser"/>*@
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer" style="display: none">
+                                                    @*<button type="button" class="btn btn-default"  data-dismiss="modal">Close</button>*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <!--end model--->
+                                    @if (!string.IsNullOrEmpty(Model.SignatureData))
+                                    {
+                                        <img id="imagedata" src="@Model.SignatureData" style="height: 48px;" />
+                                    }
+                                    else
+                                    { 
+                                        <img id="imagedata" src="" style="height: 48px; display: none" />
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                        @Html.HiddenFor(model => model.GoalFor)
+                        @if (!Model.IsSingleParent)
+                        {
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Goal For <sup>*</sup></label>
+                                    <div class="cont-sz">
+
+
+                                        @if (!string.IsNullOrEmpty(Model.ParentName1) && !string.IsNullOrEmpty(Model.ParentName2))
+                                        {
+                                            if (Model.GoalFor == 1 || Model.GoalFor == 3)
+                                            {
+                                              
+                                            <label style="width: 100%">
+                                                <input id="parent1" onchange="setGoalfor(this)" type="checkbox" value="true" checked />@Model.ParentName1</label>
+                                            }
+                                            else
+                                            {
+                                            <label style="width: 100%">
+                                                <input id="parent1" onchange="setGoalfor(this)" type="checkbox" value="false" />@Model.ParentName1</label>
+                                            }
+                                            if (Model.GoalFor == 2 || Model.GoalFor == 3)
+                                            {
+                                            <label style="width: 100%">
+                                                <input id="parent2" onchange="setGoalfor(this)" type="checkbox" value="true" checked />@Model.ParentName2</label>
+                                            }
+                                            else
+                                            {
+                                            <label style="width: 100%">
+                                                <input id="parent2" onchange="setGoalfor(this)" type="checkbox" value="false" />@Model.ParentName2</label>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                       
+
+@* @if ((Model.IsEmail1 == true || Model.IsEmail1 == true) && Model.GoalFor == 3)
+                        {
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <a accesskey="0" onclick="SendEmail(this);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" style="padding-right: 57%;">
+                                  <i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else if (Model.GoalFor == 1 && Model.IsEmail1 == true)
+                        { 
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <a accesskey="0" onclick="SendEmail(this);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" style="padding-right: 57%;">
+                                        <i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else if (Model.GoalFor == 2 && Model.IsEmail2 == true)
+                        { 
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <a accesskey="0" onclick="SendEmail(this);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" style="padding-right: 57%;">
+                                       <i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                </div>
+                            </div>
+                        }*@
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-6 col-sm-12" id="AddStepsplus">
+                            <div class="form-group">
+                                <a href="javascript:void(0)" title="Add Services" onclick="AddSteps();">Add Steps<i class="fa fa-plus-square"></i> </a>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+
+                    </div>
+                    <div id="addStepsDiv"></div>
+                    <div id="AddSteps0" class="row steps">
+                        @{
+                            if (Model.GoalSteps.Count == 0)
+                            {
+                            <div class="Steps">
+                                <div class="col-lg-12">
+                                    <h5 class="page-header Step">Steps
+                                                 <span class="view-btn backto_listspan" id="BackToList">
+                                                     <a onclick="DeleteStep(this);" style="cursor: pointer;" class="backto_list">Delete</a>
+                                                 </span>
+                                    </h5>
+
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Description <sup>*</sup></label>
+                                        @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                        <input type="text" name="GoalSteps[0].Description" class="form-control Description" onblur="isabletosign()" id="Description" placeholder="Description" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Status<sup>*</sup></label>
+
+                                        <select id="Status" name="GoalSteps[0].Status" onchange="isabletosign(); updatecomplitionDate(0)" style="height: 38px !important;" class="form-control status">
+                                            <option value="0">Open</option>
+                                            <option value="1">Complete</option>
+                                            <option value="2">Abandoned</option>
+
+                                        </select>
+                                        @*@Html.DropDownListFor(m => m.Category, new { @class = "form-control",new SelectList(Model.Category, "TimZoneId", "TimZoneName", Model.TimeZoneID), tabIndex = "3" })*@
+                                        @*@Html.TextBoxFor(m => m.Category, new { placeholder = "Category", id = "Category", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                    </div>
+                                </div>
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Completion Date <sup>*</sup></label>
+                                        <input type="text" name="GoalSteps[0].StepsCompletionDate" onchange="isabletosign()" class="form-control StepsCompletionDate" id="StepsCompletionDate" placeholder="MM/DD/YYYY" maxlength="50">
+                                        @*@Html.TextBoxFor(m => m.StepsCompletionDate, new { @class = "form-control",readonly="True", placeholder = "MM/DD/YYYY", id = "StepsCompletionDate", maxlength = "15", autocomplete = "off", tabIndex = "4" })*@
+                                        @*@Html.HiddenFor(m => m.StepsID)*@
+                                        <input id="StepsID" type="hidden" name="GoalSteps[0].StepsID">
+                                    </div>
+                                </div>
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Days Prior To Remind Parent</label>
+                                        @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                        <input name="GoalSteps[0].Reminderdays" type="number" onkeydown="setmxlength(this)" onkeypress='validate(event)' min="0" class="form-control Description" id="dfReminder" placeholder="Days for reminder" maxlength="2">
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                            else
+                            {
+                            <div>
+                                @{
+                                int i = 0;
+                                }
+                                @if (@ViewBag.mode == 1)
+                                {
+                                    foreach (var item in Model.GoalSteps)
+                                    {
+                                    <div id="EditDIv_@i"  class="Steps">
+                                        <div class="col-lg-12">
+                                            <h5 class="page-header fundservice">Steps
+                                      <span class="view-btn backto_listspan" id="BackToList">
+                                          <a onclick="DeleteStepView(this,'@i','@item.StepID');" style="cursor:pointer;" class="backto_list">Delete</a>
+                                      </span>
+                                            </h5>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Description<sup>*</sup></label>
+                                                @* @Html.TextBoxFor(m => m.GoalSteps[@i].Description, new { placeholder = "Description", id = "Description", name = "Description", maxlength = "50", @class = "form-control" })*@
+                                                <input type="text" name="GoalSteps[@i].Description" class="form-control" onblur="isabletosign()" value="@item.Description" id="Description" placeholder="Description" maxlength="50">
+                                                @Html.HiddenFor(m => m.GoalSteps[@i].StepID)
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Status <sup>*</sup></label>
+                                                <select class="form-control" id="Status" onchange="isabletosign(); updatecomplitionDate(@i)"   name="GoalSteps[@i].Status">
+                                                    @if (@item.Status == 0)
+                                                    {
+                                                        <option value="0" selected="selected">Open</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="0">Open</option>
+                                                    }
+                                                    @if (@item.Status == 1)
+                                                    {
+                                                        <option value="1" selected="selected">Complete</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="1">Complete</option>
+                                                    }
+                                                    @if (@item.Status == 2)
+                                                    {
+                                                        <option value="2" selected="selected">Abandoned</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="2">Abandoned</option>
+                                                    }
+
+
+                                                </select>
+                                                @* @{
+                                        List<SelectListItem> Status = new List<SelectListItem>();
+                                        Status.Add(new SelectListItem() { Text = "Open", Value = "0" });
+                                        Status.Add(new SelectListItem() { Text = "Complete", Value = "1" });
+                                        Status.Add(new SelectListItem() { Text = "Abandoned", Value = "2" });
+                                        Status.Add(new SelectListItem() { Text = "Abandoned", Value = "3" });
+                                                                    
+
+                                                }
+                                                @Html.DropDownListFor(m => m.GoalSteps[@i].Status, new SelectList(Status, "Value", "Text", Model.GoalSteps[@i].Status), new { id = "Status", Name = "Status", @class = "form-control" })*@
+
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Completion Date<sup>*</sup></label>
+                                                @*@Html.TextBoxFor(m => m.GoalSteps[@i].StepsCompletionDate, new { placeholder = "StepsCompletionDate", id = "StepsCompletionDate", name = "StepsCompletionDate", maxlength = "50", @class = "form-control" })*@
+                                                <input type="text"  name="GoalSteps[@i].StepsCompletionDate" class="form-control"  onchange="isabletosign()" value="@item.StepsCompletionDate" id="StepsCompletionDate" placeholder="MM/DD/YYYY" maxlength="50">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group Actual" style="display: none">
+                                                <label for="email">Actual Completion Date</label>
+                                                <input type="text" name="GoalSteps[@i].ActualCompletionDate" readonly="True" class="form-control" value="@item.ActualCompletionDate" id="ActualCompletionDate" placeholder="MM/DD/YYYY" maxlength="50">
+                                            </div>
+                                        </div>
+                                        @if ((Model.IsEmail1 == true || Model.IsEmail1 == true) && Model.GoalFor == 3)
+                                        {
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Days For Reminder </label>
+                                                    @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                                    @* @Html.TextBoxFor(m => m.GoalSteps[@i].Reminderdays, new { placeholder = "MM/DD/YYYY", id = "Reminderdays", name = "Reminderdays", maxlength = "50", @class = "form-control" })*@
+                                                    <input  name="GoalSteps[@i].Reminderdays" onkeydown="setmxlength(this)" onkeypress="validate(event)" value="@item.Reminderdays"  type="number" min="0" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="2">
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (Model.GoalFor == 1 && Model.IsEmail1 == true)
+                                        { 
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Days For Reminder </label>
+                                                    @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                                    @* @Html.TextBoxFor(m => m.GoalSteps[@i].Reminderdays, new { placeholder = "MM/DD/YYYY", id = "Reminderdays", name = "Reminderdays", maxlength = "50", @class = "form-control" })*@
+                                                    <input  name="GoalSteps[@i].Reminderdays" value="@item.Reminderdays" onkeydown="setmxlength(this)" onkeypress="validate(event)"  type="number" min="0" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="2">
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (Model.GoalFor == 2 && Model.IsEmail2 == true)
+                                        { 
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Days For Reminder </label>
+                                                    @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                                    @* @Html.TextBoxFor(m => m.GoalSteps[@i].Reminderdays, new { placeholder = "MM/DD/YYYY", id = "Reminderdays", name = "Reminderdays", maxlength = "50", @class = "form-control" })*@
+                                                    <input  name="GoalSteps[@i].Reminderdays" value="@item.Reminderdays" onkeydown="setmxlength(this)" onkeypress="validate(event)" type="number" min="0" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="50">
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="email">Days For Reminder </label>
+                                                    @*@Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "2" })*@
+                                                    @* @Html.TextBoxFor(m => m.GoalSteps[@i].Reminderdays, new { placeholder = "MM/DD/YYYY", id = "Reminderdays", name = "Reminderdays", maxlength = "50", @class = "form-control" })*@
+                                                    <input  name="GoalSteps[@i].Reminderdays" disabled="disabled"  readonly="True" value="@item.Reminderdays"  type="number" min="0" class="form-control Description" id="dfReminder" placeholder="Days For Reminder" maxlength="2">
+                                                </div>
+                                            </div>
+                                        }
+                                        <div>
+                                            <input type="hidden" id="StepsID" value="@item.StepID" name="GoalStep[@i].StepsID">
+                                        </div>
+                                    </div>
+                                        i++;
+
+                                    }
+                                }
+
+                            </div>
+                            }
+                        }
+
+
+                    </div>
+
+                </div>
+                <!--row-->
+
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+
+
+                            <button id="btnSubmit" style="min-width: 124px !important;" type="submit" class="my-btn" onclick="return isValidagencyInfo();">Submit</button>
+                            <button id="btntopclear" class="my-btn" onclick="clearfields();">Cancel</button>
+
+                            <div class="clear"></div>
+                        </div>
+                        <!--btnwrp_subcal--->
+                    </div>
+                </div>
+
+
+
+
+
+
+            </div>
+        </div>
+    </form>
+
+
+
+
+
+
+}
+
+

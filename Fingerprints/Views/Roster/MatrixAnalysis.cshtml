@@ -1,0 +1,1642 @@
+﻿@model FingerprintsModel.MatrixScore
+@{
+    ViewBag.Title = "ParentMatrixAnalysis";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section MainContentHolder{
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
+    <link href="~/Content/nanoscroller.css" rel="stylesheet" />
+    <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/matrixrecommendation.css" rel="stylesheet" />
+    <style>
+        .bar12 {
+            float: left;
+            position: relative;
+            bottom: 0;
+            z-index: -90;
+            display: block;
+            height: 100%;
+            margin: 0 40px;
+            bottom: 0;
+            height: 100%;
+            width: 37px;
+            background-color: #8297AA;
+            transform: rotateX(17.7deg) rotateY(-19deg);
+            -webkit-transform: rotateX(16.7deg) rotateY(-19deg);
+            -o-transform: rotateX(17.7deg) rotateY(-19deg);
+            -moz-transform: rotateX(17.7deg) rotateY(-19deg);
+            -ms-transform: rotateX(17.7deg) rotateY(-19deg);
+        }
+
+
+        /*.nano { background: #bba; width: 500px; height: 500px; }*/
+
+        .nano {
+            float: left;
+            height: 454px;
+            width: 100%;
+        }
+
+            .nano > .nano-content {
+                padding: 10px;
+            }
+
+            .nano > .nano-pane {
+                background: #888;
+                width: 8px;
+            }
+
+                .nano > .nano-pane > .nano-slider {
+                    background: #111;
+                }
+
+            .nano:hover > .pane, .pane.active, .pane.flashed {
+                visibility: visible; /* Target only IE7 and IE8 with this hack */
+                opacity: 0.99;
+            }
+    </style>
+    <script src="~/Scripts/sketch.js"></script>
+
+
+
+
+    <div class="container-fluid no-padding">
+        <input type="hidden" value="@Model.HouseHoldId" id="houseHoldId" />
+        <input type="hidden" value="@Model.MatrixScoreList[0].AnnualAssessmentType" id="assessmentType" />
+        <input type="hidden" value="@Model.ClientId" id="clientID" />
+        <input type="hidden" value="@Model.CenterId" id="centerId" />
+        <input type="hidden" value="@Model.ClassRoomId" id="classRoomId" />
+        <input type="hidden" value="@Model.ProgramId" id="programId" />
+        <input type="hidden" value="@Model.ProgramType" id="programType" />
+        <input type="hidden" value="@Model.CategoryIdList.Count" id="categoryIdCount" />
+        <input type="hidden" value="@Model.MatrixScoreList.Count" id="TotalgroupCount" />
+        <input type="hidden" value="@Model.ActiveYear" id="activeYear" />
+        <input type="hidden" value="@ViewBag.ClientName" id="clientName" />
+        <input type="hidden" id="AgencyId" value="" name="" />
+
+        <div class="row">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header-title" style="margin-top: 30px;">
+                        <h1>PARENT’S MATRIX ANALYSIS</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 no-padding">
+
+                <div class="col-xs-12 select-block no-padding">
+                    <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12">
+                        <select name="" id="yearSelect" class="matrix-select">
+                            <option value="0">--Select the program year--</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
+                        <select name="" class="matrix-select hidden">
+                            <option value="0">Year 2015</option>
+                            <option value="1">Year 2016</option>
+                            <option value="2" selected>Year 2017</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 no-padding">
+
+                    <div class="col-lg-3 col-xs-12">
+                        <div class="matrix-profile-img">
+                            <img id="profileImage" src="">
+                            <div class="profile-text">
+                                <p id="parentName"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 block assment-block-1">
+                        <div class="assment-block">
+                            <h3>ASSESSMENT 1</h3>
+                            <div class="survey-3d-green survey-3d-green-ht master-bar1">
+                                <div class="bar-margin"></div>
+                                <div class="bar-label2"><p class="avg-p">0<sub>Avg</sub></p></div>
+                                <div class="bar-label1"><p>0</p></div>
+                                <div class="bar12">
+                                    <div class="bar1a"></div>
+                                    <div class="bar1b"></div>
+                                </div>
+                                <div class="bar-green hidden bar-green1">
+                                    <div class="bar-in1">
+                                        <div class="bar-in1a"></div>
+                                        <div class="bar-in1b"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding">
+                                <div class="col-xs-9 no-padding">
+                                    <div class="assment-text">
+                                        <p id="staff1" class="staff-name"></p>
+                                        <p class="para-1 hidden date-para">Completed <span id="date1" class="completed-date"></span></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3"></div>
+                            </div>
+
+                        </div>
+                        <button type="button" class="btn btn-default rec_as_1 view_recom hidden" as-no="1" data-dismiss="modal">View Recommendations</button>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 block assment-block-2">
+                        <div class="assment-block">
+                            <h3>ASSESSMENT 2</h3>
+                            <div class="survey-3d-green survey-3d-green-ht master-bar2" style="display:block;">
+                                <div class="bar-margin" style="display:block;"></div>
+                                <div class="bar-label2" style="display:block;"><p class="avg-p">0<sub>Avg</sub></p></div>
+                                <div class="bar-label1" style="display:block;"><p>0</p></div>
+                                <div class="bar1" style="display:block;">
+                                    <div class="bar1a" style="display:block;"></div>
+                                    <div class="bar1b" style="display:block;"></div>
+                                </div>
+                                <div class="bar-green hidden bar-green2">
+                                    <div class="bar-in1" style="display:block;">
+                                        <div class="bar-in1a" style="display:block;"></div>
+                                        <div class="bar-in1b" style="display:block;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding">
+                                <div class="col-xs-9 no-padding">
+                                    <div class="assment-text">
+                                        <p id="staff2" class="staff-name"></p>
+                                        <p class="para-2 hidden date-para">Completed <span id="date2" class="completed-date"></span></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="elipse-grade barl-2diff">
+                                        <p>3.2</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button type="button" class="btn btn-default rec_as_2 view_recom hidden" as-no="2" data-dismiss="modal">View Recommendations</button>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 block assment-block-3">
+                        <div class="assment-block">
+                            <h3>ASSESSMENT 3</h3>
+                            <div class="survey-3d-green survey-3d-green-ht master-bar3">
+                                <div class="bar-margin"></div>
+                                <div class="bar-label2"><p class="avg-p">0<sub>Avg</sub></p></div>
+                                <div class="bar-label1"><p>0</p></div>
+                                <div class="bar1">
+                                    <div class="bar1a"></div>
+                                    <div class="bar1b"></div>
+                                </div>
+                                <div class="bar-green hidden bar-green3">
+                                    <div class="bar-in1">
+                                        <div class="bar-in1a"></div>
+                                        <div class="bar-in1b"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 no-padding">
+                                <div class="col-xs-9 no-padding">
+                                    <div class="assment-text">
+                                        <p id="staff3" class="staff-name"></p>
+                                        <p class="para-3 hidden date-para">Completed <span id="date3" class="completed-date"></span></p>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3">
+                                    <div class="elipse-grade bar1-3diff" style="background: #1bb79a;">
+                                        <p>4.1</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button type="button" class="btn btn-default rec_as_3 view_recom hidden" as-no="3" data-dismiss="modal">View Recommendations</button>
+                    </div>
+                </div>
+
+
+                @if (Model.CategoryIdList.Count != 0)
+                {
+                    for (int i = 0; i < Model.CategoryIdList.Count; i++)
+                    {
+
+                        var scoreList = Model.MatrixScoreList.Where(x => x.AssessmentCategoryId == Model.CategoryIdList[i]).ToList();
+                        if (scoreList.Count > 0)
+                        {
+                            <div class="col-xs-12 no-padding category-div" style="position:relative;" cat-id="@i">
+                                <div class="div-group-@i popup-display-overlay"></div>
+
+                                <div class="div-question-@i popup-display-overlay"></div>
+
+                                <div class="col-lg-4 col-xs-12 margin-btm-al z-index-change">
+
+                                    @if (i == 0)
+                                    {
+
+
+                                        <div class="col-xs-12 no-padding matrix-survey1">
+                                            <div class="matrix-header-title">
+                                                <h1>MATRIX SURVEY</h1>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+
+                                        <div class="col-xs-12 no-padding  matrix-survey hidden">
+                                            <div class="matrix-header-title">
+                                                <h1>MATRIX SURVEY</h1>
+                                            </div>
+                                        </div>
+                                    }
+
+
+                                    <div class="col-sm-12 no-padding block-div float-div height-auto" style="background: #f1f5f8;border-radius: 5px;float: left;width: 100%;float: left;width: 100%;">
+                                        <div class="col-lg-2 no-padding survey-text change-div height-auto">
+                                            <h2 category-id="@scoreList[0].AssessmentCategoryId">@scoreList[0].AssessmentCategory.ToUpper()</h2>
+                                        </div>
+
+                                        <div class="col-lg-10 survey-block change-div height-auto">
+                                            @for (int j = 0; j < scoreList.Count; j++)
+                                            {
+                                                <input type="hidden" id="count_@scoreList[j].AssessmentGroupId" value="@i" />
+                                                var ct = j + 1;
+                                                var scr = "";
+                                                if (ct > 5)
+                                                {
+                                                    ct = (ct - 5);
+                                                    if (ct == 0)
+                                                    {
+                                                        ct = 1;
+                                                    }
+                                                    scr = "/images/3d-color" + ct + ".png";
+                                                }
+                                                else
+                                                {
+                                                    scr = "/images/3d-color" + ct + ".png";
+
+                                                }
+                                                var isFirst = 0;
+                                                if (i == 0)
+                                                {
+                                                    isFirst = 1;
+                                                }
+                                                var pos = j + 1;
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="col-sm-2 col-xs-2 pad-change">
+                                                        <div class="survey-3d question-image" group-id="@scoreList[j].AssessmentGroupId" isFirst="@isFirst" position="@pos">
+                                                            <img src=@scr style="display:block;" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-10 col-xs-10 pad-change">
+                                                        <div class="education-content-desc  assessment-group group_@scoreList[j].AssessmentGroupId" isFirst="@isFirst" position="@pos" style="position: relative;" group-id="@scoreList[j].AssessmentGroupId">
+                                                            <p group-id="@scoreList[j].AssessmentGroupId">@scoreList[j].AssessmentGroupType</p>
+                                                            <span class="rt-arw"><img src="/images/rt-aw.png"></span>
+                                                            <span class="tooltiptext">@scoreList[j].AssessmentGroupType</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-xs-12 no-padding assment-block-1 margin-btm-al">
+
+
+                                    @if (i == 0)
+                                    {
+                                        <div class="col-xs-12 no-padding matrix-header-title2 assessments1">
+                                            <div class="col-sm-4 no-padding">
+                                                <div class="matrix-header-title1" style="background: none;">
+                                                    <h1>ASSESSMENT 1</h1>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 no-padding assment-block-2">
+                                                <div class="matrix-header-title1" style="background: none;">
+                                                    <h1>ASSESSMENT 2</h1>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 no-padding assment-block-3">
+                                                <div class="matrix-header-title1" style="background: none;">
+                                                    <h1>ASSESSMENT 3</h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-xs-12 no-padding matrix-header-title2 assessments hidden">
+                                            <div class="col-sm-4 no-padding">
+                                                <div class="matrix-header-title1" style="background: none;">
+                                                    <h1>ASSESSMENT 1</h1>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 no-padding assment-block-2">
+                                                <div class="matrix-header-title1" style="background: none;">
+                                                    <h1>ASSESSMENT 2</h1>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 no-padding assment-block-3">
+                                                <div class="matrix-header-title1" style="background: none;">
+                                                    <h1>ASSESSMENT 3</h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+
+                                    <div class="col-sm-12 no-padding block-div change-div height-auto" style="background: #f1f5f8;border-radius: 5px;float: left;width: 100%;float: left;width: 100%;overflow: hidden;">
+                                        <div class="col-sm-4 assment-block-1">
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="col-sm-4 col-xs-8 no-padding margin-change">
+                                                    @for (int j = 0; j < scoreList.Count; j++)
+                                                    {
+
+                                                        <div class="education-content-3d-desc" style="margin-top: 15px;">
+                                                            <p id="fill_As1_@scoreList[j].AssessmentGroupId" class="mat-score" data-score="0">-</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="col-sm-8 col-xs-4 pad-change" style="position:relative;">
+                                                    <div class="bar-label-new labelAs1_@Model.CategoryIdList[i]"><p></p></div>
+                                                    <div class="survey-3d-green change-bar-div_@i barAs1_@Model.CategoryIdList[i]">
+                                                        <div class="bar-margin"></div>
+
+                                                        <div class="bar">
+                                                            <div class="bara"></div>
+                                                            <div class="barb"></div>
+                                                        </div>
+                                                        <div class="bar-green hidden greenAs1_@Model.CategoryIdList[i]">
+                                                            <div class="bar-in1">
+                                                                <div class="bar-in1a"></div>
+                                                                <div class="bar-in1b"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 assment-block-2">
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="col-sm-4 col-xs-8 no-padding margin-change">
+                                                    @for (int j = 0; j < scoreList.Count; j++)
+                                                    {
+
+                                                        <div class="education-content-3d-desc" style="margin-top: 15px;">
+                                                            <p id="fill_As2_@scoreList[j].AssessmentGroupId" class="mat-score" data-score="0">-</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="col-sm-8 col-xs-4 pad-change">
+                                                    <div class="bar-label-new labelAs2_@Model.CategoryIdList[i]"><p>0</p></div>
+                                                    <div class="survey-3d-green change-bar-div_@i barAs2_@Model.CategoryIdList[i]">
+                                                        <div class="bar-margin"></div>
+                                                        @*<div class="bar-label labelAs2_@Model.CategoryIdList[i]"><p>0</p></div>*@
+                                                        <div class="bar">
+                                                            <div class="bara"></div>
+                                                            <div class="barb"></div>
+                                                        </div>
+                                                        <div class="bar-green hidden greenAs2_@Model.CategoryIdList[i]">
+                                                            <div class="bar-in1">
+                                                                <div class="bar-in1a"></div>
+                                                                <div class="bar-in1b"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 assment-block-3">
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="col-sm-4 col-xs-8 no-padding margin-change">
+                                                    @for (int j = 0; j < scoreList.Count; j++)
+                                                    {
+
+                                                        <div class="education-content-3d-desc" style="margin-top: 15px;">
+                                                            <p id="fill_As3_@scoreList[j].AssessmentGroupId" class="mat-score" TestValue="0" data-score="0">-</p>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="col-sm-8 col-xs-4 pad-change">
+                                                    <div class="bar-label-new labelAs3_@Model.CategoryIdList[i]"><p>0</p></div>
+                                                    <div class="survey-3d-green change-bar-div_@i barAs3_@Model.CategoryIdList[i]">
+                                                        <div class="bar-margin"></div>
+                                                        <div class="bar">
+                                                            <div class="bara"></div>
+                                                            <div class="barb"></div>
+                                                        </div>
+                                                        <div class="bar-green hidden greenAs3_@Model.CategoryIdList[i]">
+                                                            <div class="bar-in1">
+                                                                <div class="bar-in1a"></div>
+                                                                <div class="bar-in1b"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-lg-2 col-xs-12 margin-btm-al">
+                                    @if (i == 0)
+                                    {
+
+                                        <div class="col-xs-12 no-padding chg-div1">
+                                            <div class="matrix-header-title">
+                                                <h1>CHG<span style="padding-left: 10px;"><img src="/images/dw-arw.png"></span><span><img src="/images/tp-arw.png"></span></h1>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="col-xs-12 no-padding chg-div hidden">
+                                            <div class="matrix-header-title">
+                                                <h1>CHG<span style="padding-left: 10px;"><img src="/images/dw-arw.png"></span><span><img src="/images/tp-arw.png"></span></h1>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-sm-12 block-div change-div height-auto" style="background: #f1f5f8;border-radius: 5px;padding: 15px;float: left;width: 100%;">
+                                        <div class="chg-text">
+                                            @for (int j = 0; j < scoreList.Count; j++)
+                                            {
+                                                <p style="color:#2ecc71;">
+                                                    <span class="chg_per_@Model.CategoryIdList[i]_@scoreList[j].AssessmentGroupId char-percentage" style="display:inline-block; color:black;">-</span>
+                                                    <span style="display:inline-block;"><img src="" class="hidden chg_per_img_@Model.CategoryIdList[i]_@scoreList[j].AssessmentGroupId percentage-image" /></span>
+                                                </p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <!--div for Description Popup- Start-->
+    <div class="hidden" id="descText">
+        <div class="col-xs-12 no-padding">
+            <div class="col-lg-1 col-md-2 col-sm-3 col-xs-2 pad-change">
+                <div class="education-content-desc2" style="cursor:pointer;">
+                    <p class="matrix-value" id="matrixValue" score-id="0"></p>
+                </div>
+            </div>
+            <div class="col-lg-11 col-md-10 col-sm-9 col-xs-10 pad-change">
+                <div class="education-content-desc desc-text">
+                    <p class="description" id="descriptionText"></p>
+                    <span class="tooltiptext" id="toolTipDesc">Tooltip text</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="desc-view-popup" style="position: relative;display:none">
+        <div class="col-lg-8 col-xs-12 popup-div">
+            <div class="left-arw">
+                <img src="/images/left-aw.png">
+            </div>
+            <div class="col-xs-12 survey-margin" style="background: #f1f5f8;border-radius: 5px;padding: 12px;border: 1px solid #333;position:relative;" id="popupDiv">
+
+            </div>
+        </div>
+    </div>
+
+    <!--div for Description Popup- ENd-->
+    <!--div for Question Popup- Start-->
+    <div class="hidden" id="questionText">
+        <div class="col-xs-12 no-padding">
+            <div class="col-lg-1 col-md-2 col-sm-3 col-xs-2 pad-change">
+                <div class="education-content-desc2">
+                    <p class="sl-no" id="serialNo"></p>
+                </div>
+            </div>
+            <div class="col-lg-11 col-md-10 col-sm-9 col-xs-10 pad-change">
+                <div class="education-content-desc desc-qn">
+                    <p class="question" id="questionText"></p>
+                    <span class="tooltiptext" id="toolTipQn">Tooltip text</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="question-view-popup" style="display:none;">
+        <div class="col-lg-8 col-xs-12 question-popup-div popup-div1">
+            <div class="left-arw"><img src="/images/left-aw.png"></div>
+            <div class="col-xs-12 survey-margin" style="background: #f1f5f8;border-radius: 5px;padding: 12px;border: 1px solid #333;position:relative;" id="questionpopupDiv">
+            </div>
+        </div>
+    </div>
+
+    <!--div for Question Popup- ENd-->
+    <!---Error Popup-->
+
+    <div class="modal fade" id="AssessmentexpirePopup" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:none;margin-bottom:0;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="assessmenterror"></h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--ErrorPopup-->
+    <!---Matrix Recommendation Popup-->
+    <!-- Modal -->
+    <div class="modal fade" id="matrix_recommendations" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" id="recommClosBtn"><img src="/images/close.png" /></button>
+                    <h2>Matrix Recommendations</h2>
+                    @*<div class="max_cont src_cont mCustomScrollbar light" data-mcs-theme="minimal-dark">*@
+                    <div class="max_cont src_cont ">
+
+                        <div class="max_items_main nano">
+                            <div class="nano-content">
+                                <div class="max_items headings">
+                                    <ul>
+                                        <li><div><span class="lft">DESCRIPTION</span><span class="mid"><a href="#">FPA SUGGESTED</a></span><span class="rgt">REFERRAL SUGGESTED</span></div></li>
+                                    </ul>
+                                </div>
+
+                                <div class="bind-div-recommendations">
+
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    @*</div>*@
+
+                    <div class="max_foot_btn">
+                        <div class="lft_btn">
+
+                            <a href="#" class="clear" id="clearRecommendation">Clear</a>
+                            <a href="#" class="save" id="saveRecommendation">Save</a>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <!----recommendation popup div-->
+    <!-- Modal -->
+    <div class="modal fade matrix_fba" id="matrix_fbaPopup" role="dialog">
+        <div class="modal-dialog modal-dialog-ch">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png" /></button>
+                    <h2>Family Partnership Agreement (FPA)</h2>
+
+                    @*<div class="max_items_main popup-family-scroll mCustomScrollbar light" data-mcs-theme="minimal-dark">*@
+                    <div class="max_items_main popup-family-scroll nano">
+                        <div class="col-xs-12 nano-content">
+                            <div class="col-xs-12" style="padding: 0;">
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="family-poup-div">
+                                        <label>Goal<span>*</span></label>
+                                        <input class="form-control ui-autocomplete-input" type="text" id="Goal" placeholder="Goal">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="family-poup-div">
+                                        <label>FEO<span>*</span></label>
+                                        <div class="col-xs-12" style="padding: 0;position: relative;">
+
+                                            <select name="DdlCateList" class="form-control" id="DdlCateList"></select>
+
+                                            <div class="dwn">
+                                                <img src="/images/dwn-arrow-popup.png">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12" style="padding: 0;">
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="col-sm-4 col-xs-12" style="padding: 0;">
+                                        <div class="family-poup-div">
+                                            <label>Date of Goal<span>*</span></label>
+                                            <input class="form-control ui-autocomplete-input" id="GoalDate" value="" type="text" readonly style="background:#fff;">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-8 col-xs-12 pad-right-popup">
+                                        <div class="family-poup-div">
+                                            <label>Status<span>*</span></label>
+                                            <div class="col-xs-12" style="padding: 0;position: relative;">
+
+                                                <select class="form-control" id="GoalStatus" name="GoalStatus">
+                                                    <option value="0" selected="selected">Open</option>
+                                                    <option value="1">Complete</option>
+                                                    <option value="2">Abandoned</option>
+                                                    <option value="3">Refused to do a FPA</option>
+                                                </select>
+
+                                                <div class="dwn">
+                                                    <img src="/images/dwn-arrow-popup.png">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="col-sm-12" style="padding: 0;">
+                                        <div class="family-poup-div" style="margin: 0;">
+                                            <label>Completion Date<span>*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-12" style="padding: 0;">
+                                        <div class="family-poup-div">
+                                            <input class="form-control ui-autocomplete-input" id="monthText" onkeypress="validate(event)" maxlength="2" tabindex="4" type="text" placeholder="Month">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-12" style="padding: 0;">
+                                        <div class="family-poup-div">
+                                            <input class="form-control ui-autocomplete-input" id="weekText" onkeypress="validate(event)" maxlength="2" tabindex="4" type="text" placeholder="Week">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12" style="padding: 0;">
+                                        <div class="family-poup-div">
+                                            <div class="col-xs-12" style="padding: 0;position: relative;">
+
+                                                <input class="form-control" id="CompletionDate" onblur="onchangeevent();" value="" type="text" readonly style="background:#fff;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12" style="padding:0;">
+                                <div class="col-sm-6 col-xs-12 goal-for-parent">
+                                    <div class="family-poup-div">
+                                        <label>Goal For<span>*</span></label>
+                                    </div>
+                                    <label style="width: 100%;color:black;">
+                                        <input id="parent1" type="checkbox" value="false" style="margin-right:10px;"><span class="parentName1"></span>
+                                    </label>
+                                    <label style="width: 100%;color:black;">
+                                        <input id="parent2" type="checkbox" value="false" style="margin-right:10px;"><span class="parentName2"></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="col-sm-12 signatureDiv" style="padding: 0;display:none;">
+                                        <div class="family-poup-div" style="margin: 0;width:auto;display:inline-block;margin-right:10px;">
+                                            <label>Signature</label>
+                                        </div>
+
+                                        <div class="lft_btn" style="margin: 0;width:auto;display:inline-block;margin-top:10px;">
+                                            <button style="cursor:pointer; width: 100%;" class="addSignature btnPassword tools" id="addSignatureButton" data-toggle="modal" data-target="#drawSignatureModal">
+                                                Add Signature
+                                            </button>
+
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <img id="imagedata" src="" style="height: 48px;">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12">
+
+                                <div class="family-popup-btn" id="DescriptionAddBtn">
+                                    <a href="javascript:void(0)" title="Add Services" onclick="AddSteps();"><span>+</span>Add Step</a>
+                                </div>
+                            </div>
+                            <div id="addStepsDiv"></div>
+                        </div>
+                    </div>
+                    @*</div>*@
+
+                    <div class="max_foot_btn" style="margin-bottom:35px;">
+                        <div class="lft_btn">
+                            <a style="cursor:pointer;" class="save" id="fbsSaveBtn">SUBMIT</a>
+                            <a style="cursor:pointer;" class="exit" id="fbaCancelBtn">CANCEL</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Referral Modal -->
+    <div class="modal fade matrix_fba" id="matrix_referalpopup" role="dialog">
+        <div class="modal-dialog modal-dialog-ch">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png" /></button>
+                    <h2>Referral Service</h2>
+                    <div class="max_items_main" id="max_items">
+                        <div class="col-xs-12 referalservice" style="padding:0;">
+                            <div class="nano popup-family-scroll1 col-xs-12" style="padding:0">
+                                <div class="referrservice_div col-xs-12 nano-content"></div>
+                            </div>
+
+                            <div class="refer_serv_btn col-xs-12 no-padding" style="text-align:center;margin-top:20px;margin-bottom:20px;">
+                                <span><input type="button" class="btn btn-primary new-request-family" value="New Request for Family Needs"></span>
+                                <span><input type="button" class="btn btn-primary new-referral-agency" value="New Referral to Specific Agency"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 new-referral-step1" style="padding:0;display:none;">
+                            <div class="col-xs-12 no-padding bdr-btm setfamily">
+                                <div class="name_lst">
+
+
+                                    <input type="hidden" value="MTQ5Mjc=" id="UniqueClientId">
+                                    <input type="hidden" id="referralClientId">
+                                    <input type="hidden" value="Michellee 1 Yardly" id="clientName">
+                                    <input type="hidden" value="MTQ5Mjc=" id="id">
+                                    <input type="hidden" id="parentName">
+
+
+                                    <span class="text-heading" style="display:inline-block;width:auto;float:left;">
+                                        Family Members
+                                    </span>
+                                    <span class="validation1 error" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                    </span>
+                                    <div class="col-xs-12 no-padding">
+                                        <label class="col-lg-1 no-padding" style="color:#295b8f">Parent:</label>
+                                        <span class="col-lg-11 no-padding parent_append" style="width:auto;">
+
+                                        </span>
+                                    </div>
+                                    <div class="col-xs-12 no-padding">
+                                        <label class="col-lg-1 no-padding" style="color:#295b8f">Child:</label>
+                                        <span class="col-lg-11 no-padding chil_append" style="width:auto;">
+
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding bdr-btm setreferral">
+                                <span class="text-heading" style="display:inline-block;width:auto;float:left;line-height:26px;">
+                                    Referral Type
+                                </span>
+                                <span class="validation2 error" style="width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;display:none;">
+
+                                </span>
+                                <div class="check_btn col-xs-12 no-padding">
+                                    <a href="#" class="check">Check All</a>
+                                    <a href="#" class="uncheck">UnCheck</a>
+                                </div>
+                                <div class="col-xs-12 no-padding servies_lst">
+                                    <h3 class="category_heading"></h3>
+                                    <div class="ul_cateList col-xs-12"></div>
+
+                                </div>
+
+                            </div>
+                            <div class="check_btn col-xs-12 no-padding text-center">
+
+                                <input type="button" id="Save" value="Save" style="float:none;">
+                                <input type="button" id="Cancel" value="Cancel" style="float:none;">
+                                <input type="button" id="Matchprovider" value="Match Providers" style="float:none;">
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 new-referral-step2" style="padding:0;display:none;">
+                            <div class="col-xs-12 no-padding bdr-btm">
+
+
+                                <div class="col-xs-12 serv_prod_main no-padding">
+
+                                    <div class="cent_lst col-xs-12 no-padding">
+                                        <div class="fam_mem">
+                                            <div class="col-xs-3 pad-right">
+                                                <h3> Service Resources: </h3>
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <div class="col-xs-12 txt_labe">
+                                                    <select id="FSResourcesSelect" style="width: 268px;padding: 0px;height: 28px;color:#333;"></select>
+                                                    <input type="hidden" value="22" id="FSResources">
+                                                    <label id="servicesName">Child Health and Development</label>
+                                                    <span class="error" id="err_resource" style="display:none; width: auto;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12 serv_prod_main no-padding">
+
+                                    <div class="cent_lst col-xs-12 no-padding">
+                                        <div class="fam_mem">
+                                            <div class="col-xs-3 pad-right">
+                                                <h3> Service Organization: </h3>
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <div class="col-xs-12 txt_labe">
+                                                    <select id="ddFsOrganization" style="width: 268px;padding: 0px;height: 28px;color:#333;">
+                                                        <option value="0">Select Organization</option>
+                                                    </select>
+                                                    <input type="hidden" id="OrganizationId" value="49">  <label id="ddFsOrganizationLbl">Salen DDS</label>
+                                                    <span class="error" id="err_organization" style="display:none;width: auto;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                                    </span>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12 serv_prod_main no-padding">
+                                    <div class="cent_lst col-xs-12 no-padding">
+                                        <div class="fam_mem">
+                                            <div class="col-xs-3 pad-right">
+                                                <h3> Referral Date: </h3>
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <p style="float:left;margin-bottom:0;position:relative;">
+                                                    <input type="text" maxlength="10" class="txt-date" id="datepicker" value="" style="left:0px;margin-top:7px;margin-bottom:0;width:268px;padding:8px;height:28px;color:black;position:relative;z-index:9;background:none;border:1px solid #a9a9a9;cursor:pointer;">
+
+                                                </p>
+                                                <span class="error" id="err_date" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;"></span>
+                                            </div>
+                                            <span class="error" id="errdate" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12 serv_prod_main no-padding">
+
+                                    <div class="cent_lst col-xs-12 no-padding">
+                                        <div class="fam_mem">
+                                            <div class="col-xs-3 pad-right">
+                                                <h3> Notes: </h3>
+                                            </div>
+                                            <div class="col-xs-9">
+                                                <textarea class="txtarea" id="Description" style="height:30px;color: #333;height: 50px;line-height: 1em;display: block;width: 268px;white-space: nowrap;" rows="3" name="Text" value=""></textarea>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12 no-padding">
+                                    <div class="col-xs-3 pad-right">
+                                        <span><label style="color:#295b8f;"><b>Organization Name:</b></label></span>
+                                    </div>
+                                    <div class="col-xs-9" style="float: left;display: block;">
+                                        <span><a id="spnOrganizationName" style="display:inline-block;margin-top:10px;cursor:pointer;text-decoration:underline;text-align:left;"></a></span>
+                                        <input type="hidden" id="CommunityId">
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="col-xs-3 pad-right">
+                                        <span><label style="color:#295b8f;"><b>Address:</b></label> </span>
+                                    </div>
+
+                                    <div class="col-xs-9" style="float: left;display: block;line-height:10px;">
+                                        <span id="SpnCommunityAddress" style="margin-top:10px;display:inline-block;color:#333;"></span>
+                                        <span id="SpnCommunityCity" style="margin-top:10px;display:inline-block;color:#333;"></span>
+                                        <span id="SpnCommunityState" style="margin-top:10px;display:inline-block;color:#333;"></span><span style="margin-top:10px;display:inline-block;padding-left:5px;color:#333;" id="SpnCommunityZipCode"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding" style="margin-top:10px;">
+                                    <div class="col-xs-3 pad-right">
+                                        <span><label style="color:#295b8f;"><b>Phone Number:</b></label> </span>
+                                    </div>
+
+                                    <div class="col-xs-9" style="float: left;display: block;line-height:20px;">
+                                        <span id="SpnCommunityPhone" style="color:#333;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding">
+                                    <div class="col-xs-3 pad-right">
+                                        <span><label style="color:#295b8f;"><b>Email:</b></label> </span>
+                                    </div>
+
+                                    <div class="col-xs-9" style="float: left;display: block;line-height:20px;">
+                                        <span id="SpnCommunityEmail" style="color:#333;"></span>
+                                    </div>
+
+                                </div>
+
+
+
+                            </div>
+                            <div class="col-xs-12 no-padding">
+                                <div class="check_btn text-center">
+
+                                    <input type="button" id="referralLetterPdf" value="Referral letters" style="float:none;">
+                                    <input type="button" id="surveryRef" value="Survey" style="float:none;">
+                                    <input type="button" id="referralServiceSaveMethod" value="Save" style="float:none;">
+                                    <input type="button" id="Cancel" value="Cancel" style="float:none;">
+
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-xs-12 new-referral-agency-step1" style="padding:0;display:none;">
+                            <div class="popup-family-scroll1 col-xs-12 no-padding nano">
+                                <div class="col-xs-12 no-padding bdr-btm setfamily nano-content">
+                                    <div class="name_lst">
+
+
+                                        <input type="hidden" value="MTQ5Mjc=" id="UniqueClientId">
+                                        <input type="hidden" id="referralClientId">
+                                        <input type="hidden" value="Michellee 1 Yardly" id="clientName">
+                                        <input type="hidden" value="MTQ5Mjc=" id="id">
+                                        <input type="hidden" id="parentName">
+
+
+                                        <span class="text-heading" style="display:inline-block;width:auto;float:left;">
+                                            Family Members
+                                        </span>
+                                        <span class="validation1 error" id="errshow" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                        </span>
+                                        <div class="col-xs-12 no-padding">
+                                            <label class="col-lg-1 no-padding" style="color:#295b8f">Parent:</label>
+                                            <span class="col-lg-11 no-padding referral_company_Parent" style="width:auto;">
+
+
+                                            </span>
+                                        </div>
+                                        <div class="col-xs-12 no-padding">
+                                            <label class="col-lg-1 no-padding" style="color:#295b8f">Child:</label>
+                                            <span class="col-lg-11 no-padding referral_company_Child" style="width:auto;">
+
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding bdr-btm">
+                                    <div class="refer_type_main">
+                                        <ul>
+                                            <li>
+                                                <label>Organization Name:</label>
+                                                <span>
+                                                    <input class="form-control ui-autocomplete-input validtest" id="txtSearch" maxlength="30" name="Organization" placeholder="Search Organization" style="width:230px!important;display:inline-block;float:left;" value="" autocomplete="off" type="text">
+
+                                                    <span class="error" id="errspan" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                                    </span>
+
+                                                </span>
+                                            </li>
+                                            <span><input type="hidden" id="communityId"></span>
+                                            <li>
+                                                <label> Referral Type: </label><span>
+                                                    <select id="FFReferralSelect" style="width:230px!important;display:inline-block;">
+                                                        <option value="0">Select Referral Type</option>
+                                                    </select>
+                                                    <span class="error" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;" id="errnewspan">
+                                                        Please select referral type
+                                                    </span>
+
+                                                    <label id="FFReferral" style="font-weight: normal" class="addresssection"></label>
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <label> Referral Date: </label><span>
+                                                    <p style="float:left;margin-bottom:0;position:relative;">
+
+
+                                                        <input class="txt-date" id="datepicker1" maxlength="10" value="" style="left:0px;margin-top:7px;margin-bottom:0;width:230px!important;padding:8px;height:28px;position:relative;z-index:9;background:none;border:1px solid #a9a9a9;cursor:pointer;float:left;" type="text">
+                                                        <span class="error" id="errdate" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                                        </span>
+                                                    </p>
+                                                </span>
+
+
+                                            </li>
+                                            <li><label> Notes: </label><span><textarea class="txtarea" id="Description" style="color: #333;height: 50px;line-height: 1em;display: block;width:230px!important;white-space: nowrap;" rows="3" name="Text" value=""></textarea></span></li>
+                                            <li><label>Organization Name:</label><span id="spnOrganizationName1" class="addresssection"></span></li>
+                                            <li>
+                                                <label>Address:</label><span>
+                                                    <p id="refcomma" class="display-text col-xs-12 no-padding" style="">
+                                                        <span id="SpnCommunityAddress1" class="addresssection"></span>
+                                                    </p>
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <label>Phone Number:</label><span>
+                                                    <p id="refcomma" class="display-text col-xs-12 no-padding" style="">
+                                                        <span id="SpnCommunityPhone1" class="addresssection"></span>
+                                                    </p>
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <label>Email:</label><span>
+                                                    <p id="refcomma" class="display-text col-xs-12 no-padding" style="">
+                                                        <span id="SpnCommunityEmail1" class="addresssection"></span>
+                                                    </p>
+                                                </span>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="check_btn text-center" style="max-width:initial;margin-top:20px;margin-bottom:0;">
+                                <input id="btnpdf" value="Referral Letters" name="pdf" style="float: none;padding: 16px;background: #285b8f;color: #fff;text-transform: none;border: 0px;margin-right: 10px;margin-top:7px;" type="submit">
+                                <input id="referralServiceMethodSave" value="Save" style="float:none;" type="button">
+                                <input id="Cancel" value="Cancel" style="float:none;" type="button">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="rec-pop-div hidden">
+        <div class="max_items">
+            <div class="max-title red"><div class="booth_tlt category-Name">Familywellbeing</div></div>
+            <ul class="bind-group"></ul>
+        </div>
+    </div>
+
+    <!----Referral Service PopUp bindDiv-->
+    <div class="referralservice-div hidden">
+        <div class="col-xs-12 service-No" style="padding:0;position:relative;border-bottom:1px solid #ddd;margin-bottom:7px;">
+            <span class="col-xs-12" style="line-height:32px;padding:0;">
+                <span style="float:left;display:inline-block;width:auto;color:#333;" class="referral-date-span"></span>
+                <a href="javascript:void(0);" style="margin-left:30px;display:inline-block;width:auto;" class="ReferralServiceName" data-stepid="0" referralclientid="0" parentname=""></a>
+            </span>
+
+
+            <span style="position:absolute;right:0;top:7px;cursor:pointer;" class="delete_span hidden" id="deleteservice" data-toggle="modal" data-target="#deleteServicePopUp">
+                <input type="hidden" id="DeleteClientService" />
+                <img src="~/Content/img/cancel.png" style="max-width:50%;position:relative;right:-15px;" />
+            </span>
+        </div>
+    </div>
+
+
+    <!-----Modal start-->
+    <div id="OrganizationInfoModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-dialog-width">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header modal-bdr">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><strong>Referral Information</strong></h4>
+                </div>
+                <div class="modal-body col-xs-12">
+
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Organization Name:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="refferedtomodal" class="refer-modal" style="font-weight:bold"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Resource Name:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="resourceNamemodal" class="refer-modal"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Address:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="streetModal" class="refer-modal" style="display: inline-block;"></div><div id="cityModal" class="refer-modal" style="display: inline-block;padding:0 5px;"></div><div id="stateModal" class="refer-modal" style="display: inline-block;"></div>
+                        </div>
+                        <div class="col-xs-5"></div>
+                        <div class="col-xs-7">
+
+                        </div>
+                        <div class="col-xs-5"></div>
+                        <div class="col-xs-7">
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12" style="padding-top:20px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Phone Number:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="phonenoModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="padding-top:7px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Email:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="emailModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5" style="padding-top:0px;"><div class="h5"><strong>Service Resources:</strong></div></div>
+                        <div class="col-xs-7" style="padding-top:0px;">
+                            <div id="serviceModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12" style="padding-top:20px;">
+                        <div class="col-xs-5" style="padding-top: 7px;">
+                            <strong>Business Hours:</strong>
+                        </div>
+                        <div class="col-xs-7">
+
+                            <div class="center-block">
+                                <table style="margin:0;width:100%;">
+                                    <tr>
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>HOURS</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>MON</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>TUE</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>WED</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>THU</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>FRI</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>SAT</td>
+
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>SUN</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>FROM</td>
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="monFrmHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="tueFrmHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="wedFrmHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="thuFrmHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="friFrmHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="satFrmHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="sunFrmHours"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style='border: 1px solid #ddd;color: #f4f8fa;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#337ab7;'>TO</td>
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="monToHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="tueToHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="wedToHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="thuToHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="friToHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="satToHours"></td>
+
+                                        <td style='border: 1px solid #ddd;color: #333;text-transform: none;font-size: 14px;text-decoration: none;font-family: Arial, Helvetica, sans-serif;font-weight: 400;text-align: center;padding: 5px;height:24px;background:#fff;' id="sunToHours"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Gender Served:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="genderservedModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Ages Served:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="ageservedModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Fees:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="feesModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Payment Options:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="paymentsModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="padding-top:10px;">
+                        <div class="col-xs-5"><div class="h5"><strong>Do you need an appointment?:</strong></div></div>
+                        <div class="col-xs-7">
+                            <div id="appointmentModal" class="refer-modal"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" style="margin-top: 15px;">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!---Modal end-->
+    <!----Survey Modal Pop up start-->
+
+    <div class="modal fade" id="surveyModalPopUp" role="dialog">
+        <div class="modal-dialog modal-width-change">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><strong>Referral Survey</strong></h4>
+                </div>
+                <div class="modal-body modal-height-change">
+                    <div class="form_myfunction">
+                        <div class="form-group refer_entry">
+                            <h2>Quality of Referral</h2>
+                            <ul style="border: 1px solid #ccc;">
+                                <li><label>Date of Referral</label><span id="ReferralDate" style="display:inline-block;width:52%;"></span></li>
+                                <li><label>Name</label><span id="Name" style="display:inline-block;width:52%;"></span></li>
+                                <li><label>Service Resources</label><span id="ServicesName" style="display:inline-block;width:52%;"></span></li>
+                                <li><label>Organization Name</label><span id="OrganName" style="display:inline-block;width:52%;"></span></li>
+                            </ul>
+
+                        </div>
+                        <div class="form-group refer_entry">
+                            <h2 style="margin-top:20px;">Questions</h2>
+                            <div class="col-xs-12 referal-block" style="padding:0; border: 1px solid #ccc;">
+
+                                <div class="col-xs-12" style="padding:0;">
+                                    <ul>
+                                        <li>
+
+                                            <label id="question1" data-questionid="" data-answerid=""></label><span style="display:inline-block;width:12%;float:left;">
+
+                                                <label class="radio-inline no-print"><input type="radio" value="Yes" name="answerradio1">Yes</label>
+                                                <label class="radio-inline no-print"><input type="radio" value="No" name="answerradio1">No</label>
+
+                                                <label class="print-answer hidden" style="font-weight:normal" id="answer1" />
+                                            </span>
+                                            <span class="error" id="errquestion1" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <label>If no, explain</label>
+                                            <span style="display:inline-block;width:52%;">
+                                                <textarea id="answerexp1" class="no-print" disabled="disabled"></textarea><label class="print-answer hidden" style="font-weight:normal" id="answerlabel1"></label>
+                                                <span class="error" id="errquestion1txt" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;margin-top:5px;margin-left:90px;">
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </ul>
+
+                                </div>
+
+                                <div class="col-xs-12" style="padding:0;">
+                                    <ul>
+                                        <li>
+                                            <label id="question2" data-questionid="" data-answerid=""></label><span style="display:inline-block;width:20%;float:left;">
+                                                <label class="radio-inline"><input type="radio" value="Yes" name="answerradio2">Yes</label>
+                                                <label class="radio-inline"><input type="radio" value="No" name="answerradio2">No</label>
+                                                <label class="radio-inline"><input type="radio" value="Not Applicable" name="answerradio2">Not Applicable</label>
+                                                <label class="print-answer hidden" style="font-weight:normal" id="answer2" />
+                                            </span>
+                                            <span class="error" id="errquestion2" style="display:none; width: auto;float: left;padding: 0 8px;margin-left:0px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                            </span>
+
+                                        </li>
+                                        <li>
+                                            <label>If no, explain</label>
+                                            <span style="display:inline-block;width:52%;">
+                                                <textarea id="answerexp2" class="no-print" disabled="disabled"></textarea><label class="print-answer hidden" style="font-weight:normal" id="answerlabel2"></label>
+                                                <span class="error" id="errquestion2txt" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;margin-top:5px;margin-left:90px;">
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-xs-12" style="padding:0;">
+                                    <ul>
+                                        <li>
+                                            <label id="question3" data-questionid="" data-answerid=""></label><span style="display:inline-block;width:20%;float:left;">
+                                                <label class="radio-inline"><input type="radio" value="Excellent" name="answerradio3">Excellent</label>
+                                                <label class="radio-inline"><input type="radio" value="Good" name="answerradio3">Good</label>
+                                                <label class="radio-inline"><input type="radio" value="Fair" name="answerradio3">Fair</label>
+                                                <label class="radio-inline"><input type="radio" value="Poor" name="answerradio3">Poor</label>
+                                                <label class="radio-inline"><input type="radio" value="Not Applicable" name="answerradio3">Not Applicable</label>
+                                                <label class="print-answer hidden" style="font-weight:normal" id="answer3" />
+                                            </span>
+                                            <span class="error" id="errquestion3" style="display:none; width: auto;float: left;padding: 0 8px;margin-left:0px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <label>Explain any fair or poor answer</label>
+                                            <span style="display:inline-block;width:52%;">
+                                                <textarea id="answerexp3" class="no-print" disabled="disabled"></textarea>
+                                                <label class="print-answer hidden" style="font-weight:normal" id="answerlabel3"></label>
+                                                <span class="error" id="errquestion3txt" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;margin-top:5px;margin-left:90px;">
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </ul>
+
+                                </div>
+
+                                <div class="col-xs-12" style="padding:0px;">
+                                    <ul>
+                                        <li>
+                                            <label id="question4" data-questionid="" data-answerid=""></label><span style="display:inline-block;width:20%;float:left;">
+                                                <label class="radio-inline"><input type="radio" value="Excellent" name="answerradio4">Excellent</label>
+                                                <label class="radio-inline"><input type="radio" value="Good" name="answerradio4">Good</label>
+                                                <label class="radio-inline"><input type="radio" value="Fair" name="answerradio4">Fair</label>
+                                                <label class="radio-inline"><input type="radio" value="Poor" name="answerradio4">Poor</label>
+                                                <label class="radio-inline"><input type="radio" value="Not Applicable" name="answerradio4">Not Applicable</label>
+                                                <label class="print-answer" style="font-weight:normal" id="answer4" />
+                                            </span>
+                                            <span class="error" id="errquestion4" style="display:none; width: auto;float: left;padding: 0 8px;margin-left:0px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <label>Explain any fair or poor answer</label>
+                                            <span style="display:inline-block;width:52%;">
+                                                <textarea id="answerexp4" class="no-print" disabled="disabled"></textarea>
+                                                <label class="print-answer hidden" style="font-weight:normal" id="answerlabel4"></label>
+                                                <span class="error" id="errquestion4txt" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;margin-top:5px;margin-left:90px;">
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-xs-12" style="padding:0;">
+                                    <ul>
+                                        <li>
+                                            <label id="question5" data-questionid="" data-answerid=""></label><span style="display:inline-block;width:52%;">
+                                                <label class="radio-inline"><input type="radio" value="Greatly improved the circumstance" name="answerradio5">Greatly improved the circumstance</label>
+                                                <label class="radio-inline"><input type="radio" value="Adequately improved the circumstance" name="answerradio5">Adequately improved the circumstance</label>
+                                                <label class="radio-inline"><input type="radio" value="Slightly improved the circumstance" name="answerradio5">Slightly improved the circumstance</label>
+                                                <label class="radio-inline"><input type="radio" value="Poor" name="answerradio5">Poor</label>
+                                                <label class="radio-inline"><input type="radio" value="Did not improve the circumstance at all" name="answerradio5">Did not improve the circumstance at all</label>
+                                                <label class="radio-inline"><input type="radio" value="Not Applicable" name="answerradio5">Not Applicable</label>
+                                                <label class="print-answer" style="font-weight:normal" id="answer5" />
+                                            </span>
+                                            <span class="error" id="errquestion5" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 397px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <label>Explain any fair or poor answer</label>
+                                            <span style="display:inline-block;width:52%;">
+                                                <textarea id="answerexp5" class="no-print" disabled="disabled"></textarea>
+                                                <label class="print-answer hidden" style="font-weight:normal" id="answerlabel5"></label>
+                                                <span class="error" id="errquestion5txt" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;margin-top:5px;margin-left:90px;">
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-xs-12" style="padding:0;">
+                                    <ul>
+                                        <li><label id="question6" data-questionid="" data-answerid=""></label><span style="display:inline-block;width:52%;"><textarea id="answerexp6" class="no-print"></textarea><label class="print-answer hidden" style="font-weight:normal" id="answerlabel6"></label></span></li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-xs-12" style="padding:0px;">
+                                    <ul>
+                                        <li>
+                                            <label>Date Completed (mm/dd/yyyy)</label><span style="display:inline-block;width:52%;">
+                                                <input type="text" class="txt-date no-print" id="datecompleted" maxlength="10" style="width:100%;" />
+                                                <label id="datecompletespan" style="font-weight:normal" class="print-answer hidden"></label>
+                                                <span class="error" id="errquestion6" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;margin-top:5px;margin-left:90px;">
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div><div class="check_btn col-xs-12 no-padding text-center">
+
+                                    <input type="button" id="SaveSurvey" value="Save" style="float:none;margin-bottom:20px!important;">
+                                    <input type="button" id="Cancel" data-dismiss="modal" value="Cancel" style="float:none;margin-bottom:20px!important;">
+                                    <input type="button" id="Matchprovider" value="Print" style="float:none;margin-bottom:20px!important;">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!---Survy Modal Pop up end-->
+    <!----alert Modal Survey Options-->
+
+    <div class="modal fade" id="updateChangeModalAlert" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:none;margin-bottom:0;">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="updatealert"></h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="updatealertConfirm">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="updatealertCancel">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!----------------------------------Delete PopUp-------------------------------->
+
+    <div class="modal fade" id="deleteServicePopUp" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content modal-width-change">
+                <div class="modal-header" style="border-bottom:none;margin-bottom:0;">
+                    <button type="button" class="close" data-dismiss="modal" style="opacity:1;">
+                        <img src="~/Images/error.png" />
+                    </button>
+                    <h4 class="modal-title">Do you want to delete this record?</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default DeleteService">Yes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-------------------------------END PopUp----------------------------------------------->
+    <!----FPA Steps-->
+    <div class="fpaSteps hidden">
+
+        <div id="AddSteps0" class="row">
+            <div class="max_items_main2">
+                <div class="col-xs-12">
+                    <div class="close-inside">
+                        <a onclick="DeleteStep(this);" style="cursor: pointer;"> <img src="/images/popup-div-close.png" /></a>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding: 0;">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="family-poup-div">
+                            <label>Description<span>*</span></label>
+                            <input class="form-control ui-autocomplete-input Description" name="GoalSteps[0].Description" id="Description" onblur="isabletosign()" type="text" placeholder="Description">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="family-poup-div">
+                            <label>Status<span>*</span></label>
+                            <div class="col-xs-12" style="padding: 0;position: relative;">
+
+                                <select id="Status" name="GoalSteps[0].Status" class="form-control status">
+                                    <option value="0">Open</option>
+                                    <option value="1">Complete</option>
+                                    <option value="2">Abandoned</option>
+
+                                </select>
+
+                                <div class="dwn">
+                                    <img src="/images/dwn-arrow-popup.png">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding: 0;">
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="family-poup-div">
+                            <label>Completion Date<span>*</span></label>
+                            <input class="form-control StepsCompletionDate" name="GoalSteps[0].StepsCompletionDate" type="text" id="StepsCompletionDate" placeholder="MM/DD/YYYY" readonly style="background:#fff;">
+                            <input id="StepsID" type="hidden" name="GoalSteps[0].StepsID">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="family-poup-div">
+                            <label>Days Prior to Remind Parent</label>
+                            <input name="GoalSteps[0].Reminderdays" type="number" onkeydown="setmxlength(this)" onkeypress='validate(event)' min="0" class="form-control Description" id="dfReminder" placeholder="Days for reminder" maxlength="2">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!---FPA Steps-->
+    <!--Draw Signature Modal-->
+    <div id="drawSignatureModal" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 390px;">
+
+            <!-- Modal content-->
+            <div class="modal-content" style="width: 390px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Draw Signature</h4>
+                </div>
+                <div class="modal-body" style="height: 200px;">
+                    <div class="" style="float: left; width: 100%;">
+                        <canvas id="colors_sketch" class="signature_1" style="border: 1px solid #c1c1c1;" width="356px" height="120px"></canvas>
+                        <input id="imgCapture" name="SignatureData" style="display:none;" type="text" value="">
+
+
+                        <div id="buttondiv" style="margin-top: 15px;">
+                            <input type="button" class="btnPassword tools" style="width: 30%" id="btnSave" data-dismiss="modal" value="Add">
+                            <a class="btnPassword mybtnclear" id="clearDrawing" style="display: inline-block !important; margin-bottom: 0px !important; background-color: #295b8f !important; color: #fff; float: right !important" href="#colors_sketch" data-tool="eraser">Clear</a>
+                            &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp;<a class="btnPassword marker" style="margin-right: 12px; display: inline-block !important; margin-bottom: 0px !important; background-color: #295b8f !important; color: #fff; float: right !important" href="#colors_sketch" data-tool="marker">Draw</a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="display: none">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--Draw Signature Modal-->
+    <script src="~/Scripts/jquery.nanoscroller.js"></script>
+    <script src="~/Scripts/MatrixAnalysis.js"></script>
+
+    <script src="~/Scripts/Samplescript/jquery-ui.min.js"></script>
+
+
+
+    <script>
+        $(function () {
+
+            $('#colors_sketch').sketch();
+            var base64 = '';
+            $("#btnSave").bind("click", function () {
+                base64 = $('#colors_sketch')[0].toDataURL();
+                $('#drawSignatureModal').find("#imgCapture").val(base64);
+                // $("#imgCapture").val(base64);
+                $("#imagedata").attr("src", base64);
+
+                $("#imagedata").show();
+                //imgCapture
+            });
+
+            $("#clearDrawing").on("click", function () {
+                var Canvas = document.getElementById('colors_sketch');
+                var myCanvasContext = Canvas.getContext('2d');
+                clearCanvas(Canvas, myCanvasContext);
+                return true;
+            });
+            //imgCapture
+            function clearCanvas(canvas, context) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+        });
+
+
+    </script>
+}

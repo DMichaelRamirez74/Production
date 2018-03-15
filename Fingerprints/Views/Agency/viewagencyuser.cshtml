@@ -1,0 +1,564 @@
+﻿@{
+    @section Title
+{
+
+        View Agency Users
+    }
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        var clearall = '@ViewBag.id';
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+                //TempData["message"] = null;
+            }
+            @{
+                TempData["message"] = null;
+            }
+            $("#side-menu li a").removeClass("active");
+            $('#viewagencyuser').addClass("active");
+            $('#divPaging').hide();
+            if ('@TempData["status"]' == "1" || '@TempData["status"]' == "2" || '@TempData["status"]' == "3" || '@TempData["status"]' == "4")
+                drawgrid();
+            @{
+                TempData.Keep();
+            }
+            drawgrid();
+            //$("#DdlAgencyList").prop("disabled", true);
+
+            $('#gridViewAgency > thead > tr > th').click(function () {
+                debugger
+                sortOrder = this.id;
+                if (sortOrder == "THGN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+            $('#DdlAgencyList').change(function () {
+              //  $("#chkallagencyUser").prop("disabled", true);
+                $('#chkallagencyUser').prop('checked', false);
+                drawgrid();
+            });
+            $('#chkallagencyUser').change(function () {
+
+                if ($('#chkallagencyUser').is(":checked")) {
+                    $("#DdlAgencyList").prop("disabled", true);
+                    $("#DdlAgencyList").val("");
+                } else {
+                    $("#DdlAgencyList").prop("disabled", false);
+                }
+                drawgrid();
+            });
+        });
+
+        function openViewAgencyuserById(value) {
+            $('#spinner').show();
+            var AgencyStaffid = $(value).attr("AgencyStaffId");
+            var url = HostedDir + '/agency/addAgencyUser/' + AgencyStaffid;
+            window.location.href = url;
+        }
+        function getListafterupdation() {
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            $.ajax({
+                url: HostedDir + "/Agency/listagencyUser",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage,
+                    agencyId: $('#DdlAgencyList').val(),
+                    agencyuserAll: $('#chkallagencyUser').is(':checked'),
+                    clear: clearall
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            clearall = 0;
+            $("#DdlAgencyList").val("");
+            $('#chkallagencyUser').prop('checked', true);
+            $("#DdlAgencyList").prop("disabled", false);
+           // $('#chkallagencyUser').attr('checked', true);
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            if (val == 'First') {
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+            $('#gridViewAgency > tbody > tr').remove();
+            $('#div1').show();
+            $('#divPaging').hide();
+            if (data.list.length > 0) {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewAgency > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    if (data.list[i].AgencyStatus == '1') {
+                        tr += '<td><a style="text-decoration: underline;" AgencyStaffId="' + data.list[i].AgencyStaffId + '" onclick="openViewAgencyuserById(this);" href="#">' + ((typeof (data.list[i].EmailAddress) != 'undefined') && (data.list[i].EmailAddress != null) ? data.list[i].EmailAddress : '') + '</a></td>';
+                        //tr += '<td><a style="text-decoration: underline;"  href="' + HostedDir + '/agency/addAgencyUser/' + data.list[i].AgencyStaffId + '">' + ((typeof (data.list[i].EmailAddress) != 'undefined') && (data.list[i].EmailAddress != null) ? data.list[i].EmailAddress : '') + '</a></td>';
+                    }
+                    else {
+                        tr += '<td><a style="text-decoration: none;color:#a94442;cursor:default" title="Cannot edit the user as agency is deactivated."  href="#">' + ((typeof (data.list[i].EmailAddress) != 'undefined') && (data.list[i].EmailAddress != null) ? data.list[i].EmailAddress : '') + '</a></td>';
+                    }
+                    tr += "<td>" + ((typeof (data.list[i].FirstName) != 'undefined') && (data.list[i].FirstName != null) ? data.list[i].FirstName + ' ' + ((typeof (data.list[i].LastName) != 'undefined') && (data.list[i].LastName != null) ? data.list[i].LastName : '') : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].roleName) != 'undefined') && (data.list[i].roleName != null) ? data.list[i].roleName : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].createdDate) != 'undefined') && (data.list[i].createdDate != null) ? data.list[i].createdDate : '') + "</td>";
+                    tr += "<td  align='center'><input  type='hidden' value='" + data.list[i].ISActive + "'/><select  onchange='changestatus(this);' style='margin-right: 5%;height:22px;' accesskey=" + data.list[i].AgencyStaffId + " >";
+                    if (data.list[i].ISActive != null && data.list[i].ISActive == 1)
+                        tr += "<option value='1' selected='selected'>Active</option><option value='0' >Inactive</option><option value='2' >Suspended</option></select>";
+                    if (data.list[i].ISActive != null && data.list[i].ISActive == 0)
+                        tr += "<option value='1' >Active</option><option selected='selected' value='0' >Inactive</option><option value='2' >Suspended</option></select>";
+                    if (data.list[i].ISActive != null && data.list[i].ISActive == 2)
+                        tr += "<option value='1' >Active</option><option value='0' >Inactive</option><option selected='selected' value='2' >Suspended</option></select>";
+                    //tr += "<input  type='hidden' value='" + data.list[i].ISActive + "'/><a href='#' onclick='changestatus(this);' accesskey=" + data.list[i].AgencyStaffId + "><img src='" + HostedDir + "/Images/change-btn.png' /></a></td>";
+                    tr += "</tr>";
+                    $('#gridViewAgency > tbody').append(tr);
+                }
+            }
+        }
+        function changestatus(value) {
+            var ddlvalue = $(value).val();
+            var status = $(value).parent('td').children().eq(0).val();
+            var s = $(value).attr("accesskey");
+            if (ddlvalue == status) {
+                return;
+            } var message = '';
+            if (ddlvalue == 0)
+                message = "Do you want to deactivate this agency user? ";
+            if (ddlvalue == 1)
+                message = "Do you want to activate this agency user? ";
+            if (ddlvalue == 2)
+                message = "Do you want to suspend this agency user? ";
+            BootstrapDialog.confirm(message, function yes(result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/Agency/updateagency_User",
+                        type: "POST",
+                        data: {
+                            id: $(value).attr("accesskey"),
+                            mode: ddlvalue
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 2) {
+                                if (ddlvalue == 0)
+                                    customAlert("Agency user deactivated successfully.");
+                                if (ddlvalue == 1)
+                                    customAlert("Agency user activated successfully.");
+                                if (ddlvalue == 2)
+                                    customAlert("Agency user suspended successfully.");
+                                getlistafterstatuschanged();
+                            }
+                        }
+                         , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                         }
+                    });
+                }
+                else {
+                    $(value).val(status);
+                }
+            }, function no() { });
+        }
+        //function deactivateAgency(value) {
+
+        //    BootstrapDialog.confirm("Do you want to deactivate this agency user ?", function yes(result) {
+        //        if (result) {
+        //            $.ajax({
+        //                url: HostedDir + "/Agency/updateagency_User",
+        //                type: "POST",
+        //                data: {
+        //                    id: $(value).attr("accesskey"),
+        //                    mode: 0
+        //                },
+        //                dataType: "json",
+        //                secureuri: false,
+        //                async: false,
+        //                success: function (response) {
+        //                    if ( response == 2) {
+        //                        getListafterupdation();
+        //                        customAlert("Agency user deactivated successfully.");
+        //                    }
+
+        //                }
+        //                 , error: function (response) {
+        //                     customAlert("Error occured please try again later .");
+        //                 }
+        //            });
+        //        }
+        //    }, function no() { });
+        //}
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                View Agencies Users
+                <span class="view-btn">
+                    <a href="~/Agency/addAgencyuser"><button type="button">Add New Agency User</button> </a>
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+
+            @*@Html.DropDownList("DdlAgencyList", (IEnumerable<SelectListItem>)ViewBag.Agency, "Select Agency", new { @class = "form-control", @style = "width:61% !important; float:left;" })*@
+
+
+            @*@Html.CheckBox("chkallagencyUser")*@
+            @*<span> All Agency Users</span>*@
+
+
+
+
+            <div class="select-agency">
+                <ul>
+                    <li>@Html.DropDownList("DdlAgencyList", (IEnumerable<SelectListItem>)ViewBag.Agency, "Select Agency", new { @class = "form-control", @style = "" })</li>
+                    <li>@Html.CheckBox("chkallagencyUser", new { @checked = "checked" })</li>
+                    <li><span> All Agency Users</span></li>
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th id="THIN">Email<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="THCUST">Name<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                            <th id="THCN">Role<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                            <th id="thMN">Created Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                            <th style="width:20% !important;" id="THGN">Status<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionGN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align: center; display: none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li title="First"><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="go to">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    @*<div class="modulebutton">
+            <div style=" width: 100%;">
+                <h2>View Agencies Users</h2>
+                <a href="~/Agency/addAgencyuser">
+                    <button style="width:27% !important;" type="button">Add New Agency User</button>
+                </a>
+                <hr />
+            </div>
+            <br />
+            <div style=" float: left; width: 100%; ">
+                <div style="width:100%;">
+                    @Html.DropDownList("DdlAgencyList", (IEnumerable<SelectListItem>)ViewBag.Agency, "Select Agency")
+                    <span>
+                        Show All Agency Users
+                    </span>
+                    @Html.CheckBox("chkallagencyUser")
+                </div>
+                <br />
+                <div style="width:100%;">
+                    <input id="txtsearch" type="text" placeholder="Search.." />
+                    <button id="btnsearch" onclick="drawgrid();">Search</button>
+                    <button id="btnclear" onclick="cleargrid();">Clear</button>
+                </div>
+            </div>
+            <table border="0" id="gridViewAgency" class="bordered">
+                <thead style="cursor:pointer;">
+                    <tr>
+                        <th width="" id="THIN">UserName<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                        <th width="" id="THCUST">Name<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                        <th width="" id="THCN">Role<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                        <th width="" id="thMN">Created Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        <th width="90px" id="THGN">Status<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionGN" /></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div style="float: left; margin-top: 2%;  ">
+                Display
+                <select style="width: 63px; height: 40px; " id="ddlpagetodisplay" onchange=" drawgrid();">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50" selected="selected">50</option>
+                    <option value="100">100</option>
+                </select>
+                Records Per Page
+            </div>
+            <div id="divPaging" style="float: right;  margin-top: 2%;">
+                <ul class="Pagination" id="ulPaging" style="margin-right:10px">
+                    <li title="First"><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="go to">
+                        <select id="ddlpaging" style="width: 63px; height: 40px;"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>*@
+}
+
+
+

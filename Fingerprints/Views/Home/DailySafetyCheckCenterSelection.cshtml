@@ -1,0 +1,92 @@
+﻿@{
+    @section Title{
+        Center Selection
+    }
+    ViewBag.Title = "DailySafetyCheckCenterSelection";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@Scripts.Render("~/bundles/jquery")
+
+@section MainContentHolder{
+<style>
+    .error-message {
+        display: none;
+        font-size: 12px;
+        color: red;
+    }
+
+    .err-container {
+        height: 10px;
+    }
+
+    #myModalCenterList .form-group label {
+        margin-left: 0px;
+    }
+
+    #myModalCenterList .error-message.error-center-message {
+        float: right;
+        width: 70%;
+        margin-top: 10px;
+        text-align: left;
+    }
+
+    #myModalCenterList .modal-body {
+        border-top: 1px solid #e5e5e5;
+    }
+
+    #myModalCenterList .modal-header {
+        margin-bottom: 26px;
+    }
+</style>
+
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+            <h2 class="page-header">Daily Safety Check</h2>
+        </div>
+    </div>
+    @*ModalCenterPopup*@
+<div class="modal fade in" id="myModalCenterList" role="dialog" style="display: none; padding-right: 17px;">
+    <div class="modal-dialog modal-md">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                @*<button type="button" class="close" data-dismiss="modal">×</button>*@
+                <h4 class="modal-title">Center List</h4>
+            </div>
+            <div class="modal-body" style="border-top:1px solid #e5e5e5">
+                <div class="form-group input-container">
+                    <label class="control-label" for="current_password">Choose Center</label>
+                    @Html.DropDownList("ddlCenters", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(),Session["RoleId"].ToString()), new { @class = "form-control ddl-Centers mandatory ddl-mandatory" })
+                    <div class="err-container">
+                        <label class="control-label"></label>
+                        <span class="error-message error-center-message">Center is mandatory</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pass_btn" style="text-align:center;">
+                    <input type="button" value="Submit" class="btn btn-primary btn-center-submit">
+                </div>
+              
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $(function () {
+            $('#myModalCenterList').modal('show');
+            $('.btn-center-submit').click(function () {
+                if ($('.ddl-Centers').val() == "0") {
+                    $('.error-center-message').show();
+                }
+                else {
+                    window.location.href = "/Home/DailySafetyCheck?CenterId=" + $('.ddl-Centers').val();
+                }
+            });
+        });
+        
+    </script>
+}

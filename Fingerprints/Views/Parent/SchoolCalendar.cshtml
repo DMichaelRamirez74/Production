@@ -1,0 +1,487 @@
+﻿@{
+    ViewBag.Title = "SchoolCalendar";
+    Layout = "~/Views/Shared/ParentLayout.cshtml";
+}
+
+<style>
+    .fc-center h2 {
+        color: white;
+    }
+
+    .red {
+        color: red;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    .blue {
+        color: #4472c4;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    .anchor {
+        text-decoration: underline !important;
+    }
+
+        .anchor:hover {
+            text-decoration: underline !important;
+        }
+
+    .openstatus {
+        margin-bottom: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: #eee;
+        background: #4CAF50;
+        margin-left: 10px;
+    }
+
+    .fullstatus {
+        margin-bottom: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: #eee;
+        background: #ff0000;
+        margin-left: 10px;
+    }
+
+    .calender-notify {
+        display: block;
+        width: 90%;
+        margin: 0 5%;
+        border-radius: 5px;
+        padding: 5px 0px;
+        padding-bottom: 1px;
+        margin-top: 18px;
+        float: left;
+        border: none !important;
+        background: none !important;
+    }
+
+    .calender-notify1 {
+        display: block;
+        width: 90%;
+        margin: 0 5%;
+        border-radius: 5px;
+        padding: 5px 0px;
+        padding-bottom: 1px;
+        margin-top: 18px;
+        float: left;
+        background: red !important;
+        border: red !important;
+    }
+
+    .calender-notify-other {
+        display: block;
+        width: 90%;
+        margin: 0 5%;
+        border-radius: 5px;
+        padding: 5px 0px;
+        padding-bottom: 1px;
+        float: left;
+        margin-top: 18px;
+        border: none !important;
+        background: none !important;
+    }
+
+    .calender-notify-other1 {
+        display: block;
+        width: 90%;
+        margin: 0 5%;
+        border-radius: 5px;
+        padding: 5px 0px;
+        padding-bottom: 1px;
+        float: left;
+        margin-top: 18px;
+        background: #4472c4 !important;
+        border: #4472c4 !important;
+    }
+
+    .calender-span-other {
+        background: #4472c4;
+        display: block;
+        width: 90%;
+        margin: 0 5%;
+        border-radius: 5px;
+        padding: 5px 0px;
+        padding-bottom: 1px;
+        float: left;
+        margin-top: 5px;
+    }
+
+        .calender-span-other span {
+            color: #fff;
+            padding: 0 5px;
+            font-size: 12px;
+        }
+
+    .calender-span {
+        background: red;
+        display: block;
+        width: 90%;
+        margin: 0 5%;
+        border-radius: 5px;
+        padding: 5px 0px;
+        padding-bottom: 1px;
+        float: left;
+        margin-top: 5px;
+    }
+
+        .calender-span span {
+            color: #fff;
+            padding: 0 5px;
+            font-size: 12px;
+        }
+
+    .calender-notify-other span {
+        color: #fff;
+        padding: 0 5px;
+        font-size: 12px;
+    }
+
+
+    .calender-notify span {
+        color: #fff;
+        padding: 0 5px;
+        font-size: 12px;
+    }
+
+    .fc-time span {
+        font-size: 12px !important;
+    }
+
+    .fc-content .fc-title {
+        font-size: 12px !important;
+    }
+
+    .fc-content span {
+        color: #4472c4;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .legends {
+        max-width: 943px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+        .legends ul {
+            padding: 0;
+            width: auto;
+            float: right;
+            background: #fff;
+            ;
+            padding-bottom: 0;
+            margin-bottom: 15px;
+        }
+
+            .legends ul li {
+                list-style: none;
+                color: #333;
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+
+                .legends ul li span {
+                    display: inline-block;
+                    margin-right: 15px;
+                    width: 10px;
+                }
+
+    .event_dot_red {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background: #ff0000;
+    }
+
+    .event_dot_blue {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: #4472c4;
+    }
+
+
+    #calendar .fc-left button {
+        background: #f9c751 !important;
+        color: #000 !important;
+        z-index: 999;
+        text-transform: capitalize;
+    }
+
+    .event_calendar #calendar .fc-view-container {
+        margin-bottom: 50px;
+    }
+</style>
+
+<div class="col-xs-12 no-padding">
+    <div class="event_calendar">
+        <div class="col-xs-12 no-padding">
+            <div class="legends">
+                <ul>
+                    <li><span><i class="blue fa fa-calendar-check-o"></i></span>Registered Events</li>
+                    <li><span class="event_dot_red"></span>Events registered on your center</li>
+                    <li><span class="event_dot_blue"></span>Events registered on other center</li>
+                </ul>
+            </div>
+        </div>
+        <div id='calendar'>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    var currentMonth = 0;
+    var isRender = false;
+    var ajaxUrl = '';
+    var default_view = '';
+    var default_date = '';
+    $(document).ready(function () {
+
+        getLocalStorageOptions();
+
+        currentMonth = new Date().getMonth() + 1;
+        ajaxUrl = '/Events/GetEventsCountCalender?isRender=' + isRender + '';
+        // page is now ready, initialize the calendar...
+        $('#calendar').fullCalendar({
+            // put your options and callbacks here
+
+            header: {
+                right: 'today,prev,next',
+                center: 'title',
+                left: 'month'
+            },
+            defaultView: default_view,
+            defaultDate: default_date,
+            events: ajaxUrl,
+            timeFormat: 'hh:mm A',
+            slotDuration: '00:05:00',
+            
+            eventRender: function (event, element, view) {
+             
+
+                if (!event.IsClick) {
+                    var i = document.createElement('i');
+                    // Add all your other classes here that are common, for demo just 'fa'
+
+                    i.className = 'blue fa'  /*'ace-icon fa yellow bigger-250 '*/
+                    i.classList.add(event.icon);
+                    i.setAttribute('title', 'Click to see registered event');
+                    element.find('div.fc-content').find('i').remove();
+                    element.find('div.fc-content').prepend(i);
+                    element.find('div.fc-content').find('.fc-time').remove();
+
+
+                }
+                else {
+                    if (view.name === 'listDay') {
+                        $('.fc-month-button').removeClass('active');
+                        var href = '/Events/ParentEventRegistration?id=' + event.Enc_EventId + '&m=0';
+                        element.find('.fc-list-item-title').children('a').attr({ 'href': href, 'eve_date': event.start }).addClass('anchor');
+                        element.find('.fc-list-item-title').find('span').remove();
+                        element.find('.fc-list-item-title').append(event.description);
+                        localStorageEvents(event, view);
+
+                    }
+
+
+
+                }
+
+            },
+            eventClick: function (calEvent, jsEvent, view) {
+             
+                isRender = true;
+                if (!calEvent.IsClick) {
+
+                    var date = new Date(calEvent.start);
+
+                
+
+                    $('#calendar').fullCalendar('changeView', 'listDay');
+                    $('#calendar').fullCalendar('removeEvents');
+                    $('#calendar').fullCalendar('removeEventSources');
+                    $('#calendar').fullCalendar('addEventSource', '/Events/GetEventsCountCalender?isRender=' + isRender + '');
+                    $('#calendar').fullCalendar('rerenderEvents');
+                    $('#calendar').fullCalendar('gotoDate', date);
+
+                }
+
+            }
+
+
+        });
+
+
+        $('.fc-month-button').attr('onclick', 'bindMonthData(this);').addClass('active');
+
+
+
+        $('.fc-prev-button').on('click', function () {
+
+
+            $('#calendar').fullCalendar('removeEvents');
+            $('#calendar').fullCalendar('removeEventSources');
+            $('#calendar').fullCalendar('addEventSource', '/Events/GetEventsCountCalender?isRender=' + isRender + '');
+            $('#calendar').fullCalendar('rerenderEvents');
+        });
+
+
+        $('.fc-next-button').on('click', function () {
+
+
+            $('#calendar').fullCalendar('removeEvents');
+            $('#calendar').fullCalendar('removeEventSources');
+            $('#calendar').fullCalendar('addEventSource', '/Events/GetEventsCountCalender?isRender=' + isRender + '');
+            $('#calendar').fullCalendar('rerenderEvents');
+        });
+
+        $('.fc-today-button').on('click', function () {
+            $('#calendar').fullCalendar('removeEvents');
+            $('#calendar').fullCalendar('removeEventSources');
+            $('#calendar').fullCalendar('addEventSource', '/Events/GetEventsCountCalender?isRender=' + isRender + '');
+            $('#calendar').fullCalendar('rerenderEvents');
+        });
+    });
+
+    function bindMonthData(val) {
+     
+        if (!$(val).hasClass('active')) {
+            isRender = false;
+            $('#calendar').fullCalendar('removeEvents');
+            $('#calendar').fullCalendar('removeEventSources');
+            $('#calendar').fullCalendar('addEventSource', '/Events/GetEventsCountCalender?isRender=' + isRender + '')
+            $('#calendar').fullCalendar('rerenderEvents');
+        }
+        return;
+
+    }
+
+ 
+
+
+    function localStorageEvents(storage, View) {
+        // Store
+        if (typeof (Storage) !== "undefined") {
+
+            localStorage.setItem("viewname", View.name);
+            localStorage.setItem("isrender", isRender);
+            localStorage.setItem("eventDate", storage.start);
+
+        }
+        else {
+            isRender = false;
+            default_view = 'month';
+            default_date = new Date();
+        }
+
+    }
+
+    function getLocalStorageOptions() {
+        // Store
+        if (typeof (Storage) !== "undefined") {
+
+
+            default_view = (localStorage.getItem("viewname") == null) ? 'month' : localStorage.getItem("viewname");
+            isRender = (localStorage.getItem("isrender") == null) ? false : localStorage.getItem("isrender");
+            default_date = (localStorage.getItem("eventDate") == null) ? new Date() : localStorage.getItem("eventDate");
+        }
+
+        else {
+            default_view = 'month';
+            isRender = false;
+            default_date = new Date();
+        }
+
+    }
+    function bindEventsCalender() {
+
+        var arr = [];
+        var arr2 = [];
+        $.ajax({
+            url: '/Events/GetParentEventCalender',
+            datatype: 'json',
+            type: 'post',
+            async: false,
+            success: function (data) {
+               
+                if (data.length > 0) {
+
+                    var datas = '';
+
+                    $.each(data, function (i, calendar) {
+                        //yyyy-MM-dd
+                        var month = 0;
+                        var appenddiv = '';
+                        month = (calendar.EventDateFormat.split('-')[1] === undefined || calendar.EventDateFormat.split('-')[1] === null) ? 0 : parseInt(calendar.EventDateFormat.split('-')[1]);
+                       
+                        if (month === currentMonth) {
+
+                            appenddiv = '';
+                            var day = calendar.EventDateFormat.split('-')[2];
+
+                            appenddiv += (calendar.IsOther) ? '<a href="/Events/ParentEventRegistration?id=' + calendar.Enc_EventId + '&m=0" class="calender-notify-other">' : '<a href="/Events/ParentEventRegistration?id=' + calendar.Enc_EventId + '&m=0" class="calender-notify">';
+
+
+                            appenddiv += '<p style="cursor:pointer;text-decoration:underline;">' + calendar.WorkShopName + '</p>' +
+        '<p style="margin-bottom: 5px;">' + calendar.EventDate + '</p>' +
+    '</a>';
+
+                            if (calendar.AvailableStatus === 'Open') {
+                                appenddiv += (calendar.IsOther) ? '<a  class="calender-span-other" style="background:#92d050;">' : '<a  class="calender-span" style="background:#92d050;">';
+                                appenddiv += '<p style="margin-bottom: 5px;background:#92d050;">' + calendar.AvailableStatus + '</p>' + '</a>';
+
+                            }
+                            else {
+                                appenddiv += (calendar.IsOther) ? '<a  class="calender-span-other" style="background:#ff0000;">' : '<a  class="calender-span" style="background:#ff0000;">';
+
+                                appenddiv += '<p style="margin-bottom: 5px;background:#ff0000;">' + calendar.AvailableStatus + '</p>' + '</a>';
+
+                            }
+
+                            $('.fc-day[data-date=' + calendar.EventDateFormat + ']').append(appenddiv);
+                        }
+
+                        var color = (calendar.IsOther) ? 'blue' : 'red';
+                        datas = {
+                            'title': calendar.WorkShopName,
+                            "allday": true,
+                            "description": "<p class=" + color + ">" + calendar.AvailableStatus + "</p>",
+                            "start": '2017-10-16',
+                           
+                            "url": "/Events/ParentsEventRegistration",
+
+                        };
+
+                        arr.push(datas);
+                    });
+                    arr2.push(arr);
+                  
+
+
+
+
+                }
+
+
+            },
+            error: function (data) {
+                customAlert('Some Error Occured.Please try again Later');
+            }
+
+
+        });
+
+    }
+
+</script>

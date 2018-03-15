@@ -1,0 +1,240 @@
+﻿@model FingerprintsModel.EventsModal
+@{
+    ViewBag.Title = "Events";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section maincontentholder{
+    <link href="~/Content/css/events.css" rel="stylesheet" />
+    <style>
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        #page-wrapper {
+            padding-left: 17px;
+            padding-right: 16px;
+        }
+
+        .scroll-tbody tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+    </style>
+    <div class="containter-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="top-header-title-client col-xs-12">
+                    <h1>LIST OF EVENTS</h1>
+                </div>
+
+                <div class="col-xs-12 text-center serch-library-block workshop_heading">
+                    <label class="library-label">Your Center Name</label>
+                    @if (Model._CenterList.Count() > 0)
+                    {
+
+                        if (Model._CenterList.Count() > 1)
+                        {
+                            <select name="" class="library-select" id="list_event_select">
+                                <option value="0">ALL Centers</option>
+                                @foreach (var item in Model._CenterList)
+                                {
+                                    <option value="@item.Enc_CenterId">@item.CenterName</option>
+
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <span class="library-select" enc_id="@Model._CenterList[0].Enc_CenterId">
+                                @Model._CenterList[0].CenterName
+                            </span>
+                        }
+
+                    }
+                </div>
+
+
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-md-12">
+                            <div class="eml_lst">
+
+                                <!----------registered_members------------->
+                                <div class="serch-client-block ">
+                                    <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+
+                                        <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                                            <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list">
+                                                <thead class="scroll-thead">
+                                                    <tr>
+
+                                                        <th>Events</th>
+                                                        <th>Title</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="library-table-head scroll-tbody" id="event_list_tbody">
+
+
+                                                    @if (Model._EventsList.Count() > 0)
+                                                    {
+                                                        foreach (var eventItem in Model._EventsList)
+                                                        {
+                                                            <tr>
+                                                                <td data-title="Events">
+                                                                    <div class="library-content-desc" style="position: relative;">
+                                                                        <p class="event_red1" style="background:@eventItem.EventColor;">&nbsp;</p>
+                                                                    </div>
+                                                                </td>
+                                                                <td data-title="Title">
+                                                                    <div class="library-content-desc event-name">
+                                                                        <p>@eventItem.WorkShopName</p>
+                                                                    </div>
+                                                                </td>
+                                                                <td data-title="Date">
+                                                                    <div class="library-content-desc">
+                                                                        <p>@eventItem.EventDate</p>
+                                                                    </div>
+                                                                </td>
+                                                                <td data-title="Status">
+                                                                    <div class="library-content-desc">
+                                                                        @if (eventItem.EventStatus == "OPEN")
+                                                                        {
+                                                                            <a href="#" class="open_report">@eventItem.EventStatus</a>
+
+                                                                        }
+                                                                        else
+
+                                                                        {
+                                                                            <a href="#" class="closed_report">@eventItem.EventStatus</a>
+
+                                                                        }
+                                                                    </div>
+                                                                </td>
+                                                                <td data-title="Action">
+                                                                    <div class="library-content-desc" onclick="redirectEventDetails(this);" eve_id="@eventItem.Enc_EventId">
+                                                                        <a href="javascript:void(0);" class="open_report">VIEW</a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr>
+                                                            <td colspan="6" style="padding: 50px;">No Record found</td>
+                                                        </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!----------registered_members------------->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+        $(document).ready(function () {
+
+            function getAllEventsList(enc_centerId) {
+                $.ajax({
+                    url: '/Events/GetEventsByCenter',
+                    datatype: 'json',
+                    type: 'post',
+                    data: { centerId: enc_centerId },
+                    success: function (data) {
+
+                        var bindBody = '';
+
+                        if (data._EventsList.length > 0) {
+                            $.each(data._EventsList, function (i, event) {
+
+                                bindBody += '<tr>';
+                                bindBody += '<td data-title="Events">' +
+                                                                        '<div class="library-content-desc" style="position: relative;">'
+                                                                            + '<p class="event_red1" style="background:' + event.EventColor + ';">&nbsp;</p>'
+                                                                       + ' </div>'
+                                                                   + ' </td>'
+                                                                  + '<td data-title="Title">'
+                                                                       + ' <div class="library-content-desc event-name" style="text-decoration:underline;cursor:pointer;" onclick="redirectEventDetails(this);" eve_id=' + event.Enc_EventId + '>'
+                                                                          + '  <p>' + event.WorkShopName + '</p>'
+                                                                        + '</div>'
+                                                                    + '</td>'
+                                                                   + '<td data-title="Date">'
+                                                                       + ' <div class="library-content-desc">'
+                                                                           + ' <p>' + event.EventDate + '</p>'
+                                                                       + ' </div>'
+                                                                   + ' </td>'
+                                                                
+                                                                   + ' <td data-title="Status">'
+                                                                       + ' <div class="library-content-desc">'
+                                                                           + ' <a href="#" class="open_report">' + event.EventStatus + '</a>'
+                                                                        + '</div>'
+                                                                   + ' </td>'
+                                                                   + ' <td data-title="Delete">'
+                                                                      + '  <div class="library-content-desc">'
+                                                                           + ' <a href="#" class="delete_report">Delete</a>'
+                                                                        + '</div>'
+                                                                   + ' </td>';
+                                bindBody += '</tr>';
+                            });
+                        }
+                        else {
+                            bindBody += '<tr><td colspan="6">No Record found</td> </tr>';
+                        }
+                        $('#event_list_tbody').html(bindBody);
+                    },
+                    error: function (data) {
+                        customAlert('Some error occurred.Please try again later.')
+                    }
+                })
+            }
+
+
+
+            $('#list_event_select').on('change', function () {
+
+                var enc_Id = $(this).val();
+                getAllEventsList(enc_Id);
+            });
+
+        });
+
+        function redirectEventDetails(val) {
+            var enc_eve_id = $(val).attr('eve_id');
+            location.href = '/Events/EventDetails?id=' + enc_eve_id;
+        }
+
+    </script>
+}
+

@@ -1,0 +1,482 @@
+﻿@{
+
+    @section Title
+{
+
+        @ViewData["Title"].ToString()
+    }
+    ViewBag.Title = "Center List";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+
+            @{
+                TempData["message"] = null;
+            }
+            $('#a2').addClass("active");
+            $('#a1').removeClass("active");
+            drawgrid();
+            $('#gridViewAgency > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    fnChangePage("First");
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+            
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/listcenter",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            //getTotalRecord();
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+            $('#gridViewAgency > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#divPaging').show();
+                $('#div1').hide();
+                var tbody = $('#gridViewAgency > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += '<td><a  style="text-decoration: underline;" href="' + HostedDir + '/AgencyAdmin/Center/' + data.list[i].CenterId + '" accesskey="' + data.list[i].CenterId + '" >' + ((typeof (data.list[i].CenterName) != 'undefined') && (data.list[i].CenterName != null) ? data.list[i].CenterName : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data.list[i].City) != 'undefined') && (data.list[i].City != null) ? data.list[i].City : '') + " </td>";
+                    tr += "<td>" + ((typeof (data.list[i].State) != 'undefined') && (data.list[i].State != null) ? data.list[i].State : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].DateEntered) != 'undefined') && (data.list[i].DateEntered != null) ? data.list[i].DateEntered : '') + "</td>";
+                    if (data.list[i].status != null && data.list[i].status == 1)
+                        tr += "<td  align='center'>" +
+                            "<a href='#' onclick='deactivatecenter(this);' accesskey=" + data.list[i].CenterId + "><img src='" + HostedDir + "/Images/active.png' /></a> </td>";
+                    if (data.list[i].status != null && data.list[i].status == 0)
+                        tr += "<td  align='center'>" +
+                            "<a href='#'  onclick='activatecenter(this);' accesskey=" + data.list[i].CenterId + "><img  src='" + HostedDir + "/Images/inactive.png' /></a></td>";
+                    tr += "</tr>";
+                    $('#gridViewAgency > tbody').append(tr);
+                }
+            }
+            DisableControlls();
+        }
+        function DisableControlls() {
+            // If super admin login into agency Making entire form read only
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        //  $('.custom select').attr('disabled', true);
+                        $(".custom").attr("disabled", true);
+                        $('.custom').bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                        // $('#divContent input').attr('readonly', true);
+
+                    }
+                }
+            }
+            // end of code
+        }
+        function activatecenter(value) {
+            BootstrapDialog.confirm('Do you want to activate this center?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyAdmin/updatecenter",
+                        type: "POST",
+                        data: {
+                            id: $(value).attr("accesskey"),
+                            mode: 1
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Center activated successfully.");
+                                getlistafterstatuschanged();
+                            }
+                        }
+                    , error: function (response) {
+                           customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+        function deactivatecenter(value) {
+            BootstrapDialog.confirm('Do you want to deactivate this center?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyAdmin/updatecenter",
+                        type: "POST",
+                        data: {
+                            id: $(value).attr("accesskey"),
+                            mode: 0
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                getlistafterstatuschanged();
+                                customAlert("Center deactivated successfully.");
+                            }
+                        }
+                      , error: function (response) {
+                             customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                      }
+                    });
+                }
+            });
+
+        }
+        function Gotoslots()
+        {
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/CheckForcenters",
+                type: "POST",
+                data: {
+                    Agencyid: '@Session["AgencyID"]'
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response > 0) {
+                        window.location.href = HostedDir + '/AgencyAdmin/Slots/';
+                    }
+                    else {
+                        customAlert("No Active Center found. Please activate center for further process.");
+
+                    }
+
+
+                }
+                           , error: function (response) {
+                                  customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                           }
+            });
+
+           
+        }
+
+
+
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Center List
+                <span class="view-btn">
+                    <a href="~/AgencyAdmin/Center"><button type="button">Add New Center</button> </a>
+                    @if (Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
+                    {
+                         <a href="#" onclick="Gotoslots();"><button type="button">Next</button> </a>
+                    }
+
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th id="thIN">Center Name<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                            <th id="thCust">City<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thRN">State<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
+                            <th id="thMN">Created On<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                            <th id="thJN">Status<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align: center; display: none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+

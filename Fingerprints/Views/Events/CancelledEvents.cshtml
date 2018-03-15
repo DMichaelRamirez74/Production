@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "CancelledEvents";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section MainContentHolder
+{
+    <link href="~/Content/css/events.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 190px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 556px;
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header">
+
+                        <div class="col-xs-12 no-padding">
+                            <div class="top-header-title-client">
+                                <h1>CANCELLED WORKSHOP</h1>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-xs-12 text-center serch-library-block workshop_heading">
+                    <label class="library-label">Your Center Name</label>
+               
+                    @Html.DropDownList("Center", Fingerprints.Utilities.Helper.GetCentersByUserIdSearch(Session["UserID"].ToString(), Session["AgencyId"].ToString(),Session["RoleID"].ToString()), new { @class = "library-select" })
+
+                </div>
+
+
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-md-12">
+                            <div class="eml_lst">
+
+                                <!----------registered_members------------->
+                                <div class="serch-client-block ">
+                                    <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+
+                                        <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                                            <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list">
+                                                <thead class="scroll-thead">
+                                                    <tr>
+
+                                                        <th>Events</th>
+                                                        <th>Title</th>
+                                                        <th>Date</th>
+                                                        <th>Time</th>
+                                                        <th>Status</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="library-table-head table-body scroll-tbody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <!----------registered_members------------->
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            GetWorkshopDetails();
+            $('#Workshop,#Center').change(function () {
+                GetWorkshopDetails();
+            });
+        });
+        function GetWorkshopDetails() {
+            $.ajax({
+                type: "POST",
+                url: "/Events/GetCancelledWorkshop",
+                data: { 'CenterId': $('#Center').val() },
+                success: function (data) {
+                    $('.table-body').empty();
+
+                    var Template = '   <tr>\
+                                                        <td data-title="Events">\
+                                                            <div class="library-content-desc" style="position: relative;">\
+                                                                <p style="background:##Color##">&nbsp;</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Title">\
+                                                            <div class="library-content-desc">\
+                                                                <p>##WorkshopName##</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Date">\
+                                                            <div class="library-content-desc">\
+                                                                <p>##Date##</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Time">\
+                                                            <div class="library-content-desc">\
+                                                                <p>##Time##</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Status">\
+                                                            <div class="library-content-desc">\
+                                                                <a href="#" class="closed_report">Cancelled</a>\
+                                                            </div>\
+                                                        </td>\
+                                                    </tr>';
+
+                    var JsonData = JSON.parse(data);
+                  
+                    if (JSON.parse(data).length > 1) {
+                        $.each(JSON.parse(data), function (i, val) {
+                            console.log(parseFloat(val["FixedAmount"]).toFixed());
+                            var input = Template;
+                            input = input.replace("##Color##", val["Color"]);
+                            input = input.replace("##WorkshopName##", val["WorkshopName"]);
+                            input = input.replace("##Date##", val["Date"]);
+                            input = input.replace("##Time##", val["Time"]);
+                            $('.table-body').append(input);
+                        });
+                    }
+                    else if (JSON.parse(data).length == 1) {
+                        var input = Template;
+                        input = input.replace("##Color##", JsonData[0].Color);
+                        input = input.replace("##WorkshopName##", JsonData[0].WorkshopName);
+                        input = input.replace("##Date##", JsonData[0].Date);
+                        input = input.replace("##Time##", JsonData[0].Time);
+                        $('.table-body').append(input);
+                    }
+                    else {
+                        var NoRecordTemplate = '<tr><td colspan="5"><div class="library-content-desc"><p style="min-height: 40px!important;text-align:center;">No Record Found</p></div></td></tr>';
+                        $('.table-body').append(NoRecordTemplate);
+                    }
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+    </script>
+
+}

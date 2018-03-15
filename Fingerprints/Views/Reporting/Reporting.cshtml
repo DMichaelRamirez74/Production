@@ -1,0 +1,265 @@
+﻿@model FingerprintsModel.ReportingModel
+
+
+@{
+    ViewBag.Title = "Reporting";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+
+}
+
+
+@Scripts.Render("~/bundles/jquery")
+<script type="text/javascript" src="code.jquery.com/jquery-migrate-1.2.1.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+<script src="jquery.signature.js"></script>
+<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/south-street/jquery-ui.css" rel="stylesheet">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/south-street/jquery-ui.css" rel="stylesheet">
+<link href="jquery.signature.css" rel="stylesheet">
+
+@section Script{
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+    <style>
+        .kbw-signature {
+            width: 400px;
+            height: 200px;
+        }
+
+    </style>
+
+<style>
+    .reporting-btn {
+        padding: 0;
+        text-align: center;
+    }
+
+        .reporting-btn li {
+            list-style: none;
+            float:left;
+        }
+
+            .reporting-btn li a {
+                display: block;
+                padding: 25px 0px;
+                width: 210px;
+                background: #fff;
+                border: 1px solid #295b8f;
+                font-size: 17px;
+                margin: 12px;
+                text-decoration: none;
+            }
+
+                .reporting-btn li a:hover {
+                    background: #295b8f;
+                    color: #fff;
+                }
+
+    li.pri-rep-btn a {
+        background: #d8d7d7;
+    }
+</style>
+
+     $(document).ready(function () {
+             
+            if ('@ViewBag.message' != '') {
+            customAlert('@ViewBag.message');
+            }
+           
+    }
+  
+}
+
+@section Title
+{
+    Reporting
+}
+@section MainContentHolder{
+
+
+
+    <form method="post" enctype="multipart/form-data">
+
+
+
+    <script>
+
+        $(window).on('popstate', function () {
+            var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+            $('a[href=' + anchor + ']').tab('show');
+        });
+
+
+
+
+
+    </script>
+
+    <input type="hidden" id="profileindex" name="profileindex" />
+    <input type="hidden" id="eduindex" name="eduindex" />
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+
+
+
+        <h2 class="page-header">
+          Reporting
+
+
+        </h2>
+
+
+
+        <div class="reporting-btn">
+            <ul>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =1 }, null)">Enrollment Status Report</a></li>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =5 }, null)">Enrollment by Gender</a></li>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =3 }, null)">Enrollment by Race</a></li>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =4 }, null)">Enrollment by Ethnicity</a></li>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =6 }, null)">Enrollment by Age</a></li>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =7 }, null)">Primary Language Report</a></li>
+                <li><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =2 }, null)">Primary Insurance Report</a></li>
+              
+                <li><a href="~/PIR/PIRSummary">PIR</a></li>
+              
+            </ul>
+        </div>
+
+
+
+
+
+        </div>
+        <div class="clearfix"></div>
+        </form>
+    }
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                            <div class="table-responsive">
+                                <table class="table table_size" cellpadding="20" style="border:50px;border-color:orangered">
+                                    <thead class="cursor:pointer">
+                                    </thead>
+                                        <tr style="background-color:#295b8f;height:70px;border-bottom:solid;border-color:white">
+                                            <th style="background-color:lightgoldenrodyellow;width:40px;height:70px;color:white">
+                                                <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =1 }, null)" title="Details" class="links">Enrollment Status Report</a>
+                                            </th>
+                                            <th style="background-color:white;width:2px;height:70px"></th>
+                                            <th style="background-color:lightgoldenrodyellow;width:40px;height:70px"><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =5 }, null)" title="Details" class="links">Enrollment by Gender</a>
+
+                                            </th>
+                                            <th style="background-color:white;width:2px;height:70px"></th>
+                                            <th style="background-color:lightgoldenrodyellow;width:40px;height:70px"><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =3 }, null)" title="Details" class="links">Enrollment by Race</a>
+
+                                            </th>
+                                            <th style="background-color:white;width:2px;height:70px"></th>
+                                            <th style="background-color:lightgoldenrodyellow;width:40px;height:70px"><a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =4}, null)" title="Details" class="links">Enrollment by Ethnicity</a>
+
+                                            </th>
+                                            <th style="background-color:white;width:2px;height:40px"></th>
+                                            </tr>
+                                    <tr style="background-color:#295b8f;height:70px;border-bottom:solid;border-color:white">
+                                        <th style="background-color:lightgoldenrodyellow;width:40px;height:70px;color:white">
+                                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =6 }, null)" title="Details" class="links">Enrollment by Age</a>
+                                        </th>
+                                        <th style="background-color:white;width:2px;height:70px"></th>
+                                        <th style="background-color:white;width:40px;height:70px">
+
+                                        </th>
+                                        <th style="background-color:white;width:2px;height:70px"></th>
+                                        <th style="background-color:white;width:40px;height:70px">
+
+                                        </th>
+                                        <th style="background-color:white;width:2px;height:70px"></th>
+                                        <th style="background-color:white;width:40px;height:70px">
+
+                                        </th>
+                                        <th style="background-color:white;width:2px;height:40px"></th>
+                                    </tr>
+                                    <tr style="background-color:#295b8f;height:70px;border-bottom:solid;border-color:white"></tr>
+            <tr style="background-color:#295b8f;height:40px;border-bottom:solid;border-color:white;">
+                                        <th style="background-color:darkseagreen;width:40px;height:70px;color:white">
+                                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =7 }, null)" title="Details" class="links">Primary Language Report</a>
+                                        </th>
+                                        <th style="background-color:white;width:2px;height:70px"></th>
+                                        <th style="background-color:darkseagreen;width:40px;height:70px">
+                                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =2 }, null)" title="Details" class="links">Primary Insurance Report</a>
+
+                                        </th>
+                                        <th style="background-color:white;width:2px;height:70px"></th>
+                                       @* <th style="background-color:darkseagreen;width:40px;height:70px">
+                    <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =3 }, null)" title="Details" class="links">Family Type</a>
+
+                </th>
+                <th style="background-color:white;width:2px;height:70px"></th>
+                <th style="background-color:darkseagreen;width:40px;height:70px">
+                    <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =4}, null)" title="Details" class="links">Household Type</a>
+
+                </th>
+                                    *
+                                        <th style="background-color:white;width:2px;height:70px"></th>
+                                    </tr>
+                                    <tr style="background-color:#295b8f;height:70px;border-bottom:solid;border-color:white"></tr>
+                            @**        <tr style="background-color:#295b8f;height:70px">
+                        <th style="background-color:darksalmon;width:40px;height:70px">
+                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =1 }, null)" title="Details" class="links">View all Child Data</a>
+                        </th>
+                        <th style="background-color:white;width:2px;height:70px"></th>
+                        <th style="background-color:darksalmon;width:40px;height:70px">
+                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =2 }, null)" title="Details" class="links">Next Report</a>
+
+                        </th>
+                        <th style="background-color:white;width:2px;height:70px"></th>
+                        <th style="background-color:darksalmon;width:40px;height:70px">
+                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =3 }, null)" title="Details" class="links">Next Report</a>
+
+                        </th>
+                        <th style="background-color:white;width:2px;height:70px"></th>
+                        <th style="background-color:darksalmon;width:40px;height:70px">
+                            <a href="@Url.Action("ReportingStatus", "Reporting", new { reporttype =4}, null)" title="Details" class="links">Next Report</a>
+
+                        </th>
+                        <th style="background-color:white;width:2px;height:70px"></th>
+                    </tr>
+                **
+                                </table>
+                            </div>
+
+
+
+
+
+
+                        </div>
+                    </div>
+        </div>
+        <div class="clearfix"></div>
+</form>
+
+
+                        }*@
+
+

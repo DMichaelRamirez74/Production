@@ -1,0 +1,226 @@
+﻿@model FingerprintsModel.ParentSelectionEvent
+
+@{
+    ViewBag.Title = "EventsListForParent";
+    Layout = "~/Views/Shared/ParentLayout.cshtml";
+}
+
+
+<link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+<style>
+    .events_list_title {
+        margin-top: 15px;
+    }
+
+        .events_list_title h2 {
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 0;
+        }
+
+    .family_ovr {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+  
+    .scroll-thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        
+    }
+
+    .scroll-tbody tr td, .scroll-tbody1 tr td {
+        word-break: break-word;
+    }
+
+    .scroll-tbody {
+        display: block;
+        height: 250px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+        .scroll-tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+    .lbl-required:after {
+        margin-left: 2px;
+        content: "*";
+        color: red;
+    }
+</style>
+<div class="col-xs-12 events_list_title">
+    <h2>Upcoming Events</h2>
+    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+</div>
+
+<div class="col-md-12">
+    <div class="eml_lst" style="margin-bottom:20px;">
+
+        @if (Model.SelfCenterList.Count() > 0)
+        {
+            foreach (var item in Model.SelfCenterList)
+            {
+                <div class="col-xs-12" style="padding:0;">
+                    <div class="col-xs-12 text-center serch-library-block workshop_heading parent_even">
+                        <label class="library-label">Your Center Name</label>
+                        <span cen_id="@item.Enc_CenterId" style="color: #f9c751;">@item.CenterName</span>
+                        <span style="color: #f9c751;"> - (@item.CenterAddress)</span>
+                    </div>
+
+
+
+
+                    <div class="serch-client-block ">
+                        <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+
+                            <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                                <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list reports_list">
+                                    <thead class="scroll-thead">
+                                        <tr>
+                                            <th>Events</th>
+                                            <th>Title</th>
+                                            <th>Date</th>
+                                            <th>Registered</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="library-table-head scroll-tbody">
+
+                                        @if (item._EventsList.Count() > 0)
+                                        {
+                                            foreach (var item2 in item._EventsList)
+                                            {
+                                                <tr>
+                                                    <td data-title="Events">
+                                                        <div class="library-content-desc" style="position: relative;">
+                                                            <p class="event_red" style="background:@item2.EventColor;">&nbsp;</p>
+                                                        </div>
+                                                    </td>
+                                                    <td data-title="Title">
+                                                        <div class="library-content-desc event-name-parent">
+                                                            <p>@item2.WorkShopName</p>
+                                                        </div>
+                                                    </td>
+                                                    <td data-title="Date">
+                                                        <div class="library-content-desc">
+                                                            <p>@item2.EventDate &nbsp;@item2.EventTime</p>
+                                                        </div>
+                                                    </td>
+
+                                                    <td data-title="Registered">
+                                                        <div class="library-content-desc">
+                                                            <p>@(item2.IsRegistered ? "Yes" : "No")</p>
+                                                        </div>
+                                                    </td>
+
+
+                                                    <td data-title="Action">
+                                                        <div class="library-content-desc" onclick="location.href='/Events/ParentEventRegistration?id=@item2.Enc_EventId&m=1'">
+                                                            <a href="#" class="open_report" enc_id="@item2.Enc_EventId" style="text-decoration:underline;font-weight: bold;">@(item2.IsRegistered ? "Cancel / Update" : "RSVP")</a>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr><td colspan="5">No events available for this center</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        }
+
+
+        @if (Model.OtherCentersList.Count() > 0)
+        {
+            foreach (var other in Model.OtherCentersList)
+            {
+
+                <div class="col-xs-12 text-center serch-library-block workshop_heading parent_even">
+                    <label class="library-label">Other Centers</label>
+
+                    <span cen_id="@other.Enc_CenterId" style="color: #f9c751;">@other.CenterName</span>
+                    <span style="color: #f9c751;">&nbsp;(@other.CenterAddress)</span>
+                </div>
+
+                <div class="serch-client-block ">
+                    <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;margin-bottom:20px;">
+
+                        <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                            <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list reports_list">
+                                <thead>
+                                    <tr>
+                                        <th>Events</th>
+                                        <th>Title</th>
+                                        <th>Date</th>
+                                        <th>Registered</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="library-table-head">
+
+                                    @if (other._EventsList.Count() > 0)
+                                    {
+                                        foreach (var otheritem2 in other._EventsList)
+                                        {
+                                            <tr>
+                                                <td data-title="Events">
+                                                    <div class="library-content-desc" style="position: relative;">
+                                                        <p class="event_red1" style="background:@otheritem2.EventColor;">&nbsp;</p>
+                                                    </div>
+                                                </td>
+                                                <td data-title="Title">
+                                                    <div class="library-content-desc">
+                                                        <p>@otheritem2.WorkShopName</p>
+                                                    </div>
+                                                </td>
+                                                <td data-title="Date">
+                                                    <div class="library-content-desc">
+                                                        <p>@otheritem2.EventDate &nbsp; @otheritem2.EventTime</p>
+                                                    </div>
+                                                </td>
+                                                <td data-title="Registered">
+                                                    <div class="library-content-desc">
+                                                        <p>@(otheritem2.IsRegistered ? "Yes" : "No")</p>
+                                                    </div>
+                                                </td>
+
+                                                <td data-title="Status">
+                                                    <div class="library-content-desc" onclick="location.href='/Events/ParentEventRegistration?id=@otheritem2.Enc_EventId&m=1'">
+                                                        <a href="#" class="open_report">@(otheritem2.IsRegistered ? "Cancel / Update" : "RSVP")</a>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="5">No events available for this center</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            }
+        }
+
+    </div>
+</div>
+

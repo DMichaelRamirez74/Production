@@ -1,0 +1,105 @@
+﻿@model List<FingerprintsModel.Role>
+
+
+@{
+    @section Title
+{
+        Login As
+    }
+    ViewBag.Title = "Login As";
+
+    if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+
+}
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+        });
+
+
+        function Checkrole() {
+            var object=null;
+            $("#DivRoles input[type=radio]").each(function () {
+                if ($(this).prop("checked"))
+                    object = $(this);
+            });
+            BootstrapDialog.confirm( $(object).next().text() +' role will be active. Do you want to continuue.' , function (result) {
+                if (result) {
+                    if(object!=null)
+                    window.location.href = HostedDir + '/MyProfile/ChangeRole/' + $(object).val();
+                }
+            });
+        }
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                <span> Login As </span>
+
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <button type="button" class="my-btn1" onclick="return Checkrole();" tabindex="10">Proceed</button>
+                </span>
+
+            </h2>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <div class="control-group">
+            <div id="DivRoles" class="input_wd2" style="margin-top:1%;">
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var role in Model)
+                    {
+
+                        <div class="Roles add-useragform1">
+                            @if (role.RoleId == Session["Roleid"].ToString())
+                            {
+                                <input type="radio" checked="checked" class="Rolesradio" name="Role" value="@role.RoleId" />
+                            }
+                            else
+                            {
+                                <input type="radio" value="@role.RoleId" class="Rolesradio" name="Role" />
+
+                            }
+
+                            <label class="chk_1" style="font-size:16px;" for="chk_1">@role.RoleName</label>
+                        </div>
+
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,235 @@
+﻿@model FingerprintsModel.staffRegistration
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Staff Registration</title>
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
+    <script src="~/Scripts/Samplescript/jquery.min.js"></script>
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script src="~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"></script>
+    <script src="~/Scripts/metisMenu.min.js"></script>
+    <script src="~/Content/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/startmin.js"></script>
+    <script src="~/Scripts/jquery-ui-1.9.0.min.js"></script>
+    <link id="Link1" rel="shortcut icon" href="~/Content/img/faviicon.jpg" type="image/x-icon" />
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            //$('#btnExit').click(function () {
+            //    window.location.href = HostedDir + "/Login/Login";
+            //});
+            $('#form1').submit(function () {
+                $('#btnSubmit').attr('disabled', 'disabled');
+            });
+        });
+        if (navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+            var viewportmeta = document.querySelector('meta[name="viewport"]');
+            if (viewportmeta) {
+                viewportmeta.content = 'width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0';
+                document.body.addEventListener('gesturestart', function () {
+                    viewportmeta.content = 'width=device-width, minimum-scale=0.25, maximum-scale=1.6';
+                }, false);
+            }
+        }
+        function isValidagencyInfo() {
+            isValid = true;
+            cleanValidation();
+            if ($('#agencyCode')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Enrollment code is required.");
+                plainValidation('#agencyCode');
+            }
+            else if ($('#Email')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email is required.");
+                plainValidation('#Email');
+            }
+            else if ($('#Email')[0].value.trim() != "" && !validateEmail($('#Email')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#Email');
+            }
+            else if ($('#Password')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Password  is required.");
+                plainValidation('#Password');
+            }
+            else if (!Password($('#Password')[0].value.trim())) {
+                isValid = false;
+                customAlert("Password must be at least 7 characters including a number and an uppercase letter.");
+                plainValidation('#Password');
+            }
+            else if ($('#ConfirmPassword')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Confirm password is required.");
+                plainValidation('#ConfirmPassword');
+            }
+            else if ($('#Password')[0].value.trim() != $('#ConfirmPassword')[0].value.trim()) {
+                isValid = false;
+                customAlert("Password does not match the confirm password.");
+            }
+            else if ($('#firstName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name  is required.");
+                plainValidation('#firstName');
+            }
+            //else if ($('#mobile')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Mobile no  is required.");
+            //    plainValidation('#mobile');
+            //}
+            //else if (isNaN($('#mobile')[0].value)) {
+            //    isValid = false;
+            //    customAlert("Incorrect phone number.");
+            //    plainValidation('#mobile');
+            //    return isValid;
+            //}
+
+            return isValid;
+        }
+
+        function ResetForm() {
+            window.location.href = HostedDir + "/Login/Loginagency";
+        }
+
+
+    </script>
+
+    <style>
+
+
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div class="header-top">
+            <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 logo-place">
+                    <div class="navbar-header logo-ge">
+                        <a class="navbar-brand" href="~/AgencyUser/staffRegistration"><img class="img-responsive" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 menu-place">
+                </div>
+                <div class="navbar-default sidebar" role="navigation" style="border:none !important;">
+                    <div class="sidebar-nav navbar-collapse" aria-expanded="false">
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        Staff Registration
+                    </h2>
+                    <div style="color: green; font-size: 13px; font-weight: bold; right: 15px; line-height:normal;  word-wrap: break-word;">@ViewBag.message</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                    <div class="add-useragform">
+                        <form method="post" role="form" id="form1" autocomplete="off">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Enrollment Code <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.agencyCode, new { placeholder = "Enrollment Code", id = "agencyCode", maxlength = "10", @class = "form-control", tabindex = 1 })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Email <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.emailid, new { placeholder = "Email", id = "Email", maxlength = "100", @class = "form-control", tabindex = 2 })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">First Name <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.firstName, new { placeholder = "First Name", id = "firstName", maxlength = "50", @class = "form-control", tabindex = 3 })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Last Name</label>
+                                        @Html.TextBoxFor(m => m.lastName, new { placeholder = "Last Name", id = "lastName", maxlength = "50", @class = "form-control", tabindex = 4 })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Password <sup>*</sup></label>
+                                        @Html.PasswordFor(m => m.password, new { placeholder = "Password", id = "Password", maxlength = "20", @class = "form-control", tabindex = 5 })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Confirm  Password <sup>*</sup></label>
+                                        @Html.PasswordFor(m => m.password, new { placeholder = "Confirm Password", id = "ConfirmPassword", maxlength = "20", @class = "form-control", tabindex = 6 })
+                                    </div>
+                                </div>
+
+                            
+
+                                @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Mobile No <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.mobile, new { placeholder = "Mobile No", id = "mobile", maxlength = "15", onkeyup = "PhoneValidate(this);", onblur = "checkIfNumeric(this);", @class = "form-control", tabindex = 7 })
+                                    </div>
+                                </div>*@
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="btnwrp_subcal">
+                                        <button id="btnSubmit" type="submit" class="my-btn" tabindex="7" onclick="return isValidagencyInfo();">Submit</button>
+                                        <button id="btnExit" class="my-btn" type="button" tabindex="8" onclick="ResetForm();">Exit</button>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-one public-page">
+            <footer>
+                <p class="text-center"><a target="_blank" href="http://www.otssolutions.com">Copyright © 2016 All Rights Reserved.<br />Designed By OTS Solutions Inc.</a></p>
+            </footer>
+        </div>
+    </div>
+    <div class="error-msg">
+        <ul class="i-am-new">
+            <li id="noty_topRight_layout_container" style="overflow: hidden; display: none; background: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAoCAYAAAAPOoFWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAPZJREFUeNq81tsOgjAMANB2ov7/7ypaN7IlIwi9rGuT8QSc9EIDAsAznxvY4pXPKr05RUE5MEVB+TyWfCEl9LZApYopCmo9C4FKSMtYoI8Bwv79aQJU4l6hXXCZrQbokJEksxHo9KMOgc6w1atHXM8K9DVC7FQnJ0i8iK3QooGgbnyKgMDygBWyYFZoqx4qS27KqLZJjA1D0jK6QJcYEQEiWv9PGkTsbqxQ8oT+ZtZB6AkdsJnQDnMoHXHLGKOgDYuCWmYhEERCI5gaamW0bnHdA3k2ltlIN+2qKRyCND0bhqSYCyTB3CAOc4WusBEIpkeBuPgJMAAX8Hs1NfqHRgAAAABJRU5ErkJggg==&quot;) repeat-x scroll left top #a94442;  color: rgb(255, 255, 255); width: 270px;float:right; cursor: pointer; ">
+                <div id="noty_237439575065076060" class="noty_bar">
+                    <div style="font-size: 13px; line-height: 16px; text-align: left; padding: 8px 10px 9px; width: auto; position: relative; font-weight: bold;" class="noty_message">
+                        <span class="noty_text">.</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

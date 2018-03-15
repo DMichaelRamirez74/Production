@@ -1,0 +1,195 @@
+﻿@model   List<FingerprintsModel.FamilyHousehold.ImmunizationRecord>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        $('#Immunization > tbody tr').each(function () {
+            var end = new Date();
+            $(this).find(':input[type="text"]').each(function () {
+                //$(this).datetimepicker({
+                //    timepicker: false,
+                //    format: 'm/d/Y',
+                //    changeMonth: true,
+                //    changeYear: true,
+                //    maxDate: end
+                //});
+                $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            });
+           
+        });
+    });
+    function validatedateChilddateofbirth(inputTextObject) {
+
+        if ($(CDOB).val().trim() == "MM/DD/YYYY" || $(CDOB).val().trim() == "") {
+            customAlert("Please specify child date of birth first. ");
+            $(inputTextObject).val('');
+            $('#MyImmunization').modal('toggle');
+            return false;
+        }
+        else {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+                    var dob = new Date();
+                    var childdob = Date.parse($('#CDOB').val());
+                    //var childdob = $('#CDOB').val();
+                    if (Date.parse($(inputTextObject).val()) >= dob || Date.parse($(inputTextObject).val()) < childdob) {
+                        customAlert("Dose dates can not be earlier than the child's date of birth or greater than today's date. ");
+                        $(inputTextObject).val('');
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+
+                }
+                else {
+                    customAlert("Invalid date of birth. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+
+            }
+        }
+
+    }
+</script>
+
+<div class="modal fade scroll-modal" id="MyImmunization" role="dialog">
+    <div class="modal-dialog income-popup">
+        <!-- Modal content-->
+        <div class="modal-content" style="width:900px;">
+            <div class="modal-header">
+                <h3>Immunization Shot Records<span class="extra-title muted"></span></h3>
+            </div>
+            <div class="control-group">
+                <div class="col-xs-12">
+                    <div class="col-xs-12">
+                        <div class="table-responsive" id="Imminizationclone">
+                            <table class="table table_size" id="Immunization">
+                                <thead style="cursor:pointer;">
+                                    <tr style="text-align:center;">
+                                        <th></th>
+                                        <th>Dose1</th>
+                                        <th>Preempt</th>
+                                        <th>Exempt</th>
+                                        <th>Dose2</th>
+                                        <th>Preempt</th>
+                                        <th>Exempt</th>
+                                        <th>Dose3</th>
+                                        <th>Preempt</th>
+                                        <th>Exempt</th>
+                                        <th>Dose4</th>
+                                        <th>Preempt</th>
+                                        <th>Exempt</th>
+                                        <th>Dose5</th>
+                                        <th>Preempt</th>
+                                        <th>Exempt</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        if (Model != null)
+                                        {
+                                            int i = 0;
+                                            foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td width="200px">
+                                                        @item.Dose
+                                                        <input type="hidden" value="@item.Dose" name="imminization[@i].dose" />
+                                                        <input type="hidden" name="Imminization[@i].ImmunizationId" />
+                                                        <input type="hidden" value="@item.ImmunizationmasterId" name="Imminization[@i].ImmunizationmasterId" />
+                                                    </td>
+                                                    <td>
+                                                     
+                                                        <input type="text" onblur="return validatedateChilddateofbirth(this);" placeholder="MM/DD/YYYY" name="Imminization[@i].Dose1" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Preempt1" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Exempt1" />
+                                                    </td>
+                                                    <td>
+                                                      
+                                                        <input type="text" onblur="return validatedateChilddateofbirth(this);" placeholder="MM/DD/YYYY" name="Imminization[@i].Dose2" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Preempt2" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Exempt2" />
+                                                    </td>
+                                                    <td>
+                                                       
+                                                        <input type="text" onblur="return validatedateChilddateofbirth(this);" placeholder="MM/DD/YYYY" name="Imminization[@i].Dose3" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Preempt3" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Exempt3" />
+                                                    </td>
+                                                    <td>
+
+                                                        <input type="text" onblur="return validatedateChilddateofbirth(this);" placeholder="MM/DD/YYYY" name="Imminization[@i].Dose4" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Preempt4" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Exempt4" />
+                                                    </td>
+                                                    <td>
+                                                       
+                                                        <input type="text" onblur="return validatedateChilddateofbirth(this);" placeholder="MM/DD/YYYY" name="Imminization[@i].Dose5" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Preempt5" />
+                                                    </td>
+                                                    <td align="center">
+
+                                                        <input type="checkbox" value="true" name="Imminization[@i].Exempt5" />
+                                                    </td>
+                                                </tr>
+                                                i++;
+
+                                            }
+                                        }
+                                    }
+
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnImmunization" data-dismiss="modal" class="my-btn" type="button">Ok</button>
+                        <button id="btnImmunizationexit" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                    </div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

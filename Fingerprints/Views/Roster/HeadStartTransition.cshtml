@@ -1,0 +1,833 @@
+﻿@{
+    ViewBag.Title = "HeadStartTransition";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+
+
+@section MainContentHolder{
+    <link href="~/Content/css/Transition.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .no-padding {
+            padding: 0;
+        }
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 689px;
+        }
+
+        .error-notify {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            color: red;
+            font-size: 13px;
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
+        .transition-inner .form-control {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            padding: 10px 10px;
+            color: #163b69;
+            text-align: left;
+            font-size: 15px;
+            margin: 0;
+            text-transform: none;
+            width: 100%;
+            float: left;
+            height: 43px;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .err-container, irr-error {
+            width: 100%;
+            float: left;
+            margin: 6px 0;
+        }
+        .err-message{display:none;color: red;font-size: 12px;margin: 6px;height:10px; }
+    </style>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 top-header-background no-padding">
+                        <div class="top-header" style="margin-top:20px;">
+                            <div class="nav-icon1">
+                                <img src="images/nav-bar.png">
+                            </div>
+                            <div class="col-xs-12 no-padding">
+                                <div class="top-header-title-transportation">
+                                    <h1>Early Head Start Transition</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-xs-12 no-padding">
+
+
+
+                            <div class="col-xs-12 transition-section">
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="transition-content-desc" style="position: relative;">
+                                            <p style="background:none;border:none;">Date of Transition<span class="error-notify">*</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7 no-padding">
+                                        <div class="transition-inner" style="position: relative;">
+                                            <span class="transition-field-style"></span>
+                                            @*<input type="text" placeholder="07/11/2017" class="form-control">*@
+                                            <input type="text" maxlength="10" class="form-control txt-date mandatory" id="transitionDate" placeholder="MM/DD/YYYY" value="@DateTime.Now.ToString("MM/dd/yyy")" />
+                                            <div class="err-container irr-error">
+                                                <span class="err-message">Transition date is required</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Transition Type<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-inner" style="position: relative;">
+                                            <select id="ddTransitioningType" onchange="GetTransitioningType(this);" style="height:45px !important;" class="form-control  mandatory clsTransitioningType">
+                                                <option value="0">--Select Transition Type--</option>
+                                                <option value="1">Enroll in “OUR” Head Start Program</option>
+                                                <option value="2">Enroll in “ANOTHER” Head Start Program</option>
+                                                <option value="3">Enrolled in “OTHER” Childhood Program</option>
+                                                <option value="4">Did not enter into another Childhood Program</option>
+                                            </select>
+
+                                            <div class="err-container irr-error">
+                                                <span class="err-message">Transition type is required</span>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding divCenter" style="margin-bottom: 10px;display:none;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Center Name<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-inner" style="position: relative;">
+                                            <select id="Centers" onchange="GetClassrooms(this);" style="height:40px !important;" class="form-control mandatory clsCenters"></select>
+
+                                            <div class="err-container irr-error">
+                                                <span class="err-message errCenter">Center name is required</span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 no-padding divClassRoomName" style="margin-bottom: 10px;display:none;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Class Room Name<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-inner" style="position: relative;">
+                                            <select id="Classroom" onchange="GetAvailableSeatsByClass(this);" style="height:40px !important;" class="form-control mandatory clsClassRooms"></select>
+
+                                            <div class="err-container irr-error">
+                                                <span class="err-message errorClassRome">Class room is required</span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding divTotalSeatAvailability" style="margin-bottom: 10px;display:none">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Total Seat Availability <span class="error-notify"></span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: #87e3ae;border: none;width: auto;display: none;color:#000;" id="ptotalSeats" class="">
+                                                    <span id="spnClassName"></span>
+                                                    <span>(Open Seats - </span>
+                                                    <span id="spnAvailableCount"></span>
+                                                    <span>)</span>
+                                                </p>
+
+                                                <div class="err-container irr-error">
+                                                    <span class="err-message errorAvailableSeat">Seat not available. Please select other classroom.</span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Insurance Type<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3A1">
+                                                    <label>Medicare / Chip</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3B1">
+                                                    <label>State Insurance</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3C1">
+                                                    <label>Private Insurance</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C4">
+                                                    <label>No Insurance</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3D1">
+                                                    <label>Other Insurance</label>
+                                                </div>
+                                                <div class="transition-inner divInsType" style="position: relative;width: 50%;display: none;">
+                                                    <span class="transition-field-style"></span>
+                                                    <input type="text"  class="form-control" id="OtherInsuranceType" value="">
+                                                    <div class="err-container irr-error">
+                                                        <span class="other-ins-err"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                            <span class="err-message err-message-instype">Insurance type is required</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Did child have continual, Ongoing medical services<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="ms" id="medicalservices" value="1">
+                                                <label>Yes</label>
+                                            </div>
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="ms" id="medicalservices" value="0">
+                                                <label>No</label>
+                                            </div>
+
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
+                                            </div>
+
+                                          
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                @*<div class="col-xs-12 no-padding divMedicalHome" style="margin-bottom: 10px;display:none;">
+                                        <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                            <div class="enroll-sec" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p style="background: none;border: none;">Medical Home*</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                            <div class="transition-inner" style="position: relative;">
+                                                <select class="form-control" id="ddMedicalHome">
+                                                    <option value="0">--Select--</option>
+                                                    <option value="1">Clinic or Doctor’s Office</option>
+                                                    <option value="2">Indian Health Services</option>
+                                                    <option value="3">Migrant Community Health Services</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>*@
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Did child have continual accessible dental care provided by a dentist<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec">
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="ds" id="isDental" value="1">
+                                                <label>Yes</label>
+                                            </div>
+                                            <div class="radio radio-info">
+                                                <input type="radio" name="ds" id="isDental" value="0">
+                                                <label>No</label>
+                                            </div>
+
+
+                                            <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                <span class="err-message err-message-ds">Dental services is required</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="transition-analysis-btn">
+                                    <a id="submitTransition" style="cursor:pointer;">Submit</a>
+                                    <a href="/Roster/Roster" style="background:#e74c3c;">Cancel</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+<div class="modal fade" id="SeatsAvailability" role="dialog">
+    <div class="modal-dialog">
+        @*Modal content*@
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Information</h4>
+            </div>
+
+            <div class="form-group">
+                <label id="lblSeatsAvailability" style="width:  100%; text-align:  center;padding:  0; margin:  0;font-family: inherit;" class="control-label"></label>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="RedirectToDashboard()" class="my-btn1">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+
+
+        function RedirectToDashboard() {
+            location.href = '/Roster/Roster';
+        }
+
+        $("body").on('keyup', '.txt-date', function (e) {
+
+            flags = 0;
+            if (e.keyCode != 193 && e.keyCode != 111) {
+                if (e.keyCode != 8) {
+                    if ($(this).val().length == 2) {
+                        $(this).val($(this).val() + "/");
+                    } else if ($(this).val().length == 5) {
+                        $(this).val($(this).val() + "/");
+                    }
+                } else {
+                    var temp = $(this).val();
+                    if ($(this).val().length == 5) {
+                        $(this).val(temp.substring(0, 4));
+                    } else if ($(this).val().length == 2) {
+                        $(this).val(temp.substring(0, 1));
+                    }
+                }
+            } else {
+                var temp = $(this).val();
+                var tam = $(this).val().length;
+                $(this).val(temp.substring(0, tam - 1));
+            }
+
+
+        });
+
+        var flags = 0;
+
+        $('body').on("keydown", "#datecompleted,.txt-date", function (e) {
+            flags++;
+            if (flags > 1) {
+                e.preventDefault();
+            }
+
+            //var regex = /^[0-9]*(?:\.\d{1,2})?$/;
+
+
+            //if( !regex.test(e.value) ) {
+            //    return false;
+            //}
+
+            var key = e.charCode || e.keyCode || 0;
+
+            // allow backspace, tab, delete, enter, arrows, numbers and keypad numbers ONLY
+            // home, end, period, and numpad decimal
+            return (key == 8 || key == 9 || key == 13 || key == 46 || key == 37 || key == 39 ||
+                key == 35 || key == 36 || key == 110 || key == 190 || key == 191 ||
+               (key >= 96 && key <= 111 || key >= 48 && key <= 57 && !e.shiftKey));
+            //(e.which == keyCode.ENTER)
+
+
+            var owner = this,
+          pps = owner.properties,
+          charCode = e.which || e.keyCode || e.charCode || 0;
+
+            // hit backspace when last character is delimiter
+
+            if (Util.isAndroid() &&
+                e.target.value.length &&
+                e.target.value.length === this._lastEventValue.length - 1 &&
+                Util.isDelimiter(pps.result.slice(-1), pps.delimiter, pps.delimiters)
+            ) {
+                e.charCode = 8;
+            }
+            if (e.charCode === 8 &&
+                Util.isDelimiter(pps.result.slice(-1), pps.delimiter, pps.delimiters)) {
+                pps.backspace = true;
+            }
+            else {
+                pps.backspace = false;
+            }
+            this._lastEventValue = e.target.value;
+
+        });
+
+        $('#submitTransition').click(function () {
+
+            if (ValidateInput()) {
+                //alert('Success...')
+                //var isEHS = $('#IsEHS:checked').val() == "true" ? true : false;
+
+                if ($('#ddTransitioningType').val() == 1 && ($('#spnAvailableCount').text() =="" || $('#spnAvailableCount').text()=="0") ) {
+                    $('.errorAvailableSeat').show();
+                    
+                    return false;
+                }
+              
+                var Transition = {};
+
+                Transition.ClientId = '@ViewBag.ClientId';
+                Transition.DateOfTransition = $('#transitionDate').val();
+
+                Transition.TransitioningType = $('#ddTransitioningType').val();
+
+                Transition.CenterId = $('#Centers').val()
+                Transition.ClassRoomId = $('#Classroom').val()
+
+            
+
+                Transition.TrnsInsuranceType = $('.InsuranceType:checked').val();
+                Transition.OtherInsuranceTypeDesc = $('#OtherInsuranceType').val();
+
+                Transition.MedicalServices = $('#medicalservices:checked').val();
+                Transition.DentalCare = $('#isDental:checked').val();
+
+
+
+
+                $.ajax({
+                    dataType: 'json',
+                    type: 'POST',
+                   url: '/Roster/SaveHeadStartTransition',
+                    data: Transition,
+                    success: function (data) {
+                        if (data == true) {
+                            $("#lblSeatsAvailability").text("Record updated successfully.");
+                            $('#SeatsAvailability').modal('show');
+                        }
+                        else {
+
+                            $("#lblSeatsAvailability").text("Seats not available");
+                            $('#SeatsAvailability').modal('show');
+                        }
+
+                    }
+                })
+            }
+        })
+            function validatedateChild(inputTextObject) {
+                     
+                        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                          
+                            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                            var regex = new RegExp(dateformat);
+                            if (regex.test($(inputTextObject).val())) {
+                               
+                                return true;
+                            }
+                            else {
+                               
+                               
+                              return false;
+                            }
+
+                        }
+
+                    }
+        function ValidateInput() {
+
+            var isValid = true;
+            debugger
+           // $('.errorAvailableSeat').hide();
+
+            $('.mandatory').each(function () {
+                if ($(this).val() == "") {
+                    $(this).closest('div').find('.err-message').show();
+                    if (isValid)
+                        isValid = false;
+                }
+                if ($(this).hasClass('txt-date') && $(this).val()=="") {
+                    $(this).closest('div').find('.err-message').text("Transition date is required.");
+                    $(this).closest('div').find('.err-message').show();
+                    if (isValid)
+                        isValid = false;
+                }
+                if ($(this).hasClass('txt-date') && !validatedateChild(this)) {
+                    $(this).closest('div').find('.err-message').text("Invalid transition date");
+                    $(this).closest('div').find('.err-message').show();
+                    if (isValid)
+                        isValid = false;
+                }
+              
+                if ($('.errorAvailableSeat').is(":visible") == true)
+                {
+                    if (isValid)
+                        isValid = false;
+                }
+
+
+                if ($(this).hasClass('txt-date') && $(this).val() != "") {
+
+                    var transitionDate = new Date($(this).val());
+                    var todayDate = new Date();
+
+                    if (transitionDate > todayDate) {
+                        $(this).closest('div').find('.err-message').text("Transition date must be less than future date.");
+                        $(this).closest('div').find('.err-message').show();
+                        if (isValid)
+                            isValid = false;
+
+                    }
+                }
+
+                if ($(this).hasClass('clsTransitioningType') && $(this).val() == "0") {
+                    $(this).closest('div').find('.err-message').show();
+
+                    if (isValid)
+                        isValid = false;
+                }
+
+                if ($(this).hasClass('clsTransitioningType') && $(this).val() == "1") {
+
+                    if (($('#Centers').val() == "0" || $('#Centers').val() == "")) {
+                        $('#Centers').closest('div').find('.err-message').show();
+
+                        if (isValid)
+                            isValid = false;
+                    }
+
+                    if (($('#Classroom').val() == "0" || $('#Classroom').val() == "" || $('#Classroom').val() == null)) {
+                        $('#Classroom').closest('div').find('.err-message').show();
+
+                        if (isValid)
+                            isValid = false;
+                    }
+
+                }
+
+              
+
+            });
+
+        
+            $('.transition-section').each(function () {
+              
+                //err - message - ehs
+                if ($(this).find('input[name="InsType"]:checked').length == 0) {
+                    $(this).find('.err-message-instype').text("Insurance type is required");
+                    $(this).find('.err-message-instype').show();
+                    if (isValid)
+                        isValid = false;
+                }
+                if ($(this).find('input[name="InsType"]:checked').length > 0) {
+                    $(this).find('.err-message-instype').hide();
+                    if ($(this).find('input[name="InsType"]:checked').val() == "C3D1" && $('#OtherInsuranceType').val() == "") {
+                          
+                           $(this).find('.err-message-instype').text("Other insurance type is required");
+                           $(this).find('.err-message-instype').show();
+                            if (isValid)
+                                isValid = false;                                            
+                    }
+                  
+                }
+
+                if ($(this).find('input[name="ms"]:checked').length == 0) {
+                    $(this).find('.err-message-ms').show();
+                    if (isValid)
+                        isValid = false;
+                }
+                if ($(this).find('input[name="ds"]:checked').length == 0) {
+                    $(this).find('.err-message-ds').show();
+                    if (isValid)
+                        isValid = false;
+                }
+            });
+
+            //$('.err-message-instype').text("");
+            //$('.err-message-instype').hide();
+
+          
+            return isValid;
+        }
+
+
+        $('body').on("change keyup", ".mandatory", function () {
+            if ($(this).closest('div').find('.err-message').is(':visible'))
+                $(this).closest('div').find('.err-message').hide();
+
+        });
+
+        $('body').on("change keyup", "#OtherInsuranceType", function () {
+            $('.err-message-instype').text("");
+            $('.err-message-instype').hide();
+
+        });
+        $(document).ready(function () {
+
+            getList();
+
+
+            $(".transition-radio-btn input[name='InsType']").click(function () {
+                $('.err-message-instype').text("");
+                $('.err-message-instype').hide();
+                $('#OtherInsuranceType').val("");
+                if ($('.InsuranceType:checked').val() == "C3D1" && $('#OtherInsuranceType').val() == "") {
+                    $('.divInsType').show();
+                    $('.err-message-instype').text("Please enter the other insurance type");
+                    $('.err-message-instype').show();
+                   
+                }
+              
+                else {
+                    $('.err-message-instype').text("");
+                    $('.err-message-instype').hide();
+                    $('.divInsType').hide();
+                }
+
+            });
+
+
+
+            $(".transition-radio-btn input[name='ms']").click(function () {
+
+                $('.err-message-ms').hide();
+
+                if ($('#medicalservices:checked').val() == "1") {
+                    $('.divMedicalHome').show();
+                }
+                else {
+                    $('.divMedicalHome').hide();
+                }
+
+            });
+
+
+
+            $(".transition-radio-btn input[name='ds']").click(function () {
+
+                $('.err-message-ds').hide();
+
+
+            });
+
+        })
+        function getList() {
+            $.ajax({
+                url: "/Roster/GetCenterByAgency",
+                type: "POST",
+                data: {
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    if (data.list.Centers != null && data.list.Centers.length > 0) {
+                        var option = "";
+
+                        if ($('#Centers').find('option').length < 1) {
+                            option = option + '<option value="' + 0 + '" >' + '--Select Center--' + '</option>';
+
+                            for (var i = 0; i < data.list.Centers.length; i++) {
+                                option = option + '<option value="' + data.list.Centers[i].CenterId + '">' + data.list.Centers[i].Name + '</option>';
+                            }
+                            $('#Centers').find('option').remove().end().append(option);
+                            $('#Centers').val('');
+                        }
+                        $('#Centers').prop('selectedIndex', 0);
+                    }
+                }
+                , error: function (response) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+        }
+        function GetClassrooms(Select) {
+            $('.errorAvailableSeat').hide();
+            $('#spnClassName').text('');
+            $('#spnAvailableCount').text('0');
+            $('#ptotalSeats').hide();
+            $.ajax({
+                url: HostedDir + "/Roster/Getclassrooms",
+                type: "POST",
+                data: {
+                    Centerid: $(Select).val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
+                        }
+                        $('#Classroom').find('option').remove().end().append(option);
+                        $('#Classroom').val('');
+                    }
+                    else {
+                        $('#Classroom').find('option').remove();
+                    }
+                }
+                   , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                   }
+            });
+        }
+
+        function GetAvailableSeatsByClass(Select) {
+            $('.errorAvailableSeat').hide();
+            $.ajax({
+                url: HostedDir + "/Roster/GetAvailablitySetsByClass",
+                type: "POST",
+                data: {
+                    CenterId: $('#Centers').val(), ClassRoomId: $(Select).val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                   
+                    $('#spnClassName').text($('#Classroom option:selected').text());              
+                    $('#ptotalSeats').show();
+                    var num = parseInt(data);
+
+                    if (data == "" || data == "0" || (num<0)) {
+                        $('#spnAvailableCount').text(0);
+                       
+                        $('.errorAvailableSeat').show();
+                    }
+                       
+                    else
+                    {
+                        $('#spnAvailableCount').text(data);
+                    }
+
+                }
+                   , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                   }
+            });
+        }
+
+        function GetTransitioningType(select) {
+            //alert($(Select).val());
+            if ($('#ddTransitioningType').val() == 0) {
+                $('#Centers').val(0)
+                $('#Classroom').text("")
+
+                $('.errorAvailableSeat').hide();
+                $('.divTotalSeatAvailability').hide();
+                $('.divCenter').hide();
+                $('.divClassRoomName').hide();
+            }
+            else if ($('#ddTransitioningType').val() == 1) {
+
+                $('#spnClassName').text('');
+                $('#spnAvailableCount').text('0');
+                $('#ptotalSeats').hide();
+
+
+                $('.divTotalSeatAvailability').show();
+                $('.divCenter').show();
+                $('.divClassRoomName').show();
+            }
+            else {
+                $('#Centers').val(0)
+                $('#Classroom').text("")
+                $('.divTotalSeatAvailability').hide();
+                $('.divCenter').hide();
+                $('.divClassRoomName').hide();
+            }
+
+        }
+
+    </script>
+}
+
+

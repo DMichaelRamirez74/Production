@@ -1,0 +1,1206 @@
+﻿@{
+    ViewBag.Title = "HomeVisitsHistorical";
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+    string hvRoleId = "e4c80fc2-8b64-447a-99b4-95d1510b01e9";
+        }
+
+        @section Script{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('.timeTextBox').each(function () {
+
+                $(this).mask("99:99", { placeholder: 'HH:MM' });
+                });
+
+
+            $('#txtMeetingDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            });
+
+
+            function testTime(time) {
+
+                var element = time;
+                var time = $(time).val();
+                var re = /[0-2]?\d[.:][0-5]\d/;
+                var matches = re.test(time);
+                if (matches == true) {
+                $(element).siblings('select').val('');
+                    return true;
+
+                } else {
+                    customAlert("Invalid Time Format");
+                    return false;
+                }
+
+            }
+
+
+
+            function setatstart(value) {
+                if ($(value).val() == "MM/DD/YYYY") {
+                $(value).val('');
+                }
+
+            }
+
+            function Checkdate(value) {
+
+                isValid = true;
+                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                    var regex = new RegExp(dateformat);
+                    if (!regex.test($(value).val())) {
+                        customAlert("Invalid date format. ");
+                    $(value).val('');
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+    </script>
+}
+
+        @section MainContentHolder{
+    <link href="~/Content/css/homeVisitHistorical.css" rel="stylesheet" />
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12">
+                    <div class="col-xs-12">
+
+                        <div class="col-xs-12 ersea-detl-title">
+                            <h3>Home Visit(s) Historical</h3>
+                            <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                        </div>
+
+                        <div class="form-div">
+                            <div class="row">
+                                <div class="col-xs-12" style="margin-bottom:10px;">
+                                    <div class="import-spacing">
+                                        <div class="col-xs-12 col-lg-2 col-sm-4">
+                                            <label class="label_style lbl-required">Home Visitor</label>
+                                        </div>
+
+                                        <div class="col-xs-12 col-lg-4 col-sm-8">
+                                            @Html.DropDownList("ddlHomeVisitors", Fingerprints.Utilities.Helper.GetUsersByRoleId(hvRoleId,Session["RoleId"].ToString(),Session["UserID"].ToString(), Session["AgencyID"].ToString()), new { @class = "ersa-select center-select width-select-change", @onchange = "return loadFamily(this);" })
+                                        </div>
+                                    </div>
+                                    <div class="import-spacing">
+                                        <div class="col-xs-12 col-lg-1 col-sm-4">
+                                            <label class="label_style lbl-required">Family</label>
+                                        </div>
+
+                                        <div class="col-xs-12 col-lg-5 col-sm-8">
+                                            <select class="ersa-select center-select width-select-change" id="familySelect">
+                                                <option value="0"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <form id="meeting-form">
+                                <div class="outlet-fieldset" id="appointment-div">
+                                    <fieldset class="col-md-6 col-lg-12">
+                                        <legend>Initial Appointment details</legend>
+
+                                        <div class="row">
+                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                                <div class="col-xs-12 col-lg-4">
+                                                    <label class="label_style lbl-required">Meeting Date</label>
+                                                </div>
+                                                <div class="col-xs-12 col-lg-8">
+                                                    <input id="txtMeetingDate" style="color:#fff;font-size:14px;background:transparent;width:50%;" type="text" tabindex="2" placeholder="MM/DD/YYYY" class="ersa-select date-input">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                                <div class="col-xs-12 col-lg-4">
+                                                    <label class="label_style lbl-required">Day</label>
+                                                </div>
+                                                <div class="col-xs-12 col-lg-8">
+                                                    <select class="ersa-select center-select width-select-change" style="width:50%;" id="select_day">
+                                                        <option value="">--Select Day--</option>
+                                                        <option value="1">Monday</option>
+                                                        <option value="2">Tuesday</option>
+                                                        <option value="3">Wednesday</option>
+                                                        <option value="4">Thursday</option>
+                                                        <option value="5">Friday</option>
+                                                        <option value="6">Saturday</option>
+                                                        <option value="0">Sunday</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                                <div class="col-xs-12 col-lg-4">
+                                                    <label class="label_style lbl-required">Start Time</label>
+                                                </div>
+                                                <div class="col-xs-12 col-lg-8">
+                                                    <select name="StartTime" id="StartTime" class="ersa-select center-select width-select-change" placeholder="From" style="width:50%;">
+                                                        <option value="">--Start Time--</option>
+                                                        <option value="08:00 AM">08:00 AM</option>
+                                                        <option value="08:30 AM">08:30 AM</option>
+                                                        <option value="09:00 AM">09:00 AM</option>
+                                                        <option value="09:30 AM">09:30 AM</option>
+                                                        <option value="10:00 AM">10:00 AM</option>
+                                                        <option value="10:30 AM">10:30 AM</option>
+                                                        <option value="11:00 AM">11:00 AM</option>
+                                                        <option value="11:30 AM">11:30 AM</option>
+                                                        <option value="12:00 PM">12:00 PM</option>
+                                                        <option value="12:30 PM">12:30 PM</option>
+                                                        <option value="01:00 PM">01:00 PM</option>
+                                                        <option value="01:30 PM">01:30 PM</option>
+                                                        <option value="02:00 PM">02:00 PM</option>
+                                                        <option value="02:30 PM">02:30 PM</option>
+                                                        <option value="03:00 PM">03:00 PM</option>
+                                                        <option value="03:30 PM">03:30 PM</option>
+                                                        <option value="04:00 PM">04:00 PM</option>
+                                                        <option value="04:30 PM">04:30 PM</option>
+                                                        <option value="05:00 PM">05:00 PM</option>
+                                                        <option value="05:30 PM">05:30 PM</option>
+                                                        <option value="06:00 PM">06:00 PM</option>
+                                                    </select>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                                <div class="col-xs-12 col-lg-4">
+                                                    <label class="label_style lbl-required">Duration</label>
+                                                </div>
+                                                <div class="col-xs-12 col-lg-8">
+
+                                                    @*<select class="editableBox" id="EndTime" size="1" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0; this.nextElementSibling.value=this.value' onblur="this.size=0;">
+                                                        <option value="0"></option>
+                                                        <option value="00:30">00:30</option>
+                                                        <option value="01:00">01:00</option>
+                                                        <option value="01:30">01:30</option>
+                                                        <option value="02:00">02:00</option>
+                                                        <option value="02:30">02:30</option>
+                                                        <option value="03:00">03:00</option>
+                                                        <option value="03:30">03:30</option>
+                                                        <option value="04:00">04:00</option>
+
+                                                    </select>*@
+
+                                                    <select name="endTime" id="EndTime" class="ersa-select center-select width-select-change"  style="width:80px;position:absolute;background:transparent;color:#fff;border:1px solid #fff;" >
+                                                        <option value=""></option>
+                                                        <option value="00:30">00:30</option>
+                                                        <option value="01:00">01:00</option>
+                                                        <option value="01:30">01:30</option>
+                                                        <option value="02:00">02:00</option>
+                                                        <option value="02:30">02:30</option>
+                                                        <option value="03:00">03:00</option>
+                                                        <option value="03:30">03:30</option>
+                                                        <option value="04:00">04:00</option>
+                                                    </select>
+
+                                                    <input class="timeTextBox" placeholder="HH:MM" id="TestEndTime" style="height:30px;" name="timebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);" />
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+
+                                    </fieldset>
+
+
+                                    <div class="col-xs-12 no-padding" id="submit-cancel-div">
+                                        <div class="btnwrp_subcal">
+                                            <button id="btnMeetingSchedule" accesskey="0" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;white-space:nowrap;" type="button" class="my-btn dis-input">Load Form</button>
+                                            <button id="btnExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+
+
+                            <div class="list-days-attnd table-responsive" id="table_Meeting_historical" style="display:none;margin-bottom:20px;">
+
+                                <div class="col-xs-12 col-lg-12" style="padding:10px;">
+                                    <div class="col-lg-6 text-left">
+                                        <label style="display:initial;color:#337ab7;">Meeting Day : </label><label id="meetingLblDay" style="display:initial;"></label>
+                                    </div>
+
+                                    <div class="col-lg-6 text-right">
+                                        <button id="insertMeetingRecord" accesskey="0" style="font-weight: 600;border-radius: 5px;white-space:nowrap;padding:6px;" type="button" class="btn btn-success">Submit</button>
+
+                                        <label style="display:initial;color:#337ab7;">Total Days : </label><label style="display:initial;" id="totalDaycountLbl">50</label>
+                                    </div>
+
+                                </div>
+
+                                <table class="table table-fixed">
+                                    <thead>
+                                        <tr>
+                                            <th>Meeting Date</th>
+                                            <th style="width:14%;">Start Time</th>
+                                            <th style="width:14%;">Duration</th>
+                                            <th>Attendance Type</th>
+                                            <th>Household(s) Present</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="scrollTbody"></tbody>
+                                </table>
+
+
+
+                            </div>
+
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @Html.Hidden("roleId", hvRoleId)
+    <input type="hidden" id="EndTimeDuration" name="EndTimeDuration" />
+
+    <div id="attendanceTypeDiv" style="display:none;">
+        @Html.DropDownList("ddlAttendanceType", Fingerprints.Utilities.Helper.GetAttendanceType(Session["AgencyID"].ToString(), Session["UserID"].ToString(), true), new { @class = "ersa-select center-select width-select-change", @onchange = "return loadFamily(this)" })
+    </div>
+
+    <script>
+
+        var userId = '';
+        var roleId = '';
+        var selectFamily = $('#familySelect');
+        var familyClientId = '';
+        var appointmentDiv = $('#appointment-div');
+        var meeting_form = $("#meeting-form");
+        var btnMeetingSchedule = $('#btnMeetingSchedule');
+        var parentArray = [];
+        var presentArray = [];
+        presentArray = ['11', '13', '16', '17', '18', '19'];
+
+        function loadFamily(ele) {
+            userId = $(ele, 'option:selected').val();
+            roleId = $('#roleId').val();
+            if (userId === '0') {
+                $('#appointment-div').hide();
+                $('#familySelect').find('option').remove();
+                return false;
+            }
+
+            $.ajax({
+                url: '/HomeVisitor/GetFamiliesUnderUser',
+                type: 'post',
+                datatype: 'json',
+                data: { userId: userId, roleId: roleId },
+                success: function (data) {
+                    var appendOption = '';
+                    if (data != null) {
+                        if (data.length > 0) {
+                            appendOption += '<option value=0>--Select Family--</option>';
+                            $.each(data, function (i, family) {
+                                appendOption += '<option value=' + family.Value + '>' + family.Text + '</option>';
+                            });
+                        }
+
+                    }
+                    selectFamily.html(appendOption);
+
+                },
+                error: function (data) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+        }
+
+
+        function loadAppointmentInfo(ele) {
+
+            familyClientId = $(ele, 'option:selected').val();
+           
+
+            $.ajax({
+                url: '/HomeVisitor/GetInitialAppointmentByClientId',
+                type: 'post',
+                datatype: 'json',
+                data: { clientId: familyClientId },
+                success: function (data) {
+                 
+                    if (data != null) {
+                        if (data.IsRepeat) {
+
+                            appointmentDiv.find('legend').html('Scheduled Appointment Details');
+                            appointmentDiv.find('#select_day').val(data.Day);
+                            appointmentDiv.find('#txtMeetingDate').val(data.MeetingDate);
+                            appointmentDiv.find('#StartTime').val(data.StartTime);
+                            appointmentDiv.find('#TestEndTime').val(data.Duration);
+                            appointmentDiv.find('#repeatcheck').prop('checked', true);
+                            appointmentDiv.find('#btnMeetingSchedule').attr({ 'accesskey': data.MeetingId });
+                        }
+                        else {
+                            appointmentDiv.find('legend').html('Add Schedule');
+
+                            meeting_form.trigger("reset");
+                            appointmentDiv.find('#btnMeetingSchedule').attr({ 'accesskey': 0 });
+                        }
+                        appointmentDiv.show();
+
+                        if (data.ParentDetailsList.length > 0) {
+                            parentArray = data.ParentDetailsList;
+                        }
+
+                    }
+
+
+                },
+                error: function (data) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+
+        }
+
+        function get12HoursTo24HoursTime(time) {
+            //var time = '02:05 AM';
+
+            var hours = Number(time.match(/^(\d+)/)[1]);
+            var minutes = Number(time.match(/:(\d+)/)[1]);
+            var AMPM = time.match(/\s(.*)$/)[1].toLowerCase();
+
+            if (AMPM == "pm" && hours < 12) hours = hours + 12;
+            if (AMPM == "am" && hours == 12) hours = hours - 12;
+            var sHours = hours.toString();
+            var sMinutes = minutes.toString();
+            if (hours < 10) sHours = "0" + sHours;
+            if (minutes < 10) sMinutes = "0" + sMinutes;
+            return sHours + ':' + sMinutes;
+        }
+
+
+        function getTime() {
+
+            var dateselect = $('#txtMeetingDate').val();
+            var time1 = $('#StartTime').val();
+            var time2 = $('#TestEndTime').val();
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+
+            //  var totalstarttime = starttime.substring(0, 5);
+            time1 = get12HoursTo24HoursTime(time1);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins == 0) {
+                mins = "00";
+            }
+            if (hours >= 12) {
+                am_pm = "PM";
+                if (hours > 12) {
+                    hours = (hours - 12);
+                    hours = (hours <= 9) ? '0' + hours : hours;
+                }
+            }
+           
+            $('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
+        }
+
+
+        function getTimeBasedOnDuration(meetingDate, startTime, Duration) {
+
+            var dateselect = meetingDate;
+            var time1 = startTime;
+            var time2 = Duration;
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+
+            //  var totalstarttime = starttime.substring(0, 5);
+            time1 = get12HoursTo24HoursTime(time1);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins == 0) {
+                mins = "00";
+            }
+            if (hours >= 12) {
+                am_pm = "PM";
+                if (hours > 12) {
+                    hours = (hours - 12);
+                    hours = (hours <= 9) ? '0' + hours : hours;
+                }
+            }
+           
+            return hours + ":" + mins + " " + am_pm;
+        }
+
+        function GetMinutes(timeStr) {
+
+            var str = timeStr.split(':');
+
+            var hours = parseInt(str[0]);
+            var mins = parseInt(str[1]);
+            //if (hours >= 12)
+            //{
+            //    hours = hours - 12;
+            //}
+            var totalMins = hours * 60 + mins;
+
+            return totalMins;
+        }
+
+        function checkInfo() {
+
+
+            var isValid = true;
+            cleanValidation();
+            //if ($('#Description')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter Description.");
+            //    plainValidation('#Description');
+            //    return isValid;
+            //}
+
+            if ($('#txtMeetingDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter date.");
+                plainValidation('#txtMeetingDate');
+                return isValid;
+            }
+            else if ($('#select_day').val() === '') {
+                isValid = false;
+                customAlert("Please select Day.");
+                plainValidation('#select_day');
+                return isValid;
+            }
+
+
+            else if ($('#StartTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Start Time.");
+                plainValidation('#StartTime');
+                return isValid;
+            }
+            else if ($('#TestEndTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Duration.");
+                plainValidation('#EndTime');
+                return isValid;
+            }
+            return true;
+        }
+
+        function AddSchedulerDetails() {
+
+            if (checkInfo()) {
+                getTime();
+                $.ajax({
+                    url: HostedDir + "/AgencyUser/AddSchedulerInfo",
+                    type: "POST",
+                    data: {
+                        Description: '',
+                        Date: $('#txtMeetingDate').val(),
+                        StartTime: $('#StartTime').val(),
+                        Duration: $('#TestEndTime').val(),
+                        EndTime: $('#EndTimeDuration').val(),
+                        Day: $('#select_day').val(),
+                        ClientId: selectFamily.val(),
+                        Notes: '',
+                        MeetingId: $('#btnMeetingSchedule').attr('accesskey'),
+                        IsUpdateEnroll: true,
+                        isRepeat: true
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    success: function (response) {
+                        if (response != null) {
+
+                            if (response.result == "1") {
+                                customAlert("Record added successfully.");
+                                bindGrid(LoadDates($('#txtMeetingDate').val(), $('#select_day').val()));
+                            }
+
+                            else if (response.result == "2") {
+                                customAlert("Record updated successfully");
+                                bindGrid(LoadDates($('#txtMeetingDate').val(), $('#select_day').val()));
+
+                            }
+                            else if (response.result == "3") {
+                                customAlert("Record already exists.");
+                            }
+                            else
+                                customAlert(response);
+                        }
+                    },
+                    error: function (response) { customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000); }
+                });
+            }
+
+            return false;
+        }
+
+        function loadForm() {
+            if (checkInfo()) {
+                getTime();
+                GetAttendanceDetailsFromDate();
+
+
+            }
+
+
+
+        }
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        };
+
+        function LoadDates(fromDate, day) {
+           
+            var daysArray = [];
+            var x = new Date(fromDate);
+            //set the financial year starting date
+            x.setFullYear(x.getFullYear(), x.getMonth(), x.getDate());
+            //set the next financial year starting date
+            var y = new Date();
+            y.setFullYear(y.getFullYear(), y.getMonth(), y.getDate());
+            var j = 1;
+            var count = 0;
+            //getting the all mondays in a financial year
+            for (var i = 0; x < y; i += j) {
+                if (x.getDay() === parseInt(day)) {
+
+                    daysArray.push(getFormattedDate(x));
+
+                    //document.write("Date : " + x.getDate() + "/" +
+                    //  (x.getMonth() + 1) + "<br>");
+
+                    x = new Date(x.getTime() + (7 * 24 * 60 * 60 * 1000));
+                    j = 7;
+                    count++;
+                } else {
+                    j = 1;
+                    x = new Date(x.getTime() + (24 * 60 * 60 * 1000));
+                }
+            }
+           
+            return daysArray;
+        }
+
+
+        function getWeekDatesFromCurrentDate(dateEntered) {
+           
+            var startDate = new Date(dateEntered)
+            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
+
+            var dates = [],
+                currentDate = startDate,
+                addDays = function (days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                };
+            while (currentDate <= endDate) {
+
+                var todayDate = new Date().setHours(0, 0, 0, 0);
+                var curDate = new Date(currentDate).setHours(0, 0, 0, 0);
+
+                if (curDate <= todayDate) {
+                    dates.push(getFormattedDate(currentDate));
+                }
+
+
+                currentDate = addDays.call(currentDate, 1);
+            }
+
+           
+            return dates;
+
+        }
+
+
+        function getWeekDaysByCurrentDate(dateEntered)
+        {
+            
+
+
+                var startDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay()))
+                var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
+
+
+                var dates = [],
+                    currentDate = startDate,
+                    addDays = function (days) {
+                        var date = new Date(this.valueOf());
+                        date.setDate(date.getDate() + days);
+                        return date;
+                    };
+                while (currentDate <= endDate) {
+
+
+                    var todayDate = new Date().setHours(0, 0, 0, 0);
+                    var curDate = new Date(currentDate).setHours(0, 0, 0, 0);
+
+                    if (curDate <= todayDate) {
+                        dates.push(getFormattedDate(currentDate));
+                    }
+
+                    currentDate = addDays.call(currentDate, 1);
+                }
+                return dates;
+           
+        }
+
+        function bindGrid(data, attendanceData) {
+            var bindBody = '';
+            if (data.length > 0) {
+                
+
+                var startTime = $('#StartTime').val();
+                var duration = $('#TestEndTime').val();
+              
+                $.each(data, function (i, grid) {
+
+                    var parentName = '<span class="overfill" id="parentSpan_' + i + '" style="display:none;">';
+
+                    if (parentArray.length > 0) {
+                        $.each(parentArray, function (j, parent) {
+
+                            parentName += '<span class="overfill"><input type="checkbox" parent-id=' + parent.ClientId + '>&nbsp;<span>' + parent.ParentName + ' (' + parent.ParentRole + ')</span></span><br>'
+
+                        });
+                    }
+
+                    parentName += '</span>';
+
+                    bindBody += '<tr>\
+                                        <td class="td_date' + i + ' date_change_td"><select class="dates_drop_down_' + i + '" style="display:none;" onchange="changeDate(this,' + i + ');" ></select><span class="datespan_master_' + i + '"><span class="datespan_child_' + i + '">' + grid + '</span>&nbsp;<a href="javascript:void(0);" meet_date=' + grid + ' old_date=' + grid + ' onclick="editDate(this,' + i + ');" title="Edit Meeting Date"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></span></td>\
+                                        <td class="start-time-td" style="width:14%;">'+ startTime + '</td>\
+                                        <td class="imp-plus duration-td" style="width:14%;">'+ duration + '</td>\
+                                        <td class="attendancetype_td">\
+                                            <select style="width:100%;" class="ersa-select center-select width-select-change attendance_select" onchange=showParent(this); id="attendanceType_' + i + '" name="attendanceType">' + $('#ddlAttendanceType').html() + '\
+                                       </select>\
+                                        </td>\
+                                        <td class="parent-td">' + parentName + '</td>\
+                                    </tr>';
+                });
+
+                $('#scrollTbody').html(bindBody);
+
+                $('#scrollTbody').find('.start-time-table').val($('#StartTime').val()).prop('disabled', true);
+
+                $('#scrollTbody').find('.timeTextBox,.editableBox').val($('#TestEndTime').val()).prop('disabled', true);
+
+
+
+                if ($('#scrollTbody').find('tr').length > 0) {
+
+                    $('#scrollTbody').find('tr').each(function (k, row) {
+                      
+                        var attendanceDates = [];
+                     
+                        var anchr = $(row).find('td').eq(0).find('a').attr('old_date');
+                       
+                        attendanceDates = getWeekDaysByCurrentDate(anchr);
+
+                       var attendList = $.grep(attendanceData, function (element) { return attendanceDates.indexOf(element.MeetingDate) > -1 });
+                       
+                      
+
+                        if (attendList.length > 0) {
+
+                            $(row).find('td').eq(0).find('a').attr({ 'meet_date': attendList[0].MeetingDate, 'onclick': '' }).children('i').remove();
+
+                            $(row).find('td').eq(0).find('.datespan_child_' + k + '').text(attendList[0].MeetingDate);
+
+                           // $(row).find('td').eq(0).find('.datespan_master_' + k + '').prop('disabled', 'disabled');
+
+                            $(row).find('td').eq(3).find('#attendanceType_' + k + '').val(attendList[0].AttendanceTypeId).prop('disabled', true)
+
+                            if (presentArray.indexOf(attendList[0].AttendanceTypeId.toString()) > -1) {
+
+                                $(row).find('td').eq(4).find('#parentSpan_' + k + '').show();
+
+                                if (attendList[0].ParentId1 != '')
+                                {
+                                   
+                                    $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId1 + ']').attr({ 'checked': true, 'disabled': true });
+                                    $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': true });
+                                }
+                                if (attendList[0].ParentId2 != '')
+                                {
+                                    $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId2 + ']').attr({ 'checked': true, 'disabled': true });
+                                    $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': true });
+                                }
+
+                            }
+                            else {
+                                $(row).find('td').eq(4).find('#parentSpan_' + k + '').hide();
+                            }
+
+                        }
+
+
+                    });
+
+                }
+
+
+
+                $('#table_Meeting_historical').show();
+
+                $('#submit-meeting-div').show();
+
+                $('#meetingLblDay').html($('#select_day option:selected').text());
+                $('#totalDaycountLbl').html(data.length);
+
+
+
+                //dynamic change of table body height//
+                var bodyHeight = 0;
+                var rowCount = 0;
+                $('#scrollTbody').find('tr').each(function () {
+                    bodyHeight += $(this).height();
+                    rowCount++;
+                });
+
+                if (rowCount < 5) {
+                    $('#scrollTbody').css({ "width": "98.6%" });
+                }
+                else {
+                    $('#scrollTbody').css({ "width": "100%" });
+                }
+
+                $('#scrollTbody').find('.timeTextBox').each(function () {
+
+                    $(this).mask("99:99", { placeholder: 'HH:MM' });
+                });
+
+            }
+        }
+
+        function showParent(ele) {
+            var spanid = '#parentSpan_' + $(ele).attr('id').split('_')[1] + '';
+            var selectValue = $(ele, 'option:selected').val();
+            $(ele).parent('td').siblings('.parent-td').children(spanid).find('input[type=checkbox]').prop('checked', false);
+            if (selectValue != '') {
+
+
+
+                if (presentArray.indexOf(selectValue) > -1) {
+
+                    $(ele).parent('td').siblings('.parent-td').children(spanid).show();
+                }
+                else {
+                    $(ele).parent('td').siblings('.parent-td').children(spanid).hide();
+                }
+
+            }
+            else {
+                $(ele).parent('td').siblings('.parent-td').children(spanid).hide();
+            }
+        }
+
+
+        function editDate(ele, index) {
+
+            var oldDate = $(ele).attr('old_date');
+            var meetDate = $(ele).attr('meet_date');
+            var weekDateArray = getWeekDaysByCurrentDate(oldDate);
+            var weekBindDay = '';
+            if (weekDateArray.length > 0) {
+                $.each(weekDateArray, function (j, weekdate) {
+
+                    weekBindDay += '<option value=' + weekdate + '>' + weekdate + '</option>';
+                });
+            }
+
+            $('.datespan_master_' + index + '').hide();
+            $('.dates_drop_down_' + index + '').html(weekBindDay);
+            $('.dates_drop_down_' + index + '').val(meetDate).show();
+
+
+        }
+
+        function changeDate(ele, index) {
+            var meet_date = $(ele, 'option:selected').val();
+            var date_span_master = $('.datespan_master_' + index + '');
+            $(ele).html('').hide();
+            date_span_master.find('.datespan_child_' + index + '').text(meet_date).show();
+            date_span_master.find('a').attr({ 'meet_date': meet_date });
+            date_span_master.show();
+        }
+
+
+        function editDuration(ele, index) {
+            $(ele).hide();
+            $(ele).siblings('select').prop('disabled', false);
+            $(ele).siblings('input').prop('disabled', false);
+
+        }
+
+        function editStartTime(ele, index) {
+            $(ele).hide();
+            $(ele).siblings('select').prop('disabled', false);
+        }
+
+        function disableSelect(ele, index) {
+            $(ele).prop('disabled', true);
+            $(ele).siblings('a').show();
+        }
+
+        function disableDurationSelect(ele, index) {
+            ele.size = 0;
+            $(ele).prop('disabled', true);
+            $(ele).siblings('.timeTextBox').prop('disabled', true);
+            $(ele).siblings('a').show();
+            $(ele).siblings('.timeTextBox').val($(ele, 'option:selected').val());
+        }
+
+        function hideSelectSize(ele, index) {
+           
+            $('#EndTime_' + index + '').val('');
+
+        }
+
+
+        function showBusy(isshow) {
+            if (isshow) {
+                $('#spinner').show();
+            }
+            else {
+                $('#spinner').hide();
+            }
+        }
+
+        function testTime2(time) {
+
+            var element = time;
+
+            // var matches = time.test(/^(\d\d):(\d\d)\s/);
+            //    var re = /^(\d\d):(\d\d)/;
+            //  var re = /(((0[1-9])|(1[0-2])):([0-5])(0|5))/;
+            var time = $(time).val();
+            var re = /[0-2]?\d[.:][0-5]\d/;
+            //    var re=/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+            // var re = /^(1[0-2]|0?[1-9]):[0-5][0-9]/;
+            // var re = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            // var regex = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            var matches = re.test(time);
+            if (matches == true) {
+
+                $(element).siblings('.editableBox').val('').prop('disabled', true);
+                $(element).prop('disabled', true);
+
+                $(element).siblings('a').show();
+
+                return true;
+
+            } else {
+                customAlert("Invalid Time Format");
+                return false;
+            }
+
+        }
+
+
+        function GetAttendanceDetailsFromDate() {
+            $.ajax({
+
+                url: '/HomeVisitor/GetHomeVisitAttendanceByFromDate',
+                type: 'post',
+                datatype: 'json',
+                data: { date: $('#txtMeetingDate').val(), clientId: $('#familySelect').val() },
+                success: function (data) {
+
+                    bindGrid(LoadDates($('#txtMeetingDate').val(), $('#select_day').val()), data);
+                },
+                error: function (data) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+
+            });
+        }
+
+        $(function () {
+
+            selectFamily.on('change', function () {
+                $('#meeting-form').trigger('reset');
+                $('#table_Meeting_historical').find('#scrollTbody').html('');
+                $('#meetingLblDay').html('');
+                $('#totalDaycountLbl').html(0);
+                $('#table_Meeting_historical').hide();
+                $('#submit-meeting-div').hide();
+
+
+                if ($(this).val() === '0') {
+                    $('#appointment-div').hide();
+                    return false;
+                }
+
+                loadAppointmentInfo(this);
+            });
+
+            btnMeetingSchedule.on('click', function () {
+
+
+
+                loadForm();
+
+            });
+
+            $('#appointment-div').find('#EndTime').on('change', function () {
+
+                $(this).siblings('#TestEndTime').val($(this).val());
+                $(this).val('');
+            });
+
+            $('#txtMeetingDate').datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                validateOnBlur: false,
+                //value: getFormattedDate(new Date()),
+                maxDate: new Date()
+            }).on('change', function () {
+                $('#select_day').val(new Date($(this).val()).getDay());
+            });
+
+
+            $('#btnExit').on('click', function () {
+
+                $('#meeting-form').trigger('reset');
+                $('#scrollTbody').html('');
+                $('#table_Meeting_historical').hide();
+                $('#submit-meeting-div').hide();
+                $('#familySelect').val(0);
+            });
+
+            $('#select_day').on('change', function () {
+             
+                var weekdays = [];
+                if ($(this).val() != '') {
+                    switch ($(this).val()) {
+                        case '1':
+                            weekdays = [0, 2, 3, 4, 5, 6];
+                            break;
+
+                        case '2':
+                            weekdays = [0, 1, 3, 4, 5, 6];
+                            break;
+                        case '3':
+                            weekdays = [0, 1, 2, 4, 5, 6];
+                            break;
+                        case '4':
+                            weekdays = [0, 2, 3, 5, 6];
+                            break;
+                        case '5':
+                            weekdays = [0, 2, 3, 4, 6];
+                            break;
+                        case '6':
+                            weekdays = [0, 2, 3, 4, 5, ];
+                            break;
+
+                        case '0':
+                            weekdays = [2, 3, 4, 5, 6];
+                            break;
+                        default:
+                            weekdays = [];
+                            break;
+
+                    }
+                }
+
+                $('#txtMeetingDate').datetimepicker('destroy');
+
+                $('#txtMeetingDate').datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    validateOnBlur: false,
+                    value: '',
+                    maxDate: new Date(),
+                    disabledWeekDays: weekdays
+                }).on('change', function () {
+                    $('#select_day').val(new Date($(this).val()).getDay());
+                }).val('');
+
+
+
+
+            });
+
+
+            $('#insertMeetingRecord').on('click', function () {
+
+                var error = 0;
+                cleanValidation();
+                $('#scrollTbody').find('tr').each(function () {
+
+                    var duration = $(this).children('.imp-plus').find('.timeTextBox');
+
+                    if (duration.val() == '') {
+                        error++;
+                        plainValidation('#' + duration.attr('id') + '');
+                    }
+                    var selectAttend = $(this).children('.attendancetype_td').find('.attendance_select');
+                    var selectValue = $(selectAttend, 'option:selected').val();
+                    if (selectValue === '0') {
+                        plainValidation('#' + selectAttend.attr('id') + '');
+                        error++;
+                    }
+                    else if (presentArray.indexOf(selectValue) > -1) {
+                        var parentCheckBox = $(this).children('.parent-td').find('input[type=checkbox]');
+                        var parentChecked = $(this).children('.parent-td').find('input[type=checkbox]:checked').length;
+                        var spanId = $(this).children('.parent-td').find('input[type=checkbox]').parent('span').parent('span').attr('id');
+                        if (parentChecked === 0) {
+                            error++;
+
+                            plainValidation('#' + spanId + '');
+
+                        }
+                        else {
+
+                            $('#' + spanId + '').css({ 'background-color': '' });
+                        }
+                    }
+
+                });
+
+                if (error > 0) {
+                    customAlert('Some fields are required');
+                    return false;
+                }
+
+                var schedulerArray = [];
+
+                $('#scrollTbody').children('tr').each(function (i, row) {
+                    var MeetingDate = $(row).children('td').eq(0).find('.datespan_child_' + i + '').text();
+                    var StartTime = $(row).children('td').eq(1).html();
+                    var Duration = $(row).children('td').eq(2).html();
+                    var EndTime = getTimeBasedOnDuration(MeetingDate, StartTime, Duration);
+                    var AttendanceTypeId = $(row).children('td').eq(3).find('#attendanceType_' + i + '').val();
+                    var Day = new Date(MeetingDate).getDay();
+                    var Enc_ClientId = selectFamily.val();
+                    var parentId1 = '';
+                    var parentId2 = '';
+
+                    if (presentArray.indexOf(AttendanceTypeId) > -1) {
+                        var checkLength = $(row).children('td').eq(4).find('#parentSpan_' + i + '').find('input[type=checkbox]:checked').length;
+
+                        $(row).children('td').eq(4).find('#parentSpan_' + i + '').find('input[type=checkbox]:checked').each(function (j, check) {
+
+                            if (j == 0) {
+                                parentId1 = $(check).attr('parent-id');
+                            }
+                            if (j == 1) {
+                                parentId2 = $(check).attr('parent-id');
+
+                            }
+                        });
+                    }
+
+                    schedulerArray.push({
+                        'MeetingId': '0',
+                        'StartTime': StartTime,
+                        'EndTime': EndTime,
+                        'Duration': Duration,
+                        'MeetingDate': MeetingDate,
+                        'Day': Day,
+                        'IsRepeat': true,
+                        'ClientId': '0',
+                        'Enc_ClientId': Enc_ClientId,
+                        'ParentId1': parentId1,
+                        'ParentId2': parentId2,
+                        'AttendanceTypeId': AttendanceTypeId
+                    });
+                });
+
+
+                showBusy(true);
+
+                $.ajax({
+
+                    url: '/HomeVisitor/InsertHistoricalHomeVisit',
+                    datatype: 'json',
+                    type: 'post',
+                    data: { scheuleString: JSON.stringify(schedulerArray), id: $('#btnMeetingSchedule').attr('accesskey'), homeVisitorId: $('#ddlHomeVisitors').val() },
+                    success: function (data) {
+                        if (data) {
+                            showBusy(false);
+                            customAlert('Record saved successfully');
+                        }
+                        else {
+                            customAlert('Error Occured.Please,try again later');
+                            showBusy(false);
+                        }
+
+                    },
+                    error: function (data) {
+                        showBusy(false);
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                })
+
+            });
+
+            $(window).bind("load resize", function () {
+
+                topOffset = 50;
+                width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+                if (width < 768) {
+                    topOffset = 100; // 2-row-menu
+                }
+
+                height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+
+                height = height - topOffset;
+                if (height < 1) height = 1;
+                if (height > topOffset) {
+                    var fileHeight = height - 25;
+
+                    $('.right-side-container-ch').css('min-height', (fileHeight - 5) + 'px');
+                }
+
+            });
+
+        });
+
+
+
+    </script>
+
+}
+
+
+
+

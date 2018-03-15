@@ -1,0 +1,378 @@
+﻿@model FingerprintsModel.ERSEADashBoard
+@{
+    ViewBag.Title = "ERSEADashboard";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    int i = 0;
+}
+@section MainContentHolder{
+    <link href="~/Content/ERSEA/erseamain.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+             .scroll-tbody tr td, .scroll-tbody1 tr td {
+                word-break: break-word;
+            }
+
+              .scroll-tbody1 {
+                display: block;
+            }
+
+                .scroll-tbody1 tr {
+                    display: table;
+                    width: 100%;
+                    table-layout: fixed;
+               
+                }
+    </style>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header-title-ersea">
+                        <h1>Dashboard</h1>
+                    </div>
+                </div>
+
+
+                @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+
+                <div class="col-xs-12 no-padding">
+                    <!---------------------------------------------->
+                    <div class="col-md-12 app_ada_main">
+                        <ul class="nav nav-tabs ride_deta">
+                            <li class="active app_drag"><a data-toggle="tab" href="#application_enrollment">Application/Enrollment by Zip Code</a></li>
+                            <li class="ada"><a data-toggle="tab" href="#ada" id="adaAnchor">ADA by Center</a></li>
+                        </ul>
+                        <div class="tab-content">
+
+                            <div id="application_enrollment" class="tab-pane fade in active">
+
+                                <div class="privacy_lst">
+                                    <div class="notifi_lst">
+                                        <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+
+                                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
+                                                    <thead class="table-hd scroll-thead">
+                                                        <tr>
+                                                            <th style="text-align: center;">Zip Code</th>
+                                                            <th style="text-align: center;">City Name</th>
+                                                            <th style="text-align: center;">Application by Zip Code (@ViewBag.OverAllApplication)</th>
+                                                            <th style="text-align: center;">Enrollment by Zip Code (@ViewBag.OverAllEnroll)</th>
+                                                            <th style="text-align: center;">Withdrawn by Zip Code (@ViewBag.OverAllWithdrawn)</th>
+                                                            <th style="text-align: center;">Dropped by Zip Code (@ViewBag.OverAllDoped)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="ersea-table-head-enroll scroll-tbody">
+                                                        @foreach (FingerprintsModel.ApplicationEnrollment obj in Model.lstApplication)
+                                                        {
+                                                            <tr>
+                                                                <td data-title="Zipcode">
+                                                                    <p style="text-align: center;">@obj.ZipCode</p>
+                                                                </td>
+                                                                <td data-title="City Name">
+                                                                    <p style="text-align: center;">@obj.CityName</p>
+                                                                </td>
+                                                                <td data-title="Application by Zip Code (@ViewBag.OverAllApplication)">
+                                                                    <p style="text-align: center;">@obj.Application</p>
+                                                                </td>
+                                                                <td data-title="Enrollment by Zip Code (@ViewBag.OverAllEnroll)">
+                                                                    <p style="text-align: center;">@obj.Enrollment</p>
+                                                                </td>
+                                                                <td data-title="Withdrawn by Zip Code (@ViewBag.OverAllWithdrawn)">
+                                                                    <p style="text-align: center;">@obj.Withdrawn</p>
+                                                                </td>
+                                                                <td data-title="Dropped by Zip Code (@ViewBag.OverAllDoped)">
+                                                                    <p style="text-align: center;">@obj.Dropped</p>
+                                                                </td>
+
+                                                            </tr>
+                                                        }
+
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div id="ada" class="tab-pane fade">
+
+                                <div class="privacy_lst">
+                                    <div class="notifi_lst">
+
+                                        <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                                                <div class="tab_tlt">Center ADA Report<span>@ViewBag.OverAllPercentage%</span></div>
+                                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
+                                                    <thead class="table-hd scroll-thead" id="ada_head" style="width:100%">
+                                                        <tr>
+                                                            <th>Center Name</th>
+                                                            <th>Jan</th>
+                                                            <th>Feb</th>
+                                                            <th>Mar</th>
+                                                            <th>Apr</th>
+                                                            <th>May</th>
+                                                            <th>Jun</th>
+                                                            <th>Jul</th>
+                                                            <th>Aug</th>
+                                                            <th>Sep</th>
+                                                            <th>Oct</th>
+                                                            <th>Nov</th>
+                                                            <th>Dec</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="ersea-table-head ada_body scroll-tbody" id="ada_body">
+                                                      
+                                                        @foreach (FingerprintsModel.ADA obj in Model.listADA)
+                                                        {
+                                                            <tr id="tr_ada_@i">
+                                                                <td data-title="Center Name">
+                                                                    <p>@obj.CenterName</p>
+                                                                </td>
+                                                                <td data-title="Aug">
+                                                                    <p>@obj.Jan%</p>
+                                                                </td>
+                                                                <td data-title="Sep">
+                                                                    <p>@obj.Feb%</p>
+                                                                </td>
+                                                                <td data-title="Oct">
+                                                                    <p>@obj.Mar%</p>
+                                                                </td>
+                                                                <td data-title="Nov">
+                                                                    <p>@obj.Apr%</p>
+                                                                </td>
+                                                                <td data-title="Dec">
+                                                                    <p>@obj.May%</p>
+                                                                </td>
+                                                                <td data-title="Jan">
+                                                                    <p>@obj.Jun%</p>
+                                                                </td>
+
+                                                                <td data-title="Mar">
+                                                                    <p>@obj.Jul%</p>
+                                                                </td>
+                                                                <td data-title="Apr">
+                                                                    <p>@obj.Aug%</p>
+                                                                </td>
+                                                                <td data-title="May">
+                                                                    <p>@obj.Sep%</p>
+                                                                </td>
+                                                                <td data-title="Jun">
+                                                                    <p>@obj.Oct%</p>
+                                                                </td>
+                                                                <td data-title="Jul">
+                                                                    <p>@obj.Nov%</p>
+                                                                </td>
+                                                                <td data-title="Feb">
+                                                                    <p>@obj.Dec%</p>
+                                                                </td>
+
+                                                            </tr>
+                                                            i++;
+                                                        }
+
+                                                   
+                                                    </tbody>
+                                                </table>
+
+                                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
+
+                                                    <tbody class="ersea-table-head tbody_total scroll-tbody1">
+
+                                                        <tr style="height: 10px;"></tr>
+                                                        <tr>
+                                                            <td data-title="Center Name">
+                                                                <p><strong>TOTAL</strong></p>
+                                                            </td>
+                                                            <td data-title="Aug">
+                                                                <p><strong>@ViewBag.TotalPercentage.Jan%</strong></p>
+                                                            </td>
+                                                            <td data-title="Sep">
+                                                                <p><strong>@ViewBag.TotalPercentage.Feb%</strong></p>
+                                                            </td>
+                                                            <td data-title="Oct">
+                                                                <p><strong>@ViewBag.TotalPercentage.Mar%</strong></p>
+                                                            </td>
+                                                            <td data-title="Nov">
+                                                                <p><strong>@ViewBag.TotalPercentage.Apr%</strong></p>
+                                                            </td>
+                                                            <td data-title="Dec">
+                                                                <p><strong>@ViewBag.TotalPercentage.May%</strong></p>
+                                                            </td>
+                                                            <td data-title="Jan">
+                                                                <p><strong>@ViewBag.TotalPercentage.Jun%</strong></p>
+                                                            </td>
+                                                            <td data-title="Feb">
+                                                                <p><strong>@ViewBag.TotalPercentage.Jul%</strong></p>
+                                                            </td>
+                                                            <td data-title="Mar">
+                                                                <p><strong>@ViewBag.TotalPercentage.Aug%</strong></p>
+                                                            </td>
+                                                            <td data-title="Apr">
+                                                                <p><strong>@ViewBag.TotalPercentage.Sep%</strong></p>
+                                                            </td>
+                                                            <td data-title="May">
+                                                                <p><strong>@ViewBag.TotalPercentage.Oct%</strong></p>
+                                                            </td>
+                                                            <td data-title="Jun">
+                                                                <p><strong>@ViewBag.TotalPercentage.Nov%</strong></p>
+                                                            </td>
+                                                            <td data-title="Jul">
+                                                                <p><strong>@ViewBag.TotalPercentage.Dec%</strong></p>
+                                                            </td>
+
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+
+
+
+
+
+                        </div>
+
+
+
+                    </div>
+                    <!---------------------------------------------->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var linkys = document.getElementsByClassName('dropdown-toggle');
+            for (var i = 0; i < linkys.length; ++i) {
+                linkys[i].onclick = function (e) {
+                    this.focus();
+                    e.preventDefault();
+                };
+            }
+          
+        });
+       
+    </script>
+    <script type="text/javascript">
+        function toggleIcon(e) {
+            $(e.target)
+                    .prev('.panel-heading')
+                    .find(".more-less")
+                    .find(".more-less1")
+                    .toggleClass('glyphicon-plus glyphicon-minus');
+        }
+        $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+        $('.panel-group').on('shown.bs.collapse', toggleIcon);
+        $(document).ready(function () {
+
+                var bodyHeight = 0;
+                $(window).on('load', function () {
+                    $('#ada_body').find('tr').each(function (i, k) {
+                        bodyHeight += $(k).height();
+                    });
+                   
+                    var bindBodyHeight = $('#ada_body').height();
+
+                    if (bodyHeight < bindBodyHeight) {
+                        //$('#ada_body').css({
+                        //    'height': bodyHeight
+
+                        //});
+                        $('#ada_head').css({ "width": "100%" });
+                    }
+                    else {
+                        $('#ada_head').css({ "width": "calc( 100% - 17px )" });
+                    }
+
+                });
+            $(window).bind("load resize", function () {
+
+                topOffset = 50;
+                width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+                if (width < 768) {
+                    topOffset = 100; // 2-row-menu
+                }
+
+                height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+             
+                height = height - topOffset;
+                if (height < 1) height = 1;
+                if (height > topOffset) {
+                    var fileHeight = height - 25;
+                    console.log(fileHeight + 'client');
+                    $('.right-side-container-ch').css('min-height', (fileHeight - 5) + 'px');
+                    $('.scroll-tbody').height(fileHeight - 317);
+                }
+
+                //reSizeContent();
+            });
+
+           
+           
+        });
+       
+        function reSizeContent()
+        {
+           
+            $('.scroll-tbody').height($('.right-side-container-ch').height()- 317);
+        }
+    </script>
+
+
+}

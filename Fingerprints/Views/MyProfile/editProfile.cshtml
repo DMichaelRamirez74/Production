@@ -1,0 +1,934 @@
+﻿@model FingerprintsModel.MyProfile
+@{
+    @section Title
+{
+        Staff Profile
+    }
+    ViewBag.Title = "My Profile";
+
+    if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+}
+@Scripts.Render("~/bundles/jquery")
+
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
+@section Script{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+
+
+            if ('@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            if ('@Session["Roleid"]' != "2d9822cd-85a3-4269-9609-9aabb914d792" && '@Session["Roleid"]' != "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+
+                $('#TBDate').attr("disabled", "disabled");
+                $('#CDDate').attr("disabled", "disabled");
+                $('#MSDate').attr("disabled", "disabled");
+                $('#FBDate').attr("disabled", "disabled");
+                $('#BCIDate').attr("disabled", "disabled");
+                $('#NCDate').attr("disabled", "disabled");
+                $('#MSIfile').attr("disabled", "disabled");
+                $('#FBfile').attr("disabled", "disabled");
+                $('#BCIfile').attr("disabled", "disabled");
+                $('#NCfile').attr("disabled", "disabled");
+                $('#TBResults').attr("disabled", "disabled");
+                $('#CDResults').attr("disabled", "disabled");
+                $('#EMP0').attr("disabled", "disabled");
+
+            }
+            $('#DegreeDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#TBDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#CDDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#MSDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#FBDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#BCIDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#NCDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('#Degree').val("");
+            if ('@Model.Institution' == "")
+                $('#Institution').val("");
+            if ('@Model.Major' == "")
+                $('#Major').val("");
+
+            if ('@Model.TBResults' == "")
+                $('#TBResults').val("");
+            if ('@Model.CDResults' == "")
+                $('#CDResults').val("");
+
+
+            if ('@Model.Institution' != "") $('#EDUSummary').show();
+            if ('@Model.Institution2' != "") $('#EDU2').show();
+            if ('@Model.Institution3' != "") $('#EDU3').show();
+            if ('@Model.CDDate' == '01/01/1900') $('#CDDate').val("");
+            if ('@Model.TBDate' == '01/01/1900') $('#TBDate').val("");
+            if ('@Model.MSDate' == '01/01/1900') $('#MSDate').val("");
+            if ('@Model.FBDate' == '01-01-1900') $('#FBDate').val("");
+            if ('@Model.BCIDate' == '01-01-1900') $('#BCIDate').val("");
+            if ('@Model.NCDate' == '01-01-1900') $('#NCDate').val("");
+            if ('@Model.DegreeDate' == '01/01/1900') $('#DegreeDate').val("");
+            if ('@Model.DegreeDate2' == '01/01/1900') $('#DegreeDate2').val("");
+            if ('@Model.DegreeDate3' == '01/01/1900') $('#DegreeDate3').val("");
+
+
+        });
+
+
+    </script>
+
+    <script>
+        function removeclasss() {
+            $('#addEducation').removeClass("active");
+            $('#addEducation').removeClass("in");
+            $('#addHealth').removeClass("active");
+            $('#addHealth').removeClass("in");
+            $('#addEmployment').removeClass("active");
+            $('#addEmployment').removeClass("in");
+
+            if ('' != '') {
+                if ('' == '2') {
+
+                    removeclasss();
+                    $('#addEducation').addClass("in");
+                    $('#addEducation').addClass("active");
+                    $('#addHealth').removeClass("active");
+                    $('#addHealth').removeClass("in");
+                    $('#addEmployment').removeClass("in");
+                    $('#addEmployment').removeClass("active");
+
+                    $('#myTab li:eq(1) a').tab('show');
+
+                }
+                if ('' == '3') {
+
+                    $('#addEducation').removeClass("in");
+                    $('#addEducation').removeClass("active");
+                    $('#addHealth').addClass("active");
+                    $('#addHealth').addClass("in");
+                    $('#addEmployment').removeClass("in");
+                    $('#addEmployment').removeClass("active");
+
+                    $('#myTab li:eq(2) a').tab('show');
+                }
+                if ('' == '4') {
+
+                    $('#addEducation').removeClass("in");
+                    $('#addEducation').removeClass("active");
+                    $('#addHealth').removeClass("active");
+                    $('#addHealth').removeClass("in");
+                    $('#addEmployment').addClass("in");
+                    $('#addEmployment').addClass("active");
+
+                    $('#myTab li:eq(3) a').tab('show');
+                }
+
+            }
+            else {
+
+                $('#myTab a:first').tab('show');
+
+            }
+        }
+        function isValideduInfo(deleteID,object) {
+            cleanValidation();
+            if (deleteID == 0) {
+
+                $('#profileindex').val("1");
+                isValid = true;
+                if ($('#Institution')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Institution is required. ");
+                    plainValidation('#Institution');
+                    return isValid;
+                }
+
+
+                if ($('#Major')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Major is required. ");
+                    plainValidation('#Major');
+                    return isValid;
+                }
+                if ($("#Degree").val() == "" || $("#Degree").val() == null) {
+                    isValid = false;
+                    customAlert("Degree is required. ");
+                    plainValidation('#Degree');
+                    return isValid;
+                }
+
+
+                if ($('#DegreeDate').val() != "") {
+                    var today = new Date();
+                    if (Date.parse($("#DegreeDate").val()) > today) {
+                        isValid = false;
+                        customAlert("Degree Date can't be greater than current date. ");
+                        plainValidation('#DegreeDate');
+
+                        return isValid;
+                    }
+                } else {
+                    $('#DegreeDate').val(" ");
+                }
+            }
+            else {
+                $('#eduindex').val(deleteID.val);
+                isValid = true;
+                return isValid;
+            }
+        }
+
+
+
+        function isValideduInfoA(deleteID,object) {
+            cleanValidation();
+            if (deleteID == 0) {
+
+                $('#profileindex').val("1");
+                isValid = true;
+                if ($('#Institution')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Institution is required. ");
+                    plainValidation('#Institution');
+                    return isValid;
+                }
+
+
+                if ($('#Major')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Major is required. ");
+                    plainValidation('#Major');
+                    return isValid;
+                }
+                if ($("#Degree").val() == "" || $("#Degree").val() == null) {
+                    isValid = false;
+                    customAlert("Degree is required. ");
+                    plainValidation('#Degree');
+                    return isValid;
+                }
+
+
+                if ($('#DegreeDate').val() != "") {
+                    var today = new Date();
+                    if (Date.parse($("#DegreeDate").val()) > today) {
+                        isValid = false;
+                        customAlert("Degree Date can't be greater than current date. ");
+                        plainValidation('#DegreeDate');
+
+                        return isValid;
+                    }
+                } else {
+                    $('#DegreeDate').val(" ");
+                }
+            }
+            else {
+                if ( $(object).closest('tr').find('td:eq(1)').text() == "No Image")
+                {
+                    isValid = false;
+                    customAlert("No file available to delete.");
+                    return isValid;
+                }
+
+                $('#eduindex').val(deleteID.val);
+                isValid = true;
+                return isValid;
+            }
+        }
+
+
+
+        function isValidempInfo() {
+            cleanValidation();
+            $('#profileindex').val("3");
+            isValid = true;
+
+
+            if ($("#MSDate").val() == 0) {
+                $('#MSDate').val("");
+
+            }
+            if ($('#MSDate')[0].value.trim() != "") {
+                var today = new Date();
+                if (Date.parse($("#MSDate").val()) > today) {
+                    isValid = false;
+                    customAlert("Medical Statement Date can't be greater than current date. ");
+                    plainValidation('#MSDate');
+
+                    return isValid;
+                }
+            }
+
+            if ($("#FBDate").val() == "") {
+                $('#FBDate').val(" ");
+            }
+            if ($('#FBDate')[0].value.trim() != "") {
+                var today = new Date();
+                if (Date.parse($("#FBDate").val()) > today) {
+                    isValid = false;
+                    customAlert("Federal Background Check Date can't be greater than current date. ");
+                    plainValidation('#FBDate');
+
+                    return isValid;
+                }
+            }
+            if ($("#BCIDate").val() == "") {
+                $('#BCIDate').val(" ");
+            }
+            if ($('#BCIDate')[0].value.trim() != "") {
+                var today = new Date();
+                if (Date.parse($("#BCIDate").val()) > today) {
+                    isValid = false;
+                    customAlert("BCI Check Date can't be greater than current date. ");
+                    plainValidation('#BCIDate');
+
+                    return isValid;
+                }
+            }
+            if ($("#NCDate").val() == "") {
+                $('#NCDate').val(" ");
+            }
+            if ($('#NCDate')[0].value.trim() != "") {
+                var today = new Date();
+                if (Date.parse($("#NCDate").val()) > today) {
+                    isValid = false;
+                    customAlert("Non Conviction Statement Date can't be greater than current date. ");
+                    plainValidation('#NCDate');
+
+                    return isValid;
+                }
+            }
+        }
+
+        function isValidhealthInfo() {
+            cleanValidation();
+            $('#profileindex').val("2");
+            isValid = true;
+
+
+            if ($('#TBDate')[0].value.trim() != "") {
+                var today = new Date();
+                if ($('#TBResults').val() == 0) {
+                    isValid = false;
+                    customAlert("TB Result is required when a TB Date is entered. ")
+                    return isValid;
+                }
+                if (Date.parse($("#TBDate").val()) > today) {
+                    isValid = false;
+                    customAlert("TB Date can't be greater than current date. ");
+                    plainValidation('#TBDate');
+
+                    return isValid;
+                }
+            }
+
+            if ($('#CDDate')[0].value.trim() != "") {
+                var today = new Date();
+                if ($('#CDResults').val() == 0) {
+                    isValid = false;
+                    customAlert("Communical Disease Result is required when a Communical Disease Date is entered. ")
+                    return isValid;
+                }
+                if (Date.parse($("#CDDate").val()) > today) {
+                    isValid = false;
+                    customAlert("Communical Disease Date can't be greater than current date. ");
+                    plainValidation('#CDDate');
+
+                    return isValid;
+                }
+            }
+        }
+
+        function Private_Checked() {
+            $("#Enrolled").click(function () {
+                $('#DegreeDate').attr("disabled", $(this).is(':checked'));
+            });
+        }
+
+        function validatedate(inputTextObject) {
+
+
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" || $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+                    var dob = new Date();
+                    if (Date.parse($(inputTextObject).val()) >= dob) {
+                        customAlert("Invalid Date.");
+                        $(inputTextObject).val('');
+                        return false;
+                    }
+                    else {
+                        var age = null;
+                        var now = null;
+                        var past = null;
+                        var nowYear = null;
+                        var pastYear = null;
+                        now = new Date();
+                        past = new Date($(inputTextObject).val());
+                        nowYear = now.getFullYear();
+                        pastYear = past.getFullYear();
+                        age = nowYear - pastYear;
+
+
+                    }
+                    return true;
+                }
+
+            }
+            else {
+                customAlert("Invalid dates. ");
+                $(inputTextObject).val('');
+                return false;
+            }
+
+        }
+
+
+
+        function validatedate1(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+                    var dob = new Date();
+                    var childdob = Date.parse($('#CDOB').val());
+                    //var childdob = $('#CDOB').val();
+                    if (Date.parse($(inputTextObject).val()) >= dob || Date.parse($(inputTextObject).val()) < childdob) {
+                        customAlert("Date can not be earlier than the date of birth or greater than today date. ");
+                        $(inputTextObject).val('');
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+
+                }
+                else {
+                    customAlert("date. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+
+            }
+
+        }
+
+
+    </script>
+
+}
+@section MainContentHolder{
+
+
+
+    <form method="post" role="form" enctype="multipart/form-data">
+        <script>
+
+            $(document).ready(function () {
+                if (location.hash) {
+                    $('a[href=' + location.hash + ']').tab('show');
+                }
+                $(document.body).on("click", "a[data-toggle]", function (event) {
+                    location.hash = this.getAttribute("href");
+                });
+            });
+            $(window).on('popstate', function () {
+                var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+                $('a[href=' + anchor + ']').tab('show');
+            });
+        </script>
+
+        <input type="hidden" id="profileindex" name="profileindex" />
+        <input type="hidden" id="eduindex" name="eduindex" />
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">
+                    Edit Profile
+                </h2>
+
+            </div>
+
+        </div>
+        <div class="row" id="ScreeningDiv" style="margin-top:4%;">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="panel with-nav-tabs panel-primary" id="MyProfileTab">
+                    <div class="panel-heading panelul">
+
+                        <input id="hidtab" name="hidtab" type="hidden" value="#" />
+                        <ul id="myTab" class="nav nav-tabs">
+                            <li class="active"><a href="#addEducation" data-toggle="tab">Education</a></li>
+                            <li><a href="#addHealth" data-toggle="tab">Health</a></li>
+                            <li><a href="#addEmployment" data-toggle="tab">Employment Requirements</a></li>
+                        </ul>
+                    </div>
+                    <div id="myTabContent" class="tab-content">
+
+                        <div class="tab-pane fade in active" id="addEducation">
+                            <div class="add-useragform">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Institution <sup>*</sup></label>
+                                                <div class="date custom-time">
+                                                    <input data-val="true" class="form-control" id="Institution" maxlength="100" name="Institution" type="text" value="" />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Major <sup>*</sup></label>
+                                                <div class="date custom-time">
+                                                    <input data-val="true" class="form-control" id="Major" maxlength="100" name="Major" type="text" value="" />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Degree/Credential <sup>*</sup></label>
+
+                                                <select name="Degree" class="form-control" id="Degree">
+
+                                                    <option value="1">Associate Degree</option>
+                                                    <option value="2">Baccalaureate Degree</option>
+                                                    <option value="3">Advanced Degree</option>
+                                                    <option value="4">CDA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Degree Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="DegreeDate" maxlength="50" name="DegreeDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <div>
+                                                    <label>Currently Enrolled </label>
+                                                </div>
+                                                <div class="cont-sz program_type" id="customChecklist">
+                                                    <div>
+                                                        <div class="centerinhorizontal1">
+                                                            <input name="Enrolled" id="Enrolled" onchange="Private_Checked();" type="checkbox" value="1">
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Degree Type </label>
+                                                <div class="cont-sz">
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        <input name="Type" id="DegreeTypeNA" type="radio" value="1" checked="checked">
+                                                        <span>N/A </span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        <input name="Type" id="DegreeTypeECE" type="radio" value="2">
+                                                        <span>ECE</span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-5">
+                                                        <input name="Type" id="DegreeTypeECEE" type="radio" value="3">
+                                                        <span>ECE Equiv. </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Highest Degree <sup>*</sup></label>
+
+                                                <div id="divO1" style="text-align: center;">
+                                                    <label>@Model.HighestDegree</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="btnwrp_subcal">
+                                            <button type="submit" name="btnsubmit" id="btnsubmit" value="edu" class="my-btn" onclick="return isValideduInfo(0,this);" tabindex="1">Save</button>
+
+                                            <div class="clear"></div>
+                                        </div>	<!--btnwrp_subcal--->
+
+
+                                    </div>
+                                </div>
+                                <div class="row">
+
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive" id="EDUSummary" hidden>
+                                                <table class="table table_size" id="gridViewOther">
+                                                    <thead style="cursor: pointer;">
+                                                        <tr style="text-align: center;">
+                                                            <th>Institution </th>
+                                                            <th>Degree/Credential</th>
+                                                            <th>Major</th>
+                                                            <th>Date</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody>
+
+                                                        <tr style="text-align: center;">
+                                                            <td>@Model.Institution </td>
+                                                            <td>@Model.Degree</td>
+                                                            <td>@Model.Major</td>
+                                                            <td>@Model.DegreeDate</td>
+                                                            <td>@Html.ActionLink("Delete", "editEDU", "MyProfile", new { edu = 1, Userid =Model.UserID}, new { onclick = "return isValideduInfo(1,this);" })</td>
+                                                        </tr>
+                                                        <tr style="text-align: center;" id="EDU2" hidden>
+                                                            <td>@Model.Institution2 </td>
+                                                            <td>@Model.Degree2</td>
+                                                            <td>@Model.Major2</td>
+                                                            <td>@Model.DegreeDate2</td>
+                                                            <td>@Html.ActionLink("Delete", "editEDU", "MyProfile", new { edu = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfo(2,this);" })</td>
+
+
+
+                                                        </tr>
+                                                        <tr style="text-align: center;" id="EDU3" hidden>
+                                                            <td>@Model.Institution3 </td>
+                                                            <td>@Model.Degree3</td>
+                                                            <td>@Model.Major3</td>
+                                                            <td>@Model.DegreeDate3</td>
+                                                            <td>@Html.ActionLink("Delete", "editEDU", "MyProfile", new { edu = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfo(3,this);" })</td>
+
+                                                    </tbody>
+                                                </table>
+
+                                                <div id="divO1" style="text-align: center; margin-left: 36%;">
+                                                    <label>You can add up to three degrees.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <!--HEALTH-->
+                        <div class="tab-pane fade" id="addHealth">
+                            <div class="add-useragform">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Tuberculosis Test Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="TBDate" maxlength="50" name="TBDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.TBDate" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Tuberculosis Test Results </label>
+
+                                                <select name="TBResults" class="form-control" id="TBResults">
+
+                                                    <option value="1" @if (@Model.TBResults == "1") { <text> selected="selected" </text>           }>Pass</option>
+                                                    <option value="2" @if (@Model.TBResults == "2") { <text> selected="selected" </text>           }>Fail</option>
+
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Communicable Disease Test Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="CDDate" maxlength="50" name="CDDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.CDDate" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Communicable Disease Test Results </label>
+
+                                                <select name="CDResults" class="form-control" id="CDResults">
+
+                                                    <option value="1" @if (@Model.CDResults == "1") { <text> selected="selected" </text>           }>Pass</option>
+                                                    <option value="2" @if (@Model.CDResults == "2") { <text> selected="selected" </text>           }>Fail</option>
+
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                <div class="btnwrp_subcal">
+
+                                                    <div class="clear"></div>
+                                                    @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
+                                                            {
+                                                        <button type="submit" name="btnsubmit" value="health" id="btnsubmit" class="my-btn" onclick="return isValidhealthInfo();" tabindex="2">Save</button>
+}
+                                                    <div class="clear"></div>
+
+                                                </div>	<!--btnwrp_subcal--->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="addEmployment">
+                            <div class="add-useragform">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Medical Statement Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="MSDate" maxlength="50" name="MSDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.MSDate" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Federal Background Check Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="FBDate" maxlength="50" name="FBDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.FBDate" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>BCI Check Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="BCIDate" maxlength="50" name="BCIDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.BCIDate" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Non Conviction Statement Date </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" id="NCDate" maxlength="50" name="NCDate" onblur="return validatedate(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.NCDate" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+
+                                                <div class="date custom-time">
+
+                                                    <label for="file">Upload Medical Statement Image:</label>
+                                                    <input type="file" name="MSIfile" id="MSIfile" /><br><br>
+
+                                                    <br><br>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+
+                                                <div class="date custom-time">
+
+                                                    <label for="file">Upload Federal Background Image:</label>
+                                                    <input type="file" name="FBfile" id="FBfile" /><br><br>
+
+                                                    <br><br>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+
+                                                <div class="date custom-time">
+                                                    <label for="file">Upload BCI Check Image:</label>
+                                                    <input type="file" name="BCIfile" id="BCIfile" /><br><br>
+
+                                                    <br><br>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+
+                                                <div class="date custom-time">
+
+                                                    <label for="file">Upload Non Conviction Statement Image:</label>
+                                                    <input type="file" name="NCfile" id="NCfile" /><br><br>
+
+                                                    <br><br>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                                <div class="table-responsive" id="EMPSummary">
+                                                    <table class="table table_size" id="gridViewOther">
+                                                        <thead style="cursor: pointer;">
+                                                            <tr style="text-align: center;">
+                                                                <th>File Type </th>
+                                                                <th>File Name</th>
+                                                                <th>Action</th>
+
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+
+                                                            <tr style="text-align: center;" id="EMP0">
+                                                                <td>Medical Statement </td>
+                                                                <td>@Model.MSIFileUploaded</td>
+                                                                @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
+                                                            {
+                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 1, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(1,this);" })</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                    <td> Action is not available</td>
+                                                            }
+                                                            </tr>
+                                                            <tr style="text-align: center;" id="EMP1">
+                                                                <td>Federal Background </td>
+                                                                <td>@Model.FBFileUploaded</td>
+                                                                @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
+                                                            {
+                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 2, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(2,this);" })</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                    <td> Action is not available</td>
+                                                            }
+
+                                                            </tr>
+                                                            <tr style="text-align: center;" id="EMP2">
+                                                                <td>BCI Check </td>
+                                                                <td>@Model.BCIFileUploaded</td>
+                                                                @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
+                                                            {
+                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 3, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(3,this);" })</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                    <td> Action is not available</td>
+                                                            }
+                                                            </tr>
+                                                            <tr style="text-align: center;" id="EMP3">
+                                                                <td>Non Conviction Statement </td>
+                                                                <td>@Model.NCFileUploaded</td>
+                                                                @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
+                                                            {
+                                                                    <td>@Html.ActionLink("Delete", "editEMP", "MyProfile", new { emp = 4, Userid = Model.UserID }, new { onclick = "return isValideduInfoA(4,this);" })</td>
+                                                            }
+                                                            else
+                                                            {
+                                                                    <td> Action is not available</td>
+                                                            }
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <input type="hidden" name="MSIFileUploaded" value="@Model.MSIFileUploaded" />
+                                                    <input type="hidden" name="FBFileUploaded" value="@Model.FBFileUploaded" />
+                                                    <input type="hidden" name="BCIFileUploaded" value="@Model.BCIFileUploaded" />
+                                                    <input type="hidden" name="NCFileUploaded" value="@Model.NCFileUploaded" />
+                                                    <div id="divO1" style="text-align: center; margin-left: 36%;">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="btnwrp_subcal">
+                                            @if (@Session["Roleid"].ToString().ToUpper() == "2D9822CD-85A3-4269-9609-9AABB914D792" || @Session["Roleid"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5")
+                                                            {
+                                                <button type="submit"  name="btnsubmit" value="emp" id="btnsubmit" class="my-btn" onclick="return isValidempInfo();" tabindex="3">Save</button>
+
+                                            }
+                                            </div>	<!--btnwrp_subcal--->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </form>
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

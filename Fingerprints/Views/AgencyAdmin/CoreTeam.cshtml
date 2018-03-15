@@ -1,0 +1,217 @@
+﻿@{
+    @section Title
+{
+        Developmental Team
+    }
+    ViewBag.Title = "CoreTeam";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '') {
+                customAlert('@ViewBag.message');
+            }
+
+            $('#Testbtn').click(function () {
+                var id = $('#btn_UserColor').val();
+
+            });
+
+            $('input[type=color]').on('input', function () {
+
+                var currentvalue = $(this).val();
+                var currentName = $(this).attr('name');
+                var originalValue = $(this).attr('originalvalue');
+                var orig = currentvalue;
+                $('input[type=checkbox]:checked').next('input[type=color]').each(function () {
+                    var checkname = $(this).attr('name');
+                    if (currentName != checkname) {
+                        var checkcolor = $(this).val();
+                        var checkName = $(this).attr('name');
+                        if (currentvalue == checkcolor) {
+                            $("input[name='" + currentName + "']").val(originalValue);
+                            $("input[name='" + checkName + "']").focus();
+                            customAlert("Color already exists");
+                            return false;
+                        }
+                    }
+                });
+
+            });
+
+
+            $('input[type=checkbox]').on('click', function () {
+                var a = $(this).val();
+                var currentName = $(this).attr('name');
+                if ($(this).prop('checked') == true) {
+                    $(this).next('#btn_change').removeClass('hidden');
+                    var a1 = $(this).next('#btn_change').val();
+                    if (a1 == '#000000') {
+                        customAlert("Please Select a Color");
+                    }
+
+                }
+                else {
+                    $(this).next('#btn_change').addClass('hidden');
+
+                }
+
+
+            });
+
+
+            $('input[type=checkbox]:checked').on('click', function () {
+                var a = $(this).val();
+                var currentName = $(this).attr('name');
+                if ($(this).prop('checked') == false) {
+                    $(this).next('#btn_UserColor').addClass('hidden');
+                }
+                else {
+                    $(this).next('#btn_UserColor').removeClass('hidden');
+
+                }
+
+
+
+            });
+
+
+            function newBackgroundColor(color) {
+                document.bgColor = color;
+                var a = $("input[type=color]").val();
+                a.value = color;
+            }
+
+            var values = {};
+            $('td input').each(function () {
+                values[$(this).attr('name')] = $(this).val();
+
+            });
+
+        });
+
+        function checkform() {
+            var setbool = true;
+            $('input[type=checkbox]:checked').each(function () {
+                var b1 = $(this).next('input[type=color]').val();
+                if (b1 == '#000000') {
+                    isValid = false;
+                    customAlert("Please Select Another Color");
+                    return setbool;
+
+                }
+                return setbool;
+
+            });
+
+        }
+
+        function Checkiscoreteam() {
+            var isValid = true;
+            $('input[type=checkbox]:checked').each(function () {
+                var b1 = $(this).next('input[type=color]').val();
+                if (b1 == '#000000') {
+                    isValid = false;
+                    customAlert("Please Select Another Color");
+                    $(this).find("td").css("border-color", "red");
+                    return isValid;
+
+                }
+                else {
+                    return isValid;
+
+                }
+
+            });
+
+            var count = 0;
+            $('#Coreteam input:checked').each(function () {
+                if ($(this).prop("checked")) {
+                    count = 1;
+                }
+            });
+
+            if (count == 0) {
+                isValid = false;
+                customAlert("Is Core Team Member is required.");
+                $('#Coreteam').focus();
+                return isValid;
+            }
+            return isValid;
+        }
+
+
+
+
+        // $('#filltable > thead > tr > td > input[type=color]').val();
+        //$("input[type=color]").val();
+
+    </script>
+
+}
+@section MainContentHolder{
+    <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">
+                    <span>Developmental Role</span>
+                    <span class="view-btn backto_listspan" id="BackToList">
+                        <button type="submit" class="my-btn1" onclick="return Checkiscoreteam();" name="Command">Submit</button>
+                        @*<input type="button" id="Testbtn" class="my-btn1"  value="Submit"/>*@
+                    </span>
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <d iv class="table-responsive coreteam" id="Coreteam">
+                    <table class="table table_size" id="filltable">
+                        <thead style="cursor:pointer;">
+                            <tr>
+                                <th>Staff Role</th>
+                                <th style="width:32%;">Is Development Team Member?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.CoreTeamList != null)
+                            {
+                                int i = 0;
+                                foreach (var item in ViewBag.CoreTeamList)
+                                {
+                                    <tr>
+                                        <td><input type="hidden" name="CoreTeams[@i].RoleId" value="@item.RoleId" />@item.RoleName</td>
+                                        <td style="text-align:center;">
+                                            <input type="checkbox" @*style="margin-left:70px"*@
+                                                   @if (@item.IsCoreTean) { <text> checked="checked" </text>      }
+                                                   name="CoreTeams[@i].IsCoreTean" value="true" />
+                                            @if (@item.IsCoreTean)
+                                            {
+                                                <input type="color" value="@item.UserColor" originalvalue="@item.UserColor" id="btn_UserColor" name="CoreTeams[@i].UserColor" />
+                                            }
+                                            else
+                                            {
+                                                <input type="color" value="@item.UserColor" originalvalue="@item.UserColor" name="CoreTeams[@i].UserColor" setattribute="CoreTeams[@i].UserColor" class="hidden" id="btn_change" />
+                                            }
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+
+    </form>
+}

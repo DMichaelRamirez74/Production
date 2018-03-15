@@ -1,0 +1,277 @@
+﻿@model FingerprintsModel.ObservationNotes
+@{
+    @section Title{
+        ObservationNote
+    }
+    ViewBag.Title = "ObservationNote";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Script{
+
+}
+
+@section MainContentHolder{
+    <link href="~/Content/csschild/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/csschild/style.css" rel="stylesheet" />
+    <link href="~/Content/csschild/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    @*<div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+
+            </div>
+
+            <table class="table table-responsive table-striped" style="margin-top: 57px;">
+                <tr><td>Date</td><td><input type="text" id="txtDate" class="form-control txt-empty txt-date" /></td></tr>
+                <tr><td>Title</td><td><input type="text" id="txtTitle" class="form-control txt-empty" /></td></tr>
+                <tr><td>Note</td><td><input type="text" id="txtNote" class="form-control txt-empty" /></td></tr>
+                <tr>
+                    <td>Singel Child</td>
+                    <td>
+                        <div class="client-details">
+                            @foreach (var item in Model.dictClientDetails)
+                            {
+                                <input type="checkbox" id="chkChilName" class="client-id" value="@item.Key" /> @item.Value
+                            }
+                        </div>
+                    </td>
+                </tr>
+                <tr><td>Attachmenmts</td><td><div class="attachments-conatiner"><input type="file" name="fileupload" class="fileAttachments"/></div><input type="button" value="ADD More" class="AddAttachments" /></td></tr>
+                <tr>
+                    <td>Domain</td>
+                    <td>
+                        @Html.DropDownList("ddlCenters", Fingerprints.Utilities.Helper.GetDomainDetails(), new { @class = "form-control ddl-empty ddl-domain mandatory ddl-mandatory" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>Element</td>
+                    <td>
+                        <select id="ddlElement" class="form-control ddl-empty"></select>
+                    </td>
+                </tr>
+                <tr style="text-align: center;">
+                    <td colspan="2"><input type="button" value="Submit" class="btn btn-primary btn-submit" /><input type="button" value="Clear" class="btn btn-primary btn-Clear" /></td>
+                </tr>
+            </table>
+        </div>*@
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row" style="background: url('../../Content/imagechild/body-bg.jpg') center no-repeat;">
+            <div class="col-xs-12 no-padding">
+                <div class="observation-title-client">
+                    <h1>OBSERVATION NOTE</h1>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="observation_info" id="sub_inner_parent_info">
+                    <div class="observation_lst">
+                        <h2><img src="~/Content/imagechild/arw_icon.png">@ViewBag.HeaderName</h2>
+                        <form role="form">
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label>Date</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="observation-inner">
+                                        <input type="text" id="txtDate" class="form-control txt-empty txt-date" value="@Model.Date" placeholder="MM/DD/YYYY">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label>Title</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="observation-inner">
+                                        <input type="text" id="txtTitle" class="form-control txt-empty" value="@Model.Title">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label>Note</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="observation-inner">
+                                        <input type="text" id="txtNote" class="form-control txt-empty" value="@Model.Note">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label class="lbl-child-details">@ViewBag.Child</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="checkbox forget_answer client-details">
+                                        @foreach (var item in Model.dictClientDetails)
+                                        {
+                                            if (ViewBag.Child == "Single Child")
+                                            {
+                                                <input id="test_@item.Key" checked="checked" type="checkbox" class="client-id" value="@item.Key">
+                                            }
+                                            else
+                                            {
+                                                <input id="test_@item.Key" type="checkbox" class="client-id" value="@item.Key">
+                                            }
+                                            <label for="test_@item.Key">@item.Value</label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label>Attachments</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="observation-attach-btn">
+                                        <a href="javascript:void(0);" class="AddAttachments"><span><img src="~/Content/imagechild/plus-ic.png"></span>Add More</a>
+
+                                        <div class="attachments-conatiner">
+                                            <div style="position:relative" class="input_file_container">
+                                                <span class="remove_icon"><img src="~/Content/imagechild/rem_icon.png"></span>
+                                                <input type="file" name="fileupload" class="fileAttachments" />
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            @if (Model.AttachmentPath != null)
+                            {
+                                <div class="col-xs-12 obser-form-div no-padding div-attachment">
+                                    <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                        <div class="observation-inner-label">
+                                            <label>Download Attchment</label>
+                                            <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                        <div class="observation-inner" style="position: relative;">
+                                            @if (Model.AttachmentPath.Length > 0)
+                                            {
+                                                foreach (var path in Model.AttachmentPath)
+                                                {
+                                                  
+                                                    <a target="_blank" title="@path.ToString().Split('/')[3]" href="/Teacher/DownloadDocuments/?FilePath=@path"><i class="fa fa-download download-ic"></i></a>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label>Domain</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="observation-inner" style="position: relative;">
+                                        <span class="text-field-style"><img src="~/Content/imagechild/arrow-select.png"></span>
+                                        @*<select class="form-control">
+                                                <option></option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                            </select>*@
+                                        @Html.DropDownList("ddlCenters", Fingerprints.Utilities.Helper.GetDomainDetails(), new { @class = "form-control ddl-empty ddl-domain mandatory ddl-mandatory" })
+                                        <input type="hidden" class="hdn-domain" value="@Model.DomainId" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 obser-form-div no-padding">
+                                <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12">
+                                    <div class="observation-inner-label">
+                                        <label>Element</label>
+                                        <span style="position: absolute;right: 0;top: 10px;">:</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                    <div class="observation-inner" style="position: relative;">
+                                        <span class="text-field-style"><img src="~/Content/imagechild/arrow-select.png"></span>
+                                        <select class="form-control ddl-empty" id="ddlElement"></select>
+                                        <input type="hidden" class="hdn-element" value="@Model.ElementId" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="observation-btn">
+                                    <input type="hidden" class="hdn-noteid" value="@Model.NoteId" />
+                                    <a href="javascript:void(0);" class="btn-submit">SUBMIT</a>
+                                    <a href="javascript:void(0);" class="btn-Clear">CLEAR</a>
+                                    @*<input type="button" value="Submit" class="btn btn-primary btn-submit" /><input type="button" value="Clear" class="btn btn-primary btn-Clear" />*@
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script src="~/Content/scriptchild/jquery.js"></script>
+    <script src="~/Content/scriptchild/bootstrap.js"></script>
+    <script src="~/Content/scriptchild/script.js"></script>
+    <script src="~/Content/scriptchild/jquery.mCustomScrollbar.min.js"></script>
+    @*<script src="~/Content/Scripts/jquery.min.js"></script>*@
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script src="~/Content/Scripts/ObservationNotes.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var linkys = document.getElementsByClassName('dropdown-toggle');
+            for (var i = 0; i < linkys.length; ++i) {
+                linkys[i].onclick = function (e) {
+                    this.focus();
+                    e.preventDefault();
+                };
+            }
+            $('body').on('click', '.dropdown', function () {
+                setTimeout(function ()
+                { $('.dropdown').addClass('open'); }, 100);
+
+            });
+        });
+    </script>
+    <style>
+        /*input[type=text], select {
+            width: 30% !important;
+        }*/
+        input[type=file] {
+            display: block;
+            background: #2b4c73;
+            width: 100%;
+            color: #fff;
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 8px;
+        }
+    </style>
+
+}

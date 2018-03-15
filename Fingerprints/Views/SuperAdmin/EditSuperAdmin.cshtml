@@ -1,0 +1,118 @@
+﻿@model FingerprintsModel.SupperAdmin
+
+@{
+    ViewBag.Title = "EditSuperAdmin";
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            $("#userName").on('change keypress paste', function (e) {
+                if (e.which === 32)
+                    return false;
+                if ($(this).val().match(/\s/g)) {
+                    $(this).val($(this).val().replace(/\s/g, ''));
+                }
+            });
+            $("#firstname").on('change keypress paste', function (e) {
+                if (!((e.which >= 65 && e.which <= 90) || (e.which >= 97 && e.which <= 122)))
+                    return false;
+                if (e.which === 32)
+                    return false;
+                if ($(this).val().match(/\s/g)) {
+                    $(this).val($(this).val().replace(/\s/g, ''));
+                }
+            });
+            $("#lastname").on('change keypress paste', function (e) {
+                if (!((e.which >= 65 && e.which <= 90) || (e.which >= 97 && e.which <= 122)))
+                    return false;
+                if (e.which === 32)
+                    return false;
+                if ($(this).val().match(/\s/g)) {
+                    $(this).val($(this).val().replace(/\s/g, ''));
+                }
+            });
+            $('#btnCancel').click(function () {
+                $('#emailid')[0].value = "";
+                $('#userName')[0].value = "";
+                $('#firstname')[0].value = "";
+                $('#lastname')[0].value = "";
+                $('#mobileno')[0].value = "";
+                $('#userName')[0].value = "";
+                $('#address')[0].value = "";
+                cleanValidation();
+            });
+        });
+        function isValidagencyInfo() {
+            cleanValidation();
+            if ($('#emailid')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email is required.");
+                plainValidation('#emailid');
+                return isValid;
+            }
+            else if ($('#emailid')[0].value.trim() != "" && !validateEmail($('#emailid')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#emailid');
+                return isValid;
+            }           
+            else if ($('#firstname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required.");
+                plainValidation('#firstname');
+                return isValid;
+            }
+            else if ($('#lastname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Last name is required.");
+                plainValidation('#lastname');
+                return isValid;
+            }
+            else if ($('#mobileno')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Mobile number is required.");
+                plainValidation('#mobileno');
+                return isValid;
+            }
+            isValid = true;
+            return isValid;
+        }
+
+    </script>
+}
+
+@section MainContentHolder{<div class="module form-module">
+        <div class="toggle">
+            <i class="fa fa-times fa-pencil"></i>
+        </div>
+        <div class="form">
+            <h2>Edit internal staff</h2>
+            <form method="post">
+
+
+                @Html.TextBoxFor(m => m.Emailid, new { placeholder = "Enter email id", id = "emailid", maxlength = "40", autocomplete = "off" })
+                @Html.TextBoxFor(m => m.UserName, new { placeholder = "Enter user name", id = "userName", maxlength = "50", autocomplete = "off", readOnly = "true"  })
+                @Html.TextBoxFor(m => m.FirstName, new { placeholder = "Enter first name", id = "firstname", maxlength = "200", autocomplete = "off" })
+                @Html.TextBoxFor(m => m.LastName, new { placeholder = "Enter last name", id = "lastname", maxlength = "200", autocomplete = "off" })
+                @Html.TextBoxFor(m => m.MobileNumber, new { placeholder = "Enter mobile no.", id = "mobileno", maxlength = "15", autocomplete = "off" })
+                @Html.HiddenFor(m => m.superadminId)
+                <br />
+                <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();">Submit</button>
+                <button id="btnCancel" type="button">Cancel</button>
+              
+            </form>
+        </div>
+    </div>
+}

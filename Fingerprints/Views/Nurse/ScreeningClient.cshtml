@@ -1,0 +1,1035 @@
+﻿@using System.Data
+@using FingerprintsModel
+@{
+    @section Title
+{
+
+        Screening Client
+    }
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+        if ('@ViewBag.screeningid' == 1 || '@ViewBag.screeningid' == 2 || '@ViewBag.screeningid' == 3 || '@ViewBag.screeningid' == 4 || '@ViewBag.screeningid' == 5 ||
+                             '@ViewBag.screeningid' == 6 || '@ViewBag.screeningid' > 6)
+        {
+            $('#Income').show();
+        }
+        else
+        {
+            $('#Income').hide();
+
+        }
+        $('#li3').addClass("active");
+        if ('@ViewBag.screeningid' == "0") {
+            $('#Screening').val('');
+        }
+        else {
+            $('#Screening').val('@ViewBag.selectedid');
+        }
+        $("#CDOB").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+        if ('@ViewBag.message' != '')
+            customAlert('@ViewBag.message');
+
+        if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+            customAlertforlongtime('@TempData["message"]');
+        }
+        @{
+                TempData["message"] = null;
+            }
+        $(".Sdate").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $("#ScreeningDate").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        if ('@ViewBag.status' == "1") {
+            $('#Status').val('1');
+        }
+        else  if ('@ViewBag.status' == "0") {
+            $('#Status').val('0');
+        }
+        else
+            $('#Status').val('');
+
+
+
+
+        $('.hiddencheckselectvalue').each(function () {
+            if($(this).val()==0)
+            {
+                $(this).prev().val("");
+            }
+        });
+    })
+    function Getscreeningtemplate() {
+        cleanValidation();
+        var isValid = true;
+        if ($('#Screening').val() == "" || $('#Screening').val() == null) {
+            customAlert("Screening name is required.");
+            plainValidation('#Screening');
+        }
+        else {
+            var clientid = '@ViewBag.id';
+            var Name = '@ViewBag.Name';
+            var Dob = '@ViewBag.Dob';
+            var Programid = '@ViewBag.Programid';
+            var dashboard = '@ViewBag.dashboard';
+            var Screeningid = $('#Screening').val();
+
+            window.location.href = HostedDir + "/Nurse/ScreeningClient?clientid=" + clientid + "&Screeningid=" + Screeningid + "&name=" + Name + "&Dob=" + Dob + "&Programid=" + Programid + "&dashboard=" + dashboard;
+        }
+    }
+    function checkNumeric(inputTextObject) {
+        var ret = true;
+        var ex = /^[0-9]*$/;
+        if ($(inputTextObject).val().trim() != "") {
+            if (!ex.test($(inputTextObject).val())) {
+                $(inputTextObject).val('');
+                customAlert("Only numeric value allowed. ");
+                var ret = false;
+            }
+        }
+        return ret;
+    }
+    function validatedate(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (!regex.test($(inputTextObject).val())) {
+                customAlert("Invalid date.");
+                $(inputTextObject).val('');
+            }
+        }
+
+    }
+    function validatedatenew(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (!regex.test($(inputTextObject).val())) {
+                customAlert("Invalid date.");
+                $(inputTextObject).val('');
+            }
+        }
+    }
+    function validatedate1(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (regex.test($(inputTextObject).val())) {
+                var dob = new Date();
+                var childdob = Date.parse($('#CDOB').val());
+                //var childdob = $('#CDOB').val();
+                if (Date.parse($(inputTextObject).val()) >= dob || Date.parse($(inputTextObject).val()) < childdob) {
+                    customAlert("Screening Date can not be earlier than the child's date of birth or greater than today date. ");
+                    $(inputTextObject).val('');
+                    plainValidation(inputTextObject);
+                    return false;
+                }
+                else {
+                    return true;
+                }
+
+            }
+            else {
+                customAlert("Invalid Date. ");
+                $(inputTextObject).val('');
+                plainValidation(inputTextObject);
+                return false;
+            }
+
+        }
+    }
+    function validatescreening(inputTextObject) {
+        var istrue = true;
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (regex.test($(inputTextObject).val())) {
+                var dob = new Date();
+                var childdob = Date.parse($('#CDOB').val());
+                if (Date.parse($(inputTextObject).val()) >= dob || Date.parse($(inputTextObject).val()) < childdob) {
+                    istrue = false;
+                    return istrue;
+                }
+                else {
+                    istrue = true;
+                    return istrue;
+                }
+
+            }
+            else {
+                istrue = false;
+                return istrue;
+            }
+
+        }
+    }
+    function validatescreening() {
+        cleanValidation();
+        var isValid = true;
+        //if ($('#ScreeningDate').val() == "" || $('#ScreeningDate').val() == null) {
+        //    customAlert("Screening date is required.");
+        //    plainValidation('#ScreeningDate');
+        //    isValid = false;
+        //    return isValid;
+        //}
+        if ($('#Screening').val() == "1" && $('#F001physicalDate').val() == "" ) {
+            customAlert("Physical exam date is required.");
+            plainValidation('#F001physicalDate');
+            isValid = false;
+            return isValid;
+        }
+        if ($('#Screening').val() == "2" && $('#v022date').val() == "") {
+            customAlert("Vision screening date is required.");
+            plainValidation('#v022date');
+            isValid = false;
+            return isValid;
+        }
+        if ($('#Screening').val() == "3" && $('#h036Date').val() == "" ) {
+            customAlert("Hearing screening date is required.");
+            plainValidation('#h036Date');
+            isValid = false;
+            return isValid;
+        }
+        if ($('#Screening').val() == "4" && $('#d050evDate').val() == "" ) {
+            customAlert("Developmental screening date is required.");
+            plainValidation('#d050evDate');
+            isValid = false;
+            return isValid;
+        } 
+        if ($('#Screening').val() == "5" && $('#E060denDate').val() == "" ) {
+            customAlert("Dental screening date is required.");
+            plainValidation('#E060denDate');
+            isValid = false;
+            return isValid;
+        }
+        if ($('#Screening').val() == "6" && $('#s067Date').val() == "" ) {
+            customAlert("Speech screening date is required.");
+            plainValidation('#s067Date');
+            isValid = false;
+            return isValid;
+        }
+        if ('@ViewBag.screeningid' == "7") {
+            $(".Question").each(function () {
+                if ($(this).attr("accesskey") == "1") {
+                    if ($(this).find('input[type=text]').length > 0) {
+                        if ($(this).find('input[type=text]').val() == "" || $(this).find('input[type=text]').val() == null) {
+                            customAlert($(this).find('span.Requiredfield').text() + " " + "is required");
+                            plainValidation($(this).find('input[type=text]'));
+                            isValid = false;
+                            return isValid;
+                        }
+                    }
+                    if ($(this).find('select').length > 0) {
+                        if ($(this).find('select').val() == "" || $(this).find('select').val() == null) {
+                            customAlert($(this).find('span.Requiredfield').text() + " " + "is required");
+                            plainValidation($(this).find('select'));
+                            isValid = false;
+                            return isValid;
+                        }
+                    }
+                    if ($(this).find('input[type=radio]').length > 0) {
+                        if ($(this).find('input:radio:checked').size() < 1) {
+                            customAlert($(this).find('span.Requiredfield').text() + " " + "is required");
+                            plainValidation($(this).find('select'));
+                            isValid = false;
+                            return isValid;
+                        }
+                    }
+                    if ($(this).find('input[type=checkbox]').length > 0) {
+                        if ($(this).find('input:checkbox:checked').size() < 1) {
+                            customAlert($(this).find('span.Requiredfield').text() + " " + "is required");
+                            plainValidation($(this).find('select'));
+                            isValid = false;
+                            return isValid;
+                        }
+                    }
+                }
+            });
+
+            return isValid;
+        }
+    }
+    function Getclientlist()
+    {
+        if ('@ViewBag.dashboar'==0)
+        {
+            window.location.href = HostedDir + "/Nurse/ClientList";
+        }
+        else
+            window.location.href = HostedDir + '/Home/ApplicationApprovalDashboard';
+        
+
+
+
+    }
+    var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+    function ValidateSingleInputpdf(oInput) {
+        if (oInput.type == "file") {
+            var sFileName = oInput.value;
+            if (sFileName.length > 0) {
+
+                var blnValid = false;
+                var valid_size = 3 * 1000 * 1000;
+                var v = oInput.files[0].size;
+                if (v <= valid_size) {
+                    for (var j = 0; j < _validFileExtensions1.length; j++) {
+                        var sCurExtension = _validFileExtensions1[j];
+                        if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                            blnValid = true;
+                            $('#documentlabel').text(oInput.files[0].name);
+                            break;
+                        }
+                    }
+                    if (!blnValid) {
+                        oInput.value = "";
+                        customAlertforlongtime("Only (pdf,jpg,jpeg,bmp,gif,png) of file type allowed.");
+                        $('#documentlabel').text("");
+                        return false;
+                    }
+                }
+                else {
+                    oInput.value = "";
+                    customAlertforlongtime("File size should not be greater than 3 MB. ");
+                    $('#documentlabel').text("");
+                    return false;
+
+                }
+
+            }
+        }
+        return true;
+    }
+    </script>
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                @ViewBag.Name
+                <span class="view-btn backto_listspan" id="BackToList">
+                    @if (ViewBag.dashboard=="0")
+                    {
+                           <a href="~/Nurse/ClientList" class="backto_list">Back to list</a>
+                    }
+                    else
+                    {
+
+                        <a href="~//Home/ApplicationApprovalDashboard" class="backto_list">Back to list</a>
+                    }
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row add-useragform1">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Child Name </label>
+                    <div class="date custom-time">
+                        <input class="form-control" type="text" readonly="readonly" value="@ViewBag.Name">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>DOB </label>
+                    <div class="date custom-time">
+                        <input name="CDOB" class="form-control" id="CDOB" maxlength="50" readonly="readonly" placeholder="MM/DD/YYYY" type="text" value="@ViewBag.Dob">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label for="pwd">Screening Name <sup>*</sup></label>
+                    <input value="@ViewBag.Dob" id="clientdob" type="hidden" />
+                    @{
+                        try
+                        {
+                            if (ViewBag.screening != null && ((List<SelectListItem>)ViewBag.screening) != null && ((List<SelectListItem>)ViewBag.screening).Count > 0)
+                            {
+                                @Html.DropDownList("Screening", (List<SelectListItem>)ViewBag.screening, new { @class = "form-control" })
+                            }
+                            else
+                            {
+                                @Html.DropDownList("Screening")
+
+                            }
+
+                        }
+                        catch (Exception Ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(Ex);
+
+                        }
+                    }
+
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="form-group">
+                    <button id="btnsearch" class="my-btn" onclick="Getscreeningtemplate();">Load</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<form method="post" enctype="multipart/form-data" autocomplete="off">
+    <div class="income-box" style="display:none; margin-top:17px;" id="Income">
+        @*<div class="row add-useragform1" >
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                    @if (ViewBag.screeningid == "1" || ViewBag.screeningid == "2" || ViewBag.screeningid == "3" || ViewBag.screeningid == "4" || ViewBag.screeningid == "5" ||
+                                  ViewBag.screeningid == "6" || Convert.ToInt32(ViewBag.screeningid) > 6)
+                    {
+
+                        <div class="col-lg-7 col-md-7 col-sm-7">
+                            <div class="form-group">
+                                <label>Screening Date <sup>*</sup></label>
+                                <input type="text" placeholder="MM/DD/YYYY" @if (!string.IsNullOrEmpty(@Convert.ToString(@ViewBag.screeningdate))) { <text> readonly="readonly" </text>        } name="screeningdate" value="@ViewBag.screeningdate" onblur="validatedatenew(this);" id="ScreeningDate" maxlength="100" class="form-control screeninginput" />
+                            </div>
+                        </div>
+                        if (Convert.ToBoolean(ViewBag.uploaddocument) || ViewBag.screeningid == "1" || ViewBag.screeningid == "2" || ViewBag.screeningid == "3" || ViewBag.screeningid == "4" || ViewBag.screeningid == "5" ||
+                        ViewBag.screeningid == "6")
+                        {
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+
+
+                                    <label class="custom-file-upload">
+                                        <input name="ScreeningDocument" id="ScreeningDocument"  class="form-control" onchange="ValidateSingleInputpdf(this)" style="display:none" type="file" value="">
+                                        <i class="fa fa-cloud-upload"></i> Add new document
+                                    </label>
+                                    <label style="margin-top: 8px;margin-left: 6px;" id="documentlabel"></label>
+
+
+
+                                 
+                                
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>*@
+        @{
+    int i = 0;
+    int r = 0;
+    string screeningdatename = "";
+    DataRow documentrow = null;
+    try
+    {
+        if (Convert.ToInt32(ViewBag.screeningid) > 6)
+        {
+            <div class="row add-useragform1 add-useragform">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+                    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+                        @if (ViewBag.screenings != null && (DataTable)ViewBag.screenings != null && ((DataTable)ViewBag.screenings).Rows.Count > 0)
+                    {
+                        DataTable Questionids = ((DataTable)ViewBag.screenings).DefaultView.ToTable(true, "QuestionID");
+                        DataTable Screeningvalue = null;
+                        if (ViewBag.screeningsdata != null && (DataTable)ViewBag.screeningsdata != null && ((DataTable)ViewBag.screeningsdata).Rows.Count > 0)
+                        {
+                            Screeningvalue = (DataTable)ViewBag.screeningsdata;
+                            documentrow = Screeningvalue.AsEnumerable().FirstOrDefault(P => P.Field<string>("DocumentName") != "");
+                        }
+                        foreach (DataRow Row in Questionids.Rows)
+                        {
+                            DataRow[] rows = ((DataTable)ViewBag.screenings).Select("QuestionID=" + Convert.ToString(@Row["QuestionID"]));
+                            DataRow[] datarows = null;
+                            if (Screeningvalue != null)
+                            {
+                                datarows = Screeningvalue.Select("QuestionID=" + Convert.ToString(@Row["QuestionID"]));
+                            }
+
+
+                            if (rows.Length == 1)
+                            {
+                               
+
+                                if (Convert.ToString(rows[0]["QuestionType"]) == "2")
+                                {
+
+                                <div class="col-lg-12 col-md-12 col-sm-12 Question" accesskey="@Convert.ToString(rows[0]["required"])">
+                                    <input type="hidden" accesskey="@Convert.ToString(rows[0]["QuestionType"])" />
+                                    <div class="form-group">
+                                        <label> @Convert.ToString(@rows[0]["Question"])  @if (@Convert.ToString(rows[0]["required"]) == "1")  { <text> <sup>*</sup> </text> }</label> <span class="Requiredfield" style="display:none">@Convert.ToString(@rows[0]["Question"])</span>
+                                         
+                                           
+                                      
+                                            @if (datarows != null && datarows.Length == 1)
+                                            {
+                                                screeningdatename = @rows[0]["QuestionAcronym"].ToString() + "kScreeningDate";
+                                                <input type="text" @if (@Convert.ToString(@rows[0]["Question"]).Replace(" ", "") == "ScreeningDate") { <text> name="@screeningdatename" id="ScrDate" readonly="readonly" </text>  } else { <text> name=" @Convert.ToString(@rows[0]["QuestionAcronym"]) " </text>  } value="@datarows[0]["Value"].ToString()" placeholder="MM/DD/YYYY" onblur="validatedate(this);" maxlength="30" class="form-control Sdate" />
+
+                                            }
+                                            else
+                                            {
+                                                screeningdatename = @rows[0]["QuestionAcronym"].ToString() + "kScreeningDate";
+                                                <input type="text" @if (@Convert.ToString(@rows[0]["Question"]).Replace(" ", "") == "ScreeningDate") { <text> name="@screeningdatename" id="ScrDate" </text>    } else { <text> name="@Convert.ToString(@rows[0]["QuestionAcronym"])" </text>    } placeholder="MM/DD/YYYY" onblur="validatedate(this);" maxlength="30" class="form-control Sdate" />
+
+                                            }
+
+
+                                </div>
+                                </div>
+                                }
+                                if (Convert.ToString(rows[0]["QuestionType"]) == "5")
+                                {
+                                <div class="col-lg-12 col-md-12 col-sm-12 Question" accesskey="@Convert.ToString(rows[0]["required"])">
+                                    <div class="form-group">
+                                        <label>
+                                            @Convert.ToString(@rows[0]["Question"])  @if (@Convert.ToString(rows[0]["required"]) == "1") { <text> <sup>*</sup> </text> }
+                                        </label> <span class="Requiredfield" style="display:none">@Convert.ToString(@rows[0]["Question"])</span>
+
+                                        @if (datarows != null && datarows.Length == 1)
+                                            {
+                                        <input type="text" value="@datarows[0]["Value"].ToString()" name="@Convert.ToString(@rows[0]["QuestionAcronym"])" maxlength="100" class="form-control" />
+                                            }
+                                            else
+                                            {
+                                    <input type="text" name="@Convert.ToString(@rows[0]["QuestionAcronym"])" maxlength="100" class="form-control" />
+                                            }
+                                    </div>
+                                </div>
+                                }
+                                if (Convert.ToString(rows[0]["QuestionType"]) == "6")
+                                {
+                                <div class="col-lg-12 col-md-12 col-sm-12 Question" accesskey="@Convert.ToString(rows[0]["required"])">
+                                    <div class="form-group">
+                                        <label>
+                                            @Convert.ToString(@rows[0]["Question"])  @if (@Convert.ToString(rows[0]["required"]) == "1")
+                                                { <text> <sup>*</sup> </text> }
+                                        </label> <span class="Requiredfield" style="display:none">@Convert.ToString(@rows[0]["Question"])</span>
+
+                                        @if (datarows != null && datarows.Length == 1)
+                                            {
+                            <input type="text" value="@datarows[0]["Value"].ToString()" name="@Convert.ToString(@rows[0]["QuestionAcronym"])" maxlength="50" onblur="return checkNumeric(this);" class="form-control" />
+                                            }
+                                            else
+                                            {
+                            <input type="text" name="@Convert.ToString(@rows[0]["QuestionAcronym"])" maxlength="50" onblur="return checkNumeric(this);" class="form-control" />
+
+                                            }
+
+
+                                    </div>
+                                </div>
+
+                                }
+                            }
+                            if (rows.Length > 1)
+                            {
+                                if (Convert.ToString(rows[0]["QuestionType"]) == "1")
+                                {
+                                    int count = 0;
+
+                                <div class="col-lg-12 col-md-12 col-sm-12 Question" accesskey="@Convert.ToString(rows[0]["required"])">
+                                    <div class="form-group">
+                                        <label>
+                                            @Convert.ToString(@rows[0]["Question"])  @if (@Convert.ToString(rows[0]["required"]) == "1")
+                                                { <text> <sup>*</sup> </text> }
+                                        </label> <span class="Requiredfield" style="display:none">@Convert.ToString(@rows[0]["Question"])</span>
+                                        <div class="cont-sz">
+                                            @foreach (var item in rows)
+                                                {
+                                                    string option = Convert.ToString(@rows[0]["QuestionAcronym"]) + "ko" + @Convert.ToString(@item["Optionid"]) + "o";
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                    @if (datarows != null && datarows.Length > 0)
+                                                        {
+                                                            foreach (var item1 in datarows)
+                                                            {
+                                                                if (item1["optionid"].ToString() == item["optionid"].ToString())
+                                                                {
+                                                                    count = 1;
+                                                                }
+                                                            }
+                                                        }
+                                    @if (count == 1)
+                                                        {
+                                                    <input accesskey="@Convert.ToString(rows[0]["required"])" checked="checked" name="@option" class="minimal" type="checkbox" style="width:auto;" value="true">
+                                                        }
+                                                        else
+                                                        {
+                                                    <input accesskey="@Convert.ToString(rows[0]["required"])" name="@option" class="minimal" type="checkbox" style="width:auto;" value="true">
+
+                                                        }
+                                    <span>@Convert.ToString(@item["Optionname"])</span>
+                                </div>
+                                                        count = 0;
+                                                }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                }
+                                if (Convert.ToString(rows[0]["QuestionType"]) == "3")
+                                {
+                                    int count = 0;
+                                    int show = 0;
+                                <div class="col-lg-12 col-md-12 col-sm-12 adddivspace Question" accesskey="@Convert.ToString(rows[0]["required"])">
+                                    <div class="form-group">
+                                        <label>
+                                            @Convert.ToString(@rows[0]["Question"])  @if (@Convert.ToString(rows[0]["required"]) == "1")
+                                                { <text> <sup>*</sup> </text> }
+                                        </label> <span class="Requiredfield" style="display:none">@Convert.ToString(@rows[0]["Question"])</span>
+                                        <select accesskey="@Convert.ToString(rows[0]["required"])"  @if (@Convert.ToString(@rows[0]["Question"]).Replace(" ", "") == "Status") { <text>id="ScrStatus"</text> } else {<text> id="statusnot"</text>}  name="@Convert.ToString(@rows[0]["QuestionAcronym"])" class="form-control checkselectvalue">
+                                            @foreach (var item in rows)
+                                            {
+                                                if (datarows != null && datarows.Length > 0)
+                                                {
+                                                    foreach (var item1 in datarows)
+                                                    {
+                                                        if (item1["Value"].ToString() == item["optionid"].ToString())
+                                                        {
+                                                            count = 1;
+                                                            show = 1;
+                                                        }
+                                                    }
+                                                }
+                                                if (count == 1)
+                                                {
+                                                    <option selected="selected" value="@Convert.ToString(@item["Optionid"])">@Convert.ToString(@item["Optionname"])</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@Convert.ToString(@item["Optionid"])">@Convert.ToString(@item["Optionname"])</option>
+                                                }
+                                                count = 0;
+                                            }
+                                        </select>
+                                        <input type="hidden" value="@show" class="hiddencheckselectvalue" />
+                                    </div>
+                                </div>
+                                }
+                                if (Convert.ToString(rows[0]["QuestionType"]) == "4")
+                                {
+                                    int count = 0;
+                                    string Radio = "R" + r;
+                                <div class="col-lg-12 col-md-12 col-sm-12 Question" accesskey="@Convert.ToString(rows[0]["required"])">
+                                    <div class="form-group">
+                                        <label>
+                                            @Convert.ToString(@rows[0]["Question"])  @if (@Convert.ToString(rows[0]["required"]) == "1")
+                                                { <text> <sup>*</sup> </text> }
+                                        </label> <span class="Requiredfield" style="display:none">@Convert.ToString(@rows[0]["Question"])</span>
+                                        <div class="cont-sz">
+                                            @foreach (var item in rows)
+                                                {
+                                                    string option = Convert.ToString(@rows[0]["QuestionAcronym"]) + "ko" + @Convert.ToString(@item["Optionid"]) + 'o';
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    @if (datarows != null && datarows.Length > 0)
+                                                        {
+                                                            foreach (var item1 in datarows)
+                                                            {
+                                                                if (item1["optionid"].ToString() == item["optionid"].ToString())
+                                                                {
+                                                                    count = 1;
+                                                                }
+                                                            }
+                                                        }
+                                    @if (count == 1)
+                                                        {
+
+                                                    <input name="@Radio" checked="checked" type="radio" value="@option">
+
+                                                        }
+                                                        else
+                                                        {
+                                                    <input name="@Radio" type="radio" value="@option">
+                                                        }
+
+
+
+
+                                    <span style="font-size: 14px;">@Convert.ToString(@item["Optionname"])</span>
+                                </div>
+                                                        count = 0;
+                                                }
+                                        </div>
+                                    </div>
+                                </div>
+                                                r++;
+                                }
+                                i++;
+                            }
+                        }
+                    }
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                        @if ( Convert.ToInt32(ViewBag.screeningid) > 6 && Convert.ToBoolean(ViewBag.uploaddocument))
+                        {
+                           
+                                
+                                    <div class="form-group">
+                                        <label class="custom-file-upload">
+                                            <input name="ScreeningDocument" id="ScreeningDocument" class="form-control" onchange="ValidateSingleInputpdf(this)" style="display:none" type="file" value="">
+                                            <i class="fa fa-cloud-upload"></i> Add new document
+                                        </label>
+                                        <label style="margin-top: 8px;margin-left: 6px;" id="documentlabel"></label>
+                                    </div>
+                               
+                            
+                        }
+                     </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                            @if (Convert.ToBoolean(ViewBag.uploaddocument))
+                            {
+                                if (documentrow != null)
+                                {
+                                    if (documentrow["DocumentName"].ToString() != "")
+                                    {
+                                        if (documentrow["DocumentExtension"].ToString() == ".pdf")
+                                        {
+                                            string url = Path.GetFileNameWithoutExtension(documentrow["DocumentName"].ToString()) + Guid.NewGuid().ToString() + ".pdf";
+                                            System.IO.FileStream file = System.IO.File.Create(Server.MapPath("~//TempAttachment//") + url);
+                                            url = "..\\TempAttachment\\" + url;
+                                            try
+                                            {
+                                              file.Write((byte[])documentrow["Documentdata"], 0, ((byte[])documentrow["Documentdata"]).Length);
+                                                file.Close();
+                                            }
+                                            catch (Exception Ex)
+                                            {
+
+                                                FingerprintsModel.clsError.WriteException(Ex);
+                                            }
+                                            finally
+                                            {
+                                                file.Close();
+
+                                            }
+                                            <div style="display:none;" id="ScreeninguploadDocument">
+                                            </div>
+                                            <iframe class="iframestyle" src="@url" frameborder="0" scrolling="no"></iframe>
+                                        }
+                                        else
+                                        {
+                                            string imagedata = Convert.ToBase64String((byte[])documentrow["Documentdata"]);
+                                            <div id="ScreeninguploadDocument">
+                                                <script type="text/javascript">
+                                                    $(document).ready(function () {
+                                                        $('#ScreeninguploadDocument').ZoomCrop(
+                                                      {
+                                                          image: "data:image/png;base64," + '@imagedata',
+                                                          updated: function (size, crop, position) {
+                                                              console.log(size, crop, position);
+                                                          }
+                                                      });
+                                                    });
+                                                </script>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <div id="ScreeninguploadDocument">
+                                        <script type="text/javascript">
+                                            $(document).ready(function () {
+                                                $('#ScreeninguploadDocument').ZoomCrop(
+                                              {
+                                                  image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                                  updated: function (size, crop, position) {
+                                                      console.log(size, crop, position);
+                                                  }
+                                              });
+                                            });
+                                        </script>
+                                    </div>
+                                }
+                            }
+
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+           
+        }
+        Screening _screening = new Screening();
+        if (ViewBag.screeningid == "1" || ViewBag.screeningid == "2" || ViewBag.screeningid == "3" || ViewBag.screeningid == "4" || ViewBag.screeningid == "5" ||
+         ViewBag.screeningid == "6")
+        {
+            DataTable Screeningvalues = null;
+            if (ViewBag.screeningsdata != null && (DataTable)ViewBag.screeningsdata != null && ((DataTable)ViewBag.screeningsdata).Rows.Count > 0)
+            {
+                Screeningvalues = (DataTable)ViewBag.screeningsdata;
+                documentrow = Screeningvalues.AsEnumerable().FirstOrDefault(P => P.Field<string>("DocumentName") != "");
+
+                if (documentrow != null)
+                {
+                    _screening.PhysicalFileExtension = documentrow["DocumentExtension"].ToString();
+                    _screening.PhysicalFileName = documentrow["DocumentName"].ToString();
+                    if (documentrow["Documentdata"].ToString() != "")
+                    {
+                        _screening.PhysicalImageByte = (byte[])documentrow["Documentdata"];
+                    }
+                }
+
+                if (ViewBag.screeningid == "1")
+                {
+                    _screening.F001physicalDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F001physicalDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F002physicalResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F002physicalResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F003physicallFOReason = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F003physicallFOReason").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F004medFollowup = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F004medFollowup").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F005MedFOComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F005MedFOComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F006bpResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F006bpResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F007hgDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F007hgDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F008hgStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F008hgStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F009hgResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F009hgResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F010hgReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F010hgReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F011hgComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F011hgComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F012hgDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F012hgDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F013hgResults2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F013hgResults2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F014hgFOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F014hgFOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F015leadDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F015leadDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F016leadResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F016leadResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F017leadReferDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F017leadReferDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F018leadComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F018leadComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F019leadDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F019leadDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F020leadResults2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F020leadResults2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.F021leadFOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F021leadFOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                }
+                if (ViewBag.screeningid == "2")
+                {
+                    _screening.v022date = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v022date").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v023results = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v023results").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v024comments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v024comments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v025dateR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v025dateR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v026resultsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v026resultsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v027commentsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v027commentsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v028dateR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v028dateR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v029resultsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v029resultsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v030commentsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v030commentsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v031ReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v031ReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v032Treatment = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v032Treatment").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v033TreatmentComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v033TreatmentComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v034Completedate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v034Completedate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.v035ExamStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v035ExamStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                }
+                if (ViewBag.screeningid == "3")
+                {
+                    _screening.h036Date = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h036Date").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h037Results = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h037Results").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h038Comments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h038Comments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h039DateR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h039DateR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h040ResultsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h040ResultsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h041CommentsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h041CommentsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h042DateR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h042DateR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h043ResultsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h043ResultsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h044CommentsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h044CommentsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h045ReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h045ReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h046Treatment = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h046Treatment").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h047TreatmentComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h047TreatmentComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h048CompleteDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h048CompleteDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.h049ExamStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h049ExamStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                }
+                if (ViewBag.screeningid == "4")
+                {
+                    _screening.d050evDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d050evDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d051NameDEV = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d051NameDEV").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d052evResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d052evResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d053evResultsDetails = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d053evResultsDetails").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d054evDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d054evDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d055evResults2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d055evResults2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d056evReferral = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d056evReferral").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d057evFOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d057evFOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d058evComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d058evComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.d059evTool = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d059evTool").Select(m => m.Field<string>("Value")).FirstOrDefault();
+
+                }
+                if (ViewBag.screeningid == "5")
+                {
+                    _screening.E060denDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E060denDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.E061denResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E061denResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.E062denPrevent = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E062denPrevent").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.E063denReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E063denReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.E064denTreatment = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E064denTreatment").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.E065denTreatmentComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E065denTreatmentComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.E066denTreatmentReceive = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E066denTreatmentReceive").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                }
+                if (ViewBag.screeningid == "6")
+                {
+                    _screening.s067Date = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s067Date").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s068NameTCR = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s068NameTCR").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s069Details = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s069Details").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s070Results = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s070Results").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s071RescreenTCR = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s071RescreenTCR").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s072RescreenTCRDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s072RescreenTCRDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s073RescreenTCRResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s073RescreenTCRResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s074ReferralDC = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s074ReferralDC").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s075ReferDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s075ReferDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s076DCDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s076DCDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s077NameDC = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s077NameDC").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s078DetailDC = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s078DetailDC").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s079DCDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s079DCDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s080DetailDC2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s080DetailDC2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                    _screening.s081FOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s081FOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                }
+
+
+            }
+
+        }
+
+
+
+                if (ViewBag.screeningid == "1")
+                {
+                  
+                    @Html.Partial("~/Views/PartialScreening/PhysicalScreening.cshtml", _screening)
+                }
+                if (ViewBag.screeningid == "2")
+                {
+                   
+                    @Html.Partial("~/Views/PartialScreening/VisionScreening.cshtml", _screening)
+                }
+                if (ViewBag.screeningid == "3")
+                {
+                    
+                    @Html.Partial("~/Views/PartialScreening/HearingScreening.cshtml", _screening)
+                }
+                if (ViewBag.screeningid == "4")
+                {
+                  
+                    @Html.Partial("~/Views/PartialScreening/DevelopmentalScreening.cshtml", _screening)
+                }
+                if (ViewBag.screeningid == "5")
+                {
+                    
+                    @Html.Partial("~/Views/PartialScreening/DentalScreening.cshtml", _screening)
+                }
+
+                if (ViewBag.screeningid == "6")
+                {
+                   
+                    @Html.Partial("~/Views/PartialScreening/SpeechScreening.cshtml", _screening)
+                }
+
+                if (ViewBag.screeningid == "1" || ViewBag.screeningid == "2" || ViewBag.screeningid == "3" || ViewBag.screeningid == "4" || ViewBag.screeningid == "5" ||
+                ViewBag.screeningid == "6" || Convert.ToInt32(ViewBag.screeningid) > 6)
+                {
+
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="submit" class="my-btn" onclick="return validatescreening();">Submit</button>
+
+                                <button class="my-btn" onclick="Getclientlist();" type="button">Cancel</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+            catch (Exception Ex)
+            {
+                FingerprintsModel.clsError.WriteException(Ex);
+            }
+
+        }
+    </div>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        if ('@ViewBag.screeningid' == 1) {
+
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $('#F001physicalDate').val('@ViewBag.missingscreeningdate');
+                $('#F001physicalDate').attr("readonly", "readonly");
+            }
+            if ('@ViewBag.ScreeningStatus' != "") {
+                $('#F002physicalResults').val('@ViewBag.ScreeningStatus');
+            }
+
+        }
+        else if ('@ViewBag.screeningid' == 2) {
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $('#v022date').attr("readonly", "readonly");
+                $('#v022date').val('@ViewBag.missingscreeningdate');
+            }
+            if ('@ViewBag.ScreeningStatus' != "") {
+                $('#v023results').val('@ViewBag.ScreeningStatus');
+
+            }
+        }
+        else if ('@ViewBag.screeningid' == 3) {
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $('#h036Date').attr("readonly", "readonly");
+                $('#h036Date').val('@ViewBag.missingscreeningdate');
+            }
+            if ('@ViewBag.ScreeningStatus' != "") {
+                $('#h037Results').val('@ViewBag.ScreeningStatus');
+            }
+
+        }
+        else if ('@ViewBag.screeningid' == 4) {
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $('#d050evDate').attr("readonly", "readonly");
+                $('#d050evDate').val('@ViewBag.missingscreeningdate');
+            }
+            if ('@ViewBag.ScreeningStatus' != "") {
+                $('#d052evResults').val('@ViewBag.ScreeningStatus');
+            }
+        }
+        else if ('@ViewBag.screeningid' == 5) {
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $('#E060denDate').attr("readonly", "readonly");
+                $('#E060denDate').val('@ViewBag.missingscreeningdate');
+            }
+            if ('@ViewBag.ScreeningStatus' != "") {
+                $('#E061denResults').val('@ViewBag.ScreeningStatus');
+
+            }
+
+        }
+        else if ('@ViewBag.screeningid' == 6) {
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $('#s067Date').attr("readonly", "readonly");
+                $('#s067Date').val('@ViewBag.missingscreeningdate');
+            }
+            if ('@ViewBag.ScreeningStatus' != "") {
+                $('#s070Results').val('@ViewBag.ScreeningStatus');
+            }
+        }
+        else if (parseInt('@ViewBag.screeningid') > 6) {
+
+            if ($('#ScrDate').val() == "")
+                $('#ScrDate').removeAttr("readonly");
+
+            if ('@ViewBag.missingscreeningdate' != "") {
+                $("#ScrDate").val('@ViewBag.missingscreeningdate');
+                $('#ScrDate').attr("readonly", "readonly");
+            }
+
+            if ('@ViewBag.ScreeningStatus' != "" && $('#ScrStatus').val()==null) {
+                $('#ScrStatus').val('@ViewBag.ScreeningStatus');
+
+            }
+
+
+
+        }
+
+
+    });
+
+    </script>
+</form>
+
+
+
+}
+
+
+

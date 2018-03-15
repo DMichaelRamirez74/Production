@@ -1,0 +1,109 @@
+﻿@{
+    @section Title
+{
+
+        View Center Details
+
+    }
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+
+            @{
+        TempData["message"] = null;
+        TempData.Keep();
+    }
+
+            if($('#gridViewcenter > tbody > tr').length <1)
+            {
+                $('#div1').show();
+
+            }
+
+        });
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                @ViewBag.name
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <a href="~/Home/ApplicationApprovalDashboard" class="backto_list">Back to list</a>
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewcenter">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th>Status</th>
+                            <th>Child Name</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Center</th>
+                            <th>From</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.userlist != null)
+                        {
+
+                            foreach (FingerprintsModel.Fswuserapproval user in ViewBag.userlist)
+                            {
+                                <tr>
+                                    <td title="@user.routecode"><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.Yakkrid)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@ViewBag.name)">@user.Status</a></td>
+                                    <td>@user.ClientName</td>
+                                    @if (@user.routecode == "100")
+                                    {
+                                        <td>App Approval</td>
+                                    }
+                                    else
+                                    {
+                                        <td>To review application for health review</td>
+                                    }
+                                    <td>@user.Date</td>
+                                    <td>@user.CenterName</td>
+                                    <td>@user.StaffName</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+               
+                    <div id="div1" style="text-align:center;display:none;">
+                        <label>No result found.</label>
+                    </div>
+
+                
+
+            </div>
+        </div>
+    </div>
+}
+
+

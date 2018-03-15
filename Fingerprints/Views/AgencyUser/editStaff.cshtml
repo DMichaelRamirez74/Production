@@ -1,0 +1,1410 @@
+﻿@model FingerprintsModel.AgencyStaff
+
+@{
+    @section Title
+{
+        @ViewData["Title"].ToString()
+
+    }
+
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5")))
+    {
+        Layout = "~/Views/Shared/AgencyadminLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")))
+    {
+
+        if (Session["AgencyID"] != null)
+        {
+            Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+        }
+        else
+        {
+            Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+        }
+    }
+
+}
+
+
+@section Script{
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@Session["Roleid"].ToString()' == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+                $('#AccessStart').timepicker({ 'timeFormat': 'h:i A' });
+                $('#AccessStop').timepicker({ 'timeFormat': 'h:i A' });
+            }
+            $("#CellNumber").mask("(999) 999-9999");
+            $('#li6').addClass("active");
+            $('#DOB').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#HireDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#TerDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#AccessStartDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            var value = $('#DdlRoleList').val();
+            if (value == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+                $('.DivHide').hide();
+            }
+            else {
+                $('.DivHide').show();
+
+            }
+            if(value=="82b862e6-1a0f-46d2-aad4-34f89f72369a" || value=="2adfe9c6-0768-4a35-9088-e0e6ea91f709")
+            {
+                $('#DivCenter input:checked').each(function () {
+                    if ($(this).prop('checked')) {
+                        var value = $(this).val();
+                        BindClassroom(value);
+                    }
+                });
+               
+                $('#divClassroom').show();
+                $('#DdlClassList').val(@Model.Classrooms);
+            }
+            else {
+                $('#divClassroom').hide();
+            }
+
+            $("#CellNumber").keypress(function (e) {
+                //if the letter is not digit then display error and don't type anything
+                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                    //display error message
+                    //customAlert("Only digit allowed.");
+                    plainValidation('#CellNumber');
+                    return false;
+                }
+                else {
+                    cleanValidation();
+                }
+            });
+
+            // If agency admin role is selected
+
+            var value = $('#DdlRoleList').val();
+            if (value == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+                $('.DivHide').hide();
+                $('.divposition').css("position", "absolute");
+            }
+            else {
+                $('.DivHide').show();
+                $('.divposition').css("position", "");
+              
+            }
+
+            // end
+
+            //$("#DdlAgencyList").change(function () {
+            //    var dID = $(this).val();
+            //    $.getJSON( HostedDir +"/Agency/LoadCenterByAgency", { AgncyID: dID },
+            //           function (data) {
+            //               var select = $("#DdlHrCenter");
+            //               select.empty();
+            //               select.append($('<option/>', {
+            //                   value: 0,
+            //                   text: "Select Center"
+            //               }));
+            //               $.each(data, function (index, itemData) {
+            //                   select.append($('<option/>', {
+            //                       value: itemData.Value,
+            //                       text: itemData.Text
+            //                   }));
+            //               });
+            //           });
+            //});
+
+
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+
+            @{
+                  TempData["message"] = null;
+                  TempData.Keep();
+              }
+            //var dateToday = new Date();
+            //var yrRange = "1950:" - (dateToday.getFullYear() - 20);
+            //$(".datecss").datetimepicker({
+            //    changeMonth: true,
+            //    changeYear: true,
+            //    // yearRange: yrRange,
+            //    yearRange: '1964:1991',
+            //    timepicker: false,
+            //    format: 'm/d/Y'
+            //    //format: 'Y/m/d',
+
+            //});
+            //$(".datecss").keypress(function (event) { event.preventDefault(); });
+            //$("#AccessStartDate").keypress(function (event) { event.preventDefault(); });
+
+
+            //$("#AccessStartDate").datetimepicker({
+            //    timepicker: false,
+            //    format: 'm/d/Y',
+            //    //format: 'Y/m/d',
+            //    minDate: dateToday,
+            //});
+
+            //var end = new Date();
+            //$("#DOB").datetimepicker({
+            //    timepicker: false,
+            //    format: 'm/d/Y',
+            //    changeMonth: true,
+            //    changeYear: true,
+            //    maxDate: end,
+            //    //yearRange: start.getFullYear() + ':' + end.getFullYear()
+            //});
+            if ('@Model.SelectedRoleId' == "")
+                $('#DdlRoleList').val('');
+            if ('@Model.HighestEducation' == "")
+                $('#DdlHighestEducation').val('');
+            if ('@Model.Gender' == "")
+                $('#DdlGender').val('');
+            if ('@Model.Race' == "")
+                $('#DdlRaceList').val('');
+            if ('@Model.EarlyChildHood' == "")
+                $('#DdlEarlyChildHood').val('');
+            if ('@Model.GettingDegree' == "")
+                $('#DdlGettingDegree').val('');
+            if ('@Model.Natinality' == "")
+                $('#DdlNationList').val('');
+            if ('@Model.Contractor' == "")
+                $('#DdlContractor').val('');
+            if ('@Model.Replacement' == "")
+                $('#DdlReplacement').val('');
+            if ('@Model.PirRoleid' == "")
+                $('#DdlpirList').val('');
+            if ('@Model.AccessDays' == "")
+                $('#DdlAccessType').val('');
+            if ('@Model.HRCenter' == "")
+                $('#DdlHrCenter').val('');
+            if ('@Model.AssociatedProgram' == "")
+                $('#DdlAssociatedProgram').val('');
+            if ('@Model.AccessDays' == "")
+                $('#AccessDays').val('');
+            if ('@Model.TimeZoneID' == "")
+                $('#TimeZoneID').val('');
+
+            $('.time').datetimepicker({
+                datepicker: false,
+                format: 'H:i',
+                step: 15
+            });
+            $(".time").keypress(function (event) { event.preventDefault(); });
+            $("#State").on("input", function () {
+                var regexp = /[^A-Z]/g;
+                if ($(this).val().match(regexp)) {
+                    $(this).val($(this).val().replace(regexp, ''));
+                }
+            });
+            $('#btnCancel').click(function () {
+                @*if ('@Session["Roleid"].ToString().ToUpper()' == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                    window.location.href = HostedDir + "/Home/SuperAdminDashboard";
+                }*@
+                if ('@Session["Roleid"].ToString()' == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+                    window.location.href = HostedDir + "/Agency/viewagencystaff";
+                }
+                if ('@Session["Roleid"].ToString()' == "2d9822cd-85a3-4269-9609-9aabb914d792") {
+                    window.location.href = HostedDir + "/Agency/viewagencystaff";
+                }
+            });
+            // If super admin login into agency Making entire form read only
+            if ('@Session["Roleid"]'.length > 0) {
+                var role = '@Session["Roleid"].ToString()';
+                if (role.toUpperCase() == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#BtnChanged').attr("onClick", "return false");
+                    }
+                }
+            }
+            $("#DivRoles input[type=checkbox]").each(function () {
+                if ($(this).val() == $('#DdlRoleList').val()) {
+                    $(this).parent().hide();
+                    $(this).prop("checked", false);
+                }
+
+            });
+        });
+        function validatedate(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+                    var dob = new Date();
+                    if (Date.parse($(inputTextObject).val()) >= dob) {
+                        customAlert("Invalid Date of birth .Date of birth must be less than today's date. ");
+                        $(inputTextObject).val('');
+                        return false;
+                    }
+                    else
+                        return false;
+                }
+                else {
+                    customAlert("Invalid date of birth. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+
+            }
+
+        }
+
+        function BindClassroom(Id) {
+
+            $.ajax({
+                url: HostedDir + "/Agency/getClassroom",
+                type: "POST",
+                data: {
+                    CenterId: Id,
+                    AgencyId: ""
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
+
+                        }
+                        $('#DdlClassList').find('option').remove().end().append(option);
+                        $('#DdlClassList').val('');
+                    }
+                }
+            });
+        }
+        function validatedatenew(inputTextObject) {
+
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(inputTextObject).val())) {
+                    customAlert("Invalid date. ");
+                    $(inputTextObject).val('');
+                    plainValidation($(inputTextObject));
+                    return false;
+                }
+                else
+                    return true;
+            }
+        }
+        function isValidagencyInfo() {
+            cleanValidation();
+            @*if ('@Session["Roleid"].ToString().ToUpper()' == "2d9822cd-85a3-4269-9609-9aabb914d792" && '@ViewBag.show' == '1') {
+                if ($('#ddlapprovereject')[0].value.trim() == "0") {
+                    isValid = true;
+                    return isValid;
+                }
+            }*@
+            //if ($('#DdlAgencyList')[0].value.trim() == "0") {
+            //    isValid = false;
+            //    customAlert("Please select agency from list.");
+            //    plainValidation('#DdlAgencyList');
+            //    return isValid;
+            //}
+            if ($('#DdlRoleList')[0].value.trim() == "0") {
+                isValid = false;
+                customAlert("Please select role from list.");
+                plainValidation('#DdlRoleList');
+                return isValid;
+            }
+            if ($('#EmailAddress')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email id is required.");
+                plainValidation('#EmailAddress');
+                return isValid;
+            }
+            if ($('#EmailAddress')[0].value.trim() != "" && !validateEmail($('#EmailAddress')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#EmailAddress');
+                return isValid;
+            }
+            if ($('#FirstName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required.");
+                plainValidation('#FirstName');
+                return isValid;
+            }
+            //debugger;
+            //if ($('#Password').length ) {
+            //    if ($('#Password')[0].value.trim() == "") {
+            //        isValid = false;
+            //        customAlert("Password is required.");
+            //        plainValidation('#Password');
+            //        return isValid;
+            //    }
+            //}
+            //if ($('#Password').length) {
+            //    if ($('#Password')[0].value.length < 7) {
+            //        isValid = false;
+            //        customAlert("The password length must be atleast 7 character.");
+            //        plainValidation('#Password');
+            //        return isValid;
+            //    }
+            //}
+            //if ($('#Password').length) {
+            //    if (!Password($('#Password')[0].value.trim())) {
+            //        isValid = false;
+            //        customAlert("The password must contain 1 capital letter and 1 number.");
+            //        plainValidation('#Password');
+            //        return isValid;
+            //    }
+            //}
+            //else if ($('#ConfirmPassword').length) {
+            //    if ($('#ConfirmPassword')[0].value.trim() == "") {
+            //        isValid = false;
+            //        customAlert("Confirm password is required.");
+            //        plainValidation('#ConfirmPassword');
+            //        return isValid;
+            //    }
+            //}
+            //if ($('#Password').length) {
+            //    if ($('#Password')[0].value.trim() != $('#ConfirmPassword')[0].value.trim()) {
+            //        isValid = false;
+            //        customAlert("Password does not match the confirm password.");
+            //        plainValidation('#ConfirmPassword');
+            //        return isValid;
+            //    }
+            //}
+
+            if ($('#DOB')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Date of birth is required.");
+                plainValidation('#DOB');
+                return isValid;
+            }
+            if ($('#DdlGender').val() == "" || $('#DdlGender').val() == null) {
+                isValid = false;
+                customAlert("Gender is required.");
+                plainValidation('#DdlGender');
+                return isValid;
+            }
+            if ($('#DdlHighestEducation').val() == "" || $('#DdlHighestEducation').val() == null) {
+                isValid = false;
+                customAlert("Highest education is required.");
+                plainValidation('#DdlHighestEducation');
+                return isValid;
+            }
+            if ($('#DdlRaceList').val() == "" || $('#DdlRaceList').val() == null) {
+                isValid = false;
+                customAlert("Race is required.");
+                plainValidation('#DdlRaceList');
+                return isValid;
+            }
+
+
+            if ($('#HireDate')[0].value.trim() != "" && $('#TerDate')[0].value.trim() != "") {
+                var begD = $('#HireDate').val();
+                var endD = $('#TerDate').val();
+                //var begD = Date.parse($('#programstartDate').val());
+                //var endD = Date.parse($('#programendDate').val());
+                if (Date.parse(begD) > Date.parse(endD)) {
+                    isValid = false;
+                    customAlert("Hire date should not be less than termination date.");
+                    plainValidation('#HireDate');
+                    //plainValidation('#TerDate');
+                    return isValid;
+                }
+            }
+
+            if ('@Session["Roleid"].ToString()' == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+                if ($('#DivAccessType').css('display') != 'none') {
+                    if ($('#AccessDays')[0].value.trim() == "-1") {
+
+                        isValid = false;
+                        customAlert("Please select access type from list.");
+                        plainValidation('#AccessDays');
+                        return isValid;
+                    }
+                }
+                if ($('#AccessStartDate')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Access start date is required.");
+                    plainValidation('#AccessStartDate');
+                    return isValid;
+                }
+                if ($('#DivLoginTime').css('display') != 'none') {
+                    if ($('#AccessStart')[0].value.trim() == "") {
+                        isValid = false;
+                        customAlert("Please select access start time.");
+                        plainValidation('#AccessStart');
+                        return isValid;
+                    }
+                    else if ($('#AccessStop')[0].value.trim() == "") {
+                        isValid = false;
+                        customAlert("Please select access stop time.");
+                        plainValidation('#AccessStop');
+                        return isValid;
+                    }
+                }
+                if ($('#TimeZoneID')[0].value.trim() == "0") {
+                    isValid = false;
+                    customAlert("Please select timezone from list.");
+                    plainValidation('#TimeZoneID');
+                    return isValid;
+                }
+
+            }
+            var check = 0;
+            var count = 0;
+            $("#DivCenter input[type=checkbox]").each(function () {
+                if ($(this).prop('checked')) {
+                    check = 1;
+                    count = count + 1;
+                }
+            });
+            if (check == 0) {
+                isValid = false;
+                customAlert("Please select center from centers list.");
+                plainValidation('#DivCenter');
+                $('#DivCenter').focus();
+                return isValid;
+            }
+            //if (count > 1 && $('#DdlRoleList').val() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+            //{
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Home Visitor.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Disabilities Manager.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "9c34ec8e-2359-4704-be89-d9f4b7706e82") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Disability staff.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "a31b1716-b042-46b7-acc0-95794e378b26") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Health/Nurse.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Teacher.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "2adfe9c6-0768-4a35-9088-e0e6ea91f709") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Teacher Assistant.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "259d2818-3832-46b0-a75c-1731f9f6abc7") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Bus Driver.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+            //if (count > 1 && $('#DdlRoleList').val() == "ae148380-f94e-4f7a-a378-897c106f1a52") {
+            //    isValid = false;
+            //    customAlert("Only one center can be assigned to Bus Monitor.");
+            //    plainValidation('#DivCenter');
+            //    $('#DivCenter').focus();
+            //    return isValid;
+
+            //}
+
+
+
+
+
+            @*if ('@Session["Roleid"].ToString().ToUpper()' == "2d9822cd-85a3-4269-9609-9aabb914d792" && '@ViewBag.show'=='1') {
+                if ($('#ddlapprovereject')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please approve or reject the pending verification.");
+                    plainValidation('#ddlapprovereject');
+                    return isValid;
+                }
+            }*@
+
+
+
+          
+            if ($('#HireDate')[0].value.trim() != "") {
+                if (!validatedatenew($('#HireDate'))) {
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            if ($('#TerDate')[0].value.trim() != "") {
+                if (!validatedatenew($('#TerDate'))) {
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            if ($('#AccessStartDate')[0].value.trim() != "") {
+                if (!validatedatenew($('#AccessStartDate'))) {
+                    isValid = false;
+                    return isValid;
+                }
+            } $('#spinner').show();
+            isValid = true;
+            return isValid;
+            
+            $('#spinner').hide();
+        }
+        $('#AvatarH').change(function (evt) {
+
+            showimages(evt.target.files);
+        });
+
+        function showimages(files) {
+            for (var i = 0, f; f = files[i]; i++) {
+
+                var reader = new FileReader();
+                reader.onload = function (evt) {
+
+                    $('img#imgavatarh').attr('src', evt.target.result);
+                }
+                reader.readAsDataURL(f);
+            }
+        }
+        function ToggleVisible(ddl) {
+
+            if ('@Session["AgencyID"]' != "")
+                BindCenter('@Session["AgencyID"]', $('#DdlRoleList').val());
+
+            var value = ddl.options[ddl.selectedIndex].value;
+            if (value == "3b49b025-68eb-4059-8931-68a0577e5fa2") {
+                $('.DivHide').hide();
+                $('.divposition').css("position", "absolute");
+            }
+            else {
+                $('.DivHide').show();
+                $('.divposition').css("position", "");
+            }
+            if (value == "2ADFE9C6-0768-4A35-9088-E0E6EA91F709" || value == "2adfe9c6-0768-4a35-9088-e0e6ea91f709" || value == "82B862E6-1A0F-46D2-AAD4-34F89F72369A" || value == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
+                $('#classline').show();
+                $('#divclassheading').show();
+                $('#divClassroom').show();
+            }
+            else {
+                $('#classline').hide();
+                $('#divclassheading').hide();
+                $('#divClassroom').hide();
+            }
+
+            $('#DivCenter input:checked').each(function () {
+               
+                    $(this).prop("checked", false);
+                
+            });
+            $("#DivRoles input[type=checkbox]").each(function () {
+                if ($(this).val() == $('#DdlRoleList').val()) {
+                    $(this).parent().hide();
+                    $(this).prop("checked", false);
+                }
+                else {
+                    $(this).parent().show();
+                }
+            });
+            $('#DdlClassList').find('option').remove();
+        }
+        function BindCenter(Id, Roleid) {
+
+            $.ajax({
+                url: HostedDir + "/Agencyuser/getagencyid",
+                type: "POST",
+                data: {
+                    Agencyid: Id,
+                    Roleid: Roleid
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        $('#DivCenter').empty();
+                        var option = "";
+                        var content = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].CenterId + '">' + response[i].Name + '</option>';
+                            content += ' <div class="centerinhorizontal"><input type="checkbox" onchange="uncheck(this);" name="Centers.CenterID" value="' + response[i].CenterId + '" id="' + response[i].CenterId + '" accesskey="' + response[i].CenterId + '"/>' +
+                            '<label class="chk_1" for="chk_1">' + response[i].Name + '</label></div>';
+                        }
+                        $('#DdlHrCenter').find('option').remove().end().append(option);
+                        $('#DdlHrCenter').val('');
+                        $('#DivCenter').append(content);
+
+                    }
+                    else {
+                        $('#DdlHrCenter').find('option').remove();
+                        $('#DivCenter').empty().append('<label>No center found</label>');
+
+                    }
+                }
+               , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function Agencyadmin() {
+            window.location.href = HostedDir + "/Agency/viewagencystaff";
+
+        }
+        function EnableDisable() {
+            if ($('#EmailAddress').is('[readonly]')) {
+                $("#EmailAddress").removeAttr("readonly");
+            }
+            else {
+                $("#EmailAddress").prop("readonly", true);
+            }
+
+        }
+        var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInput(oInput) {
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    // alert(oInput.files[0].size / 1024 / 1024);
+                    var v = oInput.files[0].size / 1024 / 1024;
+                    if (v <= 1) {
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            return false;
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 1 MB");
+                        return false;
+                    }
+
+                }
+            }
+            return true;
+        }
+        function uncheck(object) {
+
+            if ($('#DdlRoleList').val() == "2adfe9c6-0768-4a35-9088-e0e6ea91f709" || $('#DdlRoleList').val() == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
+                var newvalue = $(object).val();
+                var i = 0;
+                $('#DivCenter input:checked').each(function () {
+                    var values = $(this).val();
+                    if (values != newvalue) {
+                        $(this).prop("checked", false);
+                    }
+                });
+                BindClassroom(newvalue);
+            }
+
+
+
+        }
+
+    </script>
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                @ViewData["Title"].ToString()
+                <span style="float:right;">
+
+
+                    @if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
+                    {
+                        <a href="~/Agency/viewagencystaff" style="padding: 5px 33px; background-color: #295b8f; color: #fff; font-size: 14px; border-style: none; ">Back to list</a>
+                    }
+                    else
+                    {
+                        <a onclick="Agencyadmin();" style="padding: 5px 33px; background-color: #295b8f; color: #fff; font-size: 14px; border-style: none; ">Back to list</a>
+                    }
+
+
+                </span>
+            </h2>
+
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <div class="row">
+        <form method="post" enctype="multipart/form-data" id="form1" autocomplete="off">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="add-useragform">
+                    <div>
+                        <h3 class="sepratetaff">Personal Information</h3>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Role <sup>*</sup></label>
+                                    @Html.DropDownListFor(m => m.SelectedRoleId, new SelectList(Model.rolelist, "RoleId", "RoleName", Model.SelectedRoleId), new { id = "DdlRoleList", Name = "DdlRoleList", onchange = "ToggleVisible(this);", @class = "form-control", tabIndex = "1", @style = "width:44%;"})
+                                    <a class="change_embtn" href="#" data-toggle="modal" data-target="#ModalRole" style="font-size: 15px; margin-top: 1%; color: #285b8f;">Alternate Role</a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group  ">
+
+                                    <label for="pwd">Email <sup>*</sup></label>
+                                    @*@Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "2" })*@
+                                    @if (@ViewBag.mode == 0)
+                                    {
+                                        @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "2" })
+                                    }
+                                    else
+                                    {
+                                        @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control email-change", tabIndex = "2", @readonly = "true" })
+                                        <a class="change_embtn href-erre" id="BtnChanged" href="#" onclick="EnableDisable()">Change</a>
+                                    }
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">First Name <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.FirstName, new { placeholder = "First Name", id = "FirstName", Name = "FirstName", maxlength = "50", autocomplete = "off", onblur = "CheckFirstCharcter(this);", @class = "form-control", tabIndex = "3" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Last Name</label>
+                                            @Html.TextBoxFor(m => m.LastName, new { placeholder = "Last Name", id = "lastname", Name = "LastName", maxlength = "50", @class = "form-control", tabIndex = "4" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        @if (String.IsNullOrEmpty(Model.EmailAddress))
+                                        {
+                                            <div class="form-group">
+                                                <label for="pwd">Password <sup>*</sup></label>
+                                                @Html.PasswordFor(m => m.Password, new { placeholder = "Password", id = "Password", Name = "Password", maxlength = "20", @class = "form-control", tabIndex = "5" })
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        @if (String.IsNullOrEmpty(Model.EmailAddress))
+                                        {
+
+                                            <div class="form-group">
+                                                <label for="pwd">Confirm Password <sup>*</sup></label>
+                                                @Html.PasswordFor(m => m.ConfirmPassword, new { placeholder = "Confirm Password", id = "ConfirmPassword", Name = "ConfirmPassword", maxlength = "20", @class = "form-control", tabIndex = "6" })
+
+                                            </div>
+                                        }
+                                    </div>
+
+
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Date of  Birth <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.DOB, new { placeholder = "MM/DD/YYYY", id = "DOB", Name = "DOB", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "return validatedate(this);" })
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email"> Gender <sup>*</sup></label>
+                                            @{
+                                                List<SelectListItem> GenderList = new List<SelectListItem>();
+                                                //GenderList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                GenderList.Add(new SelectListItem() { Text = "Female", Value = "0" });
+                                                GenderList.Add(new SelectListItem() { Text = "Male", Value = "1" });
+                                                GenderList.Add(new SelectListItem() { Text = "Other", Value = "2" });
+                                            }
+                                            @Html.DropDownListFor(m => m.Gender, new SelectList(GenderList, "Value", "Text", Model.Gender), new { id = "DdlGender", Name = "DdlGender", @class = "form-control", tabIndex = "8" })
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Mobile Number</label>
+                                            @Html.TextBoxFor(m => m.CellNumber, new { placeholder = "Mobile Number", id = "CellNumber", Name = "CellNumber", maxlength = "15", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Highest Education <sup>*</sup></label>
+                                            @Html.DropDownListFor(m => m.HighestEducation, new SelectList(Model.EducationLevelList, "EducationLevel", "Name", Model.HighestEducation), new { id = "DdlHighestEducation", Name = "DdlHighestEducation", @class = "form-control", tabIndex = "10" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Early Childhood </label>
+                                            @{
+
+                                                List<SelectListItem> item = new List<SelectListItem>();
+                                                //item.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                item.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                item.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                            }
+                                            @Html.DropDownListFor(m => m.EarlyChildHood, new SelectList(item, "Value", "Text", Model.EarlyChildHood), new { id = "DdlEarlyChildHood", Name = "DdlEarlyChildHood", @class = "form-control", tabIndex = "11" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Race <sup>*</sup></label>
+                                            @Html.DropDownListFor(m => m.Race, new SelectList(Model.raceList, "RaceId", "Name", Model.Race), new { id = "DdlRaceList", Name = "DdlRaceList", @class = "form-control", tabIndex = "12" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Getting Degree</label>
+                                            @{
+                                                List<SelectListItem> GettingDegreeitems = new List<SelectListItem>();
+                                                //GettingDegreeitems.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                GettingDegreeitems.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                GettingDegreeitems.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                            }
+                                            @Html.DropDownListFor(m => m.GettingDegree, new SelectList(GettingDegreeitems, "Value", "Text", Model.GettingDegree), new { id = "DdlGettingDegree", Name = "DdlGettingDegree", @class = "form-control", tabIndex = "13" })
+                                        </div>
+
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="nation">Country</label>
+                                            @if (Model.Natinality != null)
+                                            {
+                                                @Html.DropDownListFor(m => m.Natinality, new SelectList(Model.nationList, "NationId", "Name", Model.Natinality), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "14" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownListFor(m => m.Natinality, new SelectList(Model.nationList, "NationId", "Name", "7D979B6C-F4D1-4D9C-99CD-8DC5160870B7"), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "15" })
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">General Picture </label>
+                                            @Html.TextBoxFor(m => m.Avatar, new { id = "Avatar", Name = "Avatar", type = "file", onchange = "ValidateSingleInput(this)", @class = "form-control", tabIndex = "16" })<div class="img-iconavt">
+                                            <img id="imgAvatar" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarUrl)' style="border-style:none;" alt="" /></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">Happy Avatar </label>
+                                            @Html.TextBoxFor(m => m.AvatarH, new { id = "AvatarH", Name = "AvatarH", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "17" })<div class="img-iconavt">
+                                                <img id="imgAvatarH" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarhUrl)' alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">Sad Avatar </label>
+                                            @Html.TextBoxFor(m => m.AvatarS, new { id = "AvatarS", Name = "AvatarS", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "18" })
+                                            <div class="img-iconavt">
+                                                <img id="imgAvatas" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarsUrl)' alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">Tired Avatar </label>
+                                            @Html.TextBoxFor(m => m.AvatarT, new { id = "AvatarT", Name = "AvatarT", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "19" })
+                                            <div class="img-iconavt">
+                                                <img id="imgAvatarT" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatartUrl)' style="border:none;" alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;"></div>
+
+                    <div>
+                        <h3 class="sepratetaff">Official Information</h3>
+                        <div class="row">
+
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Hire Date </label>
+                                            @Html.TextBoxFor(m => m.HireDate, new { @class = "datecss form-control", placeholder = "MM/DD/YYYY", id = "HireDate", Name = "HireDate", maxlength = "50", tabIndex = "20" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Termination Date</label>
+                                            @Html.TextBoxFor(m => m.TerDate, new { @class = "datecss form-control", placeholder = "MM/DD/YYYY", id = "TerDate", Name = "TerDate", maxlength = "50", tabIndex = "21" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">HR Center </label>
+                                            @Html.DropDownListFor(m => m.HRCenter, new SelectList(Model.HrcenterList, "CenterId", "Name", Model.HRCenter), new { id = "DdlHrCenter", Name = "DdlHrCenter", @class = "form-control", tabIndex = "22" })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Contractor</label>
+                                            @{
+                                                List<SelectListItem> ContractorList = new List<SelectListItem>();
+                                                //ContractorList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                ContractorList.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                ContractorList.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                            }
+                                            @Html.DropDownListFor(m => m.Contractor, new SelectList(ContractorList, "Value", "Text", Model.Contractor), new { id = "DdlContractor", Name = "DdlContractor", @class = "form-control", tabIndex = "23" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Hourly Rate</label>
+                                            @Html.TextBoxFor(m => m.HourlyRate, new { placeholder = "Hourly Rate", id = "HourlyRate", Name = "HourlyRate", maxlength = "10", onblur = "checkDecimal(this);", @class = "form-control", tabIndex = "24" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Salary</label>
+                                            @Html.TextBoxFor(m => m.Salary, new { placeholder = "Salary", id = "Salary", Name = "Salary", maxlength = "30", onblur = "checkDecimal(this);", @class = "form-control", tabIndex = "25" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Replacement</label>
+                                            @{
+                                                List<SelectListItem> ReplacementList = new List<SelectListItem>();
+                                                //ReplacementList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                ReplacementList.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                ReplacementList.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                            }
+                                            @Html.DropDownListFor(m => m.Replacement, new SelectList(ReplacementList, "Value", "Text", Model.Replacement), new { id = "DdlReplacement", Name = "DdlReplacement", @class = "form-control", tabIndex = "26" })
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Associated Program</label>
+                                            @{
+                                                List<SelectListItem> AssociatedProgramList = new List<SelectListItem>();
+                                                //AssociatedProgramList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                AssociatedProgramList.Add(new SelectListItem() { Text = "N/A", Value = "0" });
+                                                AssociatedProgramList.Add(new SelectListItem() { Text = "HS", Value = "1" });
+                                                AssociatedProgramList.Add(new SelectListItem() { Text = "EHS", Value = "2" });
+                                                AssociatedProgramList.Add(new SelectListItem() { Text = "Both HS and EHS", Value = "3" });}
+                                            @Html.DropDownListFor(m => m.AssociatedProgram, new SelectList(AssociatedProgramList, "Value", "Text", Model.AssociatedProgram), new { id = "DdlAssociatedProgram", Name = "DdlAssociatedProgram", @class = "form-control", tabIndex = "27" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="nation">PIR Role</label>
+                                            @Html.DropDownListFor(m => m.PirRoleid, new SelectList(Model.Pirlist, "PirId", "Name"), new { id = "DdlpirList", Name = "DdlpirList", @class = "form-control", tabIndex = "28" })
+                                        </div>
+                                    </div>
+
+                                    @if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+                                    {
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12 divposition">
+                                            <div class="form-group DivHide" id="DivAccessType">
+                                                <label for="email">Access Type <sup>*</sup></label>
+                                                @{
+                                        List<SelectListItem> AccessTypeList = new List<SelectListItem>();
+                                        //AccessTypeList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                        AccessTypeList.Add(new SelectListItem() { Text = "All Days", Value = "0" });
+                                        AccessTypeList.Add(new SelectListItem() { Text = "M-F Only", Value = "1" });
+                                                }
+                                                @Html.DropDownListFor(m => m.AccessDays, new SelectList(AccessTypeList, "Value", "Text", Model.AccessDays), new { id = "AccessDays", Name = "AccessDays", @class = "form-control", tabIndex = "29" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Access Start Date <sup>*</sup></label>
+                                                @Html.TextBoxFor(m => m.AccessStartDate, new { @class = "date form-control", placeholder = "MM/DD/YYYY", id = "AccessStartDate", Name = "AccessStartDate", maxlength = "50", tabIndex = "30" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12 divposition">
+                                            <div class="form-group DivHide " id="DivLoginTime">
+                                                <label for="pwd">Start Time <sup>*</sup></label>
+                                                @Html.TextBoxFor(m => m.AccessStart, new { @class = "form-control", id = "AccessStart", Name = "AccessStart", placeholder = "Start Time", tabIndex = "31" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12 divposition">
+                                            <div class="form-group DivHide">
+                                                <label for="pwd">Stop Time <sup>*</sup></label>
+                                                @Html.TextBoxFor(m => m.AccessStop, new { @class = "form-control", id = "AccessStop", Name = "AccessStop", placeholder = "Stop Time", tabIndex = "32" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Time Zone <sup>*</sup></label>
+                                                @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", tabIndex = "33" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12" style="min-height:45px">
+                                            <div class="form-group">
+                                                <label for="loginallowed">Is Login allowed ?</label>
+                                                @Html.CheckBoxFor(m => m.LoginAllowed, new { @checked = "checked", id = "LoginAllowed", Name = "LoginAllowed", tabIndex = "34" })
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        @Html.HiddenFor(m => m.AccessDays)
+                                        @Html.HiddenFor(m => m.AccessStartDate)
+                                        @Html.HiddenFor(m => m.AccessStart)
+                                        @Html.HiddenFor(m => m.AccessStop)
+                                        @Html.HiddenFor(m => m.TimeZoneID)
+                                        @Html.HiddenFor(m => m.LoginAllowed)
+                                    }
+                                    @Html.HiddenFor(m => m.AgencyStaffId, new { id = "AgencyStaffId", Name = "AgencyStaffId" })
+                                    @Html.HiddenFor(m => m.AvatarUrl, new { id = "AvatarUrl", Name = "AvatarUrl" })
+                                    @Html.HiddenFor(m => m.AvatarhUrl, new { id = "AvatarhUrl", Name = "AvatarhUrl" })
+                                    @Html.HiddenFor(m => m.AvatarsUrl, new { id = "AvatarsUrl", Name = "AvatarsUrl" })
+                                    @Html.HiddenFor(m => m.AvatartUrl, new { id = "AvatartUrl", Name = "AvatartUrl" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;"></div>
+                    <div>
+                        <h3 class="sepratetaff">Centers</h3>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        @*<label for="loginallowed">Center <sup>*</sup></label>*@
+                                        @if (ViewBag.mode == 0)
+                                        {
+                                            <div id="DivCenter" class="input_wd1">
+                                                <label>No center found</label>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            if (Model.SelectedRoleId == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                                            {
+                                                <div id="DivCenter" class="input_wd1">
+
+                                                @if (Model != null && Model.HrcenterList != null && Model.HrcenterList.Count > 0)
+                                                {
+                                                    foreach (var item1 in Model.HrcenterList)
+                                                    {
+                                                        if (item1.CenterId != "0" && item1.Homebased)
+                                                        {
+
+                                                            if (Model.centers != null && Model.centers.Count > 0)
+                                                            {
+                                                                int i = 0;
+                                                                foreach (var item2 in Model.centers)
+                                                                {
+
+                                                                    if (item2.CenterId == item1.CenterId)
+                                                                    {
+                                                                        i = 1;
+                                                                    }
+                                                                }
+                                                                if (i == 1)
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" checked="checked" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+                                                                i = 0;
+                                                            }
+                                                            else
+                                                            { <div class="centerinhorizontal">
+                                                                  <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                            </div>
+                                                            }
+
+                                                        }
+
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <label>No center found</label>
+                                                }
+                                            </div>
+
+                                            }
+                                            else if (Model.SelectedRoleId.ToUpper() == "A31B1716-B042-46B7-ACC0-95794E378B26")
+                                            {
+                                                <div id="DivCenter" class="input_wd1">
+
+                                                @if (Model != null && Model.HrcenterList != null && Model.HrcenterList.Count > 0)
+                                                {
+                                                    foreach (var item1 in Model.HrcenterList)
+                                                    {
+                                                        if (item1.CenterId != "0")
+                                                        {
+
+                                                            if (Model.centers != null && Model.centers.Count > 0)
+                                                            {
+                                                                int i = 0;
+                                                                foreach (var item2 in Model.centers)
+                                                                {
+
+                                                                    if (item2.CenterId == item1.CenterId)
+                                                                    {
+                                                                        i = 1;
+                                                                    }
+                                                                }
+                                                                if (i == 1)
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" checked="checked" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+                                                                i = 0;
+                                                            }
+                                                            else
+                                                            { <div class="centerinhorizontal">
+                                                                  <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                            </div>
+                                                            }
+
+                                                        }
+
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <label>No center found</label>
+                                                }
+                                            </div>
+                                                
+                                            }
+                                               
+                                            else
+                                            {
+                                                
+                                                <div id="DivCenter" class="input_wd1">
+
+                                                @if (Model != null && Model.HrcenterList != null && Model.HrcenterList.Count > 0)
+                                                {
+                                                    foreach (var item1 in Model.HrcenterList)
+                                                    {
+                                                        if (item1.CenterId != "0")
+                                                        {
+
+                                                            if (Model.centers != null && Model.centers.Count > 0)
+                                                            {
+                                                                int i = 0;
+                                                                foreach (var item2 in Model.centers)
+                                                                {
+
+                                                                    if (item2.CenterId == item1.CenterId)
+                                                                    {
+                                                                        i = 1;
+                                                                    }
+                                                                }
+                                                                if (i == 1)
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" checked="checked" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+                                                                i = 0;
+                                                            }
+                                                            else
+                                                            { <div class="centerinhorizontal">
+                                                                  <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                            </div>
+                                                            }
+
+                                                        }
+
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <label>No center found</label>
+                                                }
+                                            </div>
+                                            }
+                                            
+                                            
+                                            
+                                            
+                                            
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="classline" style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;display:none;"></div>
+                        <h3 class="sepratetaff" id="divclassheading" style="display:none;">Class Room</h3>
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divClassroom" style="display:none;">
+                            <div class="form-group">
+                                <label for="email">Classroom </label>
+                                @Html.DropDownListFor(m => m.Classrooms, new SelectList(Model.Classroom, "ClassroomID", "ClassName"), new { id = "DdlClassList", @class = "form-control", tabIndex = "15" })
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();" class="my-btn" tabindex="35">Submit</button>
+                                    <button id="btnCancel" type="button" class="my-btn" tabindex="36">Exit</button>
+                                    <div class="clear"></div>
+                                </div>	<!--btnwrp_subcal--->
+                            </div>
+                        </div>
+                    <div class="row qualifierdiv">
+                        <div class="modal fade scroll-modal" id="ModalRole" role="dialog">
+                            <div class="modal-dialog income-popup width-auto">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h3 class="text-center">Alternate role<span class="extra-title muted"></span></h3>
+                                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Ok</button>
+                                                <div class="clear"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-group rolemodal">
+                                        <div id="DivRoles" class="input_wd2">
+                                            @if (Model.rolelist != null && Model.rolelist.Count > 0)
+                                            {
+                                                foreach (var role in Model.rolelist)
+                                                {
+                                                    int count = 0;
+                                                    if (Model._rolelist != null && Model._rolelist.Count > 0)
+                                                    {
+
+                                                        foreach (var role1 in Model._rolelist)
+                                                        {
+                                                            if (role1.RoleId == role.RoleId)
+                                                            {
+                                                                <div class="centerinhorizontal2">
+                                                                    <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" checked="checked" />
+                                                                    <label class="chk_1" for="chk_1">@role.RoleName</label>
+                                                                </div>
+                                                                count++;
+                                                            }
+                                                        }
+                                                        if (count == 0)
+                                                        {
+                                                            <div class="centerinhorizontal2">
+                                                                <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" />
+                                                                <label class="chk_1" for="chk_1">@role.RoleName</label>
+                                                            </div>
+
+                                                        }
+                                                        count = 0;
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="centerinhorizontal2">
+                                                            <input type="checkbox" value="@role.RoleId" name="Rolelist.RoleID" />
+                                                            <label class="chk_1" for="chk_1">@role.RoleName</label>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div><!--add-useragform--->
+            </div>
+        </form>
+    </div>
+}

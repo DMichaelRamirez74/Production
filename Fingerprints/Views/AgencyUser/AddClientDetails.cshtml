@@ -1,0 +1,532 @@
+﻿@model FingerprintsModel.FamilyHousehold
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        $('#CDOB').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        var end = new Date();
+        $('.time').datetimepicker({
+            datepicker: false,
+            format: 'H:i',
+            step: 15
+        });
+        if ('@ViewBag.message' != '')
+            customAlert('@ViewBag.message');
+        $('#btnCancelPassword').click(function () {
+            popup_me_close('Change_Pass');
+        });
+        if ('@ViewBag.result' == 'Sucess') {
+            clearcontrols();
+        }
+    });
+    function isValidClientInfo() {
+        var isValid = true;
+        cleanValidation();
+        if ($('#Pfirstname')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("First name is required. ");
+            plainValidation('#Pfirstname');
+            return isValid;
+        }
+        if ($('#Plastname')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Last name is required. ");
+            plainValidation('#Plastname');
+            return isValid;
+        }
+       
+        if ($('#Street')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Address is required. ");
+            plainValidation('#Street');
+            return isValid;
+        }
+        if ($('#ZipCode')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Zip Code is required. ");
+            plainValidation('#ZipCode');
+            return isValid;
+        }
+        if ($('#City').val() == "" ||  $('#City').val() == null) {
+            isValid = false;
+            customAlert("City is required. ");
+            plainValidation('#City');
+            return isValid;
+        }
+        if ($('#State')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("State is required. ");
+            plainValidation('#State');
+            return isValid;
+        }
+        if ($('#County')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("County is required. ");
+            plainValidation('#County');
+            return isValid;
+        }
+
+        if (!$('#Ischild').prop("checked")) {
+            if ($('#Cfirstname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required. ");
+                plainValidation('#Cfirstname');
+                return isValid;
+            }
+            if ($('#Clastname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Last name is required. ");
+                plainValidation('#Clastname');
+                return isValid;
+            }
+            if ($('#CDOB')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Date of birth is required. ");
+                plainValidation('#CDOB');
+                return isValid;
+            }
+            if ($('#CDOB')[0].value.trim() != "") {
+                var today = new Date();
+                if (Date.parse($("#CDOB").val()) > today) {
+                    isValid = false;
+                    customAlert("Date of birth Can't be greater than current date. ");
+                    plainValidation('#CDOB');
+                    return isValid;
+                }
+            }
+            if (!$("input:radio[name='CGender']").is(":checked")) {
+                isValid = false;
+                customAlert("Gender is required. ");
+                return isValid;
+            }
+        }
+
+      
+        return isValid;
+    }
+    function validatedate(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (regex.test($(inputTextObject).val())) {
+                var dob = new Date();
+                if (Date.parse($(inputTextObject).val()) >= dob) {
+                    customAlert("Invalid Date of birth. Date of birth must be less than today's date. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+                else {
+
+                    var age = null;
+                    var now = null;
+                    var past = null;
+                    var nowYear = null;
+                    var pastYear = null;
+                    now = new Date();
+                    past = new Date($(inputTextObject).val());
+                    nowYear = now.getFullYear();
+                    pastYear = past.getFullYear();
+                    age = nowYear - pastYear;
+                    if (age > 90) {
+                        BootstrapDialog.confirm('Date of birth is greater than 90 years!! Do you want to continue?', function (result) {
+                            if (result) {
+                                return true;
+                            }
+                            else {
+                                $(inputTextObject).val('');
+                                $('#Oemergencycontact').hide();
+                                $('#lblOemergencycontact').hide();
+                            }
+                        });
+                    }
+                    return true;
+                }
+
+            }
+            else {
+                customAlert("Invalid date of birth. ");
+                $(inputTextObject).val('');
+                return false;
+            }
+
+        }
+
+    }
+    function checkZipCode(inputTextObject) {
+        if ($(inputTextObject).val() != "") {
+            var ret = true;
+            var Zipcode = $(inputTextObject).val();
+            var len = Zipcode.length;
+            if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+                var ret = false;
+            }
+            else if (len < 2) {
+                $(inputTextObject).val('');
+                customAlert("Zip code length must be 2 digit. ");
+                var ret = false;
+            }
+            else if (isNaN(inputTextObject.value)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+                var ret = false;
+            }
+            if (ret)
+                CheckAddress(1);
+            return ret;
+        }
+        else
+        {
+            $('#City').find('option').remove();
+            $('#State').val('');
+            $('#County').val('');
+
+
+        }
+    }
+    function clearcontrols() {
+        $('#Street')[0].value = "";
+        $('#StreetName')[0].value = "";
+        $('#ZipCode')[0].value = "";
+        $('#hdnClientID')[0].value = "";
+        $('#btnDSubmit').enabled = true;
+        $('#State')[0].value = "";
+        $('#City')[0].value = "";
+        $('#County')[0].value = "";
+        $('#Pfirstname')[0].value = "";
+        $('#Plastname')[0].value = "";
+        $('#Cfirstname')[0].value = "";
+        $('#Clastname')[0].value = "";
+        $('#CDOB')[0].value = "";
+        $('#CGenderfemale').prop("checked", false);
+        $('#CGendermale').prop("checked", false);
+        $('#CGenderother').prop("checked", false);
+        $('#hdnClientID').val(0);
+    }
+    function ucfirst(str, force) {
+        str = force ? str.toLowerCase() : str;
+        return str.replace(/(\b)([a-zA-Z])/,
+                 function (firstLetter) {
+                     return firstLetter.toUpperCase();
+                 });
+    }
+    function Changefirstchar(value) {
+        var cp_value = ucfirst($(value).val(), true);
+        $(value).val(cp_value);
+    }
+    function CheckAddress(value) {
+        var Zipcode = 0;
+        if (value == 0)
+            Zipcode = 0;
+        else
+            Zipcode = $('#ZipCode').val();
+
+        if (value == 0 && $('#State').val().trim()!="")
+        {
+            $.ajax({
+                url: HostedDir + "/Agencyuser/Checkaddress",
+                type: "POST",
+                data: {
+                    Address: $('#Street').val() + $('#StreetName').val() + $('#ZipCode').val(),
+                    HouseHoldId: $('#HouseholdId').val(),
+                    Zipcode: Zipcode
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.Result == 1) {
+                        BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                            if (!result) {
+                                $('#Street').val("");
+                                $('#StreetName').val("");
+                                $('#ZipCode').val("");
+                                $('#City').find('option').remove().end();
+                                $('#City').val('');
+                                $('#State').val('');
+                                $('#County').val('');
+                            }
+                        });
+                    }
+                }
+                    , error: function (response) {
+                           customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                    }
+            });
+
+
+        }
+        else
+        {
+            if ($('#ZipCode').val().trim() != "") {
+
+                $.ajax({
+                    url: HostedDir + "/Agencyuser/Checkaddress",
+                    type: "POST",
+                    data: {
+                        Address: $('#Street').val() + $('#StreetName').val() + $('#ZipCode').val(),
+                        HouseHoldId: $('#HouseholdId').val(),
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (value == 1) {
+                            if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                                var option = "";
+                                for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                    option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                                }
+                                $('#City').find('option').remove().end().append(option);
+                                $('#City').val('');
+                                $('#State').val(response.Zipcodelist[0].State);
+                                $('#County').val(response.Zipcodelist[0].County);
+                                $('#ZipCode').val(response.Zipcodelist[0].Zipcode);
+                            }
+                            else {
+                                $('#City').find('option').remove().end();
+                                $('#City').val('');
+                                $('#State').val('');
+                                $('#ZipCode').val('');
+                                $('#County').val('');
+                                customAlert("Could not find zipcode details.");
+
+                            }
+                        }
+                        if (response.Result == 1) {
+                            BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                                if (!result) {
+                                    $('#Street').val("");
+                                    $('#StreetName').val("");
+                                    $('#ZipCode').val("");
+                                    $('#City').find('option').remove().end();
+                                    $('#City').val('');
+                                    $('#State').val('');
+                                    $('#County').val('');
+                                }
+                            });
+                        }
+                    }
+                        , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        }
+                });
+            }
+
+
+        }
+            
+        
+    }
+    function AddClient() {
+
+        if (isValidClientInfo()) {
+            $.ajax({
+                url: HostedDir + "/AgencyUser/AddClientDetailsAjax",
+                type: "POST",
+                data: {
+
+                    HouseholdId: $('#HouseholdId')[0].value,
+                    Street: $('#Street')[0].value,
+                    StreetName: $('#StreetName')[0].value,
+                    ZipCode: $('#ZipCode')[0].value,
+                    City: $('#City')[0].value,
+                    State: $('#State')[0].value,
+                    County: $('#County')[0].value,
+                    Pfirstname: $('#Pfirstname')[0].value,
+                    Plastname: $('#Plastname')[0].value,
+                    Cfirstname: $('#Cfirstname')[0].value,
+                    Clastname: $('#Clastname')[0].value,
+                    CDOB: $('#CDOB')[0].value,
+                    CGender: $('input[type="radio"]:checked').val(),
+                    Enrollpregnantmother: $('#Ischild').prop("checked")
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+                    if (response != null) {
+                        HouseholdId = response;
+                        if (response == "-1") {
+                            customAlert("Record already exist.");
+                        }
+                        else if (response != "0") {
+                            window.location.href = HostedDir + "/AgencyUser/FamilyDetails?Id=" + HouseholdId;
+                            customAlert("Record added successfully.");
+                            clearcontrols();
+
+                        }
+
+
+
+
+                    }
+
+                },
+                error: function (response) {
+                    customAlert("Error occured please try again later. ");
+                }
+            });
+        }
+    }
+
+    function Showhidechild(object)
+    {
+        if ($(object).prop("checked")) {
+            $('#showhidechild').hide();
+            $('#Cfirstname').val('');
+            $('#Clastname').val('');
+            $('#CDOB').val('');
+            $('#CGenderfemale').prop("checked", false);
+            $('#CGendermale').prop("checked", false);
+            $('#CGenderother').prop("checked", false);
+        
+        }
+        else {
+            $('#showhidechild').show();
+        }
+    }
+
+
+
+</script>
+<div class="modal fade" id="myModalClient" role="dialog">
+    <div class="modal-dialog income-popup width-auto">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-center">Client Details<span class="extra-title muted"></span></h3>
+            </div>
+            <div class="control-group">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                        <form method="post" role="form" id="form2" autocomplete="off">
+                            <div class="add-useragform">
+                                @Html.HiddenFor(m => m.ClientID, new { id = "hdnClientID" })
+
+                                <div class="">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Guardian First Name <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.Pfirstname, new { placeholder = "Guardian First Name", id = "Pfirstname", name = "Pfirstname", maxlength = "50", tabIndex = "1", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Guardian Last Name<sup>*</sup> </label>
+                                            @Html.TextBoxFor(m => m.Plastname, new { placeholder = "Guardian Last Name", id = "Plastname", name = "Plastname", tabIndex = "2", maxlength = "50", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Address <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.Street, new { placeholder = "Address", id = "Street", maxlength = "50", @class = "form-control", tabindex = 3, @onblur = "CheckAddress(0);" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Apartment No., Lot No. </label>
+                                            @Html.TextBoxFor(m => m.StreetName, new { placeholder = "Apartment No., Lot No.", id = "StreetName", maxlength = "100", @class = "form-control", tabindex = 4 ,onblur="CheckAddress(0);"})
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Zip Code  <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.ZipCode, new { placeholder = "Zip Code ", id = "ZipCode", maxlength = "5", @class = "form-control", onblur = "checkZipCode(this);", tabindex = 5 })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">City  <sup>*</sup></label>
+
+                                            <select id="City" name="City" class="form-control" tabindex="6"></select>
+                                            @*@Html.TextBoxFor(m => m.City, new { placeholder = "City ", id = "City", maxlength = "100", @class = "form-control", onblur = "Changefirstchar(this);", tabindex = 6 })*@
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">State  <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.State, new { placeholder = "State ", id = "State", maxlength = "100", @class = "form-control", onblur = "isSpclChar(this);", tabindex = 7,@readonly="readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">County  <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.County, new { placeholder = "County ", id = "County", maxlength = "100", @class = "form-control", tabindex = 8, @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Expected Mother Enrollment Only? </label>
+                                                <div class="cont-sz">
+                                                    <input type="checkbox" onchange="Showhidechild(this);" class="minimal" name="Pregnantmotherenrolled" id="Ischild" tabindex="9" />
+                                                </div>
+                                            </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+
+                                        </div>
+                                        </div>
+                                    <div id="showhidechild">
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Child First Name <sup>*</sup></label>
+                                                @Html.TextBoxFor(m => m.Cfirstname, new { placeholder = "Child First Name", id = "Cfirstname", maxlength = "20", tabIndex = "10", @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Child Last Name <sup>*</sup></label>@*Child Last Name <sup>*</sup>*@
+                                                @Html.TextBoxFor(m => m.Clastname, new { placeholder = "Child Last Name", id = "Clastname", maxlength = "20", tabIndex = "11", @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Child DOB <sup>*</sup></label>
+                                                <div class="date custom-time">
+                                                    @Html.TextBoxFor(m => m.CDOB, new { placeholder = "MM/DD/YYYY", id = "CDOB", Name = "CDOB", maxlength = "50", tabIndex = "12", @class = "form-control", @onblur = "return validatedate(this);" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label>Child Gender <sup>*</sup></label>
+                                                <div class="cont-sz">
+                                                    <div class="col-xs-6 col-sm-4">
+                                                        @Html.RadioButtonFor(m => m.CGender, "2", new { id = "CGenderfemale", tabIndex = "13" })
+                                                        <span>Female </span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        @Html.RadioButtonFor(m => m.CGender, "1", new { id = "CGendermale", tabIndex = "14" })
+                                                        <span>Male</span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-4">
+                                                        @Html.RadioButtonFor(m => m.CGender, "3", new { id = "CGenderother", tabIndex = "15" })
+                                                        <span>Other </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmitDentist" tabindex="16" onclick="AddClient();" class="my-btn" type="button">Add</button>
+                                    <button id="btnCancelPassword" tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                                    <input id="HouseholdId" type="hidden" name="HouseholdId" value="@Model.HouseholdId" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

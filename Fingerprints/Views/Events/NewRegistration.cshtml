@@ -1,0 +1,421 @@
+﻿@model FingerprintsModel.WalkinRegistraton
+@{
+    ViewBag.Title = "NewRegistration";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section MainContentHolder
+{
+
+    <link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+            overflow: auto;
+        }
+
+        .events_list_title {
+            margin-top: 15px;
+        }
+
+            .events_list_title h2 {
+                text-align: center;
+                font-weight: bold;
+                color: #fff;
+                margin-top: 0;
+            }
+
+        .family_ovr {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+       
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+
+        .no-data-div {
+            position: relative;
+            margin-top: 125px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .ersa-search-btn {
+            display: inline-block;
+            width: auto;
+            vertical-align: bottom;
+            top: 0;
+            position: relative;
+            z-index: 99;
+        }
+
+            .ersa-search-btn a {
+                font-size: 18px;
+                text-transform: capitalize;
+                text-align: center;
+                display: inline-block;
+                background: #f9c751;
+                color: #212121;
+                margin: 0;
+                border-radius: 4px;
+                width: 100px;
+                padding: 7px 9px;
+                margin: auto;
+                font-weight: bold;
+                line-height: 20px;
+            }
+
+        .library-select option {
+            background: #164273 !important;
+        }
+
+        .library-select {
+            width: 300px;
+            font-size: 19px;
+            color: #fff;
+            display: inline-block;
+            padding: 5px;
+            resize: none;
+            background: transparent;
+            height: 40px;
+            margin-right: 10px;
+            border: 1px solid #fff !important;
+            border-radius: 4px;
+            position: relative;
+            line-height: 40px;
+        }
+
+            .library-select::-webkit-input-placeholder {
+                color: #fff !important;
+            }
+
+            .library-select::-moz-placeholder {
+                color: #fff !important;
+            }
+
+            .library-select:-ms-input-placeholder {
+                color: #fff !important;
+            }
+
+            .library-select:-moz-placeholder {
+                color: #fff !important;
+            }
+
+        .anchor {
+            text-decoration: underline !important;
+            line-height: 1.5 !important;
+            width: 50%;
+            margin-left: 25%;
+            margin-right: 25%;
+        }
+
+        .new_registration, .new_registration:hover {
+            font-size: 14px;
+            text-transform: capitalize;
+            padding: 14px 18px;
+            text-align: left;
+            display: block;
+            margin: 0;
+            margin-top: 2px;
+            background: #2ecc71;
+            color: #fff;
+            text-align: right;
+            width: auto;
+            display: inline-block;
+            border-radius: 5px;
+        }
+
+
+        .back_button, .back_button:hover {
+            font-size: 14px;
+            text-transform: capitalize;
+            padding: 14px 18px;
+            text-align: left;
+            display: block;
+            margin: 0;
+            margin-top: 2px;
+            background: #f9c751;
+            color: #333;
+            text-align: right;
+            width: auto;
+            display: inline-block;
+            border-radius: 5px;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+    </style>
+
+    <div class="right-side-container-ch" style="width:100%;margin-top:20px;">
+
+        <div class="col-xs-12 no-padding">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 events_list_title">
+                    <h2>New Registration for Event </h2>
+                    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+                </div>
+                <div class="col-lg-8 no-padding">
+                    <div class="col-lg-8" style="margin-bottom:5px;">
+                        <label style="display:initial;color:#fff;font-size: 16px;">Event Date:</label>
+                        <span style="display:inline-block;color:#f9c751;font-size: 16px;">@DateTime.Now.ToString("MM/dd/yyyy")</span>
+                    </div>
+                    <label class="col-xs-12" id="workshopName" workshop-id=@ViewBag.workShopId style="display:initial;color:#fff;font-size: 16px;margin-bottom:5px;">Workshop Name: <span style="display:inline-block;color:#f9c751;font-size: 16px;">@ViewBag.WorkShopName</span></label>
+                    <label class="col-xs-12" id="center_name" center-id=@ViewBag.CenterID style="display:initial;color:#fff;font-size: 16px;">Workshop Center:   <span style="display:inline-block;color:#f9c751;font-size: 16px;">@ViewBag.CenterName</span></label>
+
+
+
+                </div>
+                <div class="col-lg-4 no-padding">
+
+                    <a href="/Events/RegisteredParentsForEvent" class="back_button" style="float: right;margin-right: 62px;">Back</a>
+
+                </div>
+
+
+                <div class="col-xs-12 no-padding" style="margin-top:10px;">
+                    <div class="col-lg-4">
+                        <label id="center_name" center-id=@ViewBag.CenterID style="display:initial;color:#fff;font-size: 16px;">Filter by Enrolled Children<span style="display:inline-block;color:#f9c751;font-size: 16px;"><input type="checkbox" id="encrolled-check" style="margin-left:10px;" /></span></label>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 no-padding textbox-ch">
+
+                        <select class="library-select" id="Center" style="display:none;">
+                            <option value="0">All Centers</option>
+                            @if (Model.CenterList.Count() > 0)
+                            {
+                                foreach (var item in Model.CenterList)
+                                {
+                                    <option value="@item.Enc_CenterId">@item.CenterName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-lg-4 col-sm-6 no-padding textbox-ch" style="float:right;">
+                        <input type="text" placeholder="Search by Name" class="library-select" id="searchByNameTxt" style="" />
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-xs-4 serch-library-block workshop_heading report_heading" style="text-align:right;float:right;">
+
+                </div>
+
+                <div class="col-md-12">
+                    <div class="eml_lst" style="margin-bottom:20px;">
+
+
+                        <div class="col-xs-12 no-padding">
+
+                            <div class="serch-client-block ">
+                                <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;margin-bottom: 25px;">
+
+                                    <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;padding-top: 20px;">
+                                        <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list reports_list">
+                                            <thead class="scroll-thead" style="line-height: 1.42857143!important;">
+                                                <tr>
+
+                                                    <th>Parent Name</th>
+                                                    <th>Child Name</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody class="library-table-head scroll-tbody">
+                                                @if (Model.NewRegistrationList.Count() > 0)
+                                                {
+
+                                                    foreach (var item in Model.NewRegistrationList)
+                                                    {
+
+                                                        <tr center="@item.CenterId" childname="@item.ChildName">
+
+
+
+                                                            <td data-title="Event Date">
+                                                                <div class="library-content-desc event-name-parent">
+                                                                    <p>@item.ParentName</p>
+                                                                </div>
+                                                            </td>
+                                                            <td data-title="Parent Name">
+                                                                <div class="library-content-desc event-name-parent" enc_id="@item.ClientId">
+                                                                    <p>@item.ChildName</p>
+                                                                </div>
+                                                            </td>
+                                                            <td data-title="Status">
+                                                                <div class="library-content-desc" onclick='location.href="/Events/NewParentCheckInEvent/?householdid=@item.ParentId&centerid=@ViewBag.CenterID&clientid=@item.ClientId&WorkShopId=@ViewBag.workShopId"'>
+
+                                                                    <a href="#" class="open_report" style="line-height:1.5!important;text-decoration:underline!important;">CHECK IN</a>
+
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+
+                                                    }
+                                                }
+                                                else
+                                                {
+
+                                                    <tr><td colspan="3"><div class="library-content-desc"><p style="min-height: 40px!important;">No Record Found</p></div></td></tr>
+
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            var searchTxt = $('#searchByNameTxt').val().toLowerCase();
+            var centerId = $('#center_name').attr('center-id');
+            var workShopId = $('#workshopName').attr('workshop-id');
+            var CenterID2 = $('#Center');
+            var mode = 0;
+
+            $('#searchByNameTxt').on('keyup', function () {
+                searchTxt = $(this).val();
+
+                mode = (CenterID2.is(':visible')) ? 1 : 0;
+
+                getParentsBySearText();
+            });
+
+            $('#encrolled-check').on('change', function () {
+
+                $('#Center').val(0);
+                if ($(this).is(':checked')) {
+
+                    $('#Center').show();
+                    mode = 1;
+                }
+                else {
+                    $('#Center').hide();
+                    mode = 0;
+                }
+
+                getParentsBySearText();
+            });
+
+            CenterID2.on('change', function () {
+                getParentsBySearText();
+            });
+
+            function getParentsBySearText() {
+
+                $.ajax({
+                    url: '/Events/GetNewClientBySearch',
+                    datatype: 'json',
+                    type: 'post',
+                    data: { Enc_Centerid: centerId, workShopId: workShopId, searchText: searchTxt, centerId2: CenterID2.val(), mode: mode },
+                    success: function (data) {
+
+                        $('.scroll-tbody').empty();
+
+                     
+
+                        var Template = '<tr center="##CenterId##" childname="##ChildName1##">\
+                                                           <td data-title="Event Date">\
+                                                               <div class="library-content-desc event-name-parent">\
+                                                                   <p>##ParentName##</p>\
+                                                               </div>\
+                                                           </td>\
+                                                           <td data-title="Parent Name">\
+                                                               <div class="library-content-desc event-name-parent" enc_id="##ClientId##">\
+                                                                   <p>##ChildName##</p>\
+                                                               </div>\
+                                                           </td>\
+                                                           <td data-title="Status">\
+                                                               <div class="library-content-desc" onclick=##href##>\
+                                                                   <a href="#" class="open_report" style="line-height:1.5!important;text-decoration:underline!important;">CHECK IN</a>\
+                                                               </div>\
+                                                           </td>\
+                                                       </tr>';
+
+
+
+
+                        if (data.length > 1) {
+                            $.each(data, function (i, val) {
+                             
+                                var input = Template;
+                                input = input.replace("##ClientId##", val.ClientId);
+                                input = input.replace("##ParentName##", val.ParentName);
+                                input = input.replace("##ChildName##", val.ChildName);
+                                input = input.replace("##ChildName1##", val.ChildName);
+                                var url1 = 'location.href="/Events/NewParentCheckInEvent?householdid=' + val.HouseholdId + '&centerid=' + centerId + '&clientid=' + val.ClientId + '&WorkShopId=' + $('#workshopName').attr('workshop-id') + '"';
+                                console.log(url1);
+
+                                input = input.replace("##href##", url1);
+                                $('.scroll-tbody').append(input);
+                            });
+                        }
+                        else if (data.length == 1) {
+                            var input = Template;
+                            input = input.replace("##ClientId##", data[0].ClientId);
+                            input = input.replace("##ParentName##", data[0].ParentName);
+                            input = input.replace("##ChildName##", data[0].ChildName);
+                            input = input.replace("##ChildName1##", data[0].ChildName);
+                            var url = 'location.href="/Events/NewParentCheckInEvent?householdid=' + data[0].HouseholdId + '&centerid=' + centerId + '&clientid=' + data[0].ClientId + '&WorkShopId=' + $('#workshopName').attr('workshop-id') + '"';
+                            console.log(url);
+                            input = input.replace("##href##", url);
+                            $('.scroll-tbody').append(input);
+                        }
+                        else {
+                            var NoRecordTemplate = '<tr><td colspan="3"><div class="library-content-desc"><p style="min-height: 40px!important;">No Record Found</p></div></td></tr>';
+                            $('.scroll-tbody').append(NoRecordTemplate);
+                        }
+
+                    },
+                    error: function (data) {
+
+                    }
+                });
+
+            }
+
+            function getParentsByCenter() {
+                $.ajax({
+                    url: '/Events/'
+                })
+            }
+        });
+    </script>
+
+}

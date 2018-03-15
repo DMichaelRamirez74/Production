@@ -1,0 +1,161 @@
+﻿@{
+    @section Title
+{
+        Dashboard
+    }
+    ViewBag.Title = "AgencyDisabilityDashboard";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var _centerid = null;
+        var _option = null;
+        var _option1 = null;
+        var _programtype = 0;
+        var _Nurse = 0;
+        var _programtype1 = 0;
+        var _Nurse1 = 0;
+        var WaitObject = null;
+        var _Object = null;
+        var AcceptObject = null;
+        var Acceptwaitingobject = null;
+        var sortOrder = '';
+
+        $(document).ready(function () {
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            @{
+           TempData["message"] = null;
+       }
+            BindDropdownDisable();
+
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+
+                }
+            });
+            $('#DocumentDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('#DivPossibledisable > thead > tr > th').click(function () {
+
+                sortOrder = this.id;
+                var sortingstatus = $('#directionDate').val();
+                if (sortingstatus == 'ASC') {
+                    $('#directionDate').val('DESC');
+                }
+                else if (sortingstatus == 'DESC') {
+                    $('#directionDate').val('ASC');
+                }
+                LoadPendingDisableForSorting();
+            });
+        });
+
+        //$('#ModalPending').on('hidden.bs.modal', function () {
+        //    window.alert('hidden event fired!');
+        //})
+
+
+        function goToByScroll(id) {
+
+            $('html,body').animate({
+                scrollTop: 200
+            },
+                'slow');
+        }
+
+    </script>
+}
+
+@section MainContentHolder{
+
+    <div class="row">
+
+        @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+
+        <div class="col-lg-12">
+            <h2 class="page-header">Center Overview</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor: pointer;">
+                        <tr>
+                            <th>Center Name</th>
+                            <th>Children</th>
+                            <th>Disability %</th>
+                            <th>Indicated</th>
+                            <th>Pending</th>
+                            <th>Qualified</th>
+                            <th>Released</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Centerlist != null)
+                        {
+                            foreach (FingerprintsModel.DissabilityManagerDashboard center in ViewBag.Centerlist)
+                            {
+                                <tr>
+                                    <td><a style="text-decoration: underline;" onclick="Loadallenrolled(this);" accesskey="@center.CenterId" href="#">@center.Name</a></td>
+                                    <td style="text-align: right;">@center.TotalChildren</td>
+                                    <td style="text-align: right;">@center.DisabilityPercentage</td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Indicated" mode="Pending" accesskey="@center.CenterId">@center.Indicated</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Pending" mode="QualifyReleased" accesskey="@center.CenterId">@center.Pending</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Qualified" mode="Released" accesskey="@center.CenterId">@center.Qualified</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Released" mode="All" accesskey="@center.CenterId">@center.Released</a></td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row qualifierdiv" id="MainDiv">
+        @Html.Partial("~/Views/Partialviews/RosterClient.cshtml")
+    </div>
+
+
+    <div class="row qualifierdiv">
+        @Html.Partial("~/Views/Partialviews/DisabilityClient.cshtml")
+    </div>
+
+    <input type="hidden" id="Clientid" name="Clientid" />
+    <input type="hidden" id="classroomid" name="classroomid" />
+    <input type="hidden" id="CenterID" name="CenterID" />
+    <input type="hidden" id="Programid" name="Programid" />
+
+
+    @*<script src="~/Scripts/jquery.fixedheadertable.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#DivPossibledisable').fixedHeaderTable({
+                    footer: true,
+                    autoShow: true,
+                    height: 200,
+                    cloneHeadToFoot: false,
+                    altClass: 'odd'
+
+                });
+            });
+        </script>*@
+
+    <script>
+        $(function () {
+            $(document).on('click', 'button[data-dismiss]', function (e) {
+                location.reload();
+            });
+        });
+    </script>
+
+
+}

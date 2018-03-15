@@ -1,0 +1,1384 @@
+﻿@using System.Data
+
+@{
+    @section Title
+{
+        Application Approval Dashboard
+    }
+    ViewBag.Title = "AgencyHealthNurse";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+
+    <script type="text/javascript">
+
+        var centerid = 0;
+        var centername = null;
+        var Center = null;
+        $(document).ready(function () {
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+        });
+        function Loadallenrolled(Object) {;
+
+            $.ajax({
+                url: HostedDir + "/Nurse/Loadallenrolled",
+                type: "POST",
+                data: {
+                    Centerid: $(Object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientenrolled(data);
+                }
+               , error: function (data) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function drawgrid() {
+            $.ajax({
+                url: HostedDir + "/Nurse/Loadallenrolled",
+                type: "POST",
+                data: {
+                    Centerid: $('.divOne').find('td.hidden').html(),
+                    Classroom: $("#Classroom").val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientenrolledClassroom(data);
+                }
+               , error: function (data) {
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+               }
+            });
+        }
+        //Added on 30Dec2016
+        function cleargrid() {
+            var encryptcenter;
+            //  encryptcenter=$('.divOne').html();
+
+            $.ajax({
+                url: HostedDir + "/Nurse/LoadallenrolledCleargrid",
+                type: "POST",
+                data: {
+                    // Centerid: $('.divOne').html()
+                    Centerid: $('#centerIdGrid').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientenrolledClassroom(data);
+                }
+               , error: function (data) {
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+               }
+            });
+        }
+
+        //Changes on 30Dec2016
+        function BindClientenrolled(data) {
+
+            if (data.list.Rosters == null) {
+                $('#DivclientenrolledList > tbody > tr').remove();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#DivclientenrolledList > tbody > tr').remove();
+                for (var i = 0; i < data.list.Rosters.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += '<td height="70">' + data.list.Rosters[i].Name + '</td>';
+                    tr += '<td height="70" style="text-align:center;">';
+                    if (data.list.Rosters[i].IsPresent == "1") {
+                        tr += "<i  style='color:#3c763d;' title='Present' class='fa fa-check'></i>";
+                    }
+                    else if (data.list.Rosters[i].IsPresent == "2") {
+                        tr += "<i  style='color:#ff2222;' title='Absent' class='fa fa-times'></i>";
+                    }
+                    else if (data.list.Rosters[i].IsPresent == "3") {
+                        tr += "<i  style='color:#ff5722;' title='Left Earlier' class='fa fa-times'></i>";
+                    }
+                    else {
+                        tr += "<i  style='color:#ff2222;' title='Absent' class='fa fa-times'></i>";
+                    }
+                    tr += '</td>';
+                    //End
+
+
+
+                    //Added on 30Dec2016
+                    tr += '<td height="70" style="text-align:center;width:11%;">';
+                    if (data.list.Rosters[i].Gender == "2") {
+                        tr += 'Female';
+                    }
+                    else if (data.list.Rosters[i].Gender == "1") {
+                        tr += 'Male';
+                    }
+                    else if (data.list.Rosters[i].Gender == "3") {
+                        tr += 'Other';
+                    }
+                    tr += '</td>';
+                    //End
+                    tr += '<td height="70" style="text-align:center;width:11%;">';
+                    if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
+                        tr += '<img class="roundimage"  width="50" height="50" src="' + HostedDir + '/Content/img/ic_female.png" />';
+                    }
+                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
+                        tr += '<img class="roundimage"   width="50" height="50" src="' + HostedDir + '/Content/img/ic_male.png" />';
+                    }
+                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
+                        tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.list.Rosters[i].Picture != "") {
+                        tr += '<img class="roundimage"   width="50" height="50" src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
+                    }
+                    else {
+                        tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/download.jpg" />';
+                    }
+                    tr += '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
+                    // tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
+                    tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
+                    tr += '<td height="70" style="width:13%;"></td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].Dayscount + '</td>';//Changes on 30Dec2016
+                    tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                    tr += '<td height="70" style="width:23%;">';
+
+                    tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes"href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                    //tr += '<a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0' + '&Programid=' + data.list.Rosters[i].ProgramId + '">FPA </a>  &nbsp';
+                    //tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">FSA </a>  &nbsp';
+                    //tr += '<a title="Click here to open Home Visitor" style="text-decoration: underline; cursor: pointer;">HV </a>  &nbsp';
+                    tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">REF </a>  &nbsp';
+                    //Changes on 8Feb2017
+                    tr += '<a title="Schedule Home Visit" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/AgencyUser/HomeVisitFSWNew/?id=' + data.list.Rosters[i].Eclientid + '&Name=' + data.list.Rosters[i].Name + '&LastName=' + (data.list.Rosters[i].Name).substr((data.list.Rosters[i].Name).indexOf(' ') + 1) + '">HV </a>  &nbsp';
+                    //tr += '<a title="Click here to open Home Visitor" style="text-decoration: underline; cursor: pointer;">HV </a>  &nbsp';
+                    tr += '<a title="" style="text-decoration: underline; cursor: pointer;">ED </a> </td></tr>';
+                    //tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;">ED </a></td></tr>';
+                    $('#DivclientenrolledList > tbody').append(tr);
+                }
+                $('#DivclientenrolledList img').zoomify();
+                $('#Modalclientenrolled').modal('toggle');
+                $('#centerIdGrid').val(data.list.Rosters[0].CenterId);
+            }
+            if (data.list.ClassroomsNurse != null && data.list.ClassroomsNurse.length > 0) {
+                var option = "";
+                $('#Classroom').find('option').remove().end();
+                if ($('#Classroom').find('option').length < 1) {
+                    for (var i = 0; i < data.list.ClassroomsNurse.length; i++) {
+                        option = option + '<option value="' + data.list.ClassroomsNurse[i].ClassroomID + '">' + data.list.ClassroomsNurse[i].ClassName + '</option>';
+                    }
+                    $('#Classroom').find('option').remove().end().append(option);
+                    $('#Classroom').val('');
+                }
+            }
+        }
+
+
+        //End
+
+        //Changes on 30Dec2016
+        function BindClientenrolledClassroom(data) {
+
+            if (data.list.Rosters == null) {
+                $('#DivclientenrolledList > tbody > tr').remove();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+
+                $('#DivclientenrolledList > tbody > tr').remove();
+
+                for (var i = 0; i < data.list.Rosters.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += '<td style="text-align:center;width:18%;">' + data.list.Rosters[i].Name + '</td>';
+
+                    tr += '<td style="text-align:center;">';
+                    if (data.list.Rosters[i].IsPresent == "1") {
+                        tr += "<i style='color:#3c763d;' title='Present' class='fa fa-check'></i>";
+                    }
+                    else if (data.list.Rosters[i].IsPresent == "2") {
+                        tr += "<i style='color:#ff2222;' title='Absent' class='fa fa-times'></i>";
+                    }
+                    else if (data.list.Rosters[i].IsPresent == "3") {
+                        tr += "<i style='color:#ff5722;' title='Left Earlier' class='fa fa-times'></i>";
+                    }
+                    else {
+                        tr += "<i  style='color:#ff2222;' title='Absent' class='fa fa-times'></i>";//Changes on 3Jan2016
+                    }
+                    tr += '</td>';
+                    //End
+
+                    tr += '<td style="text-align:center;width:11%;">';
+                    if (data.list.Rosters[i].Gender == "2") {
+                        tr += 'Female';
+                    }
+                    else if (data.list.Rosters[i].Gender == "1") {
+                        tr += 'Male';
+                    }
+                    else if (data.list.Rosters[i].Gender == "3") {
+                        tr += 'Other';
+                    }
+                    tr += '</td>';
+                    //End
+                    tr += '<td style="text-align:center;width:11%;">';
+                    if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
+                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_female.png" />';
+                    }
+                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
+                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male.png" />';
+                    }
+                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
+                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.list.Rosters[i].Picture != "") {
+                        tr += '<img class="roundimage" style="width:59%" src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
+                    }
+                    else {
+                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/download.jpg" />';
+                    }
+                    tr += '</td>';
+                    tr += '<td style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
+                    // tr += '<td style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
+                    tr += '<td style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
+                    tr += '<td style="width:13%;"></td>';
+                    tr += '<td style="width:13%;">' + data.list.Rosters[i].Dayscount + '</td>';//Changes on 30Dec2016
+                    tr += '<td style="width:13%;display:none;" id="divOne" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                    tr += '<td style="width:23%;">';
+
+                    tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes"href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                    //tr += '<a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0' + '&Programid=' + data.list.Rosters[i].ProgramId + '">FPA </a>  &nbsp';
+                    //tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">FSA </a>  &nbsp';
+                    //tr += '<a title="Click here to open Home Visitor" style="text-decoration: underline; cursor: pointer;">HV </a>  &nbsp';
+                    //Changes on 6jan2017
+                    tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">REF </a>  &nbsp';
+                    tr += '<a title="Click here to open Home Visitor" style="text-decoration: underline; cursor: pointer;">HV </a>  &nbsp';
+                    tr += '<a title="" style="text-decoration: underline; cursor: pointer;">ED </a> </td></tr>';//Changes on 3jan2016
+                    //tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;">ED </a></td></tr>';
+                    $('#DivclientenrolledList > tbody').append(tr);
+                }
+                $('#centerIdGrid').val(data.list.Rosters[0].CenterId);
+                // $('#Modalclientenrolled').modal('toggle');
+            }
+
+            if (data.list.ClassroomsNurse != null && data.list.ClassroomsNurse.length > 0) {
+                var option = "";
+                $('#Classroom').find('option').remove().end();
+                if ($('#Classroom').find('option').length < 1) {
+                    for (var i = 0; i < data.list.ClassroomsNurse.length; i++) {
+                        option = option + '<option value="' + data.list.ClassroomsNurse[i].ClassroomID + '">' + data.list.ClassroomsNurse[i].ClassName + '</option>';
+                    }
+                    $('#Classroom').find('option').remove().end().append(option);
+                    $('#Classroom').val('');
+                }
+
+            }
+        }
+
+
+        //End
+        function Loadcenterscreening(Object) {
+            centerid = 0;
+            centername = null;
+            centerid = $(Object).attr("accesskey");
+            centername = $(Object).text();
+            $('#Divclientscreening > tbody > tr').remove();
+            $('#Divclientscreening').hide();
+            $('.headerclient').hide();
+            $.ajax({
+                url: HostedDir + "/Nurse/Loadallcenterscreening",
+                type: "POST",
+                data: {
+                    Centerid: $(Object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+
+                        $('#CenterName1').text($(Object).attr("centername"));
+                        BindClientscreeningscenter(data);
+
+                }
+               , error: function (Data) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function BindClientscreeningscenter(data) {
+            if (data != null && data.length > 0) {
+                $('#div2').hide();
+                var total = 0;
+                $('#DivcenterscreeningList > tbody > tr').remove();
+                var tr = "";
+                for (var i = 0; i < data.length; i++) {
+                    tr += "<tr>";
+                    if (data[i].Missingcount != 0)
+                        tr += '<td><input accesskey="' + data[i].Screeningid + '" class="minimal" type="checkbox"   style="width:auto;" value="true"></td>';
+                    else
+                        tr += '<td><input disabled="disabled" accesskey="' + data[i].Screeningid + '" class="minimal" type="checkbox"   style="width:auto;" value="true"></td>';
+
+                    tr += "<td>" + ((typeof (data[i].Screeningname) != 'undefined') && (data[i].Screeningname != null) ? data[i].Screeningname : '') + "</td>";
+                    if (data[i].Missingcount==0)
+                        tr += "<td>" + ((typeof (data[i].Missingcount) != 'undefined') && (data[i].Missingcount != null) ? data[i].Missingcount : '') + " </span></td>";
+                    else
+                        tr += "<td><a onclick=getclient(this); centerid='" + centerid + "' style='cursor: pointer;text-decoration: underline;' accesskey='" + data[i].Screeningid + "'>" + data[i].Missingcount + "</a> </td>";
+
+
+                    tr += "</tr>";
+                    $('#DivcenterscreeningList > tbody').append(tr);
+                    tr = "";
+                    total = total + parseInt(data[i].Missingcount);
+                }
+                tr += '<tr><td></td><td></td><td>'+total+'</td></tr>';
+                $('#DivcenterscreeningList > tbody').append(tr);
+                $('#Modalcenterscreening').modal('toggle');
+            }
+            else {
+                $('#DivcenterscreeningList > tbody > tr').remove();
+                $('#div2').show();
+            }
+        }
+	function Loadscreening(Object) {
+ 	$('#Modalclientscreeningmissing').modal('toggle');
+	}
+        function Loadchildmissingscreening(Object) {
+
+            Center = Object;
+            $.ajax({
+                url: HostedDir + "/Nurse/Loadchildmissingscreening",
+                type: "POST",
+                data: {
+                    Centerid: $(Object).attr("accesskey"),
+                    ClassRoom :$('#Classroommatrix').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    $('#CenterName3').text($(Object).attr("centername") +" (Screening Matrix)");
+                    BindClientmissigscreenings(data.Screenings);
+                    if ($('#Classroommatrix').val()==null)
+                    bindClassroom(data.Classroom);
+                }
+               , error: function (data) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function bindClassroom(data)
+        {
+
+            if (data != null && data.length > 0) {
+                var option = "";
+                $('#Classroommatrix').find('option').remove().end();
+                if ($('#Classroommatrix').find('option').length < 1) {
+                    for (var i = 0; i < data.length; i++) {
+                        option = option + '<option value="' + data[i].ClassroomID + '">' + data[i].ClassName + '</option>';
+                    }
+                    $('#Classroommatrix').find('option').remove().end().append(option);
+                    $('#Classroommatrix').val('');
+                }
+
+            }
+
+
+        }
+
+
+
+        function BindClientmissigscreenings(data) {
+            if (data != null && data.length > 0) {
+                $('#div3').hide();
+                $('#DivclientmissingList > tbody > tr').remove();
+                $('#DivclientmissingList > thead > tr').remove();
+                var th = "";
+                var tr = "";
+                var column = data[0];
+                if (column != null)
+                {
+                    th += "<tr><th>Client</th>";
+                    for (var i = 2; i < column.length; i++) {
+                        th += "<th>" + column[i] + "</th>";
+                    }
+                    th += "</tr>";
+                    $('#DivclientmissingList > thead').append(th);
+                }
+                for (var i = 1; i < data.length; i++) {
+                    var rows = data[i];
+                    tr = "";
+                    tr += "<tr>";
+                    for (var j = 1; j < rows.length; j++) {
+                        if (j == 1)
+                            tr += "<td>" + rows[j] + "</td>";
+                        else if (rows[j] == "M")
+                            tr += "<td><span style='color:#295b8f;'>" + rows[j] + " </span></td>";
+                        else if (rows[j].indexOf("ExpiredDate") > -1)
+                        {
+                            tr += "<td><span style='color:#FF0000;cursor: pointer;'  title=" + rows[j].replace('ExpiredDate', '') + ">X</span></td>";
+                        }
+                        else if (rows[j].indexOf("ScreeningDate") > -1)
+                            tr += "<td>" + rows[j].replace('ScreeningDate', '') + " </td>";
+                        else if (rows[j].indexOf("ExpiringDate") > -1)
+                            tr += "<td><span style='color:#FFA500;' >" + rows[j].replace('ExpiringDate', '') + " </span></td>";
+                        else if (rows[j]!="")
+                            tr += "<td><span >" + rows[j] + " </span></td>";
+                        else
+                            tr += "<td><span >REFUSED </span></td>";
+                    }
+                    tr += "</tr>";
+                    $('#DivclientmissingList > tbody').append(tr);
+                }
+                tr = "";
+                tr += "<tr>";
+                for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
+                    tr += "<td style='border-left: 1px solid white !important;border-right: 1px solid white !important;'></td>";
+                }
+                tr += "</tr>";
+                $('#DivclientmissingList > tbody').append(tr);
+                tr = "";
+                for (var j = 0; j < 4; j++) {
+                    tr += "<tr>";
+                    for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
+                        if (i == 0)
+                        {
+                            if(j==0)
+                                tr += "<td>Complete</td>";
+                            if (j == 1)
+                                tr += "<td style='color:#295b8f;'>Missing</td>";
+                            if (j == 2)
+                                tr += "<td style='color:#FF0000;'>Expired</td>";
+                            if (j == 3)
+                                tr += "<td style='color:#FFA500;'>Expiring</td>";
+                        }
+                        else
+                        {
+                            var count = 0;
+                            if (j== 0)
+                            {
+
+                                for (var k = 1; k < data.length; k++) {
+                                    var Rowi = data[k];
+                                    if (Rowi[i+1].indexOf("ScreeningDate") > -1)
+                                        count = count + 1;
+                                }
+                                tr += "<td>"+count+"</td>";
+                            }
+                            count = 0;
+                            if (j == 1) {
+                                var count = 0;
+                                for (var k = 1; k < data.length; k++) {
+                                    var Rowi = data[k];
+                                    if (Rowi[i + 1] == "M")
+                                        count = count + 1;
+                                }
+                                tr += "<td>" + count + "</td>";
+                            }
+                            count = 0;
+                            if (j == 2) {
+                                var count = 0;
+                                for (var k = 1; k < data.length; k++) {
+                                    var Rowi = data[k];
+                                    if (Rowi[i + 1].indexOf("ExpiredDate") > -1)
+                                        count = count + 1;
+                                }
+                                tr += "<td>" + count + "</td>";
+                            }
+                            count = 0;
+                            if (j == 3) {
+                                var count = 0;
+                                for (var k = 1; k < data.length; k++) {
+                                    var Rowi = data[k];
+                                    if (Rowi[i + 1].indexOf("ExpiringDate") > -1)
+                                        count = count + 1;
+
+                                }
+                                tr += "<td>" + count + "</td>";
+                            }
+                            count = 0;
+                        }
+                    }
+                    tr += "</tr>";
+                    $('#DivclientmissingList > tbody').append(tr);
+                    tr = "";
+
+                }
+                var count = 0;
+                var count1 = 0;
+                for (var record = 1; record < data.length; record++) {
+                    for (var k = 2; k < data[record].length; k++) {
+                        if (data[record][k] == "M" || data[record][k].indexOf("ExpiredDate") > -1 )
+                            count = count + 1;
+                        if (data[record][k].indexOf("ScreeningDate") > -1)
+                            count1 = count1 + 1;
+                    }
+                }
+                $('#MissingRecord').text("Total missing or expired records : " + count);
+                $('#Completedscreening').text("Total completed screening : " + count1);
+                if (!$('#Modalclientscreeningmissing').hasClass('in'))
+                $('#Modalclientscreeningmissing').modal('toggle');
+            }
+            else {
+                $('#DivclientmissingList > tbody > tr').remove();
+                $('#div3').show();
+                $('#MissingRecord').text("Total missing or expired records : 0");
+                $('#Completedscreening').text("Total completed screening : 0");
+                if (!$('#Modalclientscreeningmissing').hasClass('in'))
+                $('#Modalclientscreeningmissing').modal('toggle');
+            }
+        }
+        function Getsscreeningid()
+        {
+            var screeningid = "";
+            $('#DivcenterscreeningList > tbody > tr').each(function () {
+                if ($(this).find('td:eq(0)').find('input[type="checkbox"]').length > 0 && !$(this).find('td:eq(0)').find('input[type="checkbox"]').prop("disabled")
+                    && $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
+                {
+                    screeningid = screeningid + $(this).find('td:eq(0)').find('input[type="checkbox"]').attr("accesskey") + ',';
+                }
+            });
+            if (screeningid != "" && centerid!=0) {
+                screeningid = screeningid.substr(0, screeningid.length - 1);
+                window.location.href = HostedDir + '/Nurse/Multientryscreening?screeningids=' + screeningid+"&centerid="+centerid+"&centername="+centername;
+            }
+            else
+                customAlert("Please select screening.");
+
+        }
+
+        function getclient(object)
+        {
+            $.ajax({
+                url: HostedDir + "/Nurse/Loadmissingclient",
+                type: "POST",
+                data: {
+                    Screeningid: $(object).attr("accesskey"),
+                    Centerid: $(object).attr("centerid"),
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientmissings(data);
+                }
+            , error: function (data) {
+                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+            }
+            });
+        }
+        function BindClientmissings(data) {
+            if (data != null && data.length > 0) {
+                $('#Divclientscreening').show();
+                $('.headerclient').show();
+                $('#Divclientscreening > tbody > tr').remove();
+                for (var i = 0; i < data.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += '<td><a style="text-decoration: underline;"  href="' + HostedDir + '/Nurse/ScreeningClient?clientid=' + data[i].Eclientid + '&Screeningid=' + data[i].Screeningid + '&name=' + data[i].Name + '&Dob=' + data[i].DOB + '&Programid=' + data[i].ProgramId + '&dashboard=1">' + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "</tr>";
+                    $('#Divclientscreening > tbody').append(tr);
+                }
+
+                jQuery("#Divclientscreening").attr("tabindex", -1).focus();
+            }
+            else {
+                $('#Divclientscreening > tbody > tr').remove();
+                $('#Divclientscreening').hide();
+                $('.headerclient').hide();
+            }
+        }
+
+
+        function Loaddeclinedscreening(Object) {
+            $.ajax({
+                url: HostedDir + "/Nurse/Loaddeclinedscreening",
+                type: "POST",
+                data: {
+                    Centerid: $(Object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientdeclinedlist(data);
+                }
+               , error: function (data) {
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+               }
+            });
+        }
+        function BindClientdeclinedlist(data) {
+            if (data != null && data.length > 0) {
+                $('#div4').hide();
+                $('#DivclientdeclinedscreeningList > tbody > tr').remove();
+                for (var i = 0; i < data.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    $('#Declinescreeningcenter').text(data[i].CenterName);
+                    tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].ScreeningName) != 'undefined') && (data[i].ScreeningName != null) ? data[i].ScreeningName : '') + " </span></td>";
+                    tr += "</tr>";
+                    $('#DivclientdeclinedscreeningList > tbody').append(tr);
+                }
+                $('#Modalscreeningdeclined').modal('toggle');
+            }
+            else {
+                $('#DivclientdeclinedscreeningList > tbody > tr').remove();
+                $('#div4').show();
+            }
+        }
+
+
+        function LoadRescreenn(Object) {
+            $.ajax({
+                url: HostedDir + "/Nurse/LoadRescreening",
+                type: "POST",
+                data: {
+                    Centerid: $(Object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientRescreenlist(data);
+                }
+               , error: function (data) {
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+               }
+            });
+        }
+        function BindClientRescreenlist(data) {
+            if (data != null && data.length > 0) {
+                $('#div5').hide();
+                $('#DivrescreenList > tbody > tr').remove();
+                for (var i = 0; i < data.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    $('#Rescreencenter').text(data[i].CenterName +" (Rescreen)");
+                    tr += '<td><a style="text-decoration: underline;"  href="' + HostedDir + '/Nurse/ScreeningClient?clientid=' + data[i].Eclientid + '&Screeningid=' + data[i].Screeningid + '&name=' + data[i].Name + '&Dob=' + data[i].DOB + '&Programid=' + data[i].ProgramId + '&dashboard=1">' + ((typeof (data[i].ScreeningName) != 'undefined') && (data[i].ScreeningName != null) ? data[i].ScreeningName : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += "</tr>";
+                    $('#DivrescreenList > tbody').append(tr);
+                }
+                $('#ModalRescreen').modal('toggle');
+            }
+            else {
+                $('#DivrescreenList > tbody > tr').remove();
+                $('#div5').show();
+            }
+        }
+
+        function LoadWithdrawn(Object) {
+            $.ajax({
+                url: HostedDir + "/Nurse/LoadWithdrawn",
+                type: "POST",
+                data: {
+                    Centerid: $(Object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientWithdrawnlist(data);
+                }
+               , error: function (data) {
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+               }
+            });
+        }
+        function BindClientWithdrawnlist(data) {
+            if (data != null && data.length > 0) {
+                $('#div6').hide();
+                $('#WithdrawnList > tbody > tr').remove();
+                for (var i = 0; i < data.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    $('#Withdrawncenter').text(data[i].CenterName + " (Withdrawn)");
+                    tr += "<td>" + ((typeof (data[i].ScreeningName) != 'undefined') && (data[i].ScreeningName != null) ? data[i].ScreeningName : '') + "</td>";
+                    tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += "</tr>";
+                    $('#WithdrawnList > tbody').append(tr);
+                }
+                $('#ModalWithdrawn').modal('toggle');
+            }
+            else {
+                $('#WithdrawnList > tbody > tr').remove();
+                $('#div6').show();
+            }
+        }
+        function Loadchildmissingscreeningclear()
+        {
+            $('#Classroommatrix').val('');
+            cleanValidation();
+            if(Center!=null)
+            Loadchildmissingscreening(Center);
+        }
+        function searchchildmissingscreening() {
+            cleanValidation();
+            if ( $('#Classroommatrix').val() == null) {
+                customAlert("Classroom is required. ");
+                plainValidation('#Classroommatrix');
+            }
+            else
+            {
+                if (Center != null)
+                    Loadchildmissingscreening(Center);
+            }
+        }
+
+
+        function DownLoadExcelFile() {
+
+            if ($('#DivclientmissingList > tbody > tr').length > 0)
+            {
+                if (Center != null) {
+                    var centerid= $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
+                    window.location.href = HostedDir + "/Nurse/DownloadScreeningMatrixExcel?Centerid=" + $(Center).attr("accesskey") + "&Classroom=" + centerid;
+                }
+            }
+            else
+            {
+                customAlert("No record to print.");
+            }
+        }
+
+
+
+
+
+    </script>
+}
+
+
+
+
+@section MainContentHolder{
+    <div class="row">
+
+        @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+        <div class="col-lg-12">
+            <h2 class="page-header">Application Approval Dashboard</h2>
+        </div>
+    </div>
+    
+   
+    @*<div class="row">
+        <div class="col-sm-12">
+            <div class="agencybox1">
+                <div class="heading_box1"><h3>Center Statistics</h3></div>
+                <div class="inner-con">
+                    <div class="row">
+                        <div class="wrp-txt">
+                            <div class="col-sm-4" style="font-weight: bold;"><p style="color: #285b8f;">Center Name</p></div>
+                            <div class="col-sm-3"><p style="text-align: right; font-weight: bold; color: #285b8f; ">Pending Records</p> </div>
+                            <div class="col-sm-2"><p style="text-align: right; font-weight: bold; color: #285b8f; ">Accepted to Date</p> </div>
+                            <div class="col-sm-2"><p style="text-align: right; font-weight: bold; color: #285b8f; ">Returned to Date</p> </div>
+
+                        </div>
+                        @if (ViewBag.Centerlist != null)
+                        {
+                            try
+                            {
+
+                                int Routecode100 = 0;
+                                int Routecode101 = 0;
+                                int Routecode102 = 0;
+                                foreach (FingerprintsModel.HrCenterInfo center in ViewBag.Centerlist)
+                                {
+                                    <div class="wrp-txt">
+
+                                        @if (!string.IsNullOrEmpty(@center.Routecode100) && @center.Routecode100 != "0")
+                                        {
+                                            <div class="col-sm-4"><p><a href="~/Nurse/ViewCenterDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)&Name=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.Name)">@center.Name</a></p></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-sm-4"><p><a href="#">@center.Name</a></p></div>
+
+                                        }
+
+                                        <div class="col-sm-3">
+                                            <p style="text-align: right;">
+
+                                                @if (!string.IsNullOrEmpty(@center.Routecode100) && @center.Routecode100 != "0")
+                                                {
+                                                    <a href="~/Nurse/ViewCenterDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)&Name=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.Name)"> @center.Routecode100</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="#">0</a>
+                                                }
+                                            </p>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <p style="text-align: right;">
+                                                @if (!string.IsNullOrEmpty(@center.Routecode101) && @center.Routecode101 != "0")
+                                                {
+                                                    <a href="#"> @center.Routecode101</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="#"> 0</a>
+                                                }
+                                            </p>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <p style="text-align: right;">
+                                                @if (!string.IsNullOrEmpty(@center.Routecode102) && @center.Routecode102 != "0")
+                                                {
+                                                    <a href="#"> @center.Routecode102</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="#">0</a>
+                                                }
+
+                                            </p>
+                                        </div>
+                                    </div>
+                                    if (!string.IsNullOrEmpty(@center.Routecode100))
+                                    {
+                                        Routecode100 = Routecode100 + Convert.ToInt32(@center.Routecode100);
+                                    }
+                                    if (!string.IsNullOrEmpty(@center.Routecode101))
+                                    {
+                                        Routecode101 = Routecode101 + Convert.ToInt32(@center.Routecode101);
+                                    }
+                                    if (!string.IsNullOrEmpty(@center.Routecode102))
+                                    {
+                                        Routecode102 = Routecode102 + Convert.ToInt32(@center.Routecode102);
+                                    }
+                                }
+                                <div class="wrp-txt">
+                                    <div class="col-sm-4"><p><a href="#">Totals</a></p></div>
+                                    <div class="col-sm-3">
+                                        <p style="text-align: right;">
+                                            <a href="#"> @Routecode100</a>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <p style="text-align: right;">
+                                            <a href="#"> @Routecode101</a>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <p style="text-align: right;">
+                                            <a href="#"> @Routecode102</a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                            }
+                            catch (Exception Ex)
+                            {
+                                FingerprintsModel.clsError.WriteException(Ex);
+
+                            }
+
+                        }
+                    </div>
+                </div>
+            </div>
+            <!---agencybox1-->
+        </div>
+    </div>*@
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Screening Info</h2>
+        </div>
+
+        <div class="col-sm-12">
+            <div class="agencybox1">
+                <div class="heading_box1"><h3>Screening Statistics</h3></div>
+                <div class="inner-con">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="wrp-txt">
+                                <div class="col-sm-2" style="font-weight: bold;"><p style="color: #285b8f; text-align: left;">Center Name</p></div>
+                                <div class="col-sm-1"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Roster Enrollment</p> </div>
+                                <div class="col-sm-4">
+                                    <div class="col-sm-6" style="font-weight: bold;"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Total Possible Screenings</p></div>
+                                    <div class="col-sm-6" style="font-weight: bold;"><p style="text-align: center; color: #285b8f;">Declined Screenings</p></div>
+                                </div>
+                                <div class="col-sm-2"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Screening Matrix</p> </div>
+                                <div class="col-sm-2"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Rescreen Required</p> </div>
+                                <div class="col-sm-1"><p style="text-align: center; font-weight: bold; color: #285b8f; ">Withdrawn</p> </div>
+                            </div>
+                        </div>
+
+                        @if (ViewBag.Screeninglists != null && (DataTable)ViewBag.Screeninglists != null && ((DataTable)ViewBag.Screeninglists).Rows.Count >= 0)
+                        {
+                            try
+                            {
+                                foreach (DataRow Row in ((DataTable)ViewBag.Screeninglists).Rows)
+                                {
+                                    <div class="col-sm-12">
+                                        <div class="wrp-txt">
+                                            <div class="col-sm-2">
+                                                <p style="text-align:left">
+                                                    <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["clientenrolled"]) != "0") { <text> onclick="Loadcenterscreening(this);" </text>     }>@Convert.ToString(@Row["CenterName"])</a>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <p style="text-align: center;">
+                                                    <a href="javascript:void(0)" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["clientenrolled"]) != "0") { <text> onclick="Loadallenrolled(this);" </text>   }>@Convert.ToString(@Row["clientenrolled"])</a>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="col-lg-6">
+                                                    <p style="text-align: center;">
+                                                        <span> @Convert.ToString(@Row["Totalscreening"])</span>
+                                                    </p>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <p style="text-align: center;">
+                                                        <a href="javascript:void(0)" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["DeclinedScreenings"]) != "0") { <text> onclick="Loaddeclinedscreening(this);" </text>    }>@Convert.ToString(@Row["DeclinedScreenings"])</a>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <p style="text-align: center;">
+                                                    <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["ScreeningMissing"]) == "0" || @Convert.ToString(@Row["ScreeningMissing"]) != "0") { <text> onclick="Loadchildmissingscreening(this);" </text>     }>@Convert.ToString(@Row["ScreeningMissing"])</a>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <p style="text-align: center;">
+                                                    <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["RescreenRequired"]) != "0") { <text> onclick="LoadRescreenn(this);" </text>      }>@Convert.ToString(@Row["RescreenRequired"])</a>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <p style="text-align: center;">
+                                                    <a href="javascript:void(0)" centername="@Convert.ToString(@Row["CenterName"])" accesskey="@Convert.ToString(@Row["CenterId"])" @if (@Convert.ToString(@Row["Withdrawn"]) != "0") { <text> onclick="LoadWithdrawn(this);" </text>       }>@Convert.ToString(@Row["Withdrawn"])</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+
+                            }
+                            catch (Exception Ex)
+                            {
+                                FingerprintsModel.clsError.WriteException(Ex);
+
+                            }
+
+                        }
+                    </div>
+                </div>
+            </div><!---agencybox1-->
+        </div>
+    </div>
+    @*Pop up total screening*@
+    @*Changes on 29Dec2016*@
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="Modalclientenrolled" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @*Changes on 30Dec2016*@
+                        @*<h3 id="CenterName" class="text-center">Client Enrolled<span class="extra-title muted"></span></h3>*@
+                        <h3 id="CenterName" class="text-center">Roster for Client<span class="extra-title muted"></span></h3>
+                        @*End*@
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label for="RaceId">Classrooms</label>
+                                                @*@Html.TextBoxFor(m => m.MedicalNote, new { placeholder = "Center", id = "Center", maxlength = "50", @class = "form-control", tabIndex = "4" })*@
+
+                                                <select id="Classroom" style="height:38px !important;" class="form-control"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3" style="padding-top: 2%;">
+                                            <button id="btnsearch" class="my-btn" onclick="drawgrid();">Search</button>
+                                            <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
+                                            <input type="hidden" id="centerIdGrid" name="centerIdGrid" />@*Added on 30Dec2016*@
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivclientenrolledList">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+                                                            <th style="width: 18%;">Name</th>
+                                                            @*Added on 4Jan2017*@
+                                                            <th></th>
+                                                            @*End*@
+                                                            <th>Gender</th>
+                                                            <th>Child's Picture</th>
+                                                            <th>DOB</th>
+                                                            <th>Classroom Name</th>
+                                                            <th>Teacher</th>
+                                                            <th>Days </th>
+                                                            <th>Services </th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div1" style="text-align:center;display:none;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*---End-----*@
+
+    @*Pop up center screening*@
+
+    @*Pop up center screening*@
+
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="Modalcenterscreening" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterName1" class="text-center">Screening Detail<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" onclick="Getsscreeningid();">GO</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="row qualifierdiv" style="margin-bottom:3%;">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="table-responsive">
+                                    <table class="table table_size" id="DivcenterscreeningList">
+                                        <thead style="cursor:pointer;">
+                                            <tr>
+                                                <th style="width:5%;"></th>
+                                                <th>Missing\Expired Screening</th>
+                                                <th style="width:10%;">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <div id="div2" style="text-align:center;display:none; margin-left:38%;">
+                                        <label>No result found.</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 headerclient" style="display:none;">
+                                <h3 class="page-header">Client List</h3>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="table-responsive">
+                                    <table class="table table_size" id="Divclientscreening" style="display:none;" tabindex="-1">
+                                        <thead style="cursor:pointer;">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>DOB</th>
+                                                <th>Gender</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*---End-----*@
+
+
+
+    @*Pop up client screening missing*@
+
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="Modalclientscreeningmissing" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterName3" class="text-center">Missing Screnning<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label for="RaceId" style="font-weight: normal;">Classrooms</label>
+                                                <select id="Classroommatrix" style="height:38px !important;" class="form-control"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3" style="padding-top: 2%;">
+                                            <button id="btnsearch" class="my-btn" onclick="searchchildmissingscreening();">Search</button>
+                                            <button id="btnclear" class="my-btn" onclick="Loadchildmissingscreeningclear();">Clear</button>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size table-headfix" id="DivclientmissingList">
+                                                    <thead style="cursor:pointer;">
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div3" style="text-align:center;display:none;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-6">
+                                            <h4 style="color: #295b8f;">    <span id="MissingRecord">Total missing or expired records :</span></h4>
+                                            <h4 style="color: #295b8f;">    <span id="Completedscreening">Total completed screening :</span></h4>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <h4 class="pull-right">    <a onclick="DownLoadExcelFile();" style="text-decoration: underline; cursor: pointer; color: #295b8f;">Click here to print </a></h4>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*---End-----*@
+
+    @*Pop up declined screening*@
+
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="Modalscreeningdeclined" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="Declinescreeningcenter" class="text-center">Client Enrolled<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivclientdeclinedscreeningList">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Gender</th>
+                                                            <th>DOB</th>
+                                                            <th>Screening Name</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div4" style="text-align:center;display:none; margin-left:38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*---End-----*@
+
+
+    @*---End-----*@
+
+    @*Pop up Rescreen screening*@
+
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalRescreen" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="Rescreencenter" class="text-center">Client Enrolled<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivrescreenList">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+                                                            <th>Screening Name</th>
+                                                            <th>Name</th>
+                                                            <th>Gender</th>
+                                                            <th>DOB</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div5" style="text-align:center;display:none; margin-left:38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*---End-----*@
+
+
+
+    @*Pop up Withdrawn screening*@
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalWithdrawn" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="Withdrawncenter" class="text-center">Client Enrolled<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="WithdrawnList">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+                                                            <th>Screening Name</th>
+                                                            <th>Name</th>
+                                                            <th>Gender</th>
+                                                            <th>DOB</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div6" style="text-align:center;display:none; margin-left:38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*---End-----*@
+<style>
+ .table-headfix thead{
+    cursor: pointer;
+    table-layout: fixed;
+    width: calc(100% - 0px);
+    display: table;
+}
+    .table-headfix tbody{
+        height: 235px;
+        overflow-y: scroll;
+        width: calc(100% - 0px);
+        float: left;
+        display: table-column;
+    }
+    .table-headfix tbody tr {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+    </style>
+}

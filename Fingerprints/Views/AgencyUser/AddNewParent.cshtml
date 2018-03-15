@@ -1,0 +1,1489 @@
+﻿@model FingerprintsModel.FamilyHousehold
+@{
+    @section Title
+    {
+
+      
+        Add New Parent
+       
+            
+    }
+    ViewBag.Title = "AddNe9wChild";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+    
+    <script type="text/javascript">
+        var rounds = '@Model.Phonecount';
+        var Parent1ssn = null;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#PDOB').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#PMDentalExamDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $("#ParentSSN1").mask("999-99-9999");
+
+
+
+            if ('@Model.PRole' == '') {
+                $('#DdlPRole').val('');
+            }
+            if ('@Model.PDegreeEarned' == '') {
+                $('#DdlPDegreeEarned').val('');
+            }
+            if ('@Model.Pregnantmotherprimaryinsurance' == '0') {
+                $('#Pregnantmotherprimaryinsurance').val('');
+            }
+
+            if ('@Model.TrimesterEnrolled' == '0') {
+                $('#TrimesterEnrolled').val('');
+            }
+            if ('@Model.MedicalhomePreg1' == '0') {
+                $('#MedicalhomePreg1').val('');
+            }
+            if ('@Model.PMConditions' == '0') {
+                $('#PMConditions').val('');
+            }
+
+            //$('#DdlPRole').val('');
+            //$('#DdlPDegreeEarned').val('');
+            //$('#Pregnantmotherprimaryinsurance').val('');
+            //$('#TrimesterEnrolled').val('');
+            //$('#MedicalhomePreg1').val('');
+          
+
+
+            //end of auto suggest doctor
+            try {
+
+                $("#CDoctorP1").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/AgencyUser/AutoCompleteDoctor",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term, IsDeleted: "0" },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.Fname, id: item.CommunityID
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#P1Doctor').val(ui.item.id);
+                    },
+                    messages: {
+                        noResults: "", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+            ////////////////
+            if ('@Model.ParentID' == "0")
+            {
+                $('#gridphone > tbody tr').each(function () {
+                    $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
+                    $(this).find('td:eq(0) :input').val("");
+
+                });
+            }
+            else
+            {
+                $('#gridphone > tbody tr').each(function () {
+                    $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
+                });
+            }
+            
+            $("#ParentSSN1").blur(function () {
+                if (Parent1ssn != null) {
+                    if ($('#ParentSSN1').val() == "") {
+                        var res = Parent1ssn;
+                        len = res.length;
+                        max = 11;
+                        stars = len > 0 ? len > 1 ? len > 2 ? len > 3 ? len > 4 ? '***-**-' : '***-*' : '***-' : '**' : '*' : '';
+                        result = stars + res.substring(7);
+                        $('#ParentSSN1').val(result);
+                    }
+                }
+            });
+            if ($('#ParentID').val() != "0") {
+                if ('@Model.ParentSSN1' != "") {
+                    var res = '@Model.ParentSSN1';
+                    len = res.length;
+                    max = 11;
+                    stars = len > 0 ? len > 1 ? len > 2 ? len > 3 ? len > 4 ? '***-**-' : '***-*' : '***-' : '**' : '*' : '';
+                    result = stars + res.substring(7);
+                    $('#ParentSSN1').val(result);
+                    Parent1ssn = '@Model.ParentSSN1';
+                }
+            }
+            if ($('.Pfemale').prop("checked")) {
+                $("#addquestion").show();
+                if ($('#Pquestionyes').prop("checked")) {
+                    if ('@Model.ExistPmprogram' > 0) {
+                        $('#Pregnantmotherprogram').show();
+                        if ($('#Pregnantmotherenrolled').prop("checked")) {
+
+                            if ($('#MedicalhomePreg1').val() == 3 || $('#MedicalhomePreg1').val() == 4 || $('#MedicalhomePreg1').val() == 2) {
+                                $('#addp1').show();
+                            }
+                            $("#Div3").show();
+                        }
+                        else {
+                            $("#Div3").hide();
+                        }
+                    }
+                }
+            }
+        });
+
+        function validatedate(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+                    var dob = new Date();
+                    if (Date.parse($(inputTextObject).val()) >= dob) {
+                        customAlert("Invalid Date of birth .Date of birth must be less than today's date. ");
+                        $(inputTextObject).val('');
+                        return false;
+                    }
+                    else {
+                        var age = null;
+                        var now = null;
+                        var past = null;
+                        var nowYear = null;
+                        var pastYear = null;
+                        now = new Date();
+                        past = new Date($(inputTextObject).val());
+                        nowYear = now.getFullYear();
+                        pastYear = past.getFullYear();
+                        age = nowYear - pastYear;
+                        if (age > 90) {
+                            BootstrapDialog.confirm('Date of birth is greater than 90 years!! Do you want to continue?', function (result) {
+                                if (result) {
+                                    return true;
+                                }
+                                else {
+                                    $(inputTextObject).val('');
+                                    $('#Oemergencycontact').hide();
+                                    $('#lblOemergencycontact').hide();
+
+                                }
+                            });
+
+                        }
+                        return true;
+                    }
+
+                }
+                else {
+                    customAlert("Invalid date of birth. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+
+            }
+
+        }
+        function Disableparentemail(object) {
+            if ($(object).prop("checked")) {
+                $('#Pemailid').attr("readonly", true);
+                $('#Pemailid').val('');
+            }
+            else
+                $('#Pemailid').attr("readonly", false);
+        }
+        function AddParent() {
+            if ($('#DdlPRole').val() == 6) {
+                $('#addrow').show();
+            }
+            else {
+                $('#addrow').hide();
+            }
+
+            if ($('.Pmale').prop("checked")) {
+                if ($('#DdlPRole').val() == 2) {
+                    customAlert("Please select valid parent/guardian. ");
+                }
+            }
+            if ($('.Pfemale').prop("checked")) {
+                if ($('#DdlPRole').val() == 1) {
+                    customAlert("Please select valid parent/guardian. ");
+                }
+            }
+            if ($('.Pother').prop("checked")) {
+                if ($('#DdlPRole').val() == 1 || $('#DdlPRole').val() == 2) {
+                    customAlert("Please select valid parent/guardian. ");
+                }
+            }
+
+
+        }
+        function AddQuestion() {
+            $('#Pquestionyes').prop('checked', false);
+            $('#Pquestionno').prop('checked', false);
+            $("#Pregnantmotherprogram").hide();
+            $('#addrow').hide();
+            $("#addquestion").show();
+            $("#DdlQuestion").show();
+            $("#lblQuestion").show();
+            $('#Pregnantmotherenrolled').prop("checked", false);
+            if ($('#DdlPRole').val() !== "" && $('#DdlPRole').val() == 1) {
+                customAlert("Please select valid parent/guardian. ");
+            }
+
+
+        }
+        function RemoveQuestion() {
+            $('#Pquestionyes').prop('checked', false);
+            $('#Pquestionno').prop('checked', false);
+            $("#Pregnantmotherprogram").hide();
+            $('#addrow').hide();
+            $("#addquestion").hide();
+            $("#DdlQuestion").hide();
+            $("#lblQuestion").hide();
+            $("#Div3").hide();
+            $('#Pregnantmotherenrolled').prop("checked", false);
+            if ($('#DdlPRole').val().trim() != "" && $('#DdlPRole').val() == 2) {
+                customAlert("Please select valid parent/guardian. ");
+            }
+
+
+        }
+        function RemoveQuestionOther() {
+            $('#Pquestionyes').prop('checked', false);
+            $('#Pquestionno').prop('checked', false);
+            $("#addquestion").hide();
+            $("#DdlQuestion").hide();
+            $("#lblQuestion").hide();
+            $("#Pregnantmotherprogram").hide();
+            $('#Pregnantmotherenrolled').prop("checked", false);
+            $("#Div3").hide();
+            if ($('#DdlPRole').val().trim() !== "" && ($('#DdlPRole').val() == 2 || $('#DdlPRole').val() == 1)) {
+                customAlert("Please select valid parent/guardian. ");
+            }
+            if ($('#DdlPRole').val().trim() == 1) {
+                customAlert("Please select valid parent/guardian. ");
+            }
+
+
+        }
+        function CheckPregenancy() {
+
+            if ('@Model.ExistPmprogram' > 0)
+                $('#Pregnantmotherprogram').show();
+
+        }
+     
+        function HidePregenancy() {
+            $("#Div3").hide();
+            $('#Pregnantmotherprogram').hide();
+            $('#Pregnantmotherenrolled').prop("checked", false);
+        }
+        function Pregnantmotherenrolled1() {
+            if ('@Model.ExistPmprogram' > 0) {
+                if ($('#Pregnantmotherenrolled').prop("checked")) {
+                    $("#Div3").show();
+                }
+                else
+                {
+                    $("#Div3").hide();
+                }
+              
+            }
+        }
+        function PMServiceConditions() {
+            $('#PMServiceText').show();
+            $('#PMServiceText').empty();
+            $('#PMChecklist input:checked').each(function () {
+                if ($(this).prop("checked")) {
+                    var div = '<div style="padding-left:24px; line-height:normal;color:#295b8f;">' + $(this).next('label').text() + '</div>';
+                    $('#PMServiceText').append(div);
+                }
+            });
+        }
+        function PMPrblmConditions() {
+            $('#PMPrblmText').show();
+            $('#PMPrblmText').empty();
+            $('#PMPrblmChecklist input:checked').each(function () {
+                if ($(this).prop("checked")) {
+                    var div = '<div style="padding-left:24px; line-height:normal;color:#295b8f;">' + $(this).next('label').text() + '</div>';
+                    $('#PMPrblmText').append(div);
+                }
+            });
+        }
+        function AddDoctorP1() {
+            if ($('#MedicalhomePreg1').val() == 2 || $('#MedicalhomePreg1').val() == 3 || $('#MedicalhomePreg1').val() == 4) {
+                $('#addp1').show();
+
+            }
+            else {
+                $('#addp1').hide();
+            }
+
+        }
+        function SetResource(value, resource) {
+            popupid = value;
+            popupname = resource;
+            if (popupid == 1 || popupid == 3 || popupid == 4) {
+                $('#Resourece1').text("Doctor Information");
+                $('#Resourece2').text("Doctor");
+                $('#Resourece3').text("Add New Doctor");
+                //Changes
+                $('#DdlCommunityList').prop('selectedIndex', 1);
+                $("#DdlCommunityList").attr("disabled", "disabled");
+            }
+            if (popupid == 2) {
+                $('#Resourece1').text("Dentist Information");
+                $('#Resourece2').text("Dentist");
+                $('#Resourece3').text("Add New Dentist");
+                //Changes
+                $('#DdlCommunityList').prop('selectedIndex', 0);
+                $("#DdlCommunityList").attr("disabled", "disabled");
+            }
+
+        }
+        function addcontact(value) {
+
+            if ($(value).val() == 2) {
+                $(value).closest('tr').find('td:eq(4) :input[type="checkbox"]').prop("disabled", false).prop("checked", false);
+            }
+            else {
+                $(value).closest('tr').find('td:eq(4) :input[type="checkbox"]').prop("disabled", true).prop("checked", false);
+            }
+        }
+        function Addphone() {
+            var PhoneTypeP = "ParentPhone1[" + rounds + "].PhoneTypeP";
+            var phonenoP = "ParentPhone1[" + rounds + "].phonenoP";
+            var StateP = "ParentPhone1[" + rounds + "].StateP";
+            var notesP = "ParentPhone1[" + rounds + "].notesP";
+            var SmsP = "ParentPhone1[" + rounds + "].SmsP";
+            var tr = '<tr><td><select class="form-control" style="width:100%;" name=' + PhoneTypeP + ' onchange="addcontact(this);" >' +
+                     ' <option value="1">Home</option><option value="2">Mobile</option><option value="3">Work</option> ' +
+                      '</select></td><td ><input class = "form-control" name=' + phonenoP + ' type="text"  ></td><td><input  type="checkbox"  value="true" name=' + StateP + ' data-val="true"  class="chcktbl" onchange="uncheckParentother(this);"/></td><td ><input class = "form-control" type="text" id="Pnotes" data-val="true" name=' + notesP + ' name="Pnotes" maxlength="100"></td> <td><input  type="checkbox" style="width:50%;" disabled="disabled" id="PSms" name=' + SmsP + ' value="true" class="chcktbl"  /></td><td><a href="javascript:void(0)" onclick="RemovePhone(this);" style=" text-decoration:underline;">Delete</a></td></tr>';
+            $('#gridphone > tbody').append(tr);
+            $('#gridphone > tbody tr').each(function () {
+                var y = $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
+            });
+            $('#gridphone > tbody tr:last').find('td:eq(0) :input').val("");
+            rounds = rounds + 1;
+        }
+        function RemovePhone(value) {
+            if ($(value).attr("accesskey")) {
+                if ($('#gridphone > tbody tr').length > 1) {
+                    BootstrapDialog.confirm('Do you want to delete this contact ?', function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: HostedDir + "/Agencyuser/DeleteParentContact",
+                                type: "POST",
+                                data: {
+                                    phoneId: $(value).attr("accesskey"),
+                                    HouseHoldId: $('#HouseholdId').val(),
+                                    Parentid: $('#ParentID').val(),
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+
+                                    if (response == 1) {
+                                        customAlert("Contact deleted successfully. ");
+                                        rounds = 0;
+
+                                        if ($('#gridphone > tbody tr').length > 1) {
+
+                                            $(value).closest('tr').remove();
+                                        }
+                                        $('#gridphone > tbody tr').each(function () {
+                                            var PhoneTypeP = "ParentPhone1[" + rounds + "].PhoneTypeP";
+                                            var phonenoP = "ParentPhone1[" + rounds + "].phonenoP";
+                                            var StateP = "ParentPhone1[" + rounds + "].StateP";
+                                            var notesP = "ParentPhone1[" + rounds + "].notesP";
+                                            var SmsP = "ParentPhone1[" + rounds + "].SmsP";
+                                            var Phoneid = "ParentPhone1[" + rounds + "].PPhoneId";
+                                            $(this).find('td:eq(0)').find(':input').attr('name', PhoneTypeP);
+                                            $(this).find('td:eq(1) :input[type="text"]').attr('name', phonenoP);
+                                            $(this).find('td:eq(2)').find(':input').attr('name', StateP);
+                                            $(this).find('td:eq(3) :input[type="text"]').attr('name', notesP);
+                                            $(this).find('td:eq(4)').find(':input').attr('name', SmsP);
+                                            $(this).find('td:eq(5)').find(':input').attr('name', Phoneid);
+                                            rounds = rounds + 1;
+                                        });
+                                    }
+                                }
+                            , error: function (response) {
+                                   customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                            }
+                            });
+                        }
+                    });
+                }
+
+            }
+            else {
+                rounds = 0;
+                if ($('#gridphone > tbody tr').length > 1) {
+                    $(value).closest('tr').remove();
+                }
+                $('#gridphone > tbody tr').each(function () {
+                    var PhoneTypeP = "ParentPhone1[" + rounds + "].PhoneTypeP";
+                    var phonenoP = "ParentPhone1[" + rounds + "].phonenoP";
+                    var StateP = "ParentPhone1[" + rounds + "].StateP";
+                    var notesP = "ParentPhone1[" + rounds + "].notesP";
+                    var SmsP = "ParentPhone1[" + rounds + "].SmsP";
+                    var Phoneid = "ParentPhone1[" + rounds + "].PPhoneId";
+                    $(this).find('td:eq(0)').find(':input').attr('name', PhoneTypeP);
+                    $(this).find('td:eq(1) :input[type="text"]').attr('name', phonenoP);
+                    $(this).find('td:eq(2)').find(':input').attr('name', StateP);
+                    $(this).find('td:eq(3) :input[type="text"]').attr('name', notesP);
+                    $(this).find('td:eq(4)').find(':input').attr('name', SmsP);
+                    $(this).find('td:eq(5)').find(':input').attr('name', Phoneid);
+                    rounds = rounds + 1;
+                });
+            }
+
+        }
+
+
+        function ValidateParent()
+        {
+            cleanValidation();
+            isValid = true;
+            if ($('#Pfirstname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required. ");
+                plainValidation('#Pfirstname');
+                return isValid;
+            }
+            if ($('#Plastname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Last name is required. ");
+                plainValidation('#Plastname');
+                return isValid;
+            }
+            if ($('#PDOB')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Date of birth is required. ");
+                plainValidation('#PDOB');
+                return isValid;
+            }
+            if ($('#PDOB')[0].value.trim() != "") {
+                var today = new Date();
+                if (Date.parse($("#PDOB").val()) > today) {
+                    isValid = false;
+                    customAlert("Date of birth Can't be greater than current date. ");
+                    plainValidation('#PDOB');
+                    return isValid;
+                }
+            }
+            if ($('#Pemailid')[0].value.trim() == "" && !$('#Noemail1').prop("checked")) {
+                isValid = false;
+                customAlert("Email id is required. ");
+                plainValidation('#Pemailid');
+                return isValid;
+            }
+           else if ($('#Pemailid')[0].value.trim() != "" && !validateEmail($('#Pemailid')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id. ");
+                plainValidation('#Pemailid');
+                return isValid;
+            }
+            if ($("#DdlPRole").val() == null || $("#DdlPRole").val() == "") {
+                isValid = false;
+                customAlert("Parent/Guardian is required. ");
+                plainValidation('#DdlPRole');
+                return isValid;
+            }
+
+            if ($("#DdlPDegreeEarned").val() == null || $("#DdlPDegreeEarned").val() == "") {
+                isValid = false;
+                customAlert("Highest degree earned is required. ");
+                plainValidation('#DdlPDegreeEarned');
+                return isValid;
+            }
+
+
+
+            if (!$("input:radio[name='PGender']").is(":checked")) {
+                isValid = false;
+                customAlert("Gender is required. ");
+                return isValid;
+            }
+            if ($('#DdlPRole').val() == 6) {
+                if ($('#Pnotesother')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Notes is required. ");
+                    plainValidation('#Pnotesother');
+                    return isValid;
+                }
+            }
+            if (!$("input:radio[name='PMilitaryStatus']").is(":checked")) {
+                isValid = false;
+                customAlert("Military Status is required. ");
+                return isValid;
+            }
+            if ($(".Pfemale").prop("checked")) {
+                if (!$("input:radio[name='PQuestion']").is(":checked")) {
+                    isValid = false;
+                    customAlert("Currently pregnant is required. ");
+                    return isValid;
+                }
+            }
+
+
+            if ($('#Pregnantmotherenrolled').prop("checked")) {
+                if ($("#Pregnantmotherprimaryinsurance").val() == null || $("#Pregnantmotherprimaryinsurance").val() == "") {
+                    isValid = false;
+                    customAlert("Primary Insurance is required. ");
+                    plainValidation('#Pregnantmotherprimaryinsurance');
+                    return isValid;
+                }
+                if ($("#TrimesterEnrolled").val() == null || $("#TrimesterEnrolled").val() == "") {
+                    isValid = false;
+                    customAlert("Trimester Enrolled is required. ");
+                    plainValidation('#TrimesterEnrolled');
+                    return isValid;
+                }
+                if ($("#MedicalhomePreg1").val() == null || $("#MedicalhomePreg1").val() == "") {
+                    isValid = false;
+                    customAlert("Medical Home is required. ");
+                    plainValidation('#MedicalhomePreg1');
+                    return isValid;
+                }
+                else if (($("#MedicalhomePreg1").val() == "2" || $("#MedicalhomePreg1").val() == "3" || $("#MedicalhomePreg1").val() == "4") && $("#P1Doctor").val() == "0") {
+                    isValid = false;
+                    customAlert("Doctor information is required. ");
+                    plainValidation('#CDoctorP1');
+                    return isValid;
+                }
+
+            }
+            if (!$("input:radio[name='PCurrentlyWorking']").is(":checked")) {
+                isValid = false;
+                customAlert("Currently working is required. ");
+                return isValid;
+            }
+            if (!$("input:radio[name='PEnrollment']").is(":checked")) {
+                isValid = false;
+                customAlert("Currently enrolled in job training/school is required. ");
+                return isValid;
+            }
+            if ($("#DdlPDegreeEarned").val() == null) {
+                isValid = false;
+                customAlert("Highest degree earned is required. ");
+                plainValidation('#DdlPDegreeEarned');
+                return isValid;
+            }
+         //   if ($('#Span1').text() == "") {
+         //       isValid = false;
+          //      customAlert("Parent Income is required. ");
+          //      $('#Myincomecalculator').modal('show');
+          //      return isValid;
+          //  }
+           
+            if ($('#gridphone > tbody tr').length == 0) {
+                isValid = false;
+                customAlert("Please add contact no. ");
+
+                return isValid;
+            }
+            if ($('#gridphone > tbody tr').length > 0) {
+                var Phonetype = $("#gridphone > tbody tr:first").find('td:eq(0) :input');
+                var PrimaryPhone = $("#gridphone > tbody tr:first").find('td:eq(1) :input[type="text"]');
+                if ($(Phonetype).val() == null) {
+                    isValid = false;
+                    customAlert("Phone type is required. ");
+                    plainValidation(Phonetype);
+                    return isValid;
+                }
+                if ($(PrimaryPhone).val().trim() == "") {
+                    isValid = false;
+                    customAlert("Phone no is required. ");
+                    plainValidation(PrimaryPhone);
+                    return isValid;
+                }
+                var length = 0;
+                $('#gridphone > tbody tr').each(function () {
+                    if (length == 0) {
+                        length = $(this).find('td:eq(2) :checkbox:checked').length;
+                        if ($(this).find('td:eq(0) :input').val() == null)
+                            length = 0;
+                        if ($(this).find('td:eq(1) :input[type="text"]').val() == null)
+                            length = 0;
+                    }
+                });
+                if (length == 0) {
+                    var checkbox = $("#gridphone > tbody tr:first").find('td:eq(2) :checkbox');
+                    isValid = false;
+                    customAlert("Please check one primary no. ");
+                    plainValidation(checkbox);
+                    return isValid;
+                }
+
+
+            }
+
+            if ($('.Pmale').prop("checked")) {
+                if ($('#DdlPRole').val() == 2) {
+                    customAlert("Please select valid parent/guardian role. ");
+                    plainValidation('#DdlPRole');
+                    $('#addrow').html('');
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            if ($('.Pfemale').prop("checked")) {
+                if ($('#DdlPRole').val() == 1) {
+                    customAlert("Please select valid parent/guardian role. ");
+                    plainValidation('#DdlPRole');
+                    $('#addrow').html('');
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            if ($('.Pother').prop("checked")) {
+                if ($('#DdlPRole').val() == 1 || $('#DdlPRole').val() == 2) {
+                    customAlert("Please select valid parent/guardian.");
+                    plainValidation('#DdlPRole');
+                    $('#addrow').html('');
+                    isValid = false;
+                    return isValid;
+                }
+            }
+
+            if ($('#DdlPRole').val() == 6 && $('#Pnotesother').val().trim() == "") {
+                isValid = false;
+                customAlert("Notes is required. ");
+
+                plainValidation('#Pnotesother');
+                return isValid;
+            }
+
+
+
+        }
+        function uncheckParentother(value) {
+            $('#gridphone > tbody tr').each(function () {
+                $(this).find('td:eq(2) :checkbox').prop("checked", false);
+            });
+            $(value).prop("checked", true);
+        }
+    </script>
+
+}
+@section MainContentHolder{
+    <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">
+
+                    @if (Model.ParentID == 0)
+                        {
+                            <span>Add New Parent/Guardian    </span>
+                        }
+                        else
+                        {
+                        <span>Update Parent/Guardian    </span>
+
+                        }
+                    
+
+
+                    <span class="view-btn backto_listspan" id="BackToList">
+                        <button onclick="return ValidateParent();"  style=" height: 26px; padding-top: 4px;" class="my-btn" type="submit">Save</button>
+                        <a href="~/AgencyUser/FamilySummary/@Model.Encrypthouseholid" class="backto_list">Back To Family Summary</a>
+                        <input type="hidden" id="HouseholdId" name="HouseholdId" value="@Model.HouseholdId" />
+                        <input type="hidden" id="ParentID" name="ParentID" value="@Model.ParentID" />
+                        <input type="hidden" name="Encrypthouseholid" value="@Model.Encrypthouseholid" />
+                        <input type="hidden" id="P1Doctor" name="P1Doctor" value="@Model.P1Doctor" />
+                    </span>
+                </h2>
+            </div>
+        </div>
+        <div class="add-useragform add-useragform2">
+            <div class="row">
+
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>First Name <sup>*</sup></label>
+                        @Html.TextBoxFor(m => m.Pfirstname, new { placeholder = "First Name", id = "Pfirstname", name = "Pfirstname", maxlength = "50", @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Middle Name </label>
+                        @Html.TextBoxFor(m => m.Pmidddlename, new { placeholder = "Middle Name", id = "Pmidddlename", name = "Pmidddlename", maxlength = "50", @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Last Name <sup>*</sup></label>
+                        @Html.TextBoxFor(m => m.Plastname, new { placeholder = "Last Name", id = "Plastname", name = "Plastname", maxlength = "50", @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group datepicker-days">
+                        <label>DOB <sup>*</sup></label>
+                        <div class="date custom-time">
+                            @Html.TextBoxFor(m => m.PDOB, new { placeholder = "MM/DD/YYYY", id = "PDOB", name = "PDOB", maxlength = "50", @onblur = "return validatedate(this);", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Email Address <sup>*</sup></label>
+                        @if (Model.Noemail1)
+                        {
+                            @Html.TextBoxFor(m => m.Pemailid, new { placeholder = "Email Address", @readonly = "readonly", id = "Pemailid", name = "Pemailid", maxlength = "50", @style = "width:44%;", @class = "form-control", onblur = "validateEmail1(this);" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(m => m.Pemailid, new { placeholder = "Email Address", id = "Pemailid", name = "Pemailid", maxlength = "50", @style = "width:44%;", @class = "form-control", onblur = "validateEmail1(this);" })
+                        }
+                        <div class="cont-sz" style="width: 85px;margin-left: 10px; float: right;">
+                            @Html.CheckBoxFor(m => m.Noemail1, new { @class = "minimal", tabIndex = "7", onchange = "Disableparentemail(this);" })
+                            <label style="width:59px;">No Email</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group datepicker-days">
+                        <label>SSN </label>
+                        <div class="date custom-time">
+                            @Html.TextBoxFor(m => m.ParentSSN1, new { placeholder = "SSN", @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+                <!-- /.form-group -->
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Parent/Guardian Role <sup>*</sup></label>
+                        @{
+                            List<SelectListItem> ParentRoleList = new List<SelectListItem>();
+                            ParentRoleList.Add(new SelectListItem() { Text = "Mother Figure", Value = "2" });
+                            ParentRoleList.Add(new SelectListItem() { Text = "Father Figure", Value = "1" });
+                            ParentRoleList.Add(new SelectListItem() { Text = "Grandparents", Value = "3" });
+                            ParentRoleList.Add(new SelectListItem() { Text = "Relatives other than grandparents", Value = "4" });
+                            ParentRoleList.Add(new SelectListItem() { Text = "Foster Parent - Not including relative", Value = "5" });
+                            ParentRoleList.Add(new SelectListItem() { Text = "Other", Value = "6" });
+                        }
+                        @Html.DropDownListFor(m => m.PRole, new SelectList(ParentRoleList, "Value", "Text", Model.PRole), new { id = "DdlPRole", Name = "DdlPRole", @class = "form-control", @onchange = "AddParent();" })
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Highest Degree Earned <sup>*</sup></label>
+                        @{
+                            List<SelectListItem> DegreeEarnedList = new List<SelectListItem>();
+                            DegreeEarnedList.Add(new SelectListItem() { Text = "Advanced Degree or Baccalaureate", Value = "1" });
+                            DegreeEarnedList.Add(new SelectListItem() { Text = "Associate, Vocational, or some College", Value = "2" });
+                            DegreeEarnedList.Add(new SelectListItem() { Text = "High School Graduate or GED", Value = "3" });
+                            DegreeEarnedList.Add(new SelectListItem() { Text = "Less than High school", Value = "4" });
+
+                        }
+                        @Html.DropDownListFor(m => m.PDegreeEarned, new SelectList(DegreeEarnedList, "Value", "Text", Model.PDegreeEarned), new { id = "DdlPDegreeEarned", Name = "DdlPDegreeEarned", @class = "form-control" })
+                    </div>
+                </div>
+
+
+
+                <div id="addrow" style="display:none;">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="exampleInputFile">Notes <sup>*</sup></label>
+                            @Html.TextBoxFor(m => m.Pnotesother, new { placeholder = "Notes", id = "Pnotesother", name = "Pnotesother", maxlength = "100", @class = "form-control" })
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Gender <sup>*</sup></label>
+                        <div class="cont-sz">
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PGender, "2", new { id = "PGender", @class = "Pfemale", @onchange = "AddQuestion();" })
+                                <span>Female </span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PGender, "1", new { id = "PGender", @class = "Pmale", @onchange = "RemoveQuestion();" })
+                                <span>Male</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PGender, "3", new { id = "PGender", @class = "Pother", @onchange = "RemoveQuestionOther();" })
+                                <span>Other </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label> Military Status <sup>*</sup></label>
+                        <div class="cont-sz">
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PMilitaryStatus, "1", new { id = "PMilitaryStatus1" })
+                                <span>None </span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PMilitaryStatus, "2", new { id = "PMilitaryStatus2" })
+                                <span>Active</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PMilitaryStatus, "3", new { id = "PMilitaryStatus3" })
+                                <span>Veteran</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="">
+                    <div class="col-lg-6 col-md-6 col-sm-12" id="addquestion" style="display:none;">
+                        <div class="form-group">
+                            <label id="lblQuestion">Are you currently pregnant? <sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-4">
+                                    @Html.RadioButtonFor(m => m.PQuestion, "1", new { id = "Pquestionyes", onchange = "CheckPregenancy();" })
+                                    <span>Yes </span>
+                                </div>
+                                <div class="col-xs-6 col-sm-4">
+                                    @Html.RadioButtonFor(m => m.PQuestion, "2", new { id = "Pquestionno", onchange = "HidePregenancy();" })
+                                    <span>No</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" style="display:none;" id="Pregnantmotherprogram">
+                        <div class="form-group">
+                            <label>Enroll for Pregnant Mother program? </label>
+                            <div class="col-sm-6">
+                                @Html.CheckBoxFor(m => m.Pregnantmotherenrolled, new { @class = "minimal", onchange = "Pregnantmotherenrolled1();", @style = "width: auto;" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="row" style="display: none;  margin: 4px 3px 19px 3px; padding: 6px;" id="Div3">
+                    <fieldset style="border: 1px solid #295b8f; ">
+                        <legend class="legend1">Pregnant Mother Program Questionnaire</legend>
+                        <div class="col-md-12">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="email">Primary Insurance <sup>*</sup></label>
+                                    @{
+                                        List<SelectListItem> PregnantmotherprimaryinsuranceList = new List<SelectListItem>();
+                                        PregnantmotherprimaryinsuranceList.Add(new SelectListItem() { Text = " Medicaid/Chip", Value = "1" });
+                                        PregnantmotherprimaryinsuranceList.Add(new SelectListItem() { Text = "No Insurance", Value = "2" });
+                                        PregnantmotherprimaryinsuranceList.Add(new SelectListItem() { Text = "Other Insurance", Value = "3" });
+                                        PregnantmotherprimaryinsuranceList.Add(new SelectListItem() { Text = "Private Health Insurance", Value = "4" });
+                                        PregnantmotherprimaryinsuranceList.Add(new SelectListItem() { Text = "State Funded", Value = "5" });
+                                    }
+                                    @Html.DropDownListFor(m => m.Pregnantmotherprimaryinsurance, new SelectList(PregnantmotherprimaryinsuranceList, "Value", "Text", Model.Pregnantmotherprimaryinsurance), new { @class = "form-control", tabIndex = "24" })
+
+                                </div>
+                            </div>
+                            <div class="col-lg-6 ">
+                                <div class="form-group">
+                                    <label for="email">Insurance Notes </label>
+                                    @Html.TextBoxFor(m => m.Pregnantmotherprimaryinsurancenotes, new { placeholder = "Insurance Notes", maxlength = "20", @class = "form-control", tabIndex = "25" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Trimester Enrolled <sup>*</sup></label>
+
+                                    @{
+                                        List<SelectListItem> TrimesterEnrolledList = new List<SelectListItem>();
+                                        TrimesterEnrolledList.Add(new SelectListItem() { Text = "1st", Value = "1" });
+                                        TrimesterEnrolledList.Add(new SelectListItem() { Text = "2nd", Value = "2" });
+                                        TrimesterEnrolledList.Add(new SelectListItem() { Text = "3rd", Value = "3" });
+                                    }
+                                    @Html.DropDownListFor(m => m.TrimesterEnrolled, new SelectList(TrimesterEnrolledList, "Value", "Text", Model.TrimesterEnrolled), new { @class = "form-control" })
+
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label>Medical Home <sup>*</sup></label>
+                                    @{
+                                        List<SelectListItem> MedicalhomePreg1List = new List<SelectListItem>();
+                                        MedicalhomePreg1List.Add(new SelectListItem() { Text = "Does not have a medical home", Value = "1" });
+                                        MedicalhomePreg1List.Add(new SelectListItem() { Text = "Ongoing Source of continuous, accessible health care", Value = "2" });
+                                        MedicalhomePreg1List.Add(new SelectListItem() { Text = "Medical Care through the Indian Health Service", Value = "3" });
+                                        if (Model.AvailableProgram != null)
+                                        {
+                                            foreach (var item in Model.AvailableProgram)
+                                            {
+                                                if (item.ReferenceId == "3")
+                                                {
+                                                    MedicalhomePreg1List.Add(new SelectListItem() { Text = "Medical care through Migrant Community Service", Value = "4" });
+                                                }
+                                            }
+                                        }
+                                    }
+                                    @Html.DropDownListFor(m => m.MedicalhomePreg1, new SelectList(MedicalhomePreg1List, "Value", "Text", Model.MedicalhomePreg1), new { @class = "form-control", @onchange = "AddDoctorP1();" })
+                                </div>
+                            </div>
+                            <div class="test">
+                                <div id="addp1" style="display:none;">
+                                    <div class="col-lg-6">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Doctor Information<sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.CDoctorP1, new { placeholder = "Doctor Information", maxlength = "30", @class = "form-control", @style = "width:50%;" })
+                                            <input type="hidden" name="Doctor" id="Doctor" value="0" />
+                                            <a href="#" id="AddDoctor" title="Add Community Resource" onclick="SetResource(3,'doctorpm');" data-toggle="modal" data-target="#myModalDoctor"><i style="margin:1%;" class="fa fa-plus-square"></i></a>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class=" col-md-11 col-sm-12 mb10" style="margin-top:1%;">
+
+                                <div class="row">
+                                    <div class="col-sm-7" style=" margin-bottom: 10px;">
+                                        Has the pregnant mom received the following services?
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <a style="margin-left:3%;" title="Add Conditions" href="javascript:void(0)" data-toggle="modal" data-target="#PMS"><i class="fa fa-arrow-up"></i></a>
+                                    </div>
+                                    <div id="PMServiceText">
+                                        @if (Model != null && Model.AvailableService != null && Model.AvailableService.Count > 0)
+                                        {
+                                            foreach (var item1 in Model.AvailableService)
+                                            {
+                                                if (Model._PMservices != null && Model._PMservices.Count > 0)
+                                                {
+                                                    foreach (var item in Model._PMservices)
+                                                    {
+                                                        if (item.MasterId == item1.Id.ToString())
+                                                        {
+                                                            <div style="padding-left:24px; line-height:normal;color:#295b8f;">@item1.Name </div>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="row qualifierdiv">
+                                    <div class="modal fade scroll-modal" id="PMS" role="dialog">
+                                        <div class="modal-dialog ">
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+
+                                                    <h3> PM Services<span class="extra-title muted"></span></h3>
+                                                    <button onclick="PMServiceConditions();" data-dismiss="modal" name="Creates" style="margin-top:-1px; width:20% !important;float:right;" class="my-btn" tabindex="2" type="button">Save & Close</button>
+
+                                                </div>
+                                                <div class="control-group">
+                                                    <div class="">
+                                                        <div class="row">
+                                                            <div class="col-lg-12 col-md-6 col-sm-12 adddivspace">
+                                                                <div class="form-group">
+                                                                    <div class="col-lg-12 col-md-7 col-sm-12" style="line-height: normal; margin-bottom:10px; color:#595959">
+                                                                        Has the pregnant mom received the following services?  <sup>*</sup>
+                                                                    </div>
+                                                                    <br />
+                                                                    @*
+                                            02082016
+                                                                    *@
+                                                                    <div class="col-md-6 input_wd scroll-none adddvispace" id="PMChecklist" style="width:183%;">
+                                                                        @*@if (Model.AvailableService != null)
+                                                {
+                                                    @Html.CheckBoxListFor(m => m.PostedPostedService.PMServiceID,
+                                                                      m => m.AvailableService, m => m.Id, m => m.Name, m => m.IsSelected, MvcCheckBoxList.Model.Position.Vertical)
+                                                }*@
+
+                                                                        @if (Model != null && Model.AvailableService != null && Model.AvailableService.Count > 0)
+                                                                        {
+
+                                                                            foreach (var item1 in Model.AvailableService)
+                                                                            {
+
+                                                                                int i = 0;
+                                                                                if (Model._PMservices != null && Model._PMservices.Count > 0)
+                                                                                {
+                                                                                    foreach (var item in Model._PMservices)
+                                                                                    {
+
+                                                                                        if (item.MasterId == item1.Id.ToString())
+                                                                                        {
+                                                                                            i = 1;
+                                                                                            <input type="checkbox" checked="checked" value="@item1.Id" name="PostedPostedService.PMServiceID" />
+                                                                                            <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                                            <br />
+                                                                                        }
+                                                                                    }
+                                                                                    if (i == 0)
+                                                                                    {
+                                                                                        <input type="checkbox" value="@item1.Id" name="PostedPostedService.PMServiceID" />
+                                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                                        <br />
+                                                                                    }
+
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input type="checkbox" value="@item1.Id" name="PostedPostedService.PMServiceID" />
+                                                                                    <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                                    <br />
+                                                                                }
+                                                                            }
+
+                                                                        }
+
+
+
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+
+                                                            @*<div class="col-lg-12 col-md-6 col-sm-12 adddivspace">
+                                        <div class="form-group">
+                                            <label for="email"></label>
+                                            &nbsp;
+                                            <button onclick="PMServiceConditions();" data-dismiss="modal" name="Creates" style="margin-top:-1px; width:20% !important;" class="my-btn" tabindex="2" type="button">Save & Close</button>
+                                        </div>
+                                    </div>*@
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row qualifierdiv">
+                                    <div class="modal fade scroll-modal" id="PMPrblms" role="dialog">
+                                        @*scroll-modal*@
+                                        <div class="modal-dialog ">
+                                            @*income-popup width-auto*@
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3> PM Problems<span class="extra-title muted"></span></h3>
+                                                    <button onclick="PMPrblmConditions();" data-dismiss="modal" name="Creates" style="margin-top:-1px; width:20% !important;float:right;" class="my-btn" tabindex="2" type="button">Save & Close</button>
+                                                </div>
+                                                <div class="control-group">
+                                                    @*add-useragform*@
+                                                    <div class="">
+                                                        @*col-sm-12*@
+                                                        <div class="row">
+                                                            @*<div class="row qualifierdiv">*@
+                                                            <div class="col-lg-12 col-md-6 col-sm-12 adddivspace">
+                                                                @*col-sm-6*@
+                                                                <div class="form-group">
+
+                                                                    <div class="col-lg-12 col-md-7 col-sm-12" style="line-height: normal; margin-bottom:10px; color:#595959">
+                                                                        What problems did mother have?
+                                                                    </div>
+                                                                    <br />
+                                                                    <div class="col-md-6 input_wd scroll-none adddvispace" id="PMPrblmChecklist" style="width:119%;">
+                                                                        @*02082016*@
+                                                                        @*@if (Model.AvailablePrblms != null)
+                                                {
+                                                    @Html.CheckBoxListFor(m => m.PostedPostedPrblms.PMPrblmID,
+                                                                      m => m.AvailablePrblms, m => m.Id, m => m.Name, m => m.IsSelected, MvcCheckBoxList.Model.Position.Vertical)
+                                                }*@
+
+                                                                        @if (Model != null && Model.AvailablePrblms != null && Model.AvailablePrblms.Count > 0)
+                                                                        {
+
+                                                                            foreach (var item1 in Model.AvailablePrblms)
+                                                                            {
+
+                                                                                int i = 0;
+                                                                                if (Model._PMproblem != null && Model._PMproblem.Count > 0)
+                                                                                {
+                                                                                    foreach (var item in Model._PMproblem)
+                                                                                    {
+
+                                                                                        if (item.MasterId == item1.Id.ToString())
+                                                                                        {
+                                                                                            i = 1;
+                                                                                            <input type="checkbox" checked="checked" value="@item1.Id" name="PostedPostedPrblms.PMPrblmID" />
+                                                                                            <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                                            <br />
+                                                                                        }
+                                                                                    }
+                                                                                    if (i == 0)
+                                                                                    {
+                                                                                        <input type="checkbox" value="@item1.Id" name="PostedPostedPrblms.PMPrblmID" />
+                                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                                        <br />
+                                                                                    }
+
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input type="checkbox" value="@item1.Id" name="PostedPostedPrblms.PMPrblmID" />
+                                                                                    <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                                    <br />
+                                                                                }
+                                                                            }
+
+                                                                        }
+
+
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            @*<div class="col-lg-12 col-md-6 col-sm-12 adddivspace">
+                                        <div class="form-group">
+                                            <label for="email"></label>
+                                            &nbsp;
+                                            <button onclick="PMPrblmConditions();" data-dismiss="modal" name="Creates" style="margin-top:-1px; width:20% !important;" class="my-btn" tabindex="2" type="button">Save & Close</button>
+                                        </div>
+                                    </div>*@
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        How many times has the mother visited the doctor during this pregnancy?
+                                    </div>
+                                    <div class="col-sm-12 cont-sz" style="margin-top:12px;">
+                                        @Html.TextBoxFor(m => m.PMVisitDoc, new { placeholder = "Doctor Visit", maxlength = "30", @class = "form-control", @style = "width: 43%!important;" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        Did the mother have any of the following problems during this pregnancy?
+                                    </div>
+                                    <div class="col-sm-12 cont-sz">
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMProblem, 1, new { id = "PMProblem1" })
+                                            <span>Yes</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMProblem, 2, new { id = "PMProblem2" })
+                                            <span>No </span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            @Html.RadioButtonFor(m => m.PMProblem, 3, new { id = "PMProblem3" })
+                                            <span>Unknown</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace" style="margin-top:2%;">
+                                <div class="row">
+                                    <div class="col-sm-7" style=" margin-bottom: 10px;">
+                                        What problems did mother have?
+                                    </div>
+
+                                    <div class="col-sm-5">
+                                        <a style="margin-left:3%;" title="Add Conditions" href="#" data-toggle="modal" data-target="#PMPrblms"><i class="fa fa-arrow-up"></i></a>
+                                    </div>
+                                    @*02082016*@
+                                    <div id="PMPrblmText">
+                                        @if (Model != null && Model.AvailablePrblms != null && Model.AvailablePrblms.Count > 0)
+                                        {
+                                            foreach (var item1 in Model.AvailablePrblms)
+                                            {
+                                                if (Model._PMproblem != null && Model._PMproblem.Count > 0)
+                                                {
+                                                    foreach (var item in Model._PMproblem)
+                                                    {
+                                                        if (item.MasterId == item1.Id.ToString())
+                                                        {
+                                                            <div style="padding-left:24px; line-height:normal;color:#295b8f;">@item1.Name </div>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        If pregnant mom had other issues, please explain:
+                                    </div>
+                                    <div class="col-md-12">
+                                        @Html.TextBoxFor(m => m.PMOtherIssues, new { placeholder = "Other issues", maxlength = "30", @class = "form-control", @style = "width: 43%!important;" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 ">
+                                        Did preganat mom:
+                                    </div>
+                                    <div class="col-sm-12 cont-sz" style="margin-top:12px;">
+                                        @{
+                                            List<SelectListItem> PMConditions = new List<SelectListItem>();
+                                            foreach (var item in ViewBag.PMConditions)
+                                            {
+                                                PMConditions.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                            }
+                                        }
+                                        @Html.DropDownListFor(m => m.PMConditions, new SelectList(PMConditions, "Value", "Text"), new { @class = "form-control", tabIndex = "21", @style = "width: 43%!important;" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        If any of the previous question are selected, please provide an explanation
+                                    </div>
+                                    <div class="col-md-12">
+                                        @Html.TextBoxFor(m => m.PMCondtnDesc, new { placeholder = "Description", maxlength = "30", @class = "form-control", @style = "width: 43%!important;" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+
+                                        Is this pregnancy considered medically high risk by a physician or health care provider?
+                                    </div>
+                                    <div class="col-sm-12 cont-sz">
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMRisk, 1, new { id = "PMRisk1" })
+                                            <span>Yes</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMRisk, 2, new { id = "PMRisk2" })
+                                            <span>No </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        Has this woman received a professional dental exam and/or dental treatment in the last 12 months?
+                                    </div>
+                                    <div class="col-sm-12 cont-sz">
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMDentalExam, 1, new { id = "PMDentalExam1" })
+                                            <span>Yes</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMDentalExam, 2, new { id = "PMDentalExam2" })
+                                            <span>No </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMDentalExam, 3, new { id = "PMDentalExam3" })
+                                            <span>N/A</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        Date of the most recent professional dental exam and/or treatment
+                                    </div>
+                                    <div class="col-md-12">
+                                        @Html.TextBoxFor(m => m.PMDentalExamDate, new { placeholder = "MM/DD/YYYY", maxlength = "30", @class = "form-control", @style = "width: 43%!important;" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        Did pregnant mom need a dental treatment?
+                                    </div>
+                                    <div class="col-sm-12 cont-sz">
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMNeedDental, 1, new { id = "PMNeedDental1" })
+                                            <span>Yes</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMNeedDental, 2, new { id = "PMNeedDental2" })
+                                            <span>No </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMNeedDental, 3, new { id = "PMNeedDental3" })
+                                            <span>N/A</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-11 col-sm-12 mb10 adddivspace">
+                                <div class="row">
+                                    <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                        Did pregnant mom receive dental treatment?
+                                    </div>
+                                    <div class="col-sm-12 cont-sz">
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMRecieveDental, 1, new { id = "PMRecieveDental1" })
+                                            <span>Yes</span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMRecieveDental, 2, new { id = "PMRecieveDental2" })
+                                            <span>No </span>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            @Html.RadioButtonFor(m => m.PMRecieveDental, 3, new { id = "PMRecieveDental3" })
+                                            <span>N/A</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Currently Working <sup>*</sup></label>
+                        <div class="cont-sz">
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PCurrentlyWorking, 1, new { id = "PCurrentlyWorking", onchange = "CheckParent1income(this);" })
+                                <span>Yes</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PCurrentlyWorking, 2, new { id = "PCurrentlyWorking1", onchange = "CheckParent1income(this);" })
+                                <span>No </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Currently enrolled in job training/school? <sup>*</sup></label>
+                        <div class="cont-sz">
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PEnrollment, 1, new { id = "PEnrollment" })
+                                <span>Yes</span>
+                            </div>
+                            <div class="col-xs-6 col-sm-4">
+                                @Html.RadioButtonFor(m => m.PEnrollment, 2, new { id = "PEnrollment1" })
+                                <span>No </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label>Profile Picture </label>
+                        @Html.TextBoxFor(m => m.PAvatar, new { id = "PAvatar", Name = "PAvatar", type = "file", @accept = "image/*", @capture = "camera", onchange = "ValidateSingleInput(this)", @class = "form-control" })
+                        <div class="img-iconavt">
+                            <img alt="" id="imgAvatar" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.PAvatarUrl)' style="border-style:none;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                </div>
+                <div class="col-sm-12">
+                    <span>Add Contact No</span>
+                    <a href="javascript:void(0)" title="Add Contact No" onclick="Addphone();"><i class="fa fa-plus-square"></i></a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a style="margin-left:3%;" href="javascript:void(0)" data-toggle="modal" data-target="#Myincomecalculator">Calculate Income <i class="fa fa-calculator"></i></a>
+                    <span style="margin-left:6%;" id="Span1"></span>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                    <div class="table-responsive">
+                        <table class="table table_size" id="gridphone">
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                    <th id="thIN">Phone Type</th>
+                                    <th id="thIN">Phone No</th>
+                                    <th id="thSN">Is Primary No</th>
+                                    <th id="thnt">Notes</th>
+                                    <th id="thCust">SMS </th>
+                                    <th id="thCust">Action </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.phoneListParent!=null && Model.phoneListParent.Count >0)
+                                {
+                                    int i=0;
+                                    foreach(var item in Model.phoneListParent)
+                                    {
+                                      <tr>
+                                    <td><select class="form-control" style="width:100%;" name="ParentPhone1[@i].PhoneTypeP" onchange="addcontact(this);">
+                                        <option @if (@item.PhoneTypeP == "1") { <text> selected="selected" </text>  }  value="1">Home</option>
+                                    <option @if (@item.PhoneTypeP == "2") { <text> selected="selected" </text>  } value="2">Mobile</option>
+                                    <option @if (@item.PhoneTypeP == "3") { <text> selected="selected" </text>  } value="3">Work</option>
+                                     </select>
+                                     </td>
+                                    <td>
+                                          <input class="form-control" name="ParentPhone1[@i].phonenoP" value="@item.phonenoP" type="text"></td>
+                                    <td>
+                                        <input type="checkbox" value="true" name="ParentPhone1[@i].StateP" @if (@item.StateP) {  <text> checked="checked" </text>     } data-val="true" class="chcktbl" onchange="uncheckParentother(this);" />
+                                    </td>
+                                    <td><input checked="checked" class="form-control" value="@item.notesP" type="text" data-val="true" name="ParentPhone1[@i].notesP" maxlength="100"></td>
+                                    <td><input type="checkbox" style="width:50%;" @if (@item.SmsP) {  <text> checked="checked" </text> } @if (@item.PhoneTypeP != "2") {  <text> disabled="disabled" </text> } name="ParentPhone1[@i].SmsP" value="true" class="chcktbl" /></td>
+                                          <td> <input type="hidden" name="ParentPhone1[@i].PPhoneId" value="@item.PPhoneId" /><a href="javascript:void(0)" onclick="RemovePhone(this);" accesskey="@item.PPhoneId" style=" text-decoration:underline;">Delete</a></td>
+                                    </tr>
+                                        i++;
+                                } 
+                                   
+                                    
+                                }
+                                else
+                                { 
+                                <tr>
+                                    <td>
+                                        <select class="form-control" style="width:100%;" name="ParentPhone1[0].PhoneTypeP" onchange="addcontact(this);">
+                                            <option value="1">Home</option>
+                                            <option value="2">Mobile</option>
+                                            <option value="3">Work</option>
+                                        </select>
+                                    </td>
+                                    <td><input class="form-control" name="ParentPhone1[0].phonenoP" type="text"></td>
+                                    <td><input type="checkbox" value="true" name="ParentPhone1[0].StateP" data-val="true" class="chcktbl" onchange="uncheckParentother(this);" /></td>
+                                    <td><input class="form-control" type="text" data-val="true" name="ParentPhone1[0].notesP" maxlength="100"></td>
+                                    <td><input type="checkbox" style="width:50%;" disabled="disabled" name="ParentPhone1[0].SmsP" value="true" class="chcktbl" /></td>
+                                    <td><a href="javascript:void(0)" onclick="RemovePhone(this);" style=" text-decoration:underline;">Delete</a></td>
+                                </tr>
+                                }
+
+
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @{Html.RenderAction("IncomeCalculatorFamilySummarry", "AgencyUser", new { Income = Model.Income1 });}
+        @{Html.RenderAction("AddDoctor", "AgencyUser", new { area = "" });}
+      
+    </form>
+}

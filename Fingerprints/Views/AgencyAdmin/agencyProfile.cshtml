@@ -1,0 +1,198 @@
+﻿@model FingerprintsModel.Agency
+@{
+    ViewBag.Title = "agencyProfile";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            $("#programstartDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y'
+            });
+            $("#programendDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y'
+            });
+            $("#State").on("input", function () {
+                var regexp = /[^A-Z]/g;
+                if ($(this).val().match(regexp)) {
+                    $(this).val($(this).val().replace(regexp, ''));
+                }
+            });
+            $('#maximumcapacityforalldayClassrooms').keydown(function (e) {
+                if (e.shiftKey || e.ctrlKey || e.altKey) {
+                    e.preventDefault();
+                } else {
+                    var key = e.keyCode;
+                    if (!((key == 8) || (key == 46) || (key >= 35 && key <= 40) || (key >= 48 && key <= 57) || (key >= 96 && key <= 105))) {
+                        e.preventDefault();
+                    }
+                }
+            });
+            $('#maximumcapacityforhalfdayClassrooms').keydown(function (e) {
+                if (e.shiftKey || e.ctrlKey || e.altKey) {
+                    e.preventDefault();
+                } else {
+                    var key = e.keyCode;
+                    if (!((key == 8) || (key == 46) || (key >= 35 && key <= 40) || (key >= 48 && key <= 57) || (key >= 96 && key <= 105))) {
+                        e.preventDefault();
+                    }
+                }
+            });
+            $('#btnCancel').click(function () {
+                $('#agencyName')[0].value = "";
+                $('#programName')[0].value = "";
+                $('#primaryEmail')[0].value = "";
+                $('#nameGranteeDelegate')[0].value = "";
+                $('#grantNo')[0].value = "";
+                $('#address1')[0].value = "";
+                $('#address2')[0].value = "";
+                $('#city')[0].value = "";
+                $('#State')[0].value = "";
+                $('#zipCode')[0].value = "";
+                $('#phone1')[0].value = "";
+                $('#phone2')[0].value = "";
+                $('#programstartDate')[0].value = "";
+                $('#programendDate')[0].value = "";
+                $('#maximumcapacityforalldayClassrooms')[0].value = "";
+                $('#phone1')[0].value = "";
+                $('#phone2')[0].value = "";
+                $('#fax')[0].value = "";
+                $('#maximumcapacityforhalfdayClassrooms')[0].value = "";
+            });
+        });
+
+        function isValidagencyInfo() {
+            cleanValidation();
+            if ($('#agencyName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Agency name is required.");
+                plainValidation('#agencyName');
+                return isValid;
+            }
+            else if ($('#primaryEmail')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Primary email is required.");
+                plainValidation('#primaryEmail');
+                return isValid;
+            }
+            else if ($('#primaryEmail')[0].value.trim() != "" && !validateEmail($('#primaryEmail')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#primaryEmail');
+                return isValid;
+            }
+
+            else if ($('#programName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Program name is required.");
+                plainValidation('#programName');
+                return isValid;
+            }
+            else if ($('#nameGranteeDelegate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Grantee delegate name is required.");
+                plainValidation('#nameGranteeDelegate');
+                return isValid;
+            }
+            else if ($('#address1')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Address1 is required.");
+                plainValidation('#address1');
+                return isValid;
+            }
+            else if ($('#city')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("City is required.");
+                plainValidation('#city');
+                return isValid;
+            }
+            else if ($('#State')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("State is required.");
+                plainValidation('#State');
+                return isValid;
+            }
+            else if ($('#zipCode')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Zip code is required.");
+                plainValidation('#zipCode');
+                return isValid;
+            }
+            else if ($('#programstartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Program start date is required.");
+                plainValidation('#programstartDate');
+                return isValid;
+            }
+            else if ($('#programendDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Program end date is required.");
+                plainValidation('#programendDate');
+                return isValid;
+            }
+            else if ($('#maximumcapacityforalldayClassrooms')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Maximum capacity for all day classrooms is required.");
+                plainValidation('#maximumcapacityforalldayClassrooms');
+                return isValid;
+            }
+            else if ($('#maximumcapacityforhalfdayClassrooms')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Maximum capacity for half day classrooms is required.");
+                plainValidation('#maximumcapacityforhalfdayClassrooms');
+                return isValid;
+            }
+            isValid = true;
+            return isValid;
+        }
+</script>
+}
+@section MainContentHolder{<div class="module form-module">
+        <div class="toggle">
+            <i class="fa fa-times fa-pencil"></i>
+        </div>
+        <div class="form">
+            <h2>Agency Profile</h2>
+            <form method="post">
+                @Html.TextBoxFor(m => m.agencyCode, new { placeholder = "Enter agency code", id = "agencyCode", maxlength = "50", readOnly = "true" })
+                @Html.TextBoxFor(m => m.agencyName, new { placeholder = "Enter agency name", id = "agencyName", maxlength = "100" })
+                @Html.TextBoxFor(m => m.primaryEmail, new { placeholder = "Enter primary email", id = "primaryEmail", maxlength = "100" })
+                @Html.TextBoxFor(m => m.userName, new { placeholder = "Enter user name", id = "userName", maxlength = "50", readOnly = "true" })
+                @Html.TextBoxFor(m => m.programName, new { placeholder = "Enter program name", id = "programName", maxlength = "200" })
+                @Html.TextBoxFor(m => m.nameGranteeDelegate, new { placeholder = "Enter name grantee/delegate", id = "nameGranteeDelegate", maxlength = "100" })
+                @Html.TextBoxFor(m => m.grantNo, new { placeholder = "Enter grant no", id = "grantNo", maxlength = "20" })
+                @Html.TextBoxFor(m => m.address1, new { placeholder = "Enter address1", id = "address1", maxlength = "200" })
+                @Html.TextBoxFor(m => m.address2, new { placeholder = "Enter address2", id = "address2", maxlength = "200" })
+                @Html.TextBoxFor(m => m.city, new { placeholder = "Enter city", id = "city", maxlength = "30" })
+                @Html.TextBoxFor(m => m.State, new { placeholder = "Enter state", id = "State", maxlength = "2" })
+                @Html.TextBoxFor(m => m.zipCode, new { placeholder = "Enter zip code", id = "zipCode", maxlength = "16" })
+                @Html.TextBoxFor(m => m.phone1, new { placeholder = "Enter phone1", id = "phone1", maxlength = "20" })
+                @Html.TextBoxFor(m => m.phone2, new { placeholder = "Enter phone2", id = "phone2", maxlength = "20" })
+                @Html.TextBoxFor(m => m.fax, new { placeholder = "Enter fax", id = "fax", maxlength = "20" })
+                @Html.TextBoxFor(m => m.programstartDate, "{0:MM/dd/yyyy}", new { placeholder = "Enter program start date", id = "programstartDate" })
+                @Html.TextBoxFor(m => m.programendDate, "{0:MM/dd/yyyy}", new { placeholder = "Enter program end date", id = "programendDate" })
+                @Html.TextBoxFor(m => m.maximumcapacityforalldayClassrooms, new { placeholder = "Enter maximum capacity for all day classrooms", id = "maximumcapacityforalldayClassrooms", maxlength = "5" })
+                @Html.TextBoxFor(m => m.maximumcapacityforhalfdayClassrooms, new { placeholder = "Enter maximum capacity for half day classrooms", id = "maximumcapacityforhalfdayClassrooms", maxlength = "5" })
+                @Html.HiddenFor(m => m.status)
+                @Html.HiddenFor(m => m.agencyId)
+                <br />
+                <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();">Update</button>
+                &nbsp;
+                <button id="btnCancel" type="button">Cancel</button>
+            </form>
+        </div>
+    </div>
+}

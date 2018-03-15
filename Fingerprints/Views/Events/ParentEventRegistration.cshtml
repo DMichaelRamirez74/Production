@@ -1,0 +1,316 @@
+﻿@model FingerprintsModel.ParentRegisterEvent
+@{
+    ViewBag.Title = "RegisterEventAsParent";
+    Layout = "~/Views/Shared/ParentLayout.cshtml";
+}
+<link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+
+<style>
+    .house-checkbox {
+        position: relative;
+        top: 12px;
+    }
+
+    .lbl-required:after {
+        margin-left: 2px;
+        content: "*";
+        color: red;
+    }
+
+    .kbw-signature {
+        width: 400px;
+        height: 200px;
+    }
+
+    .work_top_content-im {
+        height: 150px;
+        position: relative;
+        border: 1px solid #919191;
+        float: left;
+        margin-right: 16px;
+        width: 314px;
+    }
+
+    .work_top_content {
+        margin-top: 20px;
+    }
+
+    .sub_clr_btn a.exit {
+        background: #f9c751 none repeat scroll 0 0;
+        border: 0 none;
+        border-radius: 3px;
+        color: #333;
+        float: left;
+        font-weight: bold;
+        padding: 6px 10px;
+        width: 83px;
+        text-align: center;
+        margin-left: 10px;
+    }
+
+    .red {
+        background: #e74c3c !important;
+    }
+
+    .btn-div .btn {
+        border-radius: 50px;
+    }
+</style>
+<div class="col-xs-12 events_list_title" style="text-align: center;">
+    <h2 style="color:#fff;">EVENT REGISTRATION</h2>
+    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+</div>
+<div class="col-md-12">
+    <div class="eml_lst">
+        <input type="hidden" id="enc_eventId" value="@Model.Events.Enc_EventId" />
+        <ul>
+            <li class="work_top_content">
+                <span class="work_top_content-im image_drop" enc_id="@Model.Events.Enc_EventId">
+                    <img src="@Model.Events.ImagePath" id="event_image" style="width: 314px;height: 150px;">
+                </span>
+                <h2 style="display:initial;">@Model.Events.WorkShopName</h2>
+                <p>
+                    @Model.Events.EventDescription
+                </p>
+            </li>
+
+            <li><span class="lft">Speaker</span><span class="rgt">@Model.Events.SpeakerName</span></li>
+            <li><span class="lft">Center Name</span><span class="rgt">@Model.Events.CenterName</span></li>
+            <li>
+                <span class="lft">Center Address</span><span class="rgt">
+
+                    @Model.Events.CenterAddress
+                </span>
+            </li>
+            <li><span class="lft">Date</span><span class="rgt">@Model.Events.EventDate</span></li>
+            <li><span class="lft">Time</span><span class="rgt">@Model.Events.EventTime</span></li>
+            <li><span class="lft">Duration</span><span class="rgt">@Model.Events.TotalDuration &nbsp;Minutes</span></li>
+            <li><span class="lft">Last Date to RSVP</span><span class="rgt" style="height:41px;">@Model.Events.RSVPCutOffDate</span></li>
+        </ul>
+
+        <!----------registered_members------------->
+        <div class="serch-client-block registered_member">
+            <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+                <div class="col-xs-12 no-padding">
+                    <div class="registered_title col-xs-12">
+                        @if (Model.Events.AvailableSlots == 0)
+                        {
+                            <a href="#" class="red">Remaining Slots:<span id="availSlotsanchor">@Model.Events.AvailableSlots</span></a>
+
+                        }
+                        else
+                        {
+                            <a href="#">Remaining Seats:<span id="availSlotsanchor">@Model.Events.AvailableSlots</span></a>
+
+                        }
+                    </div>
+                    <div class="col-xs-12 col-md-3 list_menu_left">
+                        <label class="lbl-required" style="padding-left:10px;">Select Household</label>
+                    </div>
+
+                    <div class="col-xs-12 col-md-5 list_menu_left">
+                        <ul id="householdList">
+                            @if (Model.HouseholdList.Count() > 0)
+                            {
+                                foreach (var item in Model.HouseholdList)
+                                {
+                                    if (item.IsSelected && !item.IsOther)
+                                    {
+                                        if (item.IsRegistered)
+                                        {
+                                            <li><span gender="@item.Gender" id="masterClient" cli_id="@item.Enc_ClientId">@item.FullName</span><input type="checkbox" en_id="@item.Enc_RSVPId" isReg=@item.IsRegistered.ToString() name="householdChx" class="house-checkbox" checked="checked" /></li>
+
+                                        }
+                                        else
+                                        {
+                                            <li><span gender="@item.Gender" id="masterClient" cli_id="@item.Enc_ClientId">@item.FullName</span><input type="checkbox" en_id="@item.Enc_RSVPId" isReg=@item.IsRegistered.ToString() name="householdChx" class="house-checkbox" /></li>
+                                        }
+
+                                    }
+
+                                    else if (!item.IsOther && item.IsRegistered)
+                                    {
+                                        <li><span gender="@item.Gender" cli_id="@item.Enc_ClientId">@item.FullName</span><input type="checkbox" name="householdChx" en_id="@item.Enc_RSVPId" isReg=@item.IsRegistered.ToString() class="house-checkbox" checked="checked" /></li>
+                                    }
+
+                                    else if (!item.IsOther)
+                                    {
+                                        <li><span gender="@item.Gender" cli_id="@item.Enc_ClientId">@item.FullName </span><input type="checkbox" name="householdChx" en_id="@item.Enc_RSVPId" isReg=@item.IsRegistered.ToString() class="house-checkbox" /></li>
+
+                                    }
+                                }
+                            }
+
+                        </ul>
+                    </div>
+                    <div class="col-xs-12 col-md-4 list_midd_sec">
+                        <div class="add_pp add_pp1"><i class="fa fa-plus-circle add"></i><i class="fa fa-minus-circle sub"></i>Add Other People</div>
+                        <ul>
+
+                            <li><span><input type="email" placeholder="Enter Name" id="externalName"></span></li>
+                            <li>
+                                <span>
+                                    <select id="external_select">
+                                        <option value="1">Male</option>
+                                        <option value="2">Female</option>
+                                        <option value="3">Other</option>
+                                    </select>
+                                </span>
+                            </li>
+                            <li>
+                                <div class="sub_clr_btn register_btn btn_green" style="margin-bottom:0;">
+                                    <input value="Add" type="submit" id="addNewHousehold">
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 no-padding">
+                    <div class="list_menu_bt_sec">
+                        <ul id="externalUl">
+                            @if (Model.HouseholdList.Count() > 0)
+                            {
+                                int i = 0;
+                                foreach (var item in Model.HouseholdList)
+                                {
+                                    if (item.IsOther)
+                                    {
+                                        var cl = "li" + i;
+                                        <li class="@cl" en_id="@item.Enc_RSVPId" isReg="@item.IsRegistered.ToString()"><span class="ext_name_span">@item.FullName</span><span class="ext_gender_span">@item.Gender</span><p><img src="/images/rd_close.png" class="delete_external" pos=@i style="cursor:pointer;" onclick="deleteExternal(this);"></p></li>
+                                        i++;
+                                    }
+
+                                }
+
+                            }
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 no-padding hidden">
+
+                    <div class="col-xs-12 eml_lst" style="margin-bottom:10px;margin-left: -17px;">
+
+                        <ul>
+
+                            <li><span class="lft">Miles driven</span><span class="rgt"><input type="text" id="milesDrivenTxt" />&nbsp; miles </span></li>
+
+                            <li>
+                                <span class="lft">Time to reach</span><span class="rgt">
+
+                                    <select class="form-control  ddlDuration" style="width:25%;">
+                                        <option value="0">Minutes</option>
+                                        <option value="15">20</option>
+                                        <option value="15">40</option>
+                                        <option value="15">50</option>
+                                        <option value="30">60</option>
+                                    </select>
+                                </span>
+
+                            </li>
+
+                            <li>
+                                <span class="lft">Signature</span>
+                                <span class="rgt">
+                                    <span class="col-sm-6 col-xs-12 no-padding" style="border:none;">
+                                        <canvas id="colors_sketch" class="signature_1" style="border: 1px solid #c1c1c1;height:120px;width:100%;"></canvas>
+                                        <label class="signatureError" type="label" style="color:red;display:none;"></label>
+                                        <input id="imgCapture" name="SignatureData" style="display:none;" type="text" value="">
+                                        <div class="col-xs-12 text-center no-padding btn-div" style="margin-top:10px;">
+                                            <button class="btnPassword" id="clearDrawing">Clear</button>
+                                            <button class="btnPassword" id="btnSave">Add Signature</button>
+                                        </div>
+                                    </span>
+                                    <span class="col-sm-6 col-xs-12 no-padding">
+
+                                    </span>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            @Html.Hidden("isUpdate", Model.Events.IsUpdate);
+            <input type="hidden" id="isMode" value="@ViewBag.UpdateMode" />
+
+        </div>
+        <!----------registered_members------------->
+
+
+        <div class="sub_clr_btn register_btn">
+
+            <input type="submit" value="Submit" id="addRegistration">
+            @if (Model.Events.IsUpdate)
+            {
+                <a href='javascript:void(0);' class="clear" style="width:230px;" data-target="#myModal" data-toggle="modal">Cancel Registration</a>
+            }
+
+            @if (ViewBag.UpdateMode == "1")
+            {
+                <a href='/Events/ParentEventSelection' class="exit">Exit</a>
+
+            }
+            else
+            {
+                <a href='/Parent/SchoolCalendar' class="exit">Exit</a>
+
+            }
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="Ev_Curcount" value="@Model.Events.CurrentCount" />
+<input type="hidden" id="Ev_Totcount" value="@Model.Events.TotalCount" />
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 style="text-align:center;">Cancel Registration</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are your Sure.Want to Cancel this Event Registration?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-success" data-dismiss="modal" id="cancelRegistration">Yes</button>
+                <button type="button" class="btn btn-default btn-danger" data-dismiss="modal">No</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!---Slots Not Available Modal-->
+<div id="noSlotCheckModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 style="text-align:center;">Seats not available</h4>
+            </div>
+            <div class="modal-body">
+                <p><span>Available Seats</span><span id="availSlotsSpan" style="margin-left: 70px;"></span></p>
+                <p><span>New Member(s) added</span><span id="householdRegisterSpan" style="margin-left:21px;"></span></p>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!---Slots Not Available Modal-->

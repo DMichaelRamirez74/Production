@@ -1,0 +1,127 @@
+﻿@{
+    @section Title
+{
+        Home Based Socialization
+    }
+    ViewBag.Title = "HomeBasedSocialization";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#Date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#Hours').timepicker({ 'timeFormat': 'h:i A' });
+        });
+
+
+        function validatedatenew(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(inputTextObject).val())) {
+                    customAlert("Invalid date format. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+            }
+        }
+
+    </script>
+
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Home Based Socialization And Field Trips </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="add-useragform">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="form-group">
+                                <label for="email">Field Trips </label>
+                                <input type="checkbox" name="FieldTrip" id="FieldTrip" value="true" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="form-group">
+                                <label for="email">Socialization </label>
+                                <input type="checkbox" name="Socialization" id="Socialization" value="true" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-5 col-md-5 col-sm-5">
+                            <div class="form-group">
+                                <label for="email">Date </label>
+                                <input type="text" name="Date" placeholder="MM/DD/YYYY" onblur="validatedatenew();" maxlength="50" id="Date" class="form-control" />
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <div class="form-group">
+                                <label for="email">Hours </label>
+                                <input type="text" name="Hours" id="Hours" placeholder="Hours" autocomplete="off" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="DivPendingclientlist">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th>Name</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Meals</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @if (ViewBag.HomeBasedlist != null && ((List<FingerprintsModel.HomeBased>)ViewBag.HomeBasedlist) != null && ((List<FingerprintsModel.HomeBased>)ViewBag.HomeBasedlist).Count() > 0)
+                        {
+
+                            foreach (var item in ((List<FingerprintsModel.HomeBased>)ViewBag.HomeBasedlist))
+                            {
+
+                                <tr>
+                                    <td>@item.ClientName</td>
+                                    <td>   <input type="radio" name="@item.ClientID" />  </td>
+                                    <td><input type="radio" name="@item.ClientID" />  </td>
+
+                                    <td> B <input type="checkbox" /> L <input type="checkbox" /> S <input type="checkbox" /> D <input type="checkbox" /></td>
+                                </tr>
+
+
+
+                            }
+
+                        }
+                    </tbody>
+
+
+                </table>
+                <div id="div2" style="text-align:center;display:none; margin-left:38%;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+}

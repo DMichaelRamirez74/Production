@@ -1,0 +1,701 @@
+﻿@model StaffModel.AgencyStaff
+
+@{
+    @section Title
+{
+       Add Agency User
+
+    }
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+
+
+@section Script{
+
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $("#CellNumber").mask("(999) 999-9999");
+            try {
+                $("#DdlAgencyList").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/Agency/AutoCompleteAgency",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term, Active: "1" },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.agencyName, id: item.agencyId };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#HiddenAgencyId').val(ui.item.id);
+                    },
+                    //focus: function (event, ui) {
+                    //    $("#searchAgency").val(ui.item.label);
+                    //    return false;
+                    //},
+                    messages: {
+                        noResults: "", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+
+            $('#form1').submit(function () {
+                $('#btnSubmit').attr('disabled', 'disabled');
+            });
+            $("#side-menu li a").removeClass("active");
+            $("#side-menu li").removeClass("active");
+          
+            $('#addagencyuser').addClass("active");
+            $('#ul1').removeClass('in');
+            $('#ul3').addClass("in");
+            $('#li1').addClass("active");
+            // If agency admin role is selected
+
+
+            var value = $('#DdlRoleList').val();
+            if (value == "3b49b025-68eb-4059-8931-68a0577e5fa2") {
+                //$('#divaccesstype')[0].style.display = "none";
+                //$('#divlogintime')[0].style.display = "none";
+                $('.DivHide').hide();
+            }
+            else {
+                $('.DivHide').show();
+
+            }
+
+
+
+            // end
+
+
+
+
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            var dateToday = new Date();
+            var yrRange = "1950:" - (dateToday.getFullYear() - 20);
+            $(".datecss").datetimepicker({
+                changeMonth: true,
+                changeYear: true,
+                // yearRange: yrRange,
+                yearRange: '1964:1991',
+                timepicker: false,
+                format: 'm/d/Y'
+                //format: 'Y/m/d',
+
+            });
+            $(".datecss").keypress(function (event) { event.preventDefault(); });
+            $("#AccessStartDate").keypress(function (event) { event.preventDefault(); });
+            $("#DOB").keypress(function (event) { event.preventDefault(); });
+
+
+            $("#AccessStartDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                //format: 'Y/m/d',
+                minDate: dateToday,
+            });
+
+            var end = new Date();
+            $("#DOB").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: end,
+                //yearRange: start.getFullYear() + ':' + end.getFullYear()
+            });
+
+            $('.time').datetimepicker({
+                datepicker: false,
+                format: 'H:i',
+                step: 15
+            });
+            $(".time").keypress(function (event) { event.preventDefault(); });
+            $("#State").on("input", function () {
+                var regexp = /[^A-Z]/g;
+                if ($(this).val().match(regexp)) {
+                    $(this).val($(this).val().replace(regexp, ''));
+                }
+            });
+            $('#btnCancel').click(function () {
+                window.location.href = HostedDir + "/Home/SuperAdminDashboard";
+            });
+        });
+        function isValidagencyInfo() {
+            cleanValidation();
+            if ($('#DdlRoleList')[0].value.trim() == "0") {
+                isValid = false;
+                customAlert("Please select role from list.");
+                plainValidation('#DdlRoleList');
+                return isValid;
+            }
+            if ($('#EmailAddress')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email id is required.");
+                plainValidation('#EmailAddress');
+                return isValid;
+            }
+            if ($('#EmailAddress')[0].value.trim() != "" && !validateEmail($('#EmailAddress')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#EmailAddress');
+                return isValid;
+            }
+            if ($('#FirstName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required.");
+                plainValidation('#FirstName');
+                return isValid;
+            }
+            if ($('#Password').length) {
+                if ($('#Password')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Password is required.");
+                    plainValidation('#Password');
+                    return isValid;
+                }
+            }
+            if ($('#Password').length) {
+                if ($('#Password')[0].value.length < 7) {
+                    isValid = false;
+                    customAlert("The password length must be atleast 7 character.");
+                    plainValidation('#Password');
+                    return isValid;
+                }
+            }
+            if ($('#Password').length) {
+                if (!Password($('#Password')[0].value.trim())) {
+                    isValid = false;
+                    customAlert("The password must contain 1 capital letter and 1 number.");
+                    plainValidation('#Password');
+                    return isValid;
+                }
+            }
+            else if ($('#ConfirmPassword').length) {
+                if ($('#ConfirmPassword')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Confirm password is required.");
+                    plainValidation('#ConfirmPassword');
+                    return isValid;
+                }
+            }
+            if ($('#Password').length) {
+                if ($('#Password')[0].value.trim() != $('#ConfirmPassword')[0].value.trim()) {
+                    isValid = false;
+                    customAlert("Password does not match the confirm password.");
+                    plainValidation('#ConfirmPassword');
+                    return isValid;
+                }
+            }
+            if ($('#DdlAgencyList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select agency.");
+                plainValidation('#DdlAgencyList');
+                return isValid;
+            }
+            if ($('#HiddenAgencyId')[0].value.trim() == "00000000-0000-0000-0000-000000000000") {
+                isValid = false;
+                customAlert("Please select agency.");
+                plainValidation('#DdlAgencyList');
+                return isValid;
+            }
+            if ($('#AccessStartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Access start date is required.");
+                plainValidation('#AccessStartDate');
+                return isValid;
+            }
+            if ($('#HireDate')[0].value.trim() != "" && $('#TerDate')[0].value.trim() != "") {
+                var begD = $('#HireDate').val();
+                var endD = $('#TerDate').val();
+                //var begD = Date.parse($('#programstartDate').val());
+                //var endD = Date.parse($('#programendDate').val());
+                if (Date.parse(begD) > Date.parse(endD)) {
+                    isValid = false;
+                    customAlert("Hire date should not be less than termination date.");
+                    plainValidation('#HireDate');
+                    //  plainValidation('#TerDate');
+                    return isValid;
+                }
+            }
+
+
+            if ($('#DivAccessType').css('display') != 'none') {
+                if ($('#DdlAccessType')[0].value.trim() == "-1") {
+
+                    isValid = false;
+                    customAlert("Please select access type from list.");
+                    plainValidation('#DdlAccessType');
+                    return isValid;
+                }
+            }
+
+            
+            if ($('#DivLoginTime').css('display') != 'none') {
+                if ($('#AccessStart')[0].value.trim() == "" || $('#AccessStop')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please check start time or end time");
+                    return isValid;
+                }
+                else {
+
+                    if ($('#AccessStart')[0].value.trim() >= $('#AccessStop')[0].value.trim()) {
+                        isValid = false;
+                        customAlert("Start time cannot be greater than or equal end time");
+                        return isValid;
+                    }
+                }
+            }
+            isValid = true;
+            return isValid;
+        }
+        $('#AvatarH').change(function (evt) {
+
+            showimages(evt.target.files);
+        });
+
+        function showimages(files) {
+            for (var i = 0, f; f = files[i]; i++) {
+
+                var reader = new FileReader();
+                reader.onload = function (evt) {
+
+                    $('img#imgavatarh').attr('src', evt.target.result);
+                }
+                reader.readAsDataURL(f);
+            }
+        }
+        function ToggleVisible(ddl) {
+            var value = ddl.options[ddl.selectedIndex].value;
+            if (value == "3b49b025-68eb-4059-8931-68a0577e5fa2") {
+                //$('#DivAccessType')[0].style.display = "none";
+                //$('#DivLoginTime')[0].style.display = "none";
+                //$('.DivHide').style.display = "none";
+                $('.DivHide').hide();
+            }
+            else {
+                //$("#DivAccessType").removeAttr("style");
+                //$('#DivLoginTime').removeAttr("style");
+                $('.DivHide').show();
+            }
+        }
+        function EnableDisable() {
+            if ($('#EmailAddress').is('[readonly]')) {
+                $("#EmailAddress").removeAttr("readonly");
+            }
+            else {
+                $("#EmailAddress").prop("readonly", true);
+            }
+        }
+        var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInput(oInput) {
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    // alert(oInput.files[0].size / 1024 / 1024);
+                    var v = oInput.files[0].size / 1024 / 1024;
+                    if (v <= 1) {
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            // customAlertforlongtime("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                            //alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                            oInput.value = "";
+                            return false;
+                        }
+                        //else {
+                        //    document.getElementById("imgAvatar").src = window.URL.createObjectURL(oInput.files[0])
+                        //}
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 1 MB");
+                        return false;
+
+                    }
+
+                }
+            }
+            return true;
+        }
+
+
+    </script>
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+             Add Agency User
+                <span style="float:right;" class="backto_listspan">
+                    <a href="" class="backto_list">Back to list</a>
+                </span>
+            </h2>
+
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <div class="row">
+        <form method="post" enctype="multipart/form-data" autocomplete="off">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="add-useragform">
+                    <div>
+                        <h3 class="sepratetaff">Personal Information</h3>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Role <sup>*</sup></label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+
+                                            <label for="pwd">Email <sup>*</sup></label>
+                                            @*@Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "2" })*@
+                                           
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                           
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">First Name <sup>*</sup></label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Last Name</label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                   
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+
+                                        <div class="form-group">
+                                            <label for="pwd">Password <sup>*</sup></label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+
+                                    </div>
+                                   
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+
+
+                                        <div class="form-group">
+                                            <label for="pwd">Confirm Password <sup>*</sup></label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+
+                                        </div>
+
+                                    </div>
+                                   
+                                    
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Date Of  Birth </label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                  
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email"> Gender</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select> </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Mobile Number</label>
+
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Highest Education</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Early Childhood </label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>
+                                                         </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Race</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>    </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Getting Degree</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="nation">Country</label>
+
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 browse-grp" style="padding-left:0;">
+                                    <div class="form-group file_typimg">
+                                        <label for="pwd">General Picture </label>
+                                        <input type="file" class="form-control" />
+                                        
+                                        <div class="img-iconavt">
+                                        <img alt="" id="imgAvatar" src="" style="border-style:none;" /></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 browse-grp" >
+                                    <div class="form-group file_typimg"  >
+                                        <label for="pwd">Happy Avatar </label>
+                                        <input type="file" class="form-control" />
+                                        <div class="img-iconavt">
+                                            <img id="imgAvatarH" src="" alt="" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 browse-grp" style="padding-left:0;">
+                                    <div class="form-group file_typimg">
+                                        <label for="pwd">Sad Avatar </label>
+                                        <input type="file" class="form-control" />
+                                        <div class="img-iconavt">
+                                            <img id="imgAvatas" alt="" src="" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 browse-grp">
+                                    <div class="form-group file_typimg" >
+                                        <label for="pwd">Tired Avatar </label>
+                                        <input type="file" class="form-control" />
+                                        <div class="img-iconavt">
+                                            <img id="imgAvatarT" alt="" src="" style="border:none;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;"></div>
+
+                    <div>
+                        <h3 class="sepratetaff">Official Information</h3>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Agency <sup>*</sup></label>
+                                           
+                                           
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Hire Date </label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Termination Date</label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">HR Center </label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Contractor</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>       </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Hourly Rate</label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Salary</label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Replacement</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>          </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Associated Program</label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>            </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Access Start Date <sup>*</sup></label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="nation">PIR Role</label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group DivHide" id="DivAccessType">
+                                            <label for="email">Access Type <sup>*</sup></label>
+                                            <select class="form-control">
+                                                <option value="volvo">Volvo</option>
+                                                <option value="saab">Saab</option>
+                                                <option value="mercedes">Mercedes</option>
+                                                <option value="audi">Audi</option>
+                                            </select>            </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group DivHide" id="DivLoginTime">
+                                            <label for="pwd">Start Time <sup>*</sup></label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group DivHide">
+                                            <label for="pwd">Stop Time <sup>*</sup></label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+                                   
+                                    <div class="col-lg-6 col-md-6 col-sm-12" style="min-height:45px">
+                                        <div class="form-group">
+                                            <label for="loginallowed">Is Login allowed ?</label>
+                                            <input type="text" placeholder="Search Agency" id="DdlAgencyList" class="searchbox form-control">
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                       
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button id="btnSubmit" type="button"  class="my-btn" tabindex="34">Submit</button>
+                                <button id="btnCancel" type="button" class="my-btn" tabindex="35">Exit</button>
+                                <div class="clear"></div>
+                            </div>	<!--btnwrp_subcal--->
+                        </div>
+                    </div>
+                </div><!--add-useragform--->
+            </div>
+        </form>
+    </div>
+}

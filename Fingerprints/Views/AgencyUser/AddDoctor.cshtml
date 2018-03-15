@@ -1,0 +1,803 @@
+﻿@model FingerprintsModel.CommunityResource
+<script type="text/javascript">
+
+    function removeclasss() {
+        $('#ChildRecord').removeClass("active");
+        $('#ChildRecord').removeClass("in");
+    }
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+
+
+
+
+        $('#StartTimeD').timepicker({ 'timeFormat': 'h:i A' });
+        $('#StopTimeD').timepicker({ 'timeFormat': 'h:i A' });
+        $('#Username').val('');
+        if ('@ViewBag.message' != '')
+            customAlert('@ViewBag.message');
+        $('#btnCancelPassword').click(function () {
+            popup_me_close('Change_Pass');
+        });
+        if ('@ViewBag.result' == 'Sucess') {
+            clearcontrols();
+        }
+        if ('@ViewBag.tabpage' == '4') {
+            removeclasss();
+            $('#ChildRecord').addClass("active");
+            $('#ChildRecord').addClass("in");
+            $('#myTab li:eq(3) a').tab('show');
+        }
+        //  $("#DdlCommunityList").prop("readonly", true);
+        $("#DdlCommunityList").val('');
+        $("#PhonenoD").mask("(999) 999-9999");
+        $("#DdlCommunityListD").prop("readonly", true);
+        //$('#txtTitleD')[0].value = "";
+
+        $('#txtFnameD')[0].value = "";
+        $('#txtLnameD')[0].value = "";
+        $('#hdnCommunityIDD')[0].value = "";
+        //$('#txtNotesD')[0].value = "";
+        $('#hdnCommunityIDD').val(0);
+    });
+
+    //Added on 1Feb2017
+    function checkZipCode(inputTextObject) {
+        //debugger;
+        if ($(inputTextObject).val() != "") {
+            var ret = true;
+            var Zipcode = $(inputTextObject).val();
+            var len = Zipcode.length;
+            if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+                var ret = false;
+            }
+            else if (len < 2) {
+                $(inputTextObject).val('');
+                customAlert("Zip code length must be 2 digit. ");
+                var ret = false;
+            }
+            else if (isNaN(inputTextObject.value)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+                var ret = false;
+            }
+            if (ret)
+                CheckAddress(1);
+            return ret;
+        }
+        else {
+
+            $('#CityD').find('option').remove();
+            $('#StateD').val('');
+            $('#CountyD').val('');
+        }
+    }
+    function CheckAddress(value) {
+        //debugger;
+        var Zipcode = 0;
+        if (value == 0)
+            Zipcode = 0;
+        else
+            Zipcode = $('#ZipCodeD').val();
+
+
+
+        if ($('#ZipCodeD').val().trim() != "") {
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/Checkaddress",
+                type: "POST",
+                data: {
+                    Address: $('#ZipCodeD').val(),
+                    //HouseHoldId: $('#HouseholdId').val(),
+                    Zipcode: Zipcode
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    //debugger;
+                    if (value == 1) {
+                        if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                            var option = "";
+                            for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                            }
+                            $('#CityD').find('option').remove().end().append(option);
+                            $('#CityD').val('');
+                            $('#StateD').val(response.Zipcodelist[0].State);
+                            $('#CountyD').val(response.Zipcodelist[0].County);
+                            $('#ZipCodeD').val(response.Zipcodelist[0].Zipcode);
+                        }
+                        else {
+                            $('#CityD').find('option').remove().end();
+                            $('#CityD').val('');
+                            $('#StateD').val('');
+                            $('#ZipCodeD').val('');
+                            $('#CountyD').val('');
+                            customAlert("Could not find zipcode details.");
+
+                        }
+                    }
+                }
+                    , error: function (response) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+            });
+        }
+
+
+    }
+    //End
+    ////Added on 31jan2017
+    function checkdata() {
+        if ($('#DocCheck').prop("checked")) {
+            $('#txtFnameD').val("Doctor");
+            $('#txtLnameD').val("OnCall");
+        }
+        else {
+            $('#DocCheck').prop("checked", false);
+            $('#txtFnameD').val("");
+            $('#txtLnameD').val("");
+        }
+
+    }
+    function checkdataDen() {
+        if ($('#DenCheck').prop("checked")) {
+            $('#txtFnameD').val("Dentist");
+            $('#txtLnameD').val("OnCall");
+        }
+        else {
+            $('#DenCheck').prop("checked", false);
+            $('#txtFnameD').val("");
+            $('#txtLnameD').val("");
+        }
+
+
+    }
+    //End
+    function isValidCommunityInfoDoctor() {
+        //debugger;
+        var isValid = true;
+        cleanValidation();
+
+        if ($('#divdentalCenter').is(':visible') && $('#divdentalCenter').find('#txtCompanyNameDen').val() == '') {
+            isValid = false;
+            customAlert("Please enter dental center");
+            plainValidation('#txtCompanyNameDen');
+            return isValid;
+        }
+
+        if ($('#divmedicalCenter').is(':visible') && $('#divmedicalCenter').find('#txtCompanyNameD').val() == '') {
+            isValid = false;
+            customAlert("Please enter medical center");
+            plainValidation('#txtCompanyNameD');
+            return isValid;
+        }
+
+
+        if ($('#txtFnameD').val().trim() == "") {
+            isValid = false;
+            customAlert("Please enter first name.");
+            plainValidation('#txtFnameD');
+            return isValid;
+        }
+        if ($('#txtLnameD').val().trim() == "") {
+            isValid = false;
+            customAlert("Please enter last name.");
+            plainValidation('#txtLnameD');
+            return isValid;
+        }
+
+        //if ($('#DdlCommunityList')[0].value.trim() == "") {
+        //    isValid = false;
+        //    customAlert("Please select community.");
+        //    plainValidation('#DdlCommunityList');
+        //    return isValid;
+        //}
+        //if ($('#txtCompanyNameD').val().trim() == "") {
+        //    isValid = false;
+        //    customAlert("Please enter Organization Name.");
+        //    plainValidation('#txtCompanyNameD');
+        //    return isValid;
+        //}
+        ////Changes by Akansha on 14Dec2016
+        //if ($('#DdlCommunityList').val() == "1") {
+        //    if ($('#MedicalCenter')[0].value.trim() == "") {
+        //        isValid = false;
+        //        customAlert("Please enter medical center.");
+        //        plainValidation('#MedicalCenter');
+        //        return isValid;
+        //    }
+        //}
+        //if ($('#DdlCommunityList').val() == "2") {
+        //    if ($('#DentalCenter')[0].value.trim() == "") {
+        //        isValid = false;
+        //        customAlert("Please enter dental center.");
+        //        plainValidation('#DentalCenter');
+        //        return isValid;
+        //    }
+        //}
+        ////End
+
+        //Changes by Akansha on 16Dec2016
+        if ($('#DdlCommunityList').val() == "1") {
+            if ($('#txtCompanyNameD')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter medical center.");
+                plainValidation('#txtCompanyNameD');
+                return isValid;
+            }
+        }
+        if ($('#DdlCommunityList').val() == "2") {
+            if ($('#txtCompanyNameDen')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter dental center.");
+                plainValidation('#txtCompanyNameDen');
+                return isValid;
+            }
+        }
+
+
+
+        return isValid;
+
+    }
+    function AddDoctorNew() {
+        if (isValidCommunityInfoDoctor()) {
+
+
+            $('#myModalDoctor').modal('hide');
+            var community;
+            if ($('#txtCompanyNameD').val() != "")
+                community = 1;
+            if ($('#txtCompanyNameDen').val() != "")
+                community = 2;
+            $.ajax({
+                url: HostedDir + "/AgencyUser/AdddoctorAjax",
+                type: "POST",
+                data: {
+                    //Title: $('#txtTitleD').val(),
+                    Fname: $('#txtFnameD').val(),
+                    Lname: $('#txtLnameD').val(),
+                    CompanyName: $('#txtCompanyNameD').val(),
+                    Zip: $('#Region').val(),
+                    Phoneno: $('#PhonenoD').val(),
+                    Address: $('#AddressD').val(),
+                    City: $('#CityD').val(),
+                    State: $('#StateD').val(),
+                    County: $('#CountyD').val(),
+                    Community: community,//$('#DdlCommunityList').val(),
+                    DentalCenter: $('#DentalCenter').val(),//Added by Akansha on 14Dec2016
+                    DentalNotes: $('#DentalNotes').val(),
+                    MedicalNotes: $('#MedicalNotes').val(),
+                    MedicalCenter: $('#MedicalCenter').val(),
+                    CompanyNameDen: $('#txtCompanyNameDen').val(),
+                    DocCheck: $('#DocCheck').is(":checked"),
+                    DenCheck: $('#DenCheck').is(":checked"),
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+                    if (response != null) {
+
+                        if (response.result == "1") {
+                            customAlert("Record added successfully.");
+
+                            Binddoctordropdowndata(response.Info);
+                            clearcontrolsD();
+                        }
+
+                        else if (response.result == "2") {
+
+                            customAlert("Record updated successfully");
+                            clearcontrolsD();
+                            Binddoctordropdowndata(response.Info);
+
+                        }
+                        else if (response.result == "3") {
+                            customAlert("Resource name already exists.");
+                        }
+                        else
+                            customAlert(response);
+                    }
+                },
+                error: function (response) { alert(response); }
+            });
+        }
+       
+    }
+    //Changes by Akansha on 15Dec2016
+    function Binddoctordropdowndata(response) {
+        //debugger;
+        //if (response.doctorList.Community == "1") {
+        //    if (response.doctorList.length > 0) {
+        //        var option = "";
+        //        for (var i = 0; i < response.doctorList.length; i++) {
+
+        //            option = option + '<option value="' + response.doctorList[i].Id + '">' + response.doctorList[i].Name + '</option>';
+        //        }
+        //        $('#Username').find('option').remove().end().append(option);
+        //        $('#Username').val('');
+        //        //$('#DdlCommunityList').prop('selectedIndex', 1);
+        //        //$("#DdlCommunityList").attr("disabled", "disabled");
+        //    }
+        //}
+        //if (response.doctorList.Community == "2") {
+        //    if (response.doctorList.length > 0) {
+        //        var option = "";
+        //        for (var i = 0; i < response.doctorList.length; i++) {
+        //            option = option + '<option value="' + response.doctorList[i].Id + '">' + response.doctorList[i].Name + '</option>';
+        //        }
+        //        $('#UsernameDentist').find('option').remove().end().append(option);
+        //        $('#UsernameDentist').val('');
+        //        //$('#DdlCommunityList').prop('selectedIndex', 2);
+        //        //$("#DdlCommunityList").attr("disabled", "disabled");
+        //    }
+        //}
+
+        if (response.doctorList.length > 0) {
+            //debugger;
+            var option = "";
+            for (var i = 0; i < response.doctorList.length; i++) {
+                if (response.doctorList[i].Community == "1") {
+                    if (response.doctorList[i].Name != "") {
+                        option = option + '<option value="' + response.doctorList[i].Id + '">' + response.doctorList[i].Name + '</option>';
+                    }
+                    $('#Username').find('option').remove().end().append(option);
+                    $('#Username').val('');
+                    // $('#Username option:last-child').val();//Changes on3Feb2017
+                    $('#CDoctor').val($('#Username').find('option:last-child').text());
+                    $('#Doctor').val($('#Username').find('option:last-child').val());
+
+                }
+
+                if (response.doctorList[i].Community == "2") {
+                    if (response.doctorList[i].Name != "") {
+                        option = option + '<option value="' + response.doctorList[i].Id + '">' + response.doctorList[i].Name + '</option>';
+                    }
+
+                    $('#UsernameDentist').find('option').remove().end().append(option);
+                    $('#UsernameDentist').val('');
+                    //Changes on 3Feb2017
+                    $('#CDentist').val($('#UsernameDentist').find('option:last-child').text());
+                    $('#Dentist').val($('#UsernameDentist').find('option:last-child').val());
+
+                    //$('#DdlCommunityList').prop('selectedIndex', 2);
+                    //$("#DdlCommunityList").attr("disabled", "disabled");
+                }
+            }
+        }
+
+        //$('#DdlCommunityList').prop('selectedIndex', 1);
+        //$("#DdlCommunityList").attr("disabled", "disabled");
+    }
+
+
+
+
+
+
+
+
+
+    //if (response.doctorList.Community == "2") {
+    //    if (response.doctorList.length > 0) {
+    //        var option = "";
+    //        for (var i = 0; i < response.doctorList.length; i++) {
+    //            option = option + '<option value="' + response.doctorList[i].Id + '">' + response.doctorList[i].Name + '</option>';
+    //        }
+    //        $('#UsernameDentist').find('option').remove().end().append(option);
+    //        $('#UsernameDentist').val('');
+    //        //$('#DdlCommunityList').prop('selectedIndex', 2);
+    //        //$("#DdlCommunityList").attr("disabled", "disabled");
+    //    }
+    //}
+
+
+
+
+
+    function clearcontrolsD() {
+
+        //$('#txtTitleD')[0].value = "";
+        $('#DocCheck')[0].value = "";
+        $('#DenCheck')[0].value = "";
+        $('#txtFnameD')[0].value = "";
+        $('#txtLnameD')[0].value = "";
+        $('#txtCompanyNameD').val("");
+        $('#txtRegionD').val("");
+        $('#AddressD').val("");
+        $('#PhonenoD').val("");
+        $('#Region').val("");
+        $('#CityD').val("");
+        $('#StateD').val("");
+        $('#CountyD').val("");
+        $('#hdnCommunityIDD')[0].value = "";
+        $('#btnSubmitD').enabled = true;
+        //$('#txtNotesD')[0].value = "";
+        //$('#hdnCommunityIDD').val(0);
+        //Added by Akansha on 14Dec2016
+        $('#MedicalCenter').val("");
+        $('#MedicalNotes').val("");
+        $('#DentalCenter').val("");
+        $('#DentalNotes').val("");
+        //Added by Akansha on 14Dec2016
+        //  $('#DdlCommunityList')[0].value = "";
+        if ($('#DdlCommunityList').val() == "1") {
+            $('#divdentalCenter').hide();
+            $('#divdentalnotes').hide();
+            $('#divmedicalCenter').show();
+            $('#divmedicalnotes').show();
+        }
+        if ($('#DdlCommunityList').val() == "2") {
+            $('#divdentalCenter').show();
+            $('#divdentalnotes').show();
+            $('#divmedicalCenter').hide();
+            $('#divmedicalnotes').hide();
+        }
+        $('#UsernameDentist').val('');
+        $('#Username').val('');
+        //End
+    }
+    //Added by Akansha on 15Dec2016
+    function AddDoctorText() {
+        //debugger;
+        if ($('#Username').val() == null) {
+            customAlert("Please select medical center from list.");
+            plainValidation('#Username');
+            return;
+        }
+        if (popupid == 1) {
+            $('#CDoctor').val($('#Username').find('option:selected').text());
+            $('#Doctor').val($('#Username').find('option:selected').val());
+        }
+        //if (popupid == 2) {
+        //    $('#CDentist').val($('#Username').find('option:selected').text());
+        //    $('#Dentist').val($('#Username').find('option:selected').val());
+        //}
+        if (popupid == 2) {
+            $('#CDentist').val($('#UsernameDentist').find('option:selected').text());
+            $('#Dentist').val($('#UsernameDentist').find('option:selected').val());
+        }
+        if (popupid == 3) {
+            $('#CDoctorP1').val($('#Username').find('option:selected').text());
+            $('#P1Doctor').val($('#Username').find('option:selected').val());
+        }
+        if (popupid == 4) {
+            $('#CDoctorP2').val($('#Username').find('option:selected').text());
+            $('#P2Doctor').val($('#Username').find('option:selected').val());
+        }
+        $('#myModalDoctor').modal('toggle');
+        $('#Username').val('');
+    }
+    //Added by Akansha on 15Dec2016
+    function AddDentistText() {
+        if ($('#UsernameDentist').val() == null) {
+            customAlert("Please select dental center from list.");
+            plainValidation('#UsernameDentist');
+            return;
+        }
+        if (popupid == 1) {
+            $('#CDoctor').val($('#Username').find('option:selected').text());
+            $('#Doctor').val($('#Username').find('option:selected').val());
+        }
+        //if (popupid == 2) {
+        //    $('#CDentist').val($('#Username').find('option:selected').text());
+        //    $('#Dentist').val($('#Username').find('option:selected').val());
+        //}
+        if (popupid == 2) {
+            $('#CDentist').val($('#UsernameDentist').find('option:selected').text());
+            $('#Dentist').val($('#UsernameDentist').find('option:selected').val());
+        }
+        if (popupid == 3) {
+            $('#CDoctorP1').val($('#Username').find('option:selected').text());
+            $('#P1Doctor').val($('#Username').find('option:selected').val());
+        }
+        if (popupid == 4) {
+            $('#CDoctorP2').val($('#Username').find('option:selected').text());
+            $('#P2Doctor').val($('#Username').find('option:selected').val());
+        }
+        $('#myModalDoctor').modal('toggle');
+        $('#Username').val('');
+    }
+
+</script>
+<div class="modal fade" id="myModalDoctor" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="Resourece1">Doctor Information <span class="extra-title muted"></span></h3>
+            </div>
+
+            <div class="control-group">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                        <form method="post" role="form" id="form1" autocomplete="off">
+
+                            <div class="add-useragform">
+                                @Html.HiddenFor(m => m.CommunityID, new { id = "hdnCommunityIDD" })
+
+                                <div class="">
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <div class="col-sm-6" id="ddlDoctor" style="display:none;">
+                                                <div class="form-group">
+                                                    @*<label for="email" id="Resourece2">Doctor <sup>*</sup></label>*@
+                                                    <label for="email">Medical Center <sup>*</sup></label>
+
+                                                    @*@{
+                                                            List<SelectListItem> doctorlist = new List<SelectListItem>();
+                                                            foreach (var item in ViewBag.doctor)
+                                                            {
+                                                                doctorlist.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                                            }
+                                                        }
+                                                        @Html.DropDownListFor(m => m.Username, new SelectList(doctorlist, "Value", "Text"), new { @class = "form-control", tabIndex = "1" })*@
+                                                    <select class="form-control" id="Username" name="Username"></select>
+                                                </div>
+
+
+
+                                            </div>
+                                            <div class="col-sm-6" id="ddlDentist" style="display:none;">
+                                                <div class="form-group">
+                                                    <label for="email">Dental Center@*<sup>*</sup>*@</label>
+                                                    @*<label for="email">Dentist <sup>*</sup></label>
+
+                                                                                                           @{
+                                                            List<SelectListItem> dentistlist = new List<SelectListItem>();
+                                                            foreach (var item in ViewBag.dentist)
+                                                            {
+                                                                dentistlist.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                                            }
+                                                        }
+                                                        @Html.DropDownListFor(m => m.Username, new SelectList(dentistlist, "Value", "Text"), new { @class = "form-control", tabIndex = "13" })*@
+                                                    <select class="form-control" id="UsernameDentist" name="UsernameDentist"></select>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-sm-6" id="AddDoctorBtn" style="">
+                                                <button onclick="AddDoctorText();" name="Creates" class="btnPassword" tabindex="2" type="button">Select &amp; Close</button>
+                                            </div>
+                                            <div class="col-sm-6" id="AddDentistBtn" style="display:none;">
+                                                <button onclick="AddDentistText();" name="Creates" class="btnPassword" tabindex="2" type="button">Select & Close</button>
+                                            </div>
+                                        </div>
+                                        @*<div class="col-sm-6" id="AddDoctorBtn" style="display:none;">
+                                                <button  onclick="AddDoctorText();" name="Creates" class="btnPassword" tabindex="2" type="button">Select & Close</button>
+                                            </div>*@
+
+                                        @*<div class="col-sm-6" id="AddDentistBtn" style="display:none;">
+                                                <button onclick="AddDentistText();" name="Creates" class="btnPassword" tabindex="2" type="button">Select & Close</button>
+                                            </div>*@
+                                        @*<div class="modal-header">
+                                            <h5>Or Add New community resource <span class="extra-title muted"></span></h5>
+                                            </div>*@
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <label for="email" style="width: 100%;text-align: center;margin-bottom: 15px;margin-top: 11px;font-size: 19px;" id="Resourece3">Add New Doctor</label>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="txtSubcategoryName">Title </label>
+
+                                            @Html.TextBoxFor(m => m.Title, new { placeholder = "Title", id = "txtTitleD", maxlength = "50", @class = "form-control", tabIndex = "3" })
+
+                                        </div>
+                                    </div>*@
+                                @*Changes on 31Jan2017*@
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="DoctorCheck" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceId">Doc</label>
+                                        @Html.CheckBoxFor(m => m.DocCheck, new { id = "DocCheck", maxlength = "50", @class = "minimal", tabIndex = "4", @onchange = "checkdata(this);", @style = "margin-left: -8%;" })
+                                        @*<span>Yes</span>*@
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="DentistCheck" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceId">Den</label>
+                                        @Html.CheckBoxFor(m => m.DenCheck, new { id = "DenCheck", maxlength = "50", @class = "minimal", tabIndex = "4", @onchange = "checkdataDen(this);", @style = "margin-left: -8%;" })
+                                        @*<span>Yes</span>*@
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalCenter" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Medical Center<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Medical Center", id = "txtCompanyNameD", maxlength = "50", @class = "form-control", tabIndex = "6" })
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalCenter" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Dental Center<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.CompanynameD, new { placeholder = "Dental Center", id = "txtCompanyNameDen", maxlength = "50", @class = "form-control", tabIndex = "6" })
+                                        @*@Html.TextBoxFor(m => m.DentalCenter, new { placeholder = "Dental Center", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceId">First Name<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.Fname, new { placeholder = "First Name", id = "txtFnameD", maxlength = "50", @class = "form-control", tabIndex = "4" })
+
+
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Last Name <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.Lname, new { placeholder = "Last Name", id = "txtLnameD", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                                    </div>
+                                </div>
+                                @*Changes*@
+                                @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group" id="DivStatus">
+                                            <label for="Status">Community<sup>*</sup></label>
+                                            @{
+                                                List<SelectListItem> CommunityList = new List<SelectListItem>();
+                                                CommunityList.Add(new SelectListItem() { Text = "Dentist", Value = "2" });
+                                                CommunityList.Add(new SelectListItem() { Text = "Doctor", Value = "1" });
+
+                                                CommunityList.Add(new SelectListItem() { Text = "Other", Value = "3" });
+                                            }
+                                            @Html.DropDownListFor(m => m.Community, new SelectList(CommunityList, "Value", "Text"), new { id = "DdlCommunityList", Name = "DdlCommunityList", @class = "form-control", tabIndex = "4" })
+                                        </div>
+                                    </div>*@
+                                @*End*@
+                                @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="txtSubcategoryName">Organization Name <sup>*</sup></label>
+
+                                            @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Organization Name", id = "txtCompanyNameD", maxlength = "50", @class = "form-control", tabIndex = "6" })
+
+                                        </div>
+                                    </div>*@
+                                @*Changes by Akansha on 16Dec2016*@
+
+                                @*<div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalCenter" style="display:none;">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Medical Center<sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Medical Center", id = "txtCompanyNameD", maxlength = "50", @class = "form-control", tabIndex = "6" })
+
+                                        </div>
+                                    </div>*@
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalnotes" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Notes</label>
+                                        @Html.TextBoxFor(m => m.MedicalNotes, new { placeholder = "Notes", maxlength = "50", @class = "form-control", tabIndex = "8" })
+                                    </div>
+                                </div>
+
+
+                                @*End*@
+                                @*Added by Akansha on 14Dec2016*@
+
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalCenter" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Dental Center<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.CompanynameD, new { placeholder = "Dental Center", id = "txtCompanyNameDen", maxlength = "50", @class = "form-control", tabIndex = "6" })
+                                        @*@Html.TextBoxFor(m => m.DentalCenter, new { placeholder = "Dental Center", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalnotes" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Notes</label>
+                                        @Html.TextBoxFor(m => m.DentalNotes, new { placeholder = "Notes", maxlength = "50", @class = "form-control", tabIndex = "8" })
+                                    </div>
+                                </div>
+
+
+                                @*End*@
+
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Phone No</label>
+                                        @Html.TextBoxFor(m => m.Phoneno, new { placeholder = "Phone No", id = "PhonenoD", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Address</label>
+                                        @Html.TextBoxFor(m => m.Address, new { placeholder = "Address", id = "AddressD", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="txtSubcategoryName">Zip Code</label>
+                                        @Html.TextBoxFor(m => m.Region, new { placeholder = "Zip Code", id = "ZipCodeD", maxlength = "5",onblur="checkZipCode(this);", @class = "form-control", tabIndex = "8" })
+                                    </div>
+                                </div>
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">City</label>
+                                        <select id="CityD" name="City" class="form-control" tabindex="6">
+
+                                            <option value="@Model.City">@Model.City</option>
+                                        </select>
+                                        @*@Html.TextBoxFor(m => m.City, new { placeholder = "City", id = "CityD", maxlength = "50", @class = "form-control", tabIndex = "10" })*@
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">State</label>
+                                        @Html.TextBoxFor(m => m.State, new { placeholder = "State", id = "StateD", maxlength = "50", @class = "form-control", tabIndex = "11", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">County</label>
+                                        @Html.TextBoxFor(m => m.County, new { placeholder = "County", id = "CountyD", maxlength = "50", @class = "form-control", tabIndex = "12", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-6 col-md-6 col-sm-12" >
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Notes</label>
+                                            @Html.TextBoxFor(m => m.Notes, new { placeholder = "Notes", id = "txtNotesD", maxlength = "50", @class = "form-control", tabIndex = "13" })
+                                        </div>
+                                    </div>*@
+
+
+                            </div>
+
+                    </div>
+                    <!--row-->
+                    @* <div class="row">*@
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+                            <button onclick="AddDoctorNew();" class="my-btn" tabindex="14" type="button">Add</button>@*Changes on 3Feb2017*@
+
+                            <button class="my-btn" data-dismiss="modal" tabindex="15" type="button">Exit</button>
+
+                        </div>
+                        <!--btnwrp_subcal--->
+                    </div>
+                    @* </div>*@
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+
+        @*<div class="modal-footer">
+                <button id="btnChangePassword" onclick="AddDoctorText();" name="Creates" class="btnPassword" type="button">Add</button>
+                <button id="btnCancelPassword" class="btnPassword" data-dismiss="modal" type="button">Exit</button>
+
+
+
+            </div>*@
+    </div>
+
+</div>
+</div>
+
+
+
+
+
+

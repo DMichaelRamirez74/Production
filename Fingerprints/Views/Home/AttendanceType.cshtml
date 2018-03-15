@@ -1,0 +1,393 @@
+﻿@model FingerprintsModel.AttendanceTypeModel
+
+@{
+    ViewBag.Title = "AttendanceType";
+    Layout = (Session["AgencyId"] == null) ? "~/Views/Shared/SuperAdminLayout.cshtml" : "~/Views/Shared/AgencyAdminLayout.cshtml";
+
+}
+
+@section MainContentHolder{
+    <link href="~/Content/css/daysoff.css" rel="stylesheet" />
+
+    <div class="row" style="width:100%;margin-left:0px;">
+        <div class="right-side-container-ch">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 no-padding">
+
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h2>Attendance Type</h2>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    <div class="form-div">
+
+                        <div class="col-xs-12 no-padding" id="comments-div">
+                            <div class="col-xs-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                <label style="width:20%;" class="icr-abs-label lbl-required">Attendance Type For</label>
+                                <input type="radio" name="attendanceType" value="0" />&nbsp;<span style="color:#fff;">Center Based &nbsp;</span>
+                                <input type="radio" name="attendanceType" value="1" />&nbsp;<span style="color:#fff;"> Home Based</span> &nbsp;
+
+                                <label id="remainingLbl" style="color:#fff;margin-left:340px;position: relative;display:none;">Remaining : <span id="remainingCount" style="color:#fff;"></span></label>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 no-padding" id="comments-div">
+                            <div class="col-xs-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                <label style="width:20%;" class="icr-abs-label lbl-required">Description</label>
+                                <input type="text" class="ersa-select icr-abs-input dis-input" id="descriptionTxt" />
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 no-padding" id="comments-div">
+                            <div class="col-xs-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                <label style="width:20%;" class="icr-abs-label lbl-required">Acronym</label>
+                                <input type="text" class="ersa-select icr-abs-input dis-input" style="width:16%;" maxlength="5" id="acronymTxt" />
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 no-padding" id="submit-cancel-div">
+                            <div class="btnwrp_subcal">
+                                <button id="btnSubmitAttendanceType" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" type="submit" class="my-btn dis-input" accesskey="0" index-id="0">Submit</button>
+                                <button id="btnExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                        <div class="col-xs-12" style="margin:20px auto;float: none;">
+                            <div class="icr-table-fit table-responsive">
+                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="centerTable">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th>Acronym</th>
+                                            <th>Description</th>
+                                            <th>Attendance Type</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ersea-table-head bind_body scroll-tbody">
+
+                                        @if (Model.attendanceTypeList.Count() > 0)
+                                        {
+                                            foreach (var item in Model.attendanceTypeList)
+                                            {
+                                                <tr>
+                                                    <td data-title="Acronym" att-id="@item.AttendanceTypeId" att-index="@item.IndexId" class="attendance-td">
+                                                        <p class="acronym-text">@item.Acronym</p>
+                                                    </td>
+                                                    <td data-title="Description" class="attendance-td">
+                                                        <p class="desc-text">@item.Description</p>
+                                                    </td>
+                                                    <td data-title="Attendance Type" class="attendance-td">
+                                                        <p class="att-type-text" is-home="@item.HomeBased.ToString()">@(item.HomeBased == true ? "Home Based" : "Center Based")</p>
+                                                    </td>
+                                                    <td data-title="Action">
+                                                        <p class="action icr-btn-abs" style="text-align:right;padding-bottom:20px;">
+                                                            <button type="button" class="btn btn-default btn-sm edit-item" accesskey="@item.AttendanceTypeId" index-id="@item.IndexId">
+                                                                <span class="glyphicon glyphicon-pencil"></span> Edit
+                                                            </button>
+                                                            <button type="button" class="btn btn-default btn-sm delete-item" accesskey="@item.AttendanceTypeId" index-id="@item.IndexId">
+                                                                <span class="glyphicon glyphicon-remove"></span> Delete
+                                                            </button>
+
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+
+                                        else
+                                        {
+                                            <tr>
+                                                <td style="padding:50px;margin:17px;text-align:center;font-size:15px;width:98.5%;">No record found</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var descriptionTxt = $('#descriptionTxt');
+        var acronymTxt = $('#acronymTxt');
+        var submitBtn = $('#btnSubmitAttendanceType');
+        var cancelBtn = $('#btnExit');
+        $(function () {
+            initializeClickEvent();
+
+            cleanValidation();
+
+
+            acronymTxt.on('keypress', function (event) {
+                var inputValue = event.which;
+                if (!(inputValue >= 65 && inputValue <= 120) && (inputValue != 0)) {
+                    event.preventDefault();
+                }
+                $(this).val($(this).val().toUpperCase());
+            });
+
+            $('#btnSubmitAttendanceType').on('click', function () {
+
+                if ($('input[name=attendanceType]:checked').length == 0) {
+                    customAlert('Please select attendance type');
+                    return false;
+                }
+
+                if (descriptionTxt.val().trim() == '') {
+                    customAlert('Please enter description');
+                    plainValidation('#descriptionTxt');
+                    return false;
+                }
+                if (acronymTxt.val().trim() == '') {
+                    customAlert('Please enter acronym');
+                    plainValidation('#acronymTxt');
+                    return false;
+                }
+                var attendanceType = $('input[name=attendanceType]:checked').attr('value');
+                var attendTypeId = $(this).attr('accesskey');
+                var indexId = $(this).attr('index-id');
+
+
+
+                if (!checkForRemainingCount(attendanceType)) {
+                    return false;
+                }
+
+
+                saveData(descriptionTxt.val().trim(), attendTypeId, acronymTxt.val().trim(), attendanceType, '1', indexId);
+
+            });
+
+            $('#btnExit').on('click', function () {
+
+                clearInputs();
+            });
+
+
+            $('input[name=attendanceType]').on('change', function () {
+
+                var attendtype = $(this).attr('value');
+
+                checkForRemainingCount(attendtype);
+
+            });
+
+
+        });
+
+
+
+        function checkForRemainingCount(attend_type) {
+
+            cleanValidation();
+            var desc = descriptionTxt.val().trim();
+            var acrnym = acronymTxt.val().trim();
+            var att_type_id = submitBtn.attr('accesskey');
+            var result = false;
+            $.ajax({
+                url: '/Home/GetAvailableAttendanceType',
+                type: 'post',
+                datatype: 'json',
+                async: false,
+                data: { 'homeBased': attend_type, 'description': desc, 'acronym': acrnym, 'attendanceTypeId': att_type_id },
+                success: function (data) {
+
+                    var outResult = parseInt(data.result);
+
+                    switch (outResult) {
+                        case 1:
+                            plainValidation('#descriptionTxt');
+                            plainValidation('#acronymTxt');
+                            var count = (parseInt(data.availCount) <= 9) ? '0' + parseInt(data.availCount) : parseInt(data.availCount);
+                            $('#remainingCount').text(count).parent('#remainingLbl').css({ 'display': 'initial' });
+                            customAlert('Description and Acronym already available in database');
+                            result = false;
+                            break;
+                        case 2:
+                            plainValidation('#descriptionTxt');
+                            var count = (parseInt(data.availCount) <= 9) ? '0' + parseInt(data.availCount) : parseInt(data.availCount);
+                            $('#remainingCount').text(count).parent('#remainingLbl').css({ 'display': 'initial' });
+                            customAlert('Description already available in database');
+                            result = false;
+                            break;
+                        case 3:
+                            plainValidation('#acronymTxt');
+                            var count = (parseInt(data.availCount) <= 9) ? '0' + parseInt(data.availCount) : parseInt(data.availCount);
+                            $('#remainingCount').text(count).parent('#remainingLbl').css({ 'display': 'initial' });
+                            customAlert('Acronym already available in database');
+                            result = false;
+                            break;
+                        case 0:
+                            if (parseInt(data.availCount) === 0) {
+                                $('#remainingCount').text(parseInt(data.availCount)).parent('#remainingLbl').css({ 'display': 'initial' });
+                                $('.dis-input').prop('disabled', true);
+
+                                if (parseInt(att_type_id) === 0) {
+                                    customAlert('Attendance type limit has been exceeded');
+                                    result = false;
+                                }
+                                else {
+                                    result = true;
+                                }
+
+                            }
+                            else {
+                                var count = (parseInt(data.availCount) <= 9) ? '0' + parseInt(data.availCount) : parseInt(data.availCount);
+                                $('.dis-input').prop('disabled', false);
+                                $('#remainingCount').text(count).parent('#remainingLbl').css({ 'display': 'initial' });
+                                result = true;
+                            }
+                            break;
+                    }
+
+                },
+                error: function (data) {
+                    customAlert('Somme error occured.Please, try again later.');
+                }
+            });
+            return result;
+        }
+
+        function clearInputs() {
+            cleanValidation();
+            $('input[name=attendanceType]').prop('checked', false);
+            $('#descriptionTxt').val('');
+            $('#acronymTxt').val('');
+            $('#remainingCount').text('');
+            $('#remainingLbl').hide();
+            $('#btnSubmitAttendanceType').attr({ 'accesskey': '0', 'index-id': '0' });
+        }
+
+
+        function bindTableData(data) {
+            if (data.model != null) {
+                if (data.model.attendanceTypeList.length > 0) {
+                    debugger;
+                    var bindBody = '';
+                    $.each(data.model.attendanceTypeList, function (i, list) {
+                        var ishome = (list.HomeBased) ? 'True' : 'False';
+                        var att_type = (list.HomeBased) ? 'Home Based' : 'Center Based';
+
+                        bindBody += '<tr>\
+                                      <td data-title="Acronym" att-id='+ list.AttendanceTypeId + ' class="attendance-td">\
+                                                        <p class="acronym-text">'+ list.Acronym + '</p>\
+                                                    </td>\
+                                                    <td data-title="Description" class="attendance-td">\
+                                                        <p class="desc-text">'+ list.Description + '</p>\
+                                                    </td>\
+                                                    <td data-title="Attendance Type" class="attendance-td">\
+                                                        <p class="att-type-text" is-home='+ ishome + '>' + att_type + '</p>\
+                                                    </td>\
+                                                    <td data-title="Action">\
+                                                        <p class="action icr-btn-abs" style="text-align:right;padding-bottom:20px;">\
+                                                            <button type="button" class="btn btn-default btn-sm edit-item" accesskey='+ list.AttendanceTypeId + ' index-id=' + list.IndexId + '>\
+                                                                <span class="glyphicon glyphicon-pencil"></span> Edit\
+                                                            </button>\
+                                                            <button type="button" class="btn btn-default btn-sm delete-item" accesskey=' + list.AttendanceTypeId + ' index-id=' + list.IndexId + '>\
+                                                                <span class="glyphicon glyphicon-remove"></span> Delete\
+                                                            </button>\
+                                                        </p>\
+                                                    </td>\
+                                                </tr>';
+                    });
+
+                    $('.scroll-tbody').html(bindBody);
+                    initializeClickEvent();
+                }
+
+                else {
+                    var appendNoData = '<tr>\
+                                            <td style="padding:50px;margin:17px;text-align:center;font-size:15px;width:98.5%;">No record found</td>\
+                                        </tr>';
+                    $('.scroll-tbody').html(appendNoData);
+                }
+            }
+            else {
+                var appendNoData = '<tr>\
+                                            <td style="padding:50px;margin:17px;text-align:center;font-size:15px;width:98.5%;">No record found</td>\
+                                        </tr>';
+                $('.scroll-tbody').html(appendNoData);
+            }
+
+        }
+
+        function initializeClickEvent() {
+            $('.scroll-tbody').find('.edit-item').on('click', function () {
+
+                var attendanceTypeId = $(this).attr('accesskey');
+                var IndexId = $(this).attr('index-id');
+                // alert(reasonId);
+                var acronym = $(this).parent('p').parent('td').siblings('.attendance-td').children('.acronym-text').html();
+                var desc = $(this).parent('p').parent('td').siblings('.attendance-td').children('.desc-text').html();
+                var attend_type = $(this).parent('p').parent('td').siblings('.attendance-td').children('.att-type-text').attr('is-home');
+                acronymTxt.val(acronym);
+                descriptionTxt.val(desc);
+
+                if (attend_type == 'False') {
+                    $('input[name=attendanceType][value=0]').prop('checked', true);
+                }
+                else {
+                    $('input[name=attendanceType][value=1]').prop('checked', true);
+                }
+                $('.dis-input').prop('disabled', false);
+                submitBtn.attr({ 'accesskey': attendanceTypeId, 'index-id': IndexId });
+            });
+
+            $('.scroll-tbody').find('.delete-item').on('click', function () {
+
+                var attendanceTypeId = $(this).attr('accesskey');
+                var indexid = $(this).attr('index-id');
+                // alert(reasonId);
+                var acronym = $(this).parent('p').parent('td').siblings('.attendance-td').children('.acronym-text').html();
+                var desc = $(this).parent('p').parent('td').siblings('.attendance-td').children('.desc-text').html();
+                var attend_type = ($(this).parent('p').parent('td').siblings('.attendance-td').children('.att-type-text').attr('is-home') == 'True') ? '1' : '0';
+
+                BootstrapDialog.confirm('Do you want to delete this Attendance Type?', function (result) {
+                    if (result) {
+                        saveData(desc, attendanceTypeId, acronym, attend_type, '0', indexid);
+                    }
+                });
+            });
+        }
+
+        function saveData(desc, att_id, acrnym, att_type, status, indexID) {
+            $.ajax({
+
+
+                url: '/Home/InsertAttendanceType',
+                type: 'post',
+                datatype: 'json',
+                data: { 'attendanceType': att_type, 'description': desc, 'acronym': acrnym, 'attendanceTypeId': att_id, 'status': status, 'indexId': indexID },
+                success: function (data) {
+                    if (data.isResult) {
+                        clearInputs();
+                        if (status == '1') {
+                            customAlert('Record saved successfully');
+                        }
+                        else {
+                            customAlert('Record deleted successfully');
+                        }
+
+                        bindTableData(data);
+                    }
+                    console.log(data);
+                },
+                error: function (data) {
+
+                }
+            })
+        }
+
+
+
+
+
+    </script>
+
+
+}

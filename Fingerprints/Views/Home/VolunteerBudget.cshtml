@@ -1,0 +1,391 @@
+﻿@{
+
+    @section Title
+{
+        Volunteer Budget
+    }
+    ViewBag.Title = "VolunteerBudget";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{}
+
+@section MainContentHolder{
+    <link href="~/Content/csschild/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/csschild/styleBM.css" rel="stylesheet" />
+    <link href="~/Content/csschild/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        #ddlProgramType option {
+            background: #1f4f7d;
+        }
+
+        .form-control[readonly] {
+            background-color: transparent !important;
+        }
+
+        .td-decimal {
+            text-align: right;
+        }
+
+        select option {
+            background: #1f4f7d;
+        }
+
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+
+        .bill-table thead tr th {
+            text-transform: none !important;
+        }
+
+        .checkbox.forget_answer {
+            float: left;
+            /* margin: 0 0 20px; */
+        }
+
+        .observation_info form div {
+            /* margin-bottom: 15px; */
+            font-size: 14px;
+        }
+
+        .checkbox input[type="checkbox"], .checkbox input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+        }
+
+            .checkbox input[type="checkbox"]:checked + label {
+                color: #f2b54b;
+            }
+
+        .checkbox label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            font-weight: bold;
+            padding-left: 25px;
+            font-weight: normal;
+            font-size: 15px;
+        }
+
+        .checkbox label {
+            color: #fff;
+            /* padding: 0 39px; */
+        }
+
+        .checkbox input[type="checkbox"]:checked + label::before {
+            color: #f2b54b;
+            border: 1px solid #f2b54b;
+        }
+
+        .checkbox label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 17px;
+            height: 17px;
+            left: 0px;
+            margin-left: 0px;
+            border: 1px solid #fff;
+            border-radius: 3px;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+        }
+
+        .checkbox input[type="checkbox"]:checked + label::after, .checkbox input[type="radio"]:checked + label::after {
+            font-family: "FontAwesome";
+            content: "\f00c";
+        }
+
+        .checkbox label::after {
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            top: 1px;
+            margin-left: 0px;
+            padding-left: 3px;
+            padding-top: 1px;
+            font-size: 11px;
+            color: #f2b54b;
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row" style="background: url('../../Content/imagechild/body-bg.jpg') center no-repeat;background-size:cover;">
+            <div class="col-xs-12 bill-detl-title">
+                <h2> Inkind Budget</h2>
+                <div class="family_ovr"><img src="~/Content/imagechild/text-bdr.png"></div>
+            </div>
+            <div class="col-xs-12">
+                <div class="billing-form">
+                    <div class="col-lg-6">
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label class="lbl-required">Program Year</label>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                   
+                                    @Html.DropDownList("ddlProgramType", Fingerprints.Utilities.Helper.GetActiveAndFutureYears(Session["AgencyID"].ToString()), new { @class = "billing-select1 ddlProgramYear" })
+                                    <input type="hidden" class="inkind-id" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Hours</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtHours" class="form-control txt-empty decimal txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 billing-form-div no-padding">
+                            <div class="col-md-4 col-lg-4 col-sm-4 col-xs-12 no-padding">
+                                <div class="billing-inner-label">
+                                    <label>Dollars</label>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
+                                <div class="billing-inner">
+                                    <input type="text" id="txtDollars" class="form-control txt-empty decimal txt-date" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-6">
+
+                    </div>
+                    <div class="col-xs-12" style="margin-bottom:20px;">
+                        <div class="billing-sub-btn">
+
+                            <a href="javascript:void(0);" class="btn-submit">SUBMIT</a>
+                            <a href="javascript:void(0);" class="btn-Clear">CLEAR</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-xs-12 billing-dt-section">
+                <div class="col-xs-12 billing-dt">
+                    <table class="col-md-12 table-striped table-condensed cf table-change bill-table">
+                        <thead class="table-hd">
+                            <tr>
+                                <th>Program Year</th>
+                                <th>Hours</th>
+                                <th>Dollars</th>                               
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bill-table-head">
+                            
+
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-bottom: 50px;height: 2px;"></div>
+            </div>
+        </div>
+    </div>
+
+   
+
+
+    <script src="~/Content/scriptchild/jquery.js"></script>
+    <script src="~/Content/scriptchild/bootstrap.js"></script>
+    <script src="~/Content/scriptchild/script.js"></script>
+    <script src="~/Content/scriptchild/jquery.mCustomScrollbar.min.js"></script>
+    <script>
+        $(function () {
+            GetInkindBudget();
+            $('.btn-submit').click(function () {
+                //  if (ValidateAddressChange()) {
+                var allow = true;
+                if ($('#ddlProgramYear').val() == "0") {
+                    customAlert("Program Year is mandatory");
+                    allow = false;
+                }
+                else if ($('#txtHours').val() == "") {
+                    customAlert("Hours is mandatory");
+                    allow = false;
+                }
+                else if ($('#txtDollars').val() == "") {
+                    customAlert("Dollars is mandatory");
+                    allow = false;
+                }
+                
+                if (allow) {
+                    var Inkind = {};
+                    if ($('.inkind-id').val().trim() != "")
+                        Inkind.Id = $('.inkind-id').val().trim();
+                    Inkind.ProgramYear = $('.ddlProgramYear').val();
+                    Inkind.Hours = $('#txtHours').val() == undefined || $('#txtHours').val() == "" ? "0" : $('#txtHours').val();
+                    Inkind.Dollers = $('#txtDollars').val() == undefined || $('#txtDollars').val() == "" ? "0" : $('#txtDollars').val();
+                    Inkind = JSON.stringify({ 'inkind': Inkind });
+
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        type: "POST",
+                        async: false,
+                        url: "/Home/SaveInkind",
+                        data: Inkind,
+                        success: function (data) {
+                            customAlertSuccess("Record Saved Successfully");
+                            Clear();
+                            GetInkindBudget();
+                        },
+                        error: function (data) {
+                            console.log('Error');
+                        }
+                    });
+                }
+
+
+                //  }
+            });
+
+            $('body').on('click', '.Edit', function () {
+                var currentrow = $(this).closest('tr');
+                $('.ddlProgramYear').val(currentrow.find('td').eq(0).text().replace('$', '').trim());
+                $('#txtHours').val(currentrow.find('td').eq(1).text().replace('$', '').trim());
+                $('#txtDollars').val(currentrow.find('td').eq(2).text().replace('$', '').trim());
+                              
+                $('.inkind-id').val(currentrow.attr('inkindid'));
+                $('.ddlProgramYear').attr('disabled', true);
+                
+            });
+            $('body').on('click', '.dropdown', function () {
+                setTimeout(function ()
+                { $('.dropdown').addClass('open'); }, 100);
+            });
+            $('.btn-Clear').click(function () {
+                Clear();
+            });
+            $('body').on('click', '.Delete', function () {
+                var id = $(this).closest('tr').attr('inkindid');
+                BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
+                    if (result) {
+                        Delete(id);
+                    }
+                });
+            });
+
+            function Delete(Id) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/DeleteInkind",
+                    data: { 'Id': Id },
+                    success: function (data) {
+                        if (data) {
+                            customAlertSuccess("Record Deleted Successfully");
+                            Clear();
+                            GetInkindBudget();
+                        }
+
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
+            function Clear() {
+                $('.ddlProgramYear').val("0");
+                $('#txtHours,.inkind-id,#txtDollars').val("");
+                $('.ddlProgramYear').attr('disabled', false);
+            }
+            function GetInkindBudget() {
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/GetInkindByUserId",
+                    success: function (data) {
+                        $('.bill-table-head').empty();
+                        
+                        var Template = '<tr inkindid="##ID##">\
+                                 <td data-title="ProgramYear">\
+                                     <div class="">\
+                                         <p class="Program-Type">##ProgramYear##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Hours">\
+                                     <div class="">\
+                                         <p style="text-align: right;">##Hours##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td class="td-decimal" data-title="Dollers">\
+                                     <div class="">\
+                                         <p style="text-align: right;">$##Dollers##</p>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Edit">\
+                                     <div class="">\
+                                         <div class="Edit"><a href="javascript:void(0);"><img src="/Content/imagechild/edit_icon.png"></a></div>\
+                                     </div>\
+                                 </td>\
+                                 <td data-title="Delete">\
+                                     <div class="">\
+                                         <div class="Delete"><a href="javascript:void(0);"><img src="/Content/imagechild/delete-icon.png"></a></div>\
+                                     </div>\
+                                 </td>\
+                             </tr>';
+
+                        var JsonData = JSON.parse(data);
+                        console.log(JsonData);
+                        if (JSON.parse(data).length > 0)
+                        {
+                            if (JSON.parse(data).length > 1) {
+                                $.each(JSON.parse(data), function (i, val) {
+                                    var input = Template;
+                                    input = input.replace("##ID##", val["Id"]);
+                                    input = input.replace("##ProgramYear##", val["ProgramYear"]);
+                                    input = input.replace("##Hours##", val["Hours"]);
+                                    input = input.replace("##Dollers##", parseFloat(val["Budget"]).toFixed(2));
+
+                                    $('.bill-table-head').append(input);
+                                });
+                            }
+                            else {
+                                var input = Template;
+                                input = input.replace("##ID##", JsonData[0].Id);
+                                input = input.replace("##ProgramYear##", JsonData[0].ProgramYear);
+                                input = input.replace("##Hours##", JsonData[0].Hours);
+                                input = input.replace("##Dollers##", parseFloat(JsonData[0].Budget).toFixed(2));
+
+                                $('.bill-table-head').append(input);
+                            }
+                        }
+                       
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
+        });
+            
+    </script>
+}
+
+

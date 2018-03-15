@@ -1,0 +1,176 @@
+﻿@{
+    ViewBag.Title = "CancelledEventsForParent";
+    Layout = "~/Views/Shared/ParentLayout.cshtml";
+}
+<link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+<style>
+    #page-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .scroll-thead th {
+        border: 1px solid #f1f5f8;
+    }
+
+    .scroll-thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        /*width: calc( 100% - 17px );*/
+    }
+
+    .scroll-tbody tr td, .scroll-tbody1 tr td {
+        word-break: break-word;
+    }
+
+    .scroll-tbody {
+        display: block;
+        height: 190px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+        .scroll-tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+
+    .events_list_title {
+        margin-top: 15px;
+    }
+
+        .events_list_title h2 {
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 0;
+        }
+
+    .family_ovr {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+</style>
+
+<div class="col-xs-12 events_list_title">
+    <h2>Modified Registered Events</h2>
+    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+</div>
+<div class="col-md-12">
+    <div class="eml_lst">
+
+        <!----------registered_members------------->
+        <div class="serch-client-block ">
+            <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+
+                <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                    <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list">
+                        <thead class="scroll-thead">
+                            <tr>
+
+                                <th>Events</th>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Action</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="library-table-head table-body scroll-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+        </div>
+        <!----------registered_members------------->
+
+
+
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var mode = 2;
+        getCancelledWorkShop(mode)
+    });
+
+    function getCancelledWorkShop(mode) {
+        $.ajax({
+            type: "POST",
+            datatype: 'post',
+            url: "/Events/GetCancelledEventInfo",
+            data: { mode: mode },
+            success: function (data) {
+              
+                $('.table-body').empty();
+
+                var Template = '   <tr>\
+                                                        <td data-title="Events">\
+                                                            <div class="library-content-desc" style="position: relative;">\
+                                                                <p style="background:##Color##">&nbsp;</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Title">\
+                                                            <div class="library-content-desc">\
+                                                                <p>##WorkshopName##</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Date">\
+                                                            <div class="library-content-desc">\
+                                                                <p>##Date##</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Time">\
+                                                            <div class="library-content-desc">\
+                                                                <p>##Time##</p>\
+                                                            </div>\
+                                                        </td>\
+                                                        <td data-title="Action">\
+                                                            <div class="library-content-desc">\
+                                                                <a href=#href# class="open_report" style="text-decoration:underline!important;">VIEW</a>\
+                                                            </div>\
+                                                        </td>\
+                                                    </tr>';
+
+
+
+                if (data.eventsList.length > 1) {
+                    $.each(data.eventsList, function (i, val) {
+                        var input = Template;
+                        input = input.replace("##Color##", val["EventColor"]);
+                        input = input.replace("##WorkshopName##", val["WorkShopName"]);
+                        input = input.replace("##Date##", val["EventDate"]);
+                        input = input.replace("##Time##", val["EventTime"]);
+                        var url = '/Events/EventInformation?id=' + val["Enc_EventId"] + '&mode=3';
+                        input = input.replace("#href#", url);
+                        $('.table-body').append(input);
+                    });
+                }
+                else if (data.eventsList.length == 1) {
+                    var input = Template;
+                    input = input.replace("##Color##", data.eventsList[0].EventColor);
+                    input = input.replace("##WorkshopName##", data.eventsList[0].WorkShopName);
+                    input = input.replace("##Date##", data.eventsList[0].EventDate);
+                    input = input.replace("##Time##", data.eventsList[0].EventTime);
+                    var url = '/Events/EventInformation?id=' + data.eventsList[0].Enc_EventId + '&mode=3';
+                    input = input.replace("#href#", url);
+                    $('.table-body').append(input);
+                }
+                else {
+                    var NoRecordTemplate = '<tr><td colspan="5"><div class="library-content-desc"><p style="min-height: 40px!important;">No Record Found</p></div></td></tr>';
+                    $('.table-body').append(NoRecordTemplate);
+                }
+            },
+            error: function (data) {
+                console.log('Error');
+            }
+        });
+    }
+</script>

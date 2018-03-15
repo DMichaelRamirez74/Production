@@ -1,0 +1,949 @@
+﻿@model FingerprintsModel.Events
+@{
+    ViewBag.Title = "CreateEvent";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section MainContentHolder{
+
+    <link href="~/Content/css/events.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+
+        .ddlDuration option, .ddlEventStatus option, .billing-select1 option {
+            color: white;
+        }
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 600px;
+        }
+    </style>
+    <!---Event Page Title-->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header">
+
+                        <div class="col-xs-12 no-padding">
+                            <div class="top-header-title-client">
+                                <h1>Create Event</h1>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!---Workshop Name-->
+                <div class="col-xs-12 text-center serch-library-block workshop_heading">
+
+                    <label class="library-label">Workshop Title</label>
+                    <select name="" class="library-select ddl-workshop">
+                        <option value="@Model.Workshopid">@Model.Workshopname</option>
+                    </select>
+                </div>
+
+                <!--Create WorkShop Form-->
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-md-12">
+                            <div class="eml_lst">
+                                <ul>
+                                    <li>
+                                        <span class="lft lbl-required">Event Status</span><span class="rgt">
+                                            @Html.DropDownListFor(model => model.EventStatus, (IEnumerable<SelectListItem>)ViewBag.EventsStatus, new { @class = "ddlEventStatus form-control" })
+                                        </span>
+                                    </li>
+                                    <li style="display:none;"><span class="lft lbl-required">Workshop Name</span><span class="rgt"><input type="text" id="txtWorkshopName" class="form-control decimal txt-empty" value=""></span></li>
+                                    <li><span class="lft lbl-required">Workshop Description</span><span class="rgt"><input type="text" id="txtWorkshopDescription" class="form-control decimal txt-empty" value="@Model.Workshopdescription"></span></li>
+                                    <li><span class="lft lbl-required">Speaker</span><span class="rgt"><input type="text" id="txtSpeaker" class="form-control decimal txt-empty" value="@Model.Speaker"></span></li>
+                                    <li><span class="lft">Comments</span><span class="rgt"><input type="text" id="txtComments" class="form-control decimal txt-empty" value="@Model.Comments"></span></li>
+                                    <li><span class="lft lbl-required">Event Date</span><span class="rgt"><input type="text" id="txtEventDate" class="form-control decimal txt-empty" value="@Model.EventDate"></span></li>
+                                    <li><span class="lft lbl-required">Time</span><span class="rgt"><input type="text" id="txtTime" class="form-control decimal txt-empty" value="@Model.EventTime"></span></li>
+                                    <li>
+                                        <span class="lft lbl-required">Date for Center Members</span><span class="rgt">
+                                            <input type="text" id="txtDate" class="form-control decimal txt-empty" value="@Model.CenterDate">
+                                            <div class="error-date-center" style="font-size:12px; margin-left:5px;margin-top:3px;display:none;color:red;">Date should be less than or equal to event date</div>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="lft lbl-required">Date for Other Center Members</span><span class="rgt">
+                                            <input type="text" id="txtOtherCenterDate" class="form-control decimal txt-empty" value="@Model.OtherCenterDate">
+                                            <div class="error-date-other" style="font-size:12px; margin-left:5px;margin-top:3px;display:none;color:red;">Date should be greater than or equal to center members date and less than or equal to event date</div>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="lft lbl-required">Duration</span><span class="rgt">
+                                            @Html.DropDownListFor(model => model.Duration, Fingerprints.Utilities.Helper.GetMinutes(), new { @class = "form-control  ddlDuration" })
+                                        </span>
+                                    </li>
+                                    <li><span class="lft lbl-required">No of seats</span><span class="rgt"><input type="text" id="txtNoOfSeats" class="form-control decimal txt-empty" value="@Model.NoOfSeats"></span></li>
+                                    <li><span class="lft lbl-required">Center</span><span class="rgt">@Html.DropDownListFor(a => a.CenterId, Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyId"].ToString(),Session["RoledId"].ToString()), new { @class = "billing-select1 form-control" })</span></li>
+                                    <li>
+                                        <span class="lft">Center Address</span><span class="rgt">
+                                            <input type="text" id="txtCenterAddress" class="form-control decimal txt-empty" value="" readonly="readonly">
+                                        </span>
+                                    </li>
+                                    <li><span class="lft">RSVP cut off date</span><span class="rgt"><input type="text" id="txtRSVPDate" class="form-control decimal txt-empty" value="@Model.RSVPDate"></span></li>
+                                    <li><span class="lft">RSVP Points</span><span class="rgt"><input type="text" id="txtRSVPPoints" class="form-control decimal txt-empty" value="@Model.RSVPPoints"></span></li>
+                                    <li><span class="lft">Attendance Points</span><span class="rgt"><input type="text" id="txtAttendancePoints" class="form-control decimal txt-empty" value="@Model.AttendancePoints"></span></li>
+                                    <li><span class="lft">Budget</span><span class="rgt"><input type="text" id="txtBudget" class="form-control decimal txt-empty" value="@Model.Budget"></span></li>
+                                    <li><span class="lft">Actual Costs</span><span class="rgt"><input type="text" id="txtActualCosts" class="form-control decimal txt-empty" value="@Model.ActualCosts"></span></li>
+                                    <li><span class="lft">Hourly Rate</span><span class="rgt"><input type="text" id="txtHourlyRate" class="form-control decimal txt-empty" value="@Model.HourlyRate"></span></li>
+                                    <li><span class="lft">Mileage Rate</span><span class="rgt"><input type="text" id="txtMileageRate" class="form-control decimal txt-empty" value="@Model.MileageRate"></span></li>
+                                    <li><span class="lft">Color</span><span class="rgt"><input type="color" id="myColor" value="@Model.Color"></span></li>
+                                    <li>
+                                        <span class="lft">Workshop Image </span>
+                                        <span class="rgt" id="rgt_create_work">
+                                            <div class="brow_option">
+                                                <div>
+                                                    <div class="form-group">
+                                                        <div class="input-group col-xs-12">
+
+                                                            <input type="text" class="form-control input-lg" value="@Model.ImagePath" disabled="" placeholder="">
+                                                            <span class="input-group-btn">
+                                                                <button class="browse btn btn-primary input-lg" type="button"> Browse</button>
+                                                            </span>
+                                                        </div>
+                                                        <input type="file" name="img[]" class="file fileAttachments">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </span>
+                                    </li>
+                                </ul>
+                                <div class="sub_clr_btn register_btn" style="display:inline-flex;">
+                                    <a href="#" class="create btn-create">Create</a>
+                                    <a href="#" class="clear btn-cancel" id="cancel">Cancel</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Event Status Change Modal PopUp-->
+    <div class="modal fade" id="resonStatusModal" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-center">Reason for Status Change<span class="extra-title muted"></span></h3>
+                </div>
+                <div class="control-group">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                            <div class="add-useragform">
+
+                                <div class="col-sm-12">
+                                    <fieldset style="border: 1px solid #295b8f; ">
+                                        <legend class="legend1"></legend>
+                                        *<div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Current Status</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="CurrentStatus"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">New Status</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="NewStatus"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Reason<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                @Html.DropDownList("ddlReasonid", new SelectList(Model.ListReason, "Value", "Text", "0"), "--Select--", new { @class = "ddlEventStatus form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="Divreason">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;"></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <textarea id="txtreason_Status" placeholder="Reason" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="button" class="my-btn" onclick="return SubmitStatus();">Submit</button>
+                                <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <!---Event Date Change Modal Pop-up -->
+    <div class="modal fade" id="resonDateModal" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-center">Reason for Event Date Change<span class="extra-title muted"></span></h3>
+                </div>
+                <div class="control-group">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                            <div class="add-useragform">
+
+                                <div class="col-sm-12">
+                                    <fieldset style="border: 1px solid #295b8f; ">
+                                        <legend class="legend1"></legend>
+
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Current Date</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="CurrentDate"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">New Date</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="NewDate"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-9" style="margin-bottom:1%;">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Reason<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                @Html.DropDownList("ddlReasonDate", new SelectList(Model.ListReason, "Value", "Text", 0), "--Select--", new { @class = "ddlEventStatus form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="DivreasonDate">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;"></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <textarea id="txtreason_Date" placeholder="Reason" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="button" class="my-btn" onclick="return SubmitDate();">Submit</button>
+                                <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!---Event Time Change Modal PopUp-->
+    <div class="modal fade" id="resonTimeModal" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-center">Reason for Event Time Change<span class="extra-title muted"></span></h3>
+                </div>
+                <div class="control-group">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                            <div class="add-useragform">
+
+                                <div class="col-sm-12">
+                                    <fieldset style="border: 1px solid #295b8f; ">
+                                        <legend class="legend1"></legend>
+
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Current Time</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="CurrentTime"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">New Time</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="NewTime"></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-9" style="margin-bottom:1%;">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Reason<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                @Html.DropDownList("ddlReasonTime", new SelectList(Model.ListReason, "Value", "Text", 0), "--Select--", new { @class = "ddlEventStatus form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="DivreasonTime">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;"></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <textarea id="txtreason_Time" placeholder="Reason" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="button" class="my-btn" onclick="return SubmitTime();">Submit</button>
+                                <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!---Hidden Fields-->
+    <input type="hidden" id="txt_EventId" value="@Model.Eventid" />
+    @Html.Hidden("isUpdate", Model.IsUpdate);
+    <input type="hidden" id="Work_center_id" value="@ViewBag.CenterId" />
+
+
+    <script type="text/javascript">
+
+
+        var Events = {};
+
+        var eventStatusDes = '';
+        var eventStatusId = '';
+        var eventTimeDesc = '';
+        var eventTimeId = '';
+        var eventDateDesc = '';
+        var eventDateId = '';
+
+        var originalEventDate = '';
+        var originalEventTime = '';
+        var originalEventStatus = '';
+
+        $(document).ready(function () {
+
+            originalEventDate = $('#txtEventDate').val();
+            originalEventTime = $('#txtTime').val();
+            originalEventStatus = $('#EventStatus').val();
+
+            var getDefaultStatus = $('#EventStatus option:selected').text();
+            $('#CurrentStatus').html(getDefaultStatus);
+            var getDefaultDate = $('#txtEventDate').val()
+            $('#CurrentDate').html(getDefaultDate);
+            var getDefaultTime = $('#txtTime').val()
+            $('#CurrentTime').html(getDefaultTime);
+
+            //if ($('#isUpdate').val() === 'False')
+            //{
+            //    $('#CenterId').val( $('#Work_center_id').val());
+            //}
+
+            if ($('#isUpdate').val() === 'True') {
+                $('#CenterId').prop('disabled', true);
+            }
+
+
+            var linkys = document.getElementsByClassName('dropdown-toggle');
+            for (var i = 0; i < linkys.length; ++i) {
+                linkys[i].onclick = function (e) {
+                    this.focus();
+                    e.preventDefault();
+                };
+            }
+
+            var dateToday = new Date();
+            dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+
+            //Initializing the Datetime picker
+            $("#txtDate,#txtOtherCenterDate,#txtRSVPDate,#txtEventDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                minDate: dateToday,
+            });
+            //Formatting the Time Picker to AM/PM format
+            $('#txtTime,#txtOtherCenterTime').timepicker({ 'timeFormat': 'h:i A' });
+
+            //Cancel btn Click Event
+            $('.btn-cancel').click(function () {
+                window.location.href = "/ERSEA/WorkshopAnalysis";
+            });
+
+            //Event Date Change event
+            $('#txtDate').change(function () {
+                $('.error-date-center').hide();
+                var eventdate = $('#txtEventDate').val();
+                var centerdate = $('#txtDate').val();
+                if (eventdate.trim() != "" && centerdate.trim() != "") {
+                    if (new Date(eventdate) < new Date(centerdate))
+                        $('.error-date-center').show();
+                }
+            });
+
+            //Other Centers Date Change event
+
+            $('#txtOtherCenterDate').change(function () {
+                $('.error-date-other').hide();
+                debugger;
+                var centerdate = $('#txtDate').val();
+                var othercenterdate = $('#txtOtherCenterDate').val();
+                if (centerdate.trim() != "" && othercenterdate.trim() != "") {
+                    if (new Date(othercenterdate) < new Date(centerdate))
+                        $('.error-date-other').show();
+                    else if ($('#txtEventDate').val() != '') {
+                        if (new Date(othercenterdate) > new Date($('#txtEventDate').val()))
+                            $('.error-date-other').show();
+                    }
+                }
+            });
+
+            //Btn Create Click Event
+            $('.btn-create').click(function () {
+
+                var isAllowed = true;
+                var eventdate = $('#txtEventDate').val();
+                var othercenterdate = $('#txtOtherCenterDate').val();
+                var centerdate = $('#txtDate').val();
+                //Status
+                if ($('.ddlEventStatus').val() == "-1") {
+                    customAlert("Event Status is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtWorkshopDescription').val().trim() == "") { //WorkshopDescription
+                    customAlert("Workshop Description is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtSpeaker').val().trim() == "") {//Speaker
+                    customAlert("Speaker is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtEventDate').val().trim() == "") {//Event Date
+                    customAlert("Event Date is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtTime').val().trim() == "") {//Time
+                    customAlert("Time is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtDate').val().trim() == "") {//Date for Center Members
+                    customAlert("Date for Center Members is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtOtherCenterDate').val().trim() == "") {//Date for Other Center Members
+                    customAlert("Date for Other Center Members is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('.ddlDuration').val() == "0") {
+                    customAlert("Duration is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#txtNoOfSeats').val().trim() == "") {
+                    customAlert("No of seats is mandatory");
+                    isAllowed = false;
+                }
+                else if ($('#CenterId').val() == "0") {
+                    customAlert("Center is mandatory");
+                    isAllowed = false;
+                }
+                else if ((eventdate.trim() != "" && centerdate.trim() != "") && (new Date(eventdate) < new Date(centerdate))) {
+                    $('.error-date-center').show();
+                    isAllowed = false;
+                }
+                else if ((centerdate.trim() != "" && othercenterdate.trim() != "") && (new Date(othercenterdate) < new Date(centerdate))) {
+                    $('.error-date-other').show();
+                    isAllowed = false;
+                }
+                else if (new Date(othercenterdate) > new Date(centerdate)) {
+                    $('.error-date-other').show();
+                    isAllowed = false;
+                }
+
+                else if ($('#isUpdate').val() == 'True' && ($('#EventStatus').val() != originalEventStatus)) {
+                    if ($('#ddlReasonid').val() == "") {
+                        customAlert('Please select reason for Event status change.');
+                        $('#resonStatusModal').modal('show');
+                        isAllowed = false;
+                    }
+                    else if ($('#ddlReasonid').val() == "Others") {
+                        if ($('#txtreason_Status').val() == "") {
+                            customAlert('Please enter reason for Event status change.');
+                            $('#resonStatusModal').modal('show');
+                            isAllowed = false;
+                        }
+                        else {
+                            isAllowed = true;
+                        }
+                    }
+                }
+
+                else if (($('#isUpdate').val() == 'True') && ($('#txtEventDate').val() != originalEventDate)) {
+                    if ($('#ddlReasonDate').val() == "") {
+                        customAlert('Please select reason for Event Date Change.');
+                        $('#resonDateModal').modal('show');
+                        isAllowed = false;
+                    }
+                    else if ($('#ddlReasonDate').val() == "Others") {
+                        if ($('#txtreason_Date').val() == "") {
+                            customAlert('Please enter reason for Event Date Change.');
+                            $('#resonDateModal').modal('show');
+                            isAllowed = false;
+                        }
+                        else {
+                            isAllowed = true;
+                        }
+                    }
+                }
+
+                else if ($('#isUpdate').val() == 'True' && ($('#txtTime').val() != originalEventTime)) {
+                    if ($('#ddlReasonTime').val() == "") {
+                        customAlert('Please select reason for Event time change.');
+                        $('#resonTimeModal').modal('show');
+                        isAllowed = false;
+                    }
+                    else if ($('#ddlReasonTime').val() == "Others") {
+                        if ($('#txtreason_Time').val() == "") {
+                            customAlert('Please enter reason for Event time change.');
+                            $('#resonTimeModal').modal('show');
+                            isAllowed = false;
+                        }
+                        else {
+                            isAllowed = true;
+                        }
+                    }
+                }
+
+                if (isAllowed) {
+
+                    var checkmode = 0;
+                    Events = {};
+                    Events.Workshopid = $('.ddl-workshop').val();
+                    Events.Workshopname = $('#txtWorkshopName').val();
+                    Events.Workshopdescription = $('#txtWorkshopDescription').val();
+                    Events.Speaker = $('#txtSpeaker').val();
+                    Events.Comments = $('#txtComments').val();
+                    Events.EventStatus = $('.ddlEventStatus').val();
+                    Events.EventTime = $('#txtTime').val();
+                    Events.EventDate = $('#txtEventDate').val();
+                    Events.CenterDate = $('#txtDate').val();
+                    Events.OtherCenterDate = $('#txtOtherCenterDate').val();
+                    Events.Duration = $('.ddlDuration').val();
+                    Events.NoOfSeats = $('#txtNoOfSeats').val();
+                    Events.CenterId = $('#CenterId').val();
+                    Events.RSVPDate = $('#txtRSVPDate').val();
+                    Events.RSVPPoints = $('#txtRSVPPoints').val();
+                    Events.AttendancePoints = $('#txtAttendancePoints').val();
+                    Events.Budget = $('#txtBudget').val();
+                    Events.ActualCosts = $('#txtActualCosts').val();
+                    Events.HourlyRate = $('#txtHourlyRate').val();
+                    Events.MileageRate = $('#txtMileageRate').val();
+                    Events.Color = $('#myColor').val();
+                    Events.EventDateChange = eventDateId;
+                    Events.EventTimeChange = eventTimeId;
+                    Events.EventStatusChange = eventStatusId;
+                    Events.EventStatusDescription = eventStatusDes;
+                    Events.EventDateDescription = eventDateDesc;
+                    Events.EventTimeDescription = eventTimeDesc;
+                    Events.EventTimeChange = eventTimeId;
+                    Events.DefaultStatus = getDefaultStatus;
+                    Events.DefaultDate = getDefaultDate;
+                    Events.DefaultTime = getDefaultTime;
+                    Events.ChangeStatus = $('#EventStatus option:selected').text();
+                    Events.ChangeDate = $('#txtEventDate').val();
+                    Events.ChangeTime = $('#txtTime').val();
+
+                    Events.IsUpdate = $('#isUpdate').val();
+                    Events.Eventid = $('#txt_EventId').val();
+                    if (eventStatusId != "") {
+                        checkmode = 1;
+                    }
+                    else if (eventDateId != "") {
+                        checkmode = 2;
+                    }
+                    else if (eventTimeId != "") {
+                        checkmode = 3;
+                    }
+                    Events.CheckMode = checkmode;
+
+
+                    if ($('.fileAttachments').eq(0).val() != "") {
+                        SaveFile();
+                    }
+                    else {
+                        Events.ImagePath = "/Images/edu-img.png";
+                        SaveEvents();
+                    }
+                }
+
+            });
+
+            //Change Event of center Name to get the center address.
+            $('#CenterId').change(function () {
+                if ($(this).val() !== "0") {
+                    $.ajax({
+
+                        type: "POST",
+                        async: false,
+                        url: "/Events/GetCenterAddress",
+                        data: { 'Id': $(this).val() },
+                        success: function (data) {
+                            $('#txtCenterAddress').val(data);
+                        },
+                        error: function (data) {
+                        }
+                    });
+                }
+                else {
+                    $('#txtCenterAddress').val("");
+                }
+
+            });
+            $('#CenterId').change();
+        });
+
+
+        //Event Status Change Event
+        $('#EventStatus').change(function () {
+
+            var eventSeletedValue = $('#EventStatus option:selected').val();
+            var eventSeletedText = $('#EventStatus option:selected').text();
+            if (eventSeletedValue != -1) {
+                $('#NewStatus').html(eventSeletedText)
+                if ($('#isUpdate').val() === "True" && (originalEventStatus != eventSeletedValue)) {
+                    $('#resonStatusModal').modal('show');
+                }
+                else {
+                    $('#resonStatusModal').modal('hide');
+                }
+
+            }
+
+        })
+
+
+        //On change Event of Select Option in Resason
+        $('#ddlReasonid').change(function () {
+            var eventChangeValue = $('#ddlReasonid option:selected').val();
+            if (eventChangeValue == "Others") {
+                $('#Divreason').show();
+            }
+            else {
+                $('#Divreason').hide();
+
+            }
+
+        });
+
+        //Resetting the Resaon status Change Modal.
+        $('#resonStatusModal').on('show.bs.modal', function (e) {
+            $(this).find('#ddlReasonid').val('');
+            $(this).find('#txtreason_Status').val('');
+        });
+
+
+        //Submit function for the Status Change Event Popup
+        function SubmitStatus() {
+            cleanValidation();
+
+            var statusSelect = $('#ddlReasonid');
+            var ReasonList = $('#txtreason_Status');
+
+
+
+            var passEventId = $('#txt_EventId').val();
+            var reasonType = 'ReasonStatus';
+
+            if (statusSelect.val() == "Others") {
+                if (ReasonList.val() == '') {
+                    customAlert('please enter reason');
+                    plainValidation('#txtreason_Status');
+                    return false;
+                }
+            }
+            else if (statusSelect.val() == '') {
+                customAlert('please select reason');
+                plainValidation('#ddlReasonid');
+                return false;
+            }
+
+            eventStatusId = statusSelect.val();
+            eventStatusDes = ReasonList.val();
+
+            $('#resonStatusModal').modal('hide');
+        }
+
+
+        //Submit function on the Event date Change reason popup
+        function SubmitDate() {
+
+            var dateSelect = $('#ddlReasonDate');
+            var dateValue = $('#txtreason_Date');
+
+            if (dateSelect.val() == "Others") {
+                if (dateValue.val() == '') {
+                    customAlert('please enter reason');
+                    plainValidation('#txtreason_Date');
+                    return false;
+                }
+            }
+            else if (dateSelect.val() == '') {
+                customAlert('please select reason');
+                plainValidation('#ddlReasonDate');
+                return false;
+            }
+
+            eventDateDesc = dateValue.val();
+            eventDateId = dateSelect.val();
+            $('#resonDateModal').modal('hide');
+
+        }
+
+
+        //Submit function on the time change Popup
+
+        function SubmitTime() {
+
+
+            var eventTime_desc = $('#txtreason_Time');
+            var eventTime_Id = $('#ddlReasonTime');
+            if (eventTime_Id.val() == "Others") {
+                if (eventTimedesc.val() == '') {
+                    customAlert('please enter reason');
+                    plainValidation('#txtreason_Time');
+                    return false;
+                }
+            }
+            else if (eventTime_Id.val() == '') {
+                customAlert('please select reason');
+                plainValidation('#ddlReasonTime');
+                return false;
+            }
+
+
+            eventTimeDesc = eventTime_desc.val();
+            eventTimeId = eventTime_Id.val();
+
+            $('#resonTimeModal').modal('hide');
+
+        }
+
+        //On Change event of Event Date.
+        $('#txtEventDate').change(function () {
+            var today = new Date();
+            var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+
+            if ($('#isUpdate').val() == 'True' && ($(this).val() != originalEventDate)) {
+                $('#resonDateModal').modal('show');
+                $('#NewDate').html($('#txtEventDate').val())
+            }
+            else if (($('#isUpdate').val() == 'False') && ($(this).val() == getFormattedDate(new Date()))) {
+                $('#EventStatus').val(1);
+            }
+            else {
+                $('#resonDateModal').modal('hide');
+            }
+
+
+        })
+
+        //Change Event for Reason Date in Date Change Reason Popup
+        $('#ddlReasonDate').change(function () {
+
+            var eventChangeValue = $('#ddlReasonDate option:selected').val();
+            if (eventChangeValue == "Others") {
+                $('#DivreasonDate').show();
+            }
+            else {
+                $('#DivreasonDate').hide();
+
+            }
+
+        });
+
+
+        //Change Event for Event Time
+        $('#txtTime').change(function () {
+
+            if ($('#isUpdate').val() == 'True' && ($(this).val() != originalEventTime)) {
+                $('#resonTimeModal').modal('show');
+                $('#NewTime').html($('#txtTime').val())
+            }
+            else {
+                $('#resonTimeModal').modal('hide');
+            }
+
+        });
+
+        //On change event for changing the options in reasontime popup
+        $('#ddlReasonTime').change(function () {
+            var eventChangeValue = $('#ddlReasonTime option:selected').val();
+            if (eventChangeValue == "Others") {
+                $('#DivreasonTime').show();
+            }
+            else {
+                $('#DivreasonTime').hide();
+
+            }
+
+        });
+
+        //Click event on points.
+        $('#txtRSVPPoints,#txtAttendancePoints,#txtBudget,#txtActualCosts,#txtHourlyRate,#txtMileageRate').on('keypress', function (event) {
+            isNumber(event);
+        });
+
+        //Function to check the Whether entered value is number or not.
+        function isNumber(evt) {
+
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                evt.preventDefault();
+            }
+
+        }
+
+
+        //Function Save the Event
+        function SaveEvents() {
+
+            Events = JSON.stringify({ 'objEvents': Events });
+
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: "POST",
+                async: false,
+                url: "/Events/SaveEvents",
+                data: Events,
+                success: function (data) {
+                    Events = {};
+                    Clear();
+                    customAlertSuccess("Record Saved Successfully");
+                    window.location.href = "/ERSEA/WorkshopAnalysis";
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+        //Clears all Validations
+        function Clear() {
+            $('.txt-empty').val("");
+            $('#CenterId').val("0");
+            $('.fileAttachments,.input-lg').val("");
+            $('.ddlDuration').val("0");
+            $('.ddlEventStatus').val("-1");
+
+        }
+
+        //Save the attachment File to the Folder Path
+        function SaveFile() {
+            var data = new FormData();
+            $('.fileAttachments').each(function (i, vak) {
+                var files = $(this).get(0).files;
+                if (files.length > 0) {
+                    data.append("MyImages" + i + "", files[0]);
+                }
+            });
+            $.ajax({
+                url: "/Events/UploadFile",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                asyn: false,
+                data: data,
+                success: function (imagepath) {
+                    console.log('imagepath:' + imagepath);
+                    Events.ImagePath = imagepath[0];
+
+                    SaveEvents();
+                },
+                error: function (er) {
+                    alert(er);
+                }
+            });
+        }
+
+        //Get MM/dd/yyyy formatted date.
+        function getFormattedDate(date) {
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+    </script>
+    <script type="text/javascript">
+        function toggleIcon(e) {
+            $(e.target)
+                    .prev('.panel-heading')
+                    .find(".more-less")
+                    .toggleClass('glyphicon-plus glyphicon-minus');
+        }
+        $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+        $('.panel-group').on('shown.bs.collapse', toggleIcon);
+
+        // On Click of Browse button to Choose the Event Image.
+        $(document).on('click', '.browse', function () {
+            var file = $(this).parent().parent().parent().find('.file');
+            file.trigger('click');
+        });
+        //On changing the file in the open popup
+        $(document).on('change', '.file', function () {
+            $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+        });
+    </script>
+
+}

@@ -1,0 +1,1224 @@
+﻿@model FingerprintsModel.Scheduler
+@{
+    @section Title
+{
+        Schedule Home Visit
+
+    }
+
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Script{
+
+    
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            var Clientname = '@Request.QueryString["Name"]';
+            var ClientLastname = Clientname.substr(Clientname.indexOf(' ') + 1);
+
+            $('#TestEndTime').mask("99:99", { placeholder: 'HH:MM' });
+            //$('#EndTime').timepicker({ 'timeFormat': 'h:i A' });
+
+            //$('#TestEndTime').datetimepicker({
+            //    datepicker: false,
+            //    format: 'H:i',
+            //    // min: '8:00 am', max: '6:00 pm',
+            //    minTime: '00:30',
+            //    maxTime:'11:30',
+            //    interval:30,
+            //    step: 30
+            //});
+
+
+
+
+            //Added on 13jan2017
+            var currentdate = new Date();
+            // var mindate = new Date(currentdate.setDate(currentdate.getDate() - 30));
+            var listTime = [];
+            var listTimeHours = [];
+
+            for (var i = 0; i < 12; i++) {
+                for (var j = 0; j < 4; j++) {
+                    if (j == 0 && i < 12 && i > 0) {
+                        if (i > 9) {
+                            listTimeHours.push(i + ':00')
+                        } else {
+                            listTimeHours.push('0' + i + ':00')
+                        }
+                    }
+
+                    else if (j == 2 && i < 12) {
+                        if (i > 9 && i == 18) {
+                            break;
+                            //listTime.push(i + ':30')
+                        }
+                        else if (i > 9) {
+                            listTimeHours.push(i + ':30')
+                        }
+                        else {
+                            listTimeHours.push('0' + i + ':30')
+                        }
+
+                    }
+
+
+                }
+            }
+
+            var m;
+            var min;
+            for (var i = 0; i < 2; i++) {
+                if (i == 0) {
+                    m = 'AM';
+                } else {
+                    m = 'PM';
+                }
+                for (var j = 1; j < 13; j++) {
+                    if (j > 7 && m == 'AM' || j < 7 && m == 'PM') {
+                        for (var k = 0; k < 2; k++) {
+                            if (k == 0) {
+                                min = ':00 ';
+                            }
+                            else {
+                                min = ':30 ';
+                            }
+                            if (min == ':30 ' && j == 6)
+                            { break; }
+                            if (j == 12) {
+                                m = 'PM';
+                                listTime.push(j + min + m);
+                            }
+                            else {
+                                if (j > 9) {
+                                    listTime.push(j + min + m);
+                                }
+                                else {
+                                    listTime.push('0' + j + min + m);
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+
+            }
+            $.each(listTime, function (i, item) {
+                $('#StartTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+            //$.each(listTime, function (i, item) {
+            //    $('#EndTime').append($('<option>', {
+            //        value: item,
+            //        text: item
+            //    }));
+            //});
+            //$.each(listTimeHours, function (i, item) {
+            //    $('#EndTime').append($('<option>', {
+            //        value: item,
+            //        text: item
+            //    }));
+            //});
+            if ('@ViewBag.mode' == '0') {
+                $('#StartTime').val('');
+                $('#EndTime').val('');
+                $('#Days').val('');
+                // $('#Description').text("Home Visit -");
+
+
+                $('#Description').focus(function () {
+                    //    if ($(this).val() == $(this).prop('defaultValue'))
+                    //        $(this).val('');
+                    //}).blur(function () {
+                    if ($(this).val() == '')
+                        $(this).val($(this).prop('defaultValue'));
+                });
+
+            }
+            //if ($('#MeetingId').val() == "0") {
+            //    $('#StartTime').val('');
+            //    $('#EndTime').val('');
+            //    $('#Days').val('');
+            //}
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+
+            //  $('#Days').val('');
+
+            //$('#StartTime').timepicker({ 'timeFormat': 'h:i A' });
+            //$('#EndTime').timepicker({ 'timeFormat': 'h:i A' });
+
+            $('#DashboardHV').removeClass("active");
+            drawgrid();
+            $('#GridScheduler > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thSN")
+                    return false;
+                if (sortOrder == "thRN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#GridScheduler > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#GridScheduler > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+        function getList() {
+
+            $.ajax({
+                url: HostedDir + "/AgencyUser/listSchedule",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    ClientId: $("#ClientId").val(),
+                    Day: $("#Days").val(),
+                    //Classroom: $("#Classroom").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                    //  customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#GridScheduler > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+
+            sortOrder = '';
+            sortDirection = '';
+            $('#Days').val('');
+            $('#StartDate').find('option').remove();
+
+            drawgrid();
+
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            if (val == 'First') {
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+
+            $('#GridScheduler > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+                $('#hmAptct').html('(' + data.todayAppointmentCount + ')');
+            }
+            else {
+                $('#hmAptct').html('(' + data.todayAppointmentCount + ')');
+
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#GridScheduler > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+
+                    // tr += "<td><a href='#' onclick='Getschool(this);' accesskey=" + data.list[i].SchoolDistrictID + ">" + ((typeof (data.list[i].Acronym) != 'undefined') && (data.list[i].Acronym != null) ? data.list[i].Acronym : '') + "</td>";
+
+                    tr += "<td>" + ((typeof (data.list[i].MeetingDescription) != 'undefined') && (data.list[i].MeetingDescription != null) ? '<a href="#" onclick="Selectschedule(this);" accesskey="' + data.list[i].MeetingId + '">' + data.list[i].MeetingDescription + ' </a>' : '') + " </td>";
+                    tr += "<td>" + ((typeof (data.list[i].MeetingDate) != 'undefined') && (data.list[i].MeetingDate != null) ? data.list[i].MeetingDate : '') + " </span></td>";
+                    tr += "<td style='text-align:center; width:20%'>" + ((typeof (data.list[i].StartTime) != 'undefined') && (data.list[i].StartTime != null) ? data.list[i].StartTime + '-' + data.list[i].EndTime : '') + " </span></td>";
+                    tr += "<td style='text-align:center;'><a href='#' onclick='deleteschedule(this);' accesskey=" + data.list[i].MeetingId + ">Delete</td>";
+                    tr += "</tr>";
+                    $('#GridScheduler > tbody').append(tr);
+
+                }
+            }
+        }
+        //Changes on 27Jan2017
+        function testTime(time) {
+
+            // var matches = time.test(/^(\d\d):(\d\d)\s/);
+            //    var re = /^(\d\d):(\d\d)/;
+            //  var re = /(((0[1-9])|(1[0-2])):([0-5])(0|5))/;
+            var time = $(time).val();
+            var re = /[0-2]?\d[.:][0-5]\d/;
+            //    var re=/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+            // var re = /^(1[0-2]|0?[1-9]):[0-5][0-9]/;
+            // var re = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            // var regex = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            var matches = re.test(time);
+            if (matches == true) {
+
+                return true;
+
+            } else {
+                customAlert("Invalid Time Format");
+                return false;
+            }
+
+        }
+        //Changes on 27Jan2017
+        function Selectschedule(value) {
+            //debugger;
+
+            $('#MeetingId').val($(value).attr("accesskey"));
+            $.ajax({
+                url: HostedDir + "/AgencyUser/getSchedule",
+                type: "POST",
+                data: {
+                    Id: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+
+                    if (response != null) {
+                  
+                        console.log(response);
+                        $('#Description').val(response.MeetingDescription);
+                        $('#Days').val(response.Day);
+
+                        $('#Resourece1')[0].innerText = "Edit Appointment";
+                        SelectDateFetch(response.MeetingDate);
+
+                        //SelectDate();
+                        //  $('#schedule_popup select#StartDate').val(response.MeetingDate);
+                        // $("#StartDate option:selected").val(response.MeetingDate);
+                        // $('#StartDate option:selected').attr('id').valueOf(response.MeetingDate);
+                        // $("#StartDate option:selected").val(response.MeetingDate);//
+                        // $('#schedule_popup select#StartDate').filter(":selected").val(response.MeetingDate);
+                        // $('select#StartDate').val(response.MeetingDate);
+                        $('select#StartTime').val(response.StartTime);
+                        //$('#StartTime').val(response.StartTime);
+                        $('#TestEndTime').val(response.Duration); //Changes on 27Jan2017
+                        //  $('select#EndTime').val(response.EndTime);
+                        $('#Notes').val(response.MeetingNotes);
+                        // $('#Notes').val(response.Notes);
+                        $('#schedule_popup').modal('show');
+
+                    }
+                    else
+                        customAlert(response);
+                }
+                   , error: function (response) {
+                   }
+            });
+        }
+        function IsValidDays() {
+            var isValid = true;
+            cleanValidation();
+            if ($('#Days')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select days from the list.");
+                plainValidation('#Days');
+                return isValid;
+            }
+            return true;
+            //if (isValid == "true")
+            //{
+            //    if (!$('#schedule_popup').hasClass('in'))
+            //        $('#schedule_popup').modal('toggle');
+            //}
+
+            // $('#schedule_popup').modal('show');
+
+        }
+        //Changes on 6Feb2017
+        function ShowPopup() {
+
+            //$('#Clientbminame').text($('#Cfirstname').val() + ' ' + $('#Cmiddlename').val() + ' ' + $('#Clastname').val());
+            //$('#ClientDob').text($('#CDOB').val());
+            $('#Resourece1')[0].innerText = "Add Appointment";
+            if (IsValidDays()) {
+                clearcontrols();
+                var selectedtitle = "Home Visit - @Request.QueryString["LastName"] Family";
+                $('#Description').val(selectedtitle);
+                if (!$('#schedule_popup').hasClass('in'))
+                    $('#schedule_popup').modal('toggle');
+            }
+
+        }
+
+
+        function checkInfo() {
+            var isValid = true;
+            cleanValidation();
+            if ($('#Description')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Description.");
+                plainValidation('#Description');
+                return isValid;
+            }
+            else if ($('#StartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter date.");
+                plainValidation('#StartDate');
+                return isValid;
+            }
+            else if ($('#StartTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Start Time.");
+                plainValidation('#StartTime');
+                return isValid;
+            }
+            //else if ($('#EndTime')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter Duration.");
+            //    plainValidation('#EndTime');
+            //    return isValid;
+            //}
+            //else if ($('#StartTime').val() > $('#EndTime').val()){
+            //    isValid = false;
+            //    customAlert("Start time can not be greater than end time.");
+            //    plainValidation('#StartTime');
+            //    return isValid;
+            //}
+
+            return true;
+        }
+
+        function clearcontrols() {
+            $('#Description')[0].value = "";
+            // $('#StartDate')[0].value = "";
+            $('#StartTime')[0].value = "";
+            //   $('#EndTime')[0].value = "";
+            $('#TestEndTime')[0].value = "";
+            $('#Notes')[0].value = "";
+            $('#MeetingId').val(0);
+        }
+
+        //Changes on 25Jan2017
+        function GetMinutes(timeStr) {
+
+            var str = timeStr.split(':');
+
+            var hours = parseInt(str[0]);
+            var mins = parseInt(str[1]);
+            //if (hours >= 12)
+            //{
+            //    hours = hours - 12;
+            //}
+            var totalMins = hours * 60 + mins;
+
+            return totalMins;
+        }
+
+
+        //Changes on 25Jan2017
+        function getTime() {
+
+            var dateselect = $('#StartDate').val();
+            var time1 = $('#StartTime').val();
+            var time2 = $('#TestEndTime').val();
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+
+            //  var totalstarttime = starttime.substring(0, 5);
+            time1 = get12HoursTo24HoursTime(time1);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins == 0) {
+                mins = "00";
+            }
+            if (hours >= 12) {
+                am_pm = "PM";
+                if (hours > 12) {
+                    hours = (hours - 12);
+                    hours = (hours <= 9) ? '0' + hours : hours;
+                }
+            }
+            // alert(hours + ":" + mins + " " + am_pm);
+            $('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
+
+
+
+            //var d = new Date(dateselect + starttime);
+            //d.setHours(d.getHours() + 5);
+            //d.setMinutes(d.getMinutes() + 30);
+        }
+
+
+        function get12HoursTo24HoursTime(time) {
+            //var time = '02:05 AM';
+
+            var hours = Number(time.match(/^(\d+)/)[1]);
+            var minutes = Number(time.match(/:(\d+)/)[1]);
+            var AMPM = time.match(/\s(.*)$/)[1].toLowerCase();
+
+            if (AMPM == "pm" && hours < 12) hours = hours + 12;
+            if (AMPM == "am" && hours == 12) hours = hours - 12;
+            var sHours = hours.toString();
+            var sMinutes = minutes.toString();
+            if (hours < 10) sHours = "0" + sHours;
+            if (minutes < 10) sMinutes = "0" + sMinutes;
+            return sHours + ':' + sMinutes;
+        }
+
+        //Changes on 27Jan2017
+        function AddSchedulerDetails() {
+
+            if (checkInfo()) {
+                getTime();
+                $.ajax({
+                    url: HostedDir + "/AgencyUser/AddSchedulerInfo",
+                    type: "POST",
+                    data: {
+                        Description: $('#Description').val(),
+                        Date: $('#StartDate').val(), //Changes on 28Dec2016
+                        StartTime: $('#StartTime').val(),
+                        Duration: $('#TestEndTime').val(),
+                        EndTime: $('#EndTimeDuration').val(),
+                        Day: $('#Days').val(),
+                        ClientId: $('#ClientId').val(),
+                        Notes: $('#Notes').val(),
+                        MeetingId: $('#MeetingId').val(),
+                        isyakkr600601:false
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    success: function (response) {
+                        if (response != null) {
+
+                            if (response.result == "1") {
+
+                                drawgrid();
+                                $('#schedule_popup').modal('hide');
+                                //Binddoctordropdowndata(response.Info);
+                                clearcontrols();
+                                customAlert("Record added successfully.");
+                            }
+
+                            else if (response.result == "2") {
+
+                                $('#schedule_popup').modal('hide');
+                                clearcontrols();
+
+                                customAlert("Record updated successfully");
+                                drawgrid();
+
+                                //clearcontrolsD();
+                                //Binddoctordropdowndata(response.Info);
+
+                            }
+                            else if (response.result == "3") {
+                                customAlert("Record already exists.");
+                            }
+                            else
+                                customAlert(response);
+                        }
+                    },
+                    error: function (response) { alert(response); }
+                });
+            }
+        }
+
+        function deleteschedule(value) {
+            BootstrapDialog.confirm('Do you want to delete this Appointment?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyUser/Deleteschedule",
+                        type: "POST",
+                        data: {
+                            ID: $(value).attr("accesskey"),
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            if (response == 1) {
+                                customAlert("Appointment deleted successfully.");
+                                $(value).closest('tr').remove();
+
+                            }
+                        }
+                    , error: function (response) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+
+        function SelectDateFetch(response) {
+            //debugger;
+            $('#StartDate').find('option').remove();
+            var fd = new Date();
+            var day =($('#Days').val()==null||$('#Days').val()=='') ?new Date(response).getDay():  parseInt($('#Days').val());
+            var daytoadd = 0;
+            if (day == fd.getDay()) {
+
+            }
+            else if (day < fd.getDay()) {
+                for (var i = 0; i < 8 + day; i++) {
+                    if (i > fd.getDay()) {
+                        daytoadd++;
+                    }
+                }
+            }
+            else {
+                daytoadd = day - fd.getDay();
+            }
+            fd = new Date(new Date().setDate(new Date().getUTCDate() + daytoadd));
+            // date = (d.getUTCFullYear()) + '/' + (d.getUTCMonth() + 1) + '/' + (d.getUTCDate());
+            date = ((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());// response;//
+            //response = parseInt(response, 10)
+            // date = response;
+            var list = [];
+
+            for (var i = 0; i < 5; i++) {
+
+                if (i == 0)
+                    list.push(("0" + (fd.getUTCMonth() + 1)).slice(-2) + '/' + ("0" + fd.getUTCDate()).slice(-2) + '/' + fd.getUTCFullYear());
+                else {
+
+                    var d = new Date(fd.setDate(fd.getUTCDate() + 7));
+                    var z = ("0" + d.getUTCDate()).slice(-2);
+                    var k = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+                    list.push(k + '/' + z + '/' + d.getUTCFullYear());
+                    //list.push(("0" + fd.getUTCMonth() + 1).slice(-2) + '/' + d.getUTCDate() + '/' + d.getUTCFullYear());
+                }
+            }
+
+            //$.each(list, function (i, item) {
+            //    $('select#StartDate').append($('<option>', {
+
+            //        value: item,
+            //        text: item
+            //    }));
+            //});
+            //$('select#StartDate').val(response);
+
+            filterDates(getWeekDates(list[0]), list);
+
+
+            $('select#StartDate').val(response);
+
+
+        }
+
+
+        function getWeekDates(dateEntered) {
+
+
+            var startDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 1))
+            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 7))
+
+
+            var dates = [],
+                currentDate = startDate,
+                addDays = function (days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                };
+            while (currentDate <= endDate) {
+                dates.push(getFormattedDate(currentDate));
+                currentDate = addDays.call(currentDate, 1);
+            }
+            return dates;
+        }
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        };
+
+
+        function filterDates(dateList,list) {
+            var dateArray = [];
+            if (dateList.length > 0) {
+                $.ajax({
+                    url: '/HomeVisitor/GetFilteredDates',
+                    type: 'post',
+                    dataType: 'json',
+                    async:false,
+                    data: { dateString: JSON.stringify(dateList),listString:JSON.stringify(list), clientId:$('#enc_clientId').val() },
+                    success: function (data) {
+
+                        if (data.length > 0)
+                        {
+                            $.each(data, function (i, item) {
+                                $('select#StartDate').append($('<option>', {
+                                    value: item,
+                                    text: item
+                                }));
+                            });
+                            $('select#StartDate').val(data[0]);
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            }
+            return dateArray;
+        }
+
+        function SelectDate(value) {
+
+            $('#StartDate').find('option').remove();
+            var fd = new Date();
+            var day = parseInt($('#Days').val());
+            var daytoadd = 0;
+            if (day == fd.getDay()) {
+
+            }
+            else if (day < fd.getDay()) {
+                for (var i = 0; i < 8 + day; i++) {
+                    if (i > fd.getDay()) {
+                        daytoadd++;
+                    }
+                }
+            }
+            else {
+                daytoadd = day - fd.getDay();
+            }
+            fd = new Date(new Date().setDate(new Date().getUTCDate() + daytoadd));
+            // date = (d.getUTCFullYear()) + '/' + (d.getUTCMonth() + 1) + '/' + (d.getUTCDate());
+
+            var n = ("0" + fd.getUTCDate()).slice(-2);
+            var m = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+            //  date = ((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+            date = (m + '/' + n + '/' + fd.getUTCFullYear());
+            var list = [];
+
+            for (var i = 0; i < 5; i++) {
+
+                if (i == 0) {
+                    var a = ("0" + fd.getUTCDate()).slice(-2);
+                    var b = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+                    list.push(b + '/' + a + '/' + fd.getUTCFullYear());
+
+                    //list.push((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+                }
+                else {
+
+                    var d = new Date(fd.setDate(fd.getUTCDate() + 7));
+                    var z = ("0" + d.getUTCDate()).slice(-2);
+                    var k = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+                    list.push(k + '/' + z + '/' + d.getUTCFullYear());
+                    //list.push((d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '/' + d.getUTCFullYear());
+                }
+            }
+
+            console.log(list);
+
+            console.log(getWeekDates(list[0]));
+
+      filterDates(getWeekDates(list[0]),list);
+
+            
+
+            
+
+        }
+
+    </script>
+}
+@section MainContentHolder{
+
+
+<style type="text/css" media="screen">
+    .editableBox {
+        width: 75px;
+        height: 30px;
+    }
+
+        .editableBox option {
+            padding-left: 5px;
+        }
+
+    .timeTextBox {
+        position: relative;
+        width: 54px;
+        height: 18px;
+        border: none;
+        padding-left: 5px;
+        top: 1px;
+        left: 1px;
+        outline: none;
+    }
+
+
+
+    .select-editable {
+        position: relative;
+        background-color: white;
+        border: solid grey 1px;
+        width: 120px;
+        height: 18px;
+    }
+
+        .select-editable select {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            font-size: 14px;
+            border: none;
+            width: 120px;
+            margin: 0;
+        }
+
+        .select-editable input {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100px;
+            padding: 1px;
+            font-size: 12px;
+            border: none;
+        }
+
+            .select-editable select:focus, .select-editable input:focus {
+                outline: none;
+            }
+</style>
+
+    @Html.Hidden("roleId", Model.StaffRoleId)
+    @Html.Hidden("enc_clientId",Model.Enc_ClientId)
+
+    <div class="row">
+        <div class="col-lg-12">
+            @*<label id="Name"><h2 class="page-header">Home Visit Schedule:@Request.QueryString["Name"]</h2></label>*@
+            <h2 class="page-header">
+
+                <span>Schedule Home Visit</span>
+                <span class="view-btn backto_listspan" id="BackToList"><a href="~/Roster/Roster" class="backto_list">Back To Roster</a></span>
+            </h2>
+            <div class="col-lg-12">
+                <h4>
+
+                    <span id="clientName" style="color: #285b8f;">@Request.QueryString["Name"]</span>
+
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
+            <div class="col-sm-3">
+                <label>Days</label>
+                <select id="Days" onchange=" SelectDate();drawgrid();" style="height: 38px !important;" class="form-control">
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                    <option value="0">Sunday</option>
+                </select>
+            </div>
+
+            <div style="padding-top: 2%;">
+                <button id="btnadd" type="button" class="my-btn1" style="width: 108px !important;" onclick="ShowPopup();">Add Schedule</button>
+                <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
+            </div>
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="GridScheduler">
+                    <thead style="cursor: pointer;">
+                        <tr>
+                            <th id="thIN">
+                                Description<img id="imgthIN" style="visibility: hidden" />
+                                <input type="hidden" id="directionNA" value="Desc" />
+                            </th>
+
+                            <th id="thCust">
+                                Date<img id="imgthCust" style="visibility: hidden" />
+                                <input type="hidden" id="directionUN" value="Desc" />
+                            </th>
+                            <th id="THMN">
+                                Time(12 hours format)<img id="imgthRN" style="visibility: hidden" />
+                                <input type="hidden" id="directionRN" />
+                            </th>
+                            @*<th id="thMN">Delete<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                <th id="thAN">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
+                            <th id="thSN">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align: center; display: none;">
+                    @*display:none;*@
+                <label>No result found.</label>
+            </div>
+        </div>
+    </div>
+</div>
+@*<iframe style="padding-top: 2%; width: 100%; height :800px;" src="~/AgencyUser/HomeVisitFSW/?id'<%=id%>'"></iframe>*@
+<div class="row">
+
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+        <div class="pages_display">
+            <ul>
+                <li>Display</li>
+                <li>
+                    <select id="ddlpagetodisplay" onchange="drawgrid();">
+                        <option value="10" selected="selected">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </li>
+                <li>Records Per Page</li>
+            </ul>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div id="divPaging" class="pagination_wrp">
+            <ul id="ulPaging" class="pagination">
+                <li>
+                    <input id='First' type='image' src="~/Images/previousarrow.png" style="cursor: pointer;" onclick="fnChangePage('First'); return false;" />
+                </li>
+                <li title="Back">
+                    <input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor: pointer;' onclick="fnChangePage('Back'); return false;" />
+                </li>
+                <li title="Select">
+                    <select class="select_cl" id="ddlpaging"></select>
+                </li>
+                <li title="Next">
+                    <input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor: pointer;' onclick="fnChangePage('Next'); return false;" />
+                </li>
+                <li title="Last">
+                    <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor: pointer;' onclick="fnChangePage('Last'); return false;" />
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+@*Modal Popup*@
+<div class="modal fade" id="schedule_popup" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="Resourece1">Add Appointment<span class="extra-title muted"></span></h3>@*Changes on 28Dec2016*@
+                @*@if (Model.MeetingId==0)
+                    {
+                                        <h3 id="Resourece1">Add Appointment<span class="extra-title muted"></span></h3>
+                    }
+                    else
+                    {
+                         <h3 id="Resourece1">Edit Appointment<span class="extra-title muted"></span></h3>
+                    }*@
+            </div>
+            <div class="modal-body">
+                <div style="width: 100%; height: 100%; margin: 0px; padding: 0px">
+
+                    @*Changes on 6Feb2017*@
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="RaceId">Description <sup style="color: red">*</sup></label>
+                            @*<i class="fa fa-user"></i>*@
+                            <input type="text" name="Description" class="form-control" id="Description" placeholder="Description" maxlength="50">
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="row" style="margin:10px -15px;">
+                        <div class="col-xs-6 col-md-4">
+                            <label for="exampleInputEmail1">Meeting Date<sup style="color: red">*</sup></label><br />
+                            <select type="text" name="StartDate" id="StartDate" style="width: 97px;"></select>
+                        </div>
+                        <div class="col-xs-6 col-md-4" style="position: relative; height: 10px; width: 100px; z-index: 9999; margin-left: -10%;">
+                            <label for="exampleInputEmail1" style="margin-left:-15px;">From <sup style="color: red">*</sup></label><br />
+                            <select name="StartTime" id="StartTime" placeholder="From" style="width: 84px; margin-left: -13%; position: absolute;" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0;' onblur="this.size=0;"></select>
+                        </div>
+
+                        <div class="col-xs-6 col-md-4 wrapper" style="z-index: 9999;">
+                            <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label><br />
+                            <select class="editableBox" id="EndTime" style="position:absolute;" size="1" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0; this.nextElementSibling.value=this.value' onblur="this.size=0;">
+                                <option value=""></option>
+                                @*Changes on 8Feb2017*@
+                                <option value="00:30">00:30</option>
+                                @*<option value="00:90">00:90</option>*@
+                                <option value="01:00">01:00</option>
+                                <option value="01:30">01:30</option>
+                                <option value="02:00">02:00</option>
+                                <option value="02:30">02:30</option>
+                                <option value="03:00">03:00</option>
+                                <option value="03:30">03:30</option>
+                                <option value="04:00">04:00</option>
+
+                            </select>
+                            <input class="timeTextBox" placeholder="HH:MM" id="TestEndTime" name="timebox" maxlength="5" onblur="testTime(this);" />
+                        </div>
+                    </div>
+
+
+
+                    @*<div class="row">
+                        <div class="col-xs-12">
+                            <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label>
+                            <div class="select-editable input">
+
+
+
+                                <select id="EndTime" onchange="this.nextElementSibling.value=this.value" style="width: 86px;" >
+
+                                    <option value=""></option>
+                                </select>
+
+
+                            </div>
+                        </div>
+                        </div>*@
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="RaceId">Notes</label>
+                            @*<i class="fa fa-user"></i>*@
+                            @*<input type="textarea" name="Notes" class="form-control" id="Notes" placeholder="Notes" maxlength="50">*@
+                            <textarea name="Description" style="vertical-align: top" class="form-control" id="Notes" placeholder="Notes" maxlength="50"></textarea>
+                        </div>
+                    </div>
+                    @*<i class=" fa fa-key">
+                        </i>*@
+
+
+                    @*  *@
+
+
+
+
+
+
+
+                    @*End*@
+                </div>
+                @*Added on 17jan2017*@
+
+                <input type="hidden" id="MeetingId" name="MeetingId" />
+                <input type="hidden" id="EndTimeDuration" name="EndTimeDuration" />
+                <input type="hidden" value="@Request.QueryString["Name"]" id="ClientName" name="TabId" />
+                <input type="hidden" value="@Request.QueryString["Id"]" id="ClientId" name="TabId" />
+            </div>
+            <div class="clearfix"></div>
+            <div style="margin-left: 30%; margin-bottom: 20px; margin-top: 20px;">
+                @*<a href="javascript:;" onclick="resetTimer()" class="btn btn-primary" aria-hidden="true">Save</a>
+                    <a href="" class="btn btn-danger" aria-hidden="true">Cancel</a>*@
+
+                <button type="button" class="my-btn1" onclick="AddSchedulerDetails();">Save</button>
+                <button type="button" data-dismiss="modal" class="my-btn1">Exit</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*End*@
+
+
+}

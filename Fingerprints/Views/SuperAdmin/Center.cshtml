@@ -1,0 +1,2586 @@
+﻿@model FingerprintsModel.Center
+@{
+    @section Title
+{
+        Add Center
+        @*@ViewData["Title"].ToString()*@
+
+    }
+
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var isValid = true;
+        var rounds = 0;
+        var count = null;
+        var counts = null;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $("div[id^='divclass'] select").val("");
+            var classcount = $('.fundservice').length - 1;
+            count = classcount;
+            counts = classcount;
+            $('#dashboard').removeClass("active");
+            $('#ClassAssign').removeClass("active");
+            $('#Yakkr').removeClass("active");
+            $('#a1').addClass("active");
+            $('#a2').removeClass("active");
+
+            //$('#StartTime').timepicker({ 'timeFormat': 'h:i A' });
+            //$('#StopTime').timepicker({ 'timeFormat': 'h:i A' });
+
+
+
+            if ('@ViewBag.mode' == 1) {
+                $('#Meal').hide();
+                $("#Operational").hide();
+                // $('#Hideclassroomdiv').hide();
+                $('.hodiv').hide();
+                $('#divclass').remove();
+                if ($('#AdminSite').val() == "1") {
+                    $('#plussign').hide();
+                    $('#Hideclassroomdiv').hide();
+                    $('#HideHomeBased').hide();
+                }
+                if ($("#HomeBased").prop("checked")) {
+                    while (count >= 0) {
+                        $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", true);
+                        $("#ClassStart" + count).hide();
+                        $("#ClassStop" + count).hide();
+                        $("#Double" + count).hide();
+                        $("#Meal" + count).hide();
+                        $("#Operational" + count).hide();
+                        count = count - 1;
+                    }
+                }
+            }
+            if ('@ViewBag.mode' == 0) {
+                $('#NAEYCCertified').val('');
+                $('#StepUpToQualityStars').val('');
+                $('#TimeZoneID').val('');
+                $('#AdminSite').val('');
+                $('#ClassSession').val('');
+            }
+
+
+
+            var numItems = $('.fundservice').length - 1;
+            for (var i = 0; i <= numItems; i++) {
+
+                $("[name='Classroom[" + i + "].StartTime']").timepicker({ 'timeFormat': 'h:i A' });
+                $("[name='Classroom[" + i + "].StopTime']").timepicker({ 'timeFormat': 'h:i A' });
+                $("[name='Classroom[" + i + "].BreakfastFromTime']").timepicker({
+                    disabledTimeIntervals: [[moment().hour(0), moment().hour(6)], [moment().hour(21), moment().hour(24)]]
+                });
+                $("[name='Classroom[" + i + "].LunchFromTime']").timepicker({
+                    disabledTimeIntervals: [[moment().hour(0), moment().hour(6)], [moment().hour(21), moment().hour(24)]]
+                });
+                $("[name='Classroom[" + i + "].SnackFromTime']").timepicker({
+                    disabledTimeIntervals: [[moment().hour(0), moment().hour(6)], [moment().hour(21), moment().hour(24)]]
+                });
+                $("[name='Classroom[" + i + "].Snack2FromTime']").timepicker({
+                    disabledTimeIntervals: [[moment().hour(0), moment().hour(6)], [moment().hour(21), moment().hour(24)]]
+                });
+                $("[name='Classroom[" + i + "].DinnerFromTime']").timepicker({
+                    disabledTimeIntervals: [[moment().hour(0), moment().hour(6)], [moment().hour(21), moment().hour(24)]]
+                });
+                //$("[name='Classroom[" + i + "].BreakfastFromTime']").timepicker({ 'timeFormat': 'h:i A' });
+                ////$("[name='Classroom[" + i + "].BreakfastToTime']").timepicker({ 'timeFormat': 'h:i A' });
+                //$("[name='Classroom[" + i + "].LunchFromTime']").timepicker({ 'timeFormat': 'h:i A' });
+                ////$("[name='Classroom[" + i + "].LunchToTime']").timepicker({ 'timeFormat': 'h:i A' });
+                //$("[name='Classroom[" + i + "].SnackFromTime']").timepicker({ 'timeFormat': 'h:i A' });
+                ////$("[name='Classroom[" + i + "].SnackToTime']").timepicker({ 'timeFormat': 'h:i A' });
+                //$("[name='Classroom[" + i + "].DinnerFromTime']").timepicker({ 'timeFormat': 'h:i A' });
+                ////$("[name='Classroom[" + i + "].DinnerToTime']").timepicker({ 'timeFormat': 'h:i A' });
+
+            }
+
+
+
+
+            $('#a1').addClass("active");
+            $('#a2').removeClass("active");
+            if ('@ViewBag.message' != '') {
+                customAlert('@ViewBag.message');
+            }
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+        }
+
+            $('#form1').submit(function () {
+                $('#btnSubmit').attr('disabled', 'disabled');
+            });
+            try {
+                // If super admin login into agency Making entire form read only
+                if ('@Session["RoleName"]'.length > 0) {
+                    var role = '@Session["RoleName"].ToString()';
+                    if (role.toUpperCase() == "SUPERADMIN") {
+                        if ('@Session["AgencyID"]'.length > 0) {
+                            $('#form1 input').attr('readonly', true);
+                            $('#form1 Button').attr('disabled', true);
+                            $('#form1 select').attr('disabled', true);
+
+                        }
+                    }
+                }
+            }
+            catch (err) {
+            }
+            // end of code
+            $('#btnExit').click(function () {
+                window.location.href = HostedDir + "/Home/SuperAdminDashboard";
+            });
+            $('#btnExitClassroom').click(function () {
+                $('#divclass').hide();
+            });
+            try {
+                $("#AgencyName").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/SuperAdmin/AutoCompleteAgency",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term, Active: "1" },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.AgencyName, id: item.AgencyId
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#HiddenAgencyId').val(ui.item.id);
+                    },
+
+                    messages: {
+                        noResults: "", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+        });
+        function isValidagencyInfo() {
+            cleanValidation();
+            if ($('#AgencyName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter agency.");
+                plainValidation('#AgencyName');
+                return isValid;
+            }
+            if ($('#CenterName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter center name.");
+                plainValidation('#CenterName');
+                return isValid;
+            }
+            else if ($('#StepUpToQualityStars')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Quality Stars is required.");
+                plainValidation('#StepUpToQualityStars');
+                return isValid;
+            }
+            else if ($('#NAEYCCertified')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("NAEYC Certified is required");
+                plainValidation('#NAEYCCertified');
+                return isValid;
+            }
+            else if ($('#Address')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter address.");
+                plainValidation('#Address');
+                return isValid;
+            }
+            else if ($('#Zip')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter zip code.");
+                plainValidation('#Zip');
+                return isValid;
+            }
+            else if ($('#City')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter city.");
+                plainValidation('#City');
+                return isValid;
+            }
+            else if ($('#State')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter State.");
+                plainValidation('#State');
+                return isValid;
+            }
+            else if ($('#AdminSite')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("AdminSite is required.");
+                plainValidation('#AdminSite');
+                return isValid;
+            }
+            //else if ($('#TimeZoneID')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Timezone is required.");
+            //    plainValidation('#TimeZoneID');
+            //    return isValid;
+            //}
+
+
+            if ($('#AdminSite').val() == "0") {
+                var numItems = $('.fundservice').length - 1;
+                for (var i = 0; i <= numItems; i++) {
+                    if ($("[name='Classroom[" + i + "].RoomName']").val() == "") {
+                        isValid = false;
+                        customAlert("Room name is required.");
+                        plainValidation($("[name='Classroom[" + i + "].RoomName']"));
+                        $("[name='Classroom[" + i + "].RoomName']").focus();
+                        return false;
+                    }
+                    if ($("select[name='Classroom[" + i + "].ClassSession']").val() == "" || $("select[name='Classroom[" + i + "].ClassSession']").val() == null) {
+                        isValid = false;
+                        customAlert("Class Session is required.");
+                        plainValidation($("[name='Classroom[" + i + "].ClassSession']"));
+                        $("[name='Classroom[" + i + "].ClassSession']").focus();
+                        return false;
+                    }
+                    if ($("select[name='Classroom[" + i + "].ClassSession']").val() != "4") {
+                        if ($("[name='Classroom[" + i + "].StartTime']").val() == "") {
+                            isValid = false;
+                            customAlert("Start Time is required.");
+                            plainValidation($("[name='Classroom[" + i + "].StartTime']"));
+                            $("[name='Classroom[" + i + "].StartTime']").focus();
+                            return false;
+                        }
+                        if ($("[name='Classroom[" + i + "].StopTime']").val() == "") {
+                            isValid = false;
+                            customAlert("Stop Time is required.");
+                            plainValidation($("[name='Classroom[" + i + "].StopTime']"));
+                            $("[name='Classroom[" + i + "].StopTime']").focus();
+                            return false;
+                        }
+                        if (!$("[name='Classroom[" + i + "].Breakfast']").prop("checked") && !$("[name='Classroom[" + i + "].Lunch']").prop("checked") &&
+                                !$("[name='Classroom[" + i + "].Snack']").prop("checked") && !$("[name='Classroom[" + i + "].Dinner']").prop("checked")) {
+
+                            isValid = false;
+                            customAlert("Is this meal served is required.");
+                            plainValidation($("[name='Classroom[" + i + "].Breakfast']"));
+                            return false;
+                        }
+                        if (!$("[name='Classroom[" + i + "].Monday']").prop("checked") && !$("[name='Classroom[" + i + "].Tuesday']").prop("checked") &&
+                            !$("[name='Classroom[" + i + "].Wednesday']").prop("checked") && !$("[name='Classroom[" + i + "].Thursday']").prop("checked") &&
+                            !$("[name='Classroom[" + i + "].Friday']").prop("checked") && !$("[name='Classroom[" + i + "].Saturday']").prop("checked") &&
+                            !$("[name='Classroom[" + i + "].Sunday']").prop("checked")) {
+                            isValid = false;
+                            customAlert("Class operational days is required.");
+                            plainValidation($("[name='Classroom[" + i + "].Monday']"));
+                            return false;
+                        }
+                        if ($('#HomeBased')[0].checked == true) {
+                            $('.serviceclass').each(function (i) {
+
+
+                                var breakfast = $('[name="Classroom[' + i + '].BreakfastFromTime').val();
+                                var lunch = $('[name="Classroom[' + i + '].LunchFromTime"]').val();
+                                var snack1 = $('[name="Classroom[' + i + '].SnackFromTime"]').val();
+                                //  var snack2 = $('[name="Classroom[' + i + '].Snack2FromTime"]').val();
+                                var dinner = $('[name="Classroom[' + i + '].DinnerFromTime"]').val();
+                                if ($("[name='Classroom[" + i + "].Breakfast']").prop("checked")) {
+                                    if (breakfast) {
+                                        isValid = false;
+                                        customAlert("Breakfast from time is required.");
+                                        plainValidation($('[name="Classroom[' + i + '].BreakfastFromTime'));
+                                        return false;
+                                    }
+                                }
+                                if ($("[name='Classroom[" + i + "].Lunch']").prop("checked")) {
+                                    if (breakfast) {
+                                        isValid = false;
+                                        customAlert("Lunch from time is required.");
+                                        plainValidation($('[name="Classroom[' + i + '].LunchFromTime"]'));
+                                        return false;
+                                    }
+                                }
+                                if ($("[name='Classroom[" + i + "].Snack']").prop("checked")) {
+                                    if (breakfast) {
+                                        isValid = false;
+                                        customAlert("Snack from time is required.");
+                                        plainValidation($('[name="Classroom[' + i + '].SnackFromTime"]'));
+                                        return false;
+                                    }
+                                }
+                                //if ($("[name='Classroom[" + i + "].Snack2']").prop("checked")) {
+                                //    if (breakfast) {
+                                //        isValid = false;
+                                //        customAlert("Snack from time is required.");
+                                //        plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                //        return false;
+                                //    }
+                                //}
+                                if ($("[name='Classroom[" + i + "].Dinner']").prop("checked")) {
+                                    if (breakfast) {
+                                        isValid = false;
+                                        customAlert("Dinner from time is required.");
+                                        plainValidation($('[name="Classroom[' + i + '].DinnerFromTime"]'));
+                                        return false;
+                                    }
+                                }
+                                var m = new Date().getMonth();
+                                var d = new Date().getDate();
+                                var y = new Date().getFullYear();
+                                var stopDate = new Date(m + '/' + d + '/' + y + ' ' + $('[name="Classroom[' + i + '].StopTime"]').val());
+                                var min = $('[name="Classroom[' + i + '].TimeBetweenMeals"]').val();
+                                var breakfastdate = new Date(m + '/' + d + '/' + y + ' ' + breakfast);
+                                var lunchdate = new Date(m + '/' + d + '/' + y + ' ' + lunch);
+                                var snak1date = new Date(m + '/' + d + '/' + y + ' ' + snack1);
+                                //var snack2date = new Date(m + '/' + d + '/' + y + ' ' + snack2);
+                                var dinnerdate = new Date(m + '/' + d + '/' + y + ' ' + dinner);
+                                if ((Date.parse(stopDate) - Date.parse(breakfastdate)) < 0) {
+
+                                }
+
+
+                                if (breakfast) {
+                                    if (lunch) {
+                                        if ((Date.parse(breakfastdate) - Date.parse(lunchdate)) / 60000 < parseInt(min)) {
+                                            customAlert("Lunch time must be " + min + " minutes after breakfast.");
+                                            plainValidation($('[name="Classroom[' + i + '].LunchFromTime"]'));
+                                            return false;
+                                        }
+                                    }
+                                    if (snack) {
+                                        if ((Date.parse(breakfastdate) - Date.parse(snak1date)) / 60000 < parseInt(min)) {
+                                            customAlert("Snack time must be " + min + " minutes after breakfast.");
+                                            plainValidation($('[name="Classroom[' + i + '].SnackFromTime"]'));
+                                            return false;
+                                        }
+                                    }
+
+                                    //if (snack2) {
+                                    //    if ((Date.parse(breakfastdate) - Date.parse(snack2date)) / 60000 < parseInt(min)) {
+                                    //        customAlert("Second Snacks time must be " + min + " minutes after breakfast.");
+                                    //        plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                    //        return false;
+                                    //    }
+                                    //}
+                                    if (dinner) {
+                                        if ((Date.parse(breakfastdate) - Date.parse(dinnerdate)) / 60000 < parseInt(min)) {
+                                            customAlert("Diner time must be " + min + " minutes after first breakfast.");
+                                            plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                            return false;
+                                        }
+                                    }
+
+                                }
+                                if (lunch) {
+                                    if (snack) {
+                                        if ((Date.parse(lunchdate) - Date.parse(snak1date)) / 60000 < parseInt(min)) {
+                                            customAlert("Snack time must be " + min + " minutes after Lunch.");
+                                            plainValidation($('[name="Classroom[' + i + '].SnackFromTime"]'));
+                                            return false;
+                                        }
+                                    }
+                                    //if (snack2) {
+                                    //    if ((Date.parse(lunchdate) - Date.parse(snack2date)) / 60000 < parseInt(min)) {
+                                    //        customAlert("Second Snacks time must be " + min + " minutes after Lunch.");
+                                    //        plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                    //        return false;
+                                    //    }
+                                    //}
+                                    if (dinner) {
+                                        if ((Date.parse(lunchdate) - Date.parse(dinnerdate)) / 60000 < parseInt(min)) {
+                                            customAlert("Diner time must be " + min + " minutes after Lunch.");
+                                            plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                            return false;
+                                        }
+                                    }
+                                }
+                                if (snack) {
+                                    //if (snack2) {
+                                    //    if ((Date.parse(snak1date) - Date.parse(snack2date)) / 60000 < parseInt(min)) {
+                                    //        customAlert("Second Snacks time must be " + min + " minutes after first snacks.");
+                                    //        plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                    //        return false;
+                                    //    }
+                                    //}
+                                    if (dinner) {
+                                        if ((Date.parse(lunchdate) - Date.parse(dinnerdate)) / 60000 < parseInt(min)) {
+                                            customAlert("Diner time must be " + min + " minutes after snacks.");
+                                            plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                            return false;
+                                        }
+                                    }
+                                }
+                                //if (snack2) {
+                                //    if (dinner) {
+                                //        if ((Date.parse(snack2date) - Date.parse(dinnerdate)) / 60000 < parseInt(min)) {
+                                //            customAlert("Dinner time must be " + min + " minutes after snacks.");
+                                //            plainValidation($('[name="Classroom[' + i + '].Snack2FromTime"]'));
+                                //            return false;
+                                //        }
+                                //    }
+                                //}
+
+
+                            });
+                        }
+                    }
+                    else {
+                        if ($("select[name='Classroom[" + i + "].ClassSession']").val() == "4") {
+                            if (!$("#HomeBased").prop("checked")) {
+                                isValid = false;
+                                customAlert("Please select home based.");
+                                plainValidation($("#HomeBased"));
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            $('#spinner').show();
+            isValid = true;
+            return isValid;
+        }
+        function ucfirst(str, force) {
+            str = force ? str.toLowerCase() : str;
+            return str.replace(/(\b)([a-zA-Z])/,
+                     function (firstLetter) {
+                         return firstLetter.toUpperCase();
+                     });
+        }
+        function Changefirstchar(value) {
+            var cp_value = ucfirst($(value).val(), true);
+            $(value).val(cp_value);
+        }
+
+        function hidediv() {
+            if ('@ViewBag.mode' == "0") {
+                if ($('#AdminSite').val() == "1") {
+                    $('#divclass').hide();
+                    $('#plussign').hide();
+                    $('#Hideclassroomdiv').hide();
+                    $('#HideHomeBased').hide();
+                }
+                if ($('#AdminSite').val() == "0") {
+                    $('#divclass').show();
+                    $('#plussign').show();
+                    $('#Hideclassroomdiv').show();
+                    $('#HideHomeBased').show();
+                }
+            }
+            if ('@ViewBag.mode' == "1") {
+                if ($('#AdminSite').val() == "1") {
+                    BootstrapDialog.confirm('Do you want to select admin site? If you select admin site,classroom details gets deleted.', function (result) {
+                        if (result) {
+                            $('#AdminSite').val(1);
+                            $.ajax({
+                                url: HostedDir + "/AgencyAdmin/Deleteclassroom",
+                                type: "POST",
+                                data: {
+                                    CenterId: $('#CenterId').val(),
+                                    AgencyID: $('#HiddenAgencyId').val()
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response == 1) {
+                                        customAlert("Admin Site selected successfully.");
+                                        $('#divedit').hide();
+                                        $('#plussign').hide();
+                                        $('#Hideclassroomdiv').hide();
+                                        $('#HideHomeBased').hide();
+                                        $("#HomeBased").prop("checked", false)
+                                    }
+                                }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                            });
+                        }
+                        else {
+                            $('#AdminSite').val(0);
+                        }
+                    });
+                }
+                if ($('#AdminSite').val() == "0") {
+                    ShowDiv();
+                    $('#plussign').show();
+                    $('#Hideclassroomdiv').show();
+                    $('#HideHomeBased').show();
+                }
+            }
+        }
+        function Addclassroom() {
+            if ($('#CenterName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter center name.");
+                plainValidation('#CenterName');
+                return isValid;
+            }
+            else if ($('#StepUpToQualityStars')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Quality Stars is required.");
+                plainValidation('#StepUpToQualityStars');
+                return isValid;
+            }
+            else if ($('#NAEYCCertified')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("NAEYC Certified is required");
+                plainValidation('#NAEYCCertified');
+                return isValid;
+            }
+            else if ($('#Address')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter address.");
+                plainValidation('#Address');
+                return isValid;
+            }
+            else if ($('#City')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter city.");
+                plainValidation('#City');
+                return isValid;
+            }
+            else if ($('#State')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter State.");
+                plainValidation('#State');
+                return isValid;
+            }
+            else if ($('#Zip')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter zip code.");
+                plainValidation('#Zip');
+                return isValid;
+            }
+            else if ($('#AdminSite')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("AdminSite is required.");
+                plainValidation('#AdminSite');
+                return isValid;
+            }
+            else if ($('#TimeZoneID')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Timezone is required.");
+                plainValidation('#TimeZoneID');
+                return isValid;
+            }
+            if ($('#RoomName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter room name.");
+                plainValidation('#RoomName');
+                return isValid;
+            }
+            if ($('#ClassSession')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter class session.");
+                plainValidation('#ClassSession');
+                return isValid;
+            }
+            if (!$('#divmeal input[type="checkbox"]').is(':checked')) {
+                isValid = false;
+                customAlert("Please select atleast one meal served.");
+                return isValid;
+            }
+            if (!$('#divdays input[type="checkbox"]').is(':checked')) {
+                isValid = false;
+                customAlert("Please select class operational days.");
+                return isValid;
+            }
+
+            var ClassName = "ClassRoom[" + rounds + "].RoomName";
+            var ClassSession = "ClassRoom[" + rounds + "].ClassSession";
+            var StartTime = "ClassRoom[" + rounds + "].StartTime";
+            var StopTime = "ClassRoom[" + rounds + "].StopTime";
+            var DoubleSession = "ClassRoom[" + rounds + "].DoubleSession";
+            var Breakfast = "ClassRoom[" + rounds + "].Breakfast";
+            var Lunch = "ClassRoom[" + rounds + "].Lunch";
+            var Dinner = "ClassRoom[" + rounds + "].Dinner";
+            var Snack = "ClassRoom[" + rounds + "].Snack";
+            var Monday = "ClassRoom[" + rounds + "].Monday";
+            var Tuesday = "ClassRoom[" + rounds + "].Tuesday";
+            var Wednesday = "ClassRoom[" + rounds + "].Wednesday";
+            var Thursday = "ClassRoom[" + rounds + "].Thursday";
+            var Friday = "ClassRoom[" + rounds + "].Friday";
+            var Saturday = "ClassRoom[" + rounds + "].Saturday";
+            var Sunday = "ClassRoom[" + rounds + "].Sunday";
+            var AvailSeats = "ClassRoom[" + rounds + "].ActualSeats";
+            var Noofseats = "ClassRoom[" + rounds + "].Noofseats";
+
+            //Class Session
+            if ($('#ClassSession').val() == "0")
+                var ClassSessionValue = "Morning";
+            if ($('#ClassSession').val() == "1")
+                var ClassSessionValue = "Afternoon";
+            if ($('#ClassSession').val() == "2")
+                var ClassSessionValue = "Full day>6 hours";
+            if ($('#ClassSession').val() == "3")
+                var ClassSessionValue = "Full working day>10 hours";
+            if ($('#DoubleSession').prop("checked"))
+                var DoubleSessionValue = "Yes";
+            else
+                var DoubleSessionValue = "No";
+            if ($('#Breakfast').prop("checked"))
+                var BreakfastValue = "Breakfast";
+            if ($('#Lunch').prop("checked"))
+                var BreakfastValue = "Lunch";
+            if ($('#Snack').prop("checked"))
+                var BreakfastValue = "Snack";
+            if ($('#Dinner').prop("checked"))
+                var BreakfastValue = "Dinner";
+
+            if ($('#Monday').prop("checked"))
+                var MondayValue = "Monday";
+            if ($('#Tuesday').prop("checked"))
+                var MondayValue = "Tuesday";
+            if ($('#Wednesday').prop("checked"))
+                var MondayValue = "Wednesday";
+            if ($('#Thursday').prop("checked"))
+                var MondayValue = "Thursday";
+            if ($('#Friday').prop("checked"))
+                var MondayValue = "Friday";
+            if ($('#Saturday').prop("checked"))
+                var MondayValue = "Saturday";
+            if ($('#Sunday').prop("checked"))
+                var MondayValue = "Sunday";
+
+
+            if (($('#Breakfast').prop("checked")) && ($('#Lunch').prop("checked")) && ($('#Snack').prop("checked")) && ($('#Dinner').prop("checked"))) {
+                var BreakfastValue = "Breakfast" + "," + "Lunch" + "," + "Snack" + "," + "Dinner";
+            }
+            else if (($('#Breakfast').prop("checked")) && ($('#Lunch').prop("checked"))) {
+                var BreakfastValue = "Breakfast" + "," + "Lunch";
+            }
+            else if (($('#Breakfast').prop("checked")) && ($('#Lunch').prop("checked")) && ($('#Snack').prop("checked"))) {
+                var BreakfastValue = "Breakfast" + "," + "Lunch" + "," + "Snack";
+            }
+            else if (($('#Dinner').prop("checked")) && ($('#Lunch').prop("checked")) && ($('#Snack').prop("checked"))) {
+                var BreakfastValue = "Dinner" + "," + "Lunch" + "," + "Snack";
+            }
+            else if (($('#Lunch').prop("checked")) && ($('#Snack').prop("checked"))) {
+                var BreakfastValue = "Lunch" + "," + "Snack";
+            }
+            else if (($('#Dinner').prop("checked")) && ($('#Snack').prop("checked"))) {
+                var BreakfastValue = "Dinner" + "," + "Snack";
+            }
+            else if (($('#Dinner').prop("checked")) && ($('#Breakfast').prop("checked"))) {
+                var BreakfastValue = "Dinner" + "," + "Breakfast";
+            }
+            else if (($('#Snack').prop("checked")) && ($('#Breakfast').prop("checked"))) {
+                var BreakfastValue = "Snack" + "," + "Breakfast";
+            }
+            else if ((!$('#Breakfast').prop("checked")) && (!$('#Lunch').prop("checked")) && (!$('#Snack').prop("checked")) && (!$('#Dinner').prop("checked"))) {
+                var BreakfastValue = " ";
+            }
+
+
+            $('#gridclassroom').show();
+            var tr = '<tr id=' + rounds + '><td style="width:17%;><label for="' + ClassName + '" value="' + ClassName + '" text="' + $('#RoomName').val() + '"> ' + $('#RoomName').val() + ' </label><input type="hidden"  name="' + ClassName + '" value="' + $('#RoomName').val() + '" /></td><td style="width:25%;"><label for="' + ClassSession + '" text="' + $('#ClassSession').val() + '"> ' + ClassSessionValue + ' </label><input type="hidden"  name="' + ClassSession + '" value="' + $('#ClassSession').val() + '" /></td><td style="width:20%;><label for="' + StartTime + '" text="' + $('#StartTime').val() + '"> ' + $('#StartTime').val() + ' </label><input type="hidden"  name="' + StartTime + '" value="' + $('#StartTime').val() + '" /></td><td style="width:25%;"><label for=' + StopTime + ' text="' + $('#StopTime').val() + '"> ' + $('#StopTime').val() + ' </label><input type="hidden"  name="' + StopTime + '" value="' + $('#StopTime').val() + '" /></td><td style="width:44%;"><label for=' + DoubleSession + ' text="' + $('#DoubleSession').val() + '"> ' + DoubleSessionValue + ' </label><input type="hidden"  name="' + DoubleSession + '" value="' + $('#DoubleSession').val() + '" /></td><td><label for=' + Breakfast + ' text="' + $('#Breakfast').val() + '"> ' + BreakfastValue + ' </label><input type="hidden"  name="' + Lunch + '" value="' + $('#Lunch').val() + '" /><input type="hidden"  name="' + Snack + '" value="' + $('#Snack').val() + '" /><input type="hidden"  name="' + Breakfast + '" value="' + $('#Breakfast').val() + '" /><input type="hidden"  name="' + Dinner + '" value="' + $('#Dinner').val() + '" /></td><td><label for=' + Monday + ' text="' + $('#Monday').val() + '"> ' + MondayValue + ' </label><input type="hidden"  name="' + Monday + '" value="' + $('#Monday').val() + '" /><input type="hidden"  name="' + Tuesday + '" value="' + $('#Tuesday').val() + '" /><input type="hidden"  name="' + Wednesday + '" value="' + $('#Wednesday').val() + '" /><input type="hidden"  name="' + Thursday + '" value="' + $('#Thursday').val() + '" /><input type="hidden"  name="' + Friday + '" value="' + $('#Friday').val() + '" /><input type="hidden"  name="' + Saturday + '" value="' + $('#Saturday').val() + '" /><input type="hidden"  name="' + Sunday + '" value="' + $('#Sunday').val() + '" /></td><td><label for="' + Noofseats + '" value="' + Noofseats + '" text="' + $('#Noofseats').val() + '"> ' + $('#Noofseats').val() + ' </label><input type="hidden"  name="' + Noofseats + '" value="' + $('#Noofseats').val() + '" /></td><td><label for="' + AvailSeats + '" value="' + AvailSeats + '" text="' + $('#ActualSeats').val() + '"> ' + $('#ActualSeats').val() + ' </label><input type="hidden"  name="' + AvailSeats + '" value="' + $('#ActualSeats').val() + '" /></td><td><a href="javascript:void(0)" onclick="RemoveClassroom(this);" style=" text-decoration:underline;">Delete</a></td></tr>'
+            // var tr = '<tr><td><input class = "form-control" value="' + $('#RoomName').val() +'"  name=' + ClassName + ' type="text" maxlength="50"></td><td><input  type="text" name=' + ClassSession + ' class = "form-control" onblur="checkIfNumeric(this);" maxlength="4" /></td><td><input class = "form-control" name=' + StartTime + ' type="text" maxlength="50"></td><td><input class = "form-control" name=' + StopTime + ' type="text" maxlength="50"></td><td><input class = "form-control" name=' + DoubleSession + ' type="text" maxlength="50"></td><td><input class = "form-control" name=' + Breakfast + ' type="text" maxlength="50"></td><td><input class = "form-control" name=' + Monday + ' type="text" maxlength="50"></td><td><a href="javascript:void(0)" onclick="RemoveClassroom(this);" style=" text-decoration:underline;">Delete</a></td></tr>';
+            $('#div1').hide();
+            $('#gridclassroom > tbody').append(tr);
+            rounds = rounds + 1;
+            clearcontrolsClassroom();
+        }
+
+
+        function Checknumeric(inputTextObject) {
+            if (isNaN(inputTextObject.value)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+            }
+        }
+
+        function checkZipCode(inputTextObject) {
+
+            if ($(inputTextObject).val() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();
+                var len = Zipcode.length;
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddress(1);
+                return ret;
+            }
+            else {
+
+                $('#City').find('option').remove();
+                $('#State').val('');
+                //  $('#County').val('');
+            }
+        }
+        function CheckAddress(value) {
+
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $('#Zip').val();
+
+
+
+            if ($('#Zip').val().trim() != "") {
+
+                $.ajax({
+                    url: HostedDir + "/AgencyAdmin/Checkaddress",
+                    type: "POST",
+                    data: {
+                        Address: $('#Zip').val(),
+                        //HouseHoldId: $('#HouseholdId').val(),
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (value == 1) {
+                            if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                                var option = "";
+                                for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                    option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                                }
+                                $('#City').find('option').remove().end().append(option);
+                                $('#City').val('');
+                                $('#State').val(response.Zipcodelist[0].State);
+                                // $('#County').val(response.Zipcodelist[0].County);
+                                $('#ZipCode').val(response.Zipcodelist[0].Zipcode);
+                            }
+                            else {
+                                $('#City').find('option').remove().end();
+                                $('#City').val('');
+                                $('#State').val('');
+                                $('#ZipCode').val('');
+                                //  $('#County').val('');
+                                customAlert("Could not find zipcode details.");
+
+                            }
+                        }
+                    }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                });
+            }
+        }
+        function clearcontrolsClassroom() {
+            $('#RoomName').val('');
+            $('#ClassSession').val('');
+            $('#StartTime').val('');
+            $('#StopTime').val('');
+            $('#Noofseats').val('');
+            $('#ActualSeats').val('');
+            $('#DoubleSession').prop('checked', false);
+            $('#Breakfast').prop('checked', false);
+            $('#Lunch').prop('checked', false);
+            $('#Snack').prop('checked', false);
+            $('#Dinner').prop('checked', false);
+            $('#Monday').prop('checked', false);
+            $('#Tuesday').prop('checked', false);
+            $('#Wednesday').prop('checked', false);
+            $('#Thursday').prop('checked', false);
+            $('#Friday').prop('checked', false);
+            $('#Saturday').prop('checked', false);
+            $('#Sunday').prop('checked', false);
+
+
+            $('#DoubleSession').prop('checked', false);
+            $('#DoubleSession').prop('checked', false);
+            //$('#DoubleSession').val('');
+
+        }
+        $('#gridclassroom > tbody tr').each(function () {
+
+            $(this).find('td:eq(1) :input[type="text"]').blur("checkIfNumeric(this)");
+
+        });
+        function drawclasslist() {
+
+            getClasslist();
+            bindGridclassroom(listClassroom, $("#gridclassroom").find('tr')[0].cells.length);
+        }
+        function getClasslist() {
+
+            $.ajax({
+
+                url: HostedDir + "/AgencyAdmin/listClassroomDetails",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    CenterId: $('#CenterId').val()
+                    // HouseHoldId: $('#HouseholdId').val()
+                },
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getClassroomData(data);
+
+                }
+                , error: function (response) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+
+        }
+        function getClassroomData(dataPhone) {
+
+            listClassroom = dataPhone;
+        }
+        function bindGridclassroom(dataPhoneDetail, num_cols) {
+
+            rounds = 0;
+
+            if (dataPhoneDetail.listClassroom.length == 0) {
+                $('#divP1').show();
+
+            }
+            else {
+                $('#div1').hide();
+                $('#gridclassroom > tbody > tr').remove();
+                var tbody = $('#gridclassroom > tbody');
+                for (var i = 0; i < dataPhoneDetail.listClassroom.length; i++) {
+
+                    var Capacity = "ClassRoom[" + rounds + "].Capacity";
+                    var ClassroomID = "ClassRoom[" + rounds + "].ClassroomID";
+                    var ClassName = "ClassRoom[" + rounds + "].RoomName";
+                    var ClassSession = "ClassRoom[" + rounds + "].ClassSession";
+                    var StartTime = "ClassRoom[" + rounds + "].StartTime";
+                    var StopTime = "ClassRoom[" + rounds + "].StopTime";
+                    var DoubleSession = "ClassRoom[" + rounds + "].DoubleSession";
+                    var Breakfast = "ClassRoom[" + rounds + "].Breakfast";
+                    var Lunch = "ClassRoom[" + rounds + "].Lunch";
+                    var Dinner = "ClassRoom[" + rounds + "].Dinner";
+                    var Snack = "ClassRoom[" + rounds + "].Snack";
+                    var Monday = "ClassRoom[" + rounds + "].Monday";
+                    var Tuesday = "ClassRoom[" + rounds + "].Tuesday";
+                    var Wednesday = "ClassRoom[" + rounds + "].Wednesday";
+                    var Thursday = "ClassRoom[" + rounds + "].Thursday";
+                    var Friday = "ClassRoom[" + rounds + "].Friday";
+                    var Saturday = "ClassRoom[" + rounds + "].Saturday";
+                    var Sunday = "ClassRoom[" + rounds + "].Sunday";
+                    var AvailSeats = "ClassRoom[" + rounds + "].ActualSeats";//Changes
+                    var Noofseats = "ClassRoom[" + rounds + "].Noofseats";
+                    //Class Session
+                    if ($('#ClassSession').val() == "0")
+                        var ClassSessionValue = "Morning";
+                    if ($('#ClassSession').val() == "1")
+                        var ClassSessionValue = "Afternoon";
+                    if ($('#ClassSession').val() == "2")
+                        var ClassSessionValue = "Full day>6 hours";
+                    if ($('#ClassSession').val() == "3")
+                        var ClassSessionValue = "Full working day>10 hours";
+                    //if ($('#ClassSession').val() == "4")
+                    //    var ClassSessionValue = "Morning";
+
+                    //Double Session
+                    if ($('#DoubleSession').val() == "true")
+                        var DoubleSessionValue = "Yes";
+                    else
+                        var DoubleSessionValue = "No";
+
+                    //meal served
+                    if ($('#Breakfast').val() == "true")
+                        var BreakfastValue = "Breakfast";
+                    if ($('#Lunch').val() == "true")
+                        var LunchValue = "Lunch";
+                    if ($('#Snack').val() == "true")
+                        var SnackValue = "Snack";
+                    if ($('#Dinner').val() == "true")
+                        var DinnerValue = "Dinner";
+
+                    if ($('#Monday').val() == "true")
+                        var MondayValue = "Monday";
+                    if (($('#Breakfast').val() == "true") && ($('#Lunch').val() == "true") && ($('#Snack').val() == "true") && ($('#Dinner').val() == "true"))
+                        var BreakfastValue = "Breakfast" + "," + "Lunch" + "," + "Snack" + "," + "Dinner";
+                    $('#gridclassroom').show();
+                    var tr = "";
+                    tr += "<tr id=" + rounds + "><style='text-align:center;'>";
+                    tr = tr + '<td style="width:17%;><label for="' + ClassName + '" value="' + ClassName + '" text="' + $('#RoomName').val() + '"><input type="hidden"  name="' + ClassroomID + '" value="' + dataPhoneDetail.listClassroom[i].ClassroomID + '" /> <a href="#" onclick="GetClassroom(this);" accesskey="' + dataPhoneDetail.listClassroom[i].ClassroomID + '">' + dataPhoneDetail.listClassroom[i].RoomName + ' </label></a></td>';
+                    if (dataPhoneDetail.listClassroom[i].ClassSession == "0") {
+                        tr = tr + '<td style="width:32%;"><label for="' + ClassSession + '" text="' + $('#ClassSession').val() + '"> Morning </label></td>';
+                    }
+                    else if (dataPhoneDetail.listClassroom[i].ClassSession == "1") {
+                        tr = tr + '<td style="width:32%;"><label for="' + ClassSession + '" text="' + $('#ClassSession').val() + '">  Afternoon  </label></td>';
+                    }
+                    else if (dataPhoneDetail.listClassroom[i].ClassSession == "2") {
+                        tr = tr + '<td style="width:32%;"><label for="' + ClassSession + '" text="' + $('#ClassSession').val() + '"> Full day>6 hours  </label></td>';
+                    }
+                    else if (dataPhoneDetail.listClassroom[i].ClassSession == "3") {
+                        tr = tr + '<td style="width:32%;"><label for="' + ClassSession + '" text="' + $('#ClassSession').val() + '"> Full working day>10 hours</label></td>';
+                    }
+                    tr = tr + '<td style="width:20%;><label for="' + StartTime + '" text="' + $('#StartTime').val() + '"> ' + dataPhoneDetail.listClassroom[i].StartTime + ' </label></td>';
+                    tr = tr + '<td style="width:20%;><label for="' + StopTime + '" text="' + $('#StopTime').val() + '"> ' + dataPhoneDetail.listClassroom[i].StopTime + ' </label></td>';
+                    if (dataPhoneDetail.listClassroom[i].DoubleSession == true) {
+                        tr = tr + '<td style="width:20%;><label for="' + DoubleSession + '" text="' + $('#DoubleSession').val() + '"> Yes </label></td>';
+                    }
+                    else if (dataPhoneDetail.listClassroom[i].DoubleSession == false) {
+                        tr = tr + '<td style="width:20%;><label for="' + DoubleSession + '" text="' + $('#DoubleSession').val() + '"> No </label></td>';
+                    }
+                    if (dataPhoneDetail.listClassroom[i].Breakfast == true) {
+                        tr = tr + '<td style="width:20%;><label for="' + Breakfast + '" text="' + $('#Breakfast').val() + '"> Breakfast </label></td>';
+                    }
+                    else {
+                        tr = tr + '<td style="width:20%;><label for="' + Breakfast + '" text="' + $('#Breakfast').val() + '">  </label></td>';
+                    }
+                    //if (dataPhoneDetail.listClassroom[i].Lunch == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Lunch + '" text="' + $('#Lunch').val() + '"> Lunch </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Snack == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Snack + '" text="' + $('#Snack').val() + '"> Snack </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Dinner == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Dinner + '" text="' + $('#Dinner').val() + '"> Dinner </label></td>';
+                    //}
+                    if (dataPhoneDetail.listClassroom[i].Monday == true) {
+                        tr = tr + '<td style="width:20%;><label for="' + Monday + '" text="' + $('#Monday').val() + '"> Monday </label></td>';
+                    }
+                    else {
+                        tr = tr + '<td style="width:20%;><label for="' + Monday + '" text="' + $('#Monday').val() + '">  </label></td>';
+                    }
+                    //if (dataPhoneDetail.listClassroom[i].Tuesday == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Tuesday + '" text="' + $('#Tuesday').val() + '"> Tuesday </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Wednesday == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Wednesday + '" text="' + $('#Wednesday').val() + '"> Wednesday </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Thursday == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Thursday + '" text="' + $('#Thursday').val() + '"> Thursday </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Friday == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Friday + '" text="' + $('#Friday').val() + '"> Friday </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Saturday == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Saturday + '" text="' + $('#Saturday').val() + '"> Saturday </label></td>';
+                    //}
+                    //if (dataPhoneDetail.listClassroom[i].Sunday == true) {
+                    //    tr = tr + '<td style="width:20%;><label for="' + Sunday + '" text="' + $('#Sunday').val() + '"> Sunday </label></td>';
+                    //}
+
+                    // tr = tr + '<td><input  name=' + ClassName + ' class = "form-control" type="text" value="' + dataPhoneDetail.listClassroom[i].ClassName + '" ></td>';
+                    //  tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + Capacity + ' value="' + dataPhoneDetail.listClassroom[i].Capacity + '"></td>';
+                    tr = tr + '<td style="width:17%;><label for="' + Noofseats + '" value="' + Noofseats + '" text="' + $('#Noofseats').val() + '">' + dataPhoneDetail.listClassroom[i].Noofseats + ' </label></td>';
+                    tr = tr + '<td style="width:17%;><label for="' + AvailSeats + '" value="' + AvailSeats + '" text="' + $('#ActualSeats').val() + '">' + dataPhoneDetail.listClassroom[i].ActualSeats + ' </label></td>';
+                    tr = tr + '<td><input type="hidden"  name="' + ClassroomID + '" value="' + dataPhoneDetail.listClassroom[i].ClassroomID + '" /><a href="javascript:void(0)" onclick="RemoveClassroom(this);" accesskey="' + dataPhoneDetail.listClassroom[i].ClassroomID + '" style=" text-decoration:underline;">Delete</a></td></tr>';
+                    $('#gridclassroom > tbody').append(tr);
+
+                    rounds = rounds + 1;
+                }
+            }
+        }
+        function GetClassroom(value) {
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/GetClassroom",
+                type: "POST",
+                data: {
+                    ClassroomID: $(value).attr("accesskey"),
+                    CenterId: $('#CenterId').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditClassroom(data);
+                }
+               , error: function (response) {
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+               }
+            });
+        }
+        function EditClassroom(data) {
+
+            $('#divclass').show();
+            $('#ClassroomID').val(data[0].ClassroomID);
+            $('#RoomName').val(data[0].RoomName);
+            $('#ClassSession').val(data[0].ClassSession);
+            $('#StartTime').val(data[0].StartTime);
+            $('#StopTime').val(data[0].StopTime);
+            $('#ActualSeats').val(data[0].ActualSeats);
+            $('#Noofseats').val(data[0].Noofseats);
+
+
+            //  $('#ODOB').val(data.ODOB);
+            if (data[0].DoubleSession == true)
+                $('#DoubleSession').prop("checked", true);
+            else
+                $('#DoubleSession').prop("checked", false);
+            if (data[0].Monday == true)
+                $('#Monday').prop("checked", true);
+            else
+                $('#Monday').prop("checked", false);
+            if (data[0].Breakfast == true)
+                $('#Breakfast').prop("checked", true);
+            else
+                $('#Breakfast').prop("checked", false);
+            if (data[0].Lunch == true)
+                $('#Lunch').prop("checked", true);
+            else
+                $('#Lunch').prop("checked", false);
+            if (data[0].Snack == true)
+                $('#Snack').prop("checked", true);
+            else
+                $('#Snack').prop("checked", false);
+            if (data[0].Dinner == true)
+                $('#Dinner').prop("checked", true);
+            else
+                $('#Dinner').prop("checked", false);
+        }
+
+        function RemoveClassroom(value) {
+
+            if ($(value).attr("accesskey")) {
+                if ($('#gridclassroom > tbody tr').length > 1) {
+                    BootstrapDialog.confirm('Do you want to delete this classroom?', function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: HostedDir + "/AgencyAdmin/DeleteClassroomInfo",
+                                type: "POST",
+                                data: {
+                                    ClassroomID: $(value).attr("accesskey"),
+                                    CenterId: $('#CenterId').val(),
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+
+                                    if (response == 1) {
+                                        customAlert("Classroom deleted successfully.");
+                                        rounds = 0;
+                                        if ($('#gridclassroom > tbody tr').length > 1) {
+                                            $(value).closest('tr').remove();
+                                        }
+                                        $('#gridclassroom > tbody tr').each(function () {
+                                            var ClassName = "ClassRoom[" + rounds + "].ClassName";
+                                            var Capacity = "ClassRoom[" + rounds + "].Capacity";
+                                            var ClassroomID = "ClassRoom[" + rounds + "].ClassroomID";
+                                            $(this).find('td:eq(0) :input[type="text"]').attr('name', ClassName);
+                                            $(this).find('td:eq(1) :input[type="text"]').attr('name', Capacity);
+                                            $(this).find('td:eq(2)').find(':input').attr('name', ClassroomID);
+                                            rounds = rounds + 1;
+                                        });
+                                    }
+                                }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                            });
+                        }
+                    });
+                }
+
+            }
+            else {
+                rounds = 0;
+                if ($('#gridclassroom > tbody tr').length > 1) {
+                    $(value).closest('tr').remove();
+                }
+                $('#gridclassroom > tbody tr').each(function () {
+                    var ClassName = "ClassRoom[" + rounds + "].ClassName";
+                    var Capacity = "ClassRoom[" + rounds + "].Capacity";
+                    var ClassroomID = "ClassRoom[" + rounds + "].ClassroomID";
+                    $(this).find('td:eq(0) :input[type="text"]').attr('name', ClassName);
+                    $(this).find('td:eq(1) :input[type="text"]').attr('name', Capacity);
+                    $(this).find('td:eq(2)').find(':input').attr('name', ClassroomID);
+                    rounds = rounds + 1;
+                });
+            }
+
+        }
+
+
+        function ShowDiv() {
+            //  $('#divclass').show();
+
+            var numItems = $('.fundservice').length
+            round = numItems;
+
+            var classdiv = '<div id="divclass' + round + '" class="serviceclass"> <div class="col-lg-12"> <h2 class="page-header fundservice">Add Classrooms  <span class="view-btn backto_listspan" id="BackToList">' +
+
+                                    '<a onclick="DeleteClassSecond(this,' + round + ');" style="cursor:pointer;" class="backto_list">Delete</a>' +
+                                '</span> </h2>  </div>' +
+                           ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"><label for="email">Room Name <sup>*</sup> </label>' +
+                           ' <input type="text" name="Classroom[' + round + '].RoomName" class="form-control" id="RoomName" placeholder="Room Name" maxlength="50"> </div> </div>' +
+                             '<div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group">  <label for="email">Class Session <sup>*</sup></label>';
+
+            if ($("#HomeBased").prop("checked")) {
+                classdiv = classdiv + '<select disabled="disabled" class="form-control" id="ClassSession" name="Classroom[' + round + '].ClassSession" onchange="ShowDivRound(this,' + round + ');"><option value="0">Morning</option>  <option value="1">Afternoon</option>' +
+                        '<option value="2">Full Day>6 hours</option> <option value="3">Full working day>10 hours</option> <option selected="selected" value="4">Home Based</option> </select><input name="Classroom[' + round + '].ClassSession" type="hidden" value="4">';
+            }
+            else {
+                classdiv = classdiv + '<select  class="form-control" id="ClassSession" name="Classroom[' + round + '].ClassSession" onchange="ShowDivRound(this,' + round + ');"><option value="0">Morning</option>  <option value="1">Afternoon</option>' +
+                        '<option value="2">Full Day>6 hours</option> <option value="3">Full working day>10 hours</option> <option  value="4">Home Based</option> </select>';
+            }
+
+            classdiv = classdiv + '</div> </div>' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart">  <div class="form-group" >  <label for="email">Start Time<sup>*</sup></label> ' +
+            '<input type="text" name="Classroom[' + round + '].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50"> </div></div>' +
+               '  <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop"><div class="form-group" >  <label for="email">Stop Time<sup>*</sup></label>' +
+               ' <input type="text" name="Classroom[' + round + '].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50"> </div>  </div>' +
+                 ' <div class="col-lg-6 col-md-6 col-sm-12" id="Double' + round + '"><div class="form-group" > <label>Double Session ? </label><div class="cont-sz">' +
+                 '<div class="col-xs-6 col-sm-4">   <label class="checkbox-inline"> ' +
+                 '<input id="DoubleSession" type="checkbox" value="true" name="Classroom[' + round + '].DoubleSession" data-val="true" /> <span>Yes</span>' +
+                 '</label> </div> </div> </div> </div>' +
+                 '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>' +
+                                    '<select class="form-control" id="TimeBetweenMeals" name="Classroom[' + round + '].TimeBetweenMeals" ><option value="1">10</option>' +
+                                        '<option value="2">15</option><option value="3">20</option><option value="4">25</option><option value="5">30</option></select></div></div>' +
+                // '<div class="col-lg-6 col-md-6 col-sm-12" id="Meal' + round + '"> <div class="form-group" id="divmeal">   <label>Is this meal served? <sup style="color:red;">*</sup></label>' +
+                // ' <div class="cont-sz"><div class="col-xs-12 col-sm-8"> <label class="checkbox-inline">' +
+                //     ' <input id="Breakfast" type="checkbox" value="true" name="Classroom[' + round + '].Breakfast" data-val="true" />   <span>Breakfast</span>' +
+                //' </label>  </div>' + '  <div class="col-xs-12 col-sm-8"><label class="checkbox-inline"> <input id="Lunch" type="checkbox" value="true" name="Classroom[' + round + '].Lunch" data-val="true" />' +
+                //' <span>Lunch</span> </label></div>' + '  <div class="col-xs-12 col-sm-8"> <label class="checkbox-inline">' +
+                //'<input id="Snack" type="checkbox" value="true" name="Classroom[' + round + '].Snack" data-val="true" />  <span>Snack</span></label> </div>' +
+                // ' <div class="col-xs-12 col-sm-8">  <label class="checkbox-inline">   <input id="Dinner" type="checkbox" value="true" name="Classroom[' + round + '].Dinner" data-val="true" />' +
+                //    '<span>Dinner</span> </label></div></div></div></div>' +
+
+              '<div class="col-lg-6 col-md-6 col-sm-12 rmhombased">&nbsp;</div>' +
+                '<div class="clearfix"></div>' +
+                    '<div class="col-lg-6 col-md-6 col-sm-12 " id="Meal ' + round + '"><div class="form-group" id="divmeal"><label>Is this meal served? <sup style="color:red;">*</sup></label><div class="cont-sz">' +
+'<div class="col-lg-12 col-md-12 col-sm-12">' +
+'<label class="checkbox-inline"><input id="Breakfast" type="checkbox" value="true" name="Classroom[' + round + '].Breakfast" data-val="true" /><span>Breakfast</span></label><div class="col-sm-6"><input type="text" name="Classroom[' + round + '].BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50"></div></div>' +
+ '<div class="col-lg-12 col-md-12 col-sm-12"><label class="checkbox-inline"><input id="Lunch" type="checkbox" value="true" name="Classroom[' + round + '].Lunch" data-val="true" />' +
+' <span>Lunch</span></label><div class="col-sm-6"><input type="text" name="Classroom[' + round + '].LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">' +
+  '</div></div> <div class="col-lg-12 col-md-12 col-sm-12"><label class="checkbox-inline">' +
+  '<input id="Snack" type="checkbox" value="true" name="Classroom[' + round + '].Snack" data-val="true" />' +
+  ' <span>Snack</span></label><div class="col-sm-6"> <input type="text" name="Classroom[' + round + '].SnackFromTime" class="form-control" id="SnackFromTime" placeholder="From Time" maxlength="50">' +
+ ' </div></div>' +
+    '<div class="col-lg-12 col-md-12 col-sm-12">' +
+  '<label class="checkbox-inline"><input id="Dinner" type="checkbox" value="true" name="Classroom[' + round + '].Dinner" data-val="true" />' +
+   '<span>Dinner</span></label><div class="col-sm-6"><input type="text" name="Classroom[' + round + '].DinnerFromTime" class="form-control" id="DinnerFromTime" placeholder="From Time" maxlength="50">' +
+   '</div></div></div></div></div>'
+              +
+                    '<div class="col-lg-6 col-md-6 col-sm-12 " id="Operational' + round + '"> <div class="form-group" id="divdays">' +
+                    ' <label>Class operational days? <sup style="color:red;">*</sup></label> <div class="cont-sz">  <div class="col-xs-6 col-sm-4">' +
+                '  <label class="checkbox-inline">  <input id="Monday" type="checkbox" value="true" name="Classroom[' + round + '].Monday" data-val="true" />' +
+                '  <span>Monday</span>  </label> </div>  <div class="col-xs-6 col-sm-4">  <label class="checkbox-inline">' +
+                    '<input id="Tuesday" type="checkbox" value="true" name="Classroom[' + round + '].Tuesday" data-val="true" /> <span>Tuesday</span></label></div>' +
+                    '  <div class="col-xs-6 col-sm-4"> <label class="checkbox-inline">' +
+                      ' <input id="Wednesday" type="checkbox" value="true" name="Classroom[' + round + '].Wednesday" data-val="true" />' +
+                         ' <span>Wednesday</span></label>  </div> <div class="col-xs-6 col-sm-4"> <label class="checkbox-inline">' +
+                          ' <input id="Thursday" type="checkbox" value="true" name="Classroom[' + round + '].Thursday" data-val="true" />' +
+                          '  <span>Thursday</span>   </label> </div> <div class="col-xs-6 col-sm-4">  <label class="checkbox-inline">' +
+                            '  <input id="Friday" type="checkbox" value="true" name="Classroom[' + round + '].Friday" data-val="true" />' +
+                         ' <span>Friday</span> </label>  </div> <div class="col-xs-6 col-sm-4"><label class="checkbox-inline">' +
+                       '<input id="Saturday" type="checkbox" value="true" name="Classroom[' + round + '].Saturday" data-val="true" />' +
+                          '   <span>Saturday</span></label> </div>  <div class="col-xs-6 col-sm-4">' +
+                            '  <label class="checkbox-inline">  <input id="Sunday" type="checkbox" value="true" name="Classroom[' + round + '].Sunday" data-val="true" />' +
+                             '<span>Sunday</span> </label></div></div></div></div>' +
+                            '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Number of seats</label>' +
+                 ' <input type="text" onblur="Checknumeric(this);" readonly="readonly" name="Classroom[' + round + '].Noofseats" class="form-control" id="Noofseats" placeholder="Number of Seats" maxlength="50">' +
+                   '</div></div>' +
+                    ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Actual Seats Used</label>' +
+                '<input type="text" name="Classroom[' + round + '].ActualSeats" class="form-control" id="ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="true">' +
+                '</div></div>' +
+                '<input id ="ClassroomID' + round + '" type="hidden" name="Classroom[' + round + '].ClassroomID" /></div>';
+            $(classdiv).insertAfter('#addCategoryService');
+            $("input[id^='StartTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("input[id^='StopTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+
+            $("input[id^='BreakfastFromTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("input[id^='BreakfastToTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+
+            $("input[id^='LunchFromTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("input[id^='LunchToTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+
+            $("input[id^='SnackFromTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("input[id^='SnackToTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+
+            $("input[id^='DinnerFromTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("input[id^='DinnerToTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("div[id^='divclass'] select").val("");
+            if (!$("#HomeBased").prop("checked")) {
+
+                $("[name='Classroom[" + round + "].ClassSession']").val('');
+            }
+            if ($("#HomeBased").prop("checked")) {
+                $("#ClassStart" + round).hide();
+                $("#ClassStop" + round).hide();
+                $("#Double" + round).hide();
+                $("#Meal" + round).hide();
+                $("#Operational" + round).hide();
+            }
+            else {
+                $("#ClassStart" + round).show();
+                $("#ClassStop" + round).show();
+                $("#Double" + round).show();
+                $("#Meal" + round).show();
+                $("#Operational" + round).show();
+            }
+            round = round + 1;
+            counts = round;
+        }
+        function checkNoOfSeats(value) {
+            var isValid = true;
+
+            if (($('#Noofseats').val()) < ($('#ActualSeats').val())) {
+                isValid = false;
+                customAlert("Actual seats used cannot be greater than number of seats.");
+                plainValidation($('#ActualSeats'));
+                $('#ActualSeats').val("");
+                return isValid;
+            }
+            else {
+                isValid = true;
+            }
+            return isValid;
+        }
+        //Changes
+        function HideControls() {
+            if ($('#ClassSession').val() == "4") {
+                $('#ClassStart').hide();
+                $('#ClassStop').hide();
+                $('#Double').hide();
+                $('#Meal').hide();
+                $('#Operational').hide();
+            }
+            else {
+                $('#ClassStart').show();
+                $('#ClassStop').show();
+                $('#Double').show();
+                $('#Meal').show();
+                $('#Operational').show();
+            }
+        }
+
+        function ShowDivRound(value, round) {
+            if ($(value).val() == "4") {
+                var ClassStart = 'ClassStart' + round;
+                $("#" + ClassStart).hide();
+                var ClassStop = 'ClassStop' + round;
+                $("#" + ClassStop).hide();
+                var Double = 'Double' + round;
+                $("#" + Double).hide();
+                var Meal = 'Meal' + round;
+                $("#" + Meal).hide();
+                var Operational = 'Operational' + round;
+                $("#" + Operational).hide();
+            }
+            else {
+                var ClassStart = 'ClassStart' + round;
+                $("#" + ClassStart).show();
+                var ClassStop = 'ClassStop' + round;
+                $("#" + ClassStop).show();
+                var Double = 'Double' + round;
+                $("#" + Double).show();
+                var Meal = 'Meal' + round;
+                $("#" + Meal).show();
+                var Operational = 'Operational' + round;
+                $("#" + Operational).show();
+            }
+        }
+        function HideControlView(value, round) {
+
+            if ($(value).val() == "4") {
+                var ClassStart = 'ClassStart_' + round;
+                $("#" + ClassStart).hide();
+                var ClassStop = 'ClassStop_' + round;
+                $("#" + ClassStop).hide();
+                var Double = 'Double_' + round;
+                $("#" + Double).hide();
+                var Meal = 'Meal_' + round;
+                $("#" + Meal).hide();
+                var Operational = 'Operational_' + round;
+                $("#" + Operational).hide();
+
+            }
+            else {
+                var ClassStart = 'ClassStart_' + round;
+                $("#" + ClassStart).show();
+                var ClassStop = 'ClassStop_' + round;
+                $("#" + ClassStop).show();
+                var Double = 'Double_' + round;
+                $("#" + Double).show();
+                var Meal = 'Meal_' + round;
+                $("#" + Meal).show();
+                var Operational = 'Operational_' + round;
+                $("#" + Operational).show();
+            }
+        }
+        function updatename() {
+            var length = $("div[id^='divclass']").length;
+            for (var i = 0; i < length; i++) {
+                $('#RoomName')[i].name = "Classroom[" + i + "].RoomName";
+                $('#ClassSession')[i].name = "Classroom[" + i + "].ClassSession";
+                $('#StartTime')[i].name = "Classroom[" + i + "].StartTime";
+                $('#StopTime')[i].name = "Classroom[" + i + "].StopTime";
+                $('#DoubleSession')[i].name = "Classroom[" + i + "].DoubleSession";
+                $('#TimeBetweenMeals')[i].name = "Classroom[" + i + "].TimeBetweenMeals";
+                $('#Breakfast')[i].name = "Classroom[" + i + "].Breakfast";
+                $('#BreakfastFromTime')[i].name = "Classroom[" + i + "].BreakfastFromTime";
+                $('#Lunch')[i].name = "Classroom[" + i + "].Lunch";
+                $('#LunchFromTime')[i].name = "Classroom[" + i + "].LunchFromTime";
+                $('#Snack')[i].name = "Classroom[" + i + "].Snack";
+                $('#SnackFromTime')[i].name = "Classroom[" + i + "].SnackFromTime";
+                //$('#Snack2')[i].name = "Classroom[" + i + "].Snack2";
+                //$('#Snack2FromTime')[i].name = "Classroom[" + i + "].Snack2FromTime";
+                $('#Dinner')[i].name = "Classroom[" + i + "].Dinner";
+                $('#DinnerFromTime')[i].name = "Classroom[" + i + "].DinnerFromTime";
+                $('#Monday')[i].name = "Classroom[" + i + "].Monday";
+                $('#Tuesday')[i].name = "Classroom[" + i + "].Tuesday";
+                $('#Wednesday')[i].name = "Classroom[" + i + "].Wednesday";
+                $('#Thursday')[i].name = "Classroom[" + i + "].Thursday";
+                $('#Friday')[i].name = "Classroom[" + i + "].Friday";
+                $('#Saturday')[i].name = "Classroom[" + i + "].Saturday";
+                $('#Sunday')[i].name = "Classroom[" + i + "].Sunday";
+                $('#Noofseats')[i].name = "Classroom[" + i + "].Noofseats";
+                $('#ActualSeats')[i].name = "Classroom[" + i + "].ActualSeats";
+                $('#ClassroomID')[i].name = "Classroom[" + i + "].ClassroomID";
+                //$("div[id^='divclass'] a")[i].attributes.onclick.nodeValue = "DeleteStep(this, " + i + ", " + $('.Steps #StepsID')[i].val() + ")";
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+        function DeleteClass(value) {
+            //$("div[id^='divclass']")
+            //$('#divclass').remove();
+            if ($("div[id^='divclass']").length > 1) {
+                $('#divclass').remove();
+                updatename();
+            }
+            else {
+                //clear controls
+                $("div[id^='divclass'] input").val("");
+                $("div[id^='divclass'] select").val("");
+            }
+        }
+        function DeleteClassSecond(value, round) {
+            var divclass = 'divclass' + round;
+            $("#" + divclass).remove();
+            updatename();
+        }
+        function DeleteClassView(value, round, ClassroomId) {
+            var divclass = 'divedit_' + round;
+            var ActualSeats = 'ActualSeats_' + round;
+            if ($("#" + ActualSeats).val() == "0") {
+                BootstrapDialog.confirm('Do you want to delete this Classroom ?', function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: HostedDir + "/AgencyAdmin/Deleteclass",
+                            type: "POST",
+                            data: {
+                                classId: ClassroomId
+                            },
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            success: function (response) {
+                                if (response == 1) {
+                                    customAlert("Classroom deleted successfully. ");
+                                    $("#" + divclass).remove();
+                                    updatename();
+                                }
+                            }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                        });
+                    }
+                });
+            }
+            else {
+                customAlert("Actual Seats Used can't delete classroom.");
+            }
+        }
+        //12092016
+        function SetClassroomsession() {
+            count = counts;
+            if ($("#HomeBased").prop("checked")) {
+                $("[name='Classroom[0].ClassSession']").val("4");
+                $("select[name='Classroom[0].ClassSession']").attr("disabled", true);
+                $('#ClassStart').hide();
+                $('#ClassStop').hide();
+                $('#Double').hide();
+                $('#Meal').hide();
+                $('#Operational').hide();
+                //debugger;
+                $('.rmhombased').hide();
+                var d = $("div[id^='Meal']").length;
+                $("div[id^='Meal']").each(function (i) {
+                    $(this).hide();
+                });
+                //$('#Meal').hide();
+                while (count >= 0) {
+                    $("[name='Classroom[" + count + "].ClassSession']").val("4");
+                    $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", true);
+                    $("#ClassStart" + count).hide();
+                    $("#ClassStop" + count).hide();
+                    $("#Double" + count).hide();
+                    $("#Meal" + count).hide();
+                    $("#Operational" + count).hide();
+                    $("[name='Classroom[" + count + "].ClassSession']").val("4");
+                    $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", true);
+                    $("#ClassStart_" + count).hide();
+                    $("#ClassStop_" + count).hide();
+                    $("#Double_" + count).hide();
+                    $("#Meal_" + count).hide();
+                    $("#Operational_" + count).hide();
+                    count = count - 1;
+                }
+            }
+            else {
+                //Added on 8Feb2017
+                $('#ClassStart').show();
+                $('#ClassStop').show();
+                $('#Double').show();
+                $('#Meal').show();
+                $('#Operational').show();
+                //End
+                $('#ClassSession').val('');
+                //  $("[name='Classroom[0].ClassSession']").val('');
+                $("select[name='Classroom[0].ClassSession']").attr("enabled", true);
+                //debugger;
+                $('.rmhombased').show();
+                var d = $("div[id^='Meal']").length;
+                $("div[id^='Meal']").each(function (i) {
+                    $(this).show();
+                });
+                //$("[name='Classroom[" + count + "].ClassSession']").val("");
+                while (count >= 0) {
+                    //  $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", false);
+                    //Added on 8Feb2017
+                    // $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", false);
+                    $("#ClassStart" + count).show();
+                    $("#ClassStop" + count).show();
+                    $("#Double" + count).show();
+                    $("#Meal" + count).show();
+                    $("#Operational" + count).show();
+                    $("[name='Classroom[" + count + "].ClassSession']").val('');
+                    // $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", true);
+                    $("#ClassStart_" + count).show();
+                    $("#ClassStop_" + count).show();
+                    $("#Double_" + count).show();
+                    $("#Meal_" + count).show();
+                    $("#Operational_" + count).show();
+                    count = count - 1;
+                }
+            }
+        }
+
+
+
+    </script>
+}
+@section MainContentHolder{
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                @ViewData["Title"].ToString()
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <a href="~/AgencyAdmin/centerlist" class="backto_list">Back to list</a>
+                </span>
+
+            </h2>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                    <div class="row">
+                        @Html.HiddenFor(m => m.AgencyId, new { id = "HiddenAgencyId" })
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Agency<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AgencyName, new { placeholder = "Agency", id = "AgencyName", maxlength = "100", @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Center Name <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.CenterName, new { placeholder = "Center Name", id = "CenterName", maxlength = "100", @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Quality Stars <sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> StepUpToQualityStars_list = new List<SelectListItem>();
+                                    StepUpToQualityStars_list.Add(new SelectListItem() { Text = "0", Value = "0" });
+                                    StepUpToQualityStars_list.Add(new SelectListItem() { Text = "1", Value = "1" });
+                                    StepUpToQualityStars_list.Add(new SelectListItem() { Text = "2", Value = "2" });
+                                    StepUpToQualityStars_list.Add(new SelectListItem() { Text = "3", Value = "3" });
+                                    StepUpToQualityStars_list.Add(new SelectListItem() { Text = "4", Value = "4" });
+                                    StepUpToQualityStars_list.Add(new SelectListItem() { Text = "5", Value = "5" });
+                                }
+                                @Html.DropDownListFor(m => m.StepUpToQualityStars, new SelectList(StepUpToQualityStars_list, "Value", "Text", Model.StepUpToQualityStars), new { id = "StepUpToQualityStars", Name = "StepUpToQualityStars", @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">NAEYC Certified <sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> NAEYCCertified_list = new List<SelectListItem>();
+                                    NAEYCCertified_list.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                    NAEYCCertified_list.Add(new SelectListItem() { Text = "No", Value = "0" });
+
+                                }
+                                @Html.DropDownListFor(m => m.NAEYCCertified, new SelectList(NAEYCCertified_list, "Value", "Text", Model.NAEYCCertified), new { id = "NAEYCCertified", Name = "NAEYCCertified", @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Address <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Address, new { placeholder = "Address", id = "Address", maxlength = "100", @class = "form-control" })
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Zip Code <sup>*</sup> </label>
+                                @Html.TextBoxFor(m => m.Zip, new { @class = "form-control", placeholder = "Zip Code", id = "Zip", maxlength = "5", onblur = "checkZipCode(this);" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">City <sup>*</sup></label>
+                                @*@Html.TextBoxFor(m => m.City, new { @class = "form-control", placeholder = "City", id = "City", onblur = "Changefirstchar(this);", maxlength = "50" })*@
+                                <select id="City" name="City" class="form-control">
+
+                                    <option value="@Model.City">@Model.City</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">State <sup>*</sup> </label>
+                                @Html.TextBoxFor(m => m.State, new { @class = "form-control", placeholder = "State", id = "State", maxlength = "50", @readonly = "readonly" })
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" style="min-height: 45px">
+                            <div class="form-group">
+                                <label for="loginallowed">Admin Site <sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> admin_list = new List<SelectListItem>();
+                                    admin_list.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                    admin_list.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                }
+                                @Html.DropDownListFor(m => m.AdminSite, new SelectList(admin_list, "Value", "Text", Model.AdminSite), new { @class = "form-control", onchange = "hidediv(this);" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Time Zone <sup>*</sup></label>
+                                @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", })
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12 " id="HideHomeBased">
+                            <div class="form-group">
+                                <label for="pwd">Home Based </label>
+                                @Html.CheckBoxFor(m => m.HomeBased, new { @class = "minimal", onchange = "SetClassroomsession();" })
+
+                            </div>
+                        </div>
+
+                        <div id="Hideclassroomdiv">
+
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="form-group">
+
+                                    <div id="plussign">
+                                        <a href="javascript:void(0)" onclick="ShowDiv();">Add Classroom Details<i class="fa fa-plus-square"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="addCategoryService"></div>
+                            <div id="divclass" class="adddivspace serviceclass">
+                                @*style="display:none;"*@
+                                <div class="col-lg-12">
+                                    <h2 class="page-header fundservice">
+                                        Add Classrooms
+                                        <span class="view-btn backto_listspan" id="BackToList">
+
+                                            <a onclick="DeleteClass(this);" style="cursor: pointer;" class="backto_list">Delete</a>
+                                        </span>
+                                    </h2>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Room Name <sup>*</sup> </label>
+                                        <input type="text" name="Classroom[0].RoomName" class="form-control" id="RoomName" placeholder="Room Name" maxlength="50">
+                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().RoomName, new { @class = "form-control", placeholder = "Room Name", id = "RoomName", maxlength = "50", tabIndex = "7" })*@
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Class Session <sup>*</sup></label>
+                                        <select class="form-control" id="ClassSession" name="Classroom[0].ClassSession" onchange="HideControls();">
+                                            <option value="0">Morning</option>
+                                            <option value="1">Afternoon</option>
+                                            <option value="2">Full Day>6 hours</option>
+                                            <option value="3">Full working day>10 hours</option>
+                                            <option value="4">Home Based</option>
+                                        </select>
+                                        <input name="Classroom[0].ClassSession" value="" type="hidden" />
+
+                                        @*@{
+                                                List<SelectListItem> classlist = new List<SelectListItem>();
+                                                classlist.Add(new SelectListItem() { Text = "Morning", Value = "0" });
+                                                classlist.Add(new SelectListItem() { Text = "Afternoon", Value = "1" });
+                                                classlist.Add(new SelectListItem() { Text = "Full Day>6 hours", Value = "2" });
+                                                classlist.Add(new SelectListItem() { Text = "Full working day>10 hours", Value = "3" });
+
+                                            }
+                                            @Html.DropDownListFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().ClassSession, new SelectList(classlist, "Value", "Text"), new { @class = "form-control", tabIndex = "9" })*@
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart">
+                                    <div class="form-group">
+                                        <label for="email">Start Time<sup>*</sup></label>
+                                        <input type="text" name="Classroom[0].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50">
+                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StartTime, new { placeholder = "Start Time", id = "StartTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop">
+                                    <div class="form-group">
+                                        <label for="email">Stop Time<sup>*</sup></label>
+                                        <input type="text" name="Classroom[0].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50">
+                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12" id="Double">
+                                        <div class="form-group">
+                                            <label>Double Session ? </label>
+                                            <div class="cont-sz">
+                                                <div class="col-xs-6 col-sm-4">
+                                                    <label class="checkbox-inline">
+                                                        <input id="DoubleSession" type="checkbox" value="true" name="Classroom[0].DoubleSession" data-val="true" />
+                                                        @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().DoubleSession)*@@*, new { id = "DoubleSession", Name = "DoubleSession", @class = "minimal", tabIndex = "2", @style = "width:8%;" })*@
+                                                        <span>Yes</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>
+                                            <select class="form-control" id="TimeBetweenMeals" name="Classroom[0].TimeBetweenMeals">
+
+                                                <option value="1">10</option>
+                                                <option value="2">15</option>
+                                                <option value="3">20</option>
+                                                <option value="4">25</option>
+                                                <option value="5">30</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal">
+
+                                    <div class="form-group" id="divmeal">
+
+                                        @*atul*@
+                                        <label>Is this meal served? <sup style="color: red;">*</sup></label>
+
+                                        <div class="cont-sz">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <label class="checkbox-inline">
+                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[0].Breakfast" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Breakfast, new { id = "Breakfast", name = "Breakfast" })*@
+                                                    @*//, new { id = "Breakfast", Name = "Breakfast", @class = "minimal", tabIndex = "1", @style = "width:5%;" })*@
+                                                    <span>Breakfast</span>
+                                                </label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" name="Classroom[0].BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50">
+                                                    @* <input type="text" name="Classroom[0].BreakfastToTime" class="form-control" id="BreakfastToTime" placeholder="To Time" maxlength="50">*@
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <label class="checkbox-inline">
+                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[0].Lunch" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Lunch, new { id = "Lunch", name = "Lunch" })*@
+                                                    @*//, new { id = "Lunch", Name = "Lunch", @class = "minimal", tabIndex = "2" })*@
+                                                    <span>Lunch</span>
+                                                </label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" name="Classroom[0].LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">
+                                                    @*<input type="text" name="Classroom[0].LunchToTime" class="form-control" id="LunchToTime" placeholder="To Time" maxlength="50">*@
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <label class="checkbox-inline">
+                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[0].Snack" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Snack, new { id = "Snack", name = "Snack" })*@
+                                                    @*//new { id = "Snack", Name = "Snack", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
+                                                    <span>Snack1</span>
+                                                </label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" name="Classroom[0].SnackFromTime" class="form-control" id="SnackFromTime" placeholder="From Time" maxlength="50">
+                                                    @* <input type="text" name="Classroom[0].SnackToTime" class="form-control" id="SnackToTime" placeholder="To Time" maxlength="50">*@
+                                                </div>
+                                            </div>
+                                            @*<div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <label class="checkbox-inline">
+                                                        <input id="Snack2" type="checkbox" value="true" name="Classroom[0].Snack2" data-val="true" />
+
+                                                        <span>Snack2</span>
+                                                    </label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" name="Classroom[0].Snack2FromTime" class="form-control" id="Snack2FromTime" placeholder="From Time" maxlength="50">
+
+                                                    </div>
+                                                </div>*@
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <label class="checkbox-inline">
+                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[0].Dinner" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Dinner, new { id = "Dinner", name = "Dinner" })*@
+                                                    @*, new { id = "Dinner", Name = "Dinner", @class = "minimal", tabIndex = "4" })*@
+                                                    <span>Dinner</span>
+                                                </label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" name="Classroom[0].DinnerFromTime" class="form-control" id="DinnerFromTime" placeholder="From Time" maxlength="50">
+                                                    @*<input type="text" name="Classroom[0].DinnerToTime" class="form-control" id="DinnerToTime" placeholder="To Time" maxlength="50">*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational">
+
+                                    <div class="form-group" id="divdays">
+
+                                        <label>Class operational days? <sup style="color: red;">*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Monday" type="checkbox" value="true" name="Classroom[0].Monday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Monday, false)*@
+                                                    @*, new { id = "Monday", Name = "Monday", @class = "minimal", tabIndex = "1", @style = "width:5%;" })*@
+                                                    <span>Monday</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Tuesday" type="checkbox" value="true" name="Classroom[0].Tuesday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Tuesday, false)*@
+                                                    @*, new { id = "Tuesday", Name = "Tuesday", @class = "minimal", tabIndex = "2" })*@
+                                                    <span>Tuesday</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Wednesday" type="checkbox" value="true" name="Classroom[0].Wednesday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Wednesday, false)*@
+                                                    @*, new { id = "Wednesday", Name = "Wednesday", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
+                                                    <span>Wednesday</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Thursday" type="checkbox" value="true" name="Classroom[0].Thursday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Thursday, false)*@
+                                                    @*, new { id = "Thursday", Name = "Thursday", @class = "minimal", tabIndex = "4" })*@
+                                                    <span>Thursday</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Friday" type="checkbox" value="true" name="Classroom[0].Friday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Friday, false)*@
+                                                    @*, new { id = "Friday", Name = "Friday", @class = "minimal", tabIndex = "4" })*@
+                                                    <span>Friday</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Saturday" type="checkbox" value="true" name="Classroom[0].Saturday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Saturday, false)*@
+                                                    @*, new { id = "Saturday", Name = "Saturday", @class = "minimal", tabIndex = "4" })*@
+                                                    <span>Saturday</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-4">
+                                                <label class="checkbox-inline">
+                                                    <input id="Sunday" type="checkbox" value="true" name="Classroom[0].Sunday" data-val="true" />
+                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Sunday, false)*@
+                                                    @*new { id = "Sunday", Name = "Sunday", @class = "minimal", tabIndex = "4" })*@
+                                                    <span>Sunday</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 hodiv">
+                                    <div class="form-group">
+                                        <label for="email">Number of seats</label>
+                                        <input type="text" name="Classroom[0].Noofseats" onblur="Checknumeric(this);" readonly="readonly" class="form-control" id="Noofseats" placeholder="Number of Seats" maxlength="50">
+                                      
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 hodiv">
+                                    <div class="form-group">
+                                        <label for="email">Actual Seats Used</label>
+                                        <input type="text" name="Classroom[0].ActualSeats" class="form-control" id="ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="readonly">
+                                      
+                                    </div>
+                                </div>
+
+
+
+
+
+
+                              
+
+                                <div class="row" style="display: none;">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="btnwrp_subcal">
+                                            <button id="btnSubmitClassroom" type="button" class="my-btn" onclick="Addclassroom();">Save</button>
+                                            <button id="btnExitClassroom" class="my-btn" type="button">Exit</button>
+                                            <div class="clear"></div>
+                                        </div>
+                                        <!--btnwrp_subcal--->
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" style="display: none;">
+                                <div class="table-responsive">
+                                    <table class="table table_size" id="gridclassroom">
+                                        <thead style="cursor: pointer;">
+                                            <tr>
+                                                <th id="thIN">Room Name</th>
+                                               
+                                                <th id="thIN">Class Session</th>
+                                                <th id="thIN">Start Time</th>
+                                                <th id="thIN">Stop Time</th>
+                                                <th id="thIN">Double Session</th>
+                                                <th id="thIN">Meal Served</th>
+                                                <th id="thIN">Operational Days</th>
+                                                <th id="thIN">No of Seats</th>
+                                                <th id="thIN">Actual Seats</th>
+                                                <th id="thSN">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                    <div id="div1" style="text-align: center; margin-left: 36%;">
+                                        <label>No result found.</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div id="divedit" class="adddivspace serviceclass">
+                                    @{
+                                        int i = 0;
+
+                                    }
+                                    @if (@ViewBag.mode == 1)
+                                    {
+
+                                        foreach (var item in Model.Classroom)
+
+                                        //   foreach (var item in ViewBag.FundSourceData)
+                                        {
+                                            <div id="divedit_@i">
+                                                <div class="col-lg-12">
+                                                    <h2 class="page-header fundservice">
+                                                        Add Classrooms
+                                                        <span class="view-btn backto_listspan" id="BackToList">
+
+                                                            <a onclick="DeleteClassView(this,'@i','@item.ClassroomID');" style="cursor:pointer;" class="backto_list">Delete</a>
+                                                        </span>
+
+                                                    </h2>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="email">Room Name <sup>*</sup> </label>
+                                                        <input type="text" name="Classroom[@i].RoomName" class="form-control" id="RoomName" value="@item.RoomName" placeholder="Room Name" maxlength="50">
+                                                     
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="email">Class Session <sup>*</sup></label>
+                                                        <select class="form-control" id="Classroom[@i].ClassSession" name="Classroom[@i].ClassSession" onchange="HideControlView(this,'@i');">
+                                                            @if (@item.ClassSession.ToString() == "0")
+                                                            {
+                                                                <option value="0" selected="selected">Morning</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="0">Morning</option>
+                                                            }
+                                                            @if (@item.ClassSession.ToString() == "1")
+                                                            {
+                                                                <option value="1" selected="selected">Afternoon</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="1">Afternoon</option>
+                                                            }
+                                                            @if (@item.ClassSession.ToString() == "2")
+                                                            {
+                                                                <option value="2" selected="selected">Full Day>6 hours</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="2">Full Day>6 hours</option>
+                                                            }
+                                                            @if (@item.ClassSession.ToString() == "3")
+                                                            {
+                                                                <option value="3" selected="selected">Full working day>10 hours</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="3">Full working day>10 hours</option>
+                                                            }
+                                                            @if (@item.ClassSession.ToString() == "4")
+                                                            {
+                                                                <option value="4" selected="selected">Home Based</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="4">Home Based</option>
+                                                            }
+                                                        </select>
+
+                                                        <input name="Classroom[@i].ClassSession" type="hidden" value='@item.ClassSession'>
+                                                    </div>
+                                                </div>
+                                                @if (@item.ClassSession.ToString() != "4")
+                                                {
+                                                    <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_@i">
+                                                        <div class="form-group">
+                                                            <label for="email">Start Time<sup>*</sup></label>
+                                                            <input type="text" name="Classroom[@i].StartTime" class="form-control" id="StartTime" value="@item.StartTime" placeholder="Start Time" maxlength="50">
+                                                           
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_@i">
+                                                        <div class="form-group">
+                                                            <label for="email">Stop Time<sup>*</sup></label>
+                                                            <input type="text" name="Classroom[@i].StopTime" class="form-control" id="StopTime" value="@item.StopTime" placeholder="Stop Time" maxlength="50">
+                                                           
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12" id="Double_@i">
+                                                        <div class="form-group">
+                                                            <label>Double Session ? </label>
+                                                            <div class="cont-sz">
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.DoubleSession)
+                                                                        {
+                                                                            <input id="DoubleSession" checked="checked" type="checkbox" value="@item.DoubleSession" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="DoubleSession" type="checkbox" value="true" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                        }
+                                                                        <span>Yes</span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                                        <div class="form-group">
+                                                            <label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>
+                                                            <select class="form-control" id="TimeBetweenMeals" name="Classroom['@i'].TimeBetweenMeals">
+                                                                @if (item.TimeBetweenMeals == 1)
+                                                                {
+                                                                    <option value="1" selected="selected">10</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="1">10</option>
+                                                                }
+                                                                @if (item.TimeBetweenMeals == 2)
+                                                                {
+                                                                    <option value="2" selected="selected">15</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="2">15</option>
+                                                                }
+                                                                @if (item.TimeBetweenMeals == 3)
+                                                                {
+                                                                    <option value="3" selected="selected">20</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="3">20</option>
+                                                                }
+                                                                @if (item.TimeBetweenMeals == 4)
+                                                                {
+                                                                    <option value="4" selected="selected">25</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="4">25</option>
+                                                                }
+                                                                @if (item.TimeBetweenMeals == 5)
+                                                                {
+                                                                    <option value="5" selected="selected">30</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="5">30</option>
+                                                                }
+
+
+
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    </div>
+                                                    <div class="clearfix"></div>
+
+                                                    <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_@i">
+
+                                                        <div class="form-group" id="divmeal">
+
+                                                            @*atul*@
+                                                            <label>Is this meal served? <sup style="color: red;">*</sup></label>
+
+                                                            <div class="cont-sz">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Breakfast)
+                                                                        {
+                                                                            <input id="Breakfast" type="checkbox" checked="checked" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                        }
+
+                                                                        <span>Breakfast</span>
+                                                                    </label>
+                                                                    <div class="col-sm-6">
+                                                                        <input type="text" name="Classroom[@i].BreakfastFromTime" value="@item.BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50">
+                                                                      
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Lunch)
+                                                                        {
+                                                                            <input id="Lunch" checked="checked" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                        }
+
+                                                                        <span>Lunch</span>
+                                                                    </label>
+                                                                    <div class="col-sm-6">
+                                                                        <input type="text" name="Classroom[@i].LunchFromTime" value="@item.LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">
+                                                                      
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Snack)
+                                                                        {
+                                                                            <input id="Snack" checked="checked" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                        }
+                                                                        <span>Snack</span>
+                                                                    </label>
+                                                                    <div class="col-sm-6">
+                                                                        <input type="text" name="Classroom[@i].SnackFromTime" class="form-control" value="@item.SnackFromTime" id="SnackFromTime" placeholder="From Time" maxlength="50">
+                                                                       
+                                                                    </div>
+                                                                </div>
+                                                               
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Dinner)
+                                                                        {
+                                                                            <input id="Dinner" checked="checked" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                        }
+                                                                        <span>Dinner</span>
+                                                                    </label>
+                                                                    <div class="col-sm-6">
+                                                                        <input type="text" name="Classroom[@i].DinnerFromTime" class="form-control" value="@item.DinnerFromTime" id="DinnerFromTime" placeholder="From Time" maxlength="50">
+                                                                        @* <input type="text" name="Classroom[@i].DinnerToTime"  class="form-control"  value ="@item.DinnerToTime"   id="DinnerToTime" placeholder="To Time" maxlength="50">*@
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                   
+                                                    <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_@i">
+
+                                                        <div class="form-group" id="divdays">
+
+                                                            <label>Class operational days? <sup style="color: red;">*</sup></label>
+                                                            <div class="cont-sz">
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Monday)
+                                                                        {
+                                                                            <input id="Monday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                        }
+                                                                        <span>Monday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Tuesday)
+                                                                        {
+                                                                            <input id="Tuesday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                        }
+                                                                        <span>Tuesday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Wednesday)
+                                                                        {
+                                                                            <input id="Wednesday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                        }
+                                                                        <span>Wednesday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Thursday)
+                                                                        {
+                                                                            <input id="Thursday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                        }
+                                                                        <span>Thursday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Friday)
+                                                                        {
+                                                                            <input id="Friday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                        }
+                                                                        <span>Friday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Saturday)
+                                                                        {
+                                                                            <input id="Saturday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                        }
+                                                                        <span>Saturday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (item.Sunday)
+                                                                        {
+                                                                            <input id="Sunday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                        }
+                                                                        <span>Sunday</span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_@i" style="display:none;">
+                                                        <div class="form-group">
+                                                            <label for="email">Start Time<sup>*</sup></label>
+                                                            <input type="text" name="Classroom[@i].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_@i" style="display:none;">
+                                                        <div class="form-group">
+                                                            <label for="email">Stop Time<sup>*</sup></label>
+                                                            <input type="text" name="Classroom[@i].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50">
+                                                            @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12" id="Double_@i" style="display:none;">
+                                                        <div class="form-group">
+                                                            <label>Double Session ? </label>
+                                                            <div class="cont-sz">
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.DoubleSession)
+                                                                        {
+                                                                            <input id="DoubleSession" checked="checked" type="checkbox" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="DoubleSession" type="checkbox" value="true" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                        }
+                                                                        @*<input id="DoubleSession" type="checkbox" value="@item.DoubleSession" name="Classroom[@i].DoubleSession" data-val="true" />*@
+                                                                        @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().DoubleSession)*@@*, new { id = "DoubleSession", Name = "DoubleSession", @class = "minimal", tabIndex = "2", @style = "width:8%;" })*@
+                                                                        <span>Yes</span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_@i" style="display:none;">
+
+                                                        <div class="form-group" id="divmeal">
+
+                                                            <label>Is this meal served? <sup style="color: red;">*</sup></label>
+                                                            <div class="cont-sz">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Breakfast)
+                                                                        {
+                                                                            <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                        }
+                                                                        <span>Breakfast</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Lunch)
+                                                                        {
+                                                                            <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                        }
+                                                                        <span>Lunch</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Snack)
+                                                                        {
+                                                                            <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                        }
+                                                                        <span>Snack1</span>
+                                                                    </label>
+                                                                </div>
+                                                                @*<div class="col-lg-12 col-md-12 col-sm-12">
+                                                                        <label class="checkbox-inline">
+                                                                            @if (@item.Snack2)
+                                                                            {
+                                                                                <input id="Snack2" type="checkbox" value="true" name="Classroom[@i].Snack2" data-val="true" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <input id="Snack2" type="checkbox" value="true" name="Classroom[@i].Snack2" data-val="true" />
+                                                                            }
+                                                                            <span>Snack2</span>
+                                                                        </label>
+                                                                    </div>*@
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Dinner)
+                                                                        {
+                                                                            <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                        }
+                                                                        <span>Dinner</span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_@i" style="display:none;">
+
+                                                        <div class="form-group" id="divdays">
+
+                                                            <label>Class operational days? <sup style="color: red;">*</sup></label>
+                                                            <div class="cont-sz">
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Monday)
+                                                                        {
+                                                                            <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                        }
+                                                                        <span>Monday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Tuesday)
+                                                                        {
+                                                                            <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                        }
+                                                                        <span>Tuesday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Wednesday)
+                                                                        {
+                                                                            <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                        }
+                                                                        <span>Wednesday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Thursday)
+                                                                        {
+                                                                            <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                        }
+                                                                        <span>Thursday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Friday)
+                                                                        {
+                                                                            <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                        }
+                                                                        <span>Friday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (@item.Saturday)
+                                                                        {
+                                                                            <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                        }
+                                                                        <span>Saturday</span>
+                                                                    </label>
+                                                                </div>
+                                                                <div class="col-xs-6 col-sm-4">
+                                                                    <label class="checkbox-inline">
+                                                                        @if (item.Sunday)
+                                                                        {
+                                                                            <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                        }
+                                                                        <span>Sunday</span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+
+                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="email">Number of seats</label>
+                                                        <input type="text" name="Classroom[@i].Noofseats" onblur="Checknumeric(this);" readonly="readonly" class="form-control" value="@item.Noofseats" id="Noofseats" placeholder="Number of Seats" maxlength="50">
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="email">Actual Seats Used</label>
+                                                        <input type="text" name="Classroom[@i].ActualSeats" class="form-control" id="ActualSeats_@i" value="@item.ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="readonly">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <input type="hidden" value="@item.ClassroomID" name="Classroom[@i].ClassroomID">
+                                                </div>
+
+                                            </div>
+                                                i++;
+                                        }
+                                    }
+                                    @*style="display:none;"*@
+
+
+
+
+
+
+
+
+
+
+
+
+                                        @*<button id="btnSubmitClassroom" type="button" class="my-btn" onclick="Addclassroom();" tabindex="10">Save</button>*@
+
+
+
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+
+                        </div>
+                        <div class="col-lg-6 col-md-12 col-sm-12">
+                        </div>
+                    </div>
+                    <!--row-->
+
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidagencyInfo();" tabindex="10">Submit</button>
+                                <input id="CenterId" type="hidden" name="CenterId" value="@Model.CenterId" />
+                                <button id="btnExit" class="my-btn" type="button" tabindex="11">Exit</button>
+
+                                <div class="clear"></div>
+                            </div>
+                            <!--btnwrp_subcal--->
+                        </div>
+                    </div>
+                </form>
+
+
+            </div>
+            <!--add-useragform--->
+        </div>
+}

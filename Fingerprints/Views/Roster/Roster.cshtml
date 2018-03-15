@@ -1,0 +1,2624 @@
+﻿@{
+    @section Title
+{
+        Roster
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+
+    ViewBag.Title = "Roster";
+
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().ToUpper().Contains("7C2422BA-7BD4-4278-99AF-B694DCAB7367")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("4b77aab6-eed1-4ac3-b498-f3e80cf129c0")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+
+}
+
+@section Script{
+    @*<script src="~/Content/Scripts/bootstrap.js"></script>
+        <script src="~/Scripts/Samplescript/jquery.datetimepicker.min.js"></script>*@
+
+    <script type="text/javascript">
+
+
+
+        function validDate(text) {
+            var isValid = true;
+            var comp = text.split('/');
+            if (comp.length !== 3)
+                return false;
+            if (comp[2].length != 4)
+                return false;
+            if (comp[2] <= 1901)
+                return false;
+            if (new Date(text).toString() == "Invalid Date")
+                return false;
+            if (!isvalid_mdy(text))
+                return false;
+            var TodayDate = new Date();
+            var endDate = new Date(text);
+
+            return isValid;
+        }
+        function isvalid_mdy(s) {
+
+            var day, A = s.match(/[1-9][\d]*/g);
+            try {
+                A[0] -= 1;
+                day = new Date(+A[2], A[0], +A[1]);
+
+                if (day.getMonth() == A[0] && day.getDate() == A[1]) return day;
+            }
+            catch (er) {
+                return er.message;
+            }
+
+        }
+
+        function Validatecasenote() {
+            isValid = true;
+
+
+            cleanValidation();
+            var Clientcount = 0;
+            var Tags = '';
+            $('#CaseNotetags_tagsinput .tag span').each(function () {
+                Tags = Tags + $(this).text().trim() + ',';
+            });
+            $("#CaseNotetags").val(Tags);
+            Tags = '';
+            // $('#Note').val(CKEDITOR.instances['Note'].getData());
+
+
+            if ($('#CaseNoteDate').val().trim() == "") {
+                isValid = false;
+                customAlert("Case note date is required. ");
+                plainValidation('#CaseNoteDate');
+                return isValid;
+            }
+            else if ($('#CaseNotetitle').val().trim() == "") {
+                isValid = false;
+                customAlert("Title is required.");
+                plainValidation('#CaseNotetitle');
+                return isValid;
+            }
+                //else if (CKEDITOR.instances['Note'].getData() == "") {
+                //    isValid = false;
+                //    customAlert("Note is required.");
+                //    return isValid;
+                //}
+
+            else if ($('#Note').val().trim() == "") {
+                isValid = false;
+                customAlert("Note is required.");
+                plainValidation('#Note');
+                return isValid;
+
+            }
+
+            else if ($('#CaseNotetags').val().trim() == "") {
+                isValid = false;
+                customAlert("Tags is required.");
+                plainValidation('#CaseNotetags');
+                return isValid;
+            }
+
+            return isValid;
+
+        }
+        function isValidInfo() {
+            cleanValidation();
+            isValid = true;
+            if ($("#AbsentType").val() == 0) {
+                isValid = false;
+                customAlert("Please choose an Attendance  Type")
+            }
+            if ($("#AbsentType").val() == 2) {
+                if ($("#ReasonList").val() == 0 || $("#ReasonList").val() == "") {
+                    isValid = false;
+                    customAlert("Please choose an Absent Reason")
+                }
+                if ($("#ReasonList").val() == -1) {
+                    if ($("#txtNewReason").val() == "") {
+                        // plainValidation('#txtNewReason');
+                        isValid = false;
+                        customAlert("Please Enter Other Reason");
+                    }
+
+                }
+            }
+
+            return isValid;
+        }
+
+        function CheckdateForAppointment(date) {
+            var isAllow = false;
+            var now = new Date();
+            var selectedDate = new Date(date);
+
+
+            if (selectedDate > now || selectedDate.toDateString()== now.toDateString()) {
+                isAllow = true;
+
+                $('#Days').val(selectedDate.getDay());
+            } else {
+                isAllow = false;
+            }
+
+            return isAllow;
+        }
+
+        function Checkdate(date) {
+            var isAllow = false;
+            var now = new Date();
+            var selectedDate = new Date(date);
+            if (selectedDate < now && selectedDate != now) {
+                isAllow = true;
+            } else {
+                isAllow = false;
+            }
+            return isAllow;
+        }
+        var flag = 0;
+
+        var EnrolledObject = null;
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        var roleid = '@Session["Roleid"].ToString()';
+        var searchTextByName = '';
+        var filterOption = '';
+        $(window).load(function () {
+            console.log(HostedDir);
+        });
+
+
+        function clearAllGrid() {
+            var colspan = $('#GridRoster').find('th').length;
+            var bindRow = '<tr style="width:98.3%;font-weight:bold;">\
+                                            <td colspan='+ colspan + ' style="padding: 25px;text-align:center;">Search by Center and Classroom<sup style="color:red;">*</sup></td>\
+                                        </tr>';
+
+            $('#GridRoster').find('#table_body').html(bindRow);
+
+            $('#ddlpagetodisplay').prop('disabled', true);
+            $('#rosterCountLabel').html(0);
+            $('#ddlpaging').find('option').remove();
+            $('#div1').hide();
+        }
+
+
+        function myAlertBottom() {
+            $(".myAlert-bottom").show();
+            setTimeout(function () {
+                $(".myAlert-bottom").hide();
+            }, 2000);
+        }
+
+        $(document).ready(function () {
+
+
+
+           
+
+            $('#CaseNotetags').tagsInput({ width: 'auto', height: '38px', delimiter: [',', ';'] });
+
+
+            if ($('#isManager').val() === 'True') {
+                $('#searchByNameDiv').show();
+
+                $('#searchbyNamebtn').on('click', function () {
+
+                    cleanValidation();
+
+                    if ($('#searchTextName').val() == '') {
+                        customAlert('Please Enter Name');
+                        plainValidation('#searchTextName');
+                        return false;
+                    }
+
+                    searchTextByName = $('#searchTextName').val().trim();
+
+                    drawgrid();
+
+                });
+            }
+            else {
+                $('#searchByNameDiv').hide();
+
+            }
+
+            clearAllGrid();
+
+
+            $('#Centers').on('change', function () {
+                if ($(this).val() == '0') {
+                    $('#Classroom').find('option').remove();
+
+                    $('#div1').hide();
+                    $('#filterSelect').val('0');
+
+                    clearAllGrid();
+
+                    return false;
+                }
+
+                GetClassrooms(this);
+            });
+
+            $("#MyModalLateArrival").on("hidden.bs.modal", function () {
+                $('#divAbsenceReasonList').hide();
+                //  CKEDITOR.instances['Note'].setData("");
+                $('#CaseNotetags_tagsinput .tag ').each(function () {
+                    $(this).remove();
+                });
+                $('#MyModalLateArrival .txt-clear').val("");
+                $('#EndTime').val("-1");
+                $('#divAbsenceNoShow').hide();
+
+            });
+
+
+            $('.abtCheckbox').change(function () {
+
+                $('#MyModalLateArrival .txt-clear').val("");
+                $('#divAbsenceReasonList').hide();
+                $('#divAbsenceNoShow').hide();
+                if ($(this).prop('checked') == true) {
+                    $('#divForAbsence').hide();
+                    $('#divForLateArrival').show();
+                    $('#CaseNotetags_tagsinput .tag ').each(function () {
+                        $(this).remove();
+                    });
+                    $('#MyModalLateArrival .txt-clear').val("");
+                }
+                else {
+                    $('#CaseNotetags_tagsinput .tag ').each(function () {
+                        $(this).remove();
+                    });
+                    $('#MyModalLateArrival .txt-clear').val("");
+                    $('#divForLateArrival').hide();
+                    $('#divForAbsence').show();
+                }
+            });
+
+
+
+            $('#btnsearch').on('click', function () {
+
+               
+                cleanValidation();
+
+                if ($('#Centers').val() == '0' || $('#Centers').val() == null || $('#Centers').val() == '') {
+                    plainValidation('#Centers');
+                    customAlert('Please Select Center');
+                    return false;
+                }
+                //else if ($('#Classroom').val() == '0' || $('#Classroom').val() == '') {
+                //    plainValidation('#Classroom');
+                //    customAlert('Please Select Classroom');
+                //    return false;
+                //}
+                searchTextByName = '';
+
+                //if ($('#isManager').val() === 'True') {
+                //    searchTextByName = $('#searchTextName').val().trim();
+
+                //}
+                //else {
+                //    searchTextByName = '';
+                //}
+                drawgrid();
+            });
+
+            $('#ReasonList').on('change', function () {
+                if ($(this).val() == "-1") {
+                    $('#divNewReason').show();
+                }
+                else {
+                    $('#txtNewReason').val("");
+                    $('#divNewReason').hide();
+                }
+            });
+
+            $("#AbsentType").change(function () {
+                if ($(this).val() == 2) {
+                    $('#divAbsenceNoShow').hide();
+
+                    $('#divAbsenceReasonList').show();
+                }
+
+                else if ($(this).val() == 3) {
+                    $('#divAbsenceNoShow').show();
+                    $("#ReasonList").val("");
+                    $('#divAbsenceReasonList').hide();
+                }
+                else {
+                    $('#divAbsenceNoShow').hide();
+                    $("#ReasonList").val("");
+                    $('#divNewReason').hide();
+                    $('#txtNewReason').val("");
+                    $('#divAbsenceReasonList').hide();
+                }
+
+            });
+
+            $(document).on("click", ".open-myModal", function () {
+                var childnameID = $(this).data('id');
+                var l = childnameID.length;
+                var n = childnameID.indexOf("-");
+                var CID = childnameID.substring(0, n);
+                var CN = childnameID.substring(n + 1, l);
+
+                $(".modal-header #childname").val(CN);
+                $(".modal-header #childid").val(CID);
+                $(".modal-header #childlbl").text(CN);
+
+            });
+            $('#seatsDatetimePicker1').datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                validateOnBlur: false
+            });
+            $('#seatsDatetimePicker2').datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                validateOnBlur: false
+            });
+           
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+
+
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            $('#DashboardHV').removeClass("active");
+
+
+            //    drawgrid();
+
+
+            $('#GridRoster > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thSN")
+                    return false;
+                if (sortOrder == "thRN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+            $('#seatsDatetimePicker2').change(function () {
+                if ($(this).val() != "") {
+                    cleanValidation();
+                    var isValid = CheckdateForAppointment($(this).val());
+                    if (!validDate($(this).val())) {
+
+                        customAlert("Please enter valid date.");
+                        plainValidation('#seatsDatetimePicker2');
+                        return false;
+
+                    }
+                    else if (!isValid) {
+
+                        customAlert("Please enter future date.");
+                        plainValidation('#seatsDatetimePicker2');
+                        return false;
+
+                    }
+                    return true;
+                }
+                else {
+                    return true;
+                }
+
+            })
+
+            $('.txt-date').focusout(function () {
+
+                if ($(this).val() != "") {
+                    var isValid = Checkdate($(this).val());
+                    if (!validDate($(this).val())) {
+
+                        $(this).parent('.input-container').find('.error-invalid-date').show();
+                        $('#divForMealsDetails').hide();
+                        $('#divForNoRecords').hide();
+
+                    }
+                    else if (!isValid) {
+
+                        $(this).parent('.input-container').find('.error-future-date').show();
+                        $('#divForMealsDetails').hide();
+                        $('#divForNoRecords').hide();
+
+
+                    }
+                }
+                else {
+                    $('.error-message').hide();
+                }
+
+            })
+
+            $('.txt-date').focusout(function () {
+                $(this).parent('.input-container').find('span').hide();
+            });
+            $('.txt-date').focusin(function (e) {
+                e.preventDefault();
+            })
+
+            $('.seats-icon').click(function (e) {
+
+
+
+                $('#seatsDatetimePicker' + this.id).datetimepicker('show');
+            });
+
+            $(".txt-date").on('keydown', function (e) {
+                e.preventDefault();
+            });
+            $(".txt-date").on('keyup', function (e) {
+                flag = 0;
+            });
+            $('.txt-date').change(function () {
+                $('.error-message').hide();
+                if ($(this).val().trim() != "") {
+                    if (validDate($(this).val().trim())) {
+                        $('.seats-invalid-date').hide();
+                        if (Checkdate($(this).val().trim())) {
+                            $('.seats-future-date').hide();
+                            $('.seats-message-empty').hide();
+                            $('.seats-invalid-date').hide();
+                        }
+
+                        else {
+                            $('#divForMealsDetails').hide();
+                            $('.seats-future-date').show();
+                            $('#divForMealsDetails').hide();
+                            $('#divForNoRecords').hide();
+                        }
+
+                    }
+                    else {
+                        $('#divForMealsDetails').hide();
+                        $('.seats-invalid-date').show();
+                        $('#divForMealsDetails').hide();
+                        $('#divForNoRecords').hide();
+
+                    }
+                }
+                else {
+                    $('#divForMealsDetails').hide();
+                    $('#divForMealsDetails').hide();
+                    $('#divForNoRecords').hide();
+                    $('.seats-message-empty').show();
+                }
+            });
+            $("body").on('keyup', '.txt-date', function (e) {
+                flags = 0;
+                if (e.keyCode != 193 && e.keyCode != 111) {
+                    if (e.keyCode != 8) {
+                        if ($(this).val().length == 2) {
+                            $(this).val($(this).val() + "/");
+                        } else if ($(this).val().length == 5) {
+                            $(this).val($(this).val() + "/");
+                        }
+                    } else {
+                        var temp = $(this).val();
+                        if ($(this).val().length == 5) {
+                            $(this).val(temp.substring(0, 4));
+                        } else if ($(this).val().length == 2) {
+                            $(this).val(temp.substring(0, 1));
+                        }
+                    }
+                } else {
+                    var temp = $(this).val();
+                    var tam = $(this).val().length;
+                    $(this).val(temp.substring(0, tam - 1));
+                }
+
+
+            });
+
+            $('.btn-roster-submit').click(function () {
+                if ($('.txtseatdate').val() == "") {
+                    $('.error-message-empty').show();
+                    return;
+                }
+                var EClientId = $(this).attr("data-clientId");
+                $('#divForMealsDetails').hide();
+                $.ajax({
+                    url: HostedDir + "/Roster/GetAttendenceByDate",
+                    type: "POST",
+                    data: {
+                        selectedDate: $('.txtseatdate').val().trim(),
+                        clientId: EClientId,
+
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (data) {
+                        if (data != null) {
+                            $('.txt-clear').val("");
+                            $('.txt-clear').text("");
+
+                            $('#divForNoRecords').hide();
+                            $('#spnCenterName').text(data.Center);
+                            $('#spnAttendenceStatus').text(data.AttendenceStatus);
+                            $('#spnClientName').text(data.ClientName);
+                            $('#spnParentName').text(data.ParentName);
+                            if (data.SignedInBy != "" && data.SignedInBy != null)
+                                $('#spnSignedInBy').text(data.SignedInBy + " (" + data.SignedInTime + ") ");
+
+                            if (data.SignedOutBy != "" && data.SignedOutBy != null)
+                                $('#spnSignedOutBy').text(data.SignedOutBy + " (" + data.SignedOutTime + ") ");
+
+                            $('#spnAttendenceDate').text($('.txtseatdate').val().trim());
+
+                            (data.Breakfast != 0 && data.Breakfast != null) ? $('#spnBreakfast').html("<i class='fa fa-check' style='color:#3CB371;' aria-hidden='true'></i>") : $('#spnBreakfast').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
+                            (data.Lunch != 0 && data.Lunch != null) ? $('#spnLunch').html("<i style='color:#3CB371;' class='fa fa-check' aria-hidden='true'></i>") : $('#spnLunch').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
+                            (data.Snacks != 0 && data.Snacks != null) ? $('#spnSnacks').html("<i class='fa fa-check' style='color:#3CB371;' aria-hidden='true'></i>") : $('#spnSnacks').html('<i class="fa fa-times" style="color:#ff2222;" aria-hidden="true"></i>');
+                            $('#divForMealsDetails').show();
+                        }
+                    }
+                    , error: function (response) {
+
+                        $('#divForMealsDetails').hide();
+                        $('#divForNoRecords').show();
+
+                    }
+
+                });
+            });
+
+            //changes on dec-18-17
+
+
+            $('#TestEndTime').mask("99:99", { placeholder: 'HH:MM' });
+
+            var currentdate = new Date();
+            var listTime = [];
+            var listTimeHours = [];
+
+            for (var i = 0; i < 12; i++) {
+                for (var j = 0; j < 4; j++) {
+                    if (j == 0 && i < 12 && i > 0) {
+                        if (i > 9) {
+                            listTimeHours.push(i + ':00')
+                        } else {
+                            listTimeHours.push('0' + i + ':00')
+                        }
+                    }
+
+                    else if (j == 2 && i < 12) {
+                        if (i > 9 && i == 18) {
+                            break;
+                            //listTime.push(i + ':30')
+                        }
+                        else if (i > 9) {
+                            listTimeHours.push(i + ':30')
+                        }
+                        else {
+                            listTimeHours.push('0' + i + ':30')
+                        }
+
+                    }
+
+
+                }
+            }
+
+            var m;
+            var min;
+            for (var i = 0; i < 2; i++) {
+                if (i == 0) {
+                    m = 'AM';
+                } else {
+                    m = 'PM';
+                }
+                for (var j = 1; j < 13; j++) {
+                    if (j > 7 && m == 'AM' || j < 7 && m == 'PM') {
+                        for (var k = 0; k < 2; k++) {
+                            if (k == 0) {
+                                min = ':00 ';
+                            }
+                            else {
+                                min = ':30 ';
+                            }
+                            if (min == ':30 ' && j == 6)
+                            { break; }
+                            if (j == 12) {
+                                m = 'PM';
+                                listTime.push(j + min + m);
+                            }
+                            else {
+                                if (j > 9) {
+                                    listTime.push(j + min + m);
+                                }
+                                else {
+                                    listTime.push('0' + j + min + m);
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+
+            }
+
+            $.each(listTime, function (i, item) {
+                $('#StartTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+
+            if ('@ViewBag.mode' == '0') {
+                $('#StartTime').val('');
+                $('#EndTime').val('');
+                $('#Days').val('');
+
+                $('#Description').focus(function () {
+
+                    if ($(this).val() == '')
+                        $(this).val($(this).prop('defaultValue'));
+                });
+
+            }
+
+
+
+        });
+        function checkInfo() {
+            var isValid = true;
+            cleanValidation();
+            if ($('#Description')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Description.");
+                plainValidation('#Description');
+                return isValid;
+            }
+            if ($('#seatsDatetimePicker2')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select Date.");
+                plainValidation('#seatsDatetimePicker2');
+                return isValid;
+            }
+            else if ($('#seatsDatetimePicker2')[0].value.trim() != "") {
+                //cleanValidation();
+                var dte = $('#seatsDatetimePicker2')[0].value.trim();
+                var isValid = CheckdateForAppointment(dte);
+                if (!validDate(dte)) {
+
+                    customAlert("Please enter valid date.");
+                    plainValidation('#seatsDatetimePicker2');
+                    return isValid;
+
+                }
+                else if (!isValid) {
+
+                    customAlert("Please enter future date.");
+                    plainValidation('#seatsDatetimePicker2');
+                    return isValid;
+
+                }
+
+            }
+
+            if ($('#StartTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter From Time.");
+                plainValidation('#StartTime');
+                return isValid;
+            }
+
+            if ($('#TestEndTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Duration");
+                plainValidation('#TestEndTime');
+                return isValid;
+            }
+            if ($('#Notes')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Notes");
+                plainValidation('#Notes');
+                return isValid;
+            }
+                //else if ($('#StartDate')[0].val() == "") {
+                //    isValid = false;
+                //    customAlert("Please enter date.");
+                //    plainValidation('#StartDate');
+                //    return isValid;
+                //}
+            else if ($('#StartTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Start Time.");
+                plainValidation('#StartTime');
+                return isValid;
+            }
+
+
+            return true;
+        }
+
+        function GetMinutes(timeStr) {
+
+            var str = timeStr.split(':');
+
+            var hours = parseInt(str[0]);
+            var mins = parseInt(str[1]);
+            //if (hours >= 12)
+            //{
+            //    hours = hours - 12;
+            //}
+            var totalMins = hours * 60 + mins;
+
+            return totalMins;
+        }
+        function getTime() {
+
+            var dateselect = $('#seatsDatetimePicker2').val();
+            var time1 = $('#StartTime').val();
+            var time2 = $('#TestEndTime').val();
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+            // var totalstarttime = starttime.substring(0, 5);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins == 0) {
+                mins = "00";
+            }
+            if (hours > 12) {
+                am_pm = "PM";
+                hours = "0" + (hours - 12);
+            }
+            $('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
+        }
+        function AddSchedulerDetails(arg) {
+            var clientid = $(arg).attr('data-clientid');
+            var row = $(arg).attr('data-row');
+
+            if (checkInfo()) {
+                getTime();
+                $.ajax({
+                    url: HostedDir + "/AgencyUser/AddSchedulerInfo",
+                    type: "POST",
+                    data: {
+                        Description: $('#Description').val(),
+                        Date: $('#seatsDatetimePicker2').val(), //Changes on 28Dec2016
+                        StartTime: $('#StartTime').val(),
+                        Duration: $('#TestEndTime').val(),
+                        EndTime: $('#EndTimeDuration').val(),
+                        Day: $('#Days').val(),
+                        ClientId: clientid,
+                        Notes: $('#Notes').val(),
+                        MeetingId: $('#MeetingId').val(),
+                        IsYakkr600601:true
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    success: function (response) {
+                        if (response != null) {
+
+                            if (response.result == "1") {
+
+                                $('#schedule_popup').modal('hide');
+                                $("#" + row).find('td').eq(3).text("");
+                                var sessionCount = parseInt($('#hmAptct').text().substr(1).slice(0, -1)) + 1;
+
+                                $('#hmAptct').text("(" + sessionCount + ")")
+                                customAlert("Record added successfully.");
+                            }
+
+                            else if (response.result == "2") {
+
+                                $('#schedule_popup').modal('hide');
+                                clearcontrols();
+
+                                customAlert("Record updated successfully");
+
+
+
+                            }
+                            else if (response.result == "3") {
+                                customAlert("Record already exists.");
+                            }
+                            else
+                                customAlert(response);
+                        }
+                    },
+                    error: function (response) { alert(response); }
+                });
+            }
+        }
+
+
+        function clearcontrols() {
+            $('#Description')[0].value = "";
+            // $('#StartDate')[0].value = "";
+            $('#StartTime')[0].value = "";
+            //   $('#EndTime')[0].value = "";
+            $('#TestEndTime')[0].value = "";
+            $('#Notes')[0].value = "";
+            $('#MeetingId').val(0);
+            $('#seatsDatetimePicker2').val("");
+        }
+        function Showreason(object) {
+
+            cleanValidation();
+            if ($(object).val() == "0")
+                $('#Divreason').show();
+            else
+                $('#Divreason').hide();
+        }
+        function isValidChangestatus() {
+            cleanValidation();
+            $('#rblwaitinglist').removeAttr('style');
+            if ($('#ddlreason').val() == "" || $('#ddlreason').val() == null) {
+                isValid = false;
+                customAlert("Reason is required.");
+                plainValidation('#ddlreason');
+                return isValid;
+            }
+            else if ($('#ddlreason').val() == 0 && $('#txtreason').val() == "") {
+                isValid = false;
+                customAlert("Other reason is required.");
+                plainValidation('#txtreason');
+                return isValid;
+            }
+            else if ($('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
+                isValid = false;
+                customAlert("Waiting list is required.");
+                plainValidation('#rblwaitinglist');
+                return isValid;
+            }
+
+            else {
+
+                BootstrapDialog.confirm("Client status will be changed. Do you want to continue?", function (result) {
+                    if (result) {
+                        if (EnrolledObject != null) {
+                            $.ajax({
+                                url: HostedDir + "/AgencyUser/DropClient",
+                                type: "POST",
+                                data: {
+                                    ClientId: $(EnrolledObject).attr("clientid"),
+                                    HouseholdId: $(EnrolledObject).attr("householdid"),
+                                    Status: $(EnrolledObject).attr("accesskey"),
+                                    StatusText: $('#lblNewStatus').text(),
+                                    Reason: $('#txtreason').val(),
+                                    ddlreason: $('#ddlreason').val(),
+                                    ddlreasontext: $('#ddlreason').find("option:selected").text(),
+                                    IsWaiting: $("input:radio[name='waitinglist']:checked").val()
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response == 0) {
+                                        customAlert("Error occurred please try again.");
+                                    }
+                                    if (response == 1) {
+                                        customAlert("Client status changed successfully.");
+                                        setTimeout(function () {
+                                            //window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
+                                            window.location.href = HostedDir + "/Roster/Roster";
+                                        }, 300);
+                                    }
+                                    if (response == 2) {
+                                        customAlert("Client status already changed.");
+                                        setTimeout(function () {
+                                            window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
+                                        }, 300);
+                                    }
+                                }
+                                , error: function (response) {
+                                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+        }
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+        function getList() {
+          
+            $('#spinner').show();
+
+            filterOption = ($('#filterSelect').length === 0) ? '0' : $('#filterSelect').val();
+            $.ajax({
+                url: HostedDir + "/Roster/listRoster",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    Center: $("#Centers").val(),
+                    Classroom: ($("#Classroom").val() == '0') ? '' : $("#Classroom").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage,
+                    searchTextByName: searchTextByName,
+                    filterOption: filterOption
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    $('#spinner').hide();
+                    getData(data);
+                    getTotalRecord(data.totalrecord);
+                }
+                , error: function (response) {
+                    $('#spinner').hide();
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+        }
+
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+
+
+        //validation color change//
+
+        function plainValidation(id) {
+
+            $(id).focus();
+            $(id).css("background-color", "pink");
+        }
+
+        function cleanValidation() {
+
+            $('input,textarea,select').each(function () {
+
+                $(this).css("background-color", "");
+            });
+        }
+
+
+
+        //validation color change//
+
+
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+
+            sortOrder = '';
+            sortDirection = '';
+            $("#Centers").val('0');
+            $("#Classroom").val('');
+            $('#Classroom').find('option').remove();
+            if ($('#filterSelect').length > 0) {
+                $('#filterSelect').val('0');
+            }
+            clearAllGrid();
+
+            // drawgrid();
+
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            if (val == 'First') {
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function GetSelectedDateDetails(value) {
+
+            var EClientId = $(value).attr("data-clientId");
+            $('.btn-roster-submit').attr("data-clientId", EClientId);
+            $('#myModalSeats').modal('show');
+            $('#divForMealsDetails').hide();
+            $('#divForNoRecords').hide();
+            $('.txtseatdate').val("");
+
+
+        }
+
+        function openAgencyUserFamilySummaryById(value) {
+            $('#spinner').show();
+            var EHouseholid = $(value).attr("EHouseholid");
+            var url = HostedDir + '/AgencyUser/FamilySummary/' + EHouseholid;
+            window.location.href = url;
+            //$('#spinner').hide();
+        }
+        function bindGridUser(data, num_cols) {
+
+
+
+            $('#GridRoster > tbody > tr').remove();
+
+            if (data.list.Rosters == null) {
+                $('#div1').show();
+                $('#rosterCountLabel').html(0);
+                $('#ddlpagetodisplay').prop('disabled', true);
+            }
+            else {
+
+                var tot_record = (data.totalrecord == null || data.totalrecord == '') ? 0 : (parseInt(data.totalrecord) > 0 && parseInt(data.totalrecord) < 10) ? '0' + data.totalrecord : data.totalrecord;
+
+                $('#rosterCountLabel').html(tot_record);
+
+                $('#div1').hide();
+                $('#divPaging').show();
+                $('#ddlpagetodisplay').prop('disabled', false);
+
+                var tbody = $('#GridRoster > tbody');
+
+                for (var i = 0; i < data.list.Rosters.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr id=" +i+ ">";
+
+
+
+
+                    tr += '<td height="70" class="child_name"><a style="white-space:nowrap;" EHouseholid="' + data.list.Rosters[i].EHouseholid + '" EClientId="' + data.list.Rosters[i].Eclientid + '" onclick="openAgencyUserFamilySummaryById(this);"  href="#">' + data.list.Rosters[i].Name + '</a>';
+                    if (data.list.Rosters[i].IsHomeBased === 0) {
+                        tr += '<p class="part-img-tbl"><img style="height:20px;width:20px;cursor:pointer;" src="/Images/calendar.png" data-clientId="' + data.list.Rosters[i].Eclientid + '" onclick="GetSelectedDateDetails(this);" /></p>';
+                    }
+                    tr += '</td>';
+
+                    tr += '<td height="70" style="text-align:center;">';
+                    if (data.list.Rosters[i].IsPresent == "1" || data.list.Rosters[i].IsPresent == "11") {
+                        tr += "<i style='color:#3c763d;' title='Present' class='fa fa-check'></i>";
+                    }
+                    else if (data.list.Rosters[i].IsPresent == "2") {
+                        tr += "<i style='color:#9c27b0;' title='Absent Excused' class='fa fa-times'></i>";
+                    }
+                    else if (data.list.Rosters[i].IsPresent == "3") {
+                        tr += "<i style='color:#ff5722;' title='Absent No Show' class='fa fa-times'></i>";
+                    }
+                    else if(data.list.Rosters[i].IsPresent=='4')
+                    {
+                        tr += "<i style='color:#ff5722;' title='Present Other' class='fa fa-check'></i>";
+
+                    }
+                    else if(data.list.Rosters[i].IsPresent=='0') {
+                        tr += "<i style='color:#ff2222;' title='Not Checked In' class='fa fa-user-times'></i>";//Changes on 3jan2016
+                    }
+                    else {
+                        tr += "<i style='color:#ff5722;' title='Absent' class='fa fa-times'></i>";
+                    }
+                    tr += '</td>';
+
+                    //Picture//
+
+
+                    tr += '<td height="70" style="text-align:center;width:11%;">';
+                    tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
+                    //if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
+                    //    tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/ic_female.png" />';
+                    //}
+                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
+                    //    tr += '<img class="roundimage" width="50" height="50"   src="' + HostedDir + '/Content/img/ic_male.png" />';
+                    //}
+                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
+                    //    tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/ic_male_default.png" />';
+                    //}
+                    //else if (data.list.Rosters[i].Picture != "") {
+                    //    tr += '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
+                    //}
+                    //else {
+                    //    tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/download.jpg" />';
+                    //}
+                    tr += '</td>';
+
+                    //Picture End//
+
+
+                    //For Attendance issue//
+
+                        if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'a65bb7c2-e320-42a2-aed4-409a321c08a5') {
+
+
+                            if (data.list.Rosters[i].IsAppointMentYakkr600601 !=0)
+                            {
+                                tr += '<td height="70" style="width:13%;"></td>';
+                            }
+                            else if (data.list.Rosters[i].Yakkr600 != 0 && data.list.Rosters[i].Yakkr601 != 0) {
+                                tr += '<td height="70" style="width:13%;"><a href="#"  data-yakkr="600601" data-parent="' + data.list.Rosters[i].Name + '" data-row="' + i + '"  data-clientid="' + data.list.Rosters[i].Eclientid + '" data- onclick="ShowPopup(this);">600  <a href="#"  data-row="' + i + '" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-yakkr="600601" onclick="ShowPopup(this);">601</td>';
+
+                            }
+                            else if (data.list.Rosters[i].Yakkr601 != 0) {
+                                tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">601</td>';
+                            }
+                            else if (data.list.Rosters[i].Yakkr600 != 0) {
+                                tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="600" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '" data- onclick="ShowPopup(this);">600</td>';
+
+                            }
+
+                            else {
+                                tr += '<td height="70" style="width:13%;"><a href="#" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" onclick="ShowPopup(this);"></td>';
+                            }
+
+                        }
+
+                    //For Attendance issue//
+
+                    //if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d') {
+
+                    //    tr += '<td height="70" style="width:13%;"></td>';
+                    //}
+
+
+                    //tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
+
+                    tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].ClassroomName + '</td>';
+
+
+                    if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'e4c80fc2-8b64-447a-99b4-95d1510b01e9') {
+                        tr += '<td height="70" style="width:26%;">';
+                        tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                        tr += '<a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">FPA </a>  &nbsp';
+                        if (data.list.Rosters[i].Acronym != "") {
+                            if (data.list.Rosters[i].Acronym == "MAT") {
+                                tr += '<a  style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Acronym + ' </a>  &nbsp';
+                            }
+                            else {
+                                tr += '<a title="Click here to get the Parent Matrix Analysis"  href="' + HostedDir + '/Roster/MatrixAnalysis/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=' + data.list.Rosters[i].EHouseholid + ' &centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '"  style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Acronym + ' </a>  &nbsp';
+
+                            }
+                        }
+                        //tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">FSA </a>  &nbsp';
+
+                        if (roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9') {
+                            tr += '<a title="Schedule Home Visit" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/AgencyUser/HomeVisitFSWNew/?id=' + data.list.Rosters[i].Eclientid + '&Name=' + data.list.Rosters[i].Name + '&LastName=' + (data.list.Rosters[i].Name).substr((data.list.Rosters[i].Name).indexOf(' ') + 1) + '">HV </a>  &nbsp';
+
+                        }
+                        tr += '<a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ReferralService/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">REF </a> &nbsp';
+                        tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
+                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;"  title="Click to change status" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="Loadchangestatusmodel(this);" accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
+
+                        //ABT
+
+
+                        if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason == "" && data.list.Rosters[i].IsCaseNoteEntered == false && roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && data.list.Rosters[i].IsHomeBased === 0) {
+                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="#" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
+                            tr += '" data-islate="' + data.list.Rosters[i].IsLateArrival + '"  data-lateDuration="' + data.list.Rosters[i].LateArrivalDuration + '"  data-lateNotes="' + data.list.Rosters[i].LateArivalNotes + '"  data-house="' + data.list.Rosters[i].EHouseholid + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>  &nbsp';
+                        }
+                        //else if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason != "")
+                        //{
+
+                        //    tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="#"  onclick="AbsentMarkingPopup(this);" data-reason="' + data.list.Rosters[i].MarkAbsenseReason + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>';
+                        //}
+
+                        //ABT//
+
+                        if (data.list.Rosters[i].ProgramType == "TRN" && data.list.Rosters[i].IsPreg == 1) {
+                            tr += '<a title="Click here to open Early Head Start Process" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '">TRN </a> &nbsp';
+                        }
+                        else if (data.list.Rosters[i].ProgramType == "TRN") {
+                            tr += '<a title="Click here to open Head Start Process" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '">TRN </a> &nbsp';
+                        }
+
+
+                        tr += '</td></tr>';
+
+                    }
+
+
+                    else if ($('#isManager').val() === 'True') {
+
+                        tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastCaseNoteDate + '</td>';
+
+                        tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastFPADate + '</td>';
+                        tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastReferralDate + '</td>';
+                        tr += '</tr>';
+
+                    }
+
+
+                    $('#GridRoster > tbody').append(tr);
+
+                }
+                //$('#GridRoster img').zoomify();
+            }
+
+            //if (data.list.Centers != null && data.list.Centers.length > 0) {
+            //    var option = "";
+
+            //    if ($('#Centers').find('option').length < 1) {
+            //        for (var i = 0; i < data.list.Centers.length; i++) {
+            //            option = option + '<option value="' + data.list.Centers[i].CenterId + '">' + data.list.Centers[i].Name + '</option>';
+            //        }
+            //        $('#Centers').find('option').remove().end().append(option);
+            //        $('#Centers').val('');
+            //    }
+
+            //}
+
+            if (data.list.AbsenceTypeList != null && data.list.AbsenceTypeList.length > 0) {
+                var option = "";
+                if ($('#AbsentType').find('option').length < 1) {
+                    option = option + '<option value="">Choose Type</option>';
+                    for (var i = 0; i < data.list.AbsenceTypeList.length; i++) {
+                        if (data.list.AbsenceTypeList[i].Value == '2' || data.list.AbsenceTypeList[i].Value == '3')
+                            option = option + '<option value="' + data.list.AbsenceTypeList[i].Value + '">' + data.list.AbsenceTypeList[i].Text + '</option>';
+                    }
+                    $('#AbsentType').append(option);
+                    //  $('#ReasonList').val('');
+                }
+            }
+
+            if (data.list.AbsenceReasonList != null && data.list.AbsenceReasonList.length > 0) {
+                var option = "";
+                if ($('#ReasonList').find('option').length < 1) {
+                    option = option + '<option value="">Choose Reason</option>';
+                    for (var i = 0; i < data.list.AbsenceReasonList.length; i++) {
+                        option = option + '<option value="' + data.list.AbsenceReasonList[i].Value + '">' + data.list.AbsenceReasonList[i].Text + '</option>';
+                    }
+                    option = option + '<option value="-1">Others</option>';
+                    $('#ReasonList').append(option);
+                    //  $('#ReasonList').val('');
+                }
+            }
+        }
+        function AbsentMarkingPopup(arg) {
+            $('#MyModalLateArrival .txt-clear').val("");
+            var childnameID = $(arg).data('id');
+            var l = childnameID.length;
+            var n = childnameID.indexOf("-");
+            var CID = childnameID.substring(0, n);
+            var CN = childnameID.substring(n + 1, l);
+            var islate = $(arg).data('islate');
+            $(".divabsense #childname").val(CN);
+            $(".divabsense #childid").val(CID);
+            var d = new Date();
+            var month = d.getMonth() + 1;
+            var day = d.getDate();
+            var todayDate = (('' + month).length < 2 ? '0' : '') + month + '/' + (('' + day).length < 2 ? '0' : '') + day + '/' + d.getFullYear();
+            $('#CaseNoteDate').val(todayDate);
+
+            $('#CaseNotetitle').val("Late Arrival");
+            $('#CaseNoteHouseHoldId').val($(arg).data('house'));
+            if (islate) {
+                $("#InformedLateArrivalClient").text("Marked Late Arrival For " + CN);
+                $("#lblArrivalTime").text($(arg).data('lateduration'));
+                $("#lblReasonForLate").text($(arg).data('latenotes'));
+                $('#InformedLateArrival').modal('show');
+
+                //$('#CaseNoteClientId').val(CID);
+                //$('#Note').val($(arg).data('latenotes'));
+                //$('#CaseNotetags').val("Late Arrival");
+
+                //$('#divForAbsence').hide();
+                //$('.abtCheckbox').prop('checked',true);
+                //$('#divForLateArrival').show();
+
+            }
+            else {
+                $(".modal-header #childlbl").text("Mark Attendance For " + CN);
+                //  $('.abtCheckbox').show();
+                $('.abtCheckbox').prop('checked', false);
+                $('#divForLateArrival').hide();
+                $('#divForAbsence').show();
+                $('#MyModalLateArrival').modal('show');
+
+            }
+
+
+        }
+        function ShowPopup(arg) {
+            clearcontrols();
+            $('#EndTime').val("-1");
+            var clientid = $(arg).attr("data-clientid");
+            var parent = $(arg).attr("data-parent");
+            var yakkr = $(arg).attr("data-yakkr");
+            var row = $(arg).attr("data-row")
+            $('.addSchedular').attr("data-clientId", clientid);
+            $('.addSchedular').attr("data-row", row);
+            $('#Resourece1')[0].innerText = "Add Appointment";
+            if (yakkr == "600")
+                $("textarea#Notes").val("Consective absent for three days");
+            else if (yakkr == "601")
+                $("textarea#Notes").val("Attendance is less than 15%");
+            else if (yakkr == "600601")
+                $("textarea#Notes").val("Consecutive absent for three days and Attendance is less than 15%");
+            var selectedtitle = "Home Visit  -  " + parent +"  Family";
+            $('#Description').val(selectedtitle);
+            if (!$('#schedule_popup').hasClass('in'))
+                $('#schedule_popup').modal('show');
+        }
+
+        function Loadchangestatusmodel(object) {
+            cleanValidation();
+            $('#Divwaitinglist').hide();
+            if ($(object).attr("accesskey") == "5") {
+                BindReason(object);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Enrolled");
+                //  $('#lblNewStatus').text("Withdrawn");
+                $('#lblNewStatus').text("Dropped");
+                $('#Divwaitinglist').show();
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "6") {
+                BindReason(object);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Dropped");
+                $('#lblNewStatus').text("Re-enrolled");
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "7") {
+                BindReason(object);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Withdrawn");
+                $('#lblNewStatus').text("Re-enrolled");
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
+                BindReason(object);
+                EnrolledObject = object;
+                if ($(object).attr("accesskey") == "8") {
+                    $('#lblCurrentStatus').text("Enrollmentservices");
+                    $('#lblNewStatus').text("Withdrawn");
+                }
+                if ($(object).attr("accesskey") == "9") {
+                    $('#lblCurrentStatus').text("Re-enrolled");
+                    $('#lblNewStatus').text("Withdrawn");
+                }
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+
+
+
+
+        }
+        function BindReason(object) {
+
+            $.ajax({
+                url: HostedDir + "/Agencyuser/GetEnrollReason",
+                type: "POST",
+                data: {
+                    Status: $(object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].ReasonID + '">' + response[i].ReasonText + '</option>';
+                        }
+                        $('#ddlreason').find('option').remove().end().append(option);
+                        $('#ddlreason').val('');
+                    }
+                    else {
+                        $('#ddlreason').find('option').remove();
+                    }
+                }
+                , error: function (response) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+
+        }
+        function GetClassrooms(Select) {
+
+            $.ajax({
+                url: HostedDir + "/Roster/Getclassrooms",
+                type: "POST",
+                data: {
+                    Centerid: $(Select).val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = (response.length > 1) ? '<option value="0"></option>' : '';
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
+                        }
+                        $('#Classroom').find('option').remove().end().append(option);
+                        //$('#Classroom').val(response[0].ClassroomID);
+                    }
+                    else {
+                        $('#Classroom').find('option').remove();
+                    }
+                }
+                   , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                   }
+            });
+        }
+
+        function getProfilePicture(pic) {
+
+            //$('.tooltiptext').css({ 'visibility': 'hidden' });
+
+            var enc_id = $(pic).attr('EClientId');
+            var position = $(pic).position();
+            var topalignment = position.top;
+            $.ajax({
+                url: '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
+                    }
+
+                    $(pic).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    $(pic).parent('td').find('.roundimage').zoomify();
+
+                },
+                error: function (data) {
+
+                }
+            });
+        }
+
+
+        function testTime(time) {
+
+            // var matches = time.test(/^(\d\d):(\d\d)\s/);
+            //    var re = /^(\d\d):(\d\d)/;
+            //  var re = /(((0[1-9])|(1[0-2])):([0-5])(0|5))/;
+            var time = $(time).val();
+            var re = /[0-2]?\d[.:][0-5]\d/;
+            //    var re=/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+            // var re = /^(1[0-2]|0?[1-9]):[0-5][0-9]/;
+            // var re = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            // var regex = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            var matches = re.test(time);
+            if (matches == true) {
+
+                return true;
+
+            } else {
+                customAlert("Invalid Time Format");
+                return false;
+            }
+
+        }
+
+
+        function showImage(ele) {
+            $('#spinner').show();
+            var enc_id = $(ele).attr('EClientId');
+            $.ajax({
+                url: '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                    }
+
+                    //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    //$(pic).parent('td').find('.roundimage').zoomify();
+
+                    $(ele).parent('td').append(image);
+                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).remove();
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+        }
+
+        //function hideProfileImage(pics)
+        //{
+        //    $(pics).find('.tooltiptext').css({ 'visibility': 'hidden' });
+        //}
+
+    </script>
+}
+
+@section MainContentHolder{
+    @*<link href="~/Content/CaseNote/css/bootstrap.min.css" rel="stylesheet" />
+    *@
+
+    <style>
+
+
+
+        #MyModalLateArrival .close {
+            opacity: 1;
+            position: absolute;
+            right: -14px;
+            top: -15px;
+        }
+
+        body {
+            font-family: Arial,sans-serif !important;
+        }
+
+        #MyModalLateArrival .modal-body > h2 {
+            margin-top: 10px;
+            float: left;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        #MyModalLateArrival .tagsinput {
+            min-height: 50px !important;
+        }
+
+        #MyModalLateArrival .modal-body {
+            background: #34495e none repeat scroll 0 0;
+            border: 6px solid #ffffff;
+            border-radius: 3px;
+            /* color: #ffffff; */
+            float: left;
+            padding: 15px 3%;
+            position: relative;
+            width: 100%;
+        }
+
+        .addn-poup-div label {
+            color: #163b69;
+            font-size: 18px;
+            text-align: right;
+            font-weight: 400;
+            margin-top: 5px;
+            margin-bottom: 3px;
+            width: 100%;
+        }
+
+        .addn-poup-div1 input, .addn-poup-div1 textarea {
+            position: relative;
+            color: #333;
+            background: #fff;
+            border: 1px solid #fff;
+            border-radius: 0;
+            font-style: italic;
+            box-shadow: none;
+        }
+
+
+
+
+
+
+
+        .xs-strong span {
+            padding-right: 2px;
+        }
+
+            .xs-strong span i {
+                font-size: 16px;
+            }
+
+        .xs-strong strong {
+            padding-right: 5px;
+            font-weight: 300;
+        }
+
+        .dlf-outer {
+            width: 89%;
+            border: 1px solid #9B58B4;
+            float: none;
+            margin: auto;
+        }
+
+        /*Style for Closed alert*/
+        .education-content-desc1 p {
+            background: #e74c3c;
+            border: 1px solid #c0392b;
+            padding: 12px 15px;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            margin: 0; /* font-weight: bold; */
+        }
+
+        .modal-content-ic #divAbsenceTypeList {
+            width: 100%;
+            float: left;
+            border-top: 1px solid #f4f4f4;
+        }
+
+        .center-sel {
+            height: 38px !important;
+        }
+
+        .chk-box-ch .fa-radio,
+        .chk-box-ch .fa-checkbox {
+            position: relative;
+        }
+
+            .chk-box-ch .fa-radio input[type=radio],
+            .chk-box-ch .fa-checkbox input[type='checkbox'] {
+                display: none !important;
+            }
+
+                .chk-box-ch .fa-checkbox input[type='checkbox'] + label:before,
+                .chk-box-ch .fa-radio input[type='radio'] + label:before {
+                    display: inline-block;
+                    font-family: FontAwesome;
+                    font-size: 21px;
+                    font-style: normal;
+                    font-weight: normal;
+                    line-height: 32px;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    padding-right: 8px;
+                    width: 20px;
+                }
+
+                .chk-box-ch .fa-checkbox input[type="checkbox"] + label:before {
+                    content: "\f096";
+                    position: relative;
+                    top: 0px;
+                    color: #fff;
+                    margin-right: 10px;
+                }
+
+                .chk-box-ch .fa-checkbox input[type="checkbox"]:focus + label:before {
+                    color: #666;
+                }
+
+                .chk-box-ch .fa-checkbox input[type="checkbox"]:checked + label:before {
+                    color: #3FC593;
+                    content: "\f14a";
+                    position: relative;
+                    top: 0px;
+                }
+    </style>
+    <link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
+    <div class="row">
+
+        @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+
+
+
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Roster
+
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <span style="font: bold; font-size: 17px; color: #285b8f;">Roster Count : </span>
+                    <span style="font: bold; font-size: 17px;  color: #285b8f;" id="rosterCountLabel">00</span>
+                </span>
+
+
+            </h2>
+        </div>
+    </div>
+
+    <input type="hidden" id="isManager" value="@ViewBag.IsManager.ToString()" />
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+            <div class="col-sm-4 col-md-3 col-lg-3">
+                <label style="color:#295b8f;font-weight:bold;">Center</label>
+            </div>
+            <div class="col-sm-4 col-md-3 col-lg-3">
+                <label style="color:#295b8f;font-weight:bold;">Classroom</label>
+            </div>
+
+            @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+            {
+                <div class="col-sm-4 col-md-3 col-lg-3">
+                    <label style="color:#295b8f;font-weight:bold;">Filter By</label>
+                </div>
+            }
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
+            <div class="col-sm-4 col-lg-3" style="margin-bottom: 8px;">
+                @*<select id="Centers" onchange="GetClassrooms(this);" style="height:38px !important;" class="form-control"></select>*@
+                @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel" })
+            </div>
+            <div class="col-sm-4 col-lg-3">
+                <select id="Classroom" style="height:38px !important;" class="form-control"></select>
+            </div>
+
+            @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+            {
+                <div class="col-sm-4 col-lg-3">
+                    <select id="filterSelect" style="height:38px !important;" class="form-control">
+                        <option value="0">-Select-</option>
+                        <option value="1">ABT</option>
+                        <option value="2">TRN</option>
+                    </select>
+                </div>
+            }
+
+
+            <div class="col-sm-12 col-lg-3 ic-mqr">
+                <button id="btnsearch" class="my-btn">Search</button>
+                <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+            @if (ViewBag.IsManager)
+            {
+
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-xs-12 col-lg-8 text-left" style="display:none;" id="searchByNameDiv">
+                        <input type="text" placeholder="Search by Name" class="form-control col-lg-6" id="searchTextName" style="width:300px;height:38px;" />
+                        <button type="button" id="searchbyNamebtn" class="col-lg-2 my-btn" style="margin-left:20px;">Search</button>
+                    </div>
+                    @*<div class="col-xs-12 col-lg-4 text-right" style="margin-bottom: 20px;">
+                            <label style="display: initial;font-size: 16px; color: #295b8f;">Roster Count :</label>
+                            <label style="display: initial;font-size: 16px; color: #000;" id="rosterCountLabel">0</label>
+                        </div>*@
+                </div>
+            }
+            else
+            {
+                @*<div class="row" style="margin-bottom:10px;">
+                        <div class="col-xs-12 text-right" style="margin-bottom: 20px;">
+                            <label style="display: initial;font-size: 16px; color: #295b8f;">Roster Count :</label>
+                            <label style="display: initial;font-size: 16px; color: #000;" id="rosterCountLabel">0</label>
+                        </div>
+                    </div>*@
+            }
+
+            <div class="table-responsive">
+                <table class="table table_size" id="GridRoster">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th id="thIN">Child Name<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+
+                            <th><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+
+
+
+                            <th id="thCust">Child's Picture<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+
+                            @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))))
+                            {
+                                // if (roleid == "c352f959-cfd5-4902-a529-71de1f4824cc" || roleid == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                                <th id="thRN">Attendance Issue<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
+                            }
+                            @*<th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
+                            <th id="thAN">Classroom<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+
+                            @if (ViewBag.IsManager)
+                            {
+                                <th id="thSN" style="width: 10%;">Date of Last Case Note</th>
+                                <th id="thSN" style="width: 10%;">Date of Last FPA</th>
+                                <th id="thSN" style="width: 10%;">Date of Last Referral</th>
+                            }
+
+                            @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))))
+                            {
+                                <th id="thSN" style="width: 24%;">Services</th>
+                            }
+
+
+                        </tr>
+                    </thead>
+                    <tbody id="table_body"></tbody>
+                </table>
+                <div id="div1" style="text-align:center;display:none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModalSeats" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Attendance Details</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group input-container">
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-4">
+                                <label class="control-label" for="current_password">Date:</label>
+                            </div>
+                            <div class='col-xs-12 col-sm-4'>
+                                <div class="form-group">
+                                    <div class='input-group date'>
+                                        <input type='text' class="form-control txtseatdate txt-date txt-mandatory " maxlength="12" placeholder="mm/dd/yyyy" id='seatsDatetimePicker1' />
+                                        <span class="input-group-addon datepicker-icon seats-icon" id="1" style="cursor:pointer;">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-4">
+                                @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
+                                <button class="btn-roster-submit address-btn btn btn-primary" style="display:inline-block;width:auto;">Submit</button>
+                            </div>
+
+                        </div>
+
+                        @*<label class="control-label" for="current_password" style="width:180px;">Date:</label>
+                            <input name="CNotes" style="width: 30%;display:inline-block" class="form-control txtseatdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">
+                            <button class="btn-seat-submit address-btn btn btn-primary" style="width:auto;display:inline-block;">Submit</button>*@
+                        <div class="err-container" style="height:15px;">
+                            <label class="control-label" for="current_password" style="width:180px;"></label>
+                            <span class="error-message seats-message-empty error-message-empty" style="margin-top:10px;display:none;color:red;">Date is mandatory</span>
+                            <span class="error-message seats-invalid-date error-invalid-date" style="margin-top:10px;display:none;color:red;">Invalid Date</span>
+                            <span class="error-message seats-future-date error-future-date" style="margin-top:10px;display:none;color:red;">Future date is not allowed</span>
+                        </div>
+                    </div>
+                    <div id="divForNoRecords">
+                        <p style='text-align:center;color:red;'>Record not found</p>
+                    </div>
+                    <div id="divForMealsDetails" style="display:none;">
+                        <div class="dlf-outer">
+                            <div class="form-group" style="margin-top: 0px;">
+                                <div class="col-xs-12" style="border: 1px solid #9B58B4; width: 100%;background:#9B58B4;margin: 0 auto;float: none;">
+                                    <label style="text-align:center;font-weight:bold;color:#fff;margin:5px;">Client Details</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Client</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                    <span id="spnClientName" class="txt-clear engagement-minutes sp-seats-home-count"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Center</label>
+                                </div>
+                                <div class="col-lg-8 col-sm-8" style="width:auto;display:inline-block;margin-top:10px;width:auto;">
+                                    <span id="spnCenterName" class="txt-clear engagement-minutes sp-seats-home-count"></span>
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Attendance Status</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                    <span id="spnAttendenceStatus" class="txt-clear engagement-activity sp-seatpercentage-count"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Parent Name</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                    <span id="spnParentName" class="txt-clear engagement-minutes sp-seats-count"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Signed In By</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                    <span id="spnSignedInBy" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Signed Out By</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                    <span id="spnSignedOutBy" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Attendance Date</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:10px;width:auto;" class="col-lg-8 col-sm-8">
+                                    <span id="spnAttendenceDate" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-4 col-sm-4">
+                                    <label class="no-padding" for="current_password">Meals Details</label>
+                                </div>
+                                <div style="width:auto;display:inline-block;margin-top:0px;width:auto;" class="xs-strong col-lg-8 col-sm-8">
+                                    <span id="spnBreakfast" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Breakfast</strong>
+                                    <span id="spnLunch" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Lunch</strong>
+                                    <span id="spnSnacks" class="txt-clear engagement-activity sp-seatpercentage-home-count"></span><strong>Snacks</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnPassword address-btn" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="ChangeclientStatus" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
+                </div>
+                <div class="control-group">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                            <div class="add-useragform">
+
+                                <div class="col-sm-12">
+                                    <fieldset style="border: 1px solid #295b8f; ">
+                                        <legend class="legend1"></legend>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Name</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Current Status</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="lblCurrentStatus"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">New Status</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="lblNewStatus"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Reason<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <select id="ddlreason" style="width:100%;" onchange="Showreason(this);" class="form-control">
+                                                    <option>Others</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="Divreason">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;"></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <textarea id="txtreason" placeholder="Reason" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="Divwaitinglist">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Place on Waiting List<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5" id="rblwaitinglist">
+                                                <div>
+                                                    <label class="radio-inline">
+                                                        <input data-val="true" id="rdWaintingList" name="waitinglist" tabindex="22" type="radio" value="1">                                                            <span>Yes</span>
+                                                    </label>
+                                                </div>
+                                                <div>
+                                                    <label class="radio-inline">
+                                                        <input id="rdWaintingList" name="waitinglist" tabindex="23" type="radio" value="0">
+                                                        <span>No  </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="button" class="my-btn" onclick="return isValidChangestatus();">Submit</button>
+                                <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Modal Popup*@
+    <div class="modal fade" id="schedule_popup" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="Resourece1">Add Appointment<span class="extra-title muted"></span></h3>@*Changes on 28Dec2016*@
+
+                </div>
+                <input type="hidden" id="Days" />
+                <div class="modal-body">
+                    <div style="width: 100%; height: 100%; margin: 0px; padding: 0px">
+
+                        @*Changes on 6Feb2017*@
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="RaceId">Description <sup style="color: red">*</sup></label>
+                                @*<i class="fa fa-user"></i>*@
+                                <input type="text" name="Description" class="form-control txt-clear" id="Description" placeholder="Description" maxlength="50">
+                            </div>
+
+                        </div>
+
+
+
+
+                        <div class="row" style="margin:10px 0px;">
+
+                            <div class="form-group col-xs-6 col-md-4" style="padding:0;">
+                                <label for="exampleInputEmail1">Select Date <sup style="color: red">*</sup></label>
+                                <div class='input-group date'>
+                                    <input type='text' class="form-control txtseatdate txt-date txt-mandatory txt-clear" maxlength="12" placeholder="mm/dd/yyyy" id='seatsDatetimePicker2' />
+                                    <span class="input-group-addon datepicker-icon seats-icon" id="2" style="cursor:pointer;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <div class="err-container" style="height:15px;">
+                                    <label class="control-label" for="current_password" style="width:180px;"></label>
+                                    <span class="error-message seats-message-empty error-message-empty" style="margin-top:10px;display:none;color:red;">Date is mandatory</span>
+                                    <span class="error-message seats-invalid-date error-invalid-date" style="margin-top:10px;display:none;color:red;">Invalid Date</span>
+                                    @*<span class="error-message seats-future-date error-future-date" style="margin-top:10px;display:none;color:red;">Future date is not allowed</span>*@
+                                </div>
+                            </div>
+
+                            <div class="col-xs-6 col-md-4" style="position: relative; height: 10px; z-index: 9999;">
+                                @*<label for="exampleInputEmail1">From <sup style="color: red">*</sup></label><br />
+                                    <select name="StartTime" id="StartTime" placeholder="From" style="width: 110px;  position: absolute;height:34px;" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0;' onblur="this.size=0;"></select>*@
+
+                                <label for="exampleInputEmail1">From <sup style="color: red">*</sup></label><br />
+                                <select name="StartTime" id="StartTime" class="txt-clear form-control" placeholder="From" style="width: 110px;  position: absolute;" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0;' onblur="this.size=0;"></select>
+
+                            </div>
+
+                            <div class="col-xs-6 col-md-4 wrapper" style="z-index: 9999;">
+                                <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label><br />
+                                <select class="editableBox txt-clear form-control" id="EndTime" style="position:absolute;z-index:999;width:110px;" size="1" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0; this.nextElementSibling.value=this.value' onblur="this.size=0;">
+                                    <option value="-1"></option>
+                                    @*Changes on 8Feb2017*@
+                                    <option value="00:30">00:30</option>
+                                    @*<option value="00:90">00:90</option>*@
+                                    <option value="01:00">01:00</option>
+                                    <option value="01:30">01:30</option>
+                                    <option value="02:00">02:00</option>
+                                    <option value="02:30">02:30</option>
+                                    <option value="03:00">03:00</option>
+                                    <option value="03:30">03:30</option>
+                                    <option value="04:00">04:00</option>
+
+                                </select>
+                                <input class="timeTextBox txt-clear" placeholder="HH:MM" id="TestEndTime" style="position:absolute;width:110px;" name="timebox" maxlength="5" onblur="testTime(this);" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="RaceId">Notes</label>
+                                @*<i class="fa fa-user"></i>*@
+                                @*<input type="textarea" name="Notes" class="form-control" id="Notes" placeholder="Notes" maxlength="50">*@
+                                <textarea name="Description" style="vertical-align: top" class="form-control txt-clear" id="Notes" placeholder="Notes"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    @*Added on 17jan2017*@
+
+                    <input type="hidden" id="MeetingId" name="MeetingId" />
+                    <input type="hidden" id="EndTimeDuration" name="EndTimeDuration" />
+                    <input type="hidden" value="@Request.QueryString["Name"]" id="ClientName" name="TabId" />
+                    <input type="hidden" value="@Request.QueryString["Id"]" id="ClientId" name="TabId" />
+                </div>
+                <div class="clearfix"></div>
+                <div style="margin-left: 30%; margin-bottom: 20px; margin-top: 20px;">
+                    @*<a href="javascript:;" onclick="resetTimer()" class="btn btn-primary" aria-hidden="true">Save</a>
+                        <a href="" class="btn btn-danger" aria-hidden="true">Cancel</a>*@
+
+                    <button type="button" class="my-btn1 addSchedular" onclick="AddSchedulerDetails(this);">Save</button>
+                    <button type="button" data-dismiss="modal" class="my-btn1">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="modal fade" id="InformedLateArrival" role="dialog">
+        <div class="modal-dialog">
+            @*Modal content*@
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4><label id="InformedLateArrivalClient" text="" /> </h4>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Expected Arrival Time:</label>
+                    <p class="control-label" style="width:180px!important;margin-left:75px!important" id="lblArrivalTime" for="current_password"></p>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Reason:</label>
+                    <p class="control-label" style="width:180px!important;margin-left:75px!important" id="lblReasonForLate" for="current_password"> </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" class="my-btn1">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="MyModalLateArrival" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-body">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                        <h3 style="color: #fff;font-size:18px;margin:0;"><label id="childlbl" text="" style="width:auto;" /> </h3>
+                    </div>
+
+                    <div class="col-xs-12 chk-box-ch">
+                        <div class="fa-checkbox">
+                            <input type="checkbox" id="checkbox1" name="checkbox-type" value="Mark Late Arrival" style="display:none;" class="abtCheckbox">
+                            <label for="checkbox1" style="color:#fff;font-size:18px;text-align:center;margin-bottom:12px;">Late arrival</label>
+                        </div>
+                    </div>
+                    <div id="divForLateArrival" style="display:none;">
+                        <div class="modal-content-ic">
+                            @using (Html.BeginForm("SaveCaseNotes", "Roster", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+
+                                <input type="hidden" name="CaseNoteClientId" id="CaseNoteClientId" />
+                                <input type="hidden" name="CaseNoteHouseHoldId" id="CaseNoteHouseHoldId" />
+
+
+                                <div class="max_items_addn popup-addn-scroll">
+
+                                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                                        <div class="col-sm-4">
+                                            <div class="addn-poup-div">
+                                                <label>Date <sup style="color:red">*</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="addn-poup-div1">
+                                                <input type="text" id="CaseNoteDate" name="CaseNoteDate" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                                        <div class="col-sm-4">
+                                            <div class="addn-poup-div">
+                                                <label>Title <sup style="color:red">*</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="addn-poup-div1">
+                                                <input type="text" maxlength="100" id="CaseNotetitle" name="CaseNotetitle" class="form-control ui-autocomplete-input" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                                        <div class="col-sm-4">
+                                            <div class="addn-poup-div">
+                                                <label>Note <sup style="color:red">*</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="addn-poup-div1">
+                                                <textarea id="Note" name="Note" class="form-control txt-clear"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                                        <div class="col-sm-4">
+                                            <div class="addn-poup-div">
+                                                <label>Tags <sup style="color:red">*</sup> </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="addn-poup-div1">
+                                                <input type="text" id="CaseNotetags" name="CaseNotetags" style="height:80px!important" class="txt-clear form-control ui-autocomplete-input" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer" style="width:100%;margin-top:  10px;padding: 7px 0;float: left;width: 100%;">
+                                    <button class="btnPassword" id="submitCaseNote" style="background-color: #2ecc71;padding: 8px;" type="submit" value="Submit" onclick="return Validatecasenote();">Submit</button>
+                                    <button class="btnPassword" id="btnCancelPassword1" style="background-color: #db4437;padding: 8px;" type="button" data-dismiss="modal">Exit</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div id="divForAbsence" style="display:none;">
+                        @using (Html.BeginForm("CheckIn", "Roster", FormMethod.Post))
+                        {
+                          <!-- Modal content-->
+                            <div class="divabsense">
+                                <input type="hidden" name="childid" id="childid" value="" />
+                                <input type="hidden" name="childname" id="childname" value="" />
+
+                            </div>
+
+
+                            <div class="max_items_addn popup-addn-scroll">
+                                <div class="modal-content-ic">
+                                    <div id="divAbsenceTypeList">
+                                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                                            <div class="col-sm-5">
+                                                <div class="addn-poup-div">
+                                                    <label>Attendance Type  <sup style="color:red">*</sup> </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-7">
+                                                <div class="addn-poup-div1">
+                                                    <select name="AbsentType" id="AbsentType" placeholder="Select" class="txt-clear form-control" style="width:70%;" required></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="divAbsenceNoShow" style="display:none;">
+                                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="addn-poup-div1">
+                                                    <label style="width:44%;float:left;"></label>
+                                                    <label style="text-align:  left;width: 56%;float:left;color: #163b69;font-weight: 400;font-size: 15px;">*&nbsp; No contact from parent</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="divAbsenceReasonList" style="display:none;">
+                                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                                            <div class="col-sm-5">
+                                                <div class="addn-poup-div">
+                                                    <label>Absent Reason  <sup style="color:red">*</sup> </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-7">
+                                                <div class="addn-poup-div1">
+                                                    <select id="ReasonList" name="ReasonList" style="width: 70%;" class="txt-clear form-control"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="divNewReason" style="display:none;">
+                                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                                            <div class="col-sm-5">
+                                                <div class="addn-poup-div">
+                                                    <label>Other Reason <sup style="color:red">*</sup> </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-7">
+                                                <div>
+                                                    <input type="text" name="txtNewReason" id="txtNewReason" style="width: 70%;" class="txt-clear form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @*<div class="form-group" id="divAbsenceTypeList">
+                                            <label class="control-label" for="current_password">Attendance Type <span style="color:red;">*</span> </label>
+                                            <select name="AbsentType" id="AbsentType" placeholder="Select" class="form-control txt-clear" style="width:45%;" required></select>
+                                        </div>
+                                        <div class="form-group" id="divAbsenceReasonList" style="display:none;">
+                                            <label class="control-label">Absent Reason <span style="color:red;">*</span> </label>
+                                            <select id="ReasonList" name="ReasonList" style="width: 45%;" class="form-control txt-clear"></select>
+                                             </div>*@
+                                    <div class="modal-footer" style="width:100%;display:  inline-block;margin-top:  10px;padding: 7px 0;float: left;width: 100%;">
+                                        <button class="btnPassword" style="background-color: #2ecc71;padding: 8px;" id="Attendancesubmit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
+                                        <button class="btnPassword" id="btnCancelPassword" style="background-color:#db4437;padding: 8px;" type="button" data-dismiss="modal">Exit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+
+
+
+
+
+

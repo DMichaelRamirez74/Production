@@ -1,0 +1,442 @@
+﻿@model FingerprintsModel.AgencySlots
+@using System.Data
+
+@{
+    @section Title
+{
+        Slots And Seats
+    }
+    ViewBag.Title = "Slots";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '') {
+                customAlert('@ViewBag.message');
+            }
+
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            $("#Tslots > tbody > tr").each(function () {
+                if ($(this).find("td:eq(1) :input[type='text']").val().trim() != "") {
+                    if ($(this).find("td:eq(1) :input[type='text']").next().val() == 1) {
+                        $('#1').text('Total: ' + $(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                    if ($(this).find("td:eq(1) :input[type='text']").next().val() == 2) {
+                        $('#2').text('Total: ' + $(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                    if ($(this).find("td:eq(1) :input[type='text']").next().val() == 3) {
+                        $('#3').text('Total: ' + $(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                    if ($(this).find("td:eq(1) :input[type='text']").next().val() == 4) {
+                        $('#4').text('Total: ' + $(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                    if ($(this).find("td:eq(1) :input[type='text']").next().val() == 5) {
+                        $('#5').text('Total: ' + $(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                    if ($(this).find("td:eq(1) :input[type='text']").next().val() == 6) {
+                        $('#6').text('Total: ' + $(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                }
+            });
+            $('#ProgramType').val('');
+
+
+            
+        });
+
+        function ExpandCenter(object) {
+            if (!$(object).hasClass('panel-collapsed')) {
+                $(object).parent().parent().children(':first-child').next().slideUp();
+                $(object).addClass('panel-collapsed');
+                $(object).find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+            }
+            else {
+                $(object).parent().parent().children(':first-child').next().slideDown();
+                $(object).removeClass('panel-collapsed');
+                $(object).find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+            }
+        }
+        function Callspanclick(object) {
+            $(object).next().click();
+
+        }
+
+
+        function GetSlots(object) {
+            if ($('#ProgramType').val() == "" || $('#ProgramType').val() == null) {
+                isValid = false;
+                customAlert("Program type is required.");
+                plainValidation('#ProgramType');
+                return isValid;
+            }
+            else {
+                $('#CalculateSeats').find('input:text').each(function () {
+                    $(this).val("");
+                });
+                $.ajax({
+                    url: HostedDir + "/AgencyAdmin/GetSlot",
+                    type: "POST",
+                    data: {
+                        ProgramId: $('#ProgramType').val()
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (data) {
+                        if (data.list != null && data.list.length > 0) {
+                            for (var i = 0; i < data.list.length; i++) {
+                                $('#CalculateSeats').find('input:text').each(function () {
+                                    if ($(this).attr("id") == data.list[i].ClassroomID) {
+                                        $(this).val(data.list[i].ActualSeats);
+
+                                    }
+                                });
+                            }
+                        }
+                        $('#Slots').val(data.Slots);
+                    }
+                  , error: function (response) {
+                         customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                  }
+                });
+
+            }
+        }
+        function checkNumeric(inputTextObject) {
+            var ret = true;
+            var ex = /^[0-9]*$/;
+            if ($(inputTextObject).val().trim() != "") {
+                if (!ex.test($(inputTextObject).val())) {
+                    $(inputTextObject).val('');
+                    customAlert("Seats must be numeric. ");
+                    var ret = false;
+                }
+
+            }
+            return ret;
+        }
+        function Checkisvalid() {
+            cleanValidation();
+            var isValid = true;
+            var TotalSeats = 0;
+            var counts = 0;
+            if ($('#SlotPurchased').text() == 0 || $('#SlotPurchased').text() == "") {
+                isValid = false;
+                customAlert("No slots purchased.");
+                return isValid;
+            }
+            else if ($('.Avaicenter').length < 1) {
+                isValid = false;
+                customAlert("No center found.");
+                return isValid;
+            }
+            else if ($('.Availclass').length < 1) {
+                isValid = false;
+                customAlert("No class found.");
+                return isValid;
+            }
+            else {
+                $("#Tslots > tbody > tr").each(function () {
+                    if ($(this).find("td:eq(1) :input[type='text']").val().trim() != "") {
+                        counts = counts + parseInt($(this).find("td:eq(1) :input[type='text']").val());
+                    }
+                });
+
+                if (counts != $('#SlotPurchased').text()) {
+                    isValid = false;
+                    customAlert("Seats not in balance.");
+                    return isValid;
+                }
+                $("#Tslots > tbody > tr").each(function () {
+                    var Programid = $(this).find("td:eq(1) :input[type='text']").attr("accesskey");
+                    $('#CalculateSeats').children().each(function () {
+                        $(this).find('input:text').each(function () {
+                            if ($(this).attr("accesskey") == Programid) {
+                                if ($(this).val().trim() != "")
+                                    TotalSeats = TotalSeats + parseInt($(this).val());
+                            }
+                        });
+                    });
+                    if (TotalSeats != $(this).find("td:eq(1) :input[type='text']").val()) {
+                        isValid = false;
+                        customAlert("Seats not in balance.");
+                        plainValidation($(this).find("td:eq(1) :input[type='text']"));
+                        $('#CalculateSeats').children().each(function () {
+                            $(this).find('input:text').each(function () {
+                                if ($(this).attr("accesskey") == Programid) {
+                                    $(this).parents(".Parents").children(':first-child').next().slideDown();
+                                    $(this).parents(".Parents").children(':first-child').find('span').removeClass('panel-collapsed');
+                                    $(this).parents(".Parents").children(':first-child').find('span').find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+
+                                    plainValidation($(this));
+                                }
+                            });
+                        });
+                        return isValid;
+                    }
+                    TotalSeats = 0;
+                });
+            } $('#spinner').show();
+            return isValid;
+            $('#spinner').hide();
+        }
+        function Clear() {
+            $('#ProgramType').val("");
+            $('#Slots').val("");
+            $('#CalculateSeats').find('input:text').each(function () {
+                $(this).val("");
+            });
+
+        }
+        function BackToCenters() {
+            window.location.href = HostedDir + '/AgencyAdmin/Centerlist/';
+        }
+        function checkNumerics(inputTextObject) {
+            var ret = true;
+            var ex = /^[0-9]*$/;
+            if ($(inputTextObject).val().trim() != "") {
+                if (!ex.test($(inputTextObject).val())) {
+                    $(inputTextObject).val('');
+                    customAlert("Seats must be numeric. ");
+                    var ret = false;
+                }
+                else {
+                    if ($(inputTextObject).next().val() == 1) {
+                        $('#P1').text('Total: ' + $(inputTextObject).val());
+                    }
+                    if ($(inputTextObject).next().val() == 2) {
+                        $('#P2').text('Total: ' + $(inputTextObject).val());
+
+                    }
+                    if ($(inputTextObject).next().val() == 3) {
+                        $('#P3').text('Total: ' + $(inputTextObject).val());
+                    }
+                    if ($(inputTextObject).next().val() == 4) {
+                        $('#P4').text('Total: ' + $(inputTextObject).val());
+                    }
+                    if ($(inputTextObject).next().val() == 5) {
+                        $('#P5').text('Total: ' + $(inputTextObject).val());
+                    }
+                    if ($(inputTextObject).next().val() == 6) {
+                        $('#P6').text('Total: ' + $(inputTextObject).val());
+                    }
+                }
+
+            }
+            else {
+                if ($(inputTextObject).next().val() == 1) {
+                    $('#P1 ').text('Total: 0');
+                }
+                if ($(inputTextObject).next().val() == 2) {
+                    $('#P2').text('Total: 0');
+                }
+                if ($(inputTextObject).next().val() == 3) {
+                    $('#P3').text('Total: 0');
+                }
+                if ($(inputTextObject).next().val() == 4) {
+                    $('#P4').text('Total: 0');
+                }
+                if ($(inputTextObject).next().val() == 5) {
+                    $('#P5').text('Total: 0');
+                }
+                if ($(inputTextObject).next().val() == 6) {
+                    $('#P6').text('Total: 0');
+                }
+            }
+            return ret;
+        }
+
+
+    </script>
+
+}
+@section MainContentHolder{
+    <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">
+                    <span>Slots and Seats</span>
+                    <span class="view-btn backto_listspan" id="BackToList">
+                        <button type="submit" class="my-btn1" onclick="return Checkisvalid();" name="Command">Submit</button>
+                        <button type="button" class="my-btn1" onclick="Clear();" name="Command">Cancel</button>
+                        @if (Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
+                        {
+                            <button class="my-btn1" onclick="BackToCenters();" type="button" tabindex="22">Back</button>
+                        }
+                    </span>
+                </h2>
+            </div>
+        </div>
+        <div class="row add-useragform1">
+            <div class="col-sm-2">
+                <label style="font-size: 19px; color: #285b8f;" for="RaceSubCatDesc">Slots Purchased </label>
+
+            </div>
+            <div class="col-sm-2">
+
+                <label style="font-size: 19px; color: #285b8f;" for="RaceSubCatDesc" id="SlotPurchased">@Model.SlotPurchased</label>
+            </div>
+        </div>  
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 table-main">
+                <div class="table-responsive">
+                    <table class="table table_size" id="Tslots">
+                        <thead style="cursor:pointer;">
+                            <tr>
+                                <th width="23%">Program Type</th>
+                                <th width="10%">Seats</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int sum1 = 0;
+                                string Value = "";
+
+                                try
+                                {
+                                    foreach (var item in Model.RefProgram)
+                                    {
+                                        <tr>
+                                            <td> @item.Text</td>
+                                            <td>
+                                                @if (Model._Centerprogram != null && Model._Centerprogram.Rows.Count > 0)
+                                                {
+                                                    sum1 = 0;
+                                                    DataRow[] rows = Model._Centerprogram.Select("programtype=" + Convert.ToInt32(item.Value));
+                                                    foreach (DataRow _dr in rows)
+                                                    {
+                                                        if (_dr["Totalseats"] != null)
+                                                        {
+                                                            sum1 = sum1 + Convert.ToInt32(_dr["Totalseats"]);
+                                                        }
+                                                    }
+                                                }
+
+                                                @if (sum1 != 0)
+                                                {
+                                                    Value = sum1.ToString();
+                                                }
+                                                <input type="text" class="form-control" value="@Value" accesskey="@item.Value" onblur="return checkNumerics(this);" maxlength="5" />
+                                                <input type="hidden" value="@item.Value" />
+                                            </td>
+                                        </tr>
+                                        sum1 = 0;
+                                        Value = "";
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    FingerprintsModel.clsError.WriteException(ex);
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <div id="div5" style="text-align:center;display:none; margin-left:38%;">
+                        <label>No result found.</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="CalculateSeats">
+            @{
+                try
+                {
+                    if (Model != null && Model._CenterTable != null && Model._CenterTable.Rows.Count > 0)
+                    {
+                        int i = 0;
+                        int sum = 0;
+                        string Value1 = "";
+                        DataTable centers = Model._CenterTable.DefaultView.ToTable(true, "CenterId", "centername");
+                        foreach (DataRow Row in centers.Rows)
+                        {
+                            DataRow[] dr = Model._CenterTable.Select("CenterId=" + Convert.ToInt32(Row["CenterId"]));
+                            <div class="panel panel-primary Parents">
+                                <div class="panel-heading panel-heading">
+                                    <h3 class="panel-title Avaicenter" onclick="Callspanclick(this);"><a style="cursor:pointer;">@Row["centername"] </a></h3>
+                                    <span onclick="ExpandCenter(this);" class="pull-right clickable "><i class="glyphicon glyphicon-chevron-up"></i></span>
+                                </div>
+                                <div class="panel-body">
+                                    @foreach (DataRow item in dr)
+                                    {
+                                        if (item["ClassroomID"].ToString() != "0" && !string.IsNullOrEmpty(item["ClassroomName"].ToString()))
+                                        {
+
+                                            <div class="row mb20">
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-9" style="margin-bottom:1%;">
+                                                        <h4 style="color: #285b8f;">@item["ClassroomName"]</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    @foreach (var Refs in Model.RefProgram)
+                                                    {
+                                                        
+                                                        if (Model._Centerprogram != null && Model._Centerprogram.Rows.Count > 0)
+                                                        {
+                                                            sum = 0;
+                                                            DataRow[] rows = Model._Centerprogram.Select("CenterId=" + Convert.ToInt32(Row["CenterId"]) + "And ClassroomID=" + Convert.ToInt32(item["classroomid"]) + "And programtype=" + Convert.ToInt32(Refs.Value));
+                                                            foreach (DataRow _dr in rows)
+                                                            {
+                                                                if (_dr["Totalseats"] != null)
+                                                                {
+                                                                    sum = sum + Convert.ToInt32(_dr["Totalseats"]);
+
+                                                                }
+                                                            }
+                                                        }
+                                                        if (sum != 0)
+                                                        {
+                                                            Value1 = sum.ToString();
+                                                        }
+                                                        <div class="col-sm-2">
+                                                            <span>@Refs.Text</span>
+                                                            <input onblur="return checkNumeric(this);" accesskey="@Refs.Value" value="@Value1" id="@item["classroomid"]" name="ClassSlot[@i].ActualSeats" maxlength="5" class="form-control Availclass" />
+                                                            <input type="hidden" value="@item["classroomid"]" name="ClassSlot[@i].ClassroomID" />
+                                                            <input type="hidden" value='@Refs.Value' name="ClassSlot[@i].ProgramId" />
+                                                        </div>
+                                                        sum = 0;
+                                                        Value1 = "";
+                                                        i++;
+                                                    }
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                        }
+                    }
+                    else
+                    {
+                        <div class="row mb20">
+                            <div class="col-sm-6">
+                                <div class="col-sm-6">No Center Found.</div>
+                            </div>
+                        </div>
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    FingerprintsModel.clsError.WriteException(ex);
+                }
+            }
+        </div>
+    </form>
+}

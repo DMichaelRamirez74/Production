@@ -1,0 +1,248 @@
+﻿@model FingerprintsModel.SupperAdmin
+
+@{
+    @section Title
+{
+        @ViewData["Title"].ToString()
+    }
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $("#mobileno").mask("(999) 999-9999");
+            $("#side-menu li a").removeClass("active");
+            $('#addstaff').addClass("active");
+            $('#ul2').addClass("in");
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            //$("#userName").on('change keypress paste', function (e) {
+            //    if (e.which === 32)
+            //        return false;
+            //    if ($(this).val().match(/\s/g)) {
+            //        $(this).val($(this).val().replace(/\s/g, ''));
+            //    }
+            //});
+            if ('@ViewBag.mode' == 0) {
+                //$('#ReferenceProg').val('');
+              
+                $('#TimeZoneID').val('');
+
+            }
+            $('#form1').submit(function () {
+                $('#btnSubmit').attr('disabled', 'disabled');
+            });
+            //$('#userName').bind("cut copy paste", function (e) {
+            //    e.preventDefault();
+            //})
+
+            //$('#btnCancel').click(function () {
+            //    $('#emailid')[0].value = "";
+
+            //    $('#firstname')[0].value = "";
+            //    $('#lastname')[0].value = "";
+            //    $('#mobileno')[0].value = "";
+            //    $('#userName')[0].value = "";
+            //    $('#address')[0].value = "";
+            //    $("#message").text('');
+            //    cleanValidation();
+            //});
+            $('#btnExit').click(function () {
+                window.location.href = HostedDir + "/Home/SuperAdminDashboard";
+            });
+        });
+        function isValidagencyInfo() {
+            cleanValidation();
+            $("#message").text('');
+            if ($('#emailid')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email is required.");
+                plainValidation('#emailid');
+                return isValid;
+            }
+            else if ($('#emailid')[0].value.trim() != "" && !validateEmail($('#emailid')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#emailid');
+                return isValid;
+            }
+            else if ($('#firstname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required.");
+                plainValidation('#firstname');
+                return isValid;
+            }              
+            else if ($('#mobileno')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Mobile number is required.");
+                plainValidation('#mobileno');
+                return isValid;
+            }
+            else if ($('#TimeZoneID')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select timezone from list.");
+                plainValidation('#TimeZoneID');
+                return isValid;
+            }
+            $('#spinner').show();
+            isValid = true;
+            return isValid;
+            
+        }
+
+        function EnableDisable() {
+            if ($('#emailid').is('[readonly]')) {
+                $("#emailid").removeAttr("readonly");
+            }
+            else {
+                $("#emailid").prop("readonly", true);
+            }
+        }
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                @ViewData["Title"].ToString()
+                <span style="float:right;" class="backto_listspan">
+                    <a href="~/SuperAdmin/SuperAdminList" class="backto_list">Back to list</a>
+                </span>
+            </h2>
+        </div>
+    </div>
+<form method="post" role="form" id="form1" autocomplete="off">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="add-useragform">
+
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="email">Email <sup>*</sup></label>
+
+                            @if (Convert.ToString(ViewBag.mode) == "1")
+                                {
+                                @Html.TextBoxFor(m => m.Emailid, new { placeholder = "Email", @class = "form-control email-change", id = "emailid", maxlength = "40", autocomplete = "off", tabIndex = "1", readOnly = "true" })
+                                <a class="change_embtn" id="BtnChanged" href="#" onclick="EnableDisable()">Change</a>
+                                }
+                                else
+                                {
+                                @Html.TextBoxFor(m => m.Emailid, new { placeholder = "Email", @class = "form-control", id = "emailid", maxlength = "40", autocomplete = "off", tabIndex = "1" })
+
+                                }
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="email">First Name <sup>*</sup></label>
+                            @Html.TextBoxFor(m => m.FirstName, new { placeholder = "First Name", id = "firstname", maxlength = "50", autocomplete = "off", onblur = "CheckFirstCharcter(this);", @class = "form-control", tabIndex = "2" })
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="pwd">Last Name </label>
+                            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", placeholder = "Last Name", id = "lastname", maxlength = "50", autocomplete = "off", onblur = "CheckFirstCharcter(this);", tabIndex = "3" })
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12" id="contactForm">
+                        <div class="form-group">
+                            <label for="email">Mobile Number<sup>*</sup></label>
+                            @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control", placeholder = "Mobile Number", id = "mobileno", maxlength = "15", autocomplete = "off", tabIndex = "4" })
+                            @Html.HiddenFor(m => m.superadminId)
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="pwd">Time Zone <sup>*</sup></label>
+                            @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", tabIndex = "19" })
+                        </div>
+                    </div>
+                </div>
+
+            </div><!--row-->
+
+
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidagencyInfo();">Submit</button>
+
+                        <button id="btnExit" class="my-btn" type="button">Exit</button></a>
+                        <div class="clear"></div>
+                    </div>	<!--btnwrp_subcal--->
+                </div>
+            </div>
+
+        </div><!--add-useragform--->
+    </div>
+</form>
+    </div>
+
+
+
+
+
+    @*<div class="modulebutton">
+            <h2> @ViewData["Title"].ToString()</h2>
+            <form method="post" class="register">
+                <fieldset class="row1" style="width:858px;">
+                    <legend>
+
+                    </legend>
+                    <p>
+                        <label style="text-align:left">
+                            Email Id <span style="color:red;">*</span>
+                        </label>
+                        @Html.TextBoxFor(m => m.Emailid, new { placeholder = "Email Id", id = "emailid", maxlength = "40", autocomplete = "off" })
+                        <label>
+                            User Name <span style="color:red;">*</span>
+                        </label>
+
+                        @if (Convert.ToString(ViewBag.mode) == "1")
+                        {
+                            @Html.TextBoxFor(m => m.UserName, new { placeholder = "User Name", id = "userName", maxlength = "50", autocomplete = "off", readOnly = "true" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(m => m.UserName, new { placeholder = "User Name", id = "userName", maxlength = "50", autocomplete = "off" })
+                        }
+
+
+
+
+                    </p>
+                    <p>
+                        <label>
+                            First Name <span style="color:red;">*</span>
+                        </label>
+                        @Html.TextBoxFor(m => m.FirstName, new { placeholder = "First Name", id = "firstname", maxlength = "200", autocomplete = "off", onblur = "CheckFirstCharcter(this);" })
+                        <label>
+                            Last Name
+                        </label>
+                        @Html.TextBoxFor(m => m.LastName, new { placeholder = "Last Name", id = "lastname", maxlength = "200", autocomplete = "off", onblur = "CheckFirstCharcter(this);" })
+                    </p>
+                    <p>
+                        <label>
+                            Mobile Number <span style="color:red;">*</span>
+                        </label>
+                        @Html.TextBoxFor(m => m.MobileNumber, new { placeholder = "Mobile No.", id = "mobileno", maxlength = "15", autocomplete = "off", onblur = "checkIfNumeric(this);" })
+                    </p>
+                    @Html.HiddenFor(m => m.superadminId)
+                    <br /><br /><br /><br /><br /><br />
+                    <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();">Submit</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="/Home/SuperAdminDashboard">   <button id="btnCancel" type="button">Exit</button></a>
+                </fieldset>
+            </form>
+        </div>*@
+}

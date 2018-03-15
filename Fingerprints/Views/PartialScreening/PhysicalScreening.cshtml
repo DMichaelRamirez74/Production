@@ -1,0 +1,322 @@
+﻿@model FingerprintsModel.Screening
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        $('#F001physicalDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F007hgDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F010hgReferralDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F012hgDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F015leadDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F017leadReferDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F019leadDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        if ('@Model.F002physicalResults' == "")
+            $('#F002physicalResults').val("");
+        if ('@Model.F004medFollowup' == "")
+            $('#F004medFollowup').val("");
+        if ('@Model.F008hgStatus' == "")
+            $('#FhgStatus').val("");
+        if ('@Model.F014hgFOStatus' == "")
+            $('#F014hgFOStatus').val("");
+        if ('@Model.F016leadResults' == "")
+            $('#F016leadResults').val("");
+        if ('@Model.F021leadFOStatus' == "")
+            $('#F021leadFOStatus').val("");
+    });
+</script>
+<div class="row add-useragform1" >
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+
+
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Physical Exam Date <sup>*</sup> </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F001physicalDate" maxlength="50" name="F001physicalDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F001physicalDate" @if (!string.IsNullOrEmpty(Model.F001physicalDate)) { <text> readonly="readonly" </text>}  >                                                                                                    
+</div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Physical Exam Status </label>
+                    <select name="F002physicalResults" class="form-control" id="F002physicalResults">
+                        <option value="1"
+                                @if (@Model.F002physicalResults == "1") { <text> selected="selected" </text>           }>
+                            Complete
+                        </option>
+                        <option value="2" @if (@Model.F002physicalResults == "2") { <text> selected="selected" </text>           }>Follow-Up Needed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Reason for Follow-Up </label>
+                    <div class="date custom-time">
+                        <input data-val="true" class="form-control" id="F003physicallFOReason" maxlength="100" name="F003physicallFOReason" type="text" value="@Model.F003physicallFOReason" />
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Medical Treatment/Follow-Up </label>
+                    <select name="F004medFollowup" class="form-control" id="F004medFollowup">
+                        <option value="1" @if (@Model.F004medFollowup == "1") { <text> selected="selected" </text>           }>No Treatment/Follow-Up Needed</option>
+                        <option value="2" @if (@Model.F004medFollowup == "2") { <text> selected="selected" </text>           }>Treatment/Follow-Up Needed, Not Received</option>
+                        <option value="3" @if (@Model.F004medFollowup == "3") { <text> selected="selected" </text>           }>Treatment/Follow-Up Needed, Received Treatment/Follow-Up</option>
+                        <option value="4" @if (@Model.F004medFollowup == "4") { <text> selected="selected" </text>           }>Treatment/Follow-Up Received, Further Treatment/Follow-Up Needed</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Medical Treatment/Follow-Up Comments  </label>
+                    <div class="date custom-time">
+                        <input data-val="true" class="form-control" id="F005MedFOComments" maxlength="100" name="F005MedFOComments" type="text" value="@Model.F005MedFOComments" />
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Blood Pressure Results  </label>
+                    <div class="date custom-time">
+                        <input data-val="true" class="form-control" id="F006bpResults" maxlength="100" name="F006bpResults" type="text" value="@Model.F006bpResults" />
+
+                    </div>
+                </div>
+            </div>
+         
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Hgb/Hct Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F007hgDate" maxlength="50" name="F007hgDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F007hgDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Hgb/Hct Status </label>
+                    <select name="F008hgStatus" class="form-control" id="FhgStatus">
+                        <option value="1" @if (@Model.F008hgStatus == "1") { <text> selected="selected" </text>           }>Pass</option>
+                        <option value="2" @if (@Model.F008hgStatus == "2") { <text> selected="selected" </text>           }>Follow-Up Needed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Hgb/Hct Results</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F009hgResults" maxlength="100" name="F009hgResults" type="text" value="@Model.F009hgResults" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Hgb/Hct Referral Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F010hgReferralDate" maxlength="50" name="F010hgReferralDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F010hgReferralDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Hgb/Hct Comments</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F011hgComments" maxlength="100" name="F011hgComments" type="text" value="@Model.F011hgComments" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Hgb/Hct Rescreen Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F012hgDate2" maxlength="50" name="F012hgDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F012hgDate2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Hgb/Hct Rescreen Results</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F013hgResults2" maxlength="100" name="F013hgResults2" type="text" value="@Model.F013hgResults2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Hgb/Hct Follow-Up Status </label>
+                    <select name="F014hgFOStatus" class="form-control" id="F014hgFOStatus">
+                        @*<option value="" @if (@Model.F014hgFOStatus == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.F014hgFOStatus == "1") { <text> selected="selected" </text>           }>Follow-Up Needed but Not Yet Complete</option>
+                        <option value="2" @if (@Model.F014hgFOStatus == "2") { <text> selected="selected" </text>           }>Follow-Up Complete</option>
+                        <option value="3" @if (@Model.F014hgFOStatus == "3") { <text> selected="selected" </text>           }>N/A</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Lead Screening Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F015leadDate" maxlength="50" name="F015leadDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F015leadDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Lead Screening Results </label>
+                    <select name="F016leadResults" class="form-control" id="F016leadResults">
+                        @*<option value="" @if (@Model.F016leadResults == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.F016leadResults == "1") { <text> selected="selected" </text>           }>Pass less than 5 ug/dL</option>
+                        <option value="2" @if (@Model.F016leadResults == "2") { <text> selected="selected" </text>           }>Follow-Up Needed greater than 5 ug/dL</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Lead Referral Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F017leadReferDate" maxlength="50" name="F017leadReferDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F017leadReferDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Lead Treatment Comments</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F018leadComments" maxlength="100" name="F018leadComments" type="text" value="@Model.F018leadComments" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Lead Rescreen Date</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F019leadDate2" maxlength="50" name="F019leadDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F019leadDate2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Lead Rescreen Results</label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="F020leadResults2" maxlength="100" name="F020leadResults2" type="text" value="@Model.F020leadResults2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Lead Follow-Up Status</label>
+                    <select name="F021leadFOStatus" class="form-control" id="F021leadFOStatus">
+                        @*<option value="" @if (@Model.F021leadFOStatus == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.F021leadFOStatus == "1") { <text> selected="selected" </text>           }>Follow-Up Needed but Not Yet Complete</option>
+                        <option value="2" @if (@Model.F021leadFOStatus == "2") { <text> selected="selected" </text>           }>Follow-Up Complete</option>
+                        <option value="3" @if (@Model.F021leadFOStatus == "3") { <text> selected="selected" </text>           }>N/A</option>
+                    </select>
+                </div>
+            </div>
+            
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                <div class="form-group">
+                    <label class="custom-file-upload">
+                        <input name="ScreeningDocument" id="ScreeningDocument" class="form-control" onchange="ValidateSingleInputpdf(this)" style="display:none" type="file" value="">
+                        <i class="fa fa-cloud-upload"></i> Add new document
+                    </label>
+                    <label style="margin-top: 8px;margin-left: 6px;" id="documentlabel"></label>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+
+
+
+
+                @if (!string.IsNullOrEmpty(Model.PhysicalFileName))
+                {
+                    if (Model.PhysicalFileExtension == ".pdf")
+                    {
+                        string url = Path.GetFileNameWithoutExtension(Model.PhysicalFileName) + Guid.NewGuid().ToString() + ".pdf";
+                        System.IO.FileStream file = System.IO.File.Create(Server.MapPath("~//TempAttachment//") + url);
+                        url = "..\\TempAttachment\\" + url;
+                        try
+                        {
+                            file.Write(Model.PhysicalImageByte, 0, Model.PhysicalImageByte.Length);
+                            file.Close();
+                        }
+                        catch (Exception Ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(Ex);
+                        }
+                        finally
+                        {
+                            file.Close();
+                        }
+                        <div style="display:none;" id="ScreeninguploadDocument">
+                        </div>
+                        <iframe class="iframestyle" src="@url" frameborder="0" scrolling="no"></iframe>
+                    }
+                    else
+                    {
+                        string imagedata = Convert.ToBase64String(Model.PhysicalImageByte);
+                        <div id="ScreeninguploadDocument">
+                            <script type="text/javascript">
+
+                                $(document).ready(function () {
+                                    $('#ScreeninguploadDocument').ZoomCrop(
+                                  {
+                                      image: "data:image/png;base64," + '@imagedata',
+                                      updated: function (size, crop, position) {
+                                          console.log(size, crop, position);
+                                      }
+                                  });
+                                });
+                            </script>
+
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    <div id="ScreeninguploadDocument">
+                        <script type="text/javascript">
+
+                            $(document).ready(function () {
+                                $('#ScreeninguploadDocument').ZoomCrop(
+                              {
+                                  image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                  updated: function (size, crop, position) {
+                                      console.log(size, crop, position);
+                                  }
+                              });
+                            });
+                        </script>
+                    </div>
+
+                }
+
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+    </div>
+
+</div>

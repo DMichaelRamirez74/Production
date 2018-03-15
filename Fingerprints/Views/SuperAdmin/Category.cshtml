@@ -1,0 +1,994 @@
+﻿@model FingerprintsModel.Categoryinfo
+
+@{
+    @section Title
+{
+        Category & Services
+
+    }
+
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+        $(document).ready(function () {
+            $('#spinner').hide();
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#hdnCategoryID').val('0');
+            $('#Descriptionmodal').val('');
+            
+            $("#dashboard").removeClass("active");
+            $("#ClassAssign").removeClass("active");
+            $("#Yakkr").removeClass("active");
+            $("#ali1").removeClass("active");
+            $("#Aliadd").removeClass("active");
+            $("#alistaff").removeClass("active");
+            $("#ali2").removeClass("active");
+
+            drawgrid();
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#form1 input:radio').attr('disabled', true);
+
+                        $(".my-btn22").attr("disabled", true);
+                        $(".my-btn22").bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                    }
+                }
+            }
+
+            $('#gridViewCategory > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewCategory > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewCategory").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewCategory > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewCategory").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/Categorydetails",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage,
+
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewCategory > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewCategory").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewCategory").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewCategory").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+
+        function bindGridUser(data, num_cols) {
+
+            $('#gridViewCategory > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewCategory > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += '<td><a style="text-decoration: underline;"   href="#" onclick="GetCategory(this);" accesskey=' + data.list[i].CategoryID + '>' + ((typeof (data.list[i].ServiceDescription) != 'undefined') && (data.list[i].ServiceDescription != null) ? data.list[i].ServiceDescription : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data.list[i].CreatedDate) != 'undefined') && (data.list[i].CreatedDate != null) ? data.list[i].CreatedDate : '') + "</td>";
+                    tr += "<td><a href='#' onclick='RemoveServices(this);' accesskey=" + data.list[i].ServiceID + ">Delete</td>";
+                    tr += "</tr>";
+                    $('#gridViewCategory > tbody').append(tr);
+
+                }
+            }
+        }
+
+        function GetCategory(value) {
+            $('#spinner').show();
+            $.ajax({
+                
+                url: HostedDir + "/SuperAdmin/Getcategorydetails",
+                type: "POST",
+                data: {
+                    CategoryID: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                  
+                    EditCategory(data);
+                    $('#spinner').hide();
+                }
+               , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+            
+        }
+        function EditCategory(data) {
+            var rounds = 0;
+            $('#AddServiceCategory').remove();
+            $('#Description').val(data.Description);
+            $('#hdnCategoryID').val(data.CategoryID);
+            if (data.ServiceData != null && data.ServiceData.length > 0 && data.mode == "1") {
+                $("div[id^='divedit']").remove();
+                $("div[id^='AddServiceCategory']").remove();
+                for (var i = 0; i < data.ServiceData.length; i++) {
+                    var ServiceID = "ServiceData[" + rounds + "].ServiceID";
+                    var Description = "ServiceData[" + rounds + "].Description";
+                    var Year = "ServiceData[" + rounds + "].Year";
+                    var CommonTag = "ServiceData[" + rounds + "].CommonTag";
+                    var PIRMatch = "ServiceData[" + rounds + "].PIRMatch";
+                    var Status = "ServiceData[" + rounds + "].Status";
+                    var Category = "ServiceData[" + rounds + "].Category";
+                    var servicediv = '<div id="divedit' + rounds + '" class="serviceclass"><div class="col-lg-12"><h5 class="page-header fundservice">Service</h5></div> <div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group"> <label for="email">Service Name </label><input type="text" name=' + Description + ' value="' + data.ServiceData[i].Description + '" class="form-control" id="ServiceDescription" placeholder="Service Name" maxlength="50">  </div>   </div>' +
+                   '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group">  <label for="email">Year</label> <input type="text" value="' + data.ServiceData[i].Year + '" name=' + Year + ' class="form-control" id="Year" placeholder="Year" maxlength="50"> </div> </div>' +
+                   ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Common Tag</label> <input type="text" name=' + CommonTag + ' value="' + data.ServiceData[i].CommonTag + '" class="form-control" id="CommonTag" placeholder="Common Tag" maxlength="11"> </div> </div>' +
+                   ' <div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group">    <label for="email">PIR Match</label>  <input type="text" name=' + PIRMatch + ' value="' + data.ServiceData[i].PIRMatch + '" class="form-control" onblur="return checkNumeric(this);" id="PIRMatch" placeholder="PIR Match" maxlength="11"></div> </div>' +
+                       ' <div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group"> <label for="email">Status</label>  ' +
+                       '<select class="form-control" style="width:65%;" name=' + Status + ' > <option value="true">Active</option><option value="false">Inactive</option>' +
+                       '</select></div> </div>' +
+                       ' <div><input type="hidden" value="' + data.ServiceData[i].ServiceID + '" name="' + ServiceID + '"/><input id ="CategoryID" type="hidden" name="' + Category + '" /></div> </div>'
+                    $(servicediv).insertAfter('#addCategoryService');
+                    $('#trServiceID' + rounds).val(data.ServiceData[i].ServiceID);
+                    //$("#divedit" + rounds).find('select').val(data.ServiceData[i].Status);
+                    $("#divedit" + rounds).find('option').each(function (j, opt) {
+                        if (opt.value === data.ServiceData[i].Status.toString())
+                            $(opt).attr('selected', 'selected');
+                    });
+                    rounds = rounds + 1;
+                    $("input[id^='Year']").each(function () {
+                        $(this).mask("99-99", { placeholder: 'YY-YY' });
+                    });
+                }
+            }
+        }
+
+       
+
+        function RemoveServices(value) {
+           
+            if ($(value).attr("accesskey") == "0") {
+                $(value).parent().parent().parent().remove();
+                round = 0;
+                $('.fundservice').each(function () {
+                    var count = 1;
+                    $(this).parent().parent().children().find('input:text, input:password,input:hidden ,input:file,input[type=checkbox],select, textarea').each(function () {
+                        if (count == 1)
+                            $(this).attr('name', "ServiceData[" + round + "].Description");
+                        if (count == 2)
+                            $(this).attr('name', "ServiceData[" + round + "].Year");
+                        if (count == 3)
+                            $(this).attr('name', "ServiceData[" + round + "].CommonTag");
+                        if (count == 4)
+                            $(this).attr('name', "ServiceData[" + round + "].PIRMatch");
+                        if (count == 5)
+                            $(this).attr('name', "ServiceData[" + round + "].Status");
+                        if (count == 6)
+                            $(this).attr('name', "ServiceData[" + round + "].ServiceID");
+                        if (count == 7)
+                            $(this).attr('name', "ServiceData[" + round + "].Category");
+                        count++;
+                    });
+                    round++;
+
+
+                });
+
+
+            }
+            else {
+
+                BootstrapDialog.confirm('Do you want to delete this service?', function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: HostedDir + "/SuperAdmin/Deleteservice",
+                            type: "POST",
+                            data: {
+                                ServiceID: $(value).attr("accesskey"),
+                            },
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            success: function (response) {
+                                if (response == 1) {
+                                    customAlert("Service deleted successfully.");
+                                    drawgrid();
+                                }
+                            }
+                        , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        }
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+
+    <script type="text/javascript">
+    var isValid = true;
+    var round = 1;
+    $(document).ready(function () {
+
+        try {
+
+            $("#Description").autocomplete({
+
+                minLength: 1,
+                source: function (request, response) {
+                    $.ajax({
+                        url: HostedDir + "/SuperAdmin/AutoCompleteCategory",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term, IsDeleted: "0" },
+                        success: function (data) {
+
+                            response($.map(data, function (item) {
+                                return {
+                                    label: item.Description, id: item.CategoryID
+                                };
+                            }))
+                        }
+                    })
+                },
+                select: function (event, ui) {
+                    $('#hdnCategoryID').val(ui.item.id);
+                },
+                messages: {
+                    noResults: "", results: ""
+                }
+            })
+
+        }
+        catch (err) {
+        }
+        if ('@ViewBag.message' != '')
+            customAlert('@ViewBag.message');
+        if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+            customAlertforlongtime('@TempData["message"]');
+        }
+        $('#Year').mask("99-99", { placeholder: 'YY-YY' });
+        @*if ('@ViewBag.mode' == 1) {
+                $('#AddServiceCategory').hide();
+
+            }*@
+        @{
+                TempData["message"] = null;
+            }
+        if ('@ViewBag.result' == 'Success') {
+            clearText();
+        }
+
+
+    });
+
+
+    function clearText() {
+        $('#Description')[0].value = "";
+    }
+    function clearcontrols() {
+        $('#Descriptionmodal')[0].value = "";
+    }
+    function isValidCategoryInfo() {
+        var count1 = 0;
+        var isValid = true;
+        cleanValidation();
+        if ($('#hdnCategoryID').val() == "0" || $('#hdnCategoryID').val() == "") {
+            isValid = false;
+            customAlert("Category name is Required");
+            $('#MyCategory').modal('toggle');
+            plainValidation('#Description');
+            return isValid;
+        }
+        if ($('.fundservice').length < 1)
+        {
+            isValid = false;
+            customAlert("Services  is Required");
+            return isValid;
+        }
+
+
+        var SClen = $('.serviceclass');
+        for (var k = 0; k < SClen.length; k++) {
+            var inputvar = $(SClen[k]).parent().find('input[type=text]');
+            for (var z = 0; z < inputvar.length; z++) {
+                if (inputvar[z].id.indexOf("ServiceDescription") >= 0) {
+
+                    if (inputvar[z].value == "") {
+                        isValid = false;
+                        customAlert("Service name is required.");
+                        plainValidation($('[name="' + inputvar[z].name + '"]'));
+                        return isValid;
+                    }
+                }
+                if (inputvar[z].id.indexOf("Year") >= 0) {
+                    if (inputvar[z].value == "") {
+                        isValid = false;
+                        customAlert("Year is required.");
+                        plainValidation($('[name="' + inputvar[z].name + '"]'));
+                        return isValid;
+                    }
+                }
+            }
+
+            count1 = count1 + 1;
+        }
+        $('#spinner').show();
+        if (isValid) {
+            $('#btnSubmit').enabled = false;
+            return true;
+        }
+    }
+
+    function isValidCategoryInfoPopup() {
+        cleanValidation();
+        if ($('#Descriptionmodal')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Please enter category name.");
+            plainValidation('#Descriptionmodal');
+            return isValid;
+        }
+        $('#btnSubmit').enabled = false;
+        return true;
+    }
+    function AddCategoryNameText(value) {
+        var data = $(value).attr("accesskey");
+        $('#Descriptionmodal').val($(value).closest('tr').find("td:eq(0)").text());
+        $('#hdnCategoryIDpopup').val(data);
+    }
+
+    function AddCategoryDescText(value) {
+        var data = $(value).attr("accesskey");
+        $('#Description').val($(value).closest('tr').find("td:eq(0)").text());
+        $('#hdnCategoryID').val(data);
+
+    }
+    function checkNumeric(inputTextObject) {
+        var ret = true;
+        var ex = /^[a-zA-Z0-9]*$/;
+        if ($(inputTextObject).val().trim() != "")
+        {
+            if (!ex.test($(inputTextObject).val())) {
+                $(inputTextObject).val('');
+                customAlert("PIR match must be alphanumeric. ");
+                var ret = false;
+            }
+
+        }
+        return ret;
+    }
+    function AddServices() {
+        var numItems = $('.fundservice').length
+        round = numItems;
+        var servicediv = '<div id="AddServiceCategory' + round + '" class="serviceclass">  <div class="col-lg-12"><h5 class="page-header fundservice">Service <a accesskey="0" onclick="RemoveServices(this);" class="pull-right" href=" javascript:void(0)">Delete </a></h5></div>' +
+            '<div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group"> <label for="email">Service Name </label>' +
+            '<input type="text" name="ServiceData[' + round + '].Description" class="form-control" id="ServiceDescription" placeholder="Service Name" maxlength="50">  </div>   </div>' +
+            '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group">  <label for="email">Year</label>' +
+            '<input type="text" name="ServiceData[' + round + '].Year" class="form-control" id="Year" placeholder="Year" maxlength="50"> </div> </div>' +
+             ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Common Tag</label>' +
+             '<input type="text" name="ServiceData[' + round + '].CommonTag" class="form-control" id="CommonTag" placeholder="Common Tag" maxlength="11"> </div> </div>' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group">  ' +
+            '<label for="email">PIR Match</label>  <input type="text" onblur="return checkNumeric(this);" name="ServiceData[' + round + '].PIRMatch" class="form-control" id="PIRMatch" placeholder="PIR Match" maxlength="11"></div> </div>' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group"> <label for="email">Status</label>  <select class="form-control" style="width:65%;" name="ServiceData[' + round + '].Status" >' +
+             ' <option selected="selected" value="True">Active</option>' +
+             '</select></div> </div>' +
+                         ' <input id ="trServiceID' + round + '" type="hidden" name="ServiceData[' + round + '].ServiceID" />' +
+                        ' <input id ="CategoryID" type="hidden" name="CategoryID" /> </div>'
+        $(servicediv).insertAfter('#addCategoryService');
+        round = round + 1;
+        $("input[id^='Year']").each(function () {
+            $(this).mask("99-99", { placeholder: 'YY-YY' });
+        });
+    }
+
+    function AddCategoryData(value) {
+        if (isValidCategoryInfoPopup()) {
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/AddCategoryAjax",
+                type: "POST",
+                data: {
+                    Categoryname: $('#Descriptionmodal').val(),
+                    CategoryID: $('#hdnCategoryIDpopup').val(),
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+
+                    if (response != null) {
+                        if (response.result == "1") {
+                            customAlert("Record added successfully.");
+                            $('#Description').val($('#Descriptionmodal').val());
+                            clearcontrols();
+                        }
+                        else if (response.result == "2") {
+                            customAlert("Record updated successfully");
+                            $('#Description').val($('#Descriptionmodal').val());
+                            clearcontrols();
+                        }
+                        else if (response.result == "3") {
+                            customAlert("Record already exists.");
+                        }
+                        else
+                            customAlert(response);
+                        if (response.Info.categoryList != null && response.Info.categoryList.length > 0)
+                        {
+                            var tbody = "";
+                            $('#CategoryPopup > tbody > tr').remove();
+                            for (var i = 0; i < response.Info.categoryList.length; i++) {
+
+                                tbody = tbody + '<tr> <td id="Description" width="31%;">' + response.Info.categoryList[i].Name + '</td>' +
+                                       '<td><a href="#" accesskey="' + response.Info.categoryList[i].Id + '" onclick="RemoveCategory(this);"  style=" text-decoration:underline;">Delete</a>/<a href="javascript:void(0)" accesskey="' + response.Info.categoryList[i].Id + '" onclick="AddCategoryNameText(this);" style=" text-decoration:underline;">Edit </a>  </td>' +
+                                        '<td><a href="" accesskey="' + response.Info.categoryList[i].Id + '" data-dismiss="modal" onclick="AddCategoryDescText(this);" style=" text-decoration:underline;">Select</a></td></tr>';
+                            }
+                            $('#CategoryPopup > tbody').append(tbody);
+                        }
+
+
+
+
+                    }
+                },
+                error: function (response) { alert(response); }
+            });
+        }
+    }
+
+
+    function RemoveCategory(value) {
+        BootstrapDialog.confirm('Do you want to delete this category?', function (result) {
+            if (result) {
+                $.ajax({
+                    url: HostedDir + "/SuperAdmin/Deletecategory",
+                    type: "POST",
+                    data: {
+                        CategoryID: $(value).attr("accesskey"),
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (response == 1) {
+                            customAlert("Category deleted successfully.");
+                            $(value).closest('tr').remove();
+
+                        }
+                    }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+                });
+            }
+        });
+
+    }
+</script>
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12" style="padding-left: 3%;">
+            <h2 class="page-header">
+                Category & Services
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                    @Html.HiddenFor(m => m.CategoryID, new { id = "hdnCategoryID" })
+                    <div class="">
+
+                        <div class="wrap">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="RaceId">Category<sup>*</sup></label>
+                                    @Html.TextBoxFor(m => m.Description, new { placeholder = "Category", id = "Description", name = "Description", maxlength = "50", @class = "form-control", tabIndex = "2" })
+
+
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <a style="margin-bottom:20px; display:inline-block;" href="javascript:void(0)" data-toggle="modal" data-target="#MyCategory">Add New Category<i class="fa fa-arrow-up"></i></a>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+
+                        <div class="col-lg-12 col-md-6 col-sm-12" id="AddServiceplus">
+                            <div class="form-group">
+                                <a href="javascript:void(0)" title="Add Services" onclick="AddServices();">Add Services <i class="fa fa-plus-square"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+
+
+                    <div id="addCategoryService"> </div>
+                    <div id="AddServiceCategory" class="serviceclass">
+                        <div class="col-lg-12">
+                            <h5 class="page-header fundservice">Service <a accesskey="0" onclick="RemoveServices(this);" class="pull-right" href=" javascript:void(0)">Delete </a></h5>
+                           
+                        </div>
+                        
+                        
+                       
+                        <div id="addservice">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Service Name </label>
+                                    <input type="text" name="ServiceData[0].Description" class="form-control" id="ServiceDescription" placeholder="Service Name" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Year</label>
+                                    <input type="text" name="ServiceData[0].Year" class="form-control" id="Year" placeholder="Year" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Common Tag</label>
+                                    <input type="text" name="ServiceData[0].CommonTag" class="form-control" id="CommonTag" placeholder="Common Tag" maxlength="11">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">PIR Match</label>
+                                    <input type="text" name="ServiceData[0].PIRMatch" onblur="return checkNumeric(this);" class="form-control" id="PIRMatch" placeholder="PIR Match" maxlength="11">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Status</label>
+                                    <select class="form-control" style="width:65%;" name="ServiceData[0].Status">
+                                        <option selected="selected" value="1">Active</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divedit" class="">
+                        @{
+                            int i = 0;
+                        }
+                        @if (@ViewBag.mode == 1)
+                        {
+                            foreach (var item in Model.ServiceData)
+                            {
+                                <div class="col-lg-12">
+                                    <h5 class="page-header fundservice">Services</h5>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Service Name <sup>*</sup></label>
+
+                                        <input type="text" name="ServiceData[@i].Description" class="form-control" value="@item.Description" id="ServiceDescription" placeholder="Service Name" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Year</label>
+
+                                        <input type="text" name="ServiceData[@i].Year" class="form-control" value="@item.Year" id="Year" placeholder="Year" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Common Tag</label>
+
+                                        <input type="text" name="ServiceData[@i].CommonTag" class="form-control" value="@item.CommonTag" id="CommonTag" placeholder="CommonTag" maxlength="11">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">PIR Match <sup>*</sup> </label>
+
+                                        <input type="text" name="ServiceData[@i].PIRMatch" onblur="return checkNumeric(this);" class="form-control" value="@item.PIRMatch" id="PIRMatch" placeholder="PIRMatch" maxlength="11">
+                                    </div>
+                                </div>
+                                List<SelectListItem> Status = new List<SelectListItem>();
+                                Status.Add(new SelectListItem() { Text = "Active", Value = "1" });
+                                Status.Add(new SelectListItem() { Text = "Inactive", Value = "2" });
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd"> Status </label>
+                                        @Html.DropDownListFor(m => m.ServiceData[@i].Status, new SelectList(Status, "Value", "Text"), new { @class = "form-control" })
+                                        @Html.HiddenFor(m => m.ServiceData[@i].ServiceID)
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <input type="hidden" value="@item.ServiceID" name="ServiceData[@i].ServiceID">
+                                </div>
+                                i++;
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidCategoryInfo();" tabindex="8">Submit</button>
+                        <button id="btnExit" class="my-btn" type="button" tabindex="9" onclick="clearcontrols(); return false;">Cancel</button>
+
+
+                    </div>
+
+                </div>
+                <div class="row qualifierdiv">
+                    <div class="modal fade scroll-modal " id="MyCategory" role="dialog">
+                        <div class="modal-dialog ">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h3> Add New Category<span class="extra-title muted"></span></h3>
+                                </div>
+                                <div class="control-group">
+                                    <div class="col-sm-12">
+                                        @Html.HiddenFor(m => m.CategoryIDpopup, new { id = "hdnCategoryIDpopup" })
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Category Name </label>
+                                                    @Html.TextBoxFor(m => m.Description, new { placeholder = "Category Name", id = "Descriptionmodal", Name = "Descriptionmodal", maxlength = "50", @class = "form-control", tabIndex = "1" })
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email"></label>
+                                                    &nbsp;
+                                                    <button onclick="AddCategoryData(this);"  name="Creates" style="margin-top:15px; width:48% !important;" class="my-btn" tabindex="2" type="button">Save & Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive">
+                                            <table class="table table_size" id="CategoryPopup">
+                                                <thead style="cursor:pointer;">
+                                                    <tr>
+                                                        <th>Category Name</th>
+                                                        <th>Action</th>
+                                                        <th>Select</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (Model.categoryList != null && Model.categoryList.Count > 0)
+                                                    {
+                                                        foreach (var item in Model.categoryList)
+                                                        {
+                                                            <tr>
+                                                                <td id="Description" width="31%;">@item.Name</td>
+                                                                <td><a href="#" accesskey="@item.Id" onclick="RemoveCategory(this);" style=" text-decoration:underline;">Delete</a>/<a href="javascript:void(0)" accesskey="@item.Id" onclick="AddCategoryNameText(this);" style=" text-decoration:underline;">Edit </a>  </td>
+
+                                                                <td>
+                                                                    <a href="" accesskey="@item.Id" data-dismiss="modal" onclick="AddCategoryDescText(this);" style=" text-decoration:underline;">Select</a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="col-md-12">
+                                        <div class="btnwrp_subcal">
+                                            <button class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Category and Services</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewCategory">
+                    <thead style="cursor:pointer;">
+                        <tr>
+
+
+                            <th id="thCust">Service<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thMN">Category<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                       
+                            <th id="THCN">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            <th id="thAN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1">
+                 
+                    <label style="text-align:center;"> No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+}

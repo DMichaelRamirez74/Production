@@ -1,0 +1,256 @@
+﻿<style>
+    .child_name .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        left: 178px;
+        line-height: 25px;
+        border: 1px solid black;
+    }
+
+
+        .child_name .tooltiptext::after {
+            content: " ";
+            position: absolute;
+            top: 50%;
+            right: 100%; /* To the left of the tooltip */
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent black transparent transparent;
+        }
+
+    .child_name:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .child_name:not( :hover ) .tooltiptext {
+        visibility: hidden;
+    }
+</style>
+
+
+
+<div class="modal fade scroll-modal" id="Modalclientenrolled" role="dialog">
+    <div class="modal-dialog income-popup width-auto">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="CenterName" class="text-center">Roster for Client<span class="extra-title muted"></span></h3>
+                <div class="col-sm-5" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
+                    <span style="float:left;">Center Name:</span>
+                    <span id="centernameSpan" style="font-weight:normal;float:left;margin-left:10px; "></span>
+                </div>
+
+                <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                    <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                        <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <div>
+                    <div class="row qualifierdiv">
+                        <div class="row" style="margin-bottom:3%;">
+                            <div class="col-sm-12">
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label for="RaceId">Classrooms</label>
+                                        <select id="Classroom" style="height:38px !important;" class="form-control"></select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3" style="padding-top: 2%;">
+                                    <button id="btnsearch" class="my-btn" onclick="drawgrid();">Search</button>
+                                    <button id="btnclear" class="my-btn" onclick="cleargrid();">Clear</button>
+                                    <input type="hidden" id="centerIdGrid" name="centerIdGrid" />
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                    <div class="table-responsive">
+                                        <table class="table table_size" id="DivclientenrolledList">
+                                            <thead style="cursor:pointer;">
+                                                <tr>
+                                                    <th style="width: 18%;">Name</th>
+                                                    <th>Gender</th>
+                                                    <th>DOB</th>
+                                                    <th>District</th>
+                                                    <th>FSW</th>
+                                                    <th>Classroom Name</th>
+                                                    <th>Teacher</th>
+                                                    <th>Services </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                        <div id="div1" style="text-align:center;display:none;">
+                                            <label>No result found.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //method to load the enrolled children//
+    function Loadallenrolled(Object) {
+        $.ajax({
+            url: HostedDir + "/Home/Loadallenrolled",
+            type: "POST",
+            data: {
+                Centerid: $(Object).attr("accesskey")
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                BindClientenrolled(data, '');
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
+
+    //method to bind the grid//
+    function drawgrid() {
+
+        $.ajax({
+            url: HostedDir + "/Home/Loadallenrolled",
+            type: "POST",
+            data: {
+                Centerid: $('#centerIdGrid').val(),
+                Classroom: $("#Classroom").val()
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                BindClientenrolled(data, $("#Classroom").val());
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
+
+    //method to bind the enrolled client to modal popup//
+    function BindClientenrolled(data, clsId) {
+      
+        if (data.list.Rosters == null) {
+            $('#DivclientenrolledList > tbody > tr').remove();
+            $('#div1').show();
+        }
+        else {
+            $('#div1').hide();
+            $('#DivclientenrolledList > tbody > tr').remove();
+
+            var centerName = data.list.Rosters[0].CenterName;
+            $('#Modalclientenrolled').find('#centernameSpan').html(centerName);
+
+            for (var i = 0; i < data.list.Rosters.length; i++) {
+                var tr = "";
+                tr += "<tr>";
+                tr += '<td height="70" class="child_name"   EClientId="' + data.list.Rosters[i].Eclientid + '"  ><a href="#" onmouseover="getProfilePicture(this);"  clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: none;">' + data.list.Rosters[i].Name + '</a><span class="tooltiptext"></span></td>';
+
+                tr += '<td height="70" style="text-align:center;width:11%;">';
+                if (data.list.Rosters[i].Gender == "2") {
+                    tr += 'Female';
+                }
+                else if (data.list.Rosters[i].Gender == "1") {
+                    tr += 'Male';
+                }
+                else if (data.list.Rosters[i].Gender == "3") {
+                    tr += 'Other';
+                }
+                tr += '</td>';
+                //End
+
+                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
+                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].District + '</td>';
+                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].FSW + '</td>';
+                tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
+                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].Teacher + '</td>';
+                tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                tr += '<td height="70" style="width:23%;">';
+                tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">REF </a>  &nbsp';
+                $('#DivclientenrolledList > tbody').append(tr);
+            }
+
+            if (!$('#Modalclientenrolled').hasClass('in'))
+                $('#Modalclientenrolled').modal('toggle');
+            $('#centerIdGrid').val(data.list.Rosters[0].CenterId);
+        }
+        if (data.list.ClassroomsNurse != null && data.list.ClassroomsNurse.length > 0) {
+            var option = "";
+            $('#Classroom').find('option').remove().end();
+            if ($('#Classroom').find('option').length < 1) {
+                for (var i = 0; i < data.list.ClassroomsNurse.length; i++) {
+                    option = option + '<option value="' + data.list.ClassroomsNurse[i].ClassroomID + '">' + data.list.ClassroomsNurse[i].ClassName + '</option>';
+                }
+                $('#Classroom').find('option').remove().end().append(option);
+                $('#Classroom').val(clsId);
+            }
+        }
+    }
+
+
+    function cleargrid() {
+        $("#Classroom").val('');
+    }
+
+    //method to get the profile picture on hover of client name//
+    function getProfilePicture(pic) {
+
+        //$('.tooltiptext').css({ 'visibility': 'hidden' });
+
+        var enc_id = $(pic).attr('clientid');
+        var position = $(pic).position();
+        var topalignment = position.top;
+        $.ajax({
+            url: '/Roster/GetChildrenImage',
+            dataType: 'json',
+            type: 'post',
+            data: { enc_clientId: enc_id },
+            success: function (data) {
+
+                var image = '';
+                if (data.Text == "" && data.Value == "2") {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
+                }
+                else if (data.Text == "" && data.Value == "1") {
+                    image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
+                }
+                else if (data.Text == "" && ata.Text == "3") {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
+                }
+                else if (data.Text != "") {
+                    image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                }
+                else {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
+                }
+
+                $(pic).parent('td').parent('tr').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                $(pic).parent('td').parent('tr').find('.roundimage').zoomify();
+
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+</script>

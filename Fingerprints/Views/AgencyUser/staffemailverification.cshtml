@@ -1,0 +1,234 @@
+﻿@model FingerprintsModel.AgencyStaff
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>staffemailverification</title>
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
+    <script src="~/Scripts/Samplescript/jquery.min.js"></script>
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script src="~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"></script>
+    <script src="~/Scripts/metisMenu.min.js"></script>
+    <script src="~/Content/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/startmin.js"></script>
+    <script src="~/Scripts/jquery-ui-1.9.0.min.js"></script>
+    <script src="~/Scripts/USmobilevalidation.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $("#CellNumber").mask("(999) 999-9999");
+            var end = new Date();
+            $("#DOB").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: end,
+
+            });
+        });
+
+        function ResetForm() {
+            window.location.href = HostedDir + "/Login/Loginagency";
+        }
+    </script>
+
+</head>
+<body>  <div class="header-top">
+            <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 logo-place">
+                    <div class="navbar-header logo-ge">
+                        <a class="navbar-brand" href="~/AgencyUser/staffemailverification?id=@Request.QueryString["id"]"><img class="img-responsive" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 menu-place">
+                </div>
+                <div class="navbar-default sidebar" role="navigation" style="border:none !important;">
+                    <div class="sidebar-nav navbar-collapse" aria-expanded="false">
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="page-header">
+                        Email Verification
+                    </h2>
+                    <div style="color: green; font-size: 13px; font-weight: bold; right: 15px; line-height:normal;  word-wrap: break-word;">@ViewBag.message</div>
+                </div>
+            </div>
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                        <div class="add-useragform">
+
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <div class="row">
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">First Name </label>
+
+
+                                                @Html.TextBoxFor(m => m.FirstName, new { placeholder = "First Name", id = "FirstName", Name = "FirstName", maxlength = "50", autocomplete = "off", onblur = "CheckFirstCharcter(this);", @class = "form-control", tabIndex = "1" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Last Name</label>
+                                                @Html.TextBoxFor(m => m.LastName, new { placeholder = "Last Name", id = "lastname", Name = "LastName", maxlength = "50", @class = "form-control", tabIndex = "2" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group  ">
+
+                                                <label for="pwd">Email </label>
+
+                                                @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", @readonly="true", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control",   tabIndex = "3" })
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Date Of  Birth </label>
+                                                @Html.TextBoxFor(m => m.DOB, new { placeholder = "Date Of Birth", id = "DOB", Name = "DOB", maxlength = "50", @class = "form-control", tabIndex = "4" })
+                                            </div>
+                                        </div>
+                                        
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email"> Gender</label>
+                                                @{
+                                                        List<SelectListItem> GenderList = new List<SelectListItem>();
+                                                        GenderList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                        GenderList.Add(new SelectListItem() { Text = "Female", Value = "0" });
+                                                        GenderList.Add(new SelectListItem() { Text = "Male", Value = "1" });
+                                                        GenderList.Add(new SelectListItem() { Text = "Other", Value = "2" });
+                                                }
+                                                @Html.DropDownListFor(m => m.Gender, new SelectList(GenderList, "Value", "Text", Model.Gender), new { id = "DdlGender", Name = "DdlGender", @class = "form-control", tabIndex = "5" })
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Mobile Number</label>
+                                                @Html.TextBoxFor(m => m.CellNumber, new { placeholder = "Mobile Number", id = "CellNumber", Name = "CellNumber", maxlength = "15", @class = "form-control", tabIndex = "6" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Highest Education</label>
+                                                @Html.DropDownListFor(m => m.HighestEducation, new SelectList(Model.EducationLevelList, "EducationLevel", "Name", Model.HighestEducation), new { id = "DdlHighestEducation", Name = "DdlHighestEducation", @class = "form-control", tabIndex = "7" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Early Childhood </label>
+                                                @{
+
+                                                        List<SelectListItem> item = new List<SelectListItem>();
+                                                        item.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                        item.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                        item.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                                }
+                                                @Html.DropDownListFor(m => m.EarlyChildHood, new SelectList(item, "Value", "Text", Model.EarlyChildHood), new { id = "DdlEarlyChildHood", Name = "DdlEarlyChildHood", @class = "form-control", tabIndex = "8" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Race</label>
+                                                @Html.DropDownListFor(m => m.Race, new SelectList(Model.raceList, "RaceId", "Name", Model.Race), new { id = "DdlRaceList", Name = "DdlRaceList", @class = "form-control", tabIndex = "9" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Getting Degree</label>
+                                                @{
+                                                        List<SelectListItem> GettingDegreeitems = new List<SelectListItem>();
+                                                        GettingDegreeitems.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                        GettingDegreeitems.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                        GettingDegreeitems.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                                }
+                                                @Html.DropDownListFor(m => m.GettingDegree, new SelectList(GettingDegreeitems, "Value", "Text", Model.GettingDegree), new { id = "DdlGettingDegree", Name = "DdlGettingDegree", @class = "form-control", tabIndex = "10" })
+                                            </div>
+
+
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="nation">Country</label>
+                                                @Html.DropDownListFor(m => m.Natinality, new SelectList(Model.nationList, "NationId", "Name", "7D979B6C-F4D1-4D9C-99CD-8DC5160870B7"), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "11" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="btnwrp_subcal">
+                                        <button id="btnSubmit" type="submit" class="my-btn" tabindex="12">Submit</button>
+                                        <button id="btnCancel" type="button" class="my-btn" onclick="ResetForm();" tabindex="13">Exit</button>
+                                        <div class="clear"></div>
+                                    </div>	<!--btnwrp_subcal--->
+                                </div>
+                            </div>
+
+
+                            @*<div class="row">
+                                    <div style="margin-top:150px">
+                                        <div style="margin-top:100px; color:green; width:80%; margin:0 auto;">
+                                            <h4>
+                                                Your Email has been verified successfully.Your registration request is under process.<br />
+                                                Our team will contact you shortly.<br /><br />
+                                                Thank you.
+                                            </h4>
+                                        </div>
+
+                                    </div>
+                                </div>*@
+                            <div class="row">
+                                @*<div style="margin-top:150px">
+                                        <div style="margin-top:100px; color:green; width:80%; margin:0 auto;">
+                                            <h4>
+                                                @ViewBag.message
+                                            </h4>
+                                        </div>
+
+                                    </div>*@
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="footer-one">
+            <footer>
+                <p class="text-center"><a target="_blank" href="http://www.otssolutions.com">Copyright © 2016 All Rights Reserved.<br />Designed By OTS Solutions Inc.</a></p>
+            </footer>
+        </div>
+    </body>
+
+
+</html>

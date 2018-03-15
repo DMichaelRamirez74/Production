@@ -1,0 +1,651 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta name="viewport" content="width=device-width" initial-scale="1.0" maximum-scale="1.0" />
+    <title>@RenderSection("Title", false)</title>
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
+    <link href="~/Content/jquery.tagsinput.css" rel="stylesheet" />
+    <script src="~/Scripts/Samplescript/jquery.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.9.0.min.js"></script>
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script src="~/Scripts/Samplescript/index.js"></script>
+    <script src="~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"></script>
+    <script src="~/Scripts/Samplescript/jquery.datetimepicker.min.js"></script>
+    <script src="~/Scripts/metisMenu.min.js"></script>
+    <script src="~/Content/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/startmin.js"></script>
+    <script src="~/Scripts/jquery.tagsinput.js"></script>
+    <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrapmodal.css" rel="stylesheet" />
+    <script src="~/Content/bootstrap-3.3.6-dist/js/Boostrapmodalbox.js"></script>
+    <link href="~/Content/jquery.timepicker.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery.timepicker.min.js"></script>
+    <link id="Link1" rel="shortcut icon" href="~/Content/img/faviicon.jpg" type="image/x-icon" />
+    <script src="~/Scripts/USmobilevalidation.js"></script>
+    <script src="~/Scripts/moment.min.js"></script>
+    <link href="~/Content/style_latest.css" rel="stylesheet" />
+    <style>
+        .ui-autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            float: left;
+            display: none;
+            min-width: 160px;
+            _width: 160px;
+            padding: 4px 0;
+            margin: 2px 0 0 0;
+            list-style: none;
+            background-color: #ffffff;
+            border-color: #ccc;
+            border-color: rgba(0, 0, 0, 0.2);
+            border-style: solid;
+            border-width: 1px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            -webkit-background-clip: padding-box;
+            -moz-background-clip: padding;
+            background-clip: padding-box;
+            *border-right-width: 2px;
+            *border-bottom-width: 2px;
+        }
+
+        .ui-menu-item > a.ui-corner-all {
+            display: block;
+            padding: 3px 15px;
+            clear: both;
+            font-weight: normal;
+            line-height: 18px;
+            color: #555555;
+            white-space: nowrap;
+        }
+
+        &.ui-state-hover, &.ui-state-active {
+            color: #ffffff;
+            text-decoration: none;
+            background-color: #0088cc;
+            border-radius: 0px;
+            -webkit-border-radius: 0px;
+            -moz-border-radius: 0px;
+            background-image: none;
+        }
+
+        .ui-menu-item {
+            cursor: pointer;
+        }
+    </style>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            //Added on 23Jan2017
+            startTimer();
+            //End
+            $("img").error(function() {
+                $(this).hide();
+            });
+         
+        $('#changePassword').click(function (e) {
+
+            $('#currentPassword')[0].value = "";
+            $('#newPassword')[0].value = "";
+            $('#retypePassword')[0].value = "";
+            //$('#Change_Pass').lightbox_me({ centered: true, onLoad: function () { } });
+            e.preventDefault();
+        });
+        $('.toggle').click(function () {
+            // Switches the Icon
+            $(this).children('i').toggleClass('fa-pencil');
+            // Switches the forms
+            $('.form').animate({
+                height: "toggle",
+                'padding-top': 'toggle',
+                'padding-bottom': 'toggle',
+                opacity: "toggle"
+            }, "slow");
+        });
+        try {
+            $("#searchAgency").autocomplete({
+                minLength: 1,
+                source: function (request, response) {
+                    $.ajax({
+                        url: HostedDir + "/Agency/AutoCompleteAgency",
+                        type: "POST",
+                        dataType: "json",
+                        data: { term: request.term },
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { label: item.agencyName, id: item.agencyId };
+                            }))
+                        }
+
+                    })
+                },
+                select: function (event, ui) {
+                    // $("#searchAgency").val(ui.item.label);
+                    window.location.href = HostedDir + '/Agency/addAgency/?id=' + ui.item.id + '&SuperAdmin=@FingerprintsModel.EncryptDecrypt.Encrypt("yes")';
+                        return false;
+                    },
+                    //focus: function (event, ui) {
+                    //    $("#searchAgency").val(ui.item.label);
+                    //    return false;
+                    //},
+                    messages: {
+                        noResults: "", results: ""
+                    }
+
+                })
+
+            }
+            catch (err) {
+            }
+
+
+        });
+        if (navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+            var viewportmeta = document.querySelector('meta[name="viewport"]');
+            if (viewportmeta) {
+                viewportmeta.content = 'width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0';
+                document.body.addEventListener('gesturestart', function () {
+                    viewportmeta.content = 'width=device-width, minimum-scale=0.25, maximum-scale=1.6';
+                }, false);
+            }
+        }
+
+
+
+
+        function GotoSuperAdminDashBoard() {
+            $('#spinner').show();
+            var url = HostedDir + '/Home/SuperAdminDashboard';
+            window.location.href = url;
+        }
+        function GotoAgencyViewAgency() {
+            $('#spinner').show();
+            var url = HostedDir + '/Agency/viewAgency';
+            window.location.href = url;
+        }
+        function GotoSuperAdminSuperAdminList() {
+            $('#spinner').show();
+            var url = HostedDir + '/SuperAdmin/SuperAdminList';
+            window.location.href = url;
+        }
+        function GotoAgencyViewAgencyUser() {
+            $('#spinner').show();
+            var url = HostedDir + '/Agency/viewagencyuser';
+            window.location.href = url;
+        }
+        function GotoSuperAdminImmunization() {
+            $('#spinner').show();
+            var url = HostedDir + '/SuperAdmin/Immunization';
+            window.location.href = url;
+        }
+        function GotoSuperAdminCategory() {
+            $('#spinner').show();
+            var url = HostedDir + '/SuperAdmin/Category';
+            window.location.href = url;
+        }
+        function GotoSuperAdminCenterlist() {
+            $('#spinner').show();
+            var url = HostedDir + '/SuperAdmin/Centerlist';
+            window.location.href = url;
+        }
+        function GotoSuperAdminScreeninglist() {
+            $('#spinner').show();
+            var url = HostedDir + '/SuperAdmin/Screeninglist';
+            window.location.href = url;
+        }
+
+        
+
+    </script>
+
+
+    @*//Changes on 23 Jan 2017*@
+
+    <script>
+        var c = 0; max_count = 60; logout = true;
+        //startTimer();
+        function startTimer() {
+            setTimeout(function () {
+
+                logout = true;
+                c = 0;
+                max_count = '@System.Configuration.ConfigurationManager.AppSettings["SessionTimerCount"]';// '<%=ConfigurationManager.AppSettings["SessionTimerCount"].ToString() %>';// 60;
+                $('#timer').html(max_count);
+                $('#logout_popup').modal('show');
+                //$('#logout_popup').modal({
+                //    backdrop: 'static',
+                //    keyboard: false  // to prevent closing with Esc button (if you want this too)
+                //})
+                startCount();
+
+            }, '@System.Configuration.ConfigurationManager.AppSettings["SessionTimer"]');// 10000 3000  60000  '<%=ConfigurationManager.AppSettings["SessionTimer"] %>'
+        }
+
+        function clearControls()
+        {
+
+           // $('#Email')[0].value = "";
+            $('#Password1')[0].value = "";
+
+
+        }
+
+        function resetTimer() {
+            logout = false;
+            var Session = '@Session["EmailID"]';
+            var EmailText = $('#Email').val();
+            //$('#logout_popup').modal('hide');
+            //startTimer();
+
+            //Changes on 4jan2017
+            cleanValidation();
+            var isValid = true;
+            if ($('#Email')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email is required.");
+                plainValidation('#Email');
+                return isValid;
+            }
+            else if ($('#Password1')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Password is required.");
+                plainValidation('#Password1');
+                return isValid;
+            }
+            //return isValid;
+            //End
+            //if (isValid == "true") {
+
+            //    $('#logout_popup').modal('hide');
+            //    startTimer();$('#ChildId').val()
+            //}
+            //if (EmailText == Session) {
+            //    debugger;
+            //    alert("Email");
+            //    $('#logout_popup').modal('hide');
+            //    startTimer();
+
+
+
+            //}
+            //else {
+            //    customAlert("Invalid Login details.");
+            //}
+
+            $.ajax({
+                url: HostedDir + "/Login/checkPassword",
+                type: "POST",
+                data: {
+                    //Title: $('#txtTitleD').val(),
+                    EmailId: $('#Email').val(),
+                    Password: $('#Password1').val(),
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+                    if (response != null) {
+
+                        if (response == "1") {
+                        //    customAlert("Login successfully.");
+                            $('#logout_popup').modal('hide');
+                            startTimer();
+                            clearControls();
+
+                        }
+
+                        else if (response == "2") {
+
+                            customAlert("Invalid Login details.");
+                           // window.location.href = HostedDir + "/Login/LogoutAgency";
+
+                        }
+
+                        else
+                            customAlert(response);
+                    }
+                },
+                error: function (response) { alert(response); }
+            });
+
+
+
+
+            //if ((Session) != $('#Email').val())
+            //{
+            //    debugger;
+            //    customAlert("Invalid Login details.");
+
+
+            //}
+            //else
+            //{
+            //    $('#logout_popup').modal('hide');
+            //    startTimer();
+            //}
+
+
+        }
+
+        function timedCount() {
+            $('#hidetimer').hide();
+            //$('#hidetimer').show();
+            //$('#Expiring').show();
+            //$('#Expired').hide();
+            c = c + 1;
+            remaining_time = max_count - c;
+            if (remaining_time == 0 && logout) {
+                remaining_time = 0;
+                //$('#timer').html(remaining_time);
+                //$('#hidetimer').hide();
+                //$('#Expiring').hide();
+                //$('#Expired').show();
+              //  $('#logout_popup').modal('hide');
+               // window.location.href = HostedDir + "/Login/LogoutAgency";
+
+            } else {
+                $('#timer').html(remaining_time);
+                t = setTimeout(function () { timedCount() }, 1000);
+            }
+        }
+
+        function startCount() {
+
+            timedCount();
+        }
+    </script>
+
+
+    @*End*@
+    @RenderSection(name: "Script", required: false)
+    <noscript>
+        <meta http-equiv="refresh" content="0;url=/StaffRegistrationbeta/Home/DisableJavascript" />
+    </noscript>
+</head>
+<body>
+
+
+    <div class="header-top">
+        <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 logo-place">
+                <div class="navbar-header logo-ge">
+                    <a class="navbar-brand" href="~/Home/SuperAdminDashboard"><img class="img-responsive" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 menu-place">
+                <div class="menu-head">
+                    <ul class="nav navbar-right navbar-top-links log_outwrp">
+                        <li>
+                            <form class="searchform">
+                                <div class="search-box">
+                                    <input type="text" placeholder="Search Agency" id="searchAgency" class="searchbox">
+                                    <span class="searchbutton"><i class="fa fa-search"></i></span>
+                                </div>
+                            </form>
+                        </li>
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+                        <li class="dropdown ">
+
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i> @Session["FullName"] <b class="caret"></b> </a>
+
+                            <ul class="dropdown-menu dropdown-user">
+                                @*<li>
+                                        <a href="#"><i class="fa fa-user fa-fw"></i> My Profile</a>
+                                    </li>*@
+                                <li><a id="changePassword" data-toggle="modal" data-target="#myModal" href="#"><i class="fa fa-gear fa-fw"></i> Change Password</a></li>
+                                <li><a href="~/Login/Logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="error-msg">
+                    <ul class="i-am-new">
+                        <li id="noty_topRight_layout_container" style="overflow: hidden; display: none; background: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAoCAYAAAAPOoFWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAPZJREFUeNq81tsOgjAMANB2ov7/7ypaN7IlIwi9rGuT8QSc9EIDAsAznxvY4pXPKr05RUE5MEVB+TyWfCEl9LZApYopCmo9C4FKSMtYoI8Bwv79aQJU4l6hXXCZrQbokJEksxHo9KMOgc6w1atHXM8K9DVC7FQnJ0i8iK3QooGgbnyKgMDygBWyYFZoqx4qS27KqLZJjA1D0jK6QJcYEQEiWv9PGkTsbqxQ8oT+ZtZB6AkdsJnQDnMoHXHLGKOgDYuCWmYhEERCI5gaamW0bnHdA3k2ltlIN+2qKRyCND0bhqSYCyTB3CAOc4WusBEIpkeBuPgJMAAX8Hs1NfqHRgAAAABJRU5ErkJggg==&quot;) repeat-x scroll left top #a94442;  color: rgb(255, 255, 255); width: 270px;float:right; cursor: pointer; ">
+                            <div id="noty_237439575065076060" class="noty_bar">
+                                <div style="font-size: 13px; line-height: 16px; text-align: left; padding: 8px 10px 9px; width: auto; position: relative; font-weight: bold;" class="noty_message">
+                                    <span class="noty_text">.</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /.navbar-top-links -->
+            <div class="navbar-default sidebar" role="navigation">
+                @*<div class="navbar-header logo-ge">
+
+                        <div class="clear"></div>
+                    </div>*@
+                <div class="sidebar-nav navbar-collapse" aria-expanded="false">
+                    <ul id="side-menu" class="nav in">
+                        <li>
+                            @* <a id="dashboard" href="~/Home/SuperAdminDashboard" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>*@
+                            <a id="dashboard" onclick="GotoSuperAdminDashBoard();" href="#" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+                        <li id="liadd">
+                            <a id="Aliadd" href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Agency<span class="fa arrow"></span></a>
+                            <ul id="ul1" class="nav nav-second-level collapse">
+                                @*<li> <a id="viewagency" href="~/Agency/viewAgency">View Agency</a> </li>*@
+                                <li> <a id="viewagency" onclick="GotoAgencyViewAgency();" href="#">View Agency</a> </li>
+
+                                <li> <a id="addagency" href="~/Agency/addAgency">Add Agency</a> </li>
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+
+                        <li id="listaff">
+                            <a id="alistaff" href="#"><i class="fa fa-table fa-fw"></i> Internal Staff <span class="fa arrow"></span></a>
+                            <ul id="ul2" class="nav nav-second-level collapse">
+                                @*<li> <a id="viewstaff" href="~/SuperAdmin/SuperAdminList">View Staff</a> </li>*@
+                                <li> <a id="viewstaff" onclick="GotoSuperAdminSuperAdminList();" href="#">View Staff</a> </li>
+
+                                <li> <a id="addstaff" href="~/SuperAdmin/AddSuperAdmin">Add Staff</a> </li>
+                            </ul>
+                        </li>
+                        <li id="li1">
+                            <a id="ali1" href="#"><i class="fa fa-user fa-fw"></i> Agency User <span class="fa arrow"></span></a>
+                            <ul id="ul3" class="nav nav-second-level collapse">
+                                @*<li> <a id="viewagencyuser" href="~/Agency/viewagencyuser">View Agency Users</a> </li>*@
+                                <li> <a id="viewagencyuser" onclick="GotoAgencyViewAgencyUser();" href="#">View Agency Users</a> </li>
+
+                                <li> <a id="addagencyuser" href="~/Agency/addAgencyuser">Add Agency Users</a> </li>
+                            </ul>
+                        </li>
+                        <li id="li2">
+                            <a id="ali2" href="#"><i class="fa fa-server "></i> Routines <span class="fa arrow"></span></a>
+                            <ul id="ul3" class="nav nav-second-level collapse">
+                                @*<li> <a id="viewImmunization" href="~/SuperAdmin/Immunization">Immunization</a> </li>*@
+                                <li> <a id="viewImmunization" onclick ="GotoSuperAdminImmunization();" href="#">Immunization</a> </li>
+                                
+                                @*<li> <a id="AddCategory" href="~/SuperAdmin/Category">Category & Services</a> </li>*@
+                                <li> <a id="AddCategory" onclick="GotoSuperAdminCategory();" href="#">Category & Services</a> </li>
+                                <li> <a id="AddCenter" href="~/SuperAdmin/Center">New Center</a> </li>
+                                @*<li> <a id="ViewCenter" href="~/SuperAdmin/Centerlist">Center List</a> </li>*@
+                                <li> <a id="ViewCenter" onclick="GotoSuperAdminCenterlist();" href="#">Center List</a> </li>
+
+                                <li> <a id="Slots" href="~/SuperAdmin/Slots">Add Slots</a> </li>
+                                <li> <a id="SuperAdminScreening" href="~/SuperAdmin/ScreeningSuperAdmin">Add Screening</a> </li>
+                                @*<li> <a id="SuperAdminScreeningList" href="~/SuperAdmin/Screeninglist">View Screening</a> </li>*@
+                                <li> <a id="SuperAdminScreeningList" onclick="GotoSuperAdminScreeninglist();" href="#">View Screening</a> </li>
+                                <li> <a id="FPACategory" href="~/SuperAdmin/FPACategory">FPA Category</a> </li>
+                                <li> <a id="Workshop" href="~/SuperAdmin/Workshop">Workshop</a> </li>@*Added on 22Dec2016*@
+                                <li> <a id="Holiday" href="~/SuperAdmin/HolidayList">Holiday List</a> </li>@*Added on 7Feb2017*@
+
+                                @*<li> <a id="DisablityType" href="~/SuperAdmin/DisablitiesType">Disability Types</a> </li>@*Added on 7Feb2017*@
+                                <li> <a id="Holiday" href="~/Home/AbsenceReason"><i class="fa fa-houzz"></i> Absence Reason</a> </li>
+                                <li> <a id="Holiday" href="~/Home/AttendanceType"><i class="fa fa-houzz"></i> Attendance Types</a> </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a id="DisabilityType" href="~/SuperAdmin/DisablitiesType" class=" active"><i class="fa fa-wheelchair fa-lg"></i> Disability Types</a>
+                        </li>
+                       
+
+                        <li>
+
+
+                            <a id="ClassAssign" href="~/SuperAdmin/Classroom" class=" active"><i class="fa fa-clipboard"></i> FSW & HV Classroom Assignment</a>
+                        </li>
+                        <li>
+                            <a id="Yakkr" href="~/SuperAdmin/YakkrInfo" class=" active"><i class="fa fa-dashboard fa-fw"></i> Yakkr</a>
+                        </li>
+                        <li>
+                            <a id="test" href="~/SuperAdmin/ImportBoundaryCoordinates" class="active"><i class="fa fa-table fa-fw"></i>Import Boundary Coordinates</a>
+                        </li>
+                        <li id="li8" class="">
+                            <a href="#"><i class="fa fa-user-plus" style="padding-right: 5px;"></i>Matrix System <span class="fa arrow"></span></a>
+                            <ul id="ul2" class="nav nav-second-level collapse" aria-expanded="false" style="height: 0px;">
+                                <li><a id="li4" href="/Matrix/MatrixType">Matrix Type</a></li>
+                                <li><a id="li8" href="/Matrix/AnnualAssessment">Annual Assessment</a></li>
+                                <li><a id="li6" href="/Matrix/AssessmentCategory">Assessment Category</a></li>
+                                <li><a id="li7" href="/Matrix/AssessmentGroup">Assessment Group</a></li>
+                                <li><a id="li8" href="/Matrix/AssessmentQuestions">Assessment Questions</a></li>
+                                <li><a id="li8" href="/Matrix/AssessmentResults">Assessment Results</a></li>
+                                <li><a id="li8" href="/Matrix/Acronym">Acronym</a></li>
+                            </ul>
+                        </li>
+                      
+
+
+                    </ul>
+                </div>
+            </div>
+            @*<div class="navbar-default sidebar" role="navigation" style="border:1px solid red">
+
+                    <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
+                        <ul id="side-menu" class="nav in">
+                            <li> <a href="~/Home/SuperAdminDashboard" class="active"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
+                            <li>
+                                <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Agency<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level collapse">
+                                    <li> <a href="~/Agency/viewAgency">View Agency</a> </li>
+                                    <li> <a href="~/Agency/addAgency">Add Agency</a> </li>
+                                </ul>
+
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-table fa-fw"></i> Internal Staff <span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level collapse">
+                                    <li> <a href="~/SuperAdmin/SuperAdminList">View Staff</a> </li>
+                                    <li> <a href="~/SuperAdmin/AddSuperAdmin">Add Staff</a> </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-user fa-fw"></i> Agency User <span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level collapse">
+                                    <li> <a href="~/Agency/viewagencyuser">View Agency Users</a> </li>
+                                    <li> <a href="~/Agency/addAgencyuser">Add Agency Users</a> </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>*@
+        </nav>
+    </div>
+    <div id="page-wrapper">
+        @RenderSection(name: "MainContentHolder", required: false)
+    </div>
+    <div class="footer-one">
+        <footer>
+            <p class="text-center">Copyright © 2016 All Rights Reserved.<br />Application Link Inc.</p>
+
+        </footer>
+    </div>
+    <div id="spinner">
+        <img src="~/Content/img/spinner.gif" />
+        <br />
+        <b>Please Wait...</b>
+    </div>
+    @*//Changes on 23 Jan 2017*@
+
+
+    <div class="modal fade show-modal" id="logout_popup" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div style="width:100%;height:100%;margin: 0px; padding:0px">
+                        <div style="width:25%;margin: 0px; padding:0px;float:left;">
+                            @*Changes on 31Jan2017*@
+                            <img src="~/content/img/ge_logo_banner_left2.png" width="100%;" />
+                            @*<i class="fa fa-warning" style="font-size: 140px;color:#da4f49"></i>*@
+                        </div>
+                        <div style="width:70%;margin: 0px; padding:0px;float:right;padding-top: 10px;padding-left: 3%;">
+                            <div><h4>Your session has expired!</h4></div>
+                            @*<div id="Expiring"><h4>Your session is about to expire!</h4></div>
+                                <div id="Expired" style="display:none;"><h4>Your session is expired!</h4></div>*@
+
+                            @*<h4>Your session is about to expire!</h4>*@
+                            <p id="hidetimer" style="font-size: 15px;">You will be logged out in <span id="timer" style="display: inline;font-size: 30px;font-style: bold">10</span> seconds.</p>
+                            <p style="font-size: 15px;">Do you want to stay signed in?</p>
+                        </div>
+                        @*Changes on 6Jan2017*@
+                        <div class="col-lg-6 col-md-6 col-sm-12" style="width:70%;margin: 0px; padding:0px;float:right;padding-top: 10px;padding-left: 3%;">
+                            <div class="form-group">
+                                <label for="RaceId">Email <sup style="color:red">*</sup></label>
+                                @*<i class="fa fa-user"></i>*@
+                                <input type="text" name="Email" readonly="readonly" class="form-control" id="Email" placeholder="Email" value="@Session["EmailID"]" maxlength="50">
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" style="width:70%;margin: 0px; padding:0px;float:right;padding-top: 10px;padding-left: 3%;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Password <sup style="color:red">*</sup></label>
+                                @*<i class="fa fa-key"></i>*@
+                                <input type="password" name="Password1" class="form-control" id="Password1" placeholder="Password" maxlength="11">
+                            </div>
+                        </div>
+
+                        @*End*@
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                @*<div style="margin-left: 30%;margin-bottom: 20px;margin-top: 20px;" btn btn-primary btn btn-danger>*@
+                <div style="margin-left: 34%; margin-bottom: 20px; margin-top: 20px; padding-bottom: 23px; padding-top: 17px;">
+                    <a href="javascript:;" onclick="resetTimer()" class="my-btn" aria-hidden="true">Yes, Keep me signed in</a>
+                    <a href="~/Login/LogoutAgency" class="my-btn" aria-hidden="true">No, Sign me out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*End*@
+    @{Html.RenderAction("ChangePassword", "Login", new { area = "" });}
+
+
+
+    @*<script>
+            $(document).ready(function () {
+                $("#side-menu li:last-child").click(function () {
+
+                    //$("#side-menu li:nth-child(2)").removeClass("active").addClass("abc");
+                    $("#side-menu li:nth-child(2) ul").css("display", "none")
+                });
+
+            });
+
+        </script>*@
+</body>
+
+</html>

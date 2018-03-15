@@ -1,0 +1,148 @@
+﻿@model   FingerprintsModel.FamilyHousehold
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+       
+    });
+    function Checkdate(value) {
+
+        isValid = true;
+        if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (!regex.test($(value).val())) {
+                customAlert("Invalid date format. ");
+                $(value).val('');
+                return false;
+            }
+        }
+        var txtdate = $(value).val();
+        var selectedTimestampequal = new Date();
+        var year = selectedTimestampequal.getFullYear();
+        var month = selectedTimestampequal.getMonth() + 1;
+        var day = selectedTimestampequal.getDate();
+        today1 = month + '/' + day + '/' + year;
+        var newinput = today1.split("/");
+        var newday = newinput[1];
+        var str = newday.substr(0, 1);
+        var newdaynew = ('0' + newday).slice(-2);
+
+        var newmonth = newinput[0];
+        var str1 = newmonth.substr(0, 1);
+        var newmonthnew = ('0' + newmonth).slice(-2);
+
+        today = newmonthnew + '/' + newdaynew + '/' + year;
+        if (today == txtdate) {
+            return true;
+        }
+        var testdatelocalinput = new Date(txtdate);
+        var selectedTimestamp = new Date().getTime();
+        var testdatelocalinputTS = testdatelocalinput.getTime();
+        var timestamp = new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
+        if (testdatelocalinputTS < selectedTimestamp) {
+            customAlert("Assessment Date  must be greater than or equal to today's date.");
+            $(value).val('');
+            return false;
+        }
+        
+        return true;
+    }
+    function ValidateWeightHeight(object)
+    {
+            var ex = /^[0-9]+\.?[0-9]*$/;
+            if (ex.test(object.value) == false) {
+                $(object).val('');
+            }
+            var ex = /^\d*\.?\d{0,2}$/;
+            if (ex.test(object.value) == false) {
+                object.value = object.value.substring(0, object.value.indexOf('.') + 3);
+            }
+            var lastChar = object.value.substring(object.value.length - 1);
+            if (lastChar == ".") {
+                object.value = object.value.substring(0, object.value.length - 1);
+            }
+    }
+</script>
+<div class="modal fade scroll-modal" id="BmiModel" role="dialog">
+    <div class="modal-dialog income-popup">
+        <!-- Modal content-->
+        <div class="modal-content" style="width:900px;">
+            <div class="modal-header">
+                <h3>Assessment<span class="extra-title muted"></span></h3>
+                <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                    <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                        <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Ok</button>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="add-useragform">
+                    <div class="row qualifierdiv">
+                        <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-md-11 col-sm-12 mb10">
+                                        <div class="form-group">
+                                            <div class="col-sm-8" style="margin-bottom:3%;">
+                                                <span style="font-size:17px;color:red;">Assessment has not been taken</span>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <span style="font-size:17px;">Select Type of Input:</span>
+
+                                            </div>
+                                            <div class="col-sm-12 cont-sz" style="margin-top:1%;">
+                                                <div class="col-sm-12">
+                                                    @Html.RadioButtonFor(m => m.HWInput, 1, new { id = "HWInput1" })
+                                                    <span>Imperial (Inches/LBS)</span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    @Html.RadioButtonFor(m => m.HWInput, 2, new { id = "HWInput2" })
+                                                    <span>Metrical (CM/Kgs) </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-12">
+                                            <fieldset style="border: 1px solid #295b8f; ">
+                                                <legend class="legend1"></legend>
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                                    <div class="table-responsive">
+                                                        <table class="table table_size" >
+                                                            <thead style="cursor:pointer;">
+                                                                <tr>
+                                                                    <th style="width:31%;">Child Name</th>
+                                                                    <th style="width:10%;">DOB</th>
+                                                                    <th style="width:18%;">Assessment Date</th>
+                                                                    <th style="width:15%;">Height</th>
+                                                                    <th style="width:15%;">Weight</th>
+                                                                    <th>Head Circ.</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="text-align:center;">James Cameron</td>
+                                                                    <td style="text-align:center;">04/10/2016</td>
+                                                                    <td><input class="form-control" style="width:100%;" placeholder="MM/DD/YYYY" onblur="Checkdate(this);" name="AssessmentDate" id="AssessmentDate" type="text"></td>
+                                                                    <td><input class="form-control" style="width:100%;" maxlength="10" onblur="ValidateWeightHeight(this);" name="AHeight" id="AHeight" type="text"></td>
+                                                                    <td><input class="form-control" style="width:100%;" maxlength="10" onblur="ValidateWeightHeight(this);" name="AWeight" id="AWeight" type="text"></td>
+                                                                    <td><input class="form-control" style="width:100%;" name="HeadCircle" onblur="ValidateWeightHeight(this);" id="HeadCircle" type="text"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            </div>
+        </div>
+    </div>
+</div>

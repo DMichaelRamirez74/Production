@@ -1,0 +1,197 @@
+﻿@model FingerprintsModel.EventsModal
+@{
+    ViewBag.Title = "ParentCheckIn";
+    Layout = "~/Views/Shared/ParentLayout.cshtml";
+}
+
+<link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+<style>
+    .events_list_title {
+        margin-top: 15px;
+    }
+
+        .events_list_title h2 {
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 0;
+        }
+
+    .family_ovr {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    /*.library-content-desc p{
+             text-decoration:underline;
+             cursor:pointer;
+         }*/
+
+    .scroll-thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        /*width: calc( 100% - 17px );*/
+    }
+
+    .scroll-tbody tr td, .scroll-tbody1 tr td {
+        word-break: break-word;
+    }
+
+    .scroll-tbody {
+        display: block;
+        height: 250px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+        .scroll-tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+    .lbl-required:after {
+        margin-left: 2px;
+        content: "*";
+        color: red;
+    }
+</style>
+<div class="col-xs-12 events_list_title">
+    <h2>CHECK IN FOR REGISTERED EVENT</h2>
+    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+</div>
+
+<div class="col-md-12">
+    <div class="eml_lst" style="margin-bottom:20px;">
+
+        
+                <div class="col-xs-12">
+
+                    <div class="serch-client-block ">
+                        <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+
+                            <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                                <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list reports_list">
+                                    <thead class="scroll-thead">
+                                        <tr>
+                                            <th>Events</th>
+                                            <th>Title</th>
+                                            <th>Center Name</th>
+                                            <th>Date</th>
+                                            @*<th>Status</th>*@
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="library-table-head scroll-tbody">
+@if (Model._EventsList.Count() > 0)
+{
+
+    foreach (var item in Model._EventsList)
+    {
+
+        //if(item.MinDiff<=30)
+        //{
+
+
+                                                <tr>
+                                                    <td data-title="Events">
+                                                        <div class="library-content-desc" style="position: relative;">
+                                                            <p class="event_red" style="background:@item.EventColor;">&nbsp;</p>
+                                                        </div>
+                                                    </td>
+                                                    <td data-title="Title">
+                                                        <div class="library-content-desc event-name-parent">
+                                                            <p>@item.WorkShopName</p>
+                                                        </div>
+                                                    </td>
+
+                                                    <td data-title="Center Name">
+                                                        <div class="library-content-desc event-name-parent">
+                                                            <p>@item.CenterName</p>
+                                                        </div>
+                                                    </td>
+                                                    <td data-title="Date">
+                                                        <div class="library-content-desc">
+                                                            <p>@item.EventDate &nbsp;@item.EventTime</p>
+                                                        </div>
+                                                    </td>
+
+                                                    @*<td data-title="Action">
+                                                        <div class="library-content-desc">
+                                                            <p>@item.EventStatus</p>
+                                                        </div>
+                                                    </td>*@
+
+                                                    @if (item.MinDiff <= 30)
+                                                    {
+
+
+                                                        <td data-title="Status">
+                                                            <div class="library-content-desc" onclick="location.href='/Events/ParentCheckInEvent?id=@item.Enc_EventId'">
+
+                                                                @if (item.IsAttended)
+                                                                {
+                                                                    <a href="#" class="full_report" style="text-decoration:underline!important;">CHECKED</a>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a href="#" class="open_report" style="text-decoration:underline!important;">CHECK IN</a>
+
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td data-title="Status">
+                                                            <div class="library-content-desc" onclick="location.href='/Events/ParentCheckInEvent?id=@item.Enc_EventId'">
+                                                                @if (item.IsAttended)
+                                                                {
+                                                                    <a href="#" class="full_report" style="text-decoration:underline!important;">CHECKED</a>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a href="#" class="open_report" style="text-decoration:underline!important;">CHECK IN</a>
+
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                    }
+
+                                                </tr>
+        //}
+        //else
+        //{
+        //    <tr>
+        //        <td colspan="5">No Events available for Check- In</td>
+        //    </tr>
+        //}
+    }
+}
+else
+{
+    <tr>
+        
+        <td colspan="5">No Events available for Check-in</td>
+    
+    </tr>
+}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        }
+
+
+       
+
+    </div>
+</div>
+

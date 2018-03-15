@@ -1,0 +1,739 @@
+﻿@{
+    ViewBag.Title = "InKindActivities";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section MainContentHolder{
+    <link href="~/Content/css/daysoff.css" rel="stylesheet" />
+
+    <style>
+        #amount-rate-div {
+            display: none;
+        }
+
+        .btn-delete {
+            background-color: #ed5e68;
+            color: #fff;
+        }
+
+        .btn-cancel {
+            color: #fff;
+            background-color: #8388a4;
+        }
+
+        td[data-title="Action"] {
+            white-space: nowrap;
+        }
+
+        td[data-title] {
+            margin-top: 10px;
+        }
+
+        @@media only screen and (min-width:1280) {
+            .icr-inkind-label {
+                width: 23%;
+            }
+        }
+
+        .scroll-tbody {
+            overflow-x: auto;
+        }
+
+        .ersa-select2 {
+            width: 220px;
+            font-size: 19px;
+            color: #fff;
+            display: inline-block;
+            padding: 5px;
+            resize: none;
+            background: transparent;
+            height: 40px;
+            margin-right: 10px;
+            border: 1px solid #fff !important;
+            border-bottom-left-radius: 4px !important;
+            border-top-left-radius: 4px !important;
+            position: relative;
+            line-height: 40px;
+            font-size: 14px;
+        }
+    </style>
+    <div class="row" style="width:100%;margin-left:0px;">
+        <div class="right-side-container-ch">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 no-padding">
+
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h2>Inkind Activity</h2>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    <form id="activityForm">
+
+
+                        <div class="form-div">
+
+                            <div class="col-xs-12 col-lg-12 no-padding" id="activity-type-div">
+                                <div class="col-xs-12 col-md-4  col-lg-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label col-md-4 col-lg-4 lbl-required">Activity Type</label>
+                                    <div class="col-lg-4 col-md-4" id="activity-inner-div">
+
+                                        <input type="radio" name="activityType" value="1" />&nbsp;<span style="color:#fff;">Center &nbsp;</span>
+                                        <input type="radio" name="activityType" value="2" />&nbsp;<span style="color:#fff;"> Home</span> &nbsp;
+                                        <small style="color: #fff;font-style: italic;color: #f9c751;display:none;font-size:83%;" id="homeactivityfilled">(Activity filled out for Home)</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-lg-12 no-padding" id="activity-desc-div">
+                                <div class="col-xs-12 col-lg-12 col-md-4 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label col-lg-4 col-md-4 lbl-required">Activity Description</label>
+                                    <div class="col-lg-7 col-md-7">
+                                        <input type="text" class="ersa-select icr-abs-input dis-input" id="activitydescriptionTxt" />
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-lg-12 no-padding" id="sub-activity-desc-div" style="display:none;">
+                                <div class="col-xs-12 col-lg-12 col-md-4 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label col-lg-4 col-md-4 lbl-required">Sub-Activity Description</label>
+                                    <div class="col-lg-7 col-md-7">
+
+                                        <div class="input-group date" id="sub-activity-master" style="width:54%;">
+                                            <input type="text" id="add-input_0" class="form-control ersa-select2 icr-abs-input dis-input add-input">
+                                            <span class="input-group-addon" id="glyph-add-subactivity" title="click to add another sub-activity" style="cursor:pointer;">
+                                                <span class="glyphicon glyphicon-plus"></span>
+                                            </span>
+                                        </div>
+                                        <div id="addition-activity-div">
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <span class="fade fa-plus" style="color:#fff;"></span>
+                            </div>
+
+                            <div class="col-xs-12 no-padding" id="amount-type-div">
+                                <div class="col-xs-12 col-md-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Amount Type</label>
+                                    <div class="col-lg-4 col-md-4" id="amount-inner-div">
+                                        <input type="radio" name="amountType" value="1" />&nbsp;<span style="color:#fff;">Miles &nbsp;</span>
+                                        <input type="radio" name="amountType" value="2" />&nbsp;<span style="color:#fff;">Hours &nbsp;</span>
+                                        <input type="radio" name="amountType" value="3" />&nbsp;<span style="color:#fff;"> Fixed</span> &nbsp;
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding" id="amount-rate-div">
+                                <div class="col-xs-12 col-md-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Amount Rate</label>
+                                    <div class="col-lg-6 col-md-6">
+                                        <input type="text" class="ersa-select icr-abs-input dis-input" id="activityrateTxt" maxlength="8" style="width:20%;" />
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding" id="isvolunteer-div">
+                                <div class="col-xs-12  col-md-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Consider Volunteer Activity ? </label>
+                                    <div class="col-lg-4 col-md-4" id="volunteer-inner-div">
+                                        <input type="radio" name="volunteerradio" value="1" />&nbsp;<span style="color:#fff;">Yes &nbsp;</span>
+                                        <input type="radio" name="volunteerradio" value="0" />&nbsp;<span style="color:#fff;">No &nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding" id="signature-req-div">
+                                <div class="col-xs-12 col-md-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Signature Required ? </label>
+
+                                    <div class="col-lg-4 col-md-4" id="signature-inner-div">
+                                        <input type="radio" name="sigrequired" value="1" />&nbsp;<span style="color:#fff;">Yes &nbsp;</span>
+                                        <input type="radio" name="sigrequired" value="0" />&nbsp;<span style="color:#fff;">No &nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 no-padding" id="submit-cancel-div">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmitInkindActivityType" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" type="button" class="my-btn dis-input" accesskey="0" index-id="0">Submit</button>
+                                    <button id="btnActivityExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button">Clear</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                        <div class="col-xs-12" style="margin:20px auto;float: none;">
+                            <div class="icr-table-fit table-responsive">
+                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="centerTable">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th>Activity Type</th>
+                                            <th>Activity Description</th>
+                                            <th>Sub-Activity Description</th>
+                                            <th>Amount Type</th>
+                                            <th>Amount Rate</th>
+                                            <th>Volunteer</th>
+                                            <th>Signature Required</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ersea-table-head bind_body scroll-tbody"></tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Hidden("homeActivityCount", '0')
+
+    <script>
+        $(function () {
+            var activitySubmitBtn = $('#btnSubmitInkindActivityType');
+            var activityCancelBtn = $('#btnActivityExit');
+            getInkindActivities();
+
+            activitySubmitBtn.on('click', function () {
+                cleanValidation();
+                $('#activity-inner-div,#amount-inner-div,#volunteer-inner-div,#signature-inner-div').css('background-color', '');
+                if (!$('input[name=activityType]').is(':checked')) {
+                    customAlert('Please select Activity Type');
+                    plainValidation('#activity-inner-div');
+                    return false;
+                }
+
+                if ($('#activitydescriptionTxt').val() === '') {
+                    customAlert('Please Enter Activity Description');
+                    plainValidation('#activitydescriptionTxt');
+                    return false;
+                }
+
+                if ($('input[name=activityType]:checked').val() === '2') {
+                    if ($('#sub-activity-master').find('.add-input').first().val() === '') {
+                        customAlert('Please Enter Sub Activity Description');
+                        plainValidation('#' + $('#sub-activity-master').find('.add-input').first().attr('id') + '');
+                        return false;
+                    }
+                }
+
+                if (!$('input[name=amountType]').is(':checked')) {
+                    customAlert('Please select Amount Type');
+                    plainValidation('#amount-inner-div');
+                    return false;
+                }
+
+                if ($('#amount-rate-div').is(':visible') && $('#activityrateTxt').val() === '') {
+                    customAlert('Please Enter Activity Rate');
+                    plainValidation('#activityrateTxt');
+                    return false;
+                }
+
+                if (!$('input[name=volunteerradio]').is(':checked')) {
+                    customAlert('Please Select Volunteer or not');
+                    //plainValidation('#activityrateTxt');
+                    return false;
+                }
+
+                if (!$('input[name=sigrequired]').is(':checked')) {
+                    customAlert('Please select signature required or not');
+                    plainValidation('#signature-inner-div');
+                    return false;
+                }
+
+
+                insertInkindActivities();
+
+
+            });
+
+            $('#activityrateTxt').keypress(function (event) {
+                if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+                    event.preventDefault();
+                }
+            });
+
+
+
+            $('#btnActivityExit').on('click', function () {
+                cleanValidation();
+                $('#activityForm').trigger('reset');
+                $('#btnSubmitInkindActivityType').attr('accesskey', '0');
+                $('input[name=volunteerradio]').prop('disabled', false);
+                $('#activity-inner-div,#amount-inner-div,#volunteer-inner-div,#signature-inner-div').css('background-color', '');
+                $('#amount-inner-div').find('input[name=amountType]').prop('checked', false);
+                $('#amount-inner-div').find('input[name=amountType]').prop('disabled', false);
+                $('#amount-rate-div').hide();
+                $('#isvolunteer-div').find('input[name=volunteerradio]').prop('checked', false);
+                $('#isvolunteer-div').find('input[name=volunteerradio]').prop('disabled', false);
+                $('#sub-activity-master').find('.add-input').val('');
+                $('#addition-activity-div').html('');
+                $('#sub-activity-desc-div').hide();
+
+            });
+
+            $('#activity-type-div').find('input[name=activityType]').on('click', function () {
+
+                var activityVal = $(this).val();
+
+                if (activityVal === '2') {
+                    $('#amount-inner-div').find('input[name=amountType][value=2]').prop('checked', true);
+                    $('#amount-inner-div').find('input[name=amountType]').prop('disabled', true);
+
+                    $('#isvolunteer-div').find('input[name=volunteerradio][value=1]').prop('checked', true);
+                    $('#isvolunteer-div').find('input[name=volunteerradio]').prop('disabled', true);
+                    $('#amount-rate-div').show();
+                    $('#sub-activity-desc-div').show();
+                }
+                else {
+                    $('#amount-inner-div').find('input[name=amountType]').prop('checked', false);
+                    $('#amount-inner-div').find('input[name=amountType]').prop('disabled', false);
+
+                    $('#isvolunteer-div').find('input[name=volunteerradio]').prop('checked', false);
+                    $('#isvolunteer-div').find('input[name=volunteerradio]').prop('disabled', false);
+                    $('#amount-rate-div').hide();
+                    $('#sub-activity-desc-div').hide();
+
+                }
+
+            });
+
+            $('#amount-type-div').find('input[name=amountType]').on('click', function () {
+
+                var thisValue = $(this).val();
+
+                if (thisValue === '3') {
+                    $('#amount-rate-div').find('#activityrateTxt').val('');
+                    $('#amount-rate-div').hide();
+                }
+                else {
+                    $('#amount-rate-div').find('#activityrateTxt').val('');
+                    $('#amount-rate-div').show();
+                }
+
+            });
+
+
+            //$('#activitydescriptionTxt').on('focus', function () {
+
+
+            //});
+
+            $('#glyph-add-subactivity').on('click', function () {
+
+                var attr_id = $('#addition-activity-div').find('.add-input').length + 1;
+
+                var inputappend = '<div class="input-group date" id="sub-activity-slave_' + attr_id + '" style="width:54%;margin-top:20px;">\
+                                            <input type="text" id="add-input_'+ attr_id + '" class="form-control ersa-select2 icr-abs-input dis-input add-input" subactivid="0">\
+                                            <span class="input-group-addon remove_add" id="glyph-remove-subactivity_' + attr_id + '"  title="click to remove sub-activity" style="cursor:pointer;" >\
+                                                <span class="glyphicon glyphicon-remove"></span>\
+                                            </span>\
+                                        </div>';
+
+                $('#addition-activity-div').append(inputappend);
+
+                $('#addition-activity-div').find('.remove_add').on('click', function () {
+
+                    removeSubActivity(this);
+                    //var id = '#sub-activity-slave_' + $(this).attr('id').split('_')[1] + '';
+                    //$(id).remove();
+                });
+
+                $('#sub-activity-desc-div').find('.add-input').on('blur', function () {
+
+                    return checkDuplicateSupActivity(this);
+
+                });
+
+            });
+
+
+
+        });
+
+
+
+        function checkDuplicateSupActivity(ele) {
+            cleanValidation();
+            var isExists = false;
+            var thisValue = $(ele).val()
+            if (thisValue != '') {
+                thisValue = thisValue.toLowerCase();
+                var arr = [];
+                $.map($('#sub-activity-desc-div').find('.add-input'), function (k, i) {
+
+                    if ($(k).attr('id') != $(ele).attr('id')) {
+                        arr.push($(k).val().toLowerCase());
+                    }
+
+                });
+
+                if (arr.indexOf(thisValue) > -1) {
+                    isExists = true;
+                    plainValidation('#' + $(ele).attr('id') + '');
+                    customAlert('Sub- Activity already exists');
+                }
+            }
+
+            return isExists;
+        }
+
+
+        function removeSubActivity(val) {
+
+      
+            var subactvid = $(val).siblings('.add-input').attr('subactivid');
+            if (parseInt(subactvid) > 0) {
+                $('#spinner').show();
+                $.ajax({
+                    url: '/InKind/DeleteInKindSubActivity',
+                    type: 'post',
+                    datatype: 'json',
+                    data: { subID: subactvid },
+                    success: function (data) {
+                        $('#spinner').hide();
+                        if (data) {
+                            var id = '#sub-activity-slave_' + $(val).attr('id').split('_')[1] + '';
+                            $(id).remove();
+                        }
+                        else {
+                            customAlert('Error Occured.Please,try again later');
+                        }
+                    },
+                    error: function (data) {
+                        $('#spinner').hide();
+                    }
+
+
+                });
+            }
+            else {
+                var id = '#sub-activity-slave_' + $(val).attr('id').split('_')[1] + '';
+                $(id).remove();
+            }
+
+
+        }
+
+        function deleteInKindSubActivityAjax(subid) {
+
+        }
+
+        function getInkindActivities() {
+            $('#spinner').show();
+            $.ajax({
+                url: '/InKind/GetInkindActivities',
+                type: 'post',
+                datatype: 'json',
+                success: function (data) {
+                    if (data != null) {
+                       
+                        var appendDiv = '';
+                        if (data.InkindActivityList.length > 0) {
+
+                            $.each(data.InkindActivityList, function (i, activity) {
+
+
+                                var amountType = (activity.ActivityAmountType === '1') ? "Miles" : (activity.ActivityAmountType === '2') ? "Hours" : (activity.ActivityAmountType === '3') ? "Fixed" : '';
+                                var actitivityType = (activity.ActivityType === '1') ? "Center" : (activity.ActivityType === '2') ? "Home" : '';
+                                var sigReq = (activity.IsSignatureRequired) ? 'Yes' : 'No';
+                                var sigId = (activity.IsSignatureRequired) ? '1' : '0';
+                                var volunteer = (activity.Volunteer) ? 'Yes' : 'No';
+                                var isVol = (activity.Volunteer) ? '1' : '0';
+                                var subActivityDes = '';
+                                if (activity.SubActivityList.length > 0) {
+                                    $.each(activity.SubActivityList, function (j, sub) {
+                                        subActivityDes += '<span class="sub-activity" sub-id=' + sub.SubActivityId + '>' + sub.ActivityDescription + '</span><br>';
+                                    });
+                                }
+
+                                appendDiv += '<tr>\
+                                                    <td data-title="Activity Type" act-id='+ activity.ActivityType + ' att-index="" class="attendance-td">\
+                                                        <p class="actity-type-text">'+ actitivityType + '</p>\
+                                                    </td>\
+                                                    <td data-title="Activity Description" class="attendance-td">\
+                                                        <p class="activity-desc-text">'+ activity.ActivityDescription + '</p>\
+                                                    </td>\
+                                                       <td data-title="Sub-Activity Description" class="attendance-td">\
+                                                        <p class="activity-desc-text">' + subActivityDes + '</p>\
+                                                    </td>\
+                                                    <td data-title="Amount Type" class="attendance-td">\
+                                                        <p class="amount-type-text" amt-id='+ activity.ActivityAmountType + '>' + amountType + '</p>\
+                                                    </td>\
+                                                     <td data-title="Amount Rate" class="attendance-td">\
+                                                        <p class="amount-rate-text">' + parseFloat(activity.ActivityAmountRate).toFixed(2) + '</p>\
+                                                    </td>\
+                                                      <td data-title="Volunteer" class="attendance-td">\
+                                                        <p class="volunteer-text" vol-id=' + isVol + '>' + volunteer + '</p>\
+                                                    </td>\
+                                                     <td data-title="Signature Required" class="attendance-td">\
+                                                        <p class="sig-req-text" sig-id='+ sigId + ' >' + sigReq + '</p>\
+                                                    </td>\
+                                                    <td data-title="Action" >\
+                                                        <p class="action icr-btn-abs" style="text-align:right;padding-bottom:20px;">\
+                                                            <button type="button" class="btn btn-default btn-sm edit-activity-item" accesskey='+ activity.ActivityCode + '>\
+                                                                <span class="glyphicon glyphicon-pencil"></span> Edit\
+                                                            </button>\
+                                                            <button type="button" class="btn btn-default btn-sm delete-activity-item" accesskey=' + activity.ActivityCode + '>\
+                                                                <span class="glyphicon glyphicon-remove"></span> Delete\
+                                                            </button>\
+                                                        </p>\
+                                                    </td>\
+                                                </tr>';
+
+                            });
+
+
+
+                        }
+
+                        else {
+                            appendDiv += '<tr><td>No records found</td>';
+                        }
+
+                        $('#homeActivityCount').val(data.HomeActivityCount);
+
+                        if (data.HomeActivityCount > 0) {
+                            $('#activity-type-div').find('input[name=activityType][value=2]').prop('disabled', true);
+                            $('#homeactivityfilled').show();
+                        }
+
+                        else {
+                            $('#activity-type-div').find('input[name=activityType][value=2]').prop('disabled', false);
+                            $('#homeactivityfilled').hide();
+                        }
+
+
+                        $('.scroll-tbody').html(appendDiv);
+
+                        $('.scroll-tbody').find('.edit-activity-item').on('click', function () {
+
+                            editActivity(this);
+                        });
+
+                        $('.scroll-tbody').find('.delete-activity-item').on('click', function () {
+                            //  deleteActivity(this);
+                            var self = this;
+                            BootstrapDialog.show({
+                                message: 'Are you sure, want to delete this activity?',
+                                buttons: [{
+                                    label: 'Delete',
+                                    title: 'Delete Activity',
+                                    cssClass: 'btn-delete',
+                                    action: function (dialogItself) {
+                                        dialogItself.close();
+                                        deleteActivity(self);
+                                    }
+                                }, {
+                                    label: 'Cancel',
+                                    // no title as it is optional
+                                    cssClass: 'btn-cancel',
+                                    title: 'Close',
+                                    data: {
+                                        js: 'btn-confirm',
+                                        'user-id': '3'
+                                    },
+                                    action: function (dialogItself) {
+                                        dialogItself.close();
+                                    }
+                                }]
+                            });
+                        });
+
+                    }
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    customAlert('Error Occured.Please, try again later.');
+                    $('#spinner').hide();
+                }
+            });
+        }
+
+
+        function insertInkindActivities() {
+            var InkindActivity = {};
+            InkindActivity.SubActivityList = [];
+            InkindActivity.ActivityType = $('input[name=activityType]:checked').val();
+            InkindActivity.ActivityDescription = $('#activitydescriptionTxt').val();
+            InkindActivity.ActivityAmountType = $('input[name=amountType]:checked').val();
+            InkindActivity.ActivityAmountRate = $('#activityrateTxt').val();
+            InkindActivity.IsSignatureRequired = ($('input[name=sigrequired][value=1]').is(':checked')) ? true : false;
+            InkindActivity.ActivityCode = $('#btnSubmitInkindActivityType').attr('accesskey');
+            InkindActivity.Volunteer = ($('input[name=volunteerradio][value=1]').is(':checked')) ? true : false;
+            InkindActivity.IsActive = true;
+
+            if ($('input[name=activityType]:checked').val() === '2' && $('#sub-activity-desc-div').is(':visible')) {
+                $('#sub-activity-desc-div').find('.add-input').each(function (a, act) {
+                    if ($(act).val() != '') {
+                       
+                        var SubActivities = {
+                            'SubActivityId': ($(act).attr('subactivid') == null || $(act).attr('subactivid') == '') ? 0 : parseInt($(act).attr('subactivid')),
+                            'ActivityDescription': $(act).val(),
+                            'IsActive': true,
+
+                        }
+                        InkindActivity.SubActivityList.push(SubActivities);
+                    }
+                });
+            }
+
+            $('#spinner').show();
+            InkindActivity = JSON.stringify(InkindActivity);
+            $.ajax({
+                url: '/InKind/InsertInkindActivity',
+                datatype: 'json',
+                type: 'post',
+                data: { inkindActivity: InkindActivity },
+                success: function (data) {
+                    $('#spinner').hide();
+                    if (data === '1') {
+                        customAlert('Record saved successfully');
+                        $('#activityForm').trigger('reset');
+                        $('#btnSubmitInkindActivityType').attr('accesskey', '0');
+                        $('#amount-inner-div').find('input[name=amountType]').prop('checked', false);
+                        $('#amount-inner-div').find('input[name=amountType]').prop('disabled', false);
+
+                        $('#isvolunteer-div').find('input[name=volunteerradio]').prop('checked', false);
+                        $('#isvolunteer-div').find('input[name=volunteerradio]').prop('disabled', false);
+                        $('#sub-activity-desc-div').hide();
+                        $('#sub-activity-desc-div').find('.add-input').val('');
+                        $('#addition-activity-div').html('');
+
+                        getInkindActivities();
+                        // $('#spinner').hide();
+                    }
+                    else if (data === '3') {
+
+                        $('#activity-inner-div,#amount-inner-div,#activitydescriptionTxt').css('background-color', '#ffc0cb66');
+                        customAlert('Record already exists');
+                    }
+                    else if (data === '2') {
+                        plainValidation('#activitydescriptionTxt');
+                        customAlert('Record already exists');
+                    }
+                    else {
+                        customAlert('Some Error Occured.Please,try again later.')
+                    }
+
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+
+            });
+        }
+
+
+
+
+        function editActivity(ele) {
+            $('#activityForm').trigger('reset');
+            $('#activity-inner-div,#amount-inner-div,#volunteer-inner-div,#signature-inner-div').css('background-color', '');
+            cleanValidation();
+            var eleparentrow = $(ele).parent('p').parent('td').parent('tr');
+
+            var activityType = eleparentrow.find('td').eq(0).attr('act-id');
+            var activityDes = eleparentrow.find('td').eq(1).children('.activity-desc-text').html();
+
+            var subActivityDesc = '';
+
+            if (eleparentrow.find('td').eq(2).find('.sub-activity').length > 0) {
+                $('#sub-activity-desc-div').show();
+                $.each(eleparentrow.find('td').eq(2).find('.sub-activity'), function (s, sub) {
+
+                    var subactivityid = $(sub).attr('sub-id');
+                    var subactivdes = $(sub).text();
+                    if (s === 0) {
+                        $('#sub-activity-master').find('.add-input').val(subactivdes).attr('subactivid', sub)
+                        $('#sub-activity-master').find('.add-input').attr('subactivid', subactivityid);
+                    }
+                    else {
+                        var attr_id = $('#addition-activity-div').find('.add-input').length + 1;
+
+                        subActivityDesc += '<div class="input-group date" id="sub-activity-slave_' + attr_id + '" style="width:54%;margin-top:20px;">\
+                                            <input type="text" id="add-input_'+ attr_id + '" class="form-control ersa-select2 icr-abs-input dis-input add-input" subactivid=' + subactivityid + ' value=' + subactivdes + '>\
+                                            <span class="input-group-addon remove_add" id="glyph-remove-subactivity_' + attr_id + '"  title="click to remove sub-activity" style="cursor:pointer;" >\
+                                                <span class="glyphicon glyphicon-remove"></span>\
+                                            </span>\
+                                        </div>';
+
+
+                    }
+
+                });
+
+                $('#addition-activity-div').append(subActivityDesc);
+
+                $('#addition-activity-div').find('.remove_add').on('click', function () {
+                    //var id = '#sub-activity-slave_' + $(this).attr('id').split('_')[1] + '';
+                    //$(id).remove();
+
+                    removeSubActivity(this);
+                });
+
+                $('#sub-activity-desc-div').find('.add-input').on('blur', function () {
+
+                    return checkDuplicateSupActivity(this);
+
+                });
+            }
+
+            var amtType = eleparentrow.find('td').eq(3).children('.amount-type-text').attr('amt-id');
+            var amtRate = eleparentrow.find('td').eq(4).children('.amount-rate-text').html();
+            var isVolunteer = eleparentrow.find('td').eq(5).children('.volunteer-text').attr('vol-id');
+            var sigReqId = eleparentrow.find('td').eq(6).children('.sig-req-text').attr('sig-id');
+            $('input[name=activityType][value=' + activityType + ']').prop('checked', true);
+            $('#activitydescriptionTxt').val(activityDes);
+            $('input[name=amountType][value=' + amtType + ']').prop('checked', true);
+
+            if (amtType === '3') {
+                $('#activityrateTxt').val('');
+                $('#amount-rate-div').hide();
+            }
+            else {
+                $('#activityrateTxt').val(amtRate);
+                $('#amount-rate-div').show();
+            }
+
+            $('input[name=volunteerradio][value=' + isVolunteer + ']').prop('checked', true);
+            $('input[name=sigrequired][value=' + sigReqId + ']').prop('checked', true);
+            $('#btnSubmitInkindActivityType').attr({ 'accesskey': $(ele).attr('accesskey') });
+
+            if (activityType === '2') {
+                $('input[name=volunteerradio]').prop('disabled', true);
+                $('input[name=amountType]').prop('disabled', true);
+            }
+            else {
+                $('input[name=volunteerradio]').prop('disabled', false);
+                $('input[name=amountType]').prop('disabled', false);
+            }
+        }
+
+        function deleteActivity(ele) {
+            $('#spinner').show();
+            // InkindActivity = JSON.stringify({ 'inkindActivity': InkindActivity });
+            $.ajax({
+                url: '/InKind/DeleteInkindActivity',
+                datatype: 'json',
+                type: 'post',
+                data: { activityCode: $(ele).attr('accesskey') },
+                success: function (data) {
+                    if (data) {
+                        customAlert('Record deleted successfully');
+                        getInkindActivities();
+                    }
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+
+            });
+        }
+    </script>
+}

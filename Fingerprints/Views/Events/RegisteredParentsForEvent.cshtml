@@ -1,0 +1,444 @@
+﻿
+@{
+    ViewBag.Title = "ParentCheckIn";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section MainContentHolder
+{
+
+    <link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+            overflow: auto;
+        }
+
+        .events_list_title {
+            margin-top: 15px;
+        }
+
+            .events_list_title h2 {
+                text-align: center;
+                font-weight: bold;
+                color: #fff;
+                margin-top: 0;
+            }
+
+        .family_ovr {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+
+        .no-data-div {
+            position: relative;
+            margin-top: 125px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .ersa-search-btn {
+            display: inline-block;
+            width: auto;
+            vertical-align: bottom;
+            top: 0;
+            position: relative;
+            z-index: 99;
+        }
+
+            .ersa-search-btn a {
+                font-size: 18px;
+                text-transform: capitalize;
+                text-align: center;
+                display: inline-block;
+                background: #f9c751;
+                color: #212121;
+                margin: 0;
+                border-radius: 4px;
+                width: 100px;
+                padding: 7px 9px;
+                margin: auto;
+                font-weight: bold;
+                line-height: 20px;
+            }
+
+        .library-select option {
+            background: #164273 !important;
+        }
+
+        .library-select {
+            width: 220px;
+            font-size: 19px;
+            color: #fff;
+            display: inline-block;
+            padding: 5px;
+            resize: none;
+            background: transparent;
+            height: 40px;
+            margin-right: 10px;
+            border: 1px solid #fff !important;
+            border-radius: 4px;
+            position: relative;
+            line-height: 40px;
+        }
+
+            .library-select::-webkit-input-placeholder {
+                color: #fff !important;
+            }
+
+            .library-select::-moz-placeholder {
+                color: #fff !important;
+            }
+
+            .library-select:-ms-input-placeholder {
+                color: #fff !important;
+            }
+
+            .library-select:-moz-placeholder {
+                color: #fff !important;
+            }
+
+        .anchor {
+            text-decoration: underline !important;
+            line-height: 1.5 !important;
+            width: 50%;
+            margin-left: 25%;
+            margin-right: 25%;
+        }
+
+        .new_registration, .new_registration:hover {
+            font-size: 14px;
+            text-transform: capitalize;
+            padding: 14px 18px;
+            text-align: left;
+            display: block;
+            margin: 0;
+            margin-top: 2px;
+            background: #2ecc71;
+            color: #fff;
+            text-align: right;
+            width: auto;
+            display: inline-block;
+            border-radius: 5px;
+        }
+
+        .full_registration {
+            font-size: 14px;
+            text-transform: capitalize;
+            padding: 14px 18px;
+            text-align: left;
+            display: block;
+            margin: 0;
+            margin-top: 2px;
+            background: #e74c3c;
+            color: #fff;
+            text-align: right;
+            width: auto;
+            display: inline-block;
+            border-radius: 5px;
+        }
+    </style>
+
+    <div class="right-side-container-ch" style="width:100%;margin-top:20px;">
+
+        <div class="col-xs-12 no-padding">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 events_list_title">
+                    <h2>Parents Registered for Today's Event </h2>
+                    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+                </div>
+                <div class="col-xs-12 no-padding">
+                    <div class="col-lg-6 col-xs-12">
+                        <label style="display:initial;color:#fff;font-size: 16px;">Event Date:</label>
+                        <span style="display:inline-block;color:#f9c751;font-size: 16px;">@DateTime.Now.ToString("MM/dd/yyyy")</span>
+                    </div>
+                    <div class="col-lg-6 col-xs-12">
+                        <div id="workshopSelectDiv" style="display:none;">
+                            <div class="ersa-search-btn" style="width:auto!important;display:inline-block;float:right;">
+                                <a href="javascript:void(0);" id="searchByWorkshop" style="line-height:26px;">Search</a>
+                            </div>
+                            <select class="library-select" id="workshopSelect" style="width:340px!important;display:inline-block;float:right;"></select>
+                        </div>
+                        <div class="col-xs-12 no-padding left-align margin-top-ch" id="workshopLabel" style="display:none;text-align:right;">
+                            <label style="display:initial;color:#fff;font-size: 16px;">Workshop Name:</label>
+                            <span style="display:inline-block;color:#f9c751;font-size: 16px;" id="workshop-span"></span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-xs-12 text-center serch-library-block workshop_heading report_heading no-padding">
+
+                    <div class="col-lg-4 col-md-5 col-xs-12">
+                        <select class="library-select" id="centerSelect" style="width:340px!important;display:inline-block;float:left;display:none;"></select>
+                        <div class="col-xs-12 no-padding" id="centerLabel" style="display:none;text-align:left;">
+                            <label style="display:initial;color:#fff;font-size: 16px;">Center Name:</label>
+                            <span style="display:inline-block;color:#f9c751;font-size: 16px;line-height: 25px!important;" id="center-span"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 margin-top-ch" style="text-align:center;">
+                        <input type="text" placeholder="Search by Name" class="library-select" id="searchByNameTxt" style="margin-right:0;display:none;" />
+                    </div>
+                    <div class="col-lg-4 col-md-3 col-sm-6 margin-top-ch" style="text-align:right;">
+                        <a href="javascript:void(0);" class="new_registration" style="line-height: 10px;display:none">New Registration</a>
+                        <span class="full_registration" style="line-height: 10px;display:none">Registration Full</span>
+                    </div>
+
+                </div>
+
+                <div class="col-md-12">
+                    <div class="eml_lst" style="margin-bottom:20px;">
+                        <div class="col-xs-12 no-padding">
+                            <div class="serch-client-block ">
+                                <div class="col-sm-12 no-padding block-div workshop_main" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;margin-bottom:20px;">
+                                    <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                                        <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list reports_list" style="padding-top: 20px;">
+                                            <thead class="scroll-thead" style="line-height: 1.42857143!important;">
+                                                <tr>
+                                                    <th>Parent Name</th>
+                                                    <th>Event Date</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="library-table-head scroll-tbody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            var workshopId = '0';
+            var centerId = '0';
+            var searchText = '';
+            var mode = 0;
+            var centerSelect = $('#centerSelect');
+            var centerLabel = $('#centerLabel');
+            var workshopSelectdiv = $('#workshopSelectDiv');
+            var workshopSelect = $('#workshopSelect');
+            var workshopLabel = $('#workshopLabel');
+            var searchTextBox = $('#searchByNameTxt');
+            var newRegistration = $('.new_registration');
+
+            getParentByCenterAndWorkshop(workshopId, centerId, searchText, 1);
+
+            $('#searchByWorkshop').on('click', function () {
+                cleanValidation();
+
+                if (workshopSelect.val() === '0') {
+                    customAlert('Please select Workshop Name');
+                    plainValidation('#workshopSelect');
+                    return false;
+                }
+                mode = 2;
+                workshopId = workshopSelect.val();
+                getParentByCenterAndWorkshop(workshopId, centerId, searchText, mode);
+            });
+
+
+            centerSelect.on('change', function () {
+                workshopId = (workshopSelectdiv.is(':visible')) ? workshopSelect.val() : workshopLabel.find('#workshop-span').attr('enc-id');
+                centerId = $(this).val();
+                mode = 3
+                searchText = '';
+                getParentByCenterAndWorkshop(workshopId, centerId, searchText, mode);
+
+            });
+
+            searchTextBox.on('keyup', function () {
+
+                centerId = (centerSelect.is(':visible')) ? centerSelect.val() : centerLabel.find('#center-span').attr('enc-id');
+                workshopId = (workshopSelectdiv.is(':visible')) ? workshopSelect.val() : workshopLabel.find('#workshop-span').attr('enc-id');
+                mode = 3;
+                searchText = $(this).val();
+                getParentByCenterAndWorkshop(workshopId, centerId, searchText, mode);
+            });
+
+            newRegistration.on('click', function () {
+                centerId = (centerSelect.is(':visible')) ? centerSelect.val() : centerLabel.find('#center-span').attr('enc-id');
+                workshopId = (workshopSelectdiv.is(':visible')) ? workshopSelect.val() : workshopLabel.find('#workshop-span').attr('enc-id');
+                var centerName = (centerSelect.is(':visible')) ? $("#centerSelect option:selected").text() : centerLabel.find('#center-span').html();
+                var workshopName = (workshopSelectdiv.is(':visible')) ? $("#workshopSelect option:selected").text() : workshopLabel.find('#workshop-span').html();
+
+                location.href = '/Events/NewRegistration?WorkShopName=' + workshopName + '&CenterName=' + centerName + '&Enc_Centerid=' + centerId + '&WorkShopId=' + workshopId + '';
+            });
+
+            function getParentByCenterAndWorkshop(workshopId, centerId, searchItem, mode) {
+                var workshoplen = 0;
+                var centerlen = 0;
+
+                $.ajax({
+                    url: '/Events/GetRegParentsByWorkShop',
+                    datatype: 'json',
+                    type: 'post',
+                    async: false,
+                    data: { workShopId: workshopId, centerId: centerId, searchText: searchItem, mode: mode },
+                    success: function (data) {
+
+                        if (mode === 1) {
+                            if (data.AllCenters.length > 0) {
+                                workshoplen = data.AllCenters.length;
+                                if (data.AllCenters.length === 1) {
+                                    workshopId = data.AllCenters[0].Enc_WorkShopId;
+
+                                    $('#workshopLabel').find('#workshop-span').html(data.AllCenters[0].WorkShopName).attr({ 'enc-id': data.AllCenters[0].Enc_WorkShopId });
+                                    $('#workshopSelectDiv').hide();
+                                    $('#workshopLabel').show();
+                                }
+                                else {
+                                    var appendWork = '<option value=0>--Select Today Workshop---</option>';
+                                    $.each(data.AllCenters, function (i, wokshop) {
+                                        appendWork += '<option value=' + wokshop.Enc_WorkShopId + '>' + wokshop.WorkShopName + '</option>';
+                                    });
+                                    $('#workshopSelectDiv').find('#workshopSelect').html(appendWork);
+                                    $('#workshopLabel').hide();
+                                    $('#workshopSelectDiv').show();
+                                }
+                            }
+                        }
+
+                        if (mode === 2) {
+                            if (data.AllCenters.length > 0) {
+                                centerlen = data.AllCenters.length;
+                                if (data.AllCenters.length === 1) {
+                                    centerId = data.AllCenters[0].Enc_CenterId;
+                                    $('#centerLabel').find('#center-span').html(data.AllCenters[0].CenterName).attr({ 'enc-id': data.AllCenters[0].Enc_CenterId });
+                                    $('#centerSelect').hide();
+                                    $('#centerLabel').show();
+                                    $('.new_registration').show();
+                                    $('#searchByNameTxt').show();
+                                }
+                                else {
+                                    var appendCenter = '<option value="0">--Select Center--</option>';
+                                    $.each(data.AllCenters, function (j, k) {
+                                        appendCenter += '<option value=' + k.Enc_CenterId + '>' + k.CenterName + '</option>';
+                                    });
+
+                                    $('#centerSelect').html(appendCenter);
+                                    $('.new_registration').hide();
+                                    $('#searchByNameTxt').hide();
+                                }
+
+                            }
+                        }
+
+                        if (mode === 3) {
+                            if (data.IsFull) {
+                                $('.new_registration').hide();
+                                $('.full_registration').show();
+                            }
+                            else {
+                                $('.full_registration').hide();
+                                $('.new_registration').show();
+                            }
+
+                            $('#searchByNameTxt').show();
+
+                            $('.scroll-tbody').empty();
+
+                            var Template = '<tr class="table-body-tr">\
+                                                    <td data-title="Parent Name">\
+                                                        <div class="library-content-desc event-name-parent" enc_id="##EncId##">\
+                                                            <p>##Name##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                    <td data-title="Event Date">\
+                                                         <div class="library-content-desc event-name-parent">\
+                                                            <p>##EventDate##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                    <td data-title="Status">\
+                                                          <div class="library-content-desc" onclick=##locationHerf##>\
+                                                           <a href="#" class="#fullReportClass#" style="line-height:1.5!important;text-decoration:underline!important;">#Checked#</a>\
+                                                        </div>\
+                                                    </td>\
+                                                </tr>';
+
+
+                            if (data.HouseholdList.length > 1) {
+                                $.each(data.HouseholdList, function (k, val) {
+
+                                    var input = Template;
+                                    input = input.replace("##EncId##", val.Enc_ClientId);
+                                    input = input.replace("##Name##", val.FullName);
+                                    input = input.replace("##EventDate##", val.EventDate + '&nbsp;' + val.EventTime);
+                                    var url1 = 'location.href="/Events/ParentCheckInEvent?id=' + val.Enc_EventId + '&enc_id=' + val.Enc_ClientId + '"';
+
+                                    input = input.replace("##locationHerf##", url1);
+                                    input = input.replace("#fullReportClass#", (val.IsAttended) ? 'full_report' : 'open_report  ');
+                                    input = input.replace("#Checked#", (val.IsAttended) ? 'CHECKED' : 'CHECK IN');
+                                    $('.scroll-tbody').append(input);
+                                });
+                            }
+                            else if (data.HouseholdList.length == 1) {
+                                var input = Template;
+                                input = input.replace("##EncId##", data.HouseholdList[0].Enc_ClientId);
+                                input = input.replace("##Name##", data.HouseholdList[0].FullName);
+                                input = input.replace("##EventDate##", data.HouseholdList[0].EventDate + '&nbsp;' + data.HouseholdList[0].EventTime);
+                                var url = 'location.href="/Events/ParentCheckInEvent?id=' + data.HouseholdList[0].Enc_EventId + '&enc_id=' + data.HouseholdList[0].Enc_ClientId + '"';
+                                input = input.replace("##locationHerf##", url);
+                                input = input.replace("#fullReportClass#", (data.HouseholdList[0].IsAttended) ? 'full_report' : 'open_report');
+                                input = input.replace("#Checked#", (data.HouseholdList[0].IsAttended) ? 'CHECKED' : 'CHECK IN');
+                                $('.scroll-tbody').append(input);
+                            }
+                            else {
+                                var NoRecordTemplate = '<tr><td colspan="3"><div class="library-content-desc"><p style="min-height: 40px!important;">No Record Found</p></div></td></tr>';
+                                $('.scroll-tbody').append(NoRecordTemplate);
+                            }
+                            $('.ddl-Total').empty().append('<option value="0">Total:' + data.length + '</option>');
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                });
+                if (workshoplen === 1) {
+                    getParentByCenterAndWorkshop(workshopId, centerId, searchItem, 2);
+                }
+                if (centerlen === 1) {
+                    getParentByCenterAndWorkshop(workshopId, centerId, searchItem, 3);
+                }
+            }
+
+
+        });
+    </script>
+}

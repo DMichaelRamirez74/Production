@@ -1,0 +1,536 @@
+﻿@model FingerprintsModel.FPA
+
+
+@{   
+     @section Title
+    {
+    Family Partnership Agreement  Goals List
+    }
+    ViewBag.Title = "Goals List (" + TempData["clientName"].ToString() + ")";
+    TempData.Keep();
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+@section Script{
+    <style>
+        .big {
+            width: 160px !important;
+          background-color: #295b8f;
+    border: medium none;
+    color: #fff;
+    margin-right: 5px;
+    padding: 10px;
+    
+    
+        }
+            .big:hover {
+                width: 160px !important;
+                background-color: #295b8f;
+                border: medium none;
+                color: #fff;
+                margin-right: 5px;
+                padding: 10px;
+            }
+        .right {
+            float:right;
+        }
+    </style>
+    <script type="text/javascript">
+        var listAgency = null;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            
+            $('#DashboardHV').removeClass("active");
+            drawgrid();
+            $('#gridViewAgency > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thSN")
+                    return false;
+                if (sortOrder == "thRN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+        });
+       
+    function getListafterupdation() {
+
+        pageSize = $('#ddlpagetodisplay').val();
+        requestedPage = $('#ddlpaging').val();
+        StartIndex = (pageSize * (requestedPage - 1)) + 1;
+        LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+        $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+        if (imgID != '' && imgID != 'undefined' && imgID != null) {
+            direction = $("#" + imgID).siblings('input').val();
+        }
+        if (direction == "Asc") {
+            sortDirection = $("#" + imgID).siblings('input').val();
+        } else if (direction == "Desc") {
+            sortDirection = $("#" + imgID).siblings('input').val();
+        }
+        getList();
+        //var totalRecord = getTotalRecord();
+        if (requestedPage == 1) {
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+        }
+        else if (requestedPage == numOfPages) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', true);
+            $('#Last').attr('disabled', true);
+        }
+        else {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+        }
+        bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        $("#ddlpaging").val(requestedPage);
+    }
+   
+    var sortOrder = '';
+    var sortDirection = '';
+    var imgID = '';
+    var direction = '';
+    var pageSize = 50;
+    var requestedPage = 0;
+    var pageLoadedFirst = true;
+    var totalRecords = 0;
+    var numOfPages = 0;
+    var StartIndex = 0;
+    var LastIndex = 0;
+    var search = '';
+    function getList() {
+        
+       
+        if ($("#txtsearch").val()) {
+            var search = $("#txtsearch").val();
+        }
+        if($('#ddlpagetodisplay').val()){
+            pageSize= $('#ddlpagetodisplay').val();
+        }//string search,String ClientId,string sortOrder, string sortDirection,  int pageSize, int requestedPage = 1
+        $.ajax({
+            url: HostedDir + "/Roster/listFPA",
+            type: "POST",
+            data: {
+                search:search,
+                ClientId: '@Model.EncyrptedClientId',
+                sortOrder: sortOrder,
+                sortDirection: sortDirection,
+                pageSize: pageSize,
+                requestedPage: requestedPage
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                getData(data);
+                // bindGridUser(data);
+                getTotalRecord(data.totalrecord)
+            }
+            , error: function (response) {
+            }
+        });
+    }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+
+        }
+        function delFPA(value){
+            var fpaid = $(value).attr("accesskey");
+           
+            BootstrapDialog.confirm('Do you want to delete this Goal?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/Roster/delFPAInfo",
+                        type: "POST",
+                        data: {
+                            FPAID: fpaid
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 0) {
+                                customAlert("Goal deleted successfully. ");
+                                drawgrid();
+                            }
+                           else if (response == 1) {
+                                customAlert("Goal can not be deleted as status of goal or goal steps already changed. ");
+                               
+                            }
+                        }
+                    , error: function (response) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            //getTotalRecord();
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+
+        function GetFPA(value) {
+
+            var id = '@Model.EncyrptedClientId';
+            window.location.href = HostedDir + "/Roster/FPA/?id=" + id + "&FPAid=" + $(value).attr("accesskey");
+
+        }
+
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+   
+        function bindGridUser(data, num_cols) {
+            $('#gridViewAgency > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#divPaging').show();
+                $('#div1').hide();
+                var tbody = $('#gridViewAgency > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += '<td><a  style="text-decoration: underline;"  href="#" onclick="GetFPA(this);" accesskey="' + data.list[i].EncriptedFPAID + '" >' + ((typeof (data.list[i].Goal) != 'undefined') && (data.list[i].Goal != null) ? data.list[i].Goal : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data.list[i].Category) != 'undefined') && (data.list[i].Category != null) ? data.list[i].CategoryDesc : '') + " </td>";
+                    tr += "<td>" +  data.list[i].GoalDate+ " </td>";
+                    tr += "<td>" + (data.list[i].GoalStatus == 0 ? "Open" : (data.list[i].GoalStatus == 1 ? "Complete" : (data.list[i].GoalStatus == 2 ? "Abandoned" : (data.list[i].GoalStatus == 3 ? "Refused to do a FPA" : "")))) + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].CompletionDate) != 'undefined') && (data.list[i].CompletionDate != null) ? data.list[i].CompletionDate : '') + "</td>";
+                    tr += '<td> <a title="Click here to open pdf for goal" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/FPAList/?id=' + data.list[i].EncyrptedClientId + '&ClientName=' + data.list[i].ChildName + '&FPA=' + data.list[i].EncriptedFPAID + '"><img src="'+HostedDir+'/Content/img/pdf.png" ></a></button></td>';
+                    tr += '<td>  ';
+                    tr += (data.list[i].IsEmail1 == true || data.list[i].IsEmail1 == true) && data.list[i].GoalFor == 3 ? ' <a accesskey="0" onclick="SendEmail(' + i + ',3);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)"><i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i> </a>' : (data.list[i].GoalFor == 1 && data.list[i].IsEmail1 == true ? '<a accesskey="0" onclick="SendEmail(' +i + ',1);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" ><i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i> </a>' : (data.list[i].GoalFor == 2 && data.list[i].IsEmail2 == true ? '<a accesskey="0" onclick="SendEmail(' + i + ',2);" title="Click here to send Email" class="pull-right" href=" javascript:void(0)" ><i class="fa fa-envelope" style="color: #295b8f; font-size: 31px;"></i> </a>' : '<span>No Email</span')) + '</td>';
+                    tr += '<td> <a  style="text-decoration: underline;"  href="#" onclick="delFPA(this);" accesskey=' + data.list[i].EncriptedFPAID + '> Delete </a></td>';
+                    tr += "</tr>";
+                    $('#gridViewAgency > tbody').append(tr);
+                }
+            }
+        }
+       
+        function addGoal() {
+            window.location.href = HostedDir + "/Roster/FPA/?id=@Model.EncyrptedClientId";
+        }
+        function SendEmail(goaldata, type) {
+
+            if (type== 3) {
+                sendEmail1(listAgency.list[goaldata]);
+              if (data.IsSingleParent == 'False') {
+                  sendEmail2(listAgency.list[goaldata]);
+                }
+            }
+            else if (listAgency.list[goaldata].IsEmail1 == true && type == 1) {
+                sendEmail1(listAgency[goaldata]);
+            }
+            else if (listAgency.list[goaldata].IsEmail2 == true && type == 2) {
+                sendEmail2(listAgency.list[goaldata]);
+            }
+    }
+
+    function sendEmail1(Gdata) {
+        $.ajax({
+            url: HostedDir + "/Roster/SendEmail",
+            type: "POST",
+            data: {
+                FPAID: Gdata.EncriptedFPAID,
+                ClientId: Gdata.EncyrptedClientId,
+                ParentName: Gdata.ParentName1,
+                ChildName: Gdata.ChildName,
+                FSWName: '',
+                ParentEmail: Gdata.ParentEmailId1,
+                Goal: Gdata.Goal
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                if (data != null) {
+                   customAlert(data);
+                }
+
+            }
+                           , error: function (data) {
+                              customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                           }
+        });
+    }
+    function sendEmail2(Gdata) {
+        $.ajax({
+            url: HostedDir + "/Roster/SendEmail",
+            type: "POST",
+            data: {
+                FPAID: Gdata.EncriptedFPAID,
+                ClientId: Gdata.EncyrptedClientId,
+                ParentName: Gdata.ParentName2,
+                ChildName: Gdata.ChildName,
+                FSWName: '',
+                ParentEmail: Gdata.ParentEmailId2,
+                Goal: Gdata.Goal
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                if (data != null) {
+                    customAlert(data);
+                }
+
+            }
+                           , error: function (data) {
+                               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                           }
+        });
+    }
+    </script>
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Goals List (@TempData["clientName"].ToString())</h2>
+        </div>
+    </div>
+
+
+
+     <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="search-box">
+                        <ul>
+                            <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                            <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                            <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                           
+                        </ul>
+                        
+                                 <div   >
+                                    <a id="btnaddgoals" href="javascript:void(0)" class="big" onclick="addGoal()" title="Add Goals" >Add New Goal <i class="fa fa-plus-square"></i></a>
+                                </div>
+                            
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                    <div class="table-responsive">
+                        <table class="table table_size" id="gridViewAgency">
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                   
+                                    <th id="thGO">Goal<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                                    <th id="thcN">FEO<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                                    <th id="thDO">Date<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                                    <th id="thEL">Status<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
+                                    <th id="thCD">Completion Date<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                                     <th id="thCD"><img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                                     <th id="thCD"><img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                                    <th id="thJN">Action<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="div1" style="text-align: center;">
+                            @*display: none;*@
+                        <label>No result found.</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+     <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                <div class="pages_display">
+                    <ul>
+                        <li>Display</li>
+                        <li>
+                            <select id="ddlpagetodisplay" onchange="drawgrid();">
+                                <option value="10" selected="selected">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </li>
+                        <li>Records Per Page</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <div id="divPaging" class="pagination_wrp">
+                    <ul id="ulPaging" class="pagination">
+                        <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                        <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                        <li title="Select">
+                            <select class="select_cl" id="ddlpaging"></select>
+                        </li>
+                        <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                        <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+
+    
+
+
+
+ 

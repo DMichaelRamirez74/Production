@@ -1,0 +1,125 @@
+﻿@using FingerprintsModel;
+@using FingerprintsData;
+@{
+    @section Title
+{
+        Section B of the PIR
+    }
+    ViewBag.Title = "staffReport";
+
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5")) || (Session["Roleid"].ToString().Contains("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+
+@section Script{
+
+}
+@section MainContentHolder{
+    @{
+        agencyData agencyData = new agencyData();
+        Agencyreport items = agencyData.agencystaffreoprt(Session["AgencyID"].ToString());
+    }
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Section B of the PIR
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_sizereport my-tbl" id="gridViewAgency">
+                    <tr class="border_none">
+                        <td style="width:70%;"></td>
+                        <td style="background-color: #cfcfcf;"><label>(1) # of Head Start or Early Head Start Staff </label> </td>
+                        <td style="background-color: #cfcfcf;"><label>(2) # of Contracted Staff</label></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>Total no of staff member, regardless of the funding source for their salary or no of hours worked.  </span>
+                        </td>
+                        <td>
+                           @items.totalhdstarterlyhdstart
+                        </td>
+                        <td>
+                             @items.totalcontracterhdstarterlyhdstart
+</td>
+                    </tr>
+                    @{
+                        int countheadstart= 0;
+                        int countcontractor= 0;
+                        foreach (var item in items.Agencystaffreport)
+                        {
+                            countheadstart = countheadstart + Convert.ToInt32(item.totalAssociatedProgram);
+                            countcontractor = countcontractor + Convert.ToInt32(item.Contractor);
+                        }
+                        <tr>
+                                <td>
+                                    <span style="margin-left:3%;">a. Of these, the number who are current or former Head Start or Early Head Start parents      </span>
+                                </td>
+                                <td>
+                                    @countheadstart
+                                </td>
+                                <td>
+                                    @countcontractor
+                                </td>
+                            </tr>
+                    }
+                    @*<tr>
+                        <td>
+                            <span>Total no of staff member in hired between last year PIR. </span>
+                        </td>
+                        <td>
+                            <span>@items.hiredate</span>
+                        </td>
+                        <td><span>@items.Contractortotalhired</span></td>
+                    </tr>*@
+                    <tr>
+                        <td>
+                            <span style="margin-left:3%;"> b. Of these, the number who left since last year's PIR was reported.</span>
+                        </td>
+                        <td>
+                            @items.terminationdate
+                        </td>
+                        <td>@items.Contractortotalterminated</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span  style="margin-left:5%;" >1. Of these, the number who were replaced.   </span>
+                        </td>
+                        <td>
+                            @items.totalreplaced
+                        </td>
+                        <td>@items.totalreplacedcontrator</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background-color: #cfcfcf;">
+                            <span>Program completing the PIR survey for the first time should report the number of staff who left since the program began.</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <form method="post">
+                <div class="search-box pdf-icon">
+                    <button name="command" value="excel" title="Export to excel">
+                        <img src="~/Content/img/Excel-icon.png" />
+                    </button>
+                    <button name="command" value="pdf" title="Export to pdf">
+                        <img src="~/Content/img/pdf.png" />
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

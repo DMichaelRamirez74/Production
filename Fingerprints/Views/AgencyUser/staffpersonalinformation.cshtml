@@ -1,0 +1,365 @@
+﻿@model FingerprintsModel.AgencyStaff
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Personal Information </title>
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
+    <script src="~/Scripts/Samplescript/jquery.min.js"></script>
+    <script src="~/Scripts/SiteScript.js"></script>
+    <script src="~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"></script>
+    <script src="~/Scripts/metisMenu.min.js"></script>
+    <script src="~/Content/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/startmin.js"></script>
+    <script src="~/Scripts/jquery-ui-1.9.0.min.js"></script>
+    <script src="~/Scripts/USmobilevalidation.js"></script>
+    <link id="Link1" rel="shortcut icon" href="~/Content/img/faviicon.jpg" type="image/x-icon" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            $("#CellNumber").mask("(999) 999-9999");
+            //var end = new Date();
+            //$("#DOB").datetimepicker({
+            //    timepicker: false,
+            //    format: 'm/d/Y',
+            //    changeMonth: true,
+            //    changeYear: true,
+            //    maxDate: end,
+            $('#DOB').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            //});
+            $('#form1').submit(function () {
+                $('#btnSubmit').attr('disabled', 'disabled');
+            });
+
+            if ('@Model.Natinality' == "")
+                $('#DdlNationList').val('');
+            if ('@Model.HighestEducation' == "")
+                $('#DdlHighestEducation').val('');
+            if ('@Model.Gender' == "")
+                $('#DdlGender').val('');
+            if ('@Model.EarlyChildHood' == "")
+                $('#DdlEarlyChildHood').val('');
+            if ('@Model.Race' == "")
+                $('#DdlRaceList').val('');
+            if ('@Model.GettingDegree' == "")
+                $('#DdlGettingDegree').val('');
+
+
+        });
+        $('#AvatarH').change(function (evt) {
+
+            showimages(evt.target.files);
+        });
+        function showimages(files) {
+            for (var i = 0, f; f = files[i]; i++) {
+
+                var reader = new FileReader();
+                reader.onload = function (evt) {
+
+                    $('img#imgavatarh').attr('src', evt.target.result);
+                }
+                reader.readAsDataURL(f);
+            }
+        }
+        function validatedate(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (regex.test($(inputTextObject).val())) {
+                    var dob = new Date();
+                    if (Date.parse($(inputTextObject).val()) >= dob) {
+                        customAlert("Invalid Date of birth .Date of birth must be less than today's date. ");
+                        $(inputTextObject).val('');
+                        return false;
+                    }
+                }
+                else {
+                    customAlert("Invalid date of birth. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+
+            }
+
+        }
+        function ResetForm() {
+            window.location.href = HostedDir + "/Login/Loginagency";
+        }
+        var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInput(oInput) {
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    // alert(oInput.files[0].size / 1024 / 1024);
+                    var v = oInput.files[0].size / 1024 / 1024;
+                    if (v <= 1) {
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            return false;
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 1 MB");
+                        return false;
+                    }
+
+                }
+            }
+            return true;
+        }
+        function isValidagencyInfo() {
+            cleanValidation();
+            if ($('#FirstName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required.");
+                plainValidation('#FirstName');
+                return isValid;
+            }
+
+            if ($('#DOB')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Date of birth is required.");
+                plainValidation('#DOB');
+                return isValid;
+            }
+            if ($('#DdlGender').val() == "" || $('#DdlGender').val() == null) {
+                isValid = false;
+                customAlert("Gender is required.");
+                plainValidation('#DdlGender');
+                return isValid;
+            }
+            if ($('#DdlHighestEducation').val() == "" || $('#DdlHighestEducation').val() == null) {
+                isValid = false;
+                customAlert("Highest education is required.");
+                plainValidation('#DdlHighestEducation');
+                return isValid;
+            }
+            if ($('#DdlRaceList').val() == "" || $('#DdlRaceList').val() == null) {
+                isValid = false;
+                customAlert("Race is required.");
+                plainValidation('#DdlRaceList');
+                return isValid;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="header-top">
+        <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 logo-place">
+                <div class="navbar-header logo-ge">
+                    <a class="navbar-brand" href="~/AgencyUser/staffpersonalinformation?id=@Request.QueryString["id"]"><img class="img-responsive" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 menu-place">
+            </div>
+            <div class="navbar-default sidebar" role="navigation" style="border:none !important;">
+                <div class="sidebar-nav navbar-collapse" aria-expanded="false">
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">
+                    Personal Information
+                </h2>
+                <div style="color: green; font-size: 13px; font-weight: bold; right: 15px; line-height:normal;  word-wrap: break-word;"></div>
+            </div>
+        </div>
+        <form method="post" autocomplete="off" id="form1" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">First Name <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.FirstName, new { placeholder = "First Name", id = "FirstName", Name = "FirstName", maxlength = "50", autocomplete = "off", onblur = "CheckFirstCharcter(this);", @class = "form-control", tabIndex = "1" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Last Name</label>
+                                            @Html.TextBoxFor(m => m.LastName, new { placeholder = "Last Name", id = "lastname", Name = "LastName", maxlength = "50", @class = "form-control", tabIndex = "2" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group  ">
+                                            <label for="pwd">Email <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", @readonly = "true", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "3" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Date of  Birth <sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.DOB, new { placeholder = "MM/DD/YYYY", id = "DOB", Name = "DOB", maxlength = "50", @class = "form-control", tabIndex = "4", onblur = "return validatedate(this);" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email"> Gender <sup>*</sup></label>
+                                            @{
+                                                List<SelectListItem> GenderList = new List<SelectListItem>();
+                                                //GenderList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                GenderList.Add(new SelectListItem() { Text = "Female", Value = "0" });
+                                                GenderList.Add(new SelectListItem() { Text = "Male", Value = "1" });
+                                                GenderList.Add(new SelectListItem() { Text = "Other", Value = "2" });
+                                            }
+                                            @Html.DropDownListFor(m => m.Gender, new SelectList(GenderList, "Value", "Text", Model.Gender), new { id = "DdlGender", Name = "DdlGender", @class = "form-control", tabIndex = "5" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Mobile Number</label>
+                                            @Html.TextBoxFor(m => m.CellNumber, new { placeholder = "Mobile Number", id = "CellNumber", Name = "CellNumber", maxlength = "15", @class = "form-control", tabIndex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Highest Education <sup>*</sup></label>
+                                            @Html.DropDownListFor(m => m.HighestEducation, new SelectList(Model.EducationLevelList, "EducationLevel", "Name", Model.HighestEducation), new { id = "DdlHighestEducation", Name = "DdlHighestEducation", @class = "form-control", tabIndex = "7" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Early Childhood </label>
+                                            @{
+
+                                                List<SelectListItem> item = new List<SelectListItem>();
+                                                //item.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                item.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                item.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                            }
+                                            @Html.DropDownListFor(m => m.EarlyChildHood, new SelectList(item, "Value", "Text", Model.EarlyChildHood), new { id = "DdlEarlyChildHood", Name = "DdlEarlyChildHood", @class = "form-control", tabIndex = "8" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Race <sup>*</sup></label>
+                                            @Html.DropDownListFor(m => m.Race, new SelectList(Model.raceList, "RaceId", "Name", Model.Race), new { id = "DdlRaceList", Name = "DdlRaceList", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Getting Degree</label>
+                                            @{
+                                                List<SelectListItem> GettingDegreeitems = new List<SelectListItem>();
+                                                //GettingDegreeitems.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                                GettingDegreeitems.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                                GettingDegreeitems.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                            }
+                                            @Html.DropDownListFor(m => m.GettingDegree, new SelectList(GettingDegreeitems, "Value", "Text", Model.GettingDegree), new { id = "DdlGettingDegree", Name = "DdlGettingDegree", @class = "form-control", tabIndex = "10" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="nation">Country</label>
+                                            @Html.DropDownListFor(m => m.Natinality, new SelectList(Model.nationList, "NationId", "Name", "7D979B6C-F4D1-4D9C-99CD-8DC5160870B7"), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "11" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">General Picture </label>
+                                            @Html.TextBoxFor(m => m.Avatar, new { id = "Avatar", Name = "Avatar", type = "file", onchange = "ValidateSingleInput(this)", @class = "form-control", tabIndex = "16" })<div class="img-iconavt">
+                                                <img id="imgAvatar" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarUrl)' style="border-style:none;" alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">Happy Avatar </label>
+                                            @Html.TextBoxFor(m => m.AvatarH, new { id = "AvatarH", Name = "AvatarH", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "17" })<div class="img-iconavt">
+                                                <img id="imgAvatarH" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarhUrl)' alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">Sad Avatar </label>
+                                            @Html.TextBoxFor(m => m.AvatarS, new { id = "AvatarS", Name = "AvatarS", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "18" })
+                                            <div class="img-iconavt">
+                                                <img id="imgAvatas" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarsUrl)' alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group file_typimg">
+                                            <label for="pwd">Tired Avatar </label>
+                                            @Html.TextBoxFor(m => m.AvatarT, new { id = "AvatarT", Name = "AvatarT", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "19" })
+                                            <div class="img-iconavt">
+                                                <img id="imgAvatarT" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatartUrl)' style="border:none;" alt="" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidagencyInfo();" tabindex="12">Submit</button>
+                                    <button id="btnCancel" type="button" class="my-btn" onclick="ResetForm();" tabindex="13">Exit</button>
+                                    <div class="clear"></div>
+                                </div>	<!--btnwrp_subcal--->
+                            </div>
+                        </div>
+                        <div class="row">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="error-msg">
+            <ul class="i-am-new">
+                <li id="noty_topRight_layout_container" style="overflow: hidden; display: none; background: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAoCAYAAAAPOoFWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAPZJREFUeNq81tsOgjAMANB2ov7/7ypaN7IlIwi9rGuT8QSc9EIDAsAznxvY4pXPKr05RUE5MEVB+TyWfCEl9LZApYopCmo9C4FKSMtYoI8Bwv79aQJU4l6hXXCZrQbokJEksxHo9KMOgc6w1atHXM8K9DVC7FQnJ0i8iK3QooGgbnyKgMDygBWyYFZoqx4qS27KqLZJjA1D0jK6QJcYEQEiWv9PGkTsbqxQ8oT+ZtZB6AkdsJnQDnMoHXHLGKOgDYuCWmYhEERCI5gaamW0bnHdA3k2ltlIN+2qKRyCND0bhqSYCyTB3CAOc4WusBEIpkeBuPgJMAAX8Hs1NfqHRgAAAABJRU5ErkJggg==&quot;) repeat-x scroll left top #a94442;  color: rgb(255, 255, 255); width: 270px;float:right; cursor: pointer; ">
+                    <div id="noty_237439575065076060" class="noty_bar">
+                        <div style="font-size: 13px; line-height: 16px; text-align: left; padding: 8px 10px 9px; width: auto; position: relative; font-weight: bold;" class="noty_message">
+                            <span class="noty_text">.</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-one">
+        <footer>
+            <p class="text-center"><a target="_blank" href="http://www.otssolutions.com">Copyright © 2016 All Rights Reserved.<br />Designed By OTS Solutions Inc.</a></p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,2976 @@
+﻿@{
+    @section Title
+{
+        Dashboard
+    }
+    ViewBag.Title = "AgencystaffDashboard";
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    //{
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    //{
+    //    Layout = "~/Views/Shared/HomeVisitorLayout.cshtml";
+    //}
+}
+@section Script{
+
+    <script src="~/Scripts/amcharts.js"></script>
+    <script src="~/Scripts/gauge.js"></script>
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+    <script type="text/javascript">
+        var dbevents = [];
+        var _centerid = null;
+        var _option = null;
+        var _option1 = null;
+        var _programtype = 0;
+        var _Nurse = 0;
+        var _programtype1 = 0;
+        var _Nurse1 = 0;
+        var WaitObject = null;
+        var _Object = null;
+        var AcceptObject = null;
+        var Acceptwaitingobject = null;
+        $(document).ready(function () {
+
+            $('#HVtxtclassstartdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#HVmeetingdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            setendtime();
+            setStartTime();
+            $('input#ondate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' })
+            var min = new Date();
+            $('input#ondate').datetimepicker({
+                timepicker: false,
+                minDate: min,
+                format: 'm/d/Y',
+                scrollMonth: false,
+                scrollInput: false
+            });
+
+
+            $('#txtclassstartdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('#ddlchildwt').val('');
+            $("#DivWaitinglist > tbody >tr").each(function () {
+                $(this).find('td:eq(4) :input').val("");
+            });
+            $('#Yakkrli').removeClass("active");
+            $('#Appointmentli').removeClass("active");
+
+
+            $('.js-gauge--1').kumaGauge({
+                fill: '0-#fa4133:0-#fdbe37:50-#1cb42f:100',
+                showNeedle: true,
+                radius : 140,
+                gaugeBackground: '#1E4147',
+                gaugeWidth: 10,
+                showNeedle: true,
+                label: {
+                    display: true,
+                    left: 'Min',
+                    right: 'Max',
+                    fontFamily: 'Helvetica',
+                    fontColor: '#1E4147',
+                    fontSize: '11',
+                    fontWeight: 'bold'
+                },
+                //value: Math.floor((Math.random() * 99) + 1)
+            });
+
+
+
+            //$('.js-gauge--2').kumaGauge({
+            //    value: Math.floor((Math.random() * 99) + 1),
+            //    //fill: '#F34A53',
+            //    fill: '0-#fa4133:0-#fdbe37:50-#1cb42f:100',
+
+            //    gaugeBackground: '#1E4147',
+            //    gaugeWidth: 10,
+            //    showNeedle: true,
+            //    label: {
+            //        display: true,
+            //        left: 'Min',
+            //        right: 'Max',
+            //        fontFamily: 'Helvetica',
+            //        fontColor: '#1E4147',
+            //        fontSize: '11',
+            //        fontWeight: 'bold'
+            //    }
+            //});
+
+            $('#Schedulesli').removeClass('active');
+            getAllUserEvents();
+        });
+
+        function setendtime() {
+            var mm = "";
+            var HH = "";
+            var listduration = [];
+            for (var j = 0; j < 5; j++) {
+                for (var i = 0; i < 2; i++) {
+                    if (i == 0) {
+                        mm = '00';
+                    }
+                    else {
+                        mm = '30';
+                    }
+                    if (j < 10) {
+                        HH = "0";
+                    }
+                    else {
+                        HH = "";
+                    }
+                    if (j == 0 && mm == '00') {
+
+                    }
+                    else {
+                        if (j == 4 && mm == '30') {
+                        } else {
+                            listduration.push(HH + j.toString() + ":" + mm);
+                        }
+                    }
+                }
+            }
+            $.each(listduration, function (i, item) {
+                $('#apptEndTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+        }
+        function setStartTime() {
+            var listTime = [];
+            var m;
+            var min;
+            for (var i = 0; i < 2; i++) {
+                if (i == 0) {
+                    m = 'AM';
+                } else {
+                    m = 'PM';
+                }
+                for (var j = 1; j < 13; j++) {
+                    if (j > 7 && m == 'AM' || j < 7 && m == 'PM') {
+                        for (var k = 0; k < 2; k++) {
+                            if (k == 0) {
+                                min = ':00 ';
+                            }
+                            else {
+                                min = ':30 ';
+                            }
+                            if (min == ':30 ' && j == 6)
+                            { break; }
+                            if (j == 12) {
+                                m = 'PM';
+                                listTime.push(j + min + m);
+                            }
+                            else {
+                                if (j > 9) {
+                                    listTime.push(j + min + m);
+                                }
+                                else {
+                                    listTime.push('0' + j + min + m);
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+
+            }
+
+
+            $.each(listTime, function (i, item) {
+                $('#apptStartTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+        }
+        function loadclientlist(Object, Centerid, Option) {
+            WaitObject = Object;
+            _centerid = Centerid;
+            _option = Option;
+            _programtype = 0;
+            _Nurse = 0;
+            $('#Acceptancediv').hide();
+            $('#ddlProgramtype').val('');
+            $('#ddlnurse').val('');
+            if (Option == 1)
+                $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + 'Wait1');
+            if (Option == 2)
+                $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + 'Wait2');
+            if (Option == 3)
+                $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + 'Wait3');
+            $.ajax({
+                url: HostedDir + "/Home/GetclientWaitingList",
+                type: "POST",
+                data: {
+                    Centerid: Centerid,
+                    Option: Option,
+                    Programtype: 0
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    BindClientlist(Data);
+                }
+			   , error: function (Data) {
+			       customAlert("Session Ended Log Onto The System Again.");
+			       setTimeout(function () {
+			           window.location.href = HostedDir + '/login/Loginagency';
+			       }, 2000);
+			   }
+            });
+        }
+        function BindClientlist(Data) {
+
+            if (Data != null && Data.length > 0) {
+                $('#div1').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivWaitingListPopup > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td><input ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" type="Checkbox" onchange="ChangeCheckBox(this,$(this));"  /></td><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
+				   '<a href="#" onclick="ShowHealthstaff(this);" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td></tr>';
+                }
+                if (_programtype == 0) {
+                    if (Data[0].UserList != null && Data[0].UserList.length > 0) {
+                        _programtype = 1;
+                        for (var i = 0; i < Data[0].UserList.length; i++) {
+                            option = option + '<option value="' + Data[0].UserList[i].userId + '">' + Data[0].UserList[i].Name + '</option>';
+                        }
+                        $('#ddlnurse').find('option').remove().end().append(option);
+                        $('#ddlnurse').val('');
+                    }
+                    else {
+                        $('#ddlnurse').find('option').remove();
+                    }
+                }
+                option = "";
+                if (_Nurse == 0) {
+                    if (Data[0].ProgramsList != null && Data[0].ProgramsList.length > 0) {
+                        _Nurse = 1;
+                        for (var i = 0; i < Data[0].ProgramsList.length; i++) {
+                            option = option + '<option value="' + Data[0].ProgramsList[i].Id + '">' + Data[0].ProgramsList[i].Name + '</option>';
+                        }
+                        $('#ddlProgramtype').find('option').remove().end().append(option);
+                        $('#ddlProgramtype').val('');
+                    }
+                    else {
+                        $('#ddlProgramtype').find('option').remove();
+                    }
+                }
+                $('#DivWaitingListPopup > tbody').append(tbody);
+                if (!$('#ModalWaitingList').hasClass('in'))
+                    $('#ModalWaitingList').modal('toggle');
+            }
+            else {
+                $('#DivWaitingListPopup > tbody > tr').remove();
+                $('#div1').show();
+            }
+        }
+        function ShowHealthstaff(Aobject) {
+            _Object = Aobject;
+            $('#Acceptancediv').show();
+            $('#Acceptancediv').focus();
+        }
+
+        function GetUserList() {
+            $('#Acceptancediv').hide();
+            if (_centerid != null && _option != null) {
+                $.ajax({
+                    url: HostedDir + "/Home/GetclientWaitingList",
+                    type: "POST",
+                    data: {
+                        Centerid: _centerid,
+                        Option: _option,
+                        Programtype: $('#ddlProgramtype').val()
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (Data) {
+                        BindClientlist(Data);
+                    }
+				, error: function (Data) {
+				    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+				}
+                });
+
+            }
+        }
+        function ClearUserList() {
+            $('#Acceptancediv').hide();
+            $('#ddlProgramtype').val('');
+            if (_centerid != null && _option != null) {
+                $.ajax({
+                    url: HostedDir + "/Home/GetclientWaitingList",
+                    type: "POST",
+                    data: {
+                        Centerid: _centerid,
+                        Option: _option,
+                        Programtype: 0
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (Data) {
+                        BindClientlist(Data);
+                    }
+				, error: function (Data) {
+				    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+				}
+                });
+
+            }
+        }
+        function SaveWaiting() {
+            //debugger
+            var count = 0;
+            var clientarray =[];
+            cleanValidation();
+            isValid = true;
+
+            $('#DivWaitingListPopup > tbody > tr').each(function () {
+                //debugger
+                if ($(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked")) {
+                    count = count + 1;
+                    clientid = ($(this).find('td:eq(0)').find('input[type="checkbox"]').attr("clientid"))
+                    clientarray.push(clientid);
+
+                }
+            });
+
+            if (count == 0) {
+                isValid = false;
+                customAlert("Please select client.");
+                return isValid;
+            }
+
+            else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
+                isValid = false;
+                customAlert("Assign to is required. ");
+                plainValidation('#ddlnurse');
+                return isValid;
+            }
+
+            else {
+                if (_Object != null && _centerid != null) {
+                    BootstrapDialog.confirm('Are you sure want to send this client for approval?', function (result) {
+                        if (result) {
+
+
+
+
+                            $.ajax({
+                                url: HostedDir + "/Agencyuser/SaveMultipleAcceptanceprocess",
+                                type: "POST",
+                                data: {
+                                    // Clientid: $(_Object).attr("clientid"),
+                                    ClientList: clientarray,
+                                    Usernurseid: $('#ddlnurse').val(),
+                                    householdid: $(_Object).attr("householdid"),
+                                    centerid: $(_Object).attr("CenterID"),
+                                    Programid: $(_Object).attr("programid"),
+
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                traditional : true,
+                                success: function (response) {
+                                    if (response == 1) {
+                                        customAlert("Record saved successfully.");
+                                        $('#Acceptancediv').hide();
+                                        $('#ddlnurse').val('');
+                                        $(_Object).closest('tr').remove();
+                                        if ($('#DivWaitingListPopup > tbody tr').length < 1) {
+                                            $('#div1').show();
+                                        }
+                                        if ($(WaitObject).text() != "" && $(WaitObject).text() != "0") {
+                                            $(WaitObject).text(parseInt($(WaitObject).text()) - 1);
+                                            $(WaitObject).closest('tr').find('td a').eq(5).text(parseInt($(WaitObject).closest('tr').find('td a').eq(5).text()) + 1);
+                                            $(WaitObject).closest('tr').find('td a').eq(4).text(parseInt($(WaitObject).closest('tr').find('td a').eq(4).text()) - 1);
+                                        }
+                                        if ($(WaitObject).text() == "0") {
+                                            $(WaitObject).attr("href", "#");
+                                        }
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 800);
+                                    }
+                                    if (response == 2) {
+                                        customAlert("No available slots. Please contact your administrator for assistance.");
+                                    }
+                                }
+					   , error: function (response) {
+					       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+					   }
+                            });
+
+
+
+
+
+                        }
+                    });
+                }
+            }
+        }
+        function CancelWaiting() {
+            $('#Acceptancediv').hide();
+        }
+        function loadclientPendinglist(Object, Centerid) {
+            WaitObject = Object;
+            $('#PendingWaiting').hide();
+            $("#DivWaitinglist > tbody >tr").each(function () {
+                $(this).find('input:text,select').val("");
+                $(this).find('input[type = checkbox]').prop("checked", false);
+            });
+            $('#CenterNameclient').text($(Object).closest("tr").find("td:first a").text());
+            $.ajax({
+                url: HostedDir + "/Home/LoadClientPendinglist",
+                type: "POST",
+                data: {
+                    Centerid: Centerid,
+                    Type: 1
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    BindClientPendinglist(Data);
+                }
+			   , error: function (Data) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+            });
+        }
+        function BindClientPendinglist(Data) {
+            if (Data != null && Data.length > 0) {
+                $('#div2').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivPendingclientlist > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
+				   '<a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td></tr>';
+                }
+
+
+                $('#DivPendingclientlist > tbody').append(tbody);
+                if (!$('#ModalClientPendingList').hasClass('in'))
+                    $('#ModalClientPendingList').modal('toggle');
+            }
+            else {
+                $('#DivPendingclientlist > tbody > tr').remove();
+                $('#div2').show();
+            }
+        }
+        function DeleteClient(Object) {
+            $('#PendingWaiting').show();
+            $('#centerall').prop("checked", false);
+            $('#PendingWaiting').focus();
+            Acceptwaitingobject = Object;
+            $('#ClientNamePending').text($(Object).closest("tr").find("td:first").text());
+            $("#DivWaitinglist > tbody >tr").each(function () {
+                $(this).find('input:text,select').val("");
+                $(this).find('input[type = checkbox]').prop("checked", false);
+            });
+        }
+        //Changes
+        function SaveAcceptedInfo() {
+
+            cleanValidation();
+            isValid = true;
+            if ($('#ddlclassroom').val() == "" || $('#ddlclassroom').val() == null) {
+                isValid = false;
+                customAlert("Please select classroom from list. ");
+                plainValidation('#ddlclassroom');
+                return isValid;
+            }
+            else if ($('#txtclassstartdate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Class start date is required. ");
+                plainValidation('#txtclassstartdate');
+                return isValid;
+            }
+            else {
+                if (_Object != null && _centerid != null) {
+                    //  BootstrapDialog.confirm('Are you sure want to send this client for approval?', function (result) {
+                    //  if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyUser/SaveAcceptEnrollInfo",
+                        type: "POST",
+                        data: {
+                            Clientid: $(_Object).attr("clientid"),
+                            ClassroomID: $('#ddlclassroom').val(),
+                            centerid: $(_Object).attr("CenterID"),
+                            Reason: $('#chkincome:checked').val(),
+                            StartDate: $('#txtclassstartdate').val(),
+                            Programid: $(_Object).attr("Programid"),
+                            ChildTran: $('#childtransId').val(),
+                            ChildBMI: $('#ddlchildwtId').val(),
+                            ChildDis: $('#childdisId').val(),
+                            ChildFood: $('#childfoodId').val()
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Record saved successfully.");
+                                $('#AcceptancedivClient').hide();
+                                $('#ddlProgramtype').val('');
+                                $('#ddlclassroom').val('');
+                                $(_Object).closest('tr').remove();
+                                if ($('#DivAcceptanceListPopup > tbody tr').length < 1) {
+                                    $('#divA1').show();
+                                }
+                                if ($(AcceptObject).text() != "" && $(AcceptObject).text() != "0") {
+                                    $(AcceptObject).text(parseInt($(AcceptObject).text()) - 1);
+                                    $(AcceptObject).closest('tr').find('td a').eq(4).text(parseInt($(AcceptObject).closest('tr').find('td a').eq(4).text()) + 1);
+                                }
+                                if ($(AcceptObject).text() == "0") {
+                                    $(AcceptObject).attr("href", "#");
+                                }
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 800);
+                            }
+                            else if (response == 2) {
+                                customAlert("Client already enrolled.");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 800);
+                            }
+                            else if (response == 5) {
+                                customAlert("No available slots. Please contact your administrator for assistance.");
+
+                            }
+
+
+
+                        }
+			   , error: function (response) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+                    });
+                    //}
+                    // });
+                }
+            }
+        }
+        function HVSaveAcceptedInfo() {
+
+            cleanValidation();
+            isValid = true;
+            if ($('#HVddlclassroom').val() == "" || $('#HVddlclassroom').val() == null) {
+                isValid = false;
+                customAlert("Please select classroom from list. ");
+                plainValidation('#HVddlclassroom');
+                return isValid;
+            }
+            else if ($('#HVtxtclassstartdate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Class start date is required. ");
+                plainValidation('#HVtxtclassstartdate');
+                return isValid;
+            }
+            else if ($('#HVmeetingdate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Meeting start date is required. ");
+                plainValidation('#HVmeetingdate');
+                return isValid;
+            }
+            else if ($('#title').val().trim() == "") {
+                plainValidation('#title');
+                customAlert("Please enter title.");
+                e.preventDefault();
+                return;
+            }
+            else if (new Date($('#HVmeetingdate')[0].value.trim()).getTime() < new Date($('#HVtxtclassstartdate')[0].value.trim()).getTime()) {
+                plainValidation('#title');
+                customAlert("Meeting start date can not be greater than class start date.");
+                e.preventDefault();
+                return;
+            }
+            else if ($('#apptStartTime').val().trim() == "") {
+                plainValidation('#apptStartTime');
+                customAlert("Please enter meeting start time.");
+                e.preventDefault();
+                return;
+
+            }
+            else if ($('#apptEndTime').val().trim() == "") {
+                plainValidation('#apptEndTime');
+                customAlert("Please select meeting duration.");
+                e.preventDefault();
+                return;
+            }
+            else {
+                if (_Object != null && _centerid != null) {
+                    var startdate = new Date($('#HVmeetingdate')[0].value.trim() + ' ' + $('#apptStartTime').val());
+                    var arr = $('#apptEndTime').val().split(":");
+                    var dt = new Date(startdate);
+                    var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+                    var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+                    var enddate = new Date(addmin);
+                    var EndTime = moment(enddate).format('hh:mm A');
+                    var ev = {
+                        _id: new Date($("#HVmeetingdate").val() + ' ' + EndTime).getTime(),
+                        title: $("#title").val(),
+                        Clientid: $(_Object).attr("clientid"),
+                        MeetingDescription: $("#title").val(),
+                        Date: $("#HVmeetingdate").val(),
+                        StartTime: $("#apptStartTime").val(),
+                        Duration: $("#apptEndTime").val(),
+                        EndTime: EndTime,
+                        start: new Date($("#HVmeetingdate").val() + ' ' + $("#apptStartTime").val()),
+                        end: new Date($("#HVmeetingdate").val() + ' ' + EndTime),
+                        IsRecurrence: false,
+                    }
+                    var result = compareEvent(ev);
+
+                    if (result) {
+                        plainValidation('#apptStartTime');
+                        customAlert("Scheduled meeting overlapping other event. ");
+                        return;
+                    }
+
+                    $.ajax({
+                        url: HostedDir + "/AgencyUser/SaveHVAcceptEnrollInfo",
+                        type: "POST",
+                        data: {
+                            Clientid: $(_Object).attr("clientid"),
+                            ClassroomID: $('#HVddlclassroom').val(),
+                            centerid: $(_Object).attr("CenterID"),
+                            Reason: $('[name="HVchkincome"]:checked').val(),
+                            StartDate: $('#HVtxtclassstartdate').val(),
+                            Programid: $(_Object).attr("Programid"),
+                            ChildTran: $('#childtransId').val(),
+                            ChildBMI: $('#ddlchildwtId').val(),
+                            ChildDis: $('#childdisId').val(),
+                            ChildFood: $('#childfoodId').val(),
+                            MeetingDescription: $("#title").val(),
+                            Description: $("#description").val(),
+                            Date: $("#HVmeetingdate").val(),
+                            StartTime: $("#apptStartTime").val(),
+                            Duration: $("#apptEndTime").val(),
+                            EndTime: EndTime,
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response.result == '1') {
+                                //debugger
+                                //alert('');
+                                customAlert("Record saved successfully.");
+                                $('#HVAcceptancedivClient').hide();
+                                $('#HVddlclassroom').val('');
+                                $(_Object).closest('tr').remove();
+                                if ($('#DivHVAcceptanceListPopup > tbody tr').length < 1) {
+                                    $('#divHVA1').show();
+                                }
+                                if ($(AcceptObject).text() != "" && $(AcceptObject).text() != "0") {
+                                    $(AcceptObject).text(parseInt($(AcceptObject).text()) - 1);
+                                    $(AcceptObject).closest('tr').find('td a').eq(4).text(parseInt($(AcceptObject).closest('tr').find('td a').eq(4).text()) + 1);
+                                }
+                                if ($(AcceptObject).text() == "0") {
+                                    $(AcceptObject).attr("href", "#");
+                                }
+
+                                    window.location.reload();
+
+                            }
+                            else if (response.result == 2) {
+                                customAlert("Client already enrolled.");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 800);
+                            }
+                            else if (response.result == 5) {
+                                customAlert("No available slots. Please contact your administrator for assistance.");
+
+                            }
+
+
+
+                        }
+			   , error: function (response) {
+			       //customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+                    });
+                    //}
+                    // });
+                }
+            }
+        }
+        // }
+        function showdiv(Aobject, BMIStatus, Disability) {
+           // alert($(Aobject).attr('transport'));
+            _Object = Aobject;
+            var Transport = null;
+            var FoodAllergies = null;
+            $('#ddlchildwt').text('');
+            $('#childtrans').text('');
+            $('#childdis').text('');
+            $('#childFoodAllergy').text('');
+
+            $('#AcceptancedivClient').show();
+            $('#AcceptancedivClient').focus();
+            $('#ddlclassroom').focus();
+            $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
+            Transport = $(_Object).attr("Transport")
+           // alert(Transport);
+            FoodAllergies = $(_Object).attr("FoodAllergies")
+            //var text = "Teacher will be notified for Classroom Assignment.";
+            //if ($(Aobject).attr('transport'))
+            //{
+            //    text = text + "/" + "Transport Manager will be notified for Classroom Assignment"
+            //}
+            $('#Teacher').text("Teacher will be notified for Classroom Assignment.");
+            $('#Teacher').css({ color: "#800080" });
+            if (Transport == "True") {
+                $('#ChildTrans').show();
+                $('#childtrans').text("Transportation Manager will be notified for Child Transportation");
+                $('#childtrans').css({ color: "#800080" });
+                $('#childtransId').val("1");
+            }
+            else {
+                $('#ChildTrans').hide();
+            }
+            if (BMIStatus == "1") {
+                $('#BMI').show();
+                $('#ddlchildwt').text("Child is Underweight.");
+                $('#ddlchildwt').css({ color: "#800080" });
+                $('#ddlchildwtId').val("1");
+            }
+            if (BMIStatus == "3") {
+                $('#BMI').show();
+                $('#ddlchildwt').text("Child is Overweight.");
+                $('#ddlchildwt').css({ color: "#800080" });
+                $('#ddlchildwtId').val("3");
+            }
+
+            if (BMIStatus == "4") {
+                $('#BMI').show();
+                $('#ddlchildwt').text("Child is Obese.");
+                $('#ddlchildwt').css({ color: "#800080" });
+                $('#ddlchildwtId').val("4");
+            }
+            if (Disability == "1") {
+                if ($(_Object).attr("IsIEP") == "true") {
+                    if ($(_Object).attr("IsExpired") == "true") {
+                        $('#childdis').text("Child has an IEP Expired.");
+                    }
+                    else {
+                        $('#childdis').text("Child has an IEP.");
+                    }
+                }
+                else if ($(_Object).attr("IsIFSP") == "true") {
+                    if ($(_Object).attr("IsExpired") == "true") {
+                        $('#childdis').text("Child has an IFSP Expired.");
+                    }
+                    else {
+                        $('#childdis').text("Child has an IFSP.");
+                    }
+                }
+
+                else {
+
+                    $('#childdis').text("Child has Suspected Disability.");
+
+                }
+                $('#ChildDis').show();
+                $('#childdis').css({ color: "#800080" });
+                $('#childdisId').val("1");
+            }
+            else {
+                //$('#ChildDis').show();
+                //$('#childdis').text("Child has No Disability");
+            }
+            if (FoodAllergies == "1") {
+                $('#ChildFAllergy').show();
+                $('#childFoodAllergy').text("Child has Food Allergies.");
+                $('#childFoodAllergy').css({ color: "#800080" });
+                $('#childfoodId').val("1");
+            }
+            else {
+
+            }
+
+
+        }
+        function showdiv2(Aobject, BMIStatus, Disability) {
+
+            _Object = Aobject;
+            var fullname = $(Aobject).closest("tr").find("td:first").text().split(' ');
+            var lastname = fullname[fullname.length - 1];
+            $('#title').val('Meeting with - ' + lastname);
+            // $('#HVClientNameAccept
+            $('#HVddlclassroom')[0].selectedIndex = -1;
+            $('#HVmeetingdate').val('');
+            $('#HVtxtclassstartdate')[0].selectedIndex = -1;
+
+            $('#apptEndTime')[0].selectedIndex = -1;
+            $('#apptStartTime')[0].selectedIndex = -1;
+            //  $('#HVmeetingdate
+
+            $('#HVmeetingdate')[0].selectedIndex = -1;
+            $('#txtclassstartdate')[0].selectedIndex = -1;
+            var Transport = null;
+            var FoodAllergies = null;
+            $('#HVddlchildwt').text('');
+            $('#HVchildtrans').text('');
+            $('#HVchilddis').text('');
+            $('#childFoodAllergy').text('');
+            $('#HVClientId').val($(Aobject).attr("accesskey"));
+            $('#HVAcceptancedivClient').show();
+            $('#HVAcceptancedivClient').focus();
+            $('#HVddlclassroom').focus();
+            $('#HVClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
+
+            FoodAllergies = $(Aobject).attr("FoodAllergies");
+
+            if (BMIStatus == "1") {
+                $('#HVBMI').show();
+                $('#HVddlchildwt').text("Child is Underweight.");
+                $('#HVddlchildwt').css({ color: "#800080" });
+                $('#HVddlchildwtId').val("1");
+            }
+            if (BMIStatus == "3") {
+                $('#HVBMI').show();
+                $('#HVddlchildwt').text("Child is Overweight.");
+                $('#HVddlchildwt').css({ color: "#800080" });
+                $('#HVddlchildwtId').val("3");
+            }
+
+            if (BMIStatus == "4") {
+                $('#HVBMI').show();
+                $('#HVddlchildwt').text("Child is Obese.");
+                $('#HVddlchildwt').css({ color: "#800080" });
+                $('#HVddlchildwtId').val("4");
+            }
+            if (Disability == "1") {
+
+                $('#HVChildDis').show();
+                $('#HVchilddis').text("Child has Suspected Disability.");
+                $('#HVchilddis').css({ color: "#800080" });
+                $('#HVchilddisId').val("1");
+            }
+            else {
+                //$('#ChildDis').show();
+                //$('#childdis').text("Child has No Disability");
+            }
+            if (FoodAllergies == "1") {
+                $('#HVChildFAllergy').show();
+                $('#HVchildFoodAllergy').text("Child has Food Allergies.");
+                $('#HVchildFoodAllergy').css({ color: "#800080" });
+                $('#HVchildfoodId').val("1");
+            }
+            else {
+
+            }
+
+
+        }
+        function CancelAccepted() {
+            $('#AcceptancedivClient').hide();
+        }
+        function HVCancelAccepted() {
+            $('#title').val('');
+            // $('#HVClientNameAccept
+            $('#HVddlclassroom')[0].selectedIndex = -1;
+            $('#HVmeetingdate').val('');
+            $('#HVtxtclassstartdate').val('');
+            $('name=["HVchkincome"]').each(function(i){
+                $('name=["HVchkincome"]')[0].checked = false;
+
+            });
+            $('#apptEndTime')[0].selectedIndex = -1;
+            $('#apptStartTime')[0].selectedIndex = -1;
+            //  $('#HVmeetingdate
+
+            $('#HVmeetingdate')[0].selectedIndex = -1;
+            $('#txtclassstartdate')[0].selectedIndex = -1;
+            $('#HVAcceptancedivClient').hide();
+        }
+        function loadclientinfo(Object, Centerid, Option) {
+
+            AcceptObject = Object;
+            _centerid = Centerid;
+            _option = Option;
+            $('#AcceptancedivClient').hide();
+            $('#ddlProgramtype').val('');
+            $('#ddlclassroom').val('');
+            $('#ddlchildwt').val('');
+
+            if (Option == 101)
+                $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + '101');
+            $.ajax({
+                url: HostedDir + "/Home/GetclientAcceptedList",
+                type: "POST",
+                data: {
+                    Centerid: Centerid,
+                    Option: Option,
+
+                    // Programtype: 0
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindClientAcceptlist(data);
+                }
+			   , error: function (data) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+            });
+        }
+        function BindClientAcceptlist(data) {
+            var option = "";
+
+            $('#DivAcceptanceListPopup > tbody > tr').remove();
+            if (data.length == 0) {
+                $('#divA1').show();
+            }
+            else {
+                $('#divA1').hide();
+                var tbody = $('#DivAcceptanceListPopup > tbody');
+                for (var i = 0; i < data.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+
+                    tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+
+                    tr += "<td>" + ((typeof (data[i].DateOnList) != 'undefined') && (data[i].DateOnList != null) ? data[i].DateOnList : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += '<td><a href="#" onclick="showdiv(this,' + data[i].ChildWeight + ',' + data[i].CParentDisable + ');" IsIEP="' + data[i].IsIEP + '" IsIFSP="' + data[i].IsIFSP + '" IsExpired="' + data[i].IsExpired + '" ClientId="' + data[i].ClientId + '" Programid="' + data[i].ProgramType + '"        HouseHoldId="' + data[i].HouseholdId + '" CenterID="' + data[i].CenterId + '" Transport="' + data[i].CTransport + '" BMIStatus="' + data[i].ChildWeight + '" FoodAllergies="' + data[i].FoodAllergies + '" accesskey=' + data[i].ClientId + '>Assign Classroom</td>';//Disability="' + Data[i].Programid + '"
+                    tr += "</tr>";
+                    $('#DivAcceptanceListPopup > tbody').append(tr);
+                }
+
+                if (data[0].Classroom != null && data[0].Classroom.length > 0) {
+                    for (var i = 0; i < data[0].Classroom.length; i++) {
+                        if (data[0].Classroom[i].ActualSeats <= 0) {
+                            option = option + '<option value="' + data[0].Classroom[i].ClassroomID + '" disabled="disabled" style="color: red;">' + data[0].Classroom[i].ClassName + '</option>';
+                        }
+                        else {
+                            option = option + '<option value="' + data[0].Classroom[i].ClassroomID + '">' + data[0].Classroom[i].ClassName + '</option>';
+                        }
+
+                    }
+                    $('#ddlclassroom').find('option').remove().end().append(option);
+                    $('#ddlclassroom').val('');
+                }
+                else {
+                    $('#ddlclassroom').find('option').remove();
+                }
+                option = "";
+                //if (data[0].ProgramsList.length > 0) {
+                //    for (var i = 0; i < data[0].ProgramsList.length; i++) {
+                //        option = option + '<option value="' + data[0].ProgramsList[i].Id + '">' + data[0].ProgramsList[i].Name + '</option>';
+                //    }
+                //    $('#ddlProgramtypeAccept').find('option').remove().end().append(option);
+                //    $('#ddlProgramtypeAccept').val('');
+                //}
+                //else {
+                //    $('#ddlProgramtypeAccept').find('option').remove();
+                //}
+                //option = "";
+                //if (data[0].UserList.length > 0) {
+                //    for (var i = 0; i < data[0].UserList.length; i++) {
+                //        option = option + '<option value="" selected disabled>Assign To</option>' + '<option value="' + data[0].UserList[i].userId + '">' + data[0].UserList[i].Name + '</option>';
+                //    }
+                //    $('#ddltransport').find('option').remove().end().append(option);
+                //    $('#ddltransport').val('');
+
+                //}
+                //else {
+                //    $('#ddltransport').find('option').remove();
+
+                //}
+
+                //option = "";
+                //if (data[0].UserList1.length > 0) {
+                //    for (var i = 0; i < data[0].UserList1.length; i++) {
+                //        option = option + '<option value="" selected disabled>Assign To</option>' + '<option value="' + data[0].UserList1[i].userId + '">' + data[0].UserList1[i].Name + '</option>';
+                //    }
+                //    $('#ddldisability').find('option').remove().end().append(option);
+                //    $('#ddldisability').val('');
+                //}
+                //else {
+                //    $('#ddldisability').find('option').remove();
+
+                //}
+                //option = "";
+                //if (data[0].UserListNutrition.length > 0) {
+                //    for (var i = 0; i < data[0].UserListNutrition.length; i++) {
+                //        option = option + '<option value="" selected disabled>Assign To</option>' + '<option value="' + data[0].UserListNutrition[i].userId + '">' + data[0].UserListNutrition[i].Name + '</option>';
+                //    }
+                //    $('#ddlBMIStatus').find('option').remove().end().append(option);
+                //    $('#ddlBMIStatus').val('');
+                //}
+                //else {
+                //    $('#ddlBMIStatus').find('option').remove();
+
+                //}
+
+
+                if (!$('#ModalAcceptanceList').hasClass('in'))
+                    $('#ModalAcceptanceList').modal('toggle');
+            }
+
+        }
+
+        //done by santosh 6 feb 2017
+        function loadHVclientinfo(Object, Centerid, Option) {
+            AcceptObject = Object;
+            _centerid = Centerid;
+            _option = Option;
+            $('#HVAcceptancedivClient').hide();
+            $('#ddlProgramtype').val('');
+            //$('#ddlclassroom').val('');
+            $('#ddlchildwt').val('');
+
+            if (Option == 101)
+                $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + '101');
+            $.ajax({
+                url: HostedDir + "/Home/GetclientAcceptedList",
+                type: "POST",
+                data: {
+                    Centerid: Centerid,
+                    Option: Option,
+
+                    // Programtype: 0
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    BindHVClientAcceptlist(data);
+                }
+			   , error: function (data) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+            });
+        }
+        function BindHVClientAcceptlist(data) {
+            var option = "";
+
+            $('#DivHVAcceptanceListPopup > tbody > tr').remove();
+            if (data.length == 0) {
+                $('#divHVA1').show();
+            }
+            else {
+                $('#divHVA1').hide();
+                var tbody = $('#DivHVAcceptanceListPopup > tbody');
+                for (var i = 0; i < data.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+
+                    tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+
+                    tr += "<td>" + ((typeof (data[i].DateOnList) != 'undefined') && (data[i].DateOnList != null) ? data[i].DateOnList : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></td>";
+                    tr += '<td><a href="#" onclick="showdiv2(this,' + data[i].ChildWeight + ',' + data[i].CParentDisable + ');" ClientId="' + data[i].ClientId + '" Programid="' + data[i].ProgramType + '"        HouseHoldId="' + data[i].HouseholdId + '" CenterID="' + data[i].CenterId + '" Transport="' + data[i].CTransport + '" BMIStatus="' + data[i].ChildWeight + '" FoodAllergies="' + data[i].FoodAllergies + '" accesskey=' + data[i].ClientId + '>Schedule Appointment</td>';//Disability="' + Data[i].Programid + '"
+                    tr += "</tr>";
+                    $('#DivHVAcceptanceListPopup > tbody').append(tr);
+                }
+
+                if (data[0].Classroom != null && data[0].Classroom.length > 0) {
+                    for (var i = 0; i < data[0].Classroom.length; i++) {
+                        if (data[0].Classroom[i].ActualSeats <= 0) {
+                            option = option + '<option value="' + data[0].Classroom[i].ClassroomID + '" disabled="disabled" style="color: red;">' + data[0].Classroom[i].ClassName + '</option>';
+                        }
+                        else {
+                            option = option + '<option value="' + data[0].Classroom[i].ClassroomID + '">' + data[0].Classroom[i].ClassName + '</option>';
+                        }
+
+                    }
+                    $('#HVddlclassroom').find('option').remove().end().append(option);;
+                    //   $('#HVddlclassroom').find('option')
+                    $('#HVddlclassroom').val('');
+                }
+                else {
+                    $('#HVddlclassroom').find('option').remove();
+                }
+                option = "";
+
+
+
+                if (!$('#HVAcceptanceList').hasClass('in'))
+                    $('#HVAcceptanceList').modal('toggle');
+            }
+
+        }
+        //end
+        function Checkdate(value) {
+
+            isValid = true;
+            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(value).val())) {
+                    customAlert("Invalid date format. ");
+                    $(value).val('');
+                    return false;
+                }
+            }
+            var txtdate = $(value).val();
+            var selectedTimestampequal = new Date();
+            var year = selectedTimestampequal.getFullYear();
+            var month = selectedTimestampequal.getMonth() + 1;
+            var day = selectedTimestampequal.getDate();
+            today1 = month + '/' + day + '/' + year;
+            var newinput = today1.split("/");
+            var newday = newinput[1];
+            var str = newday.substr(0, 1);
+            var newdaynew = ('0' + newday).slice(-2);
+
+            var newmonth = newinput[0];
+            var str1 = newmonth.substr(0, 1);
+            var newmonthnew = ('0' + newmonth).slice(-2);
+
+            today = newmonthnew + '/' + newdaynew + '/' + year;
+            if (today == txtdate) {
+                return true;
+            }
+            var testdatelocalinput = new Date(txtdate);
+            var selectedTimestamp = new Date().getTime();
+            var testdatelocalinputTS = testdatelocalinput.getTime();
+            var timestamp = new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
+            if (testdatelocalinputTS < selectedTimestamp) {
+                customAlert("Class Start Date must be greater than or equal to today's date.");
+                $(value).val('');
+                return false;
+            }
+            else if (timestamp < testdatelocalinputTS) {
+                customAlert("Class Start Date cannot be more than 30 days from today's date.");
+                $(value).val('');
+                return false;
+            }
+            return true;
+        }
+        function loadclientlistAll(Object, Centerid) {
+            WaitObject = Object;
+            _centerid = Centerid;
+            _programtype1 = 0;
+            _Nurse1 = 0;
+            _option1 = 0;
+            $('#CenterNameAll').text('All waiting for ' + $(Object).closest("tr").find("td:first a").text());
+            $('#Acceptancedivall').hide();
+            $('#ddlProgramtypeAll').val('');
+            $('#ddlnurseAll').val('');
+            $.ajax({
+                url: HostedDir + "/Home/GetclientWaitingList",
+                type: "POST",
+                data: {
+                    Centerid: Centerid,
+                    Option: 0,
+                    Programtype: 0
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    BindClientlistAll(Data);
+                }
+			   , error: function (Data) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+            });
+        }
+        function BindClientlistAll(Data) {
+            if (Data != null && Data.length > 0) {
+                $('#div4').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivWaitingListAllPopup > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Choice + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
+				   '<a href="#" onclick="ShowHealthstaffall(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td></tr>';
+                }
+                if (_programtype1 == 0) {
+                    if (Data[0].UserList != null && Data[0].UserList.length > 0) {
+                        _programtype1 = 1;
+                        for (var i = 0; i < Data[0].UserList.length; i++) {
+                            option = option + '<option value="' + Data[0].UserList[i].userId + '">' + Data[0].UserList[i].Name + '</option>';
+                        }
+                        $('#ddlnurseAll').find('option').remove().end().append(option);
+                        $('#ddlnurseAll').val('');
+                    }
+                    else {
+                        $('#ddlnurseAll').find('option').remove();
+                    }
+                }
+                option = "";
+                if (_Nurse1 == 0) {
+                    if (Data[0].ProgramsList != null && Data[0].ProgramsList.length > 0) {
+                        _Nurse1 = 1;
+                        for (var i = 0; i < Data[0].ProgramsList.length; i++) {
+                            option = option + '<option value="' + Data[0].ProgramsList[i].Id + '">' + Data[0].ProgramsList[i].Name + '</option>';
+                        }
+                        $('#ddlProgramtypeAll').find('option').remove().end().append(option);
+                        $('#ddlProgramtypeAll').val('');
+                    }
+                    else {
+                        $('#ddlProgramtypeAll').find('option').remove();
+                    }
+                }
+                $('#DivWaitingListAllPopup > tbody').append(tbody);
+                if (!$('#ModalWaitingListAll').hasClass('in'))
+                    $('#ModalWaitingListAll').modal('toggle');
+            }
+            else {
+                $('#DivWaitingListAllPopup > tbody > tr').remove();
+                $('#div4').show();
+            }
+        }
+        function GetUserListAll() {
+            $('#Acceptancedivall').hide();
+            if (_centerid != null) {
+                $.ajax({
+                    url: HostedDir + "/Home/GetclientWaitingList",
+                    type: "POST",
+                    data: {
+                        Centerid: _centerid,
+                        Option: 0,
+                        Programtype: $('#ddlProgramtypeAll').val()
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (Data) {
+                        BindClientlistAll(Data);
+                    }
+				, error: function (Data) {
+				    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+				}
+                });
+
+            }
+        }
+        function ClearUserListAll() {
+            $('#Acceptancedivall').hide();
+            $('#ddlProgramtypeAll').val('');
+            if (_centerid != null) {
+                $.ajax({
+                    url: HostedDir + "/Home/GetclientWaitingList",
+                    type: "POST",
+                    data: {
+                        Centerid: _centerid,
+                        Option: 0,
+                        Programtype: 0
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (Data) {
+                        BindClientlistAll(Data);
+                    }
+				, error: function (Data) {
+				    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+				}
+                });
+
+            }
+        }
+        function ShowHealthstaffall(Aobject) {
+            _option1 = 0;
+            _Object = Aobject;
+            _option1 = $(_Object).attr("option");
+            $('#Acceptancedivall').show();
+            $('#Acceptancedivall').focus();
+            $('#ClientNameAll').text($(Aobject).closest("tr").find("td:first").text());
+        }
+        function CancelWaitingAll() {
+            $('#Acceptancedivall').hide();
+        }
+        function SaveWaitingall() {
+            cleanValidation();
+            isValid = true;
+            if ($('#ddlnurseAll').val() == "" || $('#ddlnurseAll').val() == null) {
+                isValid = false;
+                customAlert("Assign to is required. ");
+                plainValidation('#ddlnurseAll');
+                return isValid;
+            }
+            else {
+                if (_Object != null && _centerid != null) {
+                    BootstrapDialog.confirm('Are you sure want to send this client for approval?', function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
+                                type: "POST",
+                                data: {
+                                    Clientid: $(_Object).attr("clientid"),
+                                    Usernurseid: $('#ddlnurseAll').val(),
+                                    householdid: $(_Object).attr("householdid"),
+                                    centerid: $(_Object).attr("CenterID"),
+                                    Programid: $(_Object).attr("programid")
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response == 1) {
+                                        customAlert("Record saved successfully.");
+                                        $('#Acceptancedivall').hide();
+                                        $('#ddlnurseAll').val('');
+                                        $(_Object).closest('tr').remove();
+                                        if ($('#DivWaitingListAllPopup > tbody tr').length < 1) {
+                                            $('#div4').show();
+                                        }
+                                        if ($(WaitObject).text() != "" && $(WaitObject).text() != "0") {
+                                            $(WaitObject).text(parseInt($(WaitObject).text()) - 1);
+                                            $(WaitObject).closest('tr').find('td a').eq(5).text(parseInt($(WaitObject).closest('tr').find('td a').eq(5).text()) + 1);
+
+                                            if (_option1 == 1) {
+                                                $(WaitObject).closest('tr').find('td a').eq(1).text(parseInt($(WaitObject).closest('tr').find('td a').eq(1).text()) - 1);
+
+                                            }
+                                            if (_option1 == 2) {
+
+                                                $(WaitObject).closest('tr').find('td a').eq(2).text(parseInt($(WaitObject).closest('tr').find('td a').eq(2).text()) - 1);
+                                            }
+                                            if (_option1 == 3) {
+
+                                                $(WaitObject).closest('tr').find('td a').eq(3).text(parseInt($(WaitObject).closest('tr').find('td a').eq(3).text()) - 1);
+                                            }
+                                        }
+                                        if ($(WaitObject).text() == "0") {
+                                            $(WaitObject).attr("href", "#");
+                                        }
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 800);
+                                    }
+                                    if (response == 2) {
+                                        customAlert("No available slots. Please contact your administrator for assistance.");
+                                    }
+
+                                }
+					   , error: function (response) {
+					       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+					   }
+                            });
+                        }
+                    });
+                }
+            }
+        }
+        function loadRejectedList(Object, Centerid) {
+            WaitObject = Object;
+            $('#CenterNameRejected').text($(Object).closest("tr").find("td:first a").text());
+            $.ajax({
+                url: HostedDir + "/Home/LoadClientPendinglist",
+                type: "POST",
+                data: {
+                    Centerid: Centerid,
+                    Type: 2
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    BindRejectelist(Data);
+                }
+			   , error: function (Data) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+            });
+        }
+        function BindRejectelist(Data) {
+            if (Data != null && Data.length > 0) {
+                $('#div5').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivRejectedList > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    //tbody = tbody + '<tr><td><a style="text-decoration: underline;" href="' + HostedDir + '/AgencyUser/FamilyDetails?id=' + Data[i].HouseholdIdencrypted + '&returned=1">'+Data[i].Name+'</a></td><td>' + Data[i].DateOnList +
+                    tbody = tbody + '<tr><td><a  style="cursor: pointer;text-decoration: underline;" onclick="DeleteRejectedRecord(this);" Yakkrid="' + Data[i].Id + '" ClientId="' + Data[i].ClientId + '" HouseholdId="' + Data[i].HouseholdId + '"  HouseholdIdencrypted="' + Data[i].HouseholdIdencrypted + '" style="text-decoration: underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList +
+					  '</td><td>' + Data[i].Notes + '</td></tr>';
+                }
+                $('#DivRejectedList > tbody').append(tbody);
+                if (!$('#Modalrejected').hasClass('in'))
+                    $('#Modalrejected').modal('toggle');
+            }
+            else {
+                $('#DivRejectedList > tbody > tr').remove();
+                $('#div5').show();
+            }
+        }
+
+
+        function DeleteRejectedRecord(object) {
+
+
+            $.ajax({
+                url: HostedDir + "/Home/DeleteRejectedRecord",
+                type: "POST",
+                data: {
+                    Id: $(object).attr("Yakkrid"),
+                    ClientId: $(object).attr("ClientId"),
+                    HouseholdId: $(object).attr("HouseholdId")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response == 1) {
+                        customAlert("Record removed successfully.");
+                        setTimeout(function () {
+                            window.location.href = HostedDir + '/AgencyUser/FamilyDetails/' + $(object).attr("HouseholdIdencrypted");
+                        }, 800);
+                    }
+                    else if (response == 2) {
+                        customAlert("Record not exists or already removed from client returned list.");
+                        setTimeout(function () {
+                            window.location.href = HostedDir + '/AgencyUser/FamilyDetails/' + $(object).attr("HouseholdIdencrypted");
+                        }, 800);
+                    }
+                }
+		   , error: function (response) {
+		       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+		   }
+            });
+
+
+        }
+
+
+        function Getallcenter(value) {
+            var mode = 0;
+            var text = 'Do you want to see only your centers?';
+            if ($(value).prop("checked")) {
+                mode = 1;
+                text = 'Do you want to see all centers? ';
+            }
+            BootstrapDialog.confirm(text, function (result) {
+                if (result) {
+
+                    $.ajax({
+                        url: HostedDir + "/Agencyuser/Getallcenter",
+                        type: "POST",
+                        data: {
+                            mode: mode
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response.length > 0) {
+                                $('#DivWaitinglist tbody tr').remove();
+                                var tr = '';
+                                for (var i = 0; i < response.length; i++) {
+                                    tr += '<tr><td>' + response[i].Name + '<input onchange="Clearselect(this);" name="Accept" value="' + response[i].CenterId + '" type="checkbox" /></td>' +
+									'<td>' + response[i].Address + '</td><td>' + response[i].Zip + '</td><td>' + response[i].SeatsAvailable + '</td>' +
+									'<td><select ><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td><td><input type="text" style="width:100% !important;" maxlength="60" class="form-control" /></td></tr>';
+                                }
+                                $('#DivWaitinglist tbody').append(tr);
+
+                                $("#DivWaitinglist > tbody >tr").each(function () {
+                                    $(this).find('td:eq(4) :input').val("");
+                                });
+
+                            }
+
+                        }
+			   , error: function (response) {
+			       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+			   }
+                    });
+                }
+                else {
+                    if ($(value).prop("checked")) {
+                        $(value).prop("checked", false);
+                        return;
+                    }
+                    if (!$(value).prop("checked"))
+                        $(value).prop("checked", true);
+                }
+
+            });
+        }
+        function Clearselect(value) {
+            $(value).closest('tr').find('select').val('');
+        }
+        function SaveWaitinglist() {
+            cleanValidation();
+            if (Acceptwaitingobject != null) {
+                var centrerselected = 0;
+                var totalcenterselected = 0;
+                var Waitingoption = [];
+                var Waitingoptionsort = [];
+                var Waitingoptionduplicate = 0;
+                var option = 0;
+                $("#DivWaitinglist > tbody >tr").each(function () {
+                    if ($(this).find('input[type=checkbox]').prop("checked")) {
+                        centrerselected = 1;
+                        totalcenterselected = totalcenterselected + 1;
+                    }
+                    if ($(this).find('select').val() != "" && $(this).find('select').val() != null) {
+                        Waitingoption.push($(this).find('select').val());
+                    }
+                    if ($(this).find('input[type=checkbox]').prop("checked") && ($(this).find('select').val() == "" || $(this).find('select').val() == null)) {
+                        option = 1;
+                    }
+                });
+                if (Waitingoption.length > 0) {
+                    Waitingoptionsort = Waitingoption.sort();
+                    for (var i = 0; i < Waitingoptionsort.length - 1; i++) {
+                        if (Waitingoptionsort[i + 1] == Waitingoptionsort[i]) {
+                            Waitingoptionduplicate = 1;
+                        }
+                    }
+                }
+                if (centrerselected == 0) {
+                    customAlert("Please select center. ");
+                }
+                else if (option == 1) {
+                    $("#DivWaitinglist > tbody >tr").each(function () {
+                        if ($(this).find('input[type=checkbox]').prop("checked") && ($(this).find('select').val() == "" || $(this).find('select').val() == null)) {
+                            plainValidation($(this).find('select'));
+                            customAlert("Options is required.");
+                            return false;
+                        }
+                    });
+                }
+                else if (totalcenterselected > 3) {
+                    customAlert(" You can select up to 3 centers.");
+                }
+                else if (Waitingoptionduplicate > 0) {
+                    customAlert("Duplicate value not allowed in options");
+
+                }
+                else {
+                    BootstrapDialog.confirm('Are you sure want to send this client to waitinglist?', function (result) {
+                        if (result) {
+                            var waitinglist = [];
+                            var _waitinglist = [];
+                            $("#DivWaitinglist > tbody >tr").each(function () {
+                                if ($(this).find('td:eq(0)').find('input[type=checkbox]').prop("checked")) {
+
+                                    _waitinglist = {
+                                        CenterId: $(this).find('td:eq(0)').find('input[type=checkbox]').val(),
+                                        Householid: $(Acceptwaitingobject).attr("householdid"),
+                                        Clientid: $(Acceptwaitingobject).attr("clientid"),
+                                        Programid: $(Acceptwaitingobject).attr("programid"),
+                                        Options: $(this).find('select').val(),
+                                        Notes: $(this).find('input:text').val()
+                                    };
+                                    waitinglist.push(_waitinglist);
+                                }
+                            });
+                            $.ajax({
+                                contentType: 'application/json; charset=utf-8',
+                                url: HostedDir + "/Agencyuser/SaveWaitingclient",
+                                type: "POST",
+                                data:
+									JSON.stringify({
+									    'waitinglist': waitinglist
+									}),
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response = 1) {
+                                        customAlert("Client moved successfully to waitinglist.");
+                                        $("#DivWaitinglist > tbody >tr").each(function () {
+                                            $(this).find('input[type=checkbox]').prop("checked", false);
+                                            $(this).find('select').val('');
+                                            $(this).find('input:text').val('');
+                                            cleanValidation();
+                                        });
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 800);
+
+                                    }
+
+                                }
+								  , error: function (response) {
+								      customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+								  }
+                            });
+                        }
+                    });
+                }
+            }
+        }
+        function CloseWaitinglistdiv() {
+            $('#PendingWaiting').hide();
+        }
+
+        function Showaddchart(object) {
+            $('#Hideattchart').show();
+            $.ajax({
+                url: HostedDir + "/Home/GetDailyAttendance",
+                type: "POST",
+                data: {
+                    Centerid: $(object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    console.log(response);
+                    if (response != null)
+                    {
+                        var gaugeChart2 = AmCharts.makeChart("chartdivYearly", {
+                            "theme": "light",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                "topText": response.YearlyPercentage + "%",
+                                "axisColor": "#31d6ea",
+                                "axisThickness": 1,
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                "tickColor": "#67b7dc",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    "balloonText": "Poor",
+                                    "color": "#f70000",
+                                    "endValue": 70,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    "balloonText": "Fair",
+                                    "color": "#ffff00",
+                                    "endValue": 90,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 70
+                                }, {
+                                    "balloonText": "Good",
+                                    "color": "#00ff00",
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 90
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": response.YearlyPercentage
+                            }]
+                        });
+                        var gaugeChart1 = AmCharts.makeChart("chartdivWeekly", {
+                            "theme": "light",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                "topText": response.WeeklyPercentage + "%",
+                                "axisColor": "#31d6ea",
+                                "axisThickness": 1,
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                "tickColor": "#67b7dc",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    "balloonText": "Poor",
+                                    "color": "#f70000",
+                                    "endValue": 70,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    "balloonText": "Fair",
+                                    "color": "#ffff00",
+                                    "endValue": 90,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 70
+                                }, {
+                                    "balloonText": "Good",
+                                    "color": "#00ff00",
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 90
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": response.WeeklyPercentage
+                            }]
+                        });
+                        var gaugeChart1 = AmCharts.makeChart("chartdivMonthly", {
+                            "theme": "light",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                "topText": response.MonthlyPercentage + "%",
+                                "axisColor": "#31d6ea",
+                                "axisThickness": 1,
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                "tickColor": "#67b7dc",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    "balloonText": "Poor",
+                                    "color": "#f70000",
+                                    "endValue": 70,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    "balloonText": "Fair",
+                                    "color": "#ffff00",
+                                    "endValue": 90,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 70
+                                }, {
+                                    "balloonText": "Good",
+                                    "color": "#00ff00",
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 90
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": response.MonthlyPercentage
+                            }]
+                        });
+                        var gaugeChart1 = AmCharts.makeChart("chartdivDaily", {
+                            "theme": "light",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                "topText": response.CurrentDayPercentage + "%",
+                                "axisColor": "#31d6ea",
+                                "axisThickness": 1,
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                "tickColor": "#67b7dc",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    "balloonText": "Poor",
+                                    "color": "#f70000",
+                                    "endValue": 70,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    "balloonText": "Fair",
+                                    "color": "#ffff00",
+                                    "endValue": 90,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 70
+                                }, {
+                                    "balloonText": "Good",
+                                    "color": "#00ff00",
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 90
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": response.CurrentDayPercentage
+                            }]
+                        });
+                        $('#todayReport').children('div').find('.totalstud').text(response.DailyClientCount);
+                        $('#todayReport').children('div').find('.totaldays').text(response.DayTotalEnroll);
+                        $('#todayReport').children('div').find('.totalavg').text(response.DailyClientCount);
+
+
+                        $('#weeklyReport').children('div').find('.totalstud').text(response.WeeklyClientCount);
+                        $('#weeklyReport').children('div').find('.totaldays').text(response.WeekTotalEnroll);
+                        $('#weeklyReport').children('div').find('.totalavg').text(response.DailyClientCount);
+
+
+                        $('#monthlyReport').children('div').find('.totalstud').text(response.MonthlyClientCount);
+                        $('#monthlyReport').children('div').find('.totaldays').text(response.MonthTotalEnroll);
+                        $('#monthlyReport').children('div').find('.totalavg').text(response.DailyClientCount);
+
+                        $('#yearlyReport').children('div').find('.totalstud').text(response.YearlyClientCount);
+                        $('#yearlyReport').children('div').find('.totaldays').text(response.YearTotalEnroll);
+                        $('#yearlyReport').children('div').find('.totalavg').text(response.DailyClientCount);
+
+                    }
+
+
+                }
+		   , error: function (response) {
+		       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+		   }
+            });
+
+
+
+            //$('.js-gauge--1').kumaGauge({
+            //    value: 100,
+            //    //fill: '#337ab7',
+            //    //fill: '0-#fa4133:0-#fdbe37:50-#1cb42f:100',
+            //    gaugeBackground: '#337ab7',
+            //    gaugeWidth: 10,
+            //    showNeedle: false,
+            //    label: {
+            //        display: true,
+            //        left: 'Min',
+            //        right: 'Max',
+            //        fontFamily: 'Helvetica',
+            //        fontColor: '#1E4147',
+            //        fontSize: '11',
+            //        fontWeight: 'bold'
+            //    }
+            //});
+
+
+
+
+
+
+
+
+        }
+        function getAllUserEvents() {
+
+            $.ajax({
+                url: HostedDir + "/HomeVisitor/getevents/",
+                type: 'Post',
+                async: false,
+                success: function (response) {
+                    for (var i = 0; i < response.length; i++) {
+                        dbevents.push(response[i]);
+
+                    }
+
+                }
+            });
+        }
+        function compareEvent(event) {
+            var result = false;
+            var Allevents = [];
+
+            for (var i = 0; i < dbevents.length; i++) {
+                Allevents.push(dbevents[i]);
+
+            }
+            for (var j = 0; j < dbevents.length; j++) {
+                var weekcount = 0;
+                var compdate = new Date(new Date(event.end).setDate(event.end.getDate() + 30));
+                if (dbevents[j].IsRecurrence == true) {
+
+                    var maineventstartday = new Date(moment(dbevents[j].start).format('MM/DD/YYYY hh:mm A'))
+
+                    var comparedate = new Date(moment(compdate).format('MM/DD/YYYY hh:mm A'));
+
+                    var eventscount = parseInt(((comparedate.getTime() - maineventstartday.getTime()) / (1000 * 60 * 60 * 24 * 7))) + 1;
+                    var newstratdate;
+                    var newenddate;
+                    for (var i = 1; i < eventscount; i++) {
+                        var createdev = {
+                            AgencyId: "",
+                            title: dbevents[j].title,
+                            ClientName: dbevents[j].ClientName,
+                            Description: dbevents[j].Description,
+                            allDay: false,
+                            IsRecurrence: false,
+                        }
+                        var newstratdate = new Date(new Date(moment(dbevents[j].start).format('MM/DD/YYYY hh:mm A')).setDate(new Date(moment(dbevents[j].start).format('MM/DD/YYYY hh:mm A')).getDate() + (7 * i)));
+                        var newenddate = new Date(new Date(moment(dbevents[j].end).format('MM/DD/YYYY hh:mm A')).setDate(new Date(moment(dbevents[j].end).format('MM/DD/YYYY hh:mm A')).getDate() + (7 * i)));;
+
+
+                        //if (newstratdate.getFullYear() >= comparedate.getFullYear()){
+                        if (newenddate > comparedate) {
+                            break;
+                        }
+                        else {
+                            createdev._id = newenddate.getTime();
+                            createdev.end = newenddate;
+                            createdev.start = newstratdate;
+                            var renderEvent = true;
+                            for (var k = 0; k < dbevents.length; k++) {
+                                if (dbevents[k]._id == newenddate.getTime()) {
+                                    renderEvent = false;
+                                }
+                            }
+                            if (newenddate > compdate) {
+                                renderEvent = false;
+                            }
+                            if (renderEvent) {
+                                Allevents.push(createdev);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            //for loop end
+            for (var i = 0; i < Allevents.length; i++) {
+                if (event.end >= new Date(moment(Allevents[i].start).format('MM/DD/YYYY hh:mm A')) && event.start <= new Date(moment(Allevents[i].end))) {
+                    result = true;
+                }
+            }
+            return result;
+
+
+
+
+
+        }
+        function setatstart(value) {
+            if ($(value).val() == "MM/DD/YYYY") {
+                $(value).val('');
+            }
+
+        }
+        // shambhu changes
+        function ChangeCheckBox(Aobject, t) {
+            _Object = Aobject;
+            if (t.is(':checked')) {
+                var data = $(Aobject).closest("tr").find("td:nth-child(2)").text();
+
+                $('#dvClientName').append('<span  id=' + $(Aobject).attr("clientid") + ' class="SpnSelectedClient">' + data + '</span>');
+
+                $('#Acceptancediv').show();
+                $('#Acceptancediv').focus();
+            }
+            else {
+
+                //$('#dvClientName').remove('<span class="SpnSelectedClient">' + data + '</span>');
+                $('#' + $(Aobject).attr("clientid") + '').remove();
+            }
+        }
+    </script>
+}
+@section MainContentHolder{
+
+<link href="~/Content/css/agencystaffdashboard.css" rel="stylesheet" />
+    
+    <div class="row">
+
+        @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+        <div class="col-lg-12">
+            <h2 class="page-header">Center Overview</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor: pointer;">
+                        <tr>
+                            <th>Center Name</th>
+                            <th>%Full</th>
+                            <th>Open Seats</th>
+                            <th>FSW HV's</th>
+                            <th>Wait1</th>
+                            <th>Wait2</th>
+                            <th>Wait3</th>
+                            <th>Total Waiting</th>
+                            <th title="100">Pending</th>
+                            <th title="101">Accepted</th>
+                            <th title="102">Returned</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Centerlist != null)
+                        {
+                            foreach (FingerprintsModel.HrCenterInfo center in ViewBag.Centerlist)
+                            {
+                                <tr>
+                                    <td><a style="text-decoration: underline;" onclick="Showaddchart(this);" accesskey="@center.CenterId" href="#">@center.Name</a></td>
+                                    <td style="text-align: right;">@center.Attendance</td>
+                                    <td style="text-align: right;">@center.SeatsAvailable</td>
+                                    <td style="text-align: right;"><a href="~/AgencyUser/FSWAppointment">@Session["Appointment"]</a></td>
+                                    @if (center.option1 != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',1);" href="#">@center.option1</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">@center.option1</a></td>
+                                    }
+                                    @if (center.option2 != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',2);" href="#">@center.option2</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">@center.option2</a></td>
+                                    }
+                                    @if (center.option3 != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',3);" href="#">@center.option3</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">@center.option3</a></td>
+                                    }
+                                    @if (center.TotalWaitingList != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientlistAll(this,'@center.CenterId');" href="#">@center.TotalWaitingList</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">0</a></td>
+                                    }
+                                    @if (center.Routecode100 != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId');" href="#">@center.Routecode100</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">@center.Routecode100</a></td>
+                                    }
+
+                                    @if (center.Routecode101 != "0")
+                                    {
+
+                                        if (TempData["userrole"].ToString() == "ZTRjODBmYzItOGI2NC00NDdhLTk5YjQtOTVkMTUxMGIwMWU5")
+                                        {
+                                            TempData.Keep("userrole");
+                                            <td style="text-align: right;"><a id="url" style="text-decoration: underline;" href="#" onclick="loadHVclientinfo(this, '@center.CenterId',101)">@center.Routecode101</a></td>
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientinfo(this, '@center.CenterId',101);" href="#">@center.Routecode101</a></td>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">@center.Routecode101</a></td>
+                                    }
+                                    @if (center.Routecode102 != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadRejectedList(this,'@center.CenterId');" href="#">@center.Routecode102</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#">@center.Routecode102</a></td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="Hideattchart" style="display: none;">
+
+      
+            <div class="import-const" style="border: 1px solid #cfcfcf;">
+               
+                <div class="col-sm-12" style="position:relative;">
+                    <div id="chartdivDaily">
+
+                    </div>
+                    <div class="dailySummarydetails">
+                        <div class='dailySummary-data' id="todayReport">
+                            <div class="col-sm-12 amcharts-chart-div-label">
+                                <h2>Today's Attendance Percentage</h2>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label ">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present </p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label totdays">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="import-const" style="border: 1px solid #cfcfcf;">
+               
+                <div class="col-sm-12">
+                    <div id="chartdivWeekly"></div>
+                    <div class="dailySummarydetails">
+                        <div class='dailySummary-data' id="weeklyReport">
+                            <div class="col-sm-12 amcharts-chart-div-label">
+                                <h2>This Week's Attendance Percentage </h2>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label ">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label totdays">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+     
+
+            <div class="import-const" style="border: 1px solid #cfcfcf;">
+               
+                <div class="col-sm-12">
+                    <div id="chartdivMonthly"></div>
+                    <div class="dailySummarydetails">
+                        <div class='dailySummary-data' id="monthlyReport">
+                            <div class="col-sm-12 amcharts-chart-div-label">
+                                <h2>This Month's Attendance Percentage</h2>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label ">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label totdays">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="import-const" style="border: 1px solid #cfcfcf;">
+               
+                <div class="col-sm-12">
+                    <div id="chartdivYearly"></div>
+                    <div class="dailySummarydetails">
+                        <div class='dailySummary-data' id="yearlyReport">
+                            <div class="col-sm-12 amcharts-chart-div-label">
+                                <h2>This Year's Attendance Percentage</h2>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label ">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                            </div>
+                            <div class="col-sm-12 amcharts-chart-div-label totdays">
+                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                            </div>
+                          
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+
+    </div>
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalWaitingList" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterName" class="text-center">Clients Overview<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" onclick="HVCancelAccepted();" data-dismiss="modal" tabindex="8">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="add-useragform">
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom: 3%;">
+                                    <div class="col-sm-9">
+                                        <div class="col-sm-2">
+                                            <label style="width: 100%;">Program Type</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select id="ddlProgramtype" style="width: 100%;" class="form-control"></select>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <button type="button" onclick="GetUserList();" class="my-btn">Search</button>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <button type="button" onclick="ClearUserList();" class="my-btn">Clear</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivWaitingListPopup">
+                                                    <thead style="cursor: pointer;">
+                                                        <tr>
+                                                            <th>Select</th>
+                                                            <th>Name</th>
+                                                            <th>Selection Points</th>
+                                                            <th>Date on List</th>
+                                                            <th>Program Type</th>
+                                                            <th>Gender</th>
+                                                            <th>DOB</th>
+                                                            <th>Acceptance</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div1" style="text-align: center; display: none; margin-left: 38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" id="Acceptancediv" style="display: none;">
+                                        <div class="col-sm-12">
+                                            <fieldset style="border: 1px solid #295b8f;">
+                                                <legend class="legend1"></legend>
+                                                <div class="col-sm-10">
+                                                    <div class="col-sm-2">
+                                                        <label style="width: 100%;">Client Name</label>
+                                                    </div>
+                                                    <div id="dvClientName" style="width:82%" class="col-sm-5">
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-2">
+                                                        <label style="width: 100%;">Assign To <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select id="ddlnurse" style="width: 100%;" class="form-control"></select>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="my-btn" onclick="return SaveWaiting();">Save</button>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalClientPendingList" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterNameclient" class="text-center"><span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="row qualifierdiv" style="margin-bottom: 3%;">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="table-responsive">
+                                    <table class="table table_size" id="DivPendingclientlist">
+                                        <thead style="cursor: pointer;">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Selection Points</th>
+                                                <th>Date on List</th>
+                                                <th>Program Type</th>
+                                                <th>Gender</th>
+                                                <th>DOB</th>
+                                                <th>Remove</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                    <div id="div2" style="text-align: center; display: none; margin-left: 38%;">
+                                        <label>No result found.</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-sm-12" id="PendingWaiting" style="display: none;">
+                            <fieldset style="border: 1px solid #295b8f; margin-bottom: 1%;">
+                                <legend class="legend1"></legend>
+
+                                <div class="row qualifierdiv">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-3">
+                                                <input id="centerall" onchange="Getallcenter(this);" type="checkbox" />
+                                                <span>Show All Centers</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top: 2%;">
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-6">
+                                                <span style="color: red;">
+                                                    Hint: You can select up to 3 centers (1,2,3).
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="add-useragform ">
+                                    <div class="row qualifierdiv">
+                                        <div class="row" style="margin-top: 1%;">
+                                            <div class="col-sm-9">
+                                                <div class="col-sm-2">
+                                                    <label style="width: 100%;">Client Name</label>
+                                                </div>
+                                                <div class="col-sm-5">
+                                                    <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNamePending"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+
+                                            <div class="col-sm-12">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                                    <div class="table-responsive">
+                                                        <table class="table table_size" id="DivWaitinglist">
+                                                            <thead style="cursor: pointer;">
+                                                                <tr>
+                                                                    <th>Center Name</th>
+                                                                    <th width="14%">Address</th>
+                                                                    <th width="7%">Zip</th>
+                                                                    <th width="12%">Seats Available</th>
+                                                                    <th width="5%">Options</th>
+                                                                    <th width="30%">Notes</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @if (ViewBag.Centerlist != null)
+                                                                {
+
+                                                                    List<FingerprintsModel.HrCenterInfo> CenterList = (List<FingerprintsModel.HrCenterInfo>)ViewBag.centerlist;
+                                                                    if (CenterList != null && CenterList.Count > 0)
+                                                                    {
+                                                                        foreach (var item in CenterList.FirstOrDefault().AllCentersList)
+                                                                        {
+                                                                            if (item != null && item.CenterId != "0")
+                                                                            {
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        @item.Name
+                                                                                    <input name="Accept" onchange="Clearselect(this);" value="@item.CenterId" type="checkbox" />
+                                                                                </td>
+                                                                                <td>@item.Address</td>
+                                                                                <td>@item.Zip</td>
+                                                                                <td>@item.SeatsAvailable</td>
+                                                                                <td>
+                                                                                    <select>
+                                                                                        <option value="1">1</option>
+                                                                                        <option value="2">2</option>
+                                                                                        <option value="3">3</option>
+                                                                                    </select>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <input type="text" style="width: 100% !important;" maxlength="60" class="form-control" />
+                                                                                </td>
+                                                                            </tr>
+                                                                            }
+
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="btnwrp_subcal">
+                                        <button onclick="SaveWaitinglist();" class="my-btn" type="button">Save</button>
+                                        <button class="my-btn" onclick="CloseWaitinglistdiv();" type="button">Close</button>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalAcceptanceList" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterName" class="text-center">Accepted Clients <span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="add-useragform">
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom: 3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivAcceptanceListPopup">
+                                                    <thead style="cursor: pointer;">
+                                                        <tr>
+                                                            <th style="text-align: left !important;">Name</th>
+                                                            <th style="text-align: left !important;">Date on List</th>
+                                                            <th style="text-align: left !important;">Gender</th>
+                                                            <th style="text-align: left !important;">DOB</th>
+                                                            <th style="text-align: left !important;">Assign Classroom</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="divA1" style="text-align: center; display: none; margin-left: 38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" id="AcceptancedivClient" style="display: none;">
+                                        <div class="col-sm-12">
+                                            <fieldset style="border: 1px solid #295b8f;">
+                                                <legend class="legend1"></legend>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Client Name </label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="ClientNameAccept"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9 adddivspace">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Assign Classroom <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select id="ddlclassroom" style="width: 100%;" class="form-control"></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Class Start Date <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <input id="txtclassstartdate" style="width: 100%;" type="text" placeholder="MM/DD/YYYY" onblur="Checkdate(this);" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9" style="display:none;">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Reason for Acceptance <sup>*</sup></label>
+                                                    </div>
+                                                    
+                                                    <div class="col-sm-2">
+                                                       
+                                                        <input id="chkincome" type="radio" name="chkincome" value="1" style="width: 14%; margin-top: -8%;" class="form-control radio">
+                                                        <label>Income</label>
+                                                      
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                       
+                                                        <input id="chkincome" type="radio" name="chkincome" value="2" style="width: 14%; margin-top: -8%;" class="form-control radio">
+                                                        <label>Homeless</label>
+                                                       
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                       
+                                                        <input id="chkincome" type="radio" name="chkincome" value="3" style="width: 14%; margin-top: -8%;" class="form-control radio">
+                                                        <label>Foster</label>
+                                                      
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-sm-9" style="display:none;">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;"></label>
+                                                    </div>
+                                                    <div class="col-sm-2">
+
+                                                        <input id="chkincome" name="chkincome" type="radio" value="4" style="width: 14%; margin-top: -8%;" class="form-control radio">@*chkTanf*@
+                                                        <label>TANF</label>
+
+                                                    </div>
+                                                    
+                                                    <div class="col-sm-2">
+
+                                                        <input id="chkincome" name="chkincome" type="radio" value="6" style="width: 14%; margin-top: -8%;" class="form-control radio">@*chkTanf*@
+                                                        <label>SSI</label>
+
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-sm-9" id="ChildTrans" style="display: none;">
+
+
+
+                                                    <label style="font-size: 15px; margin-left: 2%; color: #295b8f;width: 69%!important;" id="childtrans"></label>
+                                                    <input type="hidden" id="childtransId" name="childtransId" />
+                                                </div>
+
+
+                                                <div class="col-sm-9" id="BMI" style="display: none;">
+                                                   
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="ddlchildwt"></label>
+                                                    <input type="hidden" id="ddlchildwtId" name="ddlchildwtId" />
+
+
+
+                                                </div>
+                                                <div class="col-sm-9" id="ChildDis" style="display: none;">
+
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="childdis"></label>
+                                                    <input type="hidden" id="childdisId" name="childdisId" />
+
+
+
+                                                </div>
+
+
+                                                <div class="col-sm-9" id="ChildFAllergy" style="display: none;">
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="childFoodAllergy"></label>
+                                                    <input type="hidden" id="childfoodId" name="childfoodId" />
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f; width: 51%;" id="Teacher"></label>
+                                                </div>
+
+
+
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="my-btn" style="margin-top: 20%; margin-bottom: 20%;" onclick="return SaveAcceptedInfo();">
+                                                            Save
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="my-btn" style="margin-top: 20%; margin-bottom: 20%;" onclick="CancelAccepted();">
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="ModalWaitingListAll" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterNameAll" class="text-center">Clients Overview<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="add-useragform">
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom: 3%;">
+                                    <div class="col-sm-9">
+                                        <div class="col-sm-2">
+                                            <label style="width: 100%;">Program Type</label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select id="ddlProgramtypeAll" style="width: 100%;" class="form-control"></select>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <button type="button" onclick="GetUserListAll();" class="my-btn">Search</button>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <button type="button" onclick="ClearUserListAll();" class="my-btn">Clear</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivWaitingListAllPopup">
+                                                    <thead style="cursor: pointer;">
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Selection Points</th>
+                                                            <th>Date on List</th>
+                                                            <th>Program Type</th>
+                                                            <th>Center Choice</th>
+                                                            <th>Gender</th>
+                                                            <th>DOB</th>
+                                                            <th>Acceptance</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div4" style="text-align: center; display: none; margin-left: 38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" id="Acceptancedivall" style="display: none;">
+                                        <div class="col-sm-12">
+                                            <fieldset style="border: 1px solid #295b8f;">
+                                                <legend class="legend1"></legend>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-2">
+                                                        <label style="width: 100%;">Client Name</label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-2">
+                                                        <label style="width: 100%;">Assign To <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select id="ddlnurseAll" style="width: 100%;" class="form-control"></select>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="my-btn" onclick="return SaveWaitingall();">Save</button>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <button type="button" class="my-btn" onclick="CancelWaitingAll();">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="Modalrejected" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterNameRejected" class="text-center">Clients Overview<span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom: 3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivRejectedList">
+                                                    <thead style="cursor: pointer;">
+                                                        <tr>
+                                                            <th width="23%">Name</th>
+                                                            <th width="10%">Date on List</th>
+                                                            <th>Notes</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div5" style="text-align: center; display: none; margin-left: 38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="HVAcceptanceList" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="HVCenterName" class="text-center">Accepted Clients <span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="add-useragform">
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom: 3%;">
+                                    <div class="col-sm-12">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="DivHVAcceptanceListPopup">
+                                                    <thead style="cursor: pointer;">
+                                                        <tr>
+                                                            <th style="text-align: left !important;">Name</th>
+                                                            <th style="text-align: left !important;">Date on List</th>
+                                                            <th style="text-align: left !important;">Gender</th>
+                                                            <th style="text-align: left !important;">DOB</th>
+                                                            <th style="text-align: left !important;">Schedule Appointment</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="divHVA1" style="text-align: center; display: none; margin-left: 38%;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" id="HVAcceptancedivClient" style="display: none;">
+                                        <div class="col-sm-12">
+                                            <fieldset style="border: 1px solid #295b8f;">
+                                                <legend class="legend1"></legend>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Client Name </label>
+
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="HVClientNameAccept"></label>
+                                                        <input type="hidden" id="HVClientId" style="width: 100%;" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9 adddivspace">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Assign Classroom <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select id="HVddlclassroom" style="width: 100%;" tabindex="1" class="form-control"></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Class Start Date <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <input id="HVtxtclassstartdate" style="width: 100%;" type="text" onkeypress="setatstart(this);" tabindex="2" placeholder="MM/DD/YYYY" onblur="Checkdate(this);" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9" style="display: none">
+                                                    <div class="col-sm-4">
+                                                        <label for="exampleInputEmail1">Description<sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <input type="text" style="width: 100%;" class="form-control" autocomplete="off" name="Title" tabindex="3" id="title">
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Meeting Date <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <input id="HVmeetingdate" style="width: 100%;" type="text" onkeypress="setatstart(this);" placeholder="MM/DD/YYYY" onblur="Checkdate(this);" tabindex="4" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-xs-4">
+
+                                                        <label for="exampleInputEmail1">Start Time<sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select class="form-control" style="width: 100%;" tabindex="5" id="apptStartTime"></select>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-xs-4">
+
+                                                        <label for="exampleInputEmail1">Duration(HH:MM)<sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select class="form-control" style="width: 100%;" tabindex="6" id="apptEndTime"></select>
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9" style="display: none">
+
+                                                    <div class="col-sm-4">
+                                                        <label for="exampleInputEmail1">Notes</label>
+                                                    </div>
+                                                    <div class="col-sm-8">
+                                                        <textarea class="form-control" style="width: 100%;" tabindex="7" id="description"></textarea>
+
+                                                    </div>
+                                                </div>
+                                               
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Main Reason for Acceptance <sup>*</sup></label>
+                                                    </div>
+                                                   
+                                                    <div class="col-sm-2">
+                                                        <input type="radio" name="HVchkincome" tabindex="8" value="1" style="width: 13px; margin-top: 3%; height: 13px;" class="form-control radio">
+                                                        <label>Income</label>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <input type="radio" name="HVchkincome" value="2" tabindex="9" style="width: 13px; margin-top: 3%; height: 13px;" class="form-control radio">
+                                                        <label>Homeless</label>
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <input type="radio" name="HVchkincome" value="3" tabindex="10" style="width: 13px; margin-top: 3%; height: 13px;" class="form-control radio">
+                                                        <label>Foster</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;"></label>
+                                                    </div>
+                                                    <div class="col-sm-2">
+
+                                                        <input name="HVchkincome" type="radio" value="4" tabindex="11" style="width: 13px; margin-top: 3%; height: 13px;" class="form-control radio">@*chkTanf*@
+                                                        <label>TANF</label>
+
+                                                    </div>
+                                                    <div class="col-sm-2">
+
+                                                        <input name="HVchkincome" type="radio" value="6" tabindex="13" style="width: 13px; margin-top: 3%; height: 13px;" class="form-control radio">@*chkTanf*@
+                                                        <label>SSI</label>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-9" id="BMI" style="display: none;">
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="ddlchildwt"></label>
+                                                    <input type="hidden" id="ddlchildwtId" name="ddlchildwtId" />
+                                                </div>
+                                                <div class="col-sm-9" id="ChildDis" style="display: none;">
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="childdis"></label>
+                                                    <input type="hidden" id="childdisId" name="childdisId" />
+                                                </div>
+                                                <div class="col-sm-9" id="ChildFAllergy" style="display: none;">
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="childFoodAllergy"></label>
+                                                    <input type="hidden" id="childfoodId" name="childfoodId" />
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <label style="margin-left: 2%; font-size: 15px; color: #295b8f; width: 51%;" id="Teacher"></label>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="col-sm-4 col-sm-offset-4">
+                                                        <button type="button" class="my-btn" style="margin-top: 20%; margin-bottom: 20%;" onclick="return HVSaveAcceptedInfo();">
+                                                            Save
+                                                        </button>
+                                                        <button type="button" class="my-btn" style="margin-top: 20%; margin-bottom: 20%;" onclick="HVCancelAccepted();">
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

@@ -1,0 +1,952 @@
+﻿@model FingerprintsModel.Immunization
+
+@{
+    @section Title
+{
+        Immunization
+
+    }
+    string AgencyId = Convert.ToString(Session["AgencyID"]);
+    //Convert.ToString(HttpContext.Current.Request.RequestContext.RouteData.Values["Controller"]);
+   // dynamic Layout;
+   
+    switch (AgencyId)
+    {
+        case "":
+            Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+            break;
+        default:
+            //Admin layout
+            Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+           
+            break;
+    }
+    //Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+    }
+
+@section Script{
+
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+        var incrementImmunization = 1;
+
+        $(document).ready(function () {
+            $('#spinner').hide();
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '') {
+                customAlert('@ViewBag.message');
+            }
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+            if (parseInt(@Model.getList.Count) == 0) {
+                var cont = $("#copyingtable_0").clone();
+                $(cont).insertAfter("#appenddata");
+                $(cont).addClass("immunization_bg");
+                $(cont).addClass("allImmunization");
+                $(cont).find('Select').val(1);
+                $(cont)[0].id = 'listtable_1'
+                $(cont).find('input#ImmunizationType_0')[0].id = "ImmunizationType_1";
+                $(cont).show();
+                if (($('#NoofDoses').val()) == 1) {
+                    $('#2row').hide();
+                    $('#3row').hide();
+                    $('#4row').hide();
+                    $('#5row').hide();
+                }
+            }
+
+            $('#btnADD').click(function () {
+               
+                var lenID = parseInt($("div[id^=listtable_]").length) + 1;
+                var CurrentDivHTMl = $("div#listtable_" + (lenID - 1));
+                if (isValidImmunizationInfo(CurrentDivHTMl[0]) == false) {
+                    return false;
+                }
+                else {
+                    var cont = $("#copyingtable_0").clone();
+                    $(cont).insertAfter("#appenddata");
+                    $(cont).find('Select').val(1);
+                    $(cont)[0].id = 'listtable_' + lenID;
+                    $(cont).addClass("immunization_bg");
+                    $(cont).addClass("allImmunization");
+                    $(cont).find('input#ImmunizationType_0')[0].id = "ImmunizationType_" + lenID;
+                    $(cont).show();
+                    if (($('#NoofDoses').val()) == 1) {
+                        $('#2row').hide();
+                        $('#3row').hide();
+                        $('#4row').hide();
+                        $('#5row').hide();
+                    }
+                }
+            });
+
+            $('#btnSubmit').click(function () {
+              
+                var k = [];
+                var immunizations = [];
+                var iSvalid = true;
+
+                $('#copyingtable_0').removeClass("allImmunization");
+
+                $('.table-main').find('.allImmunization').each(function () {
+                   
+                    var highRiskGroup = false;
+                    var recurring = false;
+
+                    if ($(this).find('#HighRiskGroup').is(':checked') == true) {
+                        highRiskGroup = true
+                    }
+                    else {
+                        highRiskGroup = false;
+                    }
+
+                    if ($(this).find('#Recurring').is(':checked') == true) {
+                        recurring = true;
+                    }
+                    else {
+                        recurring = false;
+                    }
+                    if ($(this).find('.ImmunizationType').val().trim() == "") {
+                        customAlert("Please enter immunization.");
+                        var ID = $(this).find('.ImmunizationType')[0].id;
+                        $('#' + ID).focus();
+                        $(this).find('.ImmunizationType').css("background-color", "pink");
+                        iSvalid = false
+                        return iSvalid;
+                    }
+                    else if ($(this).find('.Dose1To').val().trim() == "") {
+                        customAlert("Please enter dose1 To.");
+                        var ID = $(this).find('.Dose1To')[0].id;
+                        $('#' + ID).focus();
+                        $(this).find('.Dose1To').css("background-color", "pink");
+                        iSvalid = false
+                        return iSvalid;
+                    }
+                    else if ($(this).find('.Dose1From').val().trim() == "") {
+                        customAlert("Please enter dose1 From.");
+                        var ID = $(this).find('.Dose1From')[0].id;
+                        $('#' + ID).focus();
+                        $(this).find('.Dose1From').css("background-color", "pink");
+                        iSvalid = false
+                        return iSvalid;
+                    }
+                    else if (isValidImmunizationInfo($(this)) == false) {
+                        iSvalid = false;
+                        return iSvalid;
+                    }
+                    else {
+                        var Noofdose = ($(this).find('#NoofDoses').val());
+                        k = {
+                            ImmunizationId: $(this).find('#row_ImmunizationId').val(),
+                            ImmunizationType: $(this).find('.ImmunizationType').val(),
+                            NoofDoses: $(this).find('.NoofDoses').val(),
+                            HighRiskGroup: highRiskGroup,
+                            Recurring: recurring,
+                            Dose1To: $(this).find('.Dose1To').val(),
+                            Dose1From: $(this).find('.Dose1From').val(),
+                            Dose1WaitPeriod: $(this).find('.Dose1WaitPeriod').val(),
+                            Makeup1Wait: $(this).find('.Makeup1Wait').val(),
+                            Dose2To: $(this).find('.Dose2To').val(),
+                            Dose2From: $(this).find('.Dose2From').val(),
+                            Dose2WaitPeriod: $(this).find('.Dose2WaitPeriod').val(),
+                            Makeup2Wait: $(this).find('.Makeup2Wait').val(),
+                            Dose3To: $(this).find('.Dose3To').val(),
+                            Dose3From: $(this).find('.Dose3From').val(),
+                            Dose3WaitPeriod: $(this).find('.Dose3WaitPeriod').val(),
+                            Makeup3Wait: $(this).find('.Makeup3Wait').val(),
+                            Dose4To: $(this).find('.Dose4To').val(),
+                            Dose4From: $(this).find('.Dose4From').val(),
+                            Dose4WaitPeriod: $(this).find('.Dose4WaitPeriod').val(),
+                            Makeup4Wait: $(this).find('.Makeup4Wait').val(),
+                            Dose5To: $(this).find('.Dose5To').val(),
+                            Dose5From: $(this).find('.Dose5From').val(),
+                            Dose5WaitPeriod: $(this).find('.Dose5WaitPeriod').val(),
+                            Makeup5Wait: $(this).find('.Makeup5Wait').val(),
+                        },
+                        immunizations.push(k);
+                    }
+                });
+               
+                if (iSvalid) {
+                  
+                    immunizations = JSON.stringify({ 'immunizations': immunizations });
+                    $.ajax({
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        url: HostedDir + '/SuperAdmin/Immunization',
+                        data: immunizations,
+                        type: "post",
+                        success: function (success) {
+                             if (success == "Data saved successfully.") {
+                             //   customAlert("Data saved successfully.");
+                                var url = '@Url.Action("Immunization", "SuperAdmin")';
+                                 window.location.href = url;
+                                 var message = "Data saved successfully.";
+                                 //ViewBag.message = "Data saved successfully.";
+                               customAlert(message);
+                               
+                           }
+                           else {
+                              customAlert(success);
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            //alert("error");
+                        }
+                    });
+                }
+            });
+
+            $(document).on("change", '.NoofDoses', function () {
+               
+
+                var x = $(this).val();
+                var noOfRows = $(this).val();
+                var parent = $(this).parent().parent().parent().parent().parent();
+                if (noOfRows == 2) {
+                    parent.find('#2row').show();
+                    parent.find('#3row').hide();
+                    parent.find('#3row').find('input').val('');
+                    parent.find('#4row').hide();
+                    parent.find('#4row').find('input').val('');
+                    parent.find('#5row').hide();
+                    parent.find('#5row').find('input').val('');
+                }
+
+                else if (noOfRows == 3) {
+                    parent.find('#2row').show();
+                    parent.find('#3row').show();
+                    parent.find('#4row').hide();
+                    parent.find('#4row').find('input').val('');
+                    parent.find('#5row').hide();
+                    parent.find('#5row').find('input').val('');
+                }
+                else if (noOfRows == 4) {
+                    parent.find('#2row').show();
+                    parent.find('#3row').show();
+                    parent.find('#4row').show();
+                    parent.find('#5row').hide();
+                    parent.find('#5row').find('input').val('');
+                }
+                else if (noOfRows == 5) {
+                    parent.find('#2row').show();
+                    parent.find('#3row').show();
+                    parent.find('#4row').show();
+                    parent.find('#5row').show();
+                }
+                else {
+
+                    parent.find('#2row').hide();
+                    parent.find('#2row').find('input').val('');
+                    parent.find('#3row').hide();
+                    parent.find('#3row').find('input').val('');
+                    parent.find('#4row').hide();
+                    parent.find('#4row').find('input').val('');
+                    parent.find('#5row').hide();
+                    parent.find('#5row').find('input').val('');
+                }
+            });
+
+            $('.delete').click(function () {
+                var div = $(this).parent();
+                var id = $(this).parent().find('#row_ImmunizationId').val();
+                var immunizationName = div.find('.ImmunizationType').val();
+                BootstrapDialog.confirm('Are you sure to delete this record?', function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: HostedDir + '/SuperAdmin/ImmunizationDelete',
+                            data: { ImmunizationId: id },
+                            type: "post",
+                            success: function (success) {
+                                if (success == "Success") {
+                                    div.remove();
+                                    customAlert("Immunization " + immunizationName + " removed successfully.");
+                                    var lenID = parseInt($("div[id^=listtable_]").length);
+                                    if (parseInt(lenID) == 0) {
+                                        $(this).parent().remove();
+                                        lenID = 1;
+                                        var cont = $("#copyingtable_0").clone();
+                                        $(cont).insertAfter("#appenddata");
+                                        $(cont).addClass("immunization_bg");
+                                        $(cont).addClass("allImmunization");
+                                        $(cont).find('Select').val(1);
+                                        $(cont)[0].id = 'listtable_' + lenID;
+                                        $(cont).find('input#ImmunizationType_0')[0].id = "ImmunizationType_" + lenID;
+                                        $(cont).show();
+                                        if (($('#NoofDoses').val()) == 1) {
+                                            $('#2row').hide();
+                                            $('#3row').hide();
+                                            $('#4row').hide();
+                                            $('#5row').hide();
+                                        }
+                                    }
+                                }
+                                else {
+                                    customAlert(success);
+                                }
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                               // alert("error");
+                            }
+                        });
+                    }
+                });
+
+            });
+
+            $(document).on("click", ".deleteform", function () {
+                
+                var lenID = parseInt($("div[id^=listtable_]").length);
+                if (parseInt(lenID) == 1) {
+                    $(this).parent().remove();
+                    lenID = 1;
+                    var cont = $("#copyingtable_0").clone();
+                    $(cont).insertAfter("#appenddata");
+                    $(cont).addClass("immunization_bg");
+                    $(cont).addClass("allImmunization");
+                    $(cont).find('Select').val(1);
+                    $(cont)[0].id = 'listtable_' + lenID;
+                    $(cont).find('input#ImmunizationType_0')[0].id = "ImmunizationType_" + lenID;
+                    $(cont).show();
+                    if (($('#NoofDoses').val()) == 1) {
+                        $('#2row').hide();
+                        $('#3row').hide();
+                        $('#4row').hide();
+                        $('#5row').hide();
+                    }
+                }
+                else {
+                    $(this).parent().remove();
+                }
+            });
+
+        });
+    </script>
+
+    <script type="text/javascript">
+
+
+    function checkIfNumericOnly(el) {
+        var ex = /^[0-9]+\.?[0-9]*$/;
+        if (ex.test(el.value) == false) {
+            el.value = "";
+        }
+        var ex = /^\d*\.?\d{0,2}$/;
+        if (ex.test(el.value) == false) {
+            el.value = "";
+        }
+        var lastChar = el.value.substring(el.value.length - 1);
+        if (lastChar == ".") {
+            el.value = "";
+        }
+    }
+
+    function validation(s, k) {
+
+        var GetIdNext = "";
+        var GetIdPrevious = "";
+        checkIfNumericOnly(s);
+        var GetIdCurrent = $(s).attr('id');
+        var DoseNo = GetIdCurrent.split('_')[1];
+        var getListNo = GetIdCurrent.split('_')[3];
+        var getToFrom = GetIdCurrent.split('_')[2];
+        var nextPrevVal = GetIdCurrent.split('_')[4];
+
+        var GetNextvalue = parseInt(nextPrevVal) + 1;
+        var GetPreviousvalue = parseInt(nextPrevVal) - 1;
+        var nextDoseNo = parseInt(DoseNo) + 1;
+        var previousDoseNo = parseInt(DoseNo) - 1;
+
+        if ($('#' + GetIdCurrent).val().trim() == "" || $('#' + GetIdCurrent).val() == null) {
+            plainValidation('#' + GetIdCurrent);
+            customAlert("Please fill child age in month");
+            return false;
+        }
+
+        else {
+            if (getToFrom == "To") {
+                GetIdNext = "Dose" + "_" + DoseNo + "_From" + "_" + getListNo + "_" + GetNextvalue;
+                GetIdPrevious = "Dose" + "_" + previousDoseNo + "_From" + "_" + getListNo + "_" + GetPreviousvalue;
+            }
+
+            if (getToFrom == "From") {
+                GetIdPrevious = "Dose" + "_" + DoseNo + "_To" + "_" + getListNo + "_" + GetPreviousvalue;
+                GetIdNext = "Dose" + "_" + nextDoseNo + "_To" + "_" + getListNo + "_" + GetNextvalue;
+            }
+
+            if (nextPrevVal == 1) {
+                if (parseInt($('#' + GetIdNext).val()) <= parseInt($('#' + GetIdCurrent).val())) {
+                    customAlert("Dose To is greater than Dose From value.");
+                    $('#' + GetIdNext).val('');
+                    $('#' + GetIdCurrent).focus();
+                    return false;
+                }
+            }
+            else if (nextPrevVal == 10) {
+                if (parseInt($('#' + GetIdPrevious).val()) >= parseInt($('#' + GetIdCurrent).val())) {
+                    customAlert("Dose From is greater than Dose To value.");
+                    $('#' + GetIdPrevious).val('');
+                    $('#' + GetIdCurrent).focus();
+                    return false;
+                }
+            }
+            else {
+                if (parseInt($('#' + GetIdPrevious).val()) >= parseInt($('#' + GetIdCurrent).val())) {
+                    customAlert("Dose From is greater than Dose To value.");
+                    $('#' + GetIdCurrent).focus();
+                    $('#' + GetIdPrevious).val('');
+                    return false;
+                }
+                if (parseInt($('#' + GetIdNext).val()) <= parseInt($('#' + GetIdCurrent).val())) {
+                    customAlert("Dose To is greater than Dose From value.");
+                    $('#' + GetIdCurrent).focus();
+                    $('#' + GetIdNext).val('');
+                    return false;
+                }
+            }
+        }
+    }
+
+    function isValidImmunizationInfo(objDIV) {
+
+        cleanValidation();
+        if (objDIV == '') {
+            if ($('#ImmunizationType')[0].value.trim() == "") {
+                customAlert("Please enter immunization.");
+                $('#ImmunizationType').focus();
+                $('#ImmunizationType').css("background-color", "pink");
+                return false;
+            }
+        }
+        else {
+            var ITID = $(objDIV).find('input[id^=ImmunizationType_]')[0].id;
+            if ($('#' + ITID).val().trim() == "") {
+                customAlert("Please enter immunization.");
+                $('#' + ITID).focus();
+                $('#' + ITID).css("background-color", "pink");
+                return false;
+            }
+
+            var k = $(objDIV).find("input[id^='Dose_']");
+            var noOfDoses = parseInt($(objDIV).find('#NoofDoses').val());
+
+
+
+            for (var i = 1; i <= noOfDoses * 2 ; i++) {
+                var x = k[i - 1].id;
+                var DoseNo = x.split('_')[1];
+                var getListNo = x.split('_')[3];
+                var getToFrom = x.split('_')[2];
+                var nextPrevVal = x.split('_')[4];
+                if ($(objDIV).find('#Dose_' + DoseNo + '_' + getToFrom + '_' + getListNo + '_' + nextPrevVal)[0].value.trim() == "") {
+                    customAlert("Please enter dose" + DoseNo + getToFrom + ".");
+                    plainValidation('#Dose_' + DoseNo + '_' + getToFrom + '_' + getListNo + '_' + nextPrevVal);
+                    return false;
+                }
+            }
+        }
+        $('#btnSubmit').enabled = false;
+        return true;
+    }
+        //atul
+    function showloader() {
+        $('#spinner').show();
+    }
+    function clearcontrols() {
+        BootstrapDialog.confirm('Any unsaved data will be lost. Do you want to continue?', function (result) {
+            if (result) {
+                window.location.href = HostedDir + "/SuperAdmin/Immunization";
+            }
+        })
+
+
+    }
+
+    </script>
+
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Immunization
+            </h2>
+        </div>
+    </div>
+
+    @{var NoOfList = @Model.getList.Count;}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-12">
+                <a href="#" id="btnADD">Add Immunization<i style="margin: 1%;" class="fa fa-plus-square"></i></a>
+            </div>
+            <div class="col-sm-12 table-main">
+                <div id="appenddata"></div>
+                <div id="copyingtable_0" class="allImmunization Form1div" style="display: none">
+                    <a class="deleteform close_Immunization"><i class="fa fa-times"></i></a>
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="txtSubcategoryName">Immunization Name <sup>*</sup></label>
+                                    @Html.TextBoxFor(m => m.ImmunizationType, new { @class = "form-control ImmunizationType", id = "ImmunizationType_0" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                @{
+                                    List<SelectListItem> listItems = new List<SelectListItem>();
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = Convert.ToString(1),
+                                        Value = Convert.ToString(1),
+                                        Selected = true
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = Convert.ToString(2),
+                                        Value = Convert.ToString(2)
+
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = Convert.ToString(3),
+                                        Value = Convert.ToString(3),
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = Convert.ToString(4),
+                                        Value = Convert.ToString(4),
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = Convert.ToString(5),
+                                        Value = Convert.ToString(5),
+                                    });
+                                }
+                                <div class="form-group">
+                                    <label for="RaceSubCatDesc">No of Doses<sup>*</sup></label>
+                                    @Html.DropDownListFor(model => model.NoofDoses, listItems, new { @class = "form-control NoofDoses" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="RaceSubCatDesc">High Risk Group?</label>
+                                    @Html.CheckBoxFor(m => m.HighRiskGroup, new { id = "HighRiskGroup", @class = "minimal", @style = "width:5%;" })
+                                    <label>Yes</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="RaceSubCatDesc">Recurring?</label>
+                                    @Html.CheckBoxFor(m => m.Recurring, new { id = "Recurring", @class = "minimal", @style = "width:5%;" })
+                                    <label>Yes</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table_size" id="gridViewProgram">
+                            <thead style="cursor: pointer;">
+                                <tr>
+                                    <th>Dose</th>
+                                    <th>To</th>
+                                    <th>From</th>
+                                    <th>Wait Period</th>
+                                    <th>Makeup Wait</th>
+                                </tr>
+                            </thead>
+                            @{ var incrementListNo = @Html.Raw(NoOfList + 1);
+
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <label for="RaceId">Dose 1<sup>*</sup></label>
+                                    </td>
+                                    <td>@Html.TextBoxFor(m => m.Dose1To, new { placeholder = "Child Age in Month", id = "Dose_1_To_" + @incrementListNo + "_1", maxlength = "50", @class = "form-control 1 Dose1To", onblur = "validation(this,1);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose1From, new { placeholder = "Child Age in Month", id = "Dose_1_From_" + @incrementListNo + "_2", maxlength = "50", @class = "form-control 2 Dose1From", onblur = "validation(this,2);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose1WaitPeriod, new { placeholder = "Wait Period", id = "Dose1WaitPeriod", maxlength = "50", @class = "form-control Dose1WaitPeriod", onblur = "checkIfNumericOnly(this);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Makeup1Wait, new { placeholder = "Makeup Wait", id = "Makeup1Wait", maxlength = "50", @class = "form-control Makeup1Wait", onblur = "checkIfNumericOnly(this);" })</td>
+                                </tr>
+                                <tr id="2row" style="display: none;" class="2row">
+                                    <td>
+                                        <label for="RaceId">Dose 2<sup>*</sup></label>
+                                    </td>
+                                    <td>@Html.TextBoxFor(m => m.Dose2To, new { placeholder = "Child Age in Month", id = "Dose_2_To_" + @incrementListNo + "_3", maxlength = "50", @class = "form-control 3 Dose2To", onblur = "validation(this,3);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose2From, new { placeholder = "Child Age in Month", id = "Dose_2_From_" + @incrementListNo + "_4", maxlength = "50", @class = "form-control 4 Dose2From", onblur = "validation(this,4);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose2WaitPeriod, new { placeholder = "Wait Period", id = "Dose2WaitPeriod", maxlength = "50", @class = "form-control Dose2WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Makeup2Wait, new { placeholder = "Makeup Wait", id = "Makeup2Wait", maxlength = "50", @class = "form-control Makeup2Wait", onblur = "checkIfNumeric(this);" })</td>
+                                </tr>
+                                <tr id="3row" style="display: none;" class="3row">
+                                    <td>
+                                        <label for="RaceId">Dose 3<sup>*</sup></label>
+                                    </td>
+                                    <td>@Html.TextBoxFor(m => m.Dose3To, new { placeholder = "Child Age in Month", id = "Dose_3_To_" + @incrementListNo + "_5", maxlength = "50", @class = "form-control 5 Dose3To", onblur = "validation(this,5);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose3From, new { placeholder = "Child Age in Month", id = "Dose_3_From_" + @incrementListNo + "_6", maxlength = "50", @class = "form-control 6 Dose3From", onblur = "validation(this,6);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose3WaitPeriod, new { placeholder = "Wait Period", id = "Dose3WaitPeriod", maxlength = "50", @class = "form-control Dose3WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Makeup3Wait, new { placeholder = "Makeup Wait", id = "Makeup3Wait", maxlength = "50", @class = "form-control Makeup3Wait", onblur = "checkIfNumeric(this);" })</td>
+                                </tr>
+                                <tr id="4row" style="display: none;" class="4row">
+                                    <td>
+                                        <label for="RaceId">Dose 4<sup>*</sup></label>
+                                    </td>
+                                    <td>@Html.TextBoxFor(m => m.Dose4To, new { placeholder = "Child Age in Month", id = "Dose_4_To_" + @incrementListNo + "_7", maxlength = "50", @class = "form-control 7 Dose4To", onblur = "validation(this,7);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose4From, new { placeholder = "Child Age in Month", id = "Dose_4_From_" + @incrementListNo + "_8", maxlength = "50", @class = "form-control 8 Dose4From", onblur = "validation(this,8);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose4WaitPeriod, new { placeholder = "Wait Period", id = "Dose4WaitPeriod", maxlength = "50", @class = "form-control Dose4WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Makeup4Wait, new { placeholder = "Makeup Wait", id = "Makeup4Wait", maxlength = "50", @class = "form-control Makeup4Wait", onblur = "checkIfNumeric(this);" })</td>
+                                </tr>
+                                <tr id="5row" style="display: none;" class="5row">
+                                    <td>
+                                        <label for="RaceId">Dose 5<sup>*</sup></label>
+                                    </td>
+                                    <td>@Html.TextBoxFor(m => m.Dose5To, new { placeholder = "Child Age in Month", id = "Dose_5_To_" + @incrementListNo + "_9", maxlength = "50", @class = "form-control 9 Dose5To", onblur = "validation(this,9);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose5From, new { placeholder = "Child Age in Month", id = "Dose_5_From_" + @incrementListNo + "_10", maxlength = "50", @class = "form-control 10 Dose5From", onblur = "validation(this,10);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Dose5WaitPeriod, new { placeholder = "Wait Period", id = "Dose5WaitPeriod", maxlength = "50", @class = "form-control Dose5WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                    <td>@Html.TextBoxFor(m => m.Makeup5Wait, new { placeholder = "Makeup Wait", id = "Makeup5Wait", maxlength = "50", @class = "form-control Makeup5Wait", onblur = "checkIfNumeric(this);" })</td>
+                                </tr>
+                            </tbody>
+                            }
+                        </table>
+                    </div>
+                </div>
+                @{var i = 1;
+                  foreach (var row in Model.getList)
+                  {
+                    <div id="listtable_@i" class="immunization_bg allImmunization">
+                        @Html.HiddenFor(m => row.ImmunizationId)
+                        <input type="hidden" value="@i" id="hdndivcount_@i">
+                        <a class="delete close_Immunization" title="Close"><i class="fa fa-times"></i></a>
+                        <div class="add-useragform">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="txtSubcategoryName">Immunization Name <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => row.ImmunizationType, new { placeholder = "Immunization Name", id = "ImmunizationType_" + @i + "", maxlength = "50", @class = "form-control ImmunizationType", })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">No of Doses<sup>*</sup></label>
+                                        @Html.DropDownListFor(model => row.NoofDoses, new SelectList(listItems, "Value", "Text", row.NoofDoses), new { @class = "form-control NoofDoses", id = "NoofDoses", })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">High Risk Group?</label>
+                                        @Html.CheckBoxFor(m => row.HighRiskGroup, new { id = "HighRiskGroup", @class = "minimal", @style = "width:auto !important; margin-right:5px;", })
+                                        <span class="immu_option">Yes</span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Recurring?</label>
+                                        @Html.CheckBoxFor(m => row.Recurring, new { id = "Recurring", @class = "minimal", @style = "width:auto !important; margin-right:5px;", })
+                                        <span class="immu_option">Yes</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table_size" id="gridViewProgram">
+                                <thead style="cursor: pointer;">
+                                    <tr>
+                                        <th>Dose</th>
+                                        <th>To</th>
+                                        <th>From</th>
+                                        <th>Wait Period</th>
+                                        <th>Makeup Wait</th>
+                                    </tr>
+                                </thead>
+
+                                @{
+                      if (row.NoofDoses == 2)
+                      {
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="RaceId">Dose 1<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose1To, new { placeholder = "Child Age in Month", id = "Dose_1_To_" + @i + "_1", maxlength = "50", @class = "form-control Dose1To", onblur = "validation(this,1);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1From, new { placeholder = "Child Age in Month", id = "Dose_1_From_" + @i + "_2", maxlength = "50", @class = "form-control Dose1From", onblur = "validation(this,2);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1WaitPeriod, new { placeholder = "Wait Period", id = "Dose1WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose1WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup1Wait, new { placeholder = "Makeup Wait", id = "Makeup1Wait" + @i + "", maxlength = "50", @class = "form-control Makeup1Wait", onblur = "checkIfNumeric(this);", })</td>
+                            </tr>
+                            <tr id="2row" class="2row">
+                                <td>
+                                    <label for="RaceId">Dose 2<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose2To, new { placeholder = "Child Age in Month", id = "Dose_2_To_" + @i + "_3", maxlength = "50", @class = "form-control 3 Dose2To", onblur = "validation(this,3);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2From, new { placeholder = "Child Age in Month", id = "Dose_2_From_" + @i + "_4", maxlength = "50", @class = "form-control 4 Dose2From", onblur = "validation(this,4);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2WaitPeriod, new { placeholder = "Wait Period", id = "Dose2WaitPeriod", maxlength = "50", @class = "form-control Dose2WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup2Wait, new { placeholder = "Makeup Wait", id = "Makeup2Wait", maxlength = "50", @class = "form-control Makeup2Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="3row" style="display: none;" class="3row">
+                                <td>
+                                    <label for="RaceId">Dose 3<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose3To, new { placeholder = "Child Age in Month", id = "Dose_3_To_" + @i + "_5", maxlength = "50", @class = "form-control 5 Dose3To", onblur = "validation(this,5);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3From, new { placeholder = "Child Age in Month", id = "Dose_3_From_" + @i + "_6", maxlength = "50", @class = "form-control 6 Dose3From", onblur = "validation(this,6);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3WaitPeriod, new { placeholder = "Wait Period", id = "Dose3WaitPeriod", maxlength = "50", @class = "form-control Dose3WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup3Wait, new { placeholder = "Makeup Wait", id = "Makeup3Wait", maxlength = "50", @class = "form-control Makeup3Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="4row" style="display: none;" class="4row">
+                                <td>
+                                    <label for="RaceId">Dose 4<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose4To, new { placeholder = "Child Age in Month", id = "Dose_4_To_" + @i + "_7", maxlength = "50", @class = "form-control 7 Dose4To", onblur = "validation(this,7);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4From, new { placeholder = "Child Age in Month", id = "Dose_4_From_" + @i + "_8", maxlength = "50", @class = "form-control 8 Dose4From", onblur = "validation(this,8);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4WaitPeriod, new { placeholder = "Wait Period", id = "Dose4WaitPeriod", maxlength = "50", @class = "form-control Dose4WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup4Wait, new { placeholder = "Makeup Wait", id = "Makeup4Wait", maxlength = "50", @class = "form-control Makeup4Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="5row" style="display: none;" class="5row">
+                                <td>
+                                    <label for="RaceId">Dose 5<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose5To, new { placeholder = "Child Age in Month", id = "Dose_5_To_" + @i + "_9", maxlength = "50", @class = "form-control 9 Dose5To", onblur = "validation(this,9);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5From, new { placeholder = "Child Age in Month", id = "Dose_5_From_" + @i + "_10", maxlength = "50", @class = "form-control 10 Dose5From", onblur = "validation(this,10);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5WaitPeriod, new { placeholder = "Wait Period", id = "Dose5WaitPeriod", maxlength = "50", @class = "form-control Dose5WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup5Wait, new { placeholder = "Makeup Wait", id = "Makeup5Wait", maxlength = "50", @class = "form-control Makeup5Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                        </tbody>
+                      }
+                      else if (row.NoofDoses == 3)
+                      {
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="RaceId">Dose 1<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose1To, new { placeholder = "Child Age in Month", id = "Dose_1_To_" + @i + "_1", maxlength = "50", @class = "form-control Dose1To", onblur = "validation(this,1);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1From, new { placeholder = "Child Age in Month", id = "Dose_1_From_" + @i + "_2", maxlength = "50", @class = "form-control Dose1From", onblur = "validation(this,2);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1WaitPeriod, new { placeholder = "Wait Period", id = "Dose1WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose1WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup1Wait, new { placeholder = "Makeup Wait", id = "Makeup1Wait" + @i + "", maxlength = "50", @class = "form-control Makeup1Wait", onblur = "checkIfNumeric(this);", })</td>
+                            </tr>
+                            <tr id="2row" class="2row">
+                                <td>
+                                    <label for="RaceId">Dose 2<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose2To, new { placeholder = "Child Age in Month", id = "Dose_2_To_" + @i + "_3", maxlength = "50", @class = "form-control 3 Dose2To", onblur = "validation(this,3);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2From, new { placeholder = "Child Age in Month", id = "Dose_2_From_" + @i + "_4", maxlength = "50", @class = "form-control 4 Dose2From", onblur = "validation(this,4);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2WaitPeriod, new { placeholder = "Wait Period", id = "Dose2WaitPeriod", maxlength = "50", @class = "form-control Dose2WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup2Wait, new { placeholder = "Makeup Wait", id = "Makeup2Wait", maxlength = "50", @class = "form-control Makeup2Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="3row" class="3row">
+                                <td>
+                                    <label for="RaceId">Dose 3<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose3To, new { placeholder = "Child Age in Month", id = "Dose_3_To_" + @i + "_5", maxlength = "50", @class = "form-control 5 Dose3To", onblur = "validation(this,5);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3From, new { placeholder = "Child Age in Month", id = "Dose_3_From_" + @i + "_6", maxlength = "50", @class = "form-control 6 Dose3From", onblur = "validation(this,6);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3WaitPeriod, new { placeholder = "Wait Period", id = "Dose3WaitPeriod", maxlength = "50", @class = "form-control Dose3WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup3Wait, new { placeholder = "Makeup Wait", id = "Makeup3Wait", maxlength = "50", @class = "form-control Makeup3Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="4row" style="display: none;" class="4row">
+                                <td>
+                                    <label for="RaceId">Dose 4<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose4To, new { placeholder = "Child Age in Month", id = "Dose_4_To_" + @i + "_7", maxlength = "50", @class = "form-control 7 Dose4To", onblur = "validation(this,7);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4From, new { placeholder = "Child Age in Month", id = "Dose_4_From_" + @i + "_8", maxlength = "50", @class = "form-control 8 Dose4From", onblur = "validation(this,8);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4WaitPeriod, new { placeholder = "Wait Period", id = "Dose4WaitPeriod", maxlength = "50", @class = "form-control Dose4WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup4Wait, new { placeholder = "Makeup Wait", id = "Makeup4Wait", maxlength = "50", @class = "form-control Makeup4Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="5row" style="display: none;" class="5row">
+                                <td>
+                                    <label for="RaceId">Dose 5<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose5To, new { placeholder = "Child Age in Month", id = "Dose_5_To_" + @i + "_9", maxlength = "50", @class = "form-control 9 Dose5To", onblur = "validation(this,9);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5From, new { placeholder = "Child Age in Month", id = "Dose_5_From_" + @i + "_10", maxlength = "50", @class = "form-control 10 Dose5From", onblur = "validation(this,10);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5WaitPeriod, new { placeholder = "Wait Period", id = "Dose5WaitPeriod", maxlength = "50", @class = "form-control Dose5WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup5Wait, new { placeholder = "Makeup Wait", id = "Makeup5Wait", maxlength = "50", @class = "form-control Makeup5Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                        </tbody>
+                      }
+
+                      else if (row.NoofDoses == 4)
+                      {
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="RaceId">Dose 1<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose1To, new { placeholder = "Child Age in Month", id = "Dose_1_To_" + @i + "_1", maxlength = "50", @class = "form-control Dose1To", onblur = "validation(this,1);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1From, new { placeholder = "Child Age in Month", id = "Dose_1_From_" + @i + "_2", maxlength = "50", @class = "form-control Dose1From", onblur = "validation(this,2);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1WaitPeriod, new { placeholder = "Wait Period", id = "Dose1WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose1WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup1Wait, new { placeholder = "Makeup Wait", id = "Makeup1Wait" + @i + "", maxlength = "50", @class = "form-control Makeup1Wait", onblur = "checkIfNumeric(this);", })</td>
+                            </tr>
+                            <tr id="2row" class="2row">
+                                <td>
+                                    <label for="RaceId">Dose 2<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose2To, new { placeholder = "Child Age in Month", id = "Dose_2_To_" + @i + "_3", maxlength = "50", @class = "form-control 3 Dose2To", onblur = "validation(this,3);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2From, new { placeholder = "Child Age in Month", id = "Dose_2_From_" + @i + "_4", maxlength = "50", @class = "form-control 4 Dose2From", onblur = "validation(this,4);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2WaitPeriod, new { placeholder = "Wait Period", id = "Dose2WaitPeriod", maxlength = "50", @class = "form-control Dose2WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup2Wait, new { placeholder = "Makeup Wait", id = "Makeup2Wait", maxlength = "50", @class = "form-control Makeup2Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="3row" class="3row">
+                                <td>
+                                    <label for="RaceId">Dose 3<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose3To, new { placeholder = "Child Age in Month", id = "Dose_3_To_" + @i + "_5", maxlength = "50", @class = "form-control 5 Dose3To", onblur = "validation(this,5);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3From, new { placeholder = "Child Age in Month", id = "Dose_3_From_" + @i + "_6", maxlength = "50", @class = "form-control 6 Dose3From", onblur = "validation(this,6);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3WaitPeriod, new { placeholder = "Wait Period", id = "Dose3WaitPeriod", maxlength = "50", @class = "form-control Dose3WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup3Wait, new { placeholder = "Makeup Wait", id = "Makeup3Wait", maxlength = "50", @class = "form-control Makeup3Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="4row" class="4row">
+                                <td>
+                                    <label for="RaceId">Dose 4<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose4To, new { placeholder = "Child Age in Month", id = "Dose_4_To_" + @i + "_7", maxlength = "50", @class = "form-control 7 Dose4To", onblur = "validation(this,7);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4From, new { placeholder = "Child Age in Month", id = "Dose_4_From_" + @i + "_8", maxlength = "50", @class = "form-control 8 Dose4From", onblur = "validation(this,8);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4WaitPeriod, new { placeholder = "Wait Period", id = "Dose4WaitPeriod", maxlength = "50", @class = "form-control Dose4WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup4Wait, new { placeholder = "Makeup Wait", id = "Makeup4Wait", maxlength = "50", @class = "form-control Makeup4Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="5row" style="display: none;" class="5row">
+                                <td>
+                                    <label for="RaceId">Dose 5<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose5To, new { placeholder = "Child Age in Month", id = "Dose_5_To_" + @i + "_9", maxlength = "50", @class = "form-control 9 Dose5To", onblur = "validation(this,9);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5From, new { placeholder = "Child Age in Month", id = "Dose_5_From_" + @i + "_10", maxlength = "50", @class = "form-control 10 Dose5From", onblur = "validation(this,10);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5WaitPeriod, new { placeholder = "Wait Period", id = "Dose5WaitPeriod", maxlength = "50", @class = "form-control Dose5WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup5Wait, new { placeholder = "Makeup Wait", id = "Makeup5Wait", maxlength = "50", @class = "form-control Makeup5Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                        </tbody>
+                      }
+                      else if (row.NoofDoses == 5)
+                      {
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label for="RaceId">Dose 1<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose1To, new { placeholder = "Child Age in Month", id = "Dose_1_To_" + @i + "_1", maxlength = "50", @class = "form-control Dose1To", onblur = "validation(this,1);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1From, new { placeholder = "Child Age in Month", id = "Dose_1_From_" + @i + "_2", maxlength = "50", @class = "form-control Dose1From", onblur = "validation(this,2);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose1WaitPeriod, new { placeholder = "Wait Period", id = "Dose1WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose1WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup1Wait, new { placeholder = "Makeup Wait", id = "Makeup1Wait" + @i + "", maxlength = "50", @class = "form-control Makeup1Wait", onblur = "checkIfNumeric(this);", })</td>
+                            </tr>
+                            <tr class="2row">
+                                <td>
+                                    <label for="RaceId">Dose 2<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose2To, new { placeholder = "Child Age in Month", id = "Dose_2_To_" + @i + "_3", maxlength = "50", @class = "form-control Dose2To", onblur = "validation(this,3);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2From, new { placeholder = "Child Age in Month", id = "Dose_2_From_" + @i + "_4", maxlength = "50", @class = "form-control Dose2From", onblur = "validation(this,4);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose2WaitPeriod, new { placeholder = "Wait Period", id = "Dose2WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose2WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup2Wait, new { placeholder = "Makeup Wait", id = "Makeup2Wait" + @i + "", maxlength = "50", @class = "form-control Makeup2Wait", onblur = "checkIfNumeric(this);", })</td>
+                            </tr>
+                            <tr class="3row">
+                                <td>
+                                    <label for="RaceId">Dose 3<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose3To, new { placeholder = "Child Age in Month", id = "Dose_3_To_" + @i + "_5", maxlength = "50", @class = "form-control Dose3To", onblur = "validation(this,5);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3From, new { placeholder = "Child Age in Month", id = "Dose_3_From_" + @i + "_6", maxlength = "50", @class = "form-control Dose3From", onblur = "validation(this,6);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose3WaitPeriod, new { placeholder = "Wait Period", id = "Dose3WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose3WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup3Wait, new { placeholder = "Makeup Wait", id = "Makeup3Wait" + @i + "", maxlength = "50", @class = "form-control Makeup3Wait", onblur = "checkIfNumeric(this);", })</td>
+                            </tr>
+                            <tr id="4row" class="4row">
+                                <td>
+                                    <label for="RaceId">Dose 4<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose4To, new { placeholder = "Child Age in Month", id = "Dose_4_To_" + @i + "_7", maxlength = "50", @class = "form-control Dose4To", onblur = "validation(this,7);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4From, new { placeholder = "Child Age in Month", id = "Dose_4_From_" + @i + "_8", maxlength = "50", @class = "form-control Dose4From", onblur = "validation(this,8);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose4WaitPeriod, new { placeholder = "Wait Period", id = "Dose4WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose4WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup4Wait, new { placeholder = "Makeup Wait", id = "Makeup4Wait" + @i + "", maxlength = "50", @class = "form-control Makeup4Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                            <tr id="5row" class="5row">
+                                <td>
+                                    <label for="RaceId">Dose 5<sup>*</sup></label>
+                                </td>
+                                <td>@Html.TextBoxFor(m => row.Dose5To, new { placeholder = "Child Age in Month", id = "Dose_5_To_" + @i + "_9", maxlength = "50", @class = "form-control Dose5To", onblur = "validation(this,9);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5From, new { placeholder = "Child Age in Month", id = "Dose_5_From_" + @i + "_10", maxlength = "50", @class = "form-control Dose5From", onblur = "validation(this,10);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Dose5WaitPeriod, new { placeholder = "Wait Period", id = "Dose5WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose5WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                                <td>@Html.TextBoxFor(m => row.Makeup5Wait, new { placeholder = "Makeup Wait", id = "Makeup5Wait" + @i + "", maxlength = "50", @class = "form-control Makeup5Wait", onblur = "checkIfNumeric(this);" })</td>
+                            </tr>
+                        </tbody>
+                      }
+                      else
+                      {
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label for="RaceId">Dose 1<sup>*</sup></label>
+                            </td>
+                            <td>@Html.TextBoxFor(m => row.Dose1To, new { placeholder = "Child Age in Month", id = "Dose_1_To_" + @i + "_1", maxlength = "50", @class = "form-control Dose1To", onblur = "validation(this,1);", })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose1From, new { placeholder = "Child Age in Month", id = "Dose_1_From_" + @i + "_2", maxlength = "50", @class = "form-control Dose1From", onblur = "validation(this,2);", })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose1WaitPeriod, new { placeholder = "Wait Period", id = "Dose1WaitPeriod" + @i + "", maxlength = "50", @class = "form-control Dose1WaitPeriod", onblur = "checkIfNumeric(this);", })</td>
+                            <td>@Html.TextBoxFor(m => row.Makeup1Wait, new { placeholder = "Makeup Wait", id = "Makeup1Wait" + @i + "", maxlength = "50", @class = "form-control Makeup1Wait", onblur = "checkIfNumeric(this);", })</td>
+                        </tr>
+                        <tr id="2row" style="display: none;" class="2row">
+                            <td>
+                                <label for="RaceId">Dose 2<sup>*</sup></label>
+                            </td>
+                            <td>@Html.TextBoxFor(m => row.Dose2To, new { placeholder = "Child Age in Month", id = "Dose_2_To_" + @i + "_3", maxlength = "50", @class = "form-control 3 Dose2To", onblur = "validation(this,3);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose2From, new { placeholder = "Child Age in Month", id = "Dose_2_From_" + @i + "_4", maxlength = "50", @class = "form-control 4 Dose2From", onblur = "validation(this,4);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose2WaitPeriod, new { placeholder = "Wait Period", id = "Dose2WaitPeriod", maxlength = "50", @class = "form-control Dose2WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Makeup2Wait, new { placeholder = "Makeup Wait", id = "Makeup2Wait", maxlength = "50", @class = "form-control Makeup2Wait", onblur = "checkIfNumeric(this);" })</td>
+                        </tr>
+                        <tr id="3row" style="display: none;" class="3row">
+                            <td>
+                                <label for="RaceId">Dose 3<sup>*</sup></label>
+                            </td>
+                            <td>@Html.TextBoxFor(m => row.Dose3To, new { placeholder = "Child Age in Month", id = "Dose_3_To_" + @i + "_5", maxlength = "50", @class = "form-control 5 Dose3To", onblur = "validation(this,5);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose3From, new { placeholder = "Child Age in Month", id = "Dose_3_From_" + @i + "_6", maxlength = "50", @class = "form-control 6 Dose3From", onblur = "validation(this,6);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose3WaitPeriod, new { placeholder = "Wait Period", id = "Dose3WaitPeriod", maxlength = "50", @class = "form-control Dose3WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Makeup3Wait, new { placeholder = "Makeup Wait", id = "Makeup3Wait", maxlength = "50", @class = "form-control Makeup3Wait", onblur = "checkIfNumeric(this);" })</td>
+                        </tr>
+                        <tr id="4row" style="display: none;" class="4row">
+                            <td>
+                                <label for="RaceId">Dose 4<sup>*</sup></label>
+                            </td>
+                            <td>@Html.TextBoxFor(m => row.Dose4To, new { placeholder = "Child Age in Month", id = "Dose_4_To_" + @i + "_7", maxlength = "50", @class = "form-control 7 Dose4To", onblur = "validation(this,7);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose4From, new { placeholder = "Child Age in Month", id = "Dose_4_From_" + @i + "_8", maxlength = "50", @class = "form-control 8 Dose4From", onblur = "validation(this,8);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose4WaitPeriod, new { placeholder = "Wait Period", id = "Dose4WaitPeriod", maxlength = "50", @class = "form-control Dose4WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Makeup4Wait, new { placeholder = "Makeup Wait", id = "Makeup4Wait", maxlength = "50", @class = "form-control Makeup4Wait", onblur = "checkIfNumeric(this);" })</td>
+                        </tr>
+                        <tr id="5row" style="display: none;" class="5row">
+                            <td>
+                                <label for="RaceId">Dose 5<sup>*</sup></label>
+                            </td>
+                            <td>@Html.TextBoxFor(m => row.Dose5To, new { placeholder = "Child Age in Month", id = "Dose_5_To_" + @i + "_9", maxlength = "50", @class = "form-control 9 Dose5To", onblur = "validation(this,9);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose5From, new { placeholder = "Child Age in Month", id = "Dose_5_From_" + @i + "_10", maxlength = "50", @class = "form-control 10 Dose5From", onblur = "validation(this,10);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Dose5WaitPeriod, new { placeholder = "Wait Period", id = "Dose5WaitPeriod", maxlength = "50", @class = "form-control Dose5WaitPeriod", onblur = "checkIfNumeric(this);" })</td>
+                            <td>@Html.TextBoxFor(m => row.Makeup5Wait, new { placeholder = "Makeup Wait", id = "Makeup5Wait", maxlength = "50", @class = "form-control Makeup5Wait", onblur = "checkIfNumeric(this);" })</td>
+                        </tr>
+                    </tbody>
+                      }
+                                }
+                            </table>
+                        </div>
+                    </div>
+                    i = i + 1;
+                }
+                }
+
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="btnwrp_subcal">
+                    <button id="btnSubmit" type="submit" class="my-btn" onclick="showloader()" @*onclick="return isValidImmunizationInfo();"*@ >Submit</button>
+                    <button id="btnExit" class="my-btn" type="button"  onclick="clearcontrols(); return false;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+

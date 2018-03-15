@@ -1,0 +1,157 @@
+﻿@{
+    @section Title
+    {
+        Import Boundary Coordinates
+
+    }
+    ViewBag.Title = "ImportBoundaryCoordinates";
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+    string ZipcodeBoundary = System.Configuration.ConfigurationManager.AppSettings["ZipcodeBoundary"].ToString();
+    string CountyBoundary = System.Configuration.ConfigurationManager.AppSettings["CountyBoundary"].ToString();
+    string StateBoundary = System.Configuration.ConfigurationManager.AppSettings["StateBoundary"].ToString();
+}
+@section Script{
+    <script>
+        $(document).ready(function () {
+
+            $('#btnSubmit').click(function () {
+
+                $('#spinner').show();
+                $('#btnSubmit').hide();
+                $('#btnSubmit').hide();
+                $.getJSON($('.zippath').val(), function (zipdata) {
+                    holdvalue1 = zipdata.features;
+                    alert("Import Process Started");
+                    InsertGeoJsonZipcode(holdvalue1);
+                    $.getJSON($('.countypath').val(), function (countydata) {
+                        county = countydata.features;
+                        InsertGeoJsonCounty(county);
+                        $.getJSON($('.statepath').val(), function (statedata) {
+                            state = statedata.features;
+                            InsertGeoJsonState(state);
+                        }).complete(function () {
+                            $('#spinner').hide();
+                            alert("Import Process Completed");
+                            $('#btnSubmit').show();
+                        });
+                    });
+                });
+            });
+        });
+        function InsertGeoJsonZipcode(holdvalue) {
+            for (var i = 0; i < holdvalue.length; i++) {
+                var zipcode = holdvalue[i].properties.geoid10;
+
+                var geometry = holdvalue[i].geometry;
+                console.log(geometry);
+
+                $.ajax({
+                    url: '/SuperAdmin/InsertGeoJsonZipcode',
+                    datatype: 'json',
+                    async: false,
+                    type: 'post',
+                    data: { 'zipcode': zipcode, 'geometry': JSON.stringify(geometry) },
+                    success: function (data) {
+                        if (data) {
+                            console.log(zipcode);
+                        }
+                        else {
+                            console.log('Error:' + data);
+                        }
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                        console.log(data);
+                    }
+                });
+                // return false;
+                if (i == holdvalue.length - 1) {
+                    alert('Zip code Completed');
+                }
+            }
+
+        }
+        function InsertGeoJsonCounty(holdvalue) {
+            for (var i = 0; i < holdvalue.length; i++) {
+                var county = holdvalue[i].properties.NAME10;
+                var geometry = holdvalue[i].geometry;
+                console.log(geometry);
+                $.ajax({
+                    url: '/SuperAdmin/InsertGeoJsonCounty',
+                    datatype: 'json',
+                    async: false,
+                    type: 'post',
+                    data: { 'county': county, 'geometry': JSON.stringify(geometry) },
+                    success: function (data) {
+                        if (data) {
+                            console.log(zipcode);
+                        }
+                        else {
+                            console.log('Error:' + data);
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+                // return false;
+                if (i == holdvalue.length - 1) {
+                    alert('County Completed');
+                }
+            }
+
+        }
+        function InsertGeoJsonState(holdvalue) {
+            for (var i = 0; i < holdvalue.length; i++) {
+                var state = holdvalue[i].properties.NAME;
+                var geometry = holdvalue[i].geometry;
+                $.ajax({
+                    url: '/SuperAdmin/InsertGeoJsonState',
+                    datatype: 'json',
+                    async: false,
+                    type: 'post',
+                    data: { 'state': state, 'geometry': JSON.stringify(geometry) },
+                    success: function (data) {
+                        if (data) {
+                            console.log(zipcode);
+                        }
+                        else {
+                            console.log('Error:' + data);
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+                //  return false;
+                if (i == holdvalue.length - 1) {
+                    alert('County Completed');
+                }
+            }
+
+        }
+    </script>
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Import Map Boundary Coordinates
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="btnwrp_subcal">
+                <button id="btnSubmit" style="width:220px !important" type="button" class="my-btn" tabindex="21">Import Boundary Coordinates</button>
+                <input type="hidden" class="zippath" value="@ZipcodeBoundary" />
+                <input type="hidden" class="countypath" value="@CountyBoundary" />
+                <input type="hidden" class="statepath" value="@StateBoundary" />
+                <div class="clear"></div>
+            </div>
+            <!--btnwrp_subcal--->
+        </div>
+    </div>
+}
+

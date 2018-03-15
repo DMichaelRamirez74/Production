@@ -1,0 +1,386 @@
+﻿@model IEnumerable<FingerprintsModel.DailySaftyCheckImages>
+@{
+    @section Title{
+        DailySafetyCheck
+    }
+    ViewBag.Title = "DailySafetyCheck";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+<h2>DailySafetyCheck</h2>
+
+@Scripts.Render("~/bundles/jquery")
+
+
+
+@section MainContentHolder{
+    @if (Session["Roleid"].ToString().Contains("b4d86d72-0b86-41b2-adc4-5ccce7e9775b"))
+    {
+        <style>
+            .error-message {
+                display: none;
+                font-size: 12px;
+                color: red;
+            }
+
+            .err-container {
+                height: 10px;
+            }
+
+            #myModalCenterList .form-group label {
+                margin-left: 0px;
+            }
+
+            #myModalCenterList .error-message.error-center-message {
+                float: right;
+                width: 70%;
+                margin-top: 10px;
+                text-align: left;
+            }
+
+            #myModalCenterList .modal-body {
+                border-top: 1px solid #e5e5e5;
+            }
+
+            #myModalCenterList .modal-header {
+                margin-bottom: 26px;
+            }
+           
+        </style>
+    }
+    <style>
+         .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            /*color: #a94442;*/
+             color: #ff0000;
+        }
+    </style>
+    <link href="~/Content/css/DailySafetyCheck.css" rel="stylesheet" />
+    <div class="row">
+        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+            <h2 class="page-header">Daily Safety Check</h2>
+
+            <div class="col-lg-12">
+                <label class="lbl-required"><i>Daily Safety Check is required for all blocks</i></label>
+            </div>
+
+            @foreach (var objImages in Model)
+            {
+
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 ImgContainer">
+                    <div class="i">
+
+                        <div>
+                            @if (@objImages.ImageDescription.Contains("Fire"))
+                            {
+                                <span class="spn-expiration-date" style="display:none;"></span>
+                            }
+                        </div>
+                        <div>
+                            @if (Convert.ToBoolean(@objImages.PassFailCode))
+                            {
+                                <img class="img-cross" src="~/Content/close_btn.png" />
+                                <img class="img-tick" src="~/Content/check_btn.png" style="display:block;" />
+                            }
+                            else if (@objImages.PassFailCode != null && Convert.ToBoolean(@objImages.PassFailCode) == false)
+                            {
+                                <img class="img-cross" src="~/Content/close_btn.png" style="display:block;" />
+                                <img class="img-tick" src="~/Content/check_btn.png" />
+                            }
+                            else
+                            {
+                                <img class="img-tick" src="~/Content/check_btn.png" />
+                                <img class="img-cross" src="~/Content/close_btn.png" />
+                            }
+
+                        </div>
+                        <div>
+                            @if (@objImages.ImageDescription.Contains("Fire"))
+                            {
+                                <input type="button" value="Update" class="btn btn-primary btn-expiration" />
+                            }
+                        </div>
+
+                        <img class="imgIssues img-feedback" src="@objImages.ImagePath" /><br />
+                    </div>
+                    <div class="desc-text col-xs-12">
+
+                        <p class="pDesc">
+                            @objImages.ImageDescription
+                        </p>
+                    </div>
+                    <input type="hidden" value="@objImages.Id" class="hdn-imageid" />
+                    <input type="hidden" value="@objImages.PassFailCode.ToString()" class="hdn-passfailcode" />
+                    <input type="hidden" value="@objImages.ToStaffId" class="hdn-tostaffid" />
+                    <input type="hidden" value="@objImages.RouteCode" class="hdn-routecode" />
+                    <input type="hidden" value="@objImages.ImageOfDamage" class="hdn-damage-image"/>
+                    <input type="hidden" value="@objImages.WorkOrderDescription" class="hdn-damage-desc"/>
+                </div>
+            }
+        </div>
+        <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12" style="text-align:center;height:50px;">
+            <input type="button" class="btn btn-primary btn-save" value="Submit" style="padding: 6px 35px;font-size: 14px;">
+        </div>
+    </div>
+    <input type="hidden" class="center-id" value="@ViewBag.CenterId"/>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog modal-md">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                    @*<button type="button" class="close" data-dismiss="modal">&times;</button>*@
+                    @if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
+                    {
+                        <h4 class="modal-title">Teacher Feedback</h4>
+                    }
+                    else
+                    {
+                        <h4 class="modal-title">Center Feedback</h4>
+                    }
+                </div>
+                <div class="modal-body">
+
+                    <table style="width:100%;display:none;" class="tblFailDetails" cellspacing="0">
+                        <tr style="height: 40px;">
+                            <td class="lbl-required">Description</td>
+                            <td>
+                                <input type="text" class="form-control txtDescription" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="err-container">
+                                    <span class="err-message err-message-desc" style="font-size:12px;">Description is required</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="height: 30px;">
+                            <td>Image Of Damage</td>
+                            <td>
+                                <input id="imgDamage" class="form-control" type="file" accept="image/jpg,image/png,image/jpeg,image/gif" />
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <div class="err-container">
+                                    <span class="err-message err-message-dimage">Damage Image is required</span>
+                                    <span class="err-message err-message-dimagefile">Invalid file format</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3 pass_btn" style="text-align:center;">
+                        <input type="button" value="Pass" class="btn btn-success btn-pass" style="padding:6px 35px;" />
+                        <input type="button" value="Submit" class="btn btn-primary btn-submit" style="display:none;padding: 6px 35px;" />
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3" style="text-align:center;">
+                        <input type="button" value="Fail" class="btn btn-danger btn-fail" style="padding:6px 35px;" />
+                        <input type="button" value="Back" class="btn btn-primary btn-back" style="display:none;padding: 6px 35px;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModalAlert" role="dialog">
+        <div class="modal-dialog modal-sm" style="width:340px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Feedback Alert!</h4>
+                </div>
+                <div class="modal-body" style="height: 54px;">
+                    <div class="fb-msg" style="font-size: 15px;text-align: center;">You have already given feedback for this item.</div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary btn-ok" value="CLOSE" data-dismiss="modal">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--ExpirationDate Modal -->
+    <div class="modal fade in" id="myModalExpirationDate" role="dialog" style="display: none;" aria-hidden="false">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <input type="hidden" name="childid" id="childid" value="">
+                    <input type="hidden" name="childname" id="childname" value="">
+                    <label class="alert-dismissible" for="current_password">Fire Extinguisher</label>
+                </div>
+                <div class="form-group-al">
+                    <div class="form-group">
+                        <label for="current_password">Expiration Date</label>
+                        <input name="CNotes" class="form-control txt-date number-only" maxlength="10" id="txtExpirationDate" style="width:50% !important;" type="text" placeholder="MM/DD/YYYY" value="">
+                        <div style="height:10px;margin-top: 8px;">
+                            <span class="date-future-validation" style="display:none;color:indianred;margin-left: 133px;font-size: 12px;">Enter only future date</span>
+                            <span class="date-valid-validation" style="display:none;color:indianred;margin-left: 133px;font-size: 12px;">Enter valid date</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btnUpdateDate address-btn" data-role="Teacher">Submit</button>
+                    <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
+    {
+        <div class="modal fade in" id="myModalClassRoom" role="dialog" style="display: none; padding-right: 17px;">
+            <div class="modal-dialog modal-md">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title">Do you suggest the center manager close the classroom today?</h4>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3 pass_btn" style="text-align:center;">
+                            <input type="button" value="Yes" class="btn btn-success  btn-room" isclosed="true" message="Classroom should be closed" style="padding:6px 35px;display:block;">
+
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3" style="text-align:center;">
+                            <input type="button" value="No" class="btn btn-danger btn-room" isclosed="false" message="Classroom should be opened" style="padding:6px 35px;display:block;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Session["Roleid"].ToString().Contains("b4d86d72-0b86-41b2-adc4-5ccce7e9775b"))
+    {
+        <div class="modal fade in" id="myModalClassRoom" role="dialog" style="display: none; padding-right: 17px;">
+            <div class="modal-dialog modal-md">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title">Do you suggest to close the center today? </h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3 pass_btn" style="text-align:center;">
+                            <input type="button" value="Yes" class="btn btn-success btn-room" isclosed="true" message="Center should be closed" style="padding:6px 35px;display:block;">
+                        </div>
+                        <div class="col-lg-3 col-sm-6 col-xs-6 col-md-3" style="text-align:center;">
+                            <input type="button" value="No" class="btn  btn-danger btn-room" isclosed="false" message="Center should be opened" style="padding:6px 35px;display:block;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    }
+    @*<input type="hidden" class="hdnRoleId"  value="@Session["Roleid"].ToString()"/>*@
+    <script src="~/Content/Scripts/DailySafetyCheck.js"></script>
+    <script>
+        //if ($(".hdnRoleId").val() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" && $('.img-cross:visible').length == 0 && $('.img-tick:visible').length == 0) {
+        //    $('#myModalCenterList').modal('show');
+        //}
+
+        $('body').on("focusout", ".txt-date", function () {
+            var isValid = Checkdate($(this).val());
+            console.log(isValid);
+
+            if (!validDate($(this).val())) {
+                $(this).closest('div').find('.date-valid-validation').show();
+            }
+            else if (!isValid) {
+                $(this).closest('div').find('.date-future-validation').show();
+            }
+
+        });
+        $('.number-only').on("keydown", function (e) {
+            if ((e.which >= 48 && e.which <= 57) || (e.which >= 96 && e.which <= 105) || e.which == 8 || e.which == 173 || e.which == 189 || e.which == 9 || e.which == 46 || e.which == 39 | e.which == 37 || (e.which == 16 && e.which == 9))
+                return true;
+            else
+                return false;
+        });
+        $('body').on("keyup", ".txt-date", function () {
+
+            $(this).closest('div').find('span').hide();
+        });
+        function Checkdate(date) {
+            var isAllow = false;
+            var now = new Date();
+            var selectedDate = new Date(date);
+            if (selectedDate > now) {
+                isAllow = true;
+            } else {
+                isAllow = false;
+            }
+            return isAllow;
+        }
+        function validDate(text) {
+            var isValid = true;
+            var comp = text.split('/');
+            if (comp.length !== 3)
+                return false;
+            if (comp[2].length != 4)
+                return false;
+            if (comp[2] <= 1901)
+                return false;
+            if (new Date(text).toString() == "Invalid Date")
+                return false;
+            if (!isvalid_mdy(text))
+                return false;
+            var TodayDate = new Date();
+            var endDate = new Date(text);
+
+            return isValid;
+        }
+        function isvalid_mdy(s) {
+
+            var day, A = s.match(/[1-9][\d]*/g);
+            try {
+                A[0] -= 1;
+                day = new Date(+A[2], A[0], +A[1]);
+
+                if (day.getMonth() == A[0] && day.getDate() == A[1]) return day;
+            }
+            catch (er) {
+                return er.message;
+            }
+
+        }
+        $(function () {
+            ShowExpiration();
+        });
+        function ShowExpiration() {
+            $.ajax(
+                {
+
+                    type: "POST",
+                    async: false,
+                    url: "/Teacher/GetFireExpiration",
+                    data: { 'Role': 'Teacher' },
+                    success: function (data) {
+                        if (data != "")
+                            $('.spn-expiration-date').text(data).show();
+                        else
+                            $('.spn-expiration-date').text("No Date").show();
+                    },
+                    error: function (data) {
+
+                    }
+                });
+        }
+    </script>
+}

@@ -1,0 +1,243 @@
+﻿@model FingerprintsModel.ReportingModel
+
+
+@{
+    ViewBag.Title = "Reporting";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+
+}
+
+
+@Scripts.Render("~/bundles/jquery")
+<script type="text/javascript" src="code.jquery.com/jquery-migrate-1.2.1.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"> </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+<script src="jquery.signature.js"></script>
+<link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/south-street/jquery-ui.css" rel="stylesheet">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/south-street/jquery-ui.css" rel="stylesheet">
+<link href="jquery.signature.css" rel="stylesheet">
+
+@section Script{
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+    <style>
+        .kbw-signature {
+            width: 400px;
+            height: 200px;
+        }
+
+        
+    </style>
+
+  
+}
+
+
+@section MainContentHolder{
+
+
+
+    <form method="post" enctype="multipart/form-data" action="ExportData">
+
+
+
+    <script>
+
+        $(window).on('popstate', function () {
+            var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
+            $('a[href=' + anchor + ']').tab('show');
+        });
+
+
+
+
+
+        function showAddress(cb) {
+
+            if (cb.checked == true) {
+                $('span.addressDataRow').css("display", "block");
+                $('span.addressRow').css("display", "block");
+            } else {
+                $('span.addressDataRow').css("display", "none");
+                $('span.addressRow').css("display", "none");
+            }
+        }
+        function showPhone(cb1) {
+
+            if (cb1.checked == true) {
+                $('span.phoneDataRow').css("display", "block");
+                $('span.phoneRow').css("display", "block");
+            } else { $('#Phone').hide();
+                $('span.phoneRow').css("display", "none");
+                $('span.phoneDataRow').css("display", "none");
+            }
+        }
+        function showEmail(cb1) {
+
+            if (cb1.checked == true) {
+                $('span.emailDataRow').css("display", "block");
+                $('span.emailRow').css("display", "block");
+            } else { $('#Email').hide();
+                $('span.emailRow').css("display", "none");
+                $('span.emailDataRow').css("display", "none");
+            }
+        }
+        function showGuardian(cb1) {
+
+            if (cb1.checked == true) {
+                $('span.guardianDataRow').css("display", "block");
+                $('span.guardianRow').css("display", "block");
+            } else { $('#Guardian').hide();
+            $('span.guardianRow').css("display", "none");
+            $('span.guardianDataRow').css("display", "none");
+            }
+        }
+        function showProgram(cb1) {
+
+            if (cb1.checked == true) {
+                $('span.programDataRow').css("display", "block");
+                $('span.programRow').css("display", "block");
+            } else { $('#Program').hide();
+            $('span.programRow').css("display", "none");
+            $('span.programDataRow').css("display", "none");
+            }
+        }
+
+        function showDays(cb1) {
+
+            if (cb1.checked == true) {
+                $('span.daysDataRow').css("display", "block");
+                $('span.daysRow').css("display", "block");
+            } else {
+                $('#Days').hide();
+                $('span.daysRow').css("display", "none");
+                $('span.daysDataRow').css("display", "none");
+            }
+        }
+    </script>
+
+    <input type="hidden" id="profileindex" name="profileindex" />
+    <input type="hidden" id="eduindex" name="eduindex" />
+
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
+
+
+                @using (Html.BeginForm("Index", "Reporting"))
+                {
+
+                    <h2 class="page-header">
+                        Child @Model.ColumnName Report
+
+                        <span class="attend-date">
+                            <font size="3">
+                            </font>
+                        </span>
+                        <span></span>
+
+                    </h2>
+                    <div class="page-header">
+                        <div class="add-useragform">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label><input type="checkbox" id="AddressCheck" onchange="showAddress(this);" />Address</label>
+                                            <label><input type="checkbox" id="PhoneCheck" onchange="showPhone(this);" />Phone</label>
+
+
+                                            <label class=""><input type="checkbox" id="GuardianCheck" onchange="showGuardian(this);" />Primary Guardian</label>
+                                            <label class=""><input type="checkbox" id="EmailCheck" onchange="showEmail(this);" />Guardian Email</label>
+                                            <label class=""><input type="checkbox" id="ProgramCheck" onchange="showProgram(this);" />Program Type</label>
+                                            <label class=""><input type="checkbox" id="DaysCheck" onchange="showDays(this);" />Days Enrolled</label>
+
+                                        </div>
+                                        <button class="Password" onclick="location.href='@Url.Action("ExportData", "Reporting", new { exporttype = Model.reporttype}, null)';return false;">export</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                <div>
+
+
+
+
+                                    <div>
+
+
+
+                                        <table class="table" width="800">
+                                            <tr style="background-color:#285B90;color:#ffffff">
+                                                <td align="left" width="80">First Name</td>
+                                                <td align="left" width="80"><span>Last Name</span></td>
+                                                <td align="left" width="80"><span>DOB</span></td>
+                                                <td align="left" width="80">Center</td>
+                                                <td align="left" width="80">Classroom</td>
+                                                <td align="left" width="80">Reason For Acceptance</td>
+                                                <td align="left" width="80">@Model.ColumnName</td>
+                                                <td align="left" width="80"><span style="display:none;" class="programRow">Program Type</span></td>
+                                                <td align="left" width="80"><span style="display:none;" class="daysRow">Days Enrolled</span></td>
+                                                <td align="left" width="80"><span style="display:none;" class="addressRow">Address</span></td>
+                                                <td align="left" width="80"><span style="display:none;" class="phoneRow">Phone</span></td>
+                                                <td align="left" width="80"><span style="display:none;" class="emailRow">Email</span></td>
+                                                <td align="left" width="80"><span style="display:none;" class="guardianRow">Guardian</span></td>
+                                            </tr>
+
+                                            <tbody>
+
+
+
+                                                @foreach (var j in Model.Reportlst)
+                                                {
+                                                    <tr>
+
+                                                        <td align="left" width="80">@j.Firstname</td>
+                                                        <td align="left" width="80">@j.Lastname</td>
+                                                        <td align="left" width="80">@j.DOB</td>
+                                                        <td align="left" width="80">@j.CenterName</td>
+                                                        <td align="left" width="80">@j.ClassroomName</td>
+                                                        <td align="left" width="80">@j.ReasonForAcceptance</td>
+                                                        <td align="left" width="80">@j.Status</td>
+                                                       
+                                                        <td align="left" width="80"><span style="display:none;" class="programDataRow">@j.ProgramType</span></td>
+                                                        <td align="left" width="80"><span style="display:none;" class="daysDataRow">@j.DaysEnrolled</span></td>
+                                                        <td align="left" width="80"><span style="display:none;" class="addressDataRow">@j.Address</span></td>
+                                                        <td align="left" width="80"><span style="display:none;" class="phoneDataRow">@j.Phone</span></td>
+                                                        <td align="left" width="80"><span style="display:none;" class="emailDataRow">@j.Email</span></td>
+                                                        <td align="left" width="80"><span style="display:none;" class="guardianDataRow">@j.Guardian</span></td>
+
+                                                    </tr>
+
+                                                }
+
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+
+
+                                </div>
+
+
+
+
+                                }
+                            </div>
+
+                        </div>
+
+
+
+
+
+
+
+</form>
+
+            }
+    
+
+

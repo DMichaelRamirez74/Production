@@ -1,0 +1,445 @@
+﻿@{
+    @section Title{
+        Share Material
+    }
+    ViewBag.Title = "ShareMaterial";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section maincontentholder
+        {
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;   
+        }
+
+        select option {
+            background: #1f4f7d;
+        }
+    </style>
+
+    <link href="~/Content/EducationMaterial/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/EducationMaterial/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                @*<div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header">
+                      
+                    </div>
+                </div>*@
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header-title-client">
+                        <h1>Educational Material Library</h1>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+
+                        <div class="col-xs-12 text-center serch-library-block">
+                            <!--                                <label class="library-label">Filter By</label>
+                                                    <select name="" class="library-select">
+                                                        <option value="0">Center</option>
+                                                    </select>
+                                                    <label class="library-label">Center</label>
+                                                    <select name="" class="library-select">
+                                                        <option value="0">Classroom</option>
+                                                    </select>-->
+                            <input type="text" placeholder="" class="library-select1 txt-search" />
+                            <div class="library-search-btn">
+                                <a href="javascript:void(0);" class="btn-search">Search</a>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 serch-client-block">
+                            <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+                                <div class="top-header-title-library col-xs-12 no-padding">
+                                    <h1>RESULTS</h1>
+                                </div>
+                                <div id="no-more-tables6" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                    <table class="col-md-12 table-striped table-condensed cf table-change library-table">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th class="title-width">Title</th>
+                                                <th class="librart-txt-width">Description</th>
+                                                <th>Attachment</th>
+                                                <th class="url-width">URL</th>
+                                                <th class="action-width">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="library-table-head">
+                                           
+                                         
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            @if (TempData["Single"].ToString() != "Single")
+                            {
+                                <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;margin-top: 30px;border-radius: 5px;padding: 10px;padding-bottom:0;">
+                                    <div class="top-header-title-library col-xs-12 no-padding">
+                                        <h1>HISTORY</h1>
+                                    </div>
+                                    <div id="no-more-tables6" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                        <table class="col-md-12 table-striped table-condensed cf table-change library-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th class="title-width">Title</th>
+                                                    <th class="librart-txt-width">Description</th>
+                                                    <th>Attachment</th>
+                                                    <th class="url-width">URL</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="library-table-head-history"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+<script src="~/Content/EducationMaterial/js/bootstrap.js"></script>
+<script src="~/Content/EducationMaterial/js/jquery.js"></script>
+<script src="~/Content/EducationMaterial/js/jquery.mCustomScrollbar.min.js"></script>
+<script src="~/Content/EducationMaterial/js/script.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        BindMaterials();
+            var linkys = document.getElementsByClassName('dropdown-toggle');
+            for (var i = 0; i < linkys.length; ++i) {
+                linkys[i].onclick = function (e) {
+                    this.focus();
+                    e.preventDefault();
+                };
+            }
+            $('body').on('click', '.dropdown', function () {
+                setTimeout(function ()
+                { $('.dropdown').addClass('open'); }, 100);
+
+            });
+            $('.btn-search').click(function () {
+                
+                $.ajax({
+                    type: "POST",
+                    url: "/EducationMaterial/GetMaterialDetailsBySerachText",
+                    data: { 'SearchText': $('.txt-search').val() },
+                    success: function (data) {
+                        console.log(JSON.parse(data));
+                        $('.library-table-head').empty();
+
+                        // var input = "<option value='0'>Choose</option>";
+                        $.each(JSON.parse(data), function (i, val) {
+                            var template = '   <tr group="{Group}" Id="{Id}">\
+                                                <td data-title="">\
+                                                    <div class="item-survey-3d">\
+                                                        <img src="/Content/EducationMaterial/images/3d-color1.png">\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Title">\
+                                                    <div class="library-content-desc url-des" style="position: relative;">\
+                                                        <p>{Title}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Description">\
+                                                    <div class="library-content-desc url-des1" style="position: relative;">\
+                                                        <p>{Description}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Image">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p style="padding: 2px;text-align:center;">{Attachment}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="URL">\
+                                                    <div class="library-content-desc url-des">\
+                                                        <p>{URL}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Action">\
+                                                    <div style="width: auto;display: inline-block;">\
+                                                        <div class="Status-title-library">\
+                                                            <p style="margin-top: 0;background:#3498db;padding-left: 15px;">\
+                                                                <span style="width: auto;display: inline-block;margin-right: 5px;"><img src="/Content/EducationMaterial/images/print-lib.png"></span>\
+                                                                Print\
+                                                            </p>\
+                                                        </div>\
+                                                        <div class="Status-title-library">\
+                                                            <p style="margin-top: 5px;;background:#e67e22;padding-left: 15px;">\
+                                                                <span style="width: auto;display: inline-block;margin-right: 5px;"><img src="/Content/EducationMaterial/images/email-lib.png"></span>\
+                                                                Email\
+                                                            </p>\
+                                                        </div>\
+                                                    </div>\
+                                                    <div style="width: auto;display: inline-block;vertical-align: top;margin-left:5px;" class="post-margin">\
+                                                        <div class="Status-title-library">\
+                                                            <p style="margin-top: 0;padding: 24px 37px;text-align: center;" class="btn-post">Post</p>\
+                                                        </div>\
+                                                    </div>\
+                                                </td>\
+                                            </tr>';
+                            template = template.replace("{Id}", val["Id"]);
+                            template = template.replace("{Group}", val["Group"]);
+                            template = template.replace("{Title}", val["Title"]);
+                            template = template.replace("{Description}", val["Description"] == null || val["Description"] == "null" ? "" : val["Description"]);
+                            template = template.replace("{URL}", val["URL"]);
+                            template = template.replace("{URLNote}", val["URLNote"]);
+                            template = template.replace("{Attachment}", val["Attachment"]);
+                            template = template.replace("{Posted}", val["Posted"]);
+                            $('.library-table-head').append(template);
+                        });
+
+
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            });
+            $('body').on('click', '.btn-post', function () {
+                var Id = $(this).closest('tr').attr('Id');
+                $.ajax({
+                    type: "POST",
+                    url: "/EducationMaterial/SendPost",
+                    data: { 'Id': Id },
+                    success: function (data) {
+                        customAlertSuccess("Material Posted Successfully");
+                        GetPostedDocumentsDetails();
+                    },
+                    error: function (data) {
+                    }
+                });
+                    
+            });
+            $('body').on('click', '.btn-email', function () {
+                var Id = $(this).closest('tr').attr('Id');
+                $.ajax({
+                    type: "POST",
+                    url: "/EducationMaterial/SendEmail",
+                    data: { 'Id': Id },
+                    success: function (data) {
+                        if (data)
+                            customAlertSuccess("Mail has been sent");
+                        else
+                            customAlertSuccess("Sorry,Unable to send mail");
+                        //GetPostedDocumentsDetails();
+                    },
+                    error: function (data) {
+                    }
+                });
+
+            });
+
+            $('body').on('click', '.btn-print', function () {
+                var Id = $(this).closest('tr').attr('Id');
+                var Status = $(this).closest('tr').find('td').eq(3).text().trim();
+                if (Status == "Yes")
+                {
+                    $.ajax({
+                        type: "POST",
+                        url: "/EducationMaterial/DownloadDocuments",
+                        data: { 'MaterialId': Id },
+                        success: function (data) {
+                            console.log(data);
+                            var arr = data.split(',');
+                            console.log(arr);
+                            $(arr).each(function (i, val) {
+                                console.log(val);
+                                var location = document.location.origin + '/' + val;
+                                console.log(location);
+                                //  window.open('http://localhost:1566/Content/MaterialAttachment/image_e704cab6-87ea-4a04-9294-5d13f6ad2e4d.png', '_blank');
+                                window.open(location, '_blank');
+                            });
+
+                        },
+                        error: function (data) {
+                        }
+                    });
+                }
+          
+
+            });
+
+            function PrintModal(content) {
+                var contents = content;
+                var frame1 = $('<iframe />');
+                frame1[0].name = "frame1";
+                $("body").append(frame1);
+                var frameDoc = frame1[0].contentWindow ? frame1[0].contentWindow : frame1[0].contentDocument.document ? frame1[0].contentDocument.document : frame1[0].contentDocument;
+                frameDoc.document.open();
+                //Create a new HTML document.
+                frameDoc.document.write('<html><head>');
+                frameDoc.document.write('</head><body><div style="color:red;"><p style="font-weight:bold;font-size:20px;text-transform:uppercase;text-align:center;margin-top:20px;color:#fff;">Education Material</p></div>');
+                //Append the external CSS file.
+                frameDoc.document.write('<link href="/Content/css/BillingPrint.css" rel="stylesheet" type="text/css" />');
+                frameDoc.document.write('<link href="/Content/css/bootstrap.min.css" rel="stylesheet" type="text/css" />');
+                //Append the DIV contents.
+                frameDoc.document.write(contents);
+                frameDoc.document.write('</body></html>');
+                frameDoc.document.close();
+                setTimeout(function () {
+                    window.frames["frame1"].focus();
+                    window.frames["frame1"].print();
+                    frame1.remove();
+                }, 500);
+                console.log(frameDoc.document);
+            };
+            function BindMaterials() {
+                $.ajax({
+                    type: "POST",
+                    url: "/EducationMaterial/GetMaterialDetailsShare",
+                    // data: { 'DomainId': DomainId },
+                    success: function (data) {
+                        console.log(JSON.parse(data.JSONString));
+                        $('.library-table-head').empty();
+
+                       // var input = "<option value='0'>Choose</option>";
+                        $.each(JSON.parse(data.JSONString), function (i, val) {
+                            var template = '   <tr group="{Group}" Id="{Id}">\
+                                                <td data-title="">\
+                                                    <div class="item-survey-3d">\
+                                                        <img src="/Content/EducationMaterial/images/3d-color1.png">\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Title">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p>{Title}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Description">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p>{Description}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Image">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p style="padding: 2px;text-align:center;">{Attachment}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="URL">\
+                                                    <div class="library-content-desc">\
+                                                        <p>{URL}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Action">\
+                                                    <div style="width: auto;display: inline-block;">\
+                                                        <div class="Status-title-library">\
+                                                            <p style="margin-top: 0;background:#3498db;padding-left: 15px;" class="btn-print">\
+                                                                <span style="width: auto;display: inline-block;margin-right: 5px;"><img src="/Content/EducationMaterial/images/print-lib.png"></span>\
+                                                                Print\
+                                                            </p>\
+                                                        </div>\
+                                                        <div class="Status-title-library">\
+                                                            <p style="margin-top: 5px;;background:#e67e22;padding-left: 15px;" class="btn-email">\
+                                                                <span style="width: auto;display: inline-block;margin-right: 5px;"><img src="/Content/EducationMaterial/images/email-lib.png"></span>\
+                                                                Email\
+                                                            </p>\
+                                                        </div>\
+                                                    </div>\
+                                                    <div style="width: auto;display: inline-block;vertical-align: top;margin-left:5px;" class="post-margin">\
+                                                        <div class="Status-title-library">\
+                                                            <p style="margin-top: 0;padding: 24px 37px;text-align: center;" class="btn-post">Post</p>\
+                                                        </div>\
+                                                    </div>\
+                                                </td>\
+                                            </tr>';
+                            template = template.replace("{Id}", val["Id"]);
+                            template = template.replace("{MaterialId}", val["Id"]);
+                            
+                            template = template.replace("{Group}", val["Group"]);
+                            template = template.replace("{Title}", val["Title"]);
+                            template = template.replace("{Description}", val["Description"] == null || val["Description"] == "null" ? "" : val["Description"]);
+                            template = template.replace("{URL}", val["URL"]);
+                            template = template.replace("{URLNote}", val["URLNote"]);
+                            template = template.replace("{Attachment}", val["Attachment"]);
+                            template = template.replace("{Posted}", val["Posted"]);
+                            $('.library-table-head').append(template);
+                        });
+
+
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
+            GetPostedDocumentsDetails();
+
+            function GetPostedDocumentsDetails() {
+                $.ajax({
+                    type: "POST",
+                    url: "/EducationMaterial/GetPostedDocumentsDetails",
+                    // data: { 'DomainId': DomainId },
+                    success: function (data) {
+                        console.log(JSON.parse(data));
+                        $('.library-table-head-history').empty();
+
+                        // var input = "<option value='0'>Choose</option>";
+                        $.each(JSON.parse(data), function (i, val) {
+                            var template = '<tr>\
+                                                <td data-title="Date">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p>{Date}</p>\
+                                                    </div>\
+                                                </td>\
+                                               <td data-title="Title">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p>{Title}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Description">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p>{Description}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="Image">\
+                                                    <div class="library-content-desc" style="position: relative;">\
+                                                        <p style="padding: 2px;text-align:center;">{Attachment}</p>\
+                                                    </div>\
+                                                </td>\
+                                                <td data-title="URL">\
+                                                    <div class="library-content-desc">\
+                                                        <p>{URL}</p>\
+                                                    </div>\
+                                                </td>\
+                                            </tr>';
+                           
+                            template = template.replace("{Description}", val["Description"] == null || val["Description"] == "null" ? "" : val["Description"]);
+                            template = template.replace("{URL}", val["URL"]);
+                            template = template.replace("{Attachment}", val["Attachment"]);
+                            template = template.replace("{Date}", val["Date"]);
+                            template = template.replace("{Title}", val["Title"]);
+                            $('.library-table-head-history').append(template);
+                        });
+
+
+                    },
+                    error: function (data) {
+                        console.log('Error');
+                    }
+                });
+            }
+        });
+</script>
+<script type="text/javascript">
+        function toggleIcon(e) {
+            $(e.target)
+                    .prev('.panel-heading')
+                    .find(".more-less")
+                    .toggleClass('glyphicon-plus glyphicon-minus');
+        }
+        $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+        $('.panel-group').on('shown.bs.collapse', toggleIcon);
+</script>
+}

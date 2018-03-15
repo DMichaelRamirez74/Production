@@ -1,0 +1,887 @@
+﻿@model FingerprintsModel.ParentRegisterEvent
+@{
+    ViewBag.Title = "NewParentCheckInEvent";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    string households = string.Empty;
+}
+
+@section MainContentHolder
+{
+
+    <link href="~/Content/css/eventsparent.css" rel="stylesheet" />
+
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+            overflow: auto;
+        }
+
+        .work_top_content h2 {
+            margin: 0px;
+            color: #153b69;
+            font-weight: bold;
+            font-size: 19px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            /* text-align: center; */
+        }
+
+        .house-checkbox {
+            position: absolute;
+            right: 10px;
+            top: 12px;
+        }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+        }
+
+        .kbw-signature {
+            width: 400px;
+            height: 200px;
+        }
+
+        .work_top_content-im {
+            height: 150px;
+            position: relative;
+            border: 1px solid #919191;
+            float: left;
+            margin-right: 16px;
+            width: 314px;
+        }
+
+        .work_top_content {
+            margin-top: 20px;
+        }
+
+        .sub_clr_btn a.exit {
+            background: #f9c751 none repeat scroll 0 0;
+            border: 0 none;
+            border-radius: 3px;
+            color: #333;
+            float: left;
+            font-weight: bold;
+            padding: 6px 10px;
+            width: 83px;
+            text-align: center;
+            margin-left: 10px;
+        }
+
+        .right-side-container-ch {
+            line-height: 1.5 !important;
+        }
+
+        .eml_lst li {
+            position: relative;
+        }
+
+        .registered_member table {
+            width: 100%;
+        }
+
+        .library-table thead tr, .workshop_list thead {
+            background: none !important;
+            color: #fff;
+        }
+
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: #f1f1f1;
+        }
+
+
+        .work_top_content-im1 {
+            height: 150px;
+            position: relative;
+            border: 1px solid #919191;
+            float: left;
+            margin-right: 16px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+            .work_top_content-im1 img {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                max-height: 100%;
+                max-width: 100%;
+                margin: auto;
+            }
+
+        .red {
+            background: #e74c3c !important;
+        }
+
+        .btn-div .btn {
+            border-radius: 50px;
+        }
+    </style>
+    <div class="right-side-container-ch" style="width:100%;margin-top:20px;">
+
+        <div class="col-xs-12 no-padding">
+            <div class="col-xs-12 no-padding">
+
+                <div class="col-xs-12 events_list_title" style="text-align: center;">
+                    <h2 style="color:#fff;"> CHECK IN FOR EVENT</h2>
+                    <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+                </div>
+                <div class="col-md-12">
+                    <div class="eml_lst">
+                        <input type="hidden" id="enc_eventId" value="@Model.Events.Enc_EventId" />
+                        <ul>
+                            <li class="work_top_content">
+                                <span class="work_top_content-im image_drop" enc_id="@Model.Events.Enc_EventId">
+                                    <img src="@Model.Events.ImagePath" id="event_image" style="width: 314px;height: 150px;">
+                                </span>
+                                <h2 style="display:initial;">@Model.Events.WorkShopName</h2>
+                                <p>
+                                    @Model.Events.EventDescription
+                                </p>
+                            </li>
+
+                            <li><span class="lft">Speaker</span><span class="rgt">@Model.Events.SpeakerName</span></li>
+                            <li><span class="lft">Center Name</span><span class="rgt">@Model.Events.CenterName</span></li>
+                            <li>
+                                <span class="lft">Center Address</span><span class="rgt">
+
+                                    @Model.Events.CenterAddress
+                                </span>
+                            </li>
+                            <li><span class="lft">Date</span><span class="rgt">@Model.Events.EventDate</span></li>
+                            <li><span class="lft">Time</span><span class="rgt">@Model.Events.EventTime</span></li>
+                            <li><span class="lft">Duration</span><span class="rgt">@Model.Events.TotalDuration&nbsp;Minutes</span></li>
+                            <li><span class="lft">Last Date to RSVP</span><span class="rgt" style="height:40px;">@Model.Events.RSVPCutOffDate</span></li>
+                            <li><span class="lft">Total Slots</span><span class="rgt" style="height:40px;">@Model.Events.MaxAttend</span></li>
+                        </ul>
+
+                        <!-----registered members old-->
+
+                        <div class="serch-client-block registered_member">
+                            <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+                                <div class="col-xs-12 no-padding">
+                                    <div class="registered_title col-xs-12" style="margin-left:-8px;">
+                                        @if (Model.Events.AvailableSlots == 0)
+                                        {
+                                            <a href="#" class="red">Remaining Seats:<span id="availSlotsanchor">@Model.Events.AvailableSlots</span></a>
+                                        }
+                                        else
+                                        {
+                                            <a href="#">Remaining Seats:<span id="availSlotsanchor">@Model.Events.AvailableSlots</span></a>
+
+                                        }
+                                    </div>
+                                    <div class="col-xs-12 col-md-3 list_menu_left">
+                                        <label class="lbl-required" style="padding-left:10px;">Select Household</label>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-5 list_menu_left">
+                                        <ul id="householdList">
+                                            @if (Model.HouseholdList.Count() > 0)
+                                            {
+                                                foreach (var item in Model.HouseholdList)
+                                                {
+
+                                                    if (!item.IsOther && item.IsRegistered)
+                                                    {
+                                                        <li><span gender="@item.Gender" cli_id="@item.Enc_ClientId">@item.FullName</span><input type="checkbox" name="householdChx" en_id="@item.Enc_RSVPId" isReg=@item.IsRegistered.ToString() class="house-checkbox" checked="checked" /></li>
+                                                    }
+
+                                                    else if (!item.IsOther)
+                                                    {
+                                                        <li><span gender="@item.Gender" cli_id="@item.Enc_ClientId">@item.FullName </span><input type="checkbox" name="householdChx" en_id="@item.Enc_RSVPId" isReg=@item.IsRegistered.ToString() class="house-checkbox" /></li>
+
+                                                    }
+                                                }
+                                            }
+
+                                        </ul>
+                                    </div>
+                                    <div class="col-xs-12 col-md-4 list_midd_sec">
+                                        <div class="add_pp add_pp1"><i class="fa fa-plus-circle add"></i><i class="fa fa-minus-circle sub"></i>Add Other People</div>
+                                        <ul>
+
+                                            <li><span><input type="email" placeholder="Enter Name" id="externalName"></span></li>
+                                            <li>
+                                                <span>
+                                                    <select id="external_select">
+                                                        <option value="1">Male</option>
+                                                        <option value="2">Female</option>
+                                                        <option value="3">Other</option>
+                                                    </select>
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <div class="sub_clr_btn register_btn btn_green" style="margin-bottom:0;">
+                                                    <input value="Add" type="submit" id="addNewHousehold">
+                                                </div>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 no-padding">
+                                    <div class="list_menu_bt_sec">
+                                        <ul id="externalUl">
+                                            @if (Model.HouseholdList.Count() > 0)
+                                            {
+                                                int i = 0;
+                                                foreach (var item in Model.HouseholdList)
+                                                {
+                                                    if (item.IsOther)
+                                                    {
+                                                        var cl = "li" + i;
+                                                        <li class="@cl" en_id="@item.Enc_RSVPId" isReg="@item.IsRegistered.ToString()"><span class="ext_name_span">@item.FullName</span><span class="ext_gender_span">@item.Gender</span><p><img src="/images/rd_close.png" class="delete_external" pos=@i style="cursor:pointer;" onclick="deleteExternal(this);"></p></li>
+                                                        i++;
+                                                    }
+
+                                                }
+
+                                            }
+                                        </ul>
+                                    </div>
+
+                                </div>
+                                <div class="col-xs-12 no-padding">
+
+                                    <div class="col-xs-12 eml_lst" style="margin-bottom:10px;margin-left: -17px;">
+
+                                        <ul>
+
+                                            @if (Model.Events.MilesDriven > 0)
+                                            {
+                                                <li><span class="lft lbl-required">Miles driven</span><span class="rgt"><input type="text" id="milesDrivenTxt" maxlength="2" onkeypress="return isNumber(event)" value="@Model.Events.MilesDriven" oninput="checkNumber(this);" />&nbsp; miles </span></li>
+
+                                            }
+                                            else
+                                            {
+                                                <li><span class="lft lbl-required">Miles driven</span><span class="rgt"><input type="text" id="milesDrivenTxt" maxlength="2" onkeypress="return isNumber(event)" value="" oninput="checkNumber(this);" />&nbsp; miles </span></li>
+
+                                            }
+
+
+
+
+                                            <li>
+                                                <span class="lft lbl-required">Time to reach</span><span class="rgt">
+
+                                                    <select class="form-control  ddlDuration" style="width:25%;">
+                                                        <option value="0">Minutes</option>
+                                                        <option value="10">10</option>
+                                                        <option value="20">20</option>
+                                                        <option value="30">30</option>
+                                                        <option value="40">40</option>
+                                                        <option value="50">50</option>
+                                                        <option value="60">60</option>
+
+                                                    </select>
+                                                </span>
+
+
+                                            </li>
+                                        </ul>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+
+
+                            <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;margin-top:15px;">
+                                <div class="col-xs-12 no-padding">
+
+                                    <div class="work_top_content col-xs-12 no-padding">
+                                        <h2 style="display:initial;" class="lbl-required">Accept Signature(s) from Household</h2>
+                                    </div>
+
+                                    <div id="no-more-tables_workshop nomore-pad" class="col-xs-12 no-padding" style="margin-bottom: 8px;">
+                                        <table class="col-md-12 table-striped table-condensed cf table-change library-table workshop_list reports_list">
+                                            <thead class="scroll-thead" style="line-height: 1.42857143!important;">
+                                                <tr>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="library-table-head scroll-tbody">
+
+                                                @if (Model.HouseholdList.Count() > 0)
+                                                {
+                                                    var list = Model.HouseholdList.Where(x => x.IsRegistered == true).ToList();
+                                                    int i = 0;
+                                                    int j = 0;
+                                                    string clientId = string.Empty;
+                                                    foreach (var household in list)
+                                                    {
+                                                        if (household.IsOther)
+                                                        {
+                                                            clientId = j.ToString();
+                                                            j++;
+                                                        }
+                                                        else
+                                                        {
+                                                            clientId = household.Enc_ClientId;
+                                                        }
+
+                                                        <tr enc_id="@clientId">
+                                                            <td data-title="">
+
+                                                                <div class="col-xs-12" style="margin-bottom:20px;">
+                                                                    <div class="col-xs-12 no-padding">
+                                                                        <div class="work_top_content-im1">
+                                                                            @if (string.IsNullOrEmpty(household.ProfilePic))
+                                                                            {
+                                                                                string src = (household.Gender == "Female") ? "/Content/img/ic_female.png" : (household.Gender == "Male") ? "/Content/img/ic_male.png" : "/Content/img/ic_male.png";
+
+                                                                                <img src=@src>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <img src="data:image/png;base64,@household.ProfilePic">
+
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xs-12 no-padding">
+                                                                        <p style="background: #fff;padding: 10px;font-weight: bold;" class="client-name" enc_id="@i">@household.FullName</p>
+                                                                    </div>
+
+
+
+
+                                                                </div>
+
+                                                            </td>
+
+                                                            <td data-title="">
+                                                                <div class="col-xs-12" style="margin-bottom:20px;">
+
+                                                                    <span class="col-xs-12 no-padding" style="border:none;">
+                                                                        <i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>
+                                                                        <div id="sig_@i" class="kbw-signature sig_@i" enc_id="@household.Enc_ClientId" sig="@Html.Raw(household.Signature)" indx=@i enc_rsvp="@household.Enc_RSVPId"></div>
+                                                                        <input id="imageSig" class="signature_@i sig" enc_id="@household.Enc_ClientId" name="SignatureData" style="display:none;" type="text" value="@household.Signature">
+
+                                                                        <div class="col-xs-12 text-center no-padding btn-div" style="margin-top:10px;">
+                                                                            <button class="btn btn-danger clear" id="clearSig" indx="@i" onclick="return ClearSignature(this);">Clear</button>
+                                                                            <button class="btn btn-success save" id="saveSig" indx="@i" onclick="return SaveSignature(this);">Accept Signature</button>
+                                                                            <i style="display:block;margin-top:10px;font-size:12px;">( Sign above and click on Accept Signature)</i>
+                                                                        </div>
+                                                                    </span>
+
+                                                                </div>
+
+
+                                                            </td>
+                                                        </tr>
+                                                        i++;
+                                                    }
+                                                }
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            @Html.Hidden("isUpdate", Model.Events.IsUpdate);
+                            <input type="hidden" id="isMode" value="@ViewBag.UpdateMode" />
+
+                        </div>
+                        <!-----registered members old-->
+
+
+                        <div class="sub_clr_btn register_btn">
+
+                            <input type="submit" value="Submit" id="addCheckIn" style="line-height:1.5!important;">
+                            <a href='/Events/RegisteredParentsForEvent' class="exit" style="line-height:1.5!important;">Exit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!---Slots Not Available Modal-->
+    <div id="noSlotCheckModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 style="text-align:center;">Seats not available</h4>
+                </div>
+                <div class="modal-body">
+                    <p><span>Available Seats</span><span id="availSlotsSpan" style="margin-left: 70px;"></span></p>
+                    <p><span>New Member(s) added</span><span id="householdRegisterSpan" style="margin-left:21px;"></span></p>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-default btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!---Slots Not Available Modal-->
+
+
+    @Html.Hidden("enc_clientId", Model.Events.Enc_ClientId);
+
+    <script>
+        $(document).ready(function () {
+            isUpdate = true;
+
+            $('.ddlDuration').val(@Model.Events.TimeTaken);
+            $('.kbw-signature').signature();
+
+
+            $('.kbw-signature').each(function (i, k) {
+                var parentsig = $(k).attr('sig');
+                if (parentsig.length > 0) {
+
+                    $(k).signature('draw', (parentsig));
+                }
+                else {
+                    $(k).signature();
+
+                }
+            });
+
+
+
+
+            $('.add_pp').click(function () {
+
+                cleanValidation();
+                if ($(".add_pp").hasClass("add_pp1")) {
+                    $(".add_pp").removeClass("add_pp1");
+                    $(".sub").css({ "display": "inline-block" });
+                    $(".add").css({ "display": "none" });
+                    $(".list_midd_sec ul").css({ "display": "block" });
+                }
+                else {
+                    cleanValidation();
+
+                    $(".add_pp").addClass("add_pp1");
+                    $(".sub").css({ "display": "none" });
+                    $(".add").css({ "display": "inline-block" });
+                    $(".list_midd_sec ul").css({ "display": "none" });
+                }
+            });
+
+            $('#addNewHousehold').on('click', function () {
+                var externalName = $('#externalName').val();
+                var genderSelect = $('#external_select').val();
+                var genderType = (genderSelect == '1') ? 'Male' : (genderSelect == '2') ? 'Female' : 'Other'
+                if (externalName == '') {
+                    customAlert('Please enter Name');
+                    plainValidation('#externalName');
+                    return false;
+                }
+                // getAvailableslots();
+                var ulLength = $('#externalUl').children('li').length;
+                var listElement = '<li class="li' + ulLength + '" en_id="0" isReg="False"><span class="ext_name_span">' + externalName + '</span><span class="ext_gender_span">' + genderType + '</span><p><img src="/images/rd_close.png" class="delete_external" pos=' + ulLength + '  style="cursor:pointer;" onclick="deleteExternal(this);"></p></li>';
+                $('#externalUl').append(listElement);
+                $('#externalName').val('');
+                $('#external_select').val('1');
+
+                $(".add_pp").addClass("add_pp1");
+                $(".sub").css({ "display": "none" });
+                $(".add").css({ "display": "inline-block" });
+                $(".list_midd_sec ul").css({ "display": "none" });
+
+
+
+                ///adds the new signature portal//
+                var leng = $('.scroll-tbody').find('tr').length;
+                if (leng > 0) {
+                    //leng += 1;
+
+                }
+                else {
+                    leng = 0
+                }
+
+                var appendDiv = '<tr enc_id=' + ulLength + '>' +
+                                                    '<td data-title="">' +
+                                                        '<div class="col-xs-12" style="margin-bottom:20px;">' +
+                                                            '<div class="col-xs-12 no-padding">' +
+                                                                '<div class="work_top_content-im1">' +
+                                                                        '<img src="/Content/img/ic_male.png">' +
+                                                                '</div>' +
+                                                            '</div>' +
+                                                            '<div class="col-xs-12 no-padding">' +
+                                                                '<p style="background: #fff;padding: 10px;font-weight: bold;" class="client-name" enc_id=' + leng + '>' + externalName + '</p>' +
+                                                            '</div>' +
+                                                        '</div>' +
+
+                                                   '</td>' +
+                                                    '<td data-title="">' +
+                                                    '<div class="col-xs-12" style="margin-bottom:20px;">' +
+                                                            '<span class="col-xs-12 no-padding" style="border:none;">' +
+                                                                '<i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>' +
+                                                                '<div id="sig_' + leng + '" class="kbw-signature sig_' + leng + '" enc_id="0" sig="" indx=' + leng + ' enc_rsvp="0"></div>' +
+                '<input id="imageSig" class="signature_' + leng + ' sig" enc_id="0" name="SignatureData" style="display:none;" type="text" value="">' +
+
+
+                                                                '<div class="col-xs-12 text-center no-padding btn-div" style="margin-top:10px;">' +
+                                                                    '<button class="btn btn-danger clear" id="clearSig" indx=' + leng + ' onclick="return ClearSignature(this);">Clear</button>' +
+                                                                    '<button class="btn btn-success save" id="saveSig" indx=' + leng + ' onclick="return SaveSignature(this);" style="margin-left:10px;">Accept Signature</button>' +
+                                                                    '<i style="display:block;margin-top:10px;font-size:12px;">( Sign above and click on Accept Signature)</i>' +
+                                                                '</div>' +
+                                                            '</span>' +
+
+                                                        '</div>' +
+
+                                                    '</td>' +
+                                                '</tr>';
+                $('.scroll-tbody').append(appendDiv);
+                $('.sig_' + leng + '').signature();
+
+            });
+
+            $('#addCheckIn').on('click', function () {
+              
+                cleanValidation();
+                $('#householdList').css('background-color', "");
+
+                if ($('.house-checkbox').is(':checked') === false) {
+                    customAlert('Please select houshold(s) to register.');
+                    plainValidation('#householdList');
+                    return false;
+                }
+
+                $('.kbw-signature').each(function () {
+
+                    $(this).css("background-color", "");
+                });
+                var time = $('.ddlDuration').val();
+                var miles = $('#milesDrivenTxt').val();
+                var signature = $('#imageSig').val();
+                var eventId = $('#enc_eventId').val();
+
+
+                if (miles == '') {
+                    customAlert('Please enter miles driven');
+                    plainValidation('#milesDrivenTxt');
+                    return false;
+                }
+                else if (parseInt(miles) > 50) {
+                    customAlert('Miles driven should not be greater than 50');
+                    plainValidation('#milesDrivenTxt');
+                    return false;
+                }
+                if (time == '0') {
+                    customAlert('Please enter time taken to reach event');
+                    plainValidation('.ddlDuration');
+                    return false;
+                }
+
+                var error = 0;
+                $('.kbw-signature').each(function (i, k) {
+
+                    
+                    var indx = $(k).attr('indx').trim();
+                  
+                    var sign = $('.signature_' + indx + '').val();
+                    if (sign == '' || sign == '{"lines":[]}') {
+                       
+                        plainValidation('#sig_' + indx + '')
+                        error++;
+                    }
+
+                });
+
+                if (error > 0) {
+                    customAlert('Please sign and accept signature');
+                    return false;
+                }
+
+                var events = {
+                    'Enc_EventId': eventId,
+                    'TimeTaken': time,
+                    'MilesDriven': parseInt(miles),
+                    'Enc_ClientId': $('#enc_clientId').val(),
+                    'IsUpdate': true
+                };
+
+                var arr = [];
+
+
+                $('#householdList').find('li').each(function (i, hou) {
+                    var isChecked = $(hou).find('input[name=householdChx]').is(':checked');
+                    var name = $(hou).children('span').html();
+                    var gender = $(hou).children('span').attr('gender');
+                    var en_id = $(hou).children('span').attr('cli_id');
+                    var en_rsv_id = $(hou).find('input[name=householdChx]').attr('en_id');
+                    var isReg = $(hou).find('input[name=householdChx]').attr('isReg');
+                    var parent = '';
+                    var signature_client = '';
+
+                    $('.client-name').each(function (k, clname) {
+                      
+                        var index = $(clname).attr('enc_id');
+                        var name_client = $(clname).html();
+                        if (name === name_client) {
+                            signature_client = $('.signature_' + index + '').val();
+                        }
+                    });
+                    if (isChecked) {
+
+                        parent = {
+
+                            'FullName': name,
+                            'Enc_ClientId': en_id,
+                            'Gender': gender,
+                            'Enc_RSVPId': en_rsv_id,
+                            'Status': true,
+                            'IsAttended': 'true',
+                            'IsRegistered': true,
+                            'Signature': signature_client
+                        };
+
+                        arr.push(parent);
+                    }
+                    
+                });
+
+                if ($('#externalUl').find('li').length > 0) {
+                    $('#externalUl').find('li').each(function (j, el) {
+                       
+                        var extname = $(el).children('.ext_name_span').html();
+                        var extgender = $(el).children('.ext_gender_span').html();
+                        var enc_rs_id = $(el).attr('en_id');
+                        var isReg = $(el).attr('isReg');
+                        var parent = {};
+                        parent.FullName = extname;
+                        parent.Enc_ClientId = '0';
+                        parent.Gender = extgender;
+                        var isUpdate = true;
+                        var parent2 = '';
+                        var signature_other = '';
+
+                        $('.client-name').each(function (k, cl_other) {
+                            var index = $(cl_other).attr('enc_id');
+                            var name_client = $(cl_other).html();
+                            if (extname === name_client) {
+                                signature_other = $('.signature_' + index + '').val();
+                            }
+                        });
+
+
+                        if (!($(el).css('display') == 'none')) {
+                            parent2 = {
+
+                                'FullName': extname,
+                                'Enc_ClientId': null,
+                                'Gender': extgender,
+                                'Enc_RSVPId': enc_rs_id,
+                                'Status': 'true',
+                                'IsAttended': 'true',
+                                'IsRegistered': 'true',
+                                'Signature': signature_other
+                            };
+                            arr.push(parent2);
+                        }
+
+                       
+                    });
+                }
+
+                var parentModal = {
+                    'Events': events,
+                    'HouseholdList': arr
+                };
+                parentModal.Events = events;
+                var modelString = JSON.stringify(parentModal);
+
+                $.ajax({
+                    url: '/Events/AcceptParentSigForEvent',
+                    datatype: 'json',
+                    type: 'post',
+                    data: { parentEventString: modelString },
+                    success: function (data) {
+
+                        if (data.RegStatus) {
+                            customAlert('Data saved successfully');
+                            location.href = '/Events/RegisteredParentsForEvent';
+                        }
+                        else if (data.RegStatus === false) {
+
+                            if (data.AvailableSlots === 0) {
+                                $('#availSlotsanchor').html(data.AvailableSlots).css({ 'background': '#e74c3c' });
+                            }
+                            else {
+                                $('#availSlotsanchor').html(data.AvailableSlots).css({ 'background': '#27ae60' });
+                            }
+                            $('#noSlotCheckModal').find('#availSlotsSpan').html(data.AvailableSlots);
+                            $('#noSlotCheckModal').find('#householdRegisterSpan').html(data.NewHousholds);
+                            $('#noSlotCheckModal').modal('show');
+                        }
+                    },
+                    error: function (data) {
+                        customAlert('Some error occured.Please,try again later.')
+                    }
+                });
+            })
+
+
+            $('#householdList').find('.house-checkbox').on('click', function () {
+
+                var cli_id = $(this).parent('li').children('span').attr('cli_id');
+                var cl_name = $(this).parent('li').children('span').html();
+                var enc_rsvp = $(this).attr('en_id');
+                if ($(this).is(':checked')) {
+
+                    $.ajax({
+                        url: '/Events/GetChildrenImage',
+                        datatype: "json",
+                        type: 'post',
+                        data: { enc_clientId: cli_id },
+                        success: function (data) {
+                            var image = '';
+                            if (data.Text == "" && data.Value == "2") {
+                                image = "/Content/img/ic_female.png";
+                            }
+                            else if (data.Text == "" && data.Value == "1") {
+                                image = "/Content/img/ic_male.png";
+                            }
+                            else if (data.Text == "" && ata.Text == "3") {
+                                image = "/Content/img/ic_male_default.png";
+                            }
+                            else if (data.Text != "") {
+                                image = 'data:image/jpg;base64,' + data.Text + '';
+                            }
+                            else {
+                                image = "/Content/img/download.jpg";
+                            }
+
+
+
+                            var leng = $('.scroll-tbody').find('tr').length;
+                            if (leng > 0) {
+                                // leng += leng + 1;
+                            }
+                            else {
+                                leng = 0;
+                            }
+
+                            var appendDiv = '<tr enc_id=' + cli_id + '>' +
+                                                                '<td data-title="">' +
+                                                                    '<div class="col-xs-12" style="margin-bottom:20px;">' +
+                                                                        '<div class="col-xs-12 no-padding">' +
+                                                                            '<div class="work_top_content-im1"><img src=' + image + '></div>' +
+                                                                        '</div>' +
+                                                                        '<div class="col-xs-12 no-padding">' +
+                                                                            '<p style="background: #fff;padding: 10px;font-weight: bold;" class="client-name" enc_id=' + leng + '>' + cl_name + '</p>' +
+                                                                        '</div>' +
+                                                                    '</div>' +
+
+                                                               '</td>' +
+                                                                '<td data-title="">' +
+                                                                '<div class="col-xs-12" style="margin-bottom:20px;">' +
+                                                                        '<span class="col-xs-12 no-padding" style="border:none;">' +
+                                                                            '<i style="position:absolute;margin-top:10px;color:gray;margin-left:5px;">Sign here</i>' +
+                                                                            '<div id="sig_' + leng + '" class="kbw-signature sig_' + leng + '" enc_id=' + cli_id + ' sig="" indx=' + leng + ' enc_rsvp=' + enc_rsvp + '></div>' +
+                                                                            '<input id="imageSig" class="signature_' + leng + ' sig" enc_id=' + cli_id + ' name="SignatureData" style="display:none;" type="text" value="">' +
+                                                                            '<div class="col-xs-12 text-center no-padding btn-div" style="margin-top:10px;">' +
+                                                                                '<button class="btn btn-danger clear" id="clearSig" indx=' + leng + ' onclick="return ClearSignature(this);">Clear</button>&nbsp;' +
+                                                                                '<button class="btn btn-success save" id="saveSig" indx=' + leng + ' onclick="return SaveSignature(this);">Accept Signature</button>' +
+                                                                                '<i style="display:block;margin-top:10px;font-size:12px;">( Sign above and click on Accept Signature)</i>' +
+                                                                            '</div>' +
+                                                                        '</span>' +
+
+                                                                    '</div>' +
+
+                                                                '</td>' +
+                                                            '</tr>';
+                            $('.scroll-tbody').append(appendDiv);
+                            $('.sig_' + leng + '').signature();
+
+                        }
+
+                    });
+
+
+                }
+                else {
+
+                    var cli_id = $(this).parent('li').children('span').attr('cli_id');
+                    $('.scroll-tbody').find('tr[enc_id="' + cli_id + '"]').remove();
+
+                }
+
+            });
+        });
+
+
+        function deleteExternal(val) {
+
+            var pos = $(val).attr('pos');
+
+            $('#externalUl').find('.li' + pos + '').hide();
+            $('.scroll-tbody').find('tr[enc_id="' + pos + '"]').remove();
+        }
+
+        function isNumber(evt) {
+
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                //return false;
+                evt.preventDefault();
+            }
+            var ele = parseInt($('#milesDrivenTxt').val());
+        }
+
+
+        function checkNumber(val) {
+
+            if ($(val).val() > 50) {
+                customAlert('Miles should not be greater than 50');
+                plainValidation('#milesDrivenTxt');
+                return false;
+            }
+            else {
+                $('#milesDrivenTxt').css({ 'background': 'none' });
+            }
+        }
+
+        function ClearSignature(val) {
+            isValid = false;
+            var index = $(val).attr('indx');
+            $('.sig_' + index + '').signature('clear');
+            $('.signature_' + index + '').val('');
+
+            return isValid;
+        }
+
+        function SaveSignature(val) {
+            isValid = false;
+            var enc_id = $(val).attr('indx');
+
+            var sigToImage = $('.sig_' + enc_id + '').signature('toJSON');
+
+
+            $('.signature_' + enc_id + '').val(sigToImage);
+
+            var signValue = $('.signature_' + enc_id + '').val();
+            if (signValue == '{"lines":[]}') {
+                customAlert('Please sign and accept signature');
+            }
+            else {
+                cleanValidation();
+            }
+            return isValid;
+        }
+    </script>
+}

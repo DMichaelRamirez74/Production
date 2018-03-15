@@ -1,0 +1,723 @@
+﻿@model FingerprintsModel.AgencyStaff
+
+@{
+    @section Title
+{
+        Staff Accesstime
+
+    }
+
+   
+    if (Session["RoleName"] != null && (Session["RoleName"].ToString().ToUpper().Contains("AGENCYADMIN")))
+    {
+        Layout = "~/Views/Shared/AgencyadminLayout.cshtml";
+    }
+}
+@section Script{
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $("#CellNumber").mask("(999) 999-9999");
+            $("#side-menu li a").removeClass("active");
+            $('#addagencyuser').addClass("active");
+          
+
+            //try {
+            //    $.getJSON(HostedDir+ "/Agency/LoadCenterByAgency", { AgncyID: "0" },
+            //              function (data) {
+            //                  var select = $("#DdlHrCenter");
+            //                  select.empty();
+            //                  select.append($('<option/>', {
+            //                      value: 0,
+            //                      text: "Select Center"
+            //                  }));
+            //                  $.each(data, function (index, itemData) {
+            //                      select.append($('<option/>', {
+            //                          value: itemData.Value,
+            //                          text: itemData.Text
+            //                      }));
+            //                  });
+            //              });
+            //}
+            //catch (err) {
+            //}
+
+            $("#CellNumber").keypress(function (e) {
+                //if the letter is not digit then display error and don't type anything
+                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                    //display error message
+                    //customAlert("Only digit allowed.");
+                    plainValidation('#CellNumber');
+                    return false;
+                }
+                else {
+                    cleanValidation();
+                }
+            });
+
+            // If agency admin role is selected
+
+            var value = $('#SelectedRoleId').val();
+            if (value == "3b49b025-68eb-4059-8931-68a0577e5fa2") {
+                //$('#divaccesstype')[0].style.display = "none";
+                //$('#divlogintime')[0].style.display = "none";
+                $('.DivHide').hide();
+            }
+            else {
+                $('.DivHide').show();
+                //$("#divaccesstype").removeattr("style");
+                //$('#divlogintime').removeattr("style");
+            }
+
+            // end
+
+            //$("#DdlAgencyList").change(function () {
+            //    var dID = $(this).val();
+            //    $.getJSON( HostedDir +"/Agency/LoadCenterByAgency", { AgncyID: dID },
+            //           function (data) {
+            //               var select = $("#DdlHrCenter");
+            //               select.empty();
+            //               select.append($('<option/>', {
+            //                   value: 0,
+            //                   text: "Select Center"
+            //               }));
+            //               $.each(data, function (index, itemData) {
+            //                   select.append($('<option/>', {
+            //                       value: itemData.Value,
+            //                       text: itemData.Text
+            //                   }));
+            //               });
+            //           });
+            //});
+
+
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+
+              @{
+                  TempData["message"] = null;
+                  TempData.Keep();
+              }
+            var dateToday = new Date();
+            var yrRange = "1950:" - (dateToday.getFullYear() - 20);
+            $(".datecss").datetimepicker({
+                changeMonth: true,
+                changeYear: true,
+                // yearRange: yrRange,
+                yearRange: '1964:1991',
+                timepicker: false,
+                format: 'm/d/Y'
+                //format: 'Y/m/d',
+
+            });
+            $(".datecss").keypress(function (event) { event.preventDefault(); });
+            $("#AccessStartDate").keypress(function (event) { event.preventDefault(); });
+
+
+            $("#AccessStartDate").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                //format: 'Y/m/d',
+                minDate: dateToday,
+            });
+
+            var end = new Date();
+            $("#DOB").datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                changeMonth: true,
+                changeYear: true,
+                maxDate: end,
+                //yearRange: start.getFullYear() + ':' + end.getFullYear()
+            });
+
+            $('.time').datetimepicker({
+                datepicker: false,
+                format: 'H:i',
+                step: 15
+            });
+            $(".time").keypress(function (event) { event.preventDefault(); });
+            $("#State").on("input", function () {
+                var regexp = /[^A-Z]/g;
+                if ($(this).val().match(regexp)) {
+                    $(this).val($(this).val().replace(regexp, ''));
+                }
+            });
+            $('#btnCancel').click(function () {
+
+                    window.location.href = HostedDir + "/Home/AgencyHRDashboard";
+
+            });
+        });
+        function isValidagencyInfo() {
+            cleanValidation();
+
+                if ($('#ddlapprovereject')[0].value.trim() == "0") {
+                    isValid = true;
+                    return isValid;
+
+                }
+
+            //if ($('#DdlAgencyList')[0].value.trim() == "0") {
+            //    isValid = false;
+            //    customAlert("Please select agency from list.");
+            //    plainValidation('#DdlAgencyList');
+            //    return isValid;
+            //}
+                if ($('#FirstName')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("First name is required.");
+                    plainValidation('#FirstName');
+                    return isValid;
+                }
+            if ($('#EmailAddress')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email id is required.");
+                plainValidation('#EmailAddress');
+                return isValid;
+            }
+            if ($('#EmailAddress')[0].value.trim() != "" && !validateEmail($('#EmailAddress')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#EmailAddress');
+                return isValid;
+            }
+            if ($('#Password').length) {
+                if ($('#Password')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Password is required.");
+                    plainValidation('#Password');
+                    return isValid;
+                }
+            }
+            if ($('#Password').length) {
+                if ($('#Password')[0].value.length < 7) {
+                    isValid = false;
+                    customAlert("The password length must be atleast 7 character.");
+                    plainValidation('#Password');
+                    return isValid;
+                }
+            }
+            if ($('#Password').length) {
+                if (!Password($('#Password')[0].value.trim())) {
+                    isValid = false;
+                    customAlert("The password must contain 1 capital letter and 1 number.");
+                    plainValidation('#Password');
+                    return isValid;
+                }
+            }
+            else if ($('#ConfirmPassword').length) {
+                if ($('#ConfirmPassword')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Confirm password is required.");
+                    plainValidation('#ConfirmPassword');
+                    return isValid;
+                }
+            }
+            if ($('#Password').length) {
+                if ($('#Password')[0].value.trim() != $('#ConfirmPassword')[0].value.trim()) {
+                    isValid = false;
+                    customAlert("Password does not match the confirm password.");
+                    plainValidation('#ConfirmPassword');
+                    return isValid;
+                }
+            }
+            if ($('#DdlRoleList')[0].value.trim() == "0") {
+                isValid = false;
+                customAlert("Please select role from list.");
+                plainValidation('#DdlRoleList');
+                return isValid;
+            }
+           
+            if ($('#AccessStartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Access start date is required.");
+                plainValidation('#AccessStartDate');
+                return isValid;
+            }
+            if ($('#ddlapprovereject')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please approve or reject the pending verification.");
+                plainValidation('#ddlapprovereject');
+                return isValid;
+            }
+            
+            if ($('#DivAccessType').css('display') != 'none') {
+                if ($('#DdlAccessType')[0].value.trim() == "-1") {
+
+                    isValid = false;
+                    customAlert("Please select access type from list.");
+                    plainValidation('#DdlAccessType');
+                    return isValid;
+                }
+            }
+
+
+            if ($('#DivLoginTime').css('display') != 'none') {
+                if ($('#AccessStart')[0].value.trim() == "" || $('#AccessStop')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please check start time or end time");
+                    return isValid;
+                }
+                else {
+
+                    if ($('#AccessStart')[0].value.trim() >= $('#AccessStop')[0].value.trim()) {
+                        isValid = false;
+                        customAlert("Start time cannot be greater than or equal end time");
+                        return isValid;
+                    }
+                }
+            }
+
+
+
+            isValid = true;
+            return isValid;
+        }
+        $('#AvatarH').change(function (evt) {
+
+            showimages(evt.target.files);
+        });
+
+        function showimages(files) {
+            for (var i = 0, f; f = files[i]; i++) {
+
+                var reader = new FileReader();
+                reader.onload = function (evt) {
+
+                    $('img#imgavatarh').attr('src', evt.target.result);
+                }
+                reader.readAsDataURL(f);
+            }
+        }
+        function ToggleVisible(ddl) {
+            var value = ddl.options[ddl.selectedIndex].value;
+            if (value == "3b49b025-68eb-4059-8931-68a0577e5fa2") {
+                //$('#DivAccessType')[0].style.display = "none";
+                //$('#DivLoginTime')[0].style.display = "none";
+                //$('.DivHide').style.display = "none";
+                $('.DivHide').hide();
+            }
+            else {
+                //$("#DivAccessType").removeAttr("style");
+                //$('#DivLoginTime').removeAttr("style");
+                $('.DivHide').show();
+            }
+        }
+        function Agencyadmin() {
+            window.location.href = HostedDir + "/Agency/viewagencystaff?id=" + '@Request.QueryString["id"]';
+
+        }
+
+
+        var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInput(oInput) {
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    // alert(oInput.files[0].size / 1024 / 1024);
+                    var v = oInput.files[0].size / 1024 / 1024;
+                    if (v <= 1) {
+                        for (var j = 0; j < _validFileExtensions.length; j++) {
+                            var sCurExtension = _validFileExtensions[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            // customAlertforlongtime("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                            //alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                            oInput.value = "";
+                            return false;
+                        }
+                        //else {
+                        //    document.getElementById("imgAvatar").src = window.URL.createObjectURL(oInput.files[0])
+                        //}
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 1 MB");
+                        return false;
+
+                    }
+
+                }
+            }
+            return true;
+        }
+
+
+</script>
+}
+@section MainContentHolder{
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">
+            Pending Verification
+            <span style="float:right;">
+                <a href="~/AgencyAdmin/pendingVerification" style="padding: 5px 33px; background-color: #295b8f; color: #fff; font-size: 14px; border-style: none; ">Back to list</a>
+            </span>
+        </h2>
+
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<div class="row">
+    <form method="post" enctype="multipart/form-data" autocomplete="off">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="add-useragform">
+
+                <div>
+                    <h3 class="sepratetaff">Personal Information</h3>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Role <sup>*</sup></label>
+                                        @Html.DropDownListFor(m => m.SelectedRoleId, new SelectList(Model.rolelist, "RoleId", "RoleName", Model.SelectedRoleId), new { id = "DdlRoleList", Name = "DdlRoleList", onchange = "ToggleVisible(this);", @class = "form-control", tabIndex = "5" })
+                                        @*@Html.TextBoxFor(m => m.roleName, new { id = "DdlRoleList", Name = "DdlRoleList", maxlength = "50", autocomplete = "off", @class = "form-control", tabIndex = "1", @readonly = "true" })*@
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Email <sup>*</sup></label>
+                                        @*@Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "2" })*@
+                                        @if (@ViewBag.mode == 0)
+                                        {
+                                            @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "2" })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control", tabIndex = "2", @readonly = "true" })
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">First Name <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.FirstName, new { placeholder = "First Name", id = "FirstName", Name = "FirstName", maxlength = "50", autocomplete = "off", onblur = "CheckFirstCharcter(this);", @class = "form-control", tabIndex = "3" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Last Name</label>
+                                        @Html.TextBoxFor(m => m.LastName, new { placeholder = "Last Name", id = "lastname", Name = "LastName", maxlength = "50", @class = "form-control", tabIndex = "4" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    @if (String.IsNullOrEmpty(Model.EmailAddress))
+                                    {
+                                        <div class="form-group">
+                                            <label for="pwd">Password <sup>*</sup></label>
+                                            @Html.PasswordFor(m => m.Password, new { placeholder = "Password", id = "Password", Name = "Password", maxlength = "20", @class = "form-control", tabIndex = "5" })
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    @if (String.IsNullOrEmpty(Model.EmailAddress))
+                                    {
+
+                                        <div class="form-group">
+                                            <label for="pwd">Confirm Password <sup>*</sup></label>
+                                            @Html.PasswordFor(m => m.ConfirmPassword, new { placeholder = "Confirm Password", id = "ConfirmPassword", Name = "ConfirmPassword", maxlength = "20", @class = "form-control", tabIndex = "6" })
+
+                                        </div>
+                                    }
+                                </div>
+
+
+
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Date Of  Birth </label>
+                                        @Html.TextBoxFor(m => m.DOB, new { placeholder = "Date Of Birth", id = "DOB", Name = "DOB", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email"> Gender</label>
+                                        @{
+                                            List<SelectListItem> GenderList = new List<SelectListItem>();
+                                            GenderList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                            GenderList.Add(new SelectListItem() { Text = "Female", Value = "0" });
+                                            GenderList.Add(new SelectListItem() { Text = "Male", Value = "1" });
+                                            GenderList.Add(new SelectListItem() { Text = "Other", Value = "2" });
+                                        }
+                                        @Html.DropDownListFor(m => m.Gender, new SelectList(GenderList, "Value", "Text", Model.Gender), new { id = "DdlGender", Name = "DdlGender", @class = "form-control", tabIndex = "8" })
+                                    </div>
+                                </div>
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Mobile Number</label>
+                                        @Html.TextBoxFor(m => m.CellNumber, new { placeholder = "Mobile Number", id = "CellNumber", Name = "CellNumber", maxlength = "15", @class = "form-control", tabIndex = "9" })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Highest Education</label>
+                                        @Html.DropDownListFor(m => m.HighestEducation, new SelectList(Model.EducationLevelList, "EducationLevel", "Name", Model.HighestEducation), new { id = "DdlHighestEducation", Name = "DdlHighestEducation", @class = "form-control", tabIndex = "10" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Early Childhood </label>
+                                        @{
+
+                                            List<SelectListItem> item = new List<SelectListItem>();
+                                            item.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                            item.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                            item.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                        }
+                                        @Html.DropDownListFor(m => m.EarlyChildHood, new SelectList(item, "Value", "Text", Model.EarlyChildHood), new { id = "DdlEarlyChildHood", Name = "DdlEarlyChildHood", @class = "form-control", tabIndex = "11" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Race</label>
+                                        @Html.DropDownListFor(m => m.Race, new SelectList(Model.raceList, "RaceId", "Name", Model.Race), new { id = "DdlRaceList", Name = "DdlRaceList", @class = "form-control", tabIndex = "12" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Getting Degree</label>
+                                    @{
+                                        List<SelectListItem> GettingDegreeitems = new List<SelectListItem>();
+                                        GettingDegreeitems.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                        GettingDegreeitems.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                        GettingDegreeitems.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                    }
+                                    @Html.DropDownListFor(m => m.GettingDegree, new SelectList(GettingDegreeitems, "Value", "Text", Model.GettingDegree), new { id = "DdlGettingDegree", Name = "DdlGettingDegree", @class = "form-control", tabIndex = "13" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="nation">Country</label>
+                                    @if (Model.Natinality != null)
+                                    {
+                                        @Html.DropDownList("DdlNationList", new SelectList(Model.nationList, "NationId", "Name", Model.Natinality), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "14" })
+
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("DdlNationList", new SelectList(Model.nationList, "NationId", "Name", "7D979B6C-F4D1-4D9C-99CD-8DC5160870B7"), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "14" })
+
+                                    }
+                                    @*@Html.DropDownListFor(m => m.Natinality, new SelectList(nation, "Value", "Text", "7D979B6C-F4D1-4D9C-99CD-8DC5160870B7"), new { id = "DdlNationList", Name = "DdlNationList", @class = "form-control", tabIndex = "10" })*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                <div class="form-group file_typimg">
+                                    <label for="pwd">General Picture </label>
+                                    @Html.TextBoxFor(m => m.Avatar, new { id = "Avatar", Name = "Avatar", type = "file", onchange = "ValidateSingleInput(this)", @class = "form-control", tabIndex = "15" })<div class="img-iconavt">
+                                        <img id="imgAvatar" alt="" src='@Staff_Registration.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarUrl)' style="border-style:none;" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                <div class="form-group file_typimg">
+                                    <label for="pwd">Happy Avatar </label>
+                                    @Html.TextBoxFor(m => m.AvatarH, new { id = "AvatarH", Name = "AvatarH", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "16" })<div class="img-iconavt">
+                                        <img id="imgAvatarH" alt="" src='@Staff_Registration.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarhUrl)'>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                <div class="form-group file_typimg">
+                                    <label for="pwd">Sad Avatar </label>
+                                    @Html.TextBoxFor(m => m.AvatarS, new { id = "AvatarS", Name = "AvatarS", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "17" })
+                                    <div class="img-iconavt">
+                                        <img id="imgAvatas" alt="" src='@Staff_Registration.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarsUrl)' />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                <div class="form-group file_typimg">
+                                    <label for="pwd">Tired Avatar </label>
+                                    @Html.TextBoxFor(m => m.AvatarT, new { id = "AvatarT", Name = "AvatarT", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "18" })
+                                    <div class="img-iconavt">
+                                        <img id="imgAvatarT" alt="" src='@Staff_Registration.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatartUrl)' style="border:none;" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;"></div>
+                    <h3 class="sepratetaff">Official Information</h3>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Hire Date </label>
+                                        @Html.TextBoxFor(m => m.HireDate, new { @class = "datecss form-control", placeholder = "Hire Date", id = "HireDate", Name = "HireDate", maxlength = "50", tabIndex = "19" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Termination Date</label>
+                                        @Html.TextBoxFor(m => m.TerDate, new { @class = "datecss form-control", placeholder = "Termination Date", id = "TerDate", Name = "TerDate", maxlength = "50", tabIndex = "20" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">HR Center </label>
+                                        @Html.DropDownListFor(m => m.HRCenter, new SelectList(Model.HrcenterList, "CenterId", "Name", Model.HRCenter), new { id = "DdlHrCenter", Name = "DdlHrCenter", @class = "form-control", tabIndex = "21" })
+                                    </div>
+                                    @*<div class="form-group">
+
+                                                               <label for="pwd">Email Id <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.EmailAddress, new { placeholder = "Email id", id = "EmailAddress", Name = "EmailAddress", maxlength = "200", @class = "form-control" })
+                                                            </div>*@
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Contractor</label>
+                                        @{
+                                            List<SelectListItem> ContractorList = new List<SelectListItem>();
+                                            ContractorList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                            ContractorList.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                            ContractorList.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                        }
+                                        @Html.DropDownListFor(m => m.Contractor, new SelectList(ContractorList, "Value", "Text", Model.Contractor), new { id = "DdlContractor", Name = "DdlContractor", @class = "form-control", tabIndex = "22" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Hourly Rate</label>
+                                        @Html.TextBoxFor(m => m.HourlyRate, new { placeholder = "Hourly Rate", id = "HourlyRate", Name = "HourlyRate", maxlength = "50", onblur = "checkDecimal(this);", @class = "form-control", tabIndex = "23" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Salary</label>
+                                        @Html.TextBoxFor(m => m.Salary, new { placeholder = "Salary", id = "Salary", Name = "Salary", maxlength = "30", onblur = "checkDecimal(this);", @class = "form-control", tabIndex = "24" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Replacement</label>
+                                        @{
+                                            List<SelectListItem> ReplacementList = new List<SelectListItem>();
+                                            ReplacementList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                            ReplacementList.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                            ReplacementList.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                        }
+                                        @Html.DropDownListFor(m => m.Replacement, new SelectList(ReplacementList, "Value", "Text", Model.Replacement), new { id = "DdlReplacement", Name = "DdlReplacement", @class = "form-control", tabIndex = "25" })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="email">Associated Program</label>
+                                        @{
+                                            List<SelectListItem> AssociatedProgramList = new List<SelectListItem>();
+                                            AssociatedProgramList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                            AssociatedProgramList.Add(new SelectListItem() { Text = "N/A", Value = "0" });
+                                            AssociatedProgramList.Add(new SelectListItem() { Text = "HS", Value = "1" });
+                                            AssociatedProgramList.Add(new SelectListItem() { Text = "EHS", Value = "2" });
+                                            AssociatedProgramList.Add(new SelectListItem() { Text = "Both HS and EHS", Value = "3" });}
+                                        @Html.DropDownListFor(m => m.AssociatedProgram, new SelectList(AssociatedProgramList, "Value", "Text", Model.AssociatedProgram), new { id = "DdlAssociatedProgram", Name = "DdlAssociatedProgram", @class = "form-control", tabIndex = "26" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="nation">PIR Role</label>
+                                        @Html.DropDownListFor(m => m.PirRoleid, new SelectList(Model.Pirlist, "PirId", "Name"), new { id = "DdlpirList", Name = "DdlpirList", @class = "form-control", tabIndex = "27" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="pwd">Access Start Date <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.AccessStartDate, new { @class = "date form-control", placeholder = "Access Start Date", id = "AccessStartDate", Name = "AccessStartDate", maxlength = "50", tabIndex = "28" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 ">
+                                    <div class="form-group">
+                                        <label for="pwd">Status <sup>*</sup></label>
+                                        <select id="ddlapprovereject" tabindex="29" name="ddlapprovereject" class="form-control">
+                                            <option value='' selected='selected'>Select </option>
+                                            <option value='0'>Reject</option>
+                                            <option value='1'>Approve</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group DivHide" id="DivAccessType">
+                                        <label for="email">Access Type <sup>*</sup></label>
+                                        @{
+                                            List<SelectListItem> AccessTypeList = new List<SelectListItem>();
+                                            AccessTypeList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                            AccessTypeList.Add(new SelectListItem() { Text = "All Days", Value = "0" });
+                                            AccessTypeList.Add(new SelectListItem() { Text = "M-F Only", Value = "1" });
+                                        }
+                                        @Html.DropDownListFor(m => m.AccessDays, new SelectList(AccessTypeList, "Value", "Text", Model.AccessDays), new { id = "DdlAccessType", Name = "DdlAccessType", @class = "form-control", tabIndex = "29" })
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group DivHide" id="DivLoginTime">
+                                        <label for="pwd">Start Time <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.AccessStart, @"{hh:mm:ss.f}", new { @class = "time form-control", id = "AccessStart", Name = "AccessStart", placeholder = "Start Time", tabIndex = "30" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group DivHide">
+                                        <label for="pwd">Stop Time <sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.AccessStop, @"{0:hh\:mm}", new { @class = "time form-control", id = "AccessStop", Name = "AccessStop", placeholder = "Stop Time", tabIndex = "31" })
+                                    </div>
+                                </div>
+                                @Html.HiddenFor(m => m.AgencyStaffId, new { id = "AgencyStaffId", Name = "AgencyStaffId" })
+                                @Html.HiddenFor(m => m.SelectedRoleId, new { id = "SelectedRoleId", Name = "SelectedRoleId" })
+                                @Html.HiddenFor(m => m.AvatarUrl, new { id = "AvatarUrl", Name = "AvatarUrl" })
+                                @Html.HiddenFor(m => m.AvatarhUrl, new { id = "AvatarhUrl", Name = "AvatarhUrl" })
+                                @Html.HiddenFor(m => m.AvatarsUrl, new { id = "AvatarsUrl", Name = "AvatarsUrl" })
+                                @Html.HiddenFor(m => m.AvatartUrl, new { id = "AvatartUrl", Name = "AvatartUrl" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+                            <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();" class="my-btn" tabindex="32">Submit</button>
+                            <button id="btnCancel" type="button" class="my-btn" tabindex="33">Exit</button>
+                            <div class="clear"></div>
+                        </div>	<!--btnwrp_subcal--->
+                    </div>
+                </div>
+            </div><!--add-useragform--->
+        </div>
+    </form>
+
+</div>
+
+}

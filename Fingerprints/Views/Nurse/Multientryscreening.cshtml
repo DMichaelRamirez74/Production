@@ -1,0 +1,826 @@
+﻿@using System.Data
+@using FingerprintsModel
+@{
+    @section Title
+{
+        Multi Entry Screening
+    }
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+<script type="text/javascript">
+    var classroomid = 0;
+    var screeningid = 0;
+
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        $('.hiddenstatus').each(function () {
+            if ($(this).val() == "")
+                $(this).prev().val("");
+        });
+        $(".dateplugin").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+    });
+    //function validatedate(inputTextObject) {
+    //    if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+    //        var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+    //        var regex = new RegExp(dateformat);
+    //        if (!regex.test($(inputTextObject).val())) {
+    //            customAlert("Invalid date.");
+    //            $(inputTextObject).val('');
+    //        }
+    //    }
+    //}
+
+    function validatedate(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (regex.test($(inputTextObject).val())) {
+                var dob = new Date();
+                if (Date.parse($(inputTextObject).val()) >= dob) {
+                    customAlert("Date must be less than today's date. ");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+            }
+            else {
+                customAlert("Invalid date. ");
+                $(inputTextObject).val('');
+                return false;
+            }
+        }
+    }
+    function Loadclientexeption(Object) {
+        $('#ScreeningName').text($(Object).attr("screeningname") + '(' + $(Object).attr("classroom") + ')');
+        $.ajax({
+            url: HostedDir + "/Nurse/Loadallclientscreening",
+            type: "POST",
+            data: {
+                Classroomid: $(Object).attr("accesskey"),
+                Centerid: $(Object).attr("centerid"),
+                Screeningid: $(Object).attr("screeningid")
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                BindClientscreenings(data);
+            }
+           , error: function (Data) {
+               customAlert("Session Ended Log Onto The System Again.");
+               setTimeout(function () {
+                   window.location.href = HostedDir + '/login/Loginagency';
+               }, 2000);
+           }
+        });
+    }
+    function BindClientscreenings(data) {
+        if (data != null && data.length > 0) {
+            $('#div2').hide();
+            var total = 0;
+            $('#DivclientscreeningList > tbody > tr').remove();
+            var tr = "";
+            for (var i = 0; i < data.length; i++) {
+                tr = "";
+                tr += "<tr>";
+                tr += '<td><input clientid="' + data[i].clientid + '" accesskey="' + data[i].Screeningid + '" class="minimal" type="checkbox"   style="width:auto;" value="true"></td>';
+                tr += "<td>" + ((typeof (data[i].name) != 'undefined') && (data[i].name != null) ? data[i].name : '') + "</td>";
+                tr += "<td><input type='text' placeholder='MM/DD/YYYY' value='' onblur='validatedate(this);' maxlength='100' class='form-control dateplugin' /></td>";
+
+                tr += "<td><select class='form-control Exemptionstatus'>";
+                if (data[i].Screeningid == 1)
+                {
+                    tr += "<option value='1'>Complete</option><option value='2'>Follow-Up Needed</option>";
+
+                }
+               else if (data[i].Screeningid == 2) {
+
+                   tr += "<option value='1'>Pass</option><option value='2'>Follow-Up</option>";
+                }
+               else if (data[i].Screeningid == 3) {
+
+                   tr += "<option value='1'>Pass</option><option value='2'>Fail</option>  <option value='3'>Follow-Up</option> ";
+                }
+               else if (data[i].Screeningid == 4) {
+
+                   tr += "<option value='1'>Pass</option><option value='2'>Concerns Exists, Follow-Up Required</option>  <option value='3'>N/A</option> ";
+                }
+               else if (data[i].Screeningid == 5) {
+                   tr += "<option value='1'>Complete</option><option value='2'>Treatment Needed</option>";
+
+                }
+               else if (data[i].Screeningid == 6) {
+                   tr += "<option value='1'>Pass</option><option value='2'>Fail</option>";
+
+                }
+               else {
+
+                   if(data[i]._ScreeningStatus!=null && data[i]._ScreeningStatus.length >0 )
+                   {
+                       for (var j = 0; j < data[i]._ScreeningStatus.length; j++) {
+
+                           tr += "<option value='" + data[i]._ScreeningStatus[j].Optionid + "'>" + data[i]._ScreeningStatus[j].Optionname + "</option>";
+
+                       }
+                   }
+                }
+                tr +=     "</select></td>";
+                tr += "<td><input type='text' value='' maxlength='200' placeholder='Note' class='form-control' /></td>";
+                tr += "</tr>";
+                $('#DivclientscreeningList > tbody').append(tr);
+                $('.Exemptionstatus').val("");
+                $(".dateplugin").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            }
+            $('#Modalclientscreening').modal('toggle');
+        }
+        else {
+            $('#DivclientscreeningList > tbody > tr').remove();
+            customAlert("No clients found in exception list.");
+            $('#div2').show();
+        }
+    }
+    function Loadclients(Object) {
+        $('#clientscreeningname').text($(Object).attr("screeningname") + '(' + $(Object).attr("classroom") + ')');
+        $('#checkboxtable').prop("checked", false);
+
+        classroomid = $(Object).attr("accesskey");
+        screeningid = $(Object).attr("screeningid");
+        $.ajax({
+            url: HostedDir + "/Nurse/Loadclients",
+            type: "POST",
+            data: {
+                Classroomid: $(Object).attr("accesskey"),
+                Centerid: $(Object).attr("centerid"),
+                Screeningid: $(Object).attr("screeningid")
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                BindclassClientscreenings(data);
+            }
+           , error: function (Data) {
+               customAlert("Session Ended Log Onto The System Again.");
+               setTimeout(function () {
+                   window.location.href = HostedDir + '/login/Loginagency';
+               }, 2000);
+           }
+        });
+    }
+    function BindclassClientscreenings(data) {
+        if (data != null && data.length > 0) {
+            $('#DivclassclientscreeningList > tbody > tr').remove();
+            var tr = "";
+            for (var i = 0; i < data.length; i++) {
+                tr = "";
+                tr += "<tr>";
+                tr += '<td style="text-align: center;" ><input onchange="checkheadercheckbox(this);" clientid="' + data[i].Eclientid + '" accesskey="' + data[i].Screeningid + '" class="minimal chkclient" type="checkbox"   style="width:auto;" value="true"></td>';
+                tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+                tr += "<td>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + "</td>";
+                tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + "</td>";
+
+
+                tr += "</tr>";
+                $('#DivclassclientscreeningList > tbody').append(tr);
+            }
+            $('#Modalcenterclientscreening').modal('toggle');
+        }
+        else {
+            $('#DivclassclientscreeningList > tbody > tr').remove();
+            customAlert("Clients already saved. Click on clients to see saved missing client and exception to see exception client.");
+
+        }
+    }
+    function Save() {
+        var clientchecked = 0;
+        var isvalid = true;
+        cleanValidation();
+        $('#DivclientscreeningList > tbody > tr').each(function () {
+            if ($(this).find("td:eq(0)").find("input[type='checkbox']").prop("checked")) {
+                clientchecked = 1;
+                if ($(this).find("td:eq(2)").find("input[type='text']").val() == "") {
+                    plainValidation($(this).find("td:eq(2)").find("input[type='text']"));
+                    customAlert("Date is required.");
+                    isvalid = false;
+                    return false;
+                }
+                if ($(this).find("td:eq(3)").find("select").val() == "" || $(this).find("td:eq(3)").find("select").val() == null) {
+                    plainValidation($(this).find("td:eq(3)").find("select"));
+                    customAlert("Status is required.");
+                    isvalid = false;
+                    return false;
+                }
+            }
+        });
+        if (clientchecked == 0) {
+            customAlert("Client is required.");
+            return false;
+        }
+        else {
+            if (isvalid) {
+                var ClientScreening = [];
+                var ClientScreenings = [];
+                $('#DivclientscreeningList > tbody > tr').each(function () {
+                    if ($(this).find("td:eq(0)").find("input[type='checkbox']").prop("checked")) {
+                        ClientScreening = {
+                            Screeningid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("accesskey"),
+                            clientid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("clientid"),
+                            ScreeningDate: $(this).find("td:eq(2)").find("input[type='text']").val(),
+                            Status: $(this).find("td:eq(3)").find("select").val(),
+                            Notes: $(this).find("td:eq(4)").find("input[type='text']").val()
+                        };
+                        ClientScreenings.push(ClientScreening);
+                    }
+                });
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    url: HostedDir + "/Nurse/Saveclientscreening",
+                    type: "POST",
+                    data: JSON.stringify({
+                        'ClientScreenings': ClientScreenings
+                    }),
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (data) {
+                        if (data == 1) {
+                            customAlert("Record saved successfully.");
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                        else {
+                            customAlert("Error Occurred. Please try agaain later.");
+
+                        }
+                    }
+              , error: function (Data) {
+                  customAlert("Session Ended Log Onto The System Again.");
+                  setTimeout(function () {
+                      window.location.href = HostedDir + '/login/Loginagency';
+                  }, 1500);
+              }
+                });
+            }
+        }
+    }
+    function Savemulticlientscreening() {
+        var isvalid = true;
+        cleanValidation();
+        var count = 0;
+        var multiscreening = [];
+        var multiscreenings = [];
+        $('.divmultiscreening').each(function () {
+            var _screeingids = $(this).find('.hiddenScreeningid').val();
+            $(this).find('.classroomsdet').each(function () {
+                if (isvalid) {
+                    if ($(this).find('.dateplugin').val() != "" && $(this).find('.selectstatus').val() != null) {
+                        count = 1;
+                    }
+                    if (count > 0) {
+                        if ($(this).find('.dateplugin').val() != "" && $(this).find('.selectstatus').val() == null) {
+                            plainValidation($(this).find('.selectstatus'));
+                            customAlert("Status is required.");
+                            isvalid = false;
+                            return isvalid;
+
+                        }
+                        if ($(this).find('.selectstatus').val() != null && $(this).find('.dateplugin').val() == "") {
+                            plainValidation($(this).find('.dateplugin'));
+                            customAlert("Date is required.");
+                            isvalid = false;
+                            return isvalid;
+                        }
+                    }
+                }
+            });
+        });
+        if (count == 0) {
+            customAlert("Date and Status is required for atleast one classrooms.");
+        }
+        else if (isvalid) {
+            $('.divmultiscreening').each(function () {
+                var _screeingids = $(this).find('.hiddenScreeningid').val();
+                $(this).find('.classroomsdet').each(function () {
+                    if ($(this).find('.dateplugin').val() != "" && $(this).find('.selectstatus').val() != null) {
+                        multiscreening = {
+                            Screeningid: _screeingids,
+                            classid: $(this).find('.hiddenclassid').val(),
+                            centerid: $(this).find('.hiddencenterid').val(),
+                            ScreeningDate: $(this).find('.dateplugin').val(),
+                            Status: $(this).find('.selectstatus').val()
+                        };
+                        multiscreenings.push(multiscreening);
+                    }
+                });
+            });
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                url: HostedDir + "/Nurse/Savemultiscreening",
+                type: "POST",
+                data: JSON.stringify({
+                    'multiscreenings': multiscreenings
+                }),
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    if (data == 1) {
+                        customAlert("Record saved successfully.");
+                        setTimeout(function () {
+                            window.location.href = HostedDir + '/Home/ApplicationApprovalDashboard';
+                        }, 1000);
+                    }
+                    else {
+                        customAlert("Error Occurred. Please try agaain later.");
+                    }
+                }
+              , error: function (Data) {
+                  customAlert("Session Ended Log Onto The System Again.");
+                  setTimeout(function () {
+                      window.location.href = HostedDir + '/login/Loginagency';
+                  }, 1500);
+              }
+            });
+        }
+    }
+    function Getdashboard() {
+        window.location.href = HostedDir + '/Home/ApplicationApprovalDashboard';
+    }
+    function checkuncheckall(object) {
+        if ($(object).prop("checked")) {
+            $('#DivclassclientscreeningList > tbody > tr').each(function () {
+                $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked", true);
+            });
+        }
+        else {
+            $('#DivclassclientscreeningList > tbody > tr').each(function () {
+                $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked", false);
+            });
+        }
+    }
+    function checkheadercheckbox(object) {
+        var count = 0;
+        $('#DivclassclientscreeningList > tbody > tr').each(function () {
+            if ($(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
+                count = count + 1;
+        });
+        if (count == $('#DivclassclientscreeningList > tbody > tr').length) {
+            $('#checkboxtable').prop("checked", true);
+        }
+        else {
+            $('#checkboxtable').prop("checked", false);
+        }
+
+
+
+    }
+    function Addclient() {
+        var isvalid = true;
+        cleanValidation();
+        if ($('.chkclient:checked').length == 0) {
+            customAlert("Please select client.");
+        }
+        else {
+            $('#Modalcenterclientscreening').modal('toggle');
+        }
+    }
+    function Saveclassmissingclient(object) {
+        cleanValidation();
+        if (classroomid != $(object).attr("accesskey") || screeningid != $(object).attr("screeningid")) {
+            customAlert("Please select client from client list. On clicking classroom.");
+        }
+        else if ($('#DivclassclientscreeningList > tbody > tr').length == 0) {
+            customAlert("Please select client from client list. On clicking classroom.");
+        }
+        else if ($('.chkclient:checked').length == 0) {
+            customAlert("Please select client from client list. On clicking classroom.");
+        }
+        else {
+            if ($(object).parent().parent(".classroomsdet").find(".dateplugin").val() == "") {
+                plainValidation(($(object).parent().parent(".classroomsdet").find(".dateplugin")));
+                customAlert("Date is required.");
+            }
+            else if ($(object).parent().parent(".classroomsdet").find(".selectstatus").val() == null) {
+                plainValidation(($(object).parent().parent(".classroomsdet").find(".selectstatus")));
+                customAlert("Status is required.");
+            }
+            else {
+                var ClientScreening = [];
+                var ClientScreenings = [];
+                var sdate = $(object).parent().parent(".classroomsdet").find(".dateplugin").val();
+                var sstatus = $(object).parent().parent(".classroomsdet").find(".selectstatus").val();
+                $('#DivclassclientscreeningList > tbody > tr').each(function () {
+                    if ($(this).find("td:eq(0)").find("input[type='checkbox']").prop("checked")) {
+                        ClientScreening = {
+                            Screeningid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("accesskey"),
+                            clientid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("clientid"),
+                            ScreeningDate: sdate,
+                            Status: sstatus,
+                            Exception: 0
+                        };
+                        ClientScreenings.push(ClientScreening);
+                    }
+                    else {
+                        ClientScreening = {
+                            Screeningid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("accesskey"),
+                            clientid: $(this).find("td:eq(0)").find("input[type='checkbox']").attr("clientid"),
+                            ScreeningDate: null,
+                            Status: null,
+                            Exception: 1
+                        };
+                        ClientScreenings.push(ClientScreening);
+                    }
+                });
+                $.ajax({
+                    contentType: 'application/json; charset=utf-8',
+                    url: HostedDir + "/Nurse/Saveclientclassscreening",
+                    type: "POST",
+                    data: JSON.stringify({
+                        'ClientScreenings': ClientScreenings
+                    }),
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (data) {
+                        if (data == 1) {
+                            customAlert("Record saved successfully.");
+                            $(object).parent().parent(".classroomsdet").find(".ashowclientlist").show();
+                            $(object).parent().parent(".classroomsdet").find(".asaveclientlist").hide();
+                            $(object).parent().parent(".classroomsdet").find(".dateplugin").val("").attr("disabled", "disabled");
+                            $(object).parent().parent(".classroomsdet").find(".selectstatus").val("").attr("disabled", "disabled");
+                        }
+                        else {
+                            customAlert("Error Occurred. Please try agaain later.");
+
+                        }
+                    }
+            , error: function (Data) {
+                customAlert("Session Ended Log Onto The System Again.");
+                setTimeout(function () {
+                    window.location.href = HostedDir + '/login/Loginagency';
+                }, 1500);
+            }
+                });
+            }
+        }
+    }
+
+
+
+    function Showsavedmissingclient(object) {
+        $('#clientvavedscreeningname').text($(object).attr("screeningname") + '(' + $(object).attr("classroom") + ')');
+        $.ajax({
+            url: HostedDir + "/Nurse/Loadsavedmissingclient",
+            type: "POST",
+            data: {
+                Classroomid: $(object).attr("accesskey"),
+                Centerid: $(object).attr("centerid"),
+                Screeningid: $(object).attr("screeningid")
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                BindClientmissings(data);
+            }
+        , error: function (data) {
+            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+        }
+        });
+    }
+
+
+
+    function BindClientmissings(data) {
+        if (data != null && data.length > 0) {
+            $('#Divclientscreening > tbody > tr').remove();
+            for (var i = 0; i < data.length; i++) {
+                var tr = "";
+                tr += "<tr>";
+                tr += '<td><a style="text-decoration: underline;"  href="' + HostedDir + '/Nurse/ScreeningClient?clientid=' + data[i].Eclientid + '&Screeningid=' + data[i].Screeningid + '&name=' + data[i].Name + '&Dob=' + data[i].DOB + '&Programid=' + data[i].ProgramId + '&dashboard=1">' + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + '</a></td>';
+                tr += "<td>" + ((typeof (data[i].MissingScreeningdate) != 'undefined') && (data[i].MissingScreeningdate != null) ? data[i].MissingScreeningdate : '') + " </span></td>";
+                tr += "<td>" + ((typeof (data[i].MissingScreeningstatus) != 'undefined') && (data[i].MissingScreeningstatus != null) ? data[i].MissingScreeningstatus : '') + " </span></td>";
+                tr += "</tr>";
+                $('#Divclientscreening > tbody').append(tr);
+              
+            }
+            $('#Modalsavedclientscreening').modal('toggle');
+          
+        }
+        else {
+            $('#Divclientscreening > tbody > tr').remove();
+          
+        }
+    }
+
+</script>
+
+}
+@section MainContentHolder{
+    
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">
+            Multi Entry Screening (@ViewBag.centername)
+            <span class="view-btn backto_listspan" id="BackToList">
+                <a href="~/Home/ApplicationApprovalDashboard" class="backto_list">Back to list</a>
+            </span>
+        </h2>
+    </div>
+</div>
+<div class="row">
+    @{
+    try
+    {
+     
+    if (ViewBag.multiscreening != null && (DataTable)ViewBag.multiscreening != null && ((DataTable)ViewBag.multiscreening).Rows.Count > 0)
+    {
+    DataTable Screeningidids = ((DataTable)ViewBag.multiscreening).DefaultView.ToTable(true, "screeningid", "screeningname");
+    foreach (DataRow Row in Screeningidids.Rows)
+    {
+    DataRow[] rows = ((DataTable)ViewBag.multiscreening).Select("screeningid=" + Convert.ToString(@Row["screeningid"]));
+        
+        
+    <div class="divmultiscreening">
+        <div class="col-lg-12">
+            <h3 class="page-header fundservice">
+                @Row["screeningname"].ToString()
+                <input type="hidden" class="hiddenScreeningid" value="@Row["screeningid"].ToString()" />
+            </h3>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <h4 style="color: #285b8f;">ClassRooms</h4>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                    <h4 style="color: #285b8f;">Date</h4>
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <h4 style="color: #285b8f;">Status</h4>
+                </div>
+                <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+                    <h4 style="color: #285b8f;"></h4>
+                </div>
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <h4 style="color: #285b8f;">Exceptions</h4>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
+                @foreach (DataRow item in rows)
+                {
+                <div class="classroomsdet">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 adddivspace">
+                        <a style="text-decoration:underline;cursor:pointer;" classroom="@item["classroomname"].ToString()" onclick="Loadclients(this)" accesskey="@item["classroomid"].ToString()" screeningid="@Row["screeningid"].ToString()" screeningname="@Row["screeningname"].ToString()" centerid="@item["centerid"].ToString()">@item["ClassroomName"].ToString()</a>
+                        <input type="hidden" class="hiddenclassid" value="@item["classroomid"].ToString()" />
+                        <input type="hidden" class="hiddencenterid" value="@item["centerid"].ToString()" />
+                    </div>
+                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 adddivspace">
+                        <input type="text" placeholder="MM/DD/YYYY" @if (@item["updateallowed"].ToString() == "0"){ <text>disabled="disabled"</text>} onblur="validatedate(this);" maxlength="100" class="form-control dateplugin" />
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 adddivspace">
+
+                        <select class="form-control selectstatus" @if (@item["updateallowed"].ToString() == "0") { <text> disabled="disabled" </text> }>
+
+                            @if (Row["screeningid"].ToString()=="1")
+                            {
+                            <option value="1">Complete</option>
+                            <option value="2">Follow-Up Needed</option>
+                            }
+                            else if (Row["screeningid"].ToString()=="2")
+                            {
+                            <option value="1">Pass</option>
+                            <option value="2">Follow-Up</option>
+                            }
+                            else if (Row["screeningid"].ToString() == "3")
+                            {
+                                <option value="1">Pass</option>
+                                <option value="2">Fail</option>
+                                 <option value="3">Follow-Up</option>
+                            }
+                            else if (Row["screeningid"].ToString() == "4")
+                            {
+                                <option value="1">Pass</option>
+                                <option value="2">Concerns Exists, Follow-Up Required</option>
+                                <option value="3">N/A</option>
+                            }
+                            else if (Row["screeningid"].ToString() == "5")
+                            {
+                                <option value="1">Complete</option>
+                                <option value="2">Treatment Needed</option>
+                            }
+                            else if (Row["screeningid"].ToString() == "6")
+                            {
+                                <option value="1">Pass</option>
+                                <option value="2">Fail</option>
+                            
+                            }
+                            else
+                            {
+
+                                if (ViewBag.ScreeningStatus != null && (DataTable)ViewBag.ScreeningStatus != null && ((DataTable)ViewBag.ScreeningStatus).Rows.Count > 0)
+                                {
+                                    DataRow[] statusrows = ((DataTable)ViewBag.ScreeningStatus).Select("ScreeningID=" + Convert.ToString(@Row["screeningid"]));
+                                    foreach (DataRow items in statusrows)
+                                    {
+                                         <option value="@items["optionid"]">@items["optionname"]</option>
+                                    }
+                                    
+                                    
+                                }
+                                
+                                
+                            }
+                        </select>
+
+
+
+                        <input type="hidden" value="" class="hiddenstatus" />
+                    </div>
+                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 adddivspace" style="margin-top:24px;">
+                        @if (@item["updateallowed"].ToString() == "0")
+                        {
+                        <a style="text-decoration: underline; cursor: pointer; display: none;" class="asaveclientlist" accesskey="@item["classroomid"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()" onclick="Saveclassmissingclient(this);">Save</a>
+                         <a style="text-decoration:underline;cursor:pointer;" class="ashowclientlist" classroom="@item["classroomname"].ToString()" accesskey="@item["classroomid"].ToString()" screeningname="@Row["screeningname"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()" onclick="Showsavedmissingclient(this);">Clients</a>
+                        }
+                        else
+                        {
+                            <a style="text-decoration:underline;cursor:pointer;display:none;" classroom="@item["classroomname"].ToString()" class="ashowclientlist" accesskey="@item["classroomid"].ToString()" screeningname="@Row["screeningname"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()" onclick="Showsavedmissingclient(this);">Clients</a>
+                                 <a style="text-decoration:underline;cursor:pointer;" class="asaveclientlist" accesskey="@item["classroomid"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()" onclick="Saveclassmissingclient(this);">Save</a>
+                        }
+                        
+                    </div>
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 adddivspace" style="margin-top:24px;">
+                        <a style="text-decoration:underline;cursor:pointer;" classroom="@item["classroomname"].ToString()" onclick="Loadclientexeption(this)" accesskey="@item["classroomid"].ToString()" screeningname="@Row["screeningname"].ToString()" screeningid="@Row["screeningid"].ToString()" centerid="@item["centerid"].ToString()">Exceptions</a>
+                    </div>
+
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    }
+    }
+
+    }
+    catch (Exception Ex)
+    {
+    FingerprintsModel.clsError.WriteException(Ex);
+    }
+    }
+</div>
+
+    @*Pop up exeption client screening*@
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="Modalclientscreening" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="ScreeningName" class="text-center">Screnning Name<span class="extra-title muted"></span></h3>
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                        <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                            <button type="button" onclick="return Save();" class="my-btn pull-right">Save</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div>
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom:3%;">
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive">
+                                            <table class="table table_size" id="DivclientscreeningList">
+                                                <thead style="cursor:pointer;">
+                                                    <tr>
+                                                        <th style="width: 4%;"></th>
+                                                        <th style="width: 24%;">Name</th>
+                                                        <th style="width: 15%;">Date</th>
+                                                        <th style="width: 10%;">Status</th>
+                                                        <th>Note</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            <div id="div2" style="text-align:center;display:none; margin-left:38%;">
+                                                <label>No result found.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    @*---End-----*@
+@*Pop up all client screening*@
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="Modalcenterclientscreening" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="clientscreeningname" class="text-center">Screnning Name<span class="extra-title muted"></span></h3>
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                        <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                            <button type="button" onclick="return Addclient();" class="my-btn pull-right">OK</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div>
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom:3%;">
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive">
+                                            <table class="table table_size" id="DivclassclientscreeningList">
+                                                <thead style="cursor:pointer;">
+                                                    <tr>
+                                                        <th style="width: 4%;"><input type="checkbox" onchange="checkuncheckall(this);" id="checkboxtable" /></th>
+                                                        <th style="width: 24%;">Name</th>
+                                                        <th style="width: 15%;">DOB</th>
+                                                        <th style="width: 10%;">Gender</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*---End-----*@
+
+
+@*Pop up all saved missing client screening*@
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="Modalsavedclientscreening" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="clientvavedscreeningname" class="text-center">Screnning Name<span class="extra-title muted"></span></h3>
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                        <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                            <button type="button" data-dismiss="modal" class="my-btn pull-right">OK</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div>
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom:3%;">
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive">
+                                            <table class="table table_size" id="Divclientscreening">
+                                                <thead style="cursor:pointer;">
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*---End-----*@
+
+
+}

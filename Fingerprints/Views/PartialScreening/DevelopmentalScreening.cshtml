@@ -1,0 +1,232 @@
+﻿@model FingerprintsModel.Screening
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+
+        $('#d050evDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#d054evDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        if ('@Model.d057evFOStatus' == "")
+            $('#d057evFOStatus').val("");
+        if ('@Model.d052evResults' == "")
+            $('#d052evResults').val("");
+        if ('@Model.d053evResultsDetails' == "")
+            $('#d053evResultsDetails').val("");
+        if ('@Model.d055evResults2' == "")
+            $('#d055evResults2').val("");
+        if ('@Model.d059evTool' == "")
+            $('#d059evTool').val("");
+
+
+
+    });
+</script>
+
+
+<div class="row add-useragform1" >
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+
+        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Developmental Screening Date <sup>*</sup> </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="d050evDate" maxlength="50" name="d050evDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.d050evDate" @if (!string.IsNullOrEmpty(Model.d050evDate)) { <text> readonly="readonly" </text>  } />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Developmental Screening Results</label>
+                    <select name="d052evResults" class="form-control" id="d052evResults">
+                        @*<option value="" @if (@Model.d052evResults == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.d052evResults == "1") { <text> selected="selected" </text>                }>Pass</option>
+                        <option value="2" @if (@Model.d052evResults == "2") { <text> selected="selected" </text>                }>Concerns Exists, Follow-Up Required</option>
+                        <option value="3" @if (@Model.d052evResults == "3") { <text> selected="selected" </text>                }>N/A</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Developmental Screener Name </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="d051NameDEV" maxlength="100" name="d051NameDEV" type="text" value="@Model.d051NameDEV" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Developmental Screening Details </label>
+                    <select name="d053evResultsDetails" class="form-control" id="d053evResultsDetails">
+                        @*<option value="" @if (@Model.d053evResultsDetails == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.d053evResultsDetails == "1") { <text> selected="selected" </text>               }>Normal</option>
+                        <option value="2" @if (@Model.d053evResultsDetails == "2") { <text> selected="selected" </text>               }>Abnormal</option>
+                        <option value="3" @if (@Model.d053evResultsDetails == "3") { <text> selected="selected" </text>               }>Questionable</option>
+                        <option value="4" @if (@Model.d053evResultsDetails == "4") { <text> selected="selected" </text>               }>Un-Testable</option>
+                        <option value="5" @if (@Model.d053evResultsDetails == "5") { <text> selected="selected" </text>               }>N/A</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Developmental Rescreen Date </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="d054evDate2" maxlength="50" name="d054evDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.d054evDate2" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Developmental Rescreen Results </label>
+                    <select name="d055evResults2" class="form-control" id="d055evResults2">
+                        @*<option value="" @if (@Model.d055evResults2 == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.d055evResults2 == "1") { <text> selected="selected" </text>               }>Normal</option>
+                        <option value="2" @if (@Model.d055evResults2 == "2") { <text> selected="selected" </text>               }>Abnormal</option>
+                        <option value="3" @if (@Model.d055evResults2 == "3") { <text> selected="selected" </text>               }>Questionable</option>
+                        <option value="4" @if (@Model.d055evResults2 == "4") { <text> selected="selected" </text>               }>Un-Testable</option>
+                        <option value="5" @if (@Model.d055evResults2 == "5") { <text> selected="selected" </text>               }>N/A</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Was a Developmental Referral Made?</label>
+                    <select name="d056evReferral" class="form-control" id="d056evReferral">
+                        @*<option value="" @if (@Model.d056evReferral == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.d056evReferral == "1") { <text> selected="selected" </text>               }>Yes</option>
+                        <option value="2" @if (@Model.d056evReferral == "2") { <text> selected="selected" </text>               }>No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Developmental Follow-Up Status</label>
+                    <select name="d057evFOStatus" class="form-control" id="d057evFOStatus">
+                        @*<option value="" @if (@Model.d057evFOStatus == "") { <text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.d057evFOStatus == "1") { <text> selected="selected" </text>               }>Follow-Up Required But Not Yet Complete</option>
+                        <option value="2" @if (@Model.d057evFOStatus == "2") { <text> selected="selected" </text>               }>Follow-Up Complete</option>
+                        <option value="3" @if (@Model.d057evFOStatus == "3") { <text> selected="selected" </text>               }>N/A</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group datepicker-days">
+                    <label>Developmental Screening Comments </label>
+                    <div class="date custom-time">
+                        <input class="form-control" id="d058evComments" maxlength="100" name="d058evComments" type="text" value="@Model.d058evComments" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label>Developmental Screening Tool</label>
+                    <select name="d059evTool" class="form-control" id="d059evTool">
+                        @*<option value="" @if (@model.d059evtool= ="" ) {<text> selected="selected" </text>   }></option>*@
+                        <option value="1" @if (@Model.d059evTool == "1") { <text> selected="selected" </text>               }>Denver II</option>
+                        <option value="2" @if (@Model.d059evTool == "2") { <text> selected="selected" </text>              }>I-PASS</option>
+                        <option value="3" @if (@Model.d059evTool == "3") { <text> selected="selected" </text>              }>ASQ</option>
+                        <option value="4" @if (@Model.d059evTool == "4") { <text> selected="selected" </text>              }>BRIGANCE</option>
+                        <option value="5" @if (@Model.d059evTool == "5") { <text> selected="selected" </text>              }>Name included in IEP Document</option>
+                    </select>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+                <div class="form-group">
+                    <label class="custom-file-upload">
+                        <input name="ScreeningDocument" id="ScreeningDocument" class="form-control" onchange="ValidateSingleInputpdf(this)" style="display:none" type="file" value="">
+                        <i class="fa fa-cloud-upload"></i> Add new document
+                    </label>
+                    <label style="margin-top: 8px;margin-left: 6px;" id="documentlabel"></label>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+
+
+
+                @if (!string.IsNullOrEmpty(Model.PhysicalFileName))
+                {
+                    if (Model.PhysicalFileExtension == ".pdf")
+                    {
+                        string url = Path.GetFileNameWithoutExtension(Model.PhysicalFileName) + Guid.NewGuid().ToString() + ".pdf";
+                        System.IO.FileStream file = System.IO.File.Create(Server.MapPath("~//TempAttachment//") + url);
+                        url = "..\\TempAttachment\\" + url;
+                        try
+                        {
+                            file.Write(Model.PhysicalImageByte, 0, Model.PhysicalImageByte.Length);
+                            file.Close();
+                        }
+                        catch (Exception Ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(Ex);
+                        }
+                        finally
+                        {
+                            file.Close();
+                        }
+                        <div style="display:none;" id="ScreeninguploadDocument">
+                        </div>
+                        <iframe class="iframestyle" src="@url" frameborder="0" scrolling="no"></iframe>
+                    }
+                    else
+                    {
+                        string imagedata = Convert.ToBase64String(Model.PhysicalImageByte);
+                        <div id="ScreeninguploadDocument">
+                            <script type="text/javascript">
+
+                                $(document).ready(function () {
+                                    $('#ScreeninguploadDocument').ZoomCrop(
+                                  {
+                                      image: "data:image/png;base64," + '@imagedata',
+                                      updated: function (size, crop, position) {
+                                          console.log(size, crop, position);
+                                      }
+                                  });
+                                });
+                            </script>
+
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    <div id="ScreeninguploadDocument">
+                        <script type="text/javascript">
+
+                            $(document).ready(function () {
+                                $('#ScreeninguploadDocument').ZoomCrop(
+                              {
+                                  image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                  updated: function (size, crop, position) {
+                                      console.log(size, crop, position);
+                                  }
+                              });
+                            });
+                        </script>
+                    </div>
+
+                }
+
+
+
+
+
+            </div>
+
+
+
+        </div>
+
+    </div>
+</div>

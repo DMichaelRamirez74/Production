@@ -1,0 +1,878 @@
+﻿@{
+    @section Title{
+        Center Closure
+    }
+    ViewBag.Title = "Center Closure";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+    <script>
+
+        $(function () {
+            //  $('#myModalCenterList').modal('show');
+            $('#myModalCenterList').modal({
+                // backdrop: 'static',
+                //keyboard: true,
+                show: true
+            });
+            $('#ddlCenters').change(function () {
+                $('.error-center-message').hide();
+            });
+
+            $('.btn-submit-centerclosure').click(function () {
+
+               
+
+                cleanValidation();
+
+                var centerID = $('.text-heading').attr('center-id');
+                if ($('.CheckClient').length > 0) {
+                    if ($('.CheckClient:checked').length == 0) {
+                        customAlert('Please select accept or reject for classroom close request');
+                        return false;
+                    }
+                    else {
+                        var checkError = 0;
+                        $('.CheckClient:checked').each(function () {
+
+                            if ($(this).attr('accept') == '1') {
+                                var clasID = $(this).attr('name').split('_')[1];
+                                var textAcceptArea = $(this).parent().parent().parent('div').siblings('#div_Accept_' + clasID + '').find('#textarea_Accept_' + clasID + '').val().trim();
+                                if (textAcceptArea == '') {
+                                    plainValidation('#textarea_Accept_' + clasID + '');
+                                    checkError++;
+                                }
+                            }
+                        });
+
+                        if (checkError > 0) {
+                            customAlert('Please enter notes');
+                            return false;
+                        }
+                    }
+
+
+                }
+
+                else if ($(".CheckClient-Close:checked").length == 0) {
+                    if (!$('.check-entire-center').is(':checked')) {
+                        customAlert('Please select center or classroom');
+                        return false;
+                    }
+                    else if ($('#textarea_' + centerID + '').length > 0) {
+                        if ($('#textarea_' + centerID + '').val().trim() == '') {
+                            customAlert('Please enter notes for center closure');
+                            plainValidation('#textarea_' + centerID + '');
+                            return false;
+                        }
+                    }
+                }
+
+                var notesError = 0;
+                $(".CheckClient-Close:checked").each(function () {
+
+                    var clsID = $(this).attr('id').split('_')[1];
+                    var txtAreaValue = $(this).parent().parent().parent('div').siblings('#div_' + clsID + '').find('#textarea_' + clsID + '').val().trim();
+                    if (txtAreaValue == '') {
+                        plainValidation('#textarea_' + clsID + '');
+                        notesError++;
+                    }
+                });
+
+
+                $(".CheckClient-Close:checked").each(function () {
+
+                    var clsID = $(this).attr('id').split('_')[1];
+                    var txtAreaValue = $(this).parent().parent().parent('div').siblings('#div_' + clsID + '').find('#textarea_' + clsID + '').val().trim();
+                    if (txtAreaValue == '') {
+                        plainValidation('#textarea_' + clsID + '');
+                        notesError++;
+                    }
+                });
+
+                if (notesError > 0) {
+                    customAlert('Please enter notes');
+                    return false;
+                }
+
+
+                if ($('.staff-not-come:checked').length == 0) {
+                    customAlert('Please select staff should come or not');
+                    return false;
+                }
+
+
+
+                if ($('.check-entire-center').is(':checked')) {
+
+                    var arr = [];
+                    var ctrId = $('.text-heading').attr('center-id');
+                    var clsId = '';
+                    var clsName = '';
+                    var notes = '';
+
+                    $(".CheckClient:checked").each(function () {
+                        clsId = $(this).parent('span').parent('span').siblings('.class-room-id').val();
+                        clsName = $(this).parent('span').parent('span').siblings('#classname').html();
+                        notes = ($(this).attr('accept') == '1') ? $(this).parent().parent().parent('div').siblings('#div_Accept_' + clsId + '').find('#textarea_Accept_' + clsId + '').val() : '';
+                        arr.push({ 'DaysOffId': 0, 'ClassRoomId': clsId, 'ClassRoomName': clsName, 'CenterId': ctrId, 'OffDayComments': notes, 'Status': true });
+                    });
+
+                    $(".CheckClient-Close:checked").each(function () {
+                        clsId = $(this).parent('span').parent('span').siblings('.class-room-id').val();
+                        clsName = $(this).parent('span').parent('span').siblings('#classname').html();
+                        notes = $(this).parent().parent().parent('div').siblings('#div_' + clsId + '').find('#textarea_' + clsId + '').val();
+                        arr.push({ 'ClassRoomId': clsId, 'ClassRoomName': clsName, 'CenterId': ctrId, 'OffDayComments': notes });
+                    });
+
+
+                    var clientArray = [];
+
+                    $('.CheckClient').each(function () {
+
+                        clientArray.push($(this).attr('value'));
+                    })
+
+                    clientArray = clientArray.filter(function (x, i, a) {
+                        return a.indexOf(x) == i;
+                    });
+
+
+
+                    var date = getFormattedDate(new Date());
+
+
+                    $.ajax({
+                        url: '/Home/GetOffDayValidation',
+                        type: 'post',
+                        datatype: 'json',
+                        data: { fromDate: date, toDate: date, centerId: ctrId, classroomArray: JSON.stringify(arr), daysOffType: '2', daysOffId: 0 },
+                        success: function (data) {
+                            if (data) {
+
+                                customAlert('Center is already in days off list');
+                                return false;
+                            }
+                            else {
+
+                                var isStaff = ($('input[name=staffComeRadio]:checked').val() == '1') ? true : false;
+
+
+                                var daysOff = {};
+                                daysOff.DaysOffID = 0
+                                daysOff.CenterId = parseInt($('.center-id').val());
+                                daysOff.ClassRoomIdArray = arr;
+                                daysOff.OffDayComments = $('#textarea_' + $('.center-id').val() + '').val();
+                                daysOff.FromDate = date;
+                                daysOff.ToDate = date;
+                                daysOff.RecordType = '2';
+                                daysOff.IsStaff = isStaff;
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/Teacher/CloseEntireCenter",
+                                    data: { 'CenterId': $('.center-id').val(), 'daysOffString': JSON.stringify(daysOff), 'yakkrArray': JSON.stringify(clientArray), 'isStaff': isStaff },
+                                    async: false,
+                                    success: function (data) {
+                                        window.location.href = "/Home/Dashboard";
+                                    },
+                                    error: function (data) {
+                                        console.log('error');
+                                    }
+                                });
+                            }
+                        },
+                        error: function (data) {
+
+                        }
+                    });
+
+
+
+
+                }
+
+                else if ($(".CheckClient:checked").val() != undefined || $(".CheckClient-Close:checked").val() != undefined) {
+
+                    var arr = [];
+                    var ctrId = $('.text-heading').attr('center-id');
+                    var clientArray = [];
+                    $(".CheckClient:checked").each(function () {
+                        if ($(this).attr('accept') == '1') {
+                            var clsId = $(this).parent('span').parent('span').siblings('.class-room-id').val();
+                            var clsName = $(this).parent('span').parent('span').siblings('#classname').html();
+                            var notes = ($(this).attr('accept') == '1') ? $(this).parent().parent().parent('div').siblings('#div_Accept_' + clsId + '').find('#textarea_Accept_' + clsId + '').val() : '';
+                            arr.push({ 'DaysOffId': 0, 'ClassRoomId': clsId, 'ClassRoomName': clsName, 'CenterId': ctrId, 'OffDayComments': notes, 'Status': true });
+                        }
+
+                        clientArray.push(
+                                {
+                                    'Selected': ($(this).attr('accept') == '1') ? true : false,
+                                    'Text': $(this).attr('value'), 'Value': $(this).attr('name').split('_')[1],
+                                });
+
+
+                    });
+
+                    $(".CheckClient-Close:checked").each(function () {
+
+
+                        var clsId = $(this).parent('span').parent('span').siblings('.class-room-id').val();
+                        var clsName = $(this).parent('span').parent('span').siblings('#classname').html();
+                        var notes = $(this).parent().parent().parent('div').siblings('#div_' + clsId + '').find('#textarea_' + clsId + '').val();
+                        arr.push({ 'DaysOffId': 0, 'ClassRoomId': clsId, 'ClassRoomName': clsName, 'CenterId': ctrId, 'OffDayComments': notes, 'Status': true });
+
+                        clientArray.push(
+                                {
+                                    'Text': '0',
+                                    'Value': clsId,
+                                    'Selected': true
+                                }
+                                );
+
+                    });
+
+
+                    var date = getFormattedDate(new Date());
+
+
+                    var isStaff = ($('input[name=staffComeRadio]:checked').val() == '1') ? true : false;
+                    var daysOff = {};
+                    daysOff.CenterId = parseInt($('.text-heading').attr('center-id'));
+                    daysOff.DaysOffID = '0';
+                    daysOff.ClassRoomIdArray = arr;
+                    daysOff.OffDayComments = '';
+                    daysOff.FromDate = getFormattedDate(new Date());
+                    daysOff.ToDate = getFormattedDate(new Date());
+                    daysOff.RecordType = '3';
+                    daysOff.IsStaff = isStaff;
+
+
+                    if ($(".CheckClient-Close:checked").length == 0 && $(".CheckClient[value=1]:checked").length == 0) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/Teacher/AcceptRejectRequest",
+                            data: { 'daysOffString': JSON.stringify(daysOff), 'YakkrArray': JSON.stringify(clientArray), 'centerId': $('.text-heading').attr('center-id'), 'isStaff': isStaff },
+                            async: false,
+                            success: function (data) {
+                                window.location.href = "/Home/Dashboard";
+
+                            },
+                            error: function (data) {
+                                console.log('error');
+                            }
+                        });
+                    }
+
+                    else {
+
+
+
+                        $.ajax({
+                            url: '/Home/GetOffDayValidation',
+                            type: 'post',
+                            datatype: 'json',
+                            data: { fromDate: date, toDate: date, centerId: ctrId, classroomArray: JSON.stringify(arr), daysOffType: '3', daysOffId: 0 },
+                            success: function (data) {
+                                if (data) {
+
+                                    customAlert('Classroom is already in days off list');
+                                    return false;
+                                }
+                                else {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "/Teacher/AcceptRejectRequest",
+                                        data: { 'daysOffString': JSON.stringify(daysOff), 'YakkrArray': JSON.stringify(clientArray), 'centerId': $('.text-heading').attr('center-id'), 'isStaff': isStaff },
+                                        async: false,
+                                        success: function (data) {
+                                            window.location.href = "/Home/Dashboard";
+
+                                        },
+                                        error: function (data) {
+                                            console.log('error');
+                                        }
+                                    });
+                                }
+                            },
+                            error: function (data) {
+
+                            }
+                        });
+                    }
+
+
+                }
+
+            });
+
+
+            $('.btn-center-submit').click(function () {
+                if ($('.ddl-Centers').val() == "0") {
+                    $('.error-center-message').show();
+                }
+                else {
+                    $('.center-id').val($('.ddl-Centers').val());
+                    $('.error-center-message').hide();
+                    $('#myModalCenterList').modal('hide');
+                    $('.text-heading').text($('.ddl-Centers option:selected').text()).attr('center-id', $('.ddl-Centers option:selected').val());
+                    $('.main-container').show();
+                    BindClassRoomsByCenter($('.ddl-Centers').val());
+                }
+            });
+
+
+            $('.check-entire-center').on('change', function () {
+
+                if ($(this).is(':checked')) {
+
+                }
+            });
+        });
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+
+        }
+
+
+        function BindClassRoomsByCenter(CenterId) {
+            $.ajax({
+                type: "POST",
+                url: "/Home/GetClassroomsByCenterId",
+                data: { 'CenterId': CenterId },
+                success: function (data) {
+                    var input = "";
+                    var JsonData = JSON.parse(data);
+                    console.log(JsonData);
+                    var CloseTemplate = '<div class="col-xs-12 no-padding close-template-div" style="margin-bottom: 10px;">\
+                        <label class="col-lg-2 no-padding" id="classname" style="color:#F44336">##CLASSROOMNAME##</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                            <span class="col-lg-10 no-padding" style="width:auto;">\
+                                <span style="width: auto;display: inline-block;"><input type="radio" name="##radioname1##"  class="CheckClient" value="##YakkrID##" accept="1" id="ClientID" style="margin-left:0;">Accept</span>\
+                                <span style="width: auto;display: inline-block;margin-left:10px;"><input type="radio" name="##radioname2##"  class="CheckClient" value="##YakkrID1##" accept="0"  id="ClientID" style="margin-left:0;">Reject</span>\
+                            </span>\
+                       </div>\
+                    <div class="col-xs-12 no-padding" style="margin-bottom: 10px;"id="div_Accept_#textAreaDiv#" >\
+                        <label class="col-lg-2 no-padding lbl-required" id="notesId" style="color:#295b8f">Notes</label><input type="hidden" class="class-room-id" value="##CLASSROOMIDNOTES##"/>\
+                            <span class="col-lg-10 no-padding" style="width:auto;">\
+                        <textarea id="textarea_Accept_#TextAreaId#" style="height:75px;width:300px;" placeholder="Enter Notes" value="#NOTESVALUE#" ></textarea>\
+                            </span>\
+                       </div>';
+
+
+
+                    var OpenTemplate = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">\
+                            <label class="col-lg-2 no-padding" id="classname" style="color:#4CAF50">##CLASSROOMNAME##</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                            <span class="col-lg-10 no-padding" style="width:auto;">\
+                                <span><input type="checkbox" class="CheckClient-Close" value="##REQUESTID##" id="##classID##" style="margin-left:0;">Close</span>\
+                            </span>\
+                        </div>';
+
+
+                    var Template = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">\
+                            <label class="col-lg-2 no-padding" id="classname" style="color:#295b8f">##CLASSROOMNAME##</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                             <span class="col-lg-10 no-padding" style="width:auto;">\
+                                <span><input type="checkbox"  class="CheckClient-Close" value="##REQUESTID##" id="##classID##" style="margin-left:0;">Close</span>\
+                            </span>\
+                        </div>';
+
+
+
+                    var AlreadyClosedInfoTemplate = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">\
+                            <label class="col-lg-2 no-padding" id="classname" style="color:#color#">##CLASSROOMNAME##</label>\
+                            <input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                             <span class="col-lg-10 no-padding" style="width:auto;">\
+                                <span style="color: #f44336;font-weight:bold;">##ClassRoomClosedText##</span>\
+                            </span>\
+                        </div>';
+
+                    //var notesTemplate = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;"id="div_Accept_#textAreaDiv#" >\
+                    //    <label class="col-lg-2 no-padding lbl-required" id="notesId" style="color:#295b8f">Notes</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                    //        <span class="col-lg-10 no-padding" style="width:auto;">\
+                    //    <textarea id="textarea_Accept_#TextAreaId#" style="height:75px;width:200px;" placeholder="Enter Notes" ></textarea>\
+                    //        </span>\
+                    //   </div>';
+
+
+                    var parsedData = JSON.parse(data);
+                    if (parsedData.length > 1) {
+                        $.each(parsedData, function (i, val) {
+
+                            if (val["State"] == "1") {
+                               
+                                if (val['isClassRoomClosed'] == 1) {
+                                    var Closedtext = 'Classroom has be closed today, due to <i>' + val["ClassRoomClosedComments"] + '</i>';
+                                    input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", val["ClassroomName"]).replace('##ClassRoomClosedText##', Closedtext).replace('#color#', 'purple');
+                                }
+                                else if (val['isCenterClosed'] == 1 || val['IsAgencyClosed'] == 1) {
+                                    input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", val["ClassroomName"]).replace('#color#', '#295b8f').replace('##ClassRoomClosedText##', '');
+                                }
+                                else {
+                                    input += CloseTemplate.replace("#TextAreaId#", val["ClassroomID"]).replace("#textAreaDiv#", val["ClassroomID"]).replace("##CLASSROOMIDNOTES##", val["ClassroomID"]).replace("#NOTESVALUE#", val["ReasonEntered"].trim().slice(0, -1)).replace("##CLASSROOMNAME##", val["ClassroomName"]).replace("##CLASSROOMID##", val["ClassroomID"]).replace("##YakkrID##", val["YakkrId"]).replace("##YakkrID1##", val["YakkrId"]).replace("##CLASSROOMID##", val["ClosingId"]).replace("##radioname1##", 'radio_' + val["ClassroomID"]).replace("##radioname2##", 'radio_' + val["ClassroomID"]);
+                                }
+
+                            }
+                            else if (val["State"] == "0") {
+                                input += OpenTemplate.replace("##CLASSROOMNAME##", val["ClassroomName"]).replace("##CLASSROOMID##", val["ClassroomID"]).replace("##YakkrID##", val["YakkrId"]).replace("##YakkrID1##", val["YakkrId"]).replace("##REQUESTID##", val["ClosingId"]).replace("##classID##", 'check_' + val["ClassroomID"]);
+                            }
+                            else if (val["State"] == "-1") {
+
+                                if (val['isClassRoomClosed'] == 1) {
+                                    var Closedtext = 'Classroom has be closed today, due to <i>' + val["ClassRoomClosedComments"] + '</i>';
+                                    input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", val["ClassroomName"]).replace('##ClassRoomClosedText##', Closedtext).replace('#color#', 'purple');
+                                }
+                                else if (val['isCenterClosed'] == 1 || val['IsAgencyClosed'] == 1) {
+                                    input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", val["ClassroomName"]).replace('#color#', '#295b8f').replace('##ClassRoomClosedText##', '');
+                                }
+                                else {
+                                    input += Template.replace("##CLASSROOMNAME##", val["ClassroomName"]).replace("##CLASSROOMID##", val["ClassroomID"]).replace("##YakkrID##", val["YakkrId"]).replace("##YakkrID1##", val["YakkrId"]).replace("##REQUESTID##", val["ClosingId"]).replace("##classID##", 'check_' + val["ClassroomID"]);
+                                }
+
+                            }
+                        });
+
+                        if (parsedData[0].isCenterClosed) {
+
+                            $('.text-heading').css({ 'color': 'purple' });
+                            $('#entire-center-label').html('Center has been closed today, due to ' + parsedData[0].CenterClosedComments + '').css({ 'color': '#f44336' });
+                            $('#entire-center-label').removeClass('col-lg-2');
+                            $('#entire-center-label').addClass('col-lg-12');
+                            $('#close-center-span').hide();
+                            // $('.check-entire-center').prop('checked', true).parent().parent().siblings('label').css({ 'color': 'purple' });
+                            // $('.check-entier-center').after('<span>Center has been closed today, due to ' + parsedData[0].CenterClosedComments + '</span>');
+                        }
+                        else if (parsedData[0].IsAgencyClosed) {
+                            $('.check-entire-center').prop('checked', false);
+                            $('#entire-center-div').hide();
+                            $('#staff-come-div').hide();
+                            $('#agencyClosedDiv').find('#agency-closed-info').html('Agency has been closed today');
+                            $('#agencyClosedDiv').show();
+                        }
+                        else {
+                            $('.check-entire-center').prop('checked', false);
+                        }
+
+                    }
+                    else {
+                        if (JsonData[0].State == "1") {
+
+                            if (JsonData[0].isClassRoomClosed == 1) {
+                                var Closedtext = 'Classroom has be closed today, due to <i>' + JsonData[0].ClassRoomClosedComments + '</i>';
+                                input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace('##ClassRoomClosedText##', Closedtext).replace('#color#', 'purple');
+                            }
+                            else if (JsonData[0].isCenterClosed == 1 || JsonData[0].IsAgencyClosed == 1) {
+                                input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace('#color#', '#295b8f').replace('##ClassRoomClosedText##', '');
+                            }
+
+                            else {
+                                input += CloseTemplate.replace("#TextAreaId#", JsonData[0].ClassroomID).replace("#textAreaDiv#", JsonData[0].ClassroomID).replace("##CLASSROOMIDNOTES##", JsonData[0].ClassroomID).replace("#NOTESVALUE#", JsonData[0].ReasonEntered.trim().slice(0, -1)).replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace("##CLASSROOMID##", JsonData[0].State).replace("##YakkrID##", JsonData[0].YakkrId).replace("##YakkrID1##", JsonData[0].YakkrId).replace("##REQUESTID##", JsonData[0].ClosingId).replace("##radioname1##", 'radio_' + JsonData[0].ClassroomID).replace("##radioname2##", 'radio_' + JsonData[0].ClassroomID);
+                            }
+
+                        }
+                        else if (JsonData[0].State == "0") {
+                            input += OpenTemplate.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace("##CLASSROOMID##", JsonData[0].State).replace("##YakkrID##", JsonData[0].YakkrId).replace("##YakkrID1##", JsonData[0].YakkrId).replace("##REQUESTID##", JsonData[0].ClosingId);
+                        }
+                        else if (JsonData[0].State == "-1") {
+
+                            if (JsonData[0].isClassRoomClosed == 1) {
+                                var Closedtext = 'Classroom has be closed today, due to <i>' + JsonData[0].ClassRoomClosedComments + '</i>';
+                                input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace('##ClassRoomClosedText##', Closedtext).replace('#color#', 'purple');
+                            }
+                            else if (JsonData[0].isCenterClosed == 1 || JsonData[0].IsAgencyClosed == 1) {
+                                input += AlreadyClosedInfoTemplate.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace('#color#', '#295b8f').replace('##ClassRoomClosedText##', '');
+                            }
+
+                            else {
+                                input += Template.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace("##CLASSROOMID##", JsonData[0].ClassroomID).replace("##YakkrID##", JsonData[0].YakkrId).replace("##YakkrID1##", JsonData[0].YakkrId).replace("##REQUESTID##", JsonData[0].ClosingId).replace("##classID##", 'check_' + JsonData[0].ClassroomID);
+                            }
+
+                            //  input += Template.replace("##CLASSROOMNAME##", JsonData[0].ClassroomName).replace("##CLASSROOMID##", JsonData[0].State).replace("##YakkrID##", JsonData[0].YakkrId).replace("##YakkrID1##", JsonData[0].YakkrId).replace("##REQUESTID##", JsonData[0].ClosingId);
+                        }
+
+                        if (JsonData[0].isCenterClosed) {
+
+                            $('.text-heading').css({ 'color': 'purple' });
+                            $('#entire-center-label').html('Center has been closed today, due to ' + JsonData[0].CenterClosedComments + '').css({ 'color': '#f44336' });
+                            $('#entire-center-label').removeClass('col-lg-2');
+                            $('#entire-center-label').addClass('col-lg-12');
+                            $('#close-center-span').hide();
+                            // $('.check-entire-center').prop('checked', true).parent().parent().siblings('label').css({ 'color': 'purple' });
+                            // $('.check-entier-center').after('<span>Center has been closed today, due to ' + parsedData[0].CenterClosedComments + '</span>');
+                        }
+                        else if (JsonData[0].IsAgencyClosed) {
+                            $('.check-entire-center').prop('checked', false);
+                            $('#entire-center-div').hide();
+                            $('#staff-come-div').hide();
+                        }
+                        else {
+                            $('.check-entire-center').prop('checked', false);
+                        }
+                    }
+                    $('.center-name').text($('.ddl-Centers option:selected').text());
+                    $('.content-classes').empty();
+
+                    $('.content-classes').append(input);
+
+                    if (parsedData.length > 0) {
+
+                        $.each(parsedData, function (i, val) {
+
+                            if (val["State"] == '1') {
+                                $('#textarea_Accept_' + val["ClassroomID"] + '').val(val["ReasonEntered"].trim().slice(0, -1));
+                            }
+
+                        });
+                    }
+
+
+                    $('.CheckClient-Close').on('change', function () {
+                        var notesTemplate = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;"id="div_#textAreaDiv#" >\
+                        <label class="col-lg-2 no-padding lbl-required" id="notesId" style="color:#295b8f">Notes</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                            <span class="col-lg-10 no-padding" style="width:auto;">\
+                        <textarea id="textarea_#TextAreaId#" style="height:75px;width:300px;" placeholder="Enter Notes"></textarea>\
+                            </span>\
+                       </div>';
+                        var classId = $(this).attr('id').split('_')[1];
+                        // alert(classId);
+                        if ($(this).is(':checked')) {
+
+                            if ($('.check-entire-center').is(':checked')) {
+                                var ctrID = $('.text-heading').attr('center-id');
+                                $('.check-entire-center').prop('checked', false);
+                                $('#div_' + ctrID + '').remove();
+
+                            }
+
+
+                            notesTemplate = notesTemplate.replace("#TextAreaId#", classId).replace("#textAreaDiv#", classId).replace("##CLASSROOMID##", classId);
+                            $(this).parent().parent().parent('div').after(notesTemplate);
+                        }
+                        else {
+                            $('#div_' + classId + '').remove();
+                        }
+                    });
+
+
+                    $('.check-entire-center').on('change', function () {
+
+                        var notesTemplate = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;"id="div_#textAreaDiv#" >\
+                        <label class="col-lg-2 no-padding lbl-required" id="notesId" style="color:#295b8f">Notes</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                            <span class="col-lg-10 no-padding" style="width:auto;">\
+                        <textarea id="textarea_#TextAreaId#" style="height:75px;width:300px;" placeholder="Enter Notes"></textarea>\
+                            </span>\
+                       </div>';
+                        var centrId = $('.text-heading').attr('center-id');
+
+                        if ($(this).is(':checked')) {
+
+                            if ($('.CheckClient-Close').length > 0) {
+                                $('.CheckClient-Close').each(function () {
+                                    var clsId = $(this).attr('id').split('_')[1];
+                                    $(this).prop('checked', false);
+                                    $(this).parent().parent().parent('div').siblings('#div_' + clsId + '').remove();
+                                });
+                            }
+
+                            if ($('.CheckClient').length > 0) {
+                                $('.CheckClient').each(function () {
+                                    debugger;
+                                    var clsId = $(this).attr('name').split('_')[1];
+                                    $(this).prop('checked', false);
+                                    $(this).parent().parent().parent('div').siblings('#div_Accept_' + clsId + '').hide();
+                                });
+                            }
+
+
+                            notesTemplate = notesTemplate.replace("#TextAreaId#", centrId).replace("#textAreaDiv#", centrId).replace("##CLASSROOMID##", centrId);
+                            $(this).parent().parent().parent('div').after(notesTemplate);
+                        }
+                        else {
+                            $('#div_' + centrId + '').remove();
+                        }
+                    });
+
+
+                    $('.CheckClient').on('change', function () {
+
+                        var clsroomId = $(this).attr('name').split('_')[1];
+
+                        if ($(this).attr('accept') == '1') {
+
+                            if ($('.check-entire-center').is(':checked')) {
+                                var ctrID = $('.text-heading').attr('center-id');
+                                $('.check-entire-center').prop('checked', false);
+                                $('#div_' + ctrID + '').remove();
+                            }
+
+                       //     var notesTemplate = '<div class="col-xs-12 no-padding" style="margin-bottom: 10px;"id="div_Accept_#textAreaDiv#" >\
+                       // <label class="col-lg-2 no-padding lbl-required" id="notesId" style="color:#295b8f">Notes</label><input type="hidden" class="class-room-id" value="##CLASSROOMID##"/>\
+                       //     <span class="col-lg-10 no-padding" style="width:auto;">\
+                       // <textarea id="textarea_Accept_#TextAreaId#" style="height:75px;width:200px;" placeholder="Enter Notes" ></textarea>\
+                       //     </span>\
+                       //</div>';
+
+                       //     notesTemplate = notesTemplate.replace("#TextAreaId#", clsroomId).replace("#textAreaDiv#", clsroomId).replace("##CLASSROOMID##", clsroomId);
+                            //     $(this).parent().parent().parent('div').after(notesTemplate);
+
+                            $('#div_Accept_' + clsroomId + '').val( $('#div_Accept_' + clsroomId + '').attr('value')).show();
+                        }
+                        else {
+                            $('#div_Accept_' + clsroomId + '').hide();
+                        }
+                    });
+
+
+                    if (parsedData.length > 0) {
+
+                        var staffCheck = (parsedData[0].IsStaffReport) ? 1 : 0
+                        $('input[name=staffComeRadio][value=' + staffCheck + ']').prop('checked', true);
+
+                        if (parsedData[0].isCenterClosed == 1) {
+                            $('input[name=staffComeRadio]').prop('disabled', true);
+                        }
+                    }
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+    </script>
+    <style>
+        #page-wrapper {
+            overflow: auto;
+        }
+
+        .error-message {
+            display: none;
+            font-size: 12px;
+            color: red;
+        }
+
+        .err-container {
+            height: 10px;
+        }
+
+        #myModalCenterList .form-group label {
+            margin-left: 0px;
+        }
+
+        #myModalCenterList .error-message.error-center-message {
+            float: right;
+            width: 70%;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        #myModalCenterList .modal-body {
+            border-top: 1px solid #e5e5e5;
+        }
+
+        #myModalCenterList .modal-header {
+            margin-bottom: 26px;
+        }
+
+        .ddl-mandatory {
+            width: 55%;
+            float: left;
+            display: inline-block;
+        }
+
+        .modal-center-width {
+            width: 400px;
+        }
+
+        .bdr-btm {
+            padding-bottom: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .name_lst {
+            width: 100%;
+            margin: auto;
+            margin-left: 14px;
+        }
+
+            .name_lst span {
+                float: left;
+                width: 100%;
+                line-height: 26px;
+            }
+
+        .text-heading {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #295b8f;
+            font-weight: bold;
+            font-family: arial,sans-serif;
+        }
+
+        .name_lst input[type="checkbox"], .name_lst input[type="radio"] {
+            margin: 0 8px;
+        }
+
+        .no-padding {
+            padding: 0;
+        }
+
+        .check_btn {
+            text-align: center;
+            width: 100%;
+            display: inline-block;
+        }
+
+            .check_btn input[type="button"] {
+                background: #295b8f;
+                padding: 6px;
+                /* margin: 0 auto; */
+                color: #fff;
+                border-radius: 0;
+                padding: 17px 13px;
+                width: 100px;
+                /* float: inherit; */
+                /* height: 35px; */
+                text-align: center;
+                /* line-height: 23px; */
+                cursor: pointer;
+                border: 0px;
+            }
+
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: red;
+            font-size: 14px;
+        }
+
+        .education-content-desc1 p {
+            background: #e74c3c;
+            border: 1px solid #c0392b;
+            padding: 12px 15px;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            margin: 0; /* font-weight: bold; */
+        }
+    </style>
+
+}
+
+
+
+@section maincontentholder
+        {
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header page-header-change">Center Closure</h2>
+        </div>
+    </div>
+    <div>
+        <div class="col-xs-12 no-padding main-container" style="display:none;">
+            <div class="col-xs-12 bdr-btm">
+
+                <div class="col-xs-12 no-padding" id="agencyClosedDiv" style="display:none;">
+                    <div class="col-xs-12 pad-change" style="margin-bottom:20px;">
+                        <div class="education-content-desc1">
+                            <p id="agency-closed-info"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="name_lst">
+                    <span class="text-heading">
+                        ABC Center
+                    </span>
+                    <div class="col-xs-12 no-padding content-classes">
+
+                    </div>
+                    <div class="col-xs-12 no-padding" id="entire-center-div">
+                        <label class="col-lg-2 no-padding" style="color:#6f6f6f" id="entire-center-label">Close Entire Center</label>
+                        <span class="col-lg-10 no-padding" style="width:auto;" id="close-center-span">
+                            <span style="width: auto;display: inline-block;"><input type="checkbox" class="check-entire-center" style="margin-left:0;"></span>
+                        </span>
+                    </div>
+
+                    <div class="col-xs-12 no-padding" id="staff-come-div">
+                        <label class="col-lg-2 no-padding" style="color:#6f6f6f">Staff Reports to Office ?</label>
+                        <span class="col-lg-10 no-padding" style="width:auto;">
+                            <span style="width: auto;display: inline-block;"><input type="radio" class="staff-not-come" name="staffComeRadio" value="1" style="margin-left:0;">&nbsp;Yes&nbsp;&nbsp;</span>
+                            <span style="width: auto;display: inline-block;"><input type="radio" class="staff-not-come" name="staffComeRadio" value="0" style="margin-left:0;">&nbsp;No</span>
+                        </span>
+                    </div>
+                    <div class="col-xs-12 no-padding">
+                        <div class="note-text" style="width:220px;display:inline-block;float:right;">
+                            <p style="width:100%;display:inline-block;font-size:15px;color:#333;float:left;">Center/Classroom Closed today</p>
+                        </div>
+                        <label class="note-color" style="width:15px;height:15px;margin-right:4px;margin-top:2px;display:inline-block;background:purple;float:right;"></label>
+                    </div>
+                    <div class="col-xs-12 no-padding">
+                        <div class="note-text" style="width:220px;display:inline-block;float:right;">
+                            <p style="width:100%;display:inline-block;font-size:15px;color:#333;float:left;">Classroom should be opened</p>
+                        </div>
+                        <label class="note-color" style="width:15px;height:15px;margin-right:4px;margin-top:2px;display:inline-block;background:#4CAF50;float:right;"></label>
+                    </div>
+                    <div class="col-xs-12 no-padding">
+                        <div class="note-text" style="width:220px;display:inline-block;float:right;">
+                            <p style="width:100%;display:inline-block;font-size:15px;color:#333;float:left;">Classroom should be closed</p>
+                        </div>
+                        <label class="note-color" style="width:15px;height:15px;margin-right:4px;margin-top:2px;display:inline-block;background:#F44336;float:right;"></label>
+                    </div>
+                    <div class="col-xs-12 no-padding" style="margin-bottom:5px;">
+                        <div class="note-text" style="width:220px;display:inline-block;float:right;">
+                            <p style="width:100%;display:inline-block;font-size:15px;color:#333;float:left;">Daily safety check is not done</p>
+                        </div>
+                        <label class="note-color" style="width:15px;height:15px;margin-right:4px;margin-top:2px;display:inline-block;background:#295b8f;float:right;"></label>
+                    </div>
+                    <div class="check_btn col-xs-12 no-padding">
+                        <input type="button" id="Save" value="Submit" class="btn-submit-centerclosure">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <input type="hidden" class="center-id" />
+    @*ModalPopUp*@
+    <div class="modal fade in" id="myModalCenterList" role="dialog" style="display: none; padding-right: 17px;">
+        <div class="modal-dialog modal-md modal-center-width">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:0px;height: 25px;">
+                    <h4 class="modal-title">Center List</h4>
+                </div>
+                <div class="modal-body" style="border-top:1px solid #e5e5e5">
+                    <div class="form-group input-container">
+                        <label class="control-label" for="current_password">Choose Center</label>
+                        @Html.DropDownList("ddlCenters", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(),Session["RoleID"].ToString()), new { @class = "form-control ddl-Centers mandatory ddl-mandatory" })
+                        <div class="err-container">
+                            <label class="control-label"></label>
+                            <span class="error-message error-center-message" style="width:55%;float:left;">Center is mandatory</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="pass_btn" style="text-align:center;">
+                        <input type="button" value="Submit" class="btn btn-primary btn-center-submit" style="padding:6px 35px;">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,350 @@
+﻿@{
+    @section Title{
+        Education Material Group Share
+    }
+    ViewBag.Title = "EducationMaterialGroupShare";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section maincontentholder
+        {
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+          select option {
+            background: #1f4f7d;
+        }
+    </style>
+
+    <link href="~/Content/EducationMaterial/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/EducationMaterial/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                @*<div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header">
+                        <div class="nav-icon1">
+                            <img src="images/nav-bar.png">
+                        </div>
+                    
+                    </div>
+                </div>*@
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header-title-client">
+                        <h1>Educational Material Library</h1>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+
+                        <div class="col-xs-12 text-center serch-library-block">
+                            <label class="library-label">Center</label>
+                            @Html.DropDownList("CenterId", (List<SelectListItem>)TempData["GroupCaseNotes"], new { @class = "form-control library-select", onchange = "GetClassrooms(this);" })
+                            @*<select name="" class="library-select">
+                        <option value="0">ABC</option>
+                    </select>*@
+                            <label class="library-label">Classroom</label>
+                            <select name="" class="library-select" id="Classroomid"></select>
+                            <label style="display:none;" class="library-label">Date</label>
+                            <input style="display:none;" type="text" placeholder="12/08/2017" class="library-select" />
+                            <div class="library-search-btn">
+                                <a href="javascript:void(0);" onclick="Loadallenrolledclinet();">Search</a>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 serch-client-block">
+                            <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+                                <div class="top-header-title-library col-xs-12 no-padding">
+                                    <h1>RESULTS</h1>
+                                </div>
+                                <div id="no-more-tables6" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                    <table class="col-md-12 table-striped table-condensed cf table-change library-table">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Names</th>
+                                                <th>DOB</th>
+                                                <th>Gender</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="library-table-head">
+                                            @*<tr>
+                                        <td data-title="">
+                                            <div class="library-content-desc">
+                                                <p style="height: 43px;text-align: center;width: 43px;margin: auto;"><img src="images/tick2.png"></p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Names">
+                                            <div class="library-content-desc" style="position: relative;">
+                                                <p>Tucker Crawmer</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="DOB">
+                                            <div class="library-content-desc">
+                                                <p>12/08/2017</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Gender">
+                                            <div class="library-content-desc">
+                                                <p>Male</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td data-title="">
+                                            <div class="library-content-desc">
+                                                <p style="height: 43px;text-align: center;width: 43px;margin: auto;"><img src="images/tick2.png"></p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Names">
+                                            <div class="library-content-desc" style="position: relative;">
+                                                <p>Gavin Gainer</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="DOB">
+                                            <div class="library-content-desc">
+                                                <p>12/08/2017</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Gender">
+                                            <div class="library-content-desc">
+                                                <p>Male</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td data-title="">
+                                            <div class="library-content-desc">
+                                                <p style="height: 43px;text-align: center;width: 43px;margin: auto;"><img src="images/tick2.png"></p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Names">
+                                            <div class="library-content-desc" style="position: relative;">
+                                                <p>Kiely Carley</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="DOB">
+                                            <div class="library-content-desc">
+                                                <p>12/08/2017</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Gender">
+                                            <div class="library-content-desc">
+                                                <p>Female</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td data-title="">
+                                            <div class="library-content-desc">
+                                                <p style="height: 43px;text-align: center;width: 43px;margin: auto;"></p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Names">
+                                            <div class="library-content-desc" style="position: relative;">
+                                                <p>Jason Mile</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="DOB">
+                                            <div class="library-content-desc">
+                                                <p>12/08/2017</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Gender">
+                                            <div class="library-content-desc">
+                                                <p>Female</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td data-title="">
+                                            <div class="library-content-desc">
+                                                <p style="height: 43px;text-align: center;width: 43px;margin: auto;"></p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Names">
+                                            <div class="library-content-desc" style="position: relative;">
+                                                <p>Kyla Valentine</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="DOB">
+                                            <div class="library-content-desc">
+                                                <p>12/08/2017</p>
+                                            </div>
+                                        </td>
+                                        <td data-title="Gender">
+                                            <div class="library-content-desc">
+                                                <p>Female</p>
+                                            </div>
+                                        </td>
+                                    </tr>*@
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-xs-12" style="text-align:center;margin-bottom:10px;">
+                                    <div class="library-search-btn">
+                                        <a href="javascript:void(0);" style="width: 195px!important;" class="btn-share">Share Material</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="~/Content/EducationMaterial/js/bootstrap.js"></script>
+<script src="~/Content/EducationMaterial/js/jquery.js"></script>
+<script src="~/Content/EducationMaterial/js/jquery.mCustomScrollbar.min.js"></script>
+<script src="~/Content/EducationMaterial/js/script.js"></script>
+@*<script src="~/Content/Scripts/EducationMaterial.js"></script>*@
+<script type="text/javascript">
+            $(document).ready(function () {
+                var linkys = document.getElementsByClassName('dropdown-toggle');
+                for (var i = 0; i < linkys.length; ++i) {
+                    linkys[i].onclick = function (e) {
+                        this.focus();
+                        e.preventDefault();
+                    };
+                }
+                $('body').on('click', '.dropdown', function () {
+                    setTimeout(function ()
+                    { $('.dropdown').addClass('open'); }, 100);
+
+                });
+                $('.btn-share').click(function () {
+                    var clientids = "";
+                    $('.chkclient').each(function () {
+                        if($(this).is(':checked'))
+                        {
+                            clientids =clientids+ "," + $(this).attr('accesskey');
+                        }
+                    });
+                    if (clientids != "")
+                        window.location.href = "/EducationMaterial/ShareMaterial?ClientId=" + clientids + "";
+                    else
+                        customAlert("Please select client");
+                    //$.ajax({
+                    //    type: "POST",
+                    //    url: "/Home/GetMaterialDetails",
+                    //    // data: { 'DomainId': DomainId },
+                    //    success: function (data) {
+                    //    },
+                    //    error: function (data) {
+                    //        console.log(data);
+                    //    }
+                    //});
+
+                });
+            });
+            function GetClassrooms(Select) {
+                if ($(Select).val() == "0")
+                {
+                    $('#Classroomid').empty();
+                }
+                else {
+                    $('#DivclientenrolledList > tbody > tr').remove();
+                    $('#div1').show();
+                    $.ajax({
+                        url: HostedDir + "/EducationMaterial/Getclassrooms",
+                        type: "POST",
+                        data: {
+                            Centerid: $(Select).val()
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            $('#Classroomid').empty();
+                            if (response.length > 0) {
+                                var option = "";
+                                for (var i = 0; i < response.length; i++) {
+                                    option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
+                                }
+                                $('#Classroomid').find('option').remove().end().append(option);
+                                $('#Classroomid').val('');
+                            }
+                            else {
+                                $('#Classroomid').find('option').remove();
+                            }
+                        }
+                           , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                           }
+                    });
+                }
+              
+
+            }
+            function Loadallenrolledclinet(Object) {
+                cleanValidation();
+                $('#checkboxtable').prop("checked", false);
+                if ($('#CenterId').val() == null) {
+                    customAlert("Center is required.");
+                    plainValidation('#CenterId');
+                }
+                else if ($('#Classroomid').val() == null) {
+                    customAlert("Classroom is required.");
+                    plainValidation('#Classroomid');
+                }
+                else {
+                    $.ajax({
+                        url: HostedDir + "/EducationMaterial/LoadGroupCaseNoteClient",
+                        type: "POST",
+                        data: {
+                            Centerid: $('#CenterId').val(),
+                            Classroom: $('#Classroomid').val()
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (data) {
+                            BindClientenrolled(data);
+                        }
+                       , error: function (data) {
+                           customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                       }
+                    });
+                }
+
+            }
+            function BindClientenrolled(data) {
+                console.log(data);
+                if (data != null && data.length > 0) {
+                    $('#showbutton').show();
+                    $('#div1').hide();
+                    $('.library-table-head').empty();
+                    for (var i = 0; i < data.length; i++) {
+
+                        var tr = "";
+                        tr += "<tr>";
+                        tr += '<td data-title=""><input accesskey="' + data[i].Eclientid + '" class="minimal chkclient" type="checkbox" onchange="checkheadercheckbox(this);"   style="width:auto;" value="true"></td>';
+                        tr += "<td data-title='Names'> <div class='library-content-desc' style='position: relative;'><p style='min-height:35px;'>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</p></div></td>";
+                        tr += "<td data-title='DOB'> <div class='library-content-desc'><p style='min-height:35px;'>" + ((typeof (data[i].DOB) != 'undefined') && (data[i].DOB != null) ? data[i].DOB : '') + " </span></p></div></td>";
+                        tr += "<td data-title='Gender'><div class='library-content-desc'><p style='min-height:35px;'>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></p></div></td>";
+                        tr += "</tr>";
+                        console.log(tr);
+                        $('.library-table-head').append(tr);
+                    }
+                }
+                else {
+                    $('.library-table-head').empty();
+                    $('#div1').show();
+                }
+            }
+</script>
+<script type="text/javascript">
+            function toggleIcon(e) {
+                $(e.target)
+                        .prev('.panel-heading')
+                        .find(".more-less")
+                        .toggleClass('glyphicon-plus glyphicon-minus');
+            }
+            $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+            $('.panel-group').on('shown.bs.collapse', toggleIcon);
+</script>
+}

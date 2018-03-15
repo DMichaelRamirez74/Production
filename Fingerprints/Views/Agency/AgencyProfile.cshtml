@@ -1,0 +1,2507 @@
+﻿@model FingerprintsModel.Agency
+@{
+    @section Title
+{
+        @if (ViewData["Title"] != null)
+        {
+
+            @ViewData["Title"].ToString()
+        }
+
+    }
+    if (Session["AgencyID"] != null && Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")))
+    {
+        if (Session["LeftMenu"] != null)
+        {
+            if (Session["LeftMenu"].ToString() == "SuperAdmin")
+            {
+                Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+            }
+            else
+            {
+                Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+            }
+        }
+        else
+        {
+            Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+        }
+    }
+    else
+    {
+        Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+    }
+}
+@section Script{
+
+    <script type="text/javascript">
+    //var isValid = true;
+
+    //var round = 0;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+        var countgrd1 = 0;
+        var count1 = 0;
+        $("input[id^='programstartDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $("input[id^='programendDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $("input[id^='Date']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $("input[id^='ProgramYear']").each(function () {
+            $(this).mask("99-99", { placeholder: 'YY-YY' });
+        });
+        $('#ActiveProgYear').mask("99-99", { placeholder: 'YY-YY' });
+        $('#AccessStart').timepicker({ 'timeFormat': 'h:i A' });
+        $('#AccessStop').timepicker({ 'timeFormat': 'h:i A' });
+        $('#ProgramStartTime').timepicker({ 'timeFormat': 'h:i A' });
+        $('#ProgramEndTime').timepicker({ 'timeFormat': 'h:i A' });
+        $("#phone1").mask("(999) 999-9999");
+        $("#phone2").mask("(999) 999-9999");
+        $("#side-menu li a").removeClass("active");
+        $('#addagency').addClass("active");
+        $('#ul1').addClass("in");
+        $('#li2').addClass("active");
+        $('#liadd').addClass("active");
+        if ('@ViewBag.message' != '') {
+            customAlert('@ViewBag.message');
+        }
+        if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+            customAlertforlongtime('@TempData["message"]');
+        }
+        @{
+            TempData["message"] = null;
+        }
+        $('#btnExitClassroom').click(function () {
+            $('#divclass').hide();
+        });
+
+        var dateToday = new Date();
+        dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+        $("input[id^='programstartDate']").each(function () {
+            $(this).datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                minDate: dateToday,
+            });
+        });
+
+        $("input[id^='programendDate']").each(function () {
+            $(this).datetimepicker({
+                timepicker: false,
+                format: 'm/d/Y',
+                minDate: dateToday,
+            });
+        });
+
+        $("input[id^='programstartDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $("input[id^='programendDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $("input[id^='Date']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+        if ('@ViewBag.mode' == 0) {
+            //$('#ReferenceProg').val('');
+            $('#nationality').val('');
+            $('#DdlAccessType').val('');
+            $('#TimeZoneID').val('');
+            $('#DdlProgTypeList').val('');
+            $('#Amount').val('');
+            $('#Ddlfundingtype').val('');
+            $('#Duration').val('');
+        }
+
+        $("#programstartDate").datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+            minDate: dateToday,
+        });
+        $("#programendDate").datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+            minDate: dateToday,
+        });
+        $("#AccessStartDate").datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+            minDate: dateToday,
+        });
+        $("#Date").datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+            minDate: dateToday,
+        });
+        $("#programstartDate").on("keypress paste", function (event) {
+            event.preventDefault();
+        });
+        $("#programendDate").on("keypress paste", function (event) {
+            event.preventDefault();
+        });
+        $("#AccessStartDate").on("keypress paste", function (event) {
+            event.preventDefault();
+        });
+        //$("#Date").on("keypress paste", function (event) {
+        //    event.preventDefault();
+        //});
+        $('#form1').submit(function () {
+            $('#btnSubmit').attr('disabled', 'disabled');
+        });
+        $("#userName").on('change keypress paste', function (e) {
+            if (e.which === 32)
+                return false;
+            if ($(this).val().match(/\s/g)) {
+                $(this).val($(this).val().replace(/\s/g, ''));
+            }
+        });
+
+        if ($('#agencyId').val() != "0") {
+            $('#ShowDiv').show();
+            // drawproglist();
+        }
+        $('#userName').bind("cut copy paste", function (e) {
+            e.preventDefault();
+        })
+
+        try {
+            // If super admin login into agency Making entire form read only
+            if ('@Session["Roleid"]'.length > 0) {
+                var role = '@Session["Roleid"].ToString()';
+                if (role.toUpperCase() == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                    $('#BackToList').show();   // Back to list button only visible to super admin
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        if ('@Session["LeftMenu"]'.length) {
+                            var menu = '@Session["LeftMenu"].ToString()';
+                            if (menu.toUpperCase() == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
+                                $('#form1 input').attr('readonly', true);
+                                $('#form1 Button').attr('disabled', true);
+                                $('#form1 select').attr('disabled', true);
+                                $('#BtnChange').attr("onClick", "return false");
+                            }
+                        }
+                        //$('#form1 #btnExit').attr('disabled', false);
+                        //  $('#BackToList').hide();
+                    }
+                }
+                else {
+                    // $('#BackToList').hide();   // Hiding back to list button if role is not superadmin
+                }
+            }
+        }
+        catch (err) {
+        }
+        // end of code
+
+        if ('@Session["Roleid"]'.length > 0) {
+            var role = '@Session["Roleid"].ToString()';
+                if (role.toUpperCase() == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                    $('#btnExit').click(function () {
+                        window.location.href = HostedDir + "/Home/SuperAdminDashboard";
+                    });
+                }
+                else {
+                    $('#btnExit').click(function () {
+                        window.location.href = HostedDir + "/Home/AgencyAdminDashboard/";
+                    });
+
+                }
+            }
+        });
+
+        function checkIfNumericDigit(el) {
+
+            var ex = /^[0-9]+\.?[0-9]*$/;
+            if (ex.test(el.value) == false) {
+                el.value = "";
+            }
+            var ex = /^\d*\.?\d{0,2}$/;
+            if (ex.test(el.value) == false) {
+                // el.value = el.value.substring(0, el.value.indexOf('.') + 3);
+                el.value = "";
+            }
+            var lastChar = el.value.substring(el.value.length - 1);
+            if (lastChar == ".") {
+                //el.value = el.value.substring(0, el.value.length - 1);
+                el.value = "";
+            }
+        }
+
+
+
+        function isValidagencyInfo() {
+            var count1 = 0;
+            var countgrd1 = 0;
+            cleanValidation();
+            var isValid = true;
+            if ($('#agencyName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Agency name is required.");
+                plainValidation('#agencyName');
+                return isValid;
+            }
+            else if ($('#primaryEmail')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Email is required.");
+                plainValidation('#primaryEmail');
+                return isValid;
+            }
+            else if ($('#primaryEmail')[0].value.trim() != "" && !validateEmail($('#primaryEmail')[0].value.trim())) {
+                isValid = false;
+                customAlert("Please enter valid email id.");
+                plainValidation('#primaryEmail');
+                return isValid;
+            }
+            else if ($('#firstName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("First name is required.");
+                plainValidation('#firstName');
+                return isValid;
+            }
+            else if ($('#LastName')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Last name is required.");
+                plainValidation('#LastName');
+                return isValid;
+            }
+            else if ($('#zipCode')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Zip code is required.");
+                plainValidation('#zipCode');
+                return isValid;
+            }
+            else if ($('#address1')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Address is required.");
+                plainValidation('#address1');
+                return isValid;
+            }
+            else if ($('#phone1')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Phone1 is required.");
+                plainValidation('#phone1');
+                return isValid;
+            }
+            else if ($('#nationality')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Country is required.");
+                plainValidation('#nationality');
+                return isValid;
+            }
+            else if ($('#TimeZoneID')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select timezone from list.");
+                plainValidation('#TimeZoneID');
+                return isValid;
+            }
+            else if ($('#AccessStartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Access start date is required.");
+                plainValidation('#AccessStartDate');
+                return isValid;
+            }
+            else if ($('#AccessStart')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select access start time.");
+                plainValidation('#AccessStart');
+                return isValid;
+            }
+            else if ($('#AccessStop')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select access stop time.");
+                plainValidation('#AccessStop');
+                return isValid;
+            }
+            else if ($('#ActiveProgYear')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Active program year is required.");
+                plainValidation('#ActiveProgYear');
+                return isValid;
+            }
+
+            else if ($('#DdlAccessType')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select access type from list.");
+                plainValidation('#DdlAccessType');
+                return isValid;
+            }
+            else if (!$("input:radio[name='DocsStorage']").is(":checked")) {
+                isValid = false;
+                customAlert("Document storage is required. ");
+                return isValid;
+            }
+
+            else if ($('#FSWYearlyVisit').val().trim() == "") {
+                isValid = false;
+                customAlert("FSW yearly visit is required.");
+                plainValidation('#FSWYearlyVisit');
+                return isValid;
+            }
+            else if (!$("input:radio[name='Transportation']").is(":checked")) {
+                isValid = false;
+                customAlert("Transportation information is required. ");
+                return isValid;
+            }
+            else if (!$("input:radio[name='Areabreakdown']").is(":checked")) {
+                isValid = false;
+                customAlert("Area breakdown is required. ");
+                return isValid;
+            }
+            else if ($('.fundclass').children().length <= 0) {
+                isValid = false;
+                customAlert("Please add fund and program types.");
+                return isValid;
+            }
+
+            else if ($('#divclass').show()) {
+                var Programtype = [];
+                var Programtypeduplicate = [];
+                $('.fundclass').children().each(function () {
+                    if (!isValid)
+                        return isValid;
+                    var ProgCount = 0;
+                    var PeopleServedcount = 0;
+                    if ($(this).children().length > 0) {
+
+                        if ($('[name="FundSourcedata[' + count1 + '].Acronym"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("Acronym is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].Acronym"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].Description"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("Description is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].Description"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].Amount"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("Amount is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].Amount"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].Date"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("Date is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].Date"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].ServiceQty"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("People served is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].ServiceQty"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].ProgramYear"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("Program Year is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].ProgramYear"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].grantNo"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("GrantNo is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].grantNo"]'));
+                            return isValid;
+                        }
+                        if ($('[name="FundSourcedata[' + count1 + '].nameGranteeDelegate"]').val() == "" && isValid) {
+                            isValid = false;
+                            customAlert("Grantee/Delegate is required.");
+                            plainValidation($('[name="FundSourcedata[' + count1 + '].nameGranteeDelegate"]'));
+                            return isValid;
+                        }
+                        var itemobj = null;
+                        var tdval = $('table#gridprogram_' + count1 + '> tbody > tr');
+                        for (var z = 0; z < tdval.length; z++) {
+                            var tmp00 = $(tdval[z]).html();
+                            var inputCouy = $(tmp00).find('input[type=text]');
+                            for (var j = 0; j < inputCouy.length; j++) {
+                                itemobj = $(inputCouy[j])[0].id;
+
+                                if (itemobj.indexOf("Slots_") != -1) {
+                                    PeopleServedcount = PeopleServedcount + ($('#' + itemobj).val().trim() == "" ? 0 : parseInt($('#' + itemobj).val()));
+                                }
+                                if (itemobj.indexOf("ProgType_") != -1) {
+                                    if ($('#' + itemobj).val().trim() != "")
+                                        Programtype.push($('#' + itemobj).val().toUpperCase());
+                                }
+
+
+                                if (itemobj.indexOf("Area_") != -1) {
+                                    if ($('#Areabreakdown1').prop("checked")) {
+                                        //if ($('#' + itemobj).val() == "") {
+                                            if ($('#' + itemobj).val() == "" && $('#' + itemobj)[0].readOnly != true) {
+                                            isValid = false;
+                                            customprogAlert(itemobj);
+                                            return isValid;
+                                        }
+                                    }
+                                }
+                                else {
+                                    //if ($('#' + itemobj).val() == "") {
+                                        if ($('#' + itemobj).val() == "" && $('#' + itemobj)[0].readOnly != true) {
+                                        isValid = false;
+                                        customprogAlert(itemobj);
+                                        return isValid;
+                                    }
+                                }
+                            }
+                        }
+
+
+
+                        if (PeopleServedcount != 0) {
+                            if (parseInt($('[name="FundSourcedata[' + count1 + '].ServiceQty"]').val()) != PeopleServedcount) {
+                                isValid = false;
+                                customAlert("People Served must be equal to people entered in programs.");
+                                plainValidation($('[name="FundSourcedata[' + count1 + '].ServiceQty"]'));
+                                return isValid;
+                            }
+                        }
+
+
+                    }
+                    PeopleServedcount = 0;
+                    count1 = count1 + 1;
+
+                });
+                if (Programtype.length > 0) {
+                    Programtypeduplicate = Programtype.sort();
+                    for (var i = 0; i < Programtypeduplicate.length - 1; i++) {
+                        if (Programtypeduplicate[i + 1] == Programtypeduplicate[i]) {
+                            Programtype = [];
+                            Programtypeduplicate = [];
+                            isValid = false;
+                            customAlert("Program type cannot be duplicate in funds.");
+                            return isValid;
+                        }
+                    }
+                }
+            }
+            $('#spinner').show();
+            //isValid = true;
+            return isValid;
+            $('#spinner').hide();
+        }
+
+        ///function for custom alert by id
+        function customprogAlert(id) {
+
+            if (id.indexOf("ProgType_") != -1) {
+                customAlert("Program type is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("Desc_") != -1) {
+                customAlert("Description is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("Slots_") != -1) {
+                customAlert("People is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("Area") != -1) {
+                customAlert("Area designation is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("Minage_") != -1 || id.indexOf("minage_") != -1) {
+                customAlert("Minimum age is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("Maxage_") != -1) {
+                customAlert("Maximum age is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("programstartDate_") != -1) {
+                customAlert("Program start date is required. ");
+                plainValidation($('#' + id));
+            }
+            else if (id.indexOf("programendDate_") != -1) {
+                customAlert("Program end date is required. ");
+                plainValidation($('#' + id));
+            }
+
+        }
+
+
+
+
+
+
+
+
+        function EnableDisable() {
+            if ($('#primaryEmail').is('[readonly]')) {
+                $("#primaryEmail").removeAttr("readonly");
+            }
+            else {
+                $("#primaryEmail").prop("readonly", true);
+            }
+        }
+        function checkage(value, round) {
+            isValiddob = true;
+
+            if (isNaN(value.value)) {
+                value.value = "";
+            }
+            return isValiddob;
+        }
+
+        function checkagemax(value) {
+            isValiddob = true;
+            if (isNaN(value.value)) {
+                value.value = "";
+            }
+
+            return isValiddob;
+        }
+        function checkZipCode(inputTextObject) {
+            var ret = true;
+            var Zipcode = $(inputTextObject).val();
+            var len = Zipcode.length;
+            if ((isNaN(inputTextObject.value)) && (len < 5)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+                var ret = false;
+            }
+            else if (len < 5) {
+                $(inputTextObject).val('');
+                customAlert("Zip code length must be 5 digit. ");
+                var ret = false;
+            }
+            else if (isNaN(inputTextObject.value)) {
+                $(inputTextObject).val('');
+                customAlert("Zip code must be numeric. ");
+                var ret = false;
+            }
+            return ret;
+        }
+
+        function ShowDiv() {
+            var round = 0;
+            var rowcount = $('#divclass').children().length;
+            var numItems = $('.funddiv').length
+            round = numItems;
+            $('#divclass').show();
+            var funddiv = ' <div>  <div id =' + round + ' class="col-lg-12"><h2 class="page-header funddiv">Fund and Program Types  <a accesskey="0" onclick="RemoveFund(this);" class="pull-right" style="color:#285b8f !important;" href=" javascript:void(0)">Delete </a></h2>  </div>' +
+                '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Acronym <sup>*</sup> </label><input type="text" name="FundSourcedata[' + round + '].Acronym" id = "Acronym" Name = "Acronym" placeholder = "Acronym" maxlength="11" ' +
+            'class="form-control"><input id ="FundSourceID' + round + '" type="hidden" value="" name="FundSourcedata[' + round + '].FundID" /></div>' +
+            '</div> <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"> <label for="email">Description<sup>*</sup></label><input type="text" name="FundSourcedata[' + round + '].Description" id = "Description" class="form-control" placeholder="Description" maxlength="50" ' +
+            'class="form-control"><input type="hidden" value="" name="FundSourcedata[' + round + '].Description" /></div> </div>' + ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Amount<sup>*</sup></label><input type="text" class="form-control"  id = "Amount" name="FundSourcedata[' + round + '].Amount"  placeholder = "Amount" onblur="checkIfNumericDigit(this);" maxlength="11" ></div></div>' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="pwd">Fund Date <sup>*</sup> </label><input type="text" class="form-control"  id = "Date' + round + '" onblur="return Checkyearago(this);" name="FundSourcedata[' + round + '].Date" placeholder = "MM/DD/YYYY" maxlength="11" >  </div></div>' +
+            '<div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"><label for="pwd">Duration <sup>*</sup> </label><select class="form-control" id="FundSourcedata[' + round + '].Duration" name="FundSourcedata[' + round + '].Duration">' +
+            ' <option value="1">1 Month</option><option value="2">2 Month</option><option value="3">3 Month</option><option value="4">4 Month</option> <option value="5">5 Month</option><option value="6">6 Month</option><option value="7">7 Month</option><option value="8">8 Month</option><option value="9">9 Month</option><option value="10">10 Month</option><option value="11">11 Month</option><option value="12">12 Month</option> </select></div></div>' +
+            '  <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group">  <label for="pwd">People Served <sup>*</sup> </label><input type="text" class="form-control"  id = "ServiceQty" name="FundSourcedata[' + round + '].ServiceQty" placeholder = "People Served" onblur="checkNumeric(this);" maxlength="11" > </div></div> ' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Funding Type <sup>*</sup></label><select class="form-control" id="FundSourcedata[' + round + '].fundingtype" name="FundSourcedata[' + round + '].fundingtype">' +
+             ' <option value="1">County</option><option value="2">Fed</option><option value="3">Local</option><option value="4">Private</option> <option value="5">State</option></select></div></div>' +
+            '  <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"> <label for="email">Program Year <sup>*</sup> </label><input type="text"  class="form-control" id = "ProgramYear" name="FundSourcedata[' + round + '].ProgramYear" placeholder = "YY-YY" maxlength="11" > </div></div> ' +
+          ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Grant No <sup>*</sup></label> <input type="text" class="form-control"  id = "grantNo" name="FundSourcedata[' + round + '].grantNo" placeholder = "Grant No" maxlength="11" ><span>Add Program Types</span>    <a href="javascript:void(0)"  accesskey=" + FundSourcedata[' + round + '].progtypelist[0].ProgramID + "  title="Add Program Types" onclick="AddProgram(this,' + round + ');"><i class="fa fa-plus-square"></i></a></div>  </div>' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"><label for="email">Grantee/Delegate <sup>*</sup> </label> <input type="text" class="form-control" id = "nameGranteeDelegate" name="FundSourcedata[' + round + '].nameGranteeDelegate" placeholder = "Name of Grantee/Delegate" maxlength="11" ></div></div>' +
+             ' <div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Fund Source <sup>*</sup></label><select class="form-control" id="FundSourcedata[' + round + '].fundsource" name="FundSourcedata[' + round + '].fundsource"> <option value="1">Central Government</option><option value="2">State Government</option></select></div></div>' +
+           '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">   <div class="table-responsive">' +
+           '<table class="table table_size" id="gridprogram_' + round + '"><thead style="cursor:pointer;">' +
+            ' <tr> <th id="thIN">Program Type</th><th id="thIN">Description</th>  <th id="thSN">PIR</th> <th id="thnt">People</th> <th id="thCust">Reference Program</th> <th id="thCust">Area Designation</th>   <th id="thCust">Age Min</th>   <th id="thCust">Age Max</th> <th id="thCust" style="width:10%;">Program Start Date</th>    <th id="thCust" style="width:10%;">Program End Date</th><th id="thCust">Status</th><th id="thCheckbox" >Health Review?</th><th id="thCust">Delete</th></tr>  </thead>' +
+
+           ' <tbody>   <tr id=' + round + '0> <td><input style="width:100%;" id="ProgType_' + round + '0" class="form-control validate1" name="FundSourcedata[' + round + '].progtypelist[0].ProgramTypes" maxlength="5" type="text"></td>  <td><input style="width:100%;" id="Desc_' + round + '0" class="form-control validateDesc2" name="FundSourcedata[' + round + '].progtypelist[0].Description" type="text"></td>' +
+            ' <td><input id="PIRReport_' + round + '0" type="checkbox" value="true" name="FundSourcedata[' + round + '].progtypelist[0].PIRReport" data-val="true" class="chcktbl" style="width:70%;" /></td>   <td><input  style="width:100%;" onblur="checkNumeric(this);" id="Slots_' + round + '0" class="form-control validateSlot3" type="text" data-val="true" name="FundSourcedata[' + round + '].progtypelist[0].Slots" maxlength="100"></td>' +
+            ' <td><select id="ReferenceProg' + round + '0" class="form-control " onchange="showCheckbox(this);"  name="FundSourcedata[' + round + '].progtypelist[0].ReferenceProg" style="width:80px;"></select></td> ' +
+            '<td>   <input style="width:100%;"  type="text" id="Area' + round + '0" maxlength="50" class="form-control "  name="FundSourcedata[' + round + '].progtypelist[0].Area" /></td>' +
+            ' <td><input style="width:100%;" id="minage_' + round + '0" class="form-control validateMin4"  maxlength="1" name="FundSourcedata[' + round + '].progtypelist[0].MinAge" onblur="checkage(this,' + round + ');" type="text"></td> <td><input style="width:100%;" id="Maxage_' + round + '0" class="form-control validateMax5"  name="FundSourcedata[' + round + '].progtypelist[0].MaxAge" onblur="checkagemax(this);" type="text" maxlength="1"></td>' +
+            ' <td><input id="programstartDate_' + round + '0" onblur="return Checkyearago(this);" class="form-control validateprog6" name="FundSourcedata[' + round + '].progtypelist[0].ProgramStartDate" type="text" ></td>  <td><input id="programendDate_' + round + '0" onblur="return Checkyearago(this);" class="form-control validateprog7" name="FundSourcedata[' + round + '].progtypelist[0].ProgramEndDate" type="text" ></td>' +
+            '<td><select class="form-control" style = "width:80px;" id="FundSourcedata[' + round + '].progtypelist[0].ProgramID" name="FundSourcedata[' + round + '].progtypelist[0].ProgramID"> <option value="0">Active</option>' +
+           ' <td id="HealthReview" ><input id="HealthReview' + round + '0" class="chcktbl" style="width: 25%;" name="FundSourcedata[' + round + '].progtypelist[0].HealthReview" disabled="disabled" value="true" type="checkbox" ></td>' +
+             ' <input id ="trOldFundSourceID' + round + '0" type="hidden" value="N" name="FundSourcedata[' + round + '].OldFund" />' +
+              ' <input id ="trFundSourceID' + round + '0" type="hidden" value="" name="FundSourcedata[' + round + '].progtypelist[0].FundID" />' +
+            ' <input id ="trProgID' + round + '0" type="hidden" value="0" name="FundSourcedata[' + round + '].progtypelist[0].ProgramID" /></select></td>  <td><a accesskey="0" onclick="RemoveProg(this);" style="cursor:pointer;">Delete</a> </td> </tr> </tbody> </table>  </div></div><div class="fundquestion" style="display:none;"><div  class="col-lg-12">    <h4 class="page-header">Funded Enrollment by Program Options  </h4>  </div><div class="row" id="FundQuestion">' +
+             '<div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6"> <label class="lablewidth" for="email"><strong>1.</strong> Center-based option (5 days per week) Full-day Enrollment </label>' +
+              '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ1" class="form-control" style="width:100%;" maxlength="10" placeholder="Full-day Enrollment" type="text"></div></div></div>' +
+               '<div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth fund-label" for="email"><strong>1.a</strong> Number available as full-working-day enrollment of children  </label>' +
+               ' </div> <div class="col-lg-3 col-md-3 col-sm-3"><input  onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ2" class="form-control" style="width:104%;" maxlength="10" placeholder="Full Working Day" type="text"> </div><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth fund-label1" for="email"><strong>1.a.1</strong> Number available for the full-calendar-year of children</label>' +
+              '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ3" class="form-control" maxlength="10" style="width:104%;" placeholder="Full Calendar Year" type="text">' +
+               '</div></div>' +
+            ' <div class="row" > <div class="col-lg-12"> <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>2.</strong> Center-based option (5 days per week) Part-day Enrollment of children </label>' +
+                '</div> <div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ4" style="width:100%;" class="form-control" maxlength="10" placeholder="Part Day Enrollment" type="text"></div></div></div>' +
+            ' <div class="col-lg-12"> <div class="col-lg-6 col-md-6 col-sm-6">  <label class="lablewidth fund-label" for="email"><strong>2.a</strong> Number in double sessions of children</label>' +
+                '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ5" class="form-control" style="width:104%;" maxlength="10" placeholder="Double Sessions" type="text"></div><div class="row" ><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>3.</strong> Center-based option (4 days per week) Full-day Enrollment of children</label>' +
+             ' </div>  <div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ6" class="form-control" style="width:100%;" maxlength="10" placeholder="Full Day Enrollment" type="text">  </div>' +
+            '</div></div><div class="row" > <div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>4.</strong> Center-based option (4 days per week) Part-day Enrollment  of children </label>' +
+              '</div><div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ7" class="form-control" style="width:100%;" maxlength="10" placeholder="Part Day Enrollment" type="text"></div>' +
+            '</div></div> <div class="col-lg-12"> <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth fund-label" for="email"><strong>4.a</strong> Number in double sessions of children </label>' +
+              '</div> <div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ8" class="form-control" style="width:104%;" maxlength="10" placeholder="Double sessions" type="text"></div></div><div class="row" >  <div class="col-lg-12">' +
+             '<div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>5.</strong> Home-based option of children </label></div><div class="col-lg-3 col-md-3 col-sm-3">' +
+             '<input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ9" class="form-control" maxlength="10" style="width:100%;" placeholder="Home Based Option" type="text"></div></div></div><div class="row" ><div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6">' +
+            ' <label class="lablewidth" for="email"><strong>6.</strong> Combination option of children</label></div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);"  name="FundSourcedata[' + round + '].FundQ10" style="width:100%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">' +
+              '</div></div></div><div class="row" ><div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>7.</strong> Family child care option of children </label>' +
+                '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);"  name="FundSourcedata[' + round + '].FundQ11"  class="form-control"  style="width:100%;" maxlength="10" placeholder="Child Care Option" type="text"></div></div></div><div class="col-lg-12">' +
+                '<div class="col-lg-6 col-md-6 col-sm-6">  <label class="lablewidth fund-label" for="email"><strong>7.a</strong> Number available as full-working-day enrollment of children  </label>' +
+                '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ12" style="width:104%;"  class="form-control" maxlength="10" placeholder="Full Working Day Enrollment" type="text"></div>' +
+            '<div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth fund-label1" for="email"><strong>7.a.1</strong> Number available for the full-calendar-year of children </label>' +
+              '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ13" style="width:104%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text"></div></div><div class="row" ><div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>8.</strong> Locally designed option of children </label>' +
+               '</div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ14" style="width:100%;" class="form-control" maxlength="10" placeholder="Locally Designed option" type="text"></div>' +
+            '</div></div><div class="row" ><div class="col-lg-12">  <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>9.</strong> Funded enrollment at child care partners in the center-based program option of children </label>' +
+               '</div> <div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ15" style="width:100%;" class="form-control" maxlength="10" placeholder="Center Based Program Option" type="text"></div>' +
+            '</div></div><div class="row  Ehsshow" style="display:none;" ><div class="col-lg-12"><div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>10.</strong> Total number of pregnant women positions in funded enrollment of pregnant women </label>' +
+              ' </div><div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[' + round + '].FundQ16" style="width:100%;" class="form-control" maxlength="10" placeholder="Funded Enrollment Of Pregnant Women" type="text"> </div></div></div></div></div>';
+            $('#divedit').prepend(funddiv);
+            $('#FundSourcedata[' + round + '].Duration').val('');
+            $('#FundSourcedata[' + round + '].fundingtype').val('');
+            $('#FundSourcedata[' + round + '].fundsource').val('');
+            $('#FundSourceID' + round).val(round);
+            $('#trFundSourceID' + round + '0').val(round);
+            $("button[id^='btnExitClassroom']").click(function () {
+                $('#divclass').hide();
+            });
+            var dateToday = new Date();
+            dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+            $("input[id^='Date']").each(function () {
+                $(this).datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    changeMonth: true,
+                    changeYear: true,
+                    minDate: dateToday
+                });
+            });
+
+            $("input[id^='programstartDate']").each(function () {
+                $(this).datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday
+                });
+            });
+
+            $("input[id^='programendDate']").each(function () {
+                $(this).datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday
+                });
+            });
+            $("input[id^='ProgramYear']").each(function () {
+                $(this).mask("99-99", { placeholder: 'YY-YY' });
+            });
+            $("input[id^='ProgramStartTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+            $("input[id^='ProgramEndTime']").each(function () {
+                $(this).timepicker({ 'timeFormat': 'h:i A' });
+            });
+
+
+
+
+            $("input[id^='programstartDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $("input[id^='programendDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $("input[id^='Date']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            var selRefProgID = 'ReferenceProg' + round + '0';
+            var model = @Html.Raw(Json.Encode(@ViewBag.RefList))
+            BindDDLRefList(model, selRefProgID);
+        }
+        function BindDDLRefList(reflst, objID) {
+
+            var str = "";
+            for (var i = 0; i < reflst.length; i++) {
+                str += "<option value='" + reflst[i].Id + "' selected='selected'>" + reflst[i].Name + "</option>";
+            }
+            $("#" + objID).append(str);
+        }
+
+        function AddProgram(value, fundsourceID) {
+            var Countgrd = $(value).attr("accesskey").substring($(value).attr("accesskey").toString().indexOf("[") + 1, $(value).attr("accesskey").toString().indexOf("]"));
+            var prowcount = $('#gridprogram_' + Countgrd + ' > tbody').children().length;
+            var rounds = prowcount;
+            var divround = fundsourceID;
+            var str = "";
+            if ($(value).attr("accesskey")) {
+                var FundSourceProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].FundID";
+                var ProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramID"
+                var ProgramTypes = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramTypes";
+                var Description = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Description";
+                var PIRReport = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].PIRReport";
+                var Slots = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Slots";
+                var ReferenceProg = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ReferenceProg";
+                var Area = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Area";
+                var MinAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MinAge";
+                var MaxAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MaxAge";
+                var ProgramStartDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramStartDate";
+                var ProgramEndDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramEndDate";
+                var ProgramStartTime = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramStartTime";
+                var ProgramEndTime = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramEndTime";
+
+                var tr = '<tr id=' + divround + '' + rounds + '><td><input style="width:100%;" id="ProgType_' + divround + '' + rounds + '" class = "form-control validate1" name=' + ProgramTypes + ' type="text"  maxlength="5"></td>' +
+                    '<td><input style="width:100%;" id="Desc_' + divround + '' + rounds + '" class = "form-control validateDesc2" name=' + Description + ' type="text"  ></td> ' +
+                    '<td><input id="PIRReport_' + divround + '' + rounds + '" type="checkbox"  value="true" name=' + PIRReport + ' data-val="true"  class="chcktbl"  style="width:70%;" /></td> ' +
+                    '<td><input style="width:100%;" onblur="checkNumeric(this);" id="Slots_' + divround + '' + rounds + '" class = "form-control validateSlot3" name=' + Slots + ' type="text"  ></td> ' +
+                    '<td><select style="width:100%;" id="ReferenceProg' + divround + '' + rounds + '" onchange="showCheckboxSecond(this,' + divround + ',' + rounds + ');" class = "form-control" name=' + ReferenceProg + ' style="width:80px;" ></select></td>' +
+                    '<td><input style="width:100%;" maxlength="50" id="Area' + divround + '' + rounds + '" class = "form-control" name=' + Area + ' type="text"  ></td>' +
+                    '<td><input style="width:100%;" id="minage_' + divround + '' + rounds + '"  onblur="checkage(this);" class = "form-control validateMin4" name=' + MinAge + ' type="text" id="minage" maxlength="1" onblur="checkage(this);"></td>' +
+                    '<td ><input style="width:100%;" id="Maxage_' + divround + '' + rounds + '"  onblur="checkagemax(this);" class = "form-control validateMax5" type="text" id="Pnotes" data-val="true" name=' + MaxAge + '  maxlength="1" ></td>' +
+                    '<td><input onblur="return Checkyearago(this);" id="programstartDate_' + divround + '' + rounds + '" class = "form-control validateprog6"  name=' + ProgramStartDate + ' type="text"  ></td>' +
+                    '<td><input id="programendDate_' + divround + '' + rounds + '" class = "form-control validateprog7" onblur="return Checkyearago(this);"  name=' + ProgramEndDate + ' type="text"  ></td>' +
+
+
+
+
+
+                  //  '<td>' +
+                     '<td><select class="form-control" style = "width:80px;" id="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].ProgramID" name="FundSourcedata[' + divround + '].progtypelist[ ' + rounds + '].ProgramID"> <option value="0">Active</option>' +
+
+                     //Changes
+                     ' <td id="HealthReview' + divround + '' + rounds + '" ><input id="HealthReview' + divround + '' + rounds + '" class="chcktbl" style="width: 25%;" name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].HealthReview" disabled="disabled" type="checkbox" value="true" ></td>' +
+
+                    ' <td><a accesskey="0" onclick="RemoveProg(this);" style="cursor:pointer;">Delete</a> </td>' +
+                    //End
+
+
+
+                   //<a href="javascript:void(0)" onclick="RemoveProg(this,' + fundsourceID + ');;" style=" text-decoration:underline;">Delete</a>' +
+                   // '<td><select class="form-control" id="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].ProgramID" name="FundSourcedata[' + round + '].progtypelist[' + rounds + '].ProgramID">' +
+           // ' <option value="0">Active</option><option value="1">Inactive</option><option value="2">Suspended</option>' +
+
+                   ' <input id ="trFundSourceID' + divround + '' + rounds + '" type="hidden" value="" name=' + FundSourceProgID + ' />' +
+                   ' <input id ="trProgID' + divround + '' + rounds + '" type="hidden" value="" name=' + ProgID + ' /></select></td></tr>';
+
+                $('#gridprogram_' + Countgrd + ' > tbody').append(tr);
+                //$('#trFundSourceID' + divround + '' + rounds).val(fundsourceID);
+                //$('#trProgID' + divround + '' + rounds).val(rounds);
+                var selRefProgID = 'ReferenceProg' + divround + '' + rounds;
+                var model = @Html.Raw(Json.Encode(@ViewBag.RefList))
+        BindDDLRefList(model, selRefProgID);
+            $('#gridprogram_ > tbody tr').each(function () {
+                // var y = $(this).find('td:eq(8) :input[type="text"]').mask("MM/DD/YYYY");
+                // var z = $(this).find('td:eq(9) :input[type="text"]').mask("MM/DD/YYYY");
+                var x = $(this).find('td:eq(10) :input[type="text"]').timepicker({ 'timeFormat': 'h:i A' });
+                var w = $(this).find('td:eq(11) :input[type="text"]').timepicker({ 'timeFormat': 'h:i A' });
+            });
+            //$("input[id^='minage']").each(function () {
+            //    checkage(this);
+            //});
+            //$("input[id^='maxage']").each(function () {
+            //    checkagemax(this);
+            //});
+            var dateToday = new Date();
+            dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+            $("input[id^='programstartDate_']").each(function () {
+                $(this).datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday,
+                });
+            });
+
+            $("input[id^='programendDate_']").each(function () {
+                $(this).datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: dateToday,
+                });
+            });
+            $("input[id^='programstartDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $("input[id^='programendDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('#gridprogram_ > tbody tr:last').find('td:eq(0) :input').val("");
+            $("button[id^='btnExitClassroom']").click(function () {
+                $('#divclass').hide();
+            });
+            //for (var i = 0; i < model.length; i++) {
+            //    str = "<option value='" + model[i].Id + "' selected='selected'>" + model[i].Name + "</option>";
+            //    $("select[id^='ReferenceProg'+rounds+']").append(str);
+            //}
+        }
+    }
+
+    function showCheckbox(value) {
+        var round = 0;
+        if ($(value).val() == "4") {
+            $(value).closest('tr').find("td:eq(6)").find("input[type=text]").val('');
+            $(value).closest('tr').find("td:eq(6)").find("input[type=text]")[0].readOnly = true;
+            $(value).closest('tr').find("td:eq(7)").find("input[type=text]").val('');
+            $(value).closest('tr').find("td:eq(7)").find("input[type=text]")[0].readOnly = true;
+            
+            $(value).closest('tr').find("td:eq(11)").find("input[type=checkbox]").removeAttr("disabled");
+        }
+        else {
+            
+            $(value).closest('tr').find("td:eq(6)").find("input[type=text]")[0].readOnly = false;
+            $(value).closest('tr').find("td:eq(7)").find("input[type=text]")[0].readOnly = false;
+            $(value).closest('tr').find("td:eq(11)").find("input[type=checkbox]").attr("disabled", "disabled");
+            $(value).closest('tr').find("td:eq(11)").find("input[type=checkbox]").prop("checked", false);
+        }
+        var show = 0;
+        var showehs = 0;
+        $(value).closest('table').find("tr td:nth-child(5)").each(function () {
+            if ($(this).find('select').val() == "1" || $(this).find('select').val() == "2")
+                show = 1;
+            if ($(this).find('select').val() == "1")
+                showehs = 1;
+        });
+        if (show == 1) {
+
+            $(value).closest('table').parent().parent().parent().children("div.fundquestion").show();
+            if (showehs == 1)
+                $(value).closest('table').parent().parent().parent().children("div.fundquestion").children("div.Ehsshow").show();
+            else
+                $(value).closest('table').parent().parent().parent().children("div.fundquestion").children("div.Ehsshow").hide();
+
+
+        }
+        else {
+            $(value).closest('table').parent().parent().parent().children("div.fundquestion").hide();
+
+            $(value).closest('table').parent().parent().parent().children("div.fundquestion").children().find("input[type=text]").each(function () {
+                $(this).val("");
+            });
+
+
+        }
+    }
+    function showCheckboxSecond(value, divround, rounds) {
+        var round = 0;
+        if ($(value).val() == "4") {
+            $('[name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].MinAge"]').val("");
+            $('[name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].MinAge"]')[0].readOnly = true;
+            $('[name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].MaxAge"]').val("");
+            $('[name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].MaxAge"]')[0].readOnly = true;
+            $(value).closest('tr').find("td:eq(11)").find("input[type=checkbox]").removeAttr("disabled");
+
+        }
+        else {
+            $(value).closest('tr').find("td:eq(11)").find("input[type=checkbox]").attr("disabled", "disabled");
+            $(value).closest('tr').find("td:eq(11)").find("input[type=checkbox]").prop("checked", false);
+            $('[name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].MinAge"]')[0].readOnly = false;
+            $('[name="FundSourcedata[' + divround + '].progtypelist[' + rounds + '].MaxAge"]')[0].readOnly = false;
+        }
+        
+       
+        var show = 0;
+        var showehs = 0;
+        $(value).closest('table').find("tr td:nth-child(5)").each(function () {
+            if ($(this).find('select').val() == "1" || $(this).find('select').val() == "2")
+                show = 1;
+            if ($(this).find('select').val() == "1")
+                showehs = 1;
+        });
+        if (show == 1) {
+
+            var s = $(value).closest('table').parent().parent().parent().children("div.fundquestion").show();
+            if (showehs == 1)
+                $(value).closest('table').parent().parent().parent().children("div.fundquestion").children("div.Ehsshow").show();
+            else
+                $(value).closest('table').parent().parent().parent().children("div.fundquestion").children("div.Ehsshow").hide();
+
+
+        }
+        else {
+            $(value).closest('table').parent().parent().parent().children("div.fundquestion").hide();
+            $(value).closest('table').parent().parent().parent().children("div.fundquestion").children().find("input[type=text]").each(function () {
+                $(this).val("");
+            });
+        }
+
+
+    }
+    function RemoveProg(value) {
+        var rounds = 1;
+        var table = $(value).closest('table');
+        var Length = $(value).closest('tr').find('td:eq(0) :input[type="text"]').attr("name").indexOf("[");
+        var LengthTotal = $(value).closest('tr').find('td:eq(0) :input[type="text"]').attr("name").indexOf("]");
+        var divround = $(value).closest('tr').find('td:eq(0) :input[type="text"]').attr("name").substr(Length + 1, (LengthTotal - 1) - Length);
+        if ($(value).attr("accesskey") != 0) {
+            if ($(value).closest('table').find('tbody > tr').length > 1) {
+                BootstrapDialog.confirm('Do you want to delete this program type ?', function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: HostedDir + "/SuperAdmin/DeleteProgA",
+                            type: "POST",
+                            data: {
+                                progId: $(value).attr("accesskey"),
+                                Agencyid: $('#agencyId').val()
+                            },
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            success: function (response) {
+                                if (response == 1) {
+                                    customAlert("Record removed successfully. ");
+                                    rounds = 0;
+                                    $(value).closest('tr').remove();
+
+
+                                    var show = 0;
+                                    $(table).find("tr td:nth-child(5)").each(function () {
+                                        if ($(this).find('select').val() == "1" || $(this).find('select').val() == "2")
+                                            show = 1;
+                                    });
+
+                                    if (show == 0) {
+
+                                        $(table).parent().parent().parent().children("div.fundquestion").hide();
+                                        $(table).parent().parent().parent().children("div.fundquestion").children().find("input[type=text]").each(function () {
+                                            $(this).val("");
+                                        });
+                                    }
+                                    $(table).find('tbody > tr').each(function () {
+                                        var FundSourceProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].FundID";
+                                        var ProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramID"
+                                        var ProgramTypes = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramTypes";
+                                        var Description = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Description";
+                                        var PIRReport = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].PIRReport";
+                                        var Slots = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Slots";
+                                        var ReferenceProg = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ReferenceProg";
+                                        var Area = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Area";
+                                        var MinAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MinAge";
+                                        var MaxAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MaxAge";
+                                        var ProgramStartDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramStartDate";
+                                        var ProgramEndDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramEndDate";
+                                        var ProgStatus = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgStatus";
+                                        var Hreaview = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].healthreview";
+                                        $(this).find('td:eq(0) :input[type="text"]').attr('name', ProgramTypes);
+                                        $(this).find('td:eq(1) :input[type="text"]').attr('name', Description);
+                                        $(this).find('td:eq(2)').find(':input').attr('name', PIRReport);
+                                        $(this).find('td:eq(3) :input[type="text"]').attr('name', Slots);
+                                        $(this).find('td:eq(4)').find('select').attr('name', ReferenceProg);
+                                        $(this).find('td:eq(5) :input[type="text"]').attr('name', Area);
+                                        $(this).find('td:eq(6) :input[type="text"]').attr('name', MinAge);
+                                        $(this).find('td:eq(7) :input[type="text"]').attr('name', MaxAge);
+                                        $(this).find('td:eq(8) :input[type="text"]').attr('name', ProgramStartDate);
+                                        $(this).find('td:eq(9) :input[type="text"]').attr('name', ProgramEndDate);
+                                        $(this).find('td:eq(10)').find('select').attr('name', ProgStatus);
+                                        $(this).find('td:eq(11) :input[type="checkbox"]').attr('name', Hreaview);
+
+                                        $(this).find('td:eq(13)').children().eq(1).attr("name", ProgID);
+                                        $(this).find('td:eq(13)').children().eq(2).attr("name", FundSourceProgID);
+
+                                        rounds = rounds + 1;
+                                    });
+
+                                }
+                                if (response == 2) {
+                                    customAlert("Cannot delete record. Seats already assigned.");
+                                }
+                            }
+                        , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        }
+                        });
+                    }
+                });
+            }
+            else
+                customAlert("Program type grid can't be blank.");
+        }
+        else {
+            if ($(value).closest('table').find('tbody > tr').length > 1) {
+                rounds = 0;
+                $(value).closest('tr').remove();
+
+
+
+                var show = 0;
+                $(table).find("tr td:nth-child(5)").each(function () {
+                    if ($(this).find('select').val() == "1" || $(this).find('select').val() == "2")
+                        show = 1;
+                });
+                if (show == 0) {
+
+                    $(table).parent().parent().parent().children("div.fundquestion").hide();
+                    $(table).closest('table').parent().parent().parent().children("div.fundquestion").children().find("input[type=text]").each(function () {
+                        $(this).val("");
+                    });
+                }
+
+
+
+                $(table).find('tbody > tr').each(function () {
+                    var FundSourceProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].FundID";
+                    var ProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramID"
+                    var ProgramTypes = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramTypes";
+                    var Description = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Description";
+                    var PIRReport = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].PIRReport";
+                    var Slots = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Slots";
+                    var ReferenceProg = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ReferenceProg";
+                    var Area = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Area";
+                    var MinAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MinAge";
+                    var MaxAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MaxAge";
+                    var ProgramStartDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramStartDate";
+                    var ProgramEndDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramEndDate";
+                    var ProgStatus = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgStatus";
+                    var Hreaview = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].healthreview";
+                    $(this).find('td:eq(0) :input[type="text"]').attr('name', ProgramTypes);
+                    $(this).find('td:eq(1) :input[type="text"]').attr('name', Description);
+                    $(this).find('td:eq(2)').find(':input').attr('name', PIRReport);
+                    $(this).find('td:eq(3) :input[type="text"]').attr('name', Slots);
+                    $(this).find('td:eq(4)').find('select').attr('name', ReferenceProg);
+                    $(this).find('td:eq(5) :input[type="text"]').attr('name', Area);
+                    $(this).find('td:eq(6) :input[type="text"]').attr('name', MinAge);
+                    $(this).find('td:eq(7) :input[type="text"]').attr('name', MaxAge);
+                    $(this).find('td:eq(8) :input[type="text"]').attr('name', ProgramStartDate);
+                    $(this).find('td:eq(9) :input[type="text"]').attr('name', ProgramEndDate);
+                    $(this).find('td:eq(10)').find('select').attr('name', ProgStatus);
+                    $(this).find('td:eq(11) :input[type="checkbox"]').attr('name', Hreaview);
+
+
+                    rounds = rounds + 1;
+                });
+
+            }
+            else
+                customAlert("Program type grid can't be blank.");
+        }
+    }
+
+
+    //function drawproglist() {
+    //    getproglist();
+    //    bindGridProg(listProg, $("#gridprogram_' + round + '").find('tr')[0].cells.length);
+    //}
+    function getproglist() {
+
+        $.ajax({
+
+            url: HostedDir + "/Agency/listProgDetails",
+            type: "POST",
+            dataType: "json",
+            data: {
+                // ProgramID: $('#ProgramID').val(),
+                FundId: $('#FundID').val()  //$('#FundSourceID').val()
+            },
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                getProgData(data);
+
+            }
+            , error: function (response) {
+                   customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+            }
+        });
+
+    }
+    function getPhoneData(dataProg) {
+
+        listProg = dataProg;
+    }
+
+    function bindGridProg(dataProgDetail, num_cols) {
+
+        rounds = 0;
+        divround = 0;
+        $('#gridprogram_' + round + ' > tbody > tr').remove();
+        if (dataProgDetail.listProg.length == 0) {
+            $('#divP1').show();
+        }
+        else {
+            $('#divP1').hide();
+            var tbody = $('#gridprogram_' + round + ' > tbody');
+            for (var i = 0; i < dataProgDetail.listProg.length; i++) {
+
+                var FundSourceProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].FundID";
+                var ProgID = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramID"
+                var ProgramTypes = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramTypes";
+                var Description = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Description";
+                var PIRReport = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].PIRReport";
+                var Slots = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Slots";
+                var ReferenceProg = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ReferenceProg";
+                var Area = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].Area";
+                var MinAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MinAge";
+                var MaxAge = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].MaxAge";
+                var ProgramStartDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramStartDate";
+                var ProgramEndDate = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramEndDate";
+                // var ProgramStartTime = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramStartTime";
+                // var ProgramEndTime = "FundSourcedata[" + divround + "].progtypelist[" + rounds + "].ProgramEndTime";
+
+
+                $('#gridphone' + round + '').show();
+
+                var tr = "";
+
+                tr += "<tr><style='text-align:center;'>";
+
+                tr = tr + '<td><input  name=' + ProgramTypes + ' class = "form-control" type="text" value="' + dataProgDetail.listProg[i].ProgramTypes + '" ></td>';
+                tr = tr + '<td><input  name=' + Description + ' class = "form-control" type="text" value="' + dataProgDetail.listProg[i].Description + '" ></td>';
+                if (dataProgDetail.listProg[i].PIRReport) {
+                    tr = tr + '<td><input value="true"  name=' + PIRReport + '  type="checkbox" data-val="true" checked=checked /></td>';
+                }
+                else {
+                    tr = tr + '<td><input value="true" name=' + PIRReport + '  type="checkbox" data-val="true"  /></td>';
+                }
+                tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + Slots + ' value="' + dataProgDetail.listProg[i].Slots + '"></td>';
+
+                tr = tr + '<td><select class="form-control" style="width:100%;" name=' + ReferenceProg + ' >' +
+                            '</select></td>';
+                tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="50" type="text" name=' + Area + ' value="' + dataProgDetail.listProg[i].Area + '"></td>';
+                tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="2" type="text" name=' + MinAge + ' value="' + dataProgDetail.listProg[i].MinAge + '"></td>';
+                tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="2" type="text" name=' + MaxAge + ' value="' + dataProgDetail.listProg[i].MaxAge + '"></td>';
+                tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" id="" onblur="return Checkyearago(this);" type="text" name=' + ProgramStartDate + ' value="' + dataProgDetail.listProg[i].ProgramStartDate + '"></td>';
+                tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" id="" onblur="return Checkyearago(this);" type="text" name=' + ProgramEndDate + ' value="' + dataProgDetail.listProg[i].ProgramEndDate + '"></td>';
+                //  tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + ProgramStartDate + ' value="' + dataProgDetail.listProg[i].ProgramStartDate + '"></td>';
+                //  tr = tr + '<td ><input data-val="true" class = "form-control" maxlength="100" type="text" name=' + ProgramStartDate + ' value="' + dataProgDetail.listProg[i].ProgramStartDate + '"></td>';
+                tr = tr + '<td><input type="hidden"  name="' + ProgramID + '" value="' + dataProgDetail.listProg[i].ProgramID + '" /><a href="javascript:void(0)" onclick="RemovePhone(this);" accesskey="' + dataProgDetail.listProg[i].ProgramID + '" style=" text-decoration:underline;">Delete</a></td></tr>';
+                $('#gridprogram_' + round + ' > tbody').append(tr);
+                var model = @Html.Raw(Json.Encode(@ViewBag.RefList))
+            BindDDLRefList(model);
+
+                var dateToday = new Date();
+                dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+                $("input[id^='programstartDate']").each(function () {
+                    $(this).datetimepicker({
+                        timepicker: false,
+                        format: 'm/d/Y',
+                        minDate: dateToday,
+                    });
+                });
+
+                $("input[id^='programendDate']").each(function () {
+                    $(this).datetimepicker({
+                        timepicker: false,
+                        format: 'm/d/Y',
+                        minDate: dateToday,
+                    });
+                });
+                $('#gridprogram_ > tbody tr:last').find('td:eq(0) :input').val("");
+                rounds = rounds + 1;
+            }
+        }
+    }
+
+    function changestatus(value) {
+
+        var ddlvalue = $(value).val();
+        var status = $(value).parent('td').children().eq(0).val();
+        var s = $(value).attr("accesskey");
+        if (ddlvalue == status) {
+            return;
+        } var message = '';
+        if (ddlvalue == 0)
+            message = "Do you want to activate this program type? ";
+        if (ddlvalue == 1)
+            message = "Do you want to deactivate this program type? ";
+        if (ddlvalue == 2)
+            message = "Do you want to suspend this program type? ";
+        BootstrapDialog.confirm(message, function yes(result) {
+            if (result) {
+                $.ajax({
+                    url: HostedDir + "/SuperAdmin/updateprogstatus",
+                    type: "POST",
+                    data: {
+                        ProgramID: $(value).attr("accesskey"),
+                        mode: ddlvalue
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+
+                        if (response == 1) {
+                            if (ddlvalue == 0)
+                                customAlert("Program type activated successfully.");
+                            if (ddlvalue == 1)
+                                customAlert("Program type deactivated successfully.");
+                            if (ddlvalue == 2)
+                                customAlert("Program type suspended successfully.");
+                            getlistafterstatuschanged();
+                        }
+                    }
+                     , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                     }
+                });
+            }
+            else {
+                $(value).val(status);
+            }
+        }, function no() { });
+    }
+    function checkNumeric(inputTextObject) {
+
+        var ret = true;
+        var ex = /^[0-9]*$/;
+        if ($(inputTextObject).val().trim() != "") {
+            if (!ex.test($(inputTextObject).val())) {
+                $(inputTextObject).val('');
+                customAlert("Only numeric value allowed. ");
+                var ret = false;
+            }
+        }
+        return ret;
+    }
+    function Checkyearago(obj) {
+        if ($(obj).val().trim() != "") {
+
+            var dateToday = new Date();
+            dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+            if (new Date($(obj).val()) < dateToday) {
+                $(obj).val("");
+                customAlert("Only year ago or future date allowed from current date. ");
+            }
+        }
+
+
+    }
+    function RemoveFund(object) {
+        round = 0;
+        if ($(object).attr("accesskey") == 0) {
+            $(object).parent().parent().parent().remove();
+            $('.fundclass').children().each(function () {
+                $(this).children().each(function () {
+                    if ($(this).children().length > 0) {
+                        //2410216
+                        $(this).children().find("[id^='Acronym']").attr("name", "FundSourcedata[" + round + "].Acronym");
+                        $(this).children().find("[id^='Description']").attr("name", "FundSourcedata[" + round + "].Description");
+                        $(this).children().find("[id^='Amount']").attr("name", "FundSourcedata[" + round + "].Amount");
+                        $(this).children().find("[id^='Date']").attr("name", "FundSourcedata[" + round + "].Date");
+                        $(this).children().find("[id^='Duration']").attr("name", "FundSourcedata[" + round + "].Duration");
+                        $(this).children().find("[id^='ServiceQty']").attr("name", "FundSourcedata[" + round + "].ServiceQty");
+                        $(this).children().find("[id^='fundingtype']").attr("name", "FundSourcedata[" + round + "].fundingtype");
+                        $(this).children().find("[id^='ProgramYear']").attr("name", "FundSourcedata[" + round + "].ProgramYear");
+                        $(this).children().find("[id^='grantNo']").attr("name", "FundSourcedata[" + round + "].grantNo");
+                        $(this).children().find("[id^='nameGranteeDelegate']").attr("name", "FundSourcedata[" + round + "].nameGranteeDelegate");
+                        $(this).children().find("[id^='fundsource']").attr("name", "FundSourcedata[" + round + "].fundsource");
+                        $(this).children().find("[id^='FundID']").attr("name", "FundSourcedata[" + round + "].FundID");
+                        $(this).children().find("[id^='gridprogram']").find("tr").each(function () {
+
+                            $(this).find('td').each(function () {
+
+                                if ($(this).find("[id^='ProgType']").length > 0) {
+                                    var name = $(this).find("[id^='ProgType']").attr("name").substr(17, $(this).find("[id^='ProgType']").attr("name").length);
+                                    $(this).find("[id^='ProgType']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='Description']").length > 0) {
+                                    var name = $(this).find("[id^='Description']").attr("name").substr(17, $(this).find("[id^='Description']").attr("name").length);
+                                    $(this).find("[id^='Description']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='pirreport']").length > 0) {
+                                    var name = $(this).find("[id^='pirreport']").attr("name").substr(17, $(this).find("[id^='pirreport']").attr("name").length);
+                                    $(this).find("[id^='pirreport']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='Slots']").length > 0) {
+                                    var name = $(this).find("[id^='Slots']").attr("name").substr(17, $(this).find("[id^='Slots']").attr("name").length);
+                                    $(this).find("[id^='Slots']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='ProgType']").length > 0) {
+                                    var name = $(this).find("[id^='ProgType']").attr("name").substr(17, $(this).find("[id^='ProgType']").attr("name").length);
+                                    $(this).find("[id^='ProgType']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='ReferenceProg']").length > 0) {
+                                    var name = $(this).find("[id^='ReferenceProg']").attr("name").substr(17, $(this).find("[id^='ReferenceProg']").attr("name").length);
+                                    $(this).find("[id^='ReferenceProg']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='ProgType']").length > 0) {
+                                    var name = $(this).find("[id^='ProgType']").attr("name").substr(17, $(this).find("[id^='ProgType']").attr("name").length);
+                                    $(this).find("[id^='ProgType']").attr("name", "FundSourcedata[" + round + "]" + name);
+
+                                }
+                                if ($(this).find("[id^='area']").length > 0) {
+                                    var name = $(this).find("[id^='area']").attr("name").substr(17, $(this).find("[id^='area']").attr("name").length);
+                                    $(this).find("[id^='area']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='minage']").length > 0) {
+                                    var name = $(this).find("[id^='minage']").attr("name").substr(17, $(this).find("[id^='minage']").attr("name").length);
+                                    $(this).find("[id^='minage']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='maxage']").length > 0) {
+                                    var name = $(this).find("[id^='maxage']").attr("name").substr(17, $(this).find("[id^='maxage']").attr("name").length);
+                                    $(this).find("[id^='maxage']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='programstartdate']").length > 0) {
+                                    var name = $(this).find("[id^='programstartdate']").attr("name").substr(17, $(this).find("[id^='programstartdate']").attr("name").length);
+                                    $(this).find("[id^='programstartdate']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+
+                                if ($(this).find("[id^='ProgStatus']").length > 0) {
+                                    var name = $(this).find("[id^='ProgStatus']").attr("name").substr(17, $(this).find("[id^='ProgStatus']").attr("name").length);
+                                    $(this).find("[id^='ProgStatus']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='HealthReview']").length > 0) {
+                                    var name = $(this).find("[id^='HealthReview']").attr("name").substr(17, $(this).find("[id^='HealthReview']").attr("name").length);
+                                    $(this).find("[id^='HealthReview']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='OldFund']").length > 0) {
+                                    var name = $(this).find("[id^='OldFund']").attr("name").substr(17, $(this).find("[id^='OldFund']").attr("name").length);
+                                    $(this).find("[id^='OldFund']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='ProgramID']").length > 0) {
+                                    var name = $(this).find("[id^='ProgramID']").attr("name").substr(17, $(this).find("[id^='ProgramID']").attr("name").length);
+                                    $(this).find("[id^='ProgramID']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                                if ($(this).find("[id^='FundID']").length > 0) {
+                                    var name = $(this).find("[id^='FundID']").attr("name").substr(17, $(this).find("[id^='FundID']").attr("name").length);
+                                    $(this).find("[id^='FundID']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                }
+                            });
+                        });
+                    }
+                });
+                round = round + 1;
+            });
+        }
+        else {
+
+            BootstrapDialog.confirm('Do you want to delete this record ?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/SuperAdmin/DeleteFundA",
+                        type: "POST",
+                        data: {
+                            FundId: $(object).attr("accesskey"),
+                            Agencyid: $('#agencyId').val()
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            if (response == 1) {
+                                customAlert("Record removed successfully. ");
+                                $(object).parent().parent().parent().remove();
+                                $('.fundclass').children().each(function () {
+                                    $(this).children().each(function () {
+                                        if ($(this).children().length > 0) {
+                                            //2410216
+                                            $(this).children().find("[id^='Acronym']").attr("name", "FundSourcedata[" + round + "].Acronym");
+                                            $(this).children().find("[id^='Description']").attr("name", "FundSourcedata[" + round + "].Description");
+                                            $(this).children().find("[id^='Amount']").attr("name", "FundSourcedata[" + round + "].Amount");
+                                            $(this).children().find("[id^='Date']").attr("name", "FundSourcedata[" + round + "].Date");
+                                            $(this).children().find("[id^='Duration']").attr("name", "FundSourcedata[" + round + "].Duration");
+                                            $(this).children().find("[id^='ServiceQty']").attr("name", "FundSourcedata[" + round + "].ServiceQty");
+                                            $(this).children().find("[id^='fundingtype']").attr("name", "FundSourcedata[" + round + "].fundingtype");
+                                            $(this).children().find("[id^='ProgramYear']").attr("name", "FundSourcedata[" + round + "].ProgramYear");
+                                            $(this).children().find("[id^='grantNo']").attr("name", "FundSourcedata[" + round + "].grantNo");
+                                            $(this).children().find("[id^='nameGranteeDelegate']").attr("name", "FundSourcedata[" + round + "].nameGranteeDelegate");
+                                            $(this).children().find("[id^='fundsource']").attr("name", "FundSourcedata[" + round + "].fundsource");
+                                            $(this).children().find("[id^='FundID']").attr("name", "FundSourcedata[" + round + "].FundID");
+                                            $(this).children().find("[id^='gridprogram']").find("tr").each(function () {
+
+                                                $(this).find('td').each(function () {
+
+                                                    if ($(this).find("[id^='ProgType']").length > 0) {
+                                                        var name = $(this).find("[id^='ProgType']").attr("name").substr(17, $(this).find("[id^='ProgType']").attr("name").length);
+                                                        $(this).find("[id^='ProgType']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='Description']").length > 0) {
+                                                        var name = $(this).find("[id^='Description']").attr("name").substr(17, $(this).find("[id^='Description']").attr("name").length);
+                                                        $(this).find("[id^='Description']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='pirreport']").length > 0) {
+                                                        var name = $(this).find("[id^='pirreport']").attr("name").substr(17, $(this).find("[id^='pirreport']").attr("name").length);
+                                                        $(this).find("[id^='pirreport']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='Slots']").length > 0) {
+                                                        var name = $(this).find("[id^='Slots']").attr("name").substr(17, $(this).find("[id^='Slots']").attr("name").length);
+                                                        $(this).find("[id^='Slots']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='ProgType']").length > 0) {
+                                                        var name = $(this).find("[id^='ProgType']").attr("name").substr(17, $(this).find("[id^='ProgType']").attr("name").length);
+                                                        $(this).find("[id^='ProgType']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='ReferenceProg']").length > 0) {
+                                                        var name = $(this).find("[id^='ReferenceProg']").attr("name").substr(17, $(this).find("[id^='ReferenceProg']").attr("name").length);
+                                                        $(this).find("[id^='ReferenceProg']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='ProgType']").length > 0) {
+                                                        var name = $(this).find("[id^='ProgType']").attr("name").substr(17, $(this).find("[id^='ProgType']").attr("name").length);
+                                                        $(this).find("[id^='ProgType']").attr("name", "FundSourcedata[" + round + "]" + name);
+
+                                                    }
+                                                    if ($(this).find("[id^='area']").length > 0) {
+                                                        var name = $(this).find("[id^='area']").attr("name").substr(17, $(this).find("[id^='area']").attr("name").length);
+                                                        $(this).find("[id^='area']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='minage']").length > 0) {
+                                                        var name = $(this).find("[id^='minage']").attr("name").substr(17, $(this).find("[id^='minage']").attr("name").length);
+                                                        $(this).find("[id^='minage']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='maxage']").length > 0) {
+                                                        var name = $(this).find("[id^='maxage']").attr("name").substr(17, $(this).find("[id^='maxage']").attr("name").length);
+                                                        $(this).find("[id^='maxage']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='programstartdate']").length > 0) {
+                                                        var name = $(this).find("[id^='programstartdate']").attr("name").substr(17, $(this).find("[id^='programstartdate']").attr("name").length);
+                                                        $(this).find("[id^='programstartdate']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+
+                                                    if ($(this).find("[id^='ProgStatus']").length > 0) {
+                                                        var name = $(this).find("[id^='ProgStatus']").attr("name").substr(17, $(this).find("[id^='ProgStatus']").attr("name").length);
+                                                        $(this).find("[id^='ProgStatus']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='HealthReview']").length > 0) {
+                                                        var name = $(this).find("[id^='HealthReview']").attr("name").substr(17, $(this).find("[id^='HealthReview']").attr("name").length);
+                                                        $(this).find("[id^='HealthReview']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='OldFund']").length > 0) {
+                                                        var name = $(this).find("[id^='OldFund']").attr("name").substr(17, $(this).find("[id^='OldFund']").attr("name").length);
+                                                        $(this).find("[id^='OldFund']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='ProgramID']").length > 0) {
+                                                        var name = $(this).find("[id^='ProgramID']").attr("name").substr(17, $(this).find("[id^='ProgramID']").attr("name").length);
+                                                        $(this).find("[id^='ProgramID']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                    if ($(this).find("[id^='FundID']").length > 0) {
+                                                        var name = $(this).find("[id^='FundID']").attr("name").substr(17, $(this).find("[id^='FundID']").attr("name").length);
+                                                        $(this).find("[id^='FundID']").attr("name", "FundSourcedata[" + round + "]" + name);
+                                                    }
+                                                });
+                                            });
+                                        }
+                                    });
+                                    round = round + 1;
+                                });
+                            }
+                            if (response == 2) {
+                                customAlert("Cannot delete record. Seats already assigned to programtypes in funds.");
+
+                            }
+
+
+
+
+
+                        }
+                         , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                         }
+                    });
+                }
+            });
+        }
+    }
+
+    function CheckforProgramtype() {
+
+        $.ajax({
+            url: HostedDir + "/AgencyAdmin/CheckProgram",
+            type: "POST",
+            data: {
+                Agencyid: $('#agencyId').val()
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (response) {
+                var data = response.split(',');
+
+                if (data[0] > 0) {
+
+                    if (data[1] > 0) {
+                        window.location.href = HostedDir + '/AgencyAdmin/Centerlist/';
+                    }
+                    else
+                    {
+                        window.location.href = HostedDir + '/AgencyAdmin/Center/';
+
+                    }
+
+                   
+                }
+                else {
+                    customAlert("Please add funds and programe types.");
+
+                }
+
+
+            }
+                        , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        }
+        });
+
+    }
+
+
+    </script>
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                @if (ViewData["Title"] != null)
+                { @ViewData["Title"].ToString()}
+                @if (Session["AgencyID"] == null)
+                {
+                    <span class="view-btn backto_listspan" id="BackToList">
+                        <a href="~/Agency/Viewagency" class="backto_list">Back to list</a>
+                    </span>
+                }
+            </h2>
+
+        </div>
+
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" enctype = "multipart/form-data" autocomplete="off">
+                <div class="add-useragform">
+
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Agency Code <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.agencyCode, new { placeholder = "Agency Code", id = "agencyCode", maxlength = "50", readOnly = "true", @class = "form-control", tabIndex = "1" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Agency Name <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.agencyName, new { @class = "form-control", placeholder = "Agency Name", id = "agencyName", maxlength = "50", onblur = "CheckFirstCharcter(this);", tabIndex = "2" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Email <sup>*</sup></label>
+                                @if (@ViewBag.mode == 0)
+                                {
+                                    @Html.TextBoxFor(m => m.primaryEmail, new { placeholder = "Email", @class = "form-control", id = "primaryEmail", maxlength = "100", tabIndex = "3" })
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(m => m.primaryEmail, new { placeholder = "Email", @class = "form-control email-change", id = "primaryEmail", maxlength = "100", tabIndex = "3", @readonly = "true" })
+                                    <a class="change_embtn" id="BtnChange" href="#" onclick="EnableDisable()">Change</a>
+                                }
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">First Name <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.firstName, new { @class = "form-control", placeholder = "First Name", id = "firstName", maxlength = "50", onblur = "CheckFirstCharcter(this);", tabIndex = "4" })
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Last Name <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", placeholder = "Last Name", id = "LastName", onblur = "CheckFirstCharcter(this);", maxlength = "50", tabIndex = "5" })
+
+
+                            </div>
+                        </div>
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Program Type <sup>*</sup></label>
+                                    @{
+                                        List<SelectListItem> prog = new List<SelectListItem>();
+                                        foreach (var item in ViewBag.RefList)
+                                        {
+                                            prog.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                        }
+                                    }
+
+                                    @Html.ListBoxFor(m => (m.programName), new MultiSelectList(prog, "Value", "Text"), new { id = "DdlProgTypeList", Multiple = "multiple", Name = "DdlProgTypeList", @class = "form-control", tabIndex = "6", @style = "height:10%;" })
+                                  @Html.DropDownListFor(m => m.programName, new SelectList(prog, "Value", "Text"), new { id = "DdlProgTypeList", Name = "DdlProgTypeList", @class = "form-control", tabIndex = "6" })
+
+
+                                </div>
+                            </div>*@
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Grantee/Delegate <sup>*</sup> </label>
+                                    @Html.TextBoxFor(m => m.nameGranteeDelegate, new { @class = "form-control", placeholder = "Name of Grantee/Delegate", id = "nameGranteeDelegate", maxlength = "100", tabIndex = "7" })
+
+
+                                </div>
+                            </div>*@
+
+
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Speed Zip </label>
+                                @Html.TextBoxFor(m => m.SpeedZip, new { placeholder = "Speed Zip", id = "SpeedZip", maxlength = "5", tabIndex = "6", onblur = "checkIfNumeric(this);", @class = "form-control" })
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Zip Code <sup>*</sup> </label>
+                                @Html.TextBoxFor(m => m.zipCode, new { placeholder = "Zip Code", id = "zipCode", maxlength = "5", tabIndex = "7", onblur = "checkZipCode(this);", @class = "form-control" })
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Address1 <sup>*</sup> </label>
+                                @Html.TextBoxFor(m => m.address1, new { placeholder = "Address1", id = "address1", maxlength = "50", tabIndex = "8", @class = "form-control" })
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Address2  </label>
+                                @Html.TextBoxFor(m => m.address2, new { placeholder = "Address2", id = "address2", maxlength = "50", tabIndex = "9", @class = "form-control" })
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Phone1 <sup>*</sup> </label>
+                                @Html.TextBoxFor(m => m.phone1, new { placeholder = "Phone1", id = "phone1", maxlength = "15", @class = "form-control", tabIndex = "10" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Phone2 </label>
+                                @Html.TextBoxFor(m => m.phone2, new { placeholder = "Phone2", id = "phone2", maxlength = "15", @class = "form-control", tabIndex = "11" })
+                            </div>
+                        </div>
+
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="pwd">Program Start Date <sup>*</sup> </label>
+                                    @Html.TextBoxFor(m => m.programstartDate, "{0:MM/dd/yyyy}", new { placeholder = "Program Start Date", id = "programstartDate", @class = "form-control", tabIndex = "12" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="pwd">Program End Date <sup>*</sup> </label>
+                                    @Html.TextBoxFor(m => m.programendDate, "{0:MM/dd/yyyy}", new { placeholder = "Program End Date", id = "programendDate", @class = "form-control", tabIndex = "13" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="pwd">Program Start Time  </label>
+                                    @Html.TextBoxFor(m => m.ProgramStartTime, new { placeholder = "Program Start Time", id = "ProgramStartTime", @class = "form-control", tabIndex = "12" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="pwd">Program End Time  </label>
+                                    @Html.TextBoxFor(m => m.ProgramEndTime, new { placeholder = "Program End Time", id = "ProgramEndTime", @class = "form-control", tabIndex = "13" })
+                                </div>
+                            </div>*@
+
+
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Country <sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> nation = new List<SelectListItem>();
+                                    foreach (var item in ViewBag.country)
+                                    {
+                                        nation.Add(new SelectListItem() { Text = item.Name, Value = item.NationId });
+                                    }
+                                }
+                                @if (@ViewBag.mode == 0)
+                                {
+                                    @Html.DropDownListFor(m => m.nationality, new SelectList(nation, "Value", "Text", "7D979B6C-F4D1-4D9C-99CD-8DC5160870B7"), new { @class = "form-control", tabIndex = "12" })
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.nationality, new SelectList(nation, "Value", "Text"), new { @class = "form-control", tabIndex = "13" })
+                                }
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Time Zone <sup>*</sup></label>
+                                @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", tabIndex = "14" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Access Start Date <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AccessStartDate, new { @class = "date form-control", placeholder = "Access Start Date", id = "AccessStartDate", Name = "AccessStartDate", maxlength = "50", tabIndex = "15" })
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group DivHide" id="DivLoginTime">
+                                <label for="pwd">Access Start Time <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AccessStart, new { @class = "time form-control", id = "AccessStart", Name = "AccessStart", placeholder = "Access Start Time", tabIndex = "16" })
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group DivHide">
+                                <label for="pwd">Access Stop Time <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AccessStop, new { @class = "time form-control", id = "AccessStop", Name = "AccessStop", placeholder = "Access Stop Time", tabIndex = "17" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Active Program Year<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.ActiveProgYear, new { @class = "form-control", placeholder = "YY-YY", id = "ActiveProgYear", maxlength = "10", tabIndex = "18" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group DivHide" id="DivAccessType">
+                                <label for="email">Access Type <sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> AccessTypeList = new List<SelectListItem>();
+                                    //  AccessTypeList.Add(new SelectListItem() { Text = "Select", Value = "-1" });
+                                    AccessTypeList.Add(new SelectListItem() { Text = "All Days", Value = "0" });
+                                    AccessTypeList.Add(new SelectListItem() { Text = "M-F Only", Value = "1" });
+                                }
+                                @Html.DropDownListFor(m => m.AccessDays, new SelectList(AccessTypeList, "Value", "Text", Model.AccessDays), new { id = "DdlAccessType", Name = "DdlAccessType", @class = "form-control", tabIndex = "19" })
+                                @if (@ViewBag.mode == 0)
+                                {
+                                    <span>Add Funds & Program Types</span>
+                                    <a href="javascript:void(0)" title="Add Fund & Program Types" onclick="ShowDiv();"><i class="fa fa-plus-square"></i></a>
+
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Yakkr 600 days<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Yakkr600, new { @class = "form-control", placeholder = "Yakkr 600 days", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Yakkr 601 (in %)<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Yakkr601, new { @class = "form-control", placeholder = "Yakkr 601 Attendance %", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Document Storage<sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-xs-6 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.DocsStorage, "0", new { id = "DocsStorage", tabIndex = "20" })
+                                        <span>Cloud</span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.DocsStorage, "2", new { id = "DocsStorage", tabIndex = "21" })
+                                        <span>Paper</span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.DocsStorage, "1", new { id = "DocsStorage", tabIndex = "21" })
+                                        <span>N/A</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            @if (Convert.ToString(ViewBag.mode) == "1")
+                            {
+                                if (Session["AgencyID"] != null)
+                                {
+                                    List<SelectListItem> item = new List<SelectListItem>();
+                                    item.Add(new SelectListItem() { Text = "Inactive", Value = "0" });
+                                    item.Add(new SelectListItem() { Text = "Active", Value = "1" });
+                                    @Html.HiddenFor(m => m.status)
+                                    @Html.HiddenFor(m => m.agencyId)
+                                }
+                                else
+                                {
+                                    List<SelectListItem> item = new List<SelectListItem>();
+                                    item.Add(new SelectListItem() { Text = "Inactive", Value = "0" });
+                                    item.Add(new SelectListItem() { Text = "Active", Value = "1" });
+                                    <div class="form-group">
+                                        <label for="pwd"> Status </label>
+                                        @Html.DropDownListFor(m => m.status, new SelectList(item, "Value", "Text"), new { @class = "form-control", tabIndex = "20" })
+                                        @Html.HiddenFor(m => m.agencyId)
+                                    </div>
+                                }
+
+                            }
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">FSW Yearly Visit<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.FSWYearlyVisit, new { @class = "form-control", placeholder = "FSW Yearly Visit", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc"> Do you provide transportation for your children? <sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-xs-6 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.Transportation, true, new { id = "Transportation1", tabIndex = "20" })
+                                        <span>Yes</span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4" style="margin-left: -7%;">
+                                        @Html.RadioButtonFor(m => m.Transportation, false, new { id = "Transportation2", tabIndex = "21" })
+                                        <span>No</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full"> Will you use Area breakdown? <sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                        @Html.RadioButtonFor(m => m.Areabreakdown, 1, new { id = "Areabreakdown1", tabIndex = "24" })
+                                        <span>Yes</span>
+                                    </div>
+                                    <div class="col-sm-4 col-md-4 col-lg-4">
+                                        @Html.RadioButtonFor(m => m.Areabreakdown, 2, new { id = "Areabreakdown2", tabIndex = "25" })
+                                        <span>No</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                          <div class="col-lg-6 col-md-6 col-sm-6 browse-grp">
+                            <div class="form-group file_typimg">
+                                <label for="RaceSubCatDesc">Agency Logo</label>
+                                @Html.TextBoxFor(m => m.logo, new { id = "logo", name = "logo", type = "file", @accept = "image/*", onchange = "ValidateSingleInput(this)", @class = "form-control", tabIndex = "26" })
+                                <div class="img-iconavt">
+                                    <img alt="" id="imglogo"  src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.logourl)' style="border-style:none;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <span>Add Funds & Program Types</span>
+                                <a href="javascript:void(0)" title="Add Fund & Program Types" onclick="ShowDiv();"><i class="fa fa-plus-square"></i></a>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div style="display:none;" id="divclass" class="adddivspace">
+
+
+                    </div>
+
+                    <div id="divedit" class="fundclass">
+                        @{
+                            int i = 0;
+
+                        }
+
+                        @if (@ViewBag.mode == 1)
+                        {
+
+                            foreach (var item in Model.FundSourcedata)
+
+                            //   foreach (var item in ViewBag.FundSourceData)
+                            {
+                                int j = 0;
+                                var z = i;
+                                int Showfundquestion = 0;
+                                int disabledhealth = 0;
+                                int showfundq10 = 0;
+                                <div>
+                                    <div class="col-lg-12">
+                                        <h2 class="page-header funddiv">Add Funds and Program Types  <a accesskey="@item.FundID" onclick="RemoveFund(this);" style="color:#285b8f !important;" class="pull-right" href=" javascript:void(0)">Delete </a></h2>
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Acronym <sup>*</sup></label>
+                                            @*@Html.TextBoxFor(m => m.FundSourcedata.Where(x => x.FundID == 0).FirstOrDefault().Acronym, new { @class = "form-control", id = "Acronym", Name = "Acronym", placeholder = "Acronym", tabIndex = "18" })*@
+                                            <input type="text" name="FundSourcedata[@i].Acronym" class="form-control" value="@item.Acronym" id="Acronym" placeholder="Acronym" maxlength="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Description</label>
+                                            @*@Html.TextBoxFor(m => m.FundSourcedata.Where(x => x.FundID == 0).FirstOrDefault().Description, new { @class = "form-control", id = "Description", Name = "Description", placeholder = "Description", tabIndex = "18" })*@
+                                            <input type="text" name="FundSourcedata[@i].Description" class="form-control" value="@item.Description" id="Description" placeholder="Description" maxlength="50">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Amount</label>
+                                            @*@Html.TextBoxFor(m => m.FundSourcedata.Where(x => x.FundID == 0).FirstOrDefault().Amount, new { @class = "form-control", id = "Amount", Name = "Amount", placeholder = "Amount", tabIndex = "18" })*@
+                                            <input type="text" name="FundSourcedata[@i].Amount" class="form-control" value="@item.Amount" id="Amount" onblur="checkIfNumericDigit(this);" placeholder="Amount" maxlength="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Fund Date <sup>*</sup> </label>
+                                            @*@Html.TextBoxFor(m => m.FundSourcedata.Where(x => x.FundID == 0).FirstOrDefault().Date, "{0:MM/dd/yyyy}", new { placeholder = "MM/DD/YYYY", id = "Date", @class = "form-control", tabIndex = "12" })*@
+                                            <input type="text" name="FundSourcedata[@i].Date" class="form-control" onblur="return Checkyearago(this);" value="@item.Date" id="Date" placeholder="Date" maxlength="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Duration <sup>*</sup> </label>
+                                            <select class="form-control" id="FundSourcedata[@i].Duration" name="FundSourcedata[@i].Duration">
+                                                @if (@item.Duration.ToString() == "1")
+                                                {
+                                                    <option value="1" selected="selected">1 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="1">1 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "2")
+                                                {
+                                                    <option value="2" selected="selected">2 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="2">2 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "3")
+                                                {
+                                                    <option value="3" selected="selected">3 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="3">3 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "4")
+                                                {
+                                                    <option value="4" selected="selected">4 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="4">4 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "5")
+                                                {
+                                                    <option value="5" selected="selected">5 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="5">5 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "6")
+                                                {
+                                                    <option value="6" selected="selected">6 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="6">6 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "7")
+                                                {
+                                                    <option value="7" selected="selected">7 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="7">7 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "8")
+                                                {
+                                                    <option value="8" selected="selected">8 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="8">8 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "9")
+                                                {
+                                                    <option value="9" selected="selected">9 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="9">9 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "10")
+                                                {
+                                                    <option value="10" selected="selected">10 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="10">10 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "11")
+                                                {
+                                                    <option value="11" selected="selected">11 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="11">11 Month</option>
+                                                }
+                                                @if (@item.Duration.ToString() == "12")
+                                                {
+                                                    <option value="12" selected="selected">12 Month</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="12">12 Month</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">People Served <sup>*</sup> </label>
+                                            <input type="text" name="FundSourcedata[@i].ServiceQty" class="form-control" value="@item.ServiceQty" id="ServiceQty" onblur="checkNumeric(this);" placeholder="People Served" maxlength="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Funding Type <sup>*</sup></label>
+                                            <select class="form-control" id="FundSourcedata[@i].fundingtype" name="FundSourcedata[@i].fundingtype">
+                                                @if (@item.fundingtype == "1")
+                                                {
+                                                    <option value="1" selected="selected">County</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="1">County</option>
+                                                }
+                                                @if (@item.fundingtype == "2")
+                                                {
+                                                    <option value="2" selected="selected">Fed</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="2">Fed</option>
+                                                }
+                                                @if (@item.fundingtype == "3")
+                                                {
+                                                    <option value="3" selected="selected">Local</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="3">Local</option>
+                                                }
+                                                @if (@item.fundingtype == "4")
+                                                {
+                                                    <option value="4" selected="selected">Private</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="4">Private</option>
+                                                }
+                                                @if (@item.fundingtype == "5")
+                                                {
+                                                    <option value="5" selected="selected">State</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="5">State</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Program Year <sup>*</sup> </label>
+                                            <input type="text" name="FundSourcedata[@i].ProgramYear" class="form-control" value="@item.ProgramYear" id="ProgramYear" placeholder="YY-YY" maxlength="11">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Grant No <sup>*</sup></label>
+                                            <input type="text" name="FundSourcedata[@i].grantNo" class="form-control" value="@item.grantNo" id="grantNo" placeholder="Grant No" maxlength=" 20">
+                                            <span>Add Program Types</span>
+                                            <a href="javascript:void(0)" title="Add Program Types" accesskey="FundSourcedata[@i].progtypelist[@j].ProgramID" onclick="AddProgram(this, '@i');"><i class="fa fa-plus-square"></i></a>
+                                            @*AddProgram(this,'FundSourcedata[@i].FundID')*@
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Grantee/Delegate <sup>*</sup> </label>
+                                            <input type="text" name="FundSourcedata[@i].nameGranteeDelegate" class="form-control" value="@item.nameGranteeDelegate" id="nameGranteeDelegate" placeholder="Name of Grantee/Delegate" maxlength=" 20">
+                                        </div>
+                                    </div>
+                                    @if (Session["AgencyID"] != null)
+                                    {
+                                        List<SelectListItem> FundStatus = new List<SelectListItem>();
+                                        FundStatus.Add(new SelectListItem() { Text = "Active", Value = "0" });
+                                        FundStatus.Add(new SelectListItem() { Text = "Inactive", Value = "1" });
+                                        FundStatus.Add(new SelectListItem() { Text = "Suspended", Value = "2" });
+                                        @Html.HiddenFor(m => m.FundSourcedata[@i].FundStatus)
+                                        @Html.HiddenFor(m => m.FundSourcedata[@i].FundID)
+                                        @Html.HiddenFor(m => m.agencyId)
+                                    }
+                                    else
+                                    {
+                                        List<SelectListItem> FundStatus = new List<SelectListItem>();
+                                        FundStatus.Add(new SelectListItem() { Text = "Active", Value = "0" });
+                                        FundStatus.Add(new SelectListItem() { Text = "Inactive", Value = "1" });
+                                        FundStatus.Add(new SelectListItem() { Text = "Suspended", Value = "2" });
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd"> Status </label>
+                                                @Html.DropDownListFor(m => m.FundSourcedata[@i].FundStatus, new SelectList(FundStatus, "Value", "Text"), new { @class = "form-control" })
+                                                @Html.HiddenFor(m => m.FundSourcedata[@i].FundID)
+                                                @Html.HiddenFor(m => m.agencyId)
+                                            </div>
+                                        </div>
+                                    }
+                                    <div>
+                                        <input type="hidden" value="@item.FundID" name="FundSourcedata[@i].FundID">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive">
+                                            <table class="table table_size " id="gridprogram_@i">
+                                                <thead style="cursor:pointer;">
+                                                    <tr id='header00'>
+                                                        <th id="thIN">Program Type</th>
+                                                        <th id="thIN">Description</th>
+                                                        <th id="thSN">PIR</th>
+                                                        <th id="thnt">People</th>
+                                                        <th id="thCust">Reference Program</th>
+                                                        <th id="thCust">Area Designation</th>
+                                                        <th id="thCust">Age Min</th>
+                                                        <th id="thCust">Age Max</th>
+                                                        <th id="thCust" style="width:10%;">Program Start Date</th>
+                                                        <th id="thCust" style="width:10%;">Program End Date</th>
+                                                        <th id="thCust">Status</th>
+                                                        <th id="thHealthView">Health Review?</th>@*Changes*@
+                                                        <th id="thDeletye">Delete</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    @foreach (var item1 in item.progtypelist)
+                                                    {
+                                                        if (@item1.ReferenceProg == "1" || @item1.ReferenceProg == "2")
+                                                        {
+                                                            Showfundquestion = 1;
+                                                        }
+                                                        if (@item1.ReferenceProg == "4")
+                                                        {
+                                                            disabledhealth = 1;
+                                                        }
+                                                        if (@item1.ReferenceProg == "1")
+                                                        {
+                                                            showfundq10 = 1;
+                                                        }
+
+                                                        <tr id='@i@j'>
+                                                            <td><input id="ProgType_@i@j" style="width:100%;" class="form-control" name="FundSourcedata[@i].progtypelist[@j].ProgramTypes" value="@item1.ProgramTypes" type="text"></td>
+                                                            <td><input id="Desc_@i@j" style="width:100%;" class="form-control" name="FundSourcedata[@i].progtypelist[@j].Description" value="@item1.Description" type="text"></td>
+                                                            @if (@item1.PIRReport == true)
+                                                            {
+                                                                <td><input id="PIRReport_@i@j" type="checkbox" value="true" checked="checked" name="fundsourcedata[@i].progtypelist[@j].pirreport" data-val="true" class="chcktbl" style="width:70%;" /></td>
+                                                            }
+                                                            else
+                                                            {
+                                                                <td><input id="PIRReport_@i@j" type="checkbox" value="true" name="fundsourcedata[@i].progtypelist[@j].pirreport" data-val="true" class="chcktbl" style="width:70%;" /></td>
+                                                            }
+
+                                                            <td><input id="Slots_@i@j" style="width:100%;" onblur="checkNumeric(this);" class="form-control" type="text" data-val="true" name="FundSourcedata[@i].progtypelist[@j].Slots" value="@item1.Slots" maxlength="100"></td>
+                                                            <td>
+                                                                @{
+                                                            List<SelectListItem> prog = new List<SelectListItem>();
+                                                            foreach (var item2 in ViewBag.RefList)
+                                                            {
+                                                                prog.Add(new SelectListItem() { Text = item2.Name, Value = item2.Id });
+                                                            }
+                                                                }
+                                                                @Html.DropDownListFor(m => m.FundSourcedata[@i].progtypelist[@j].ReferenceProg, new SelectList(prog, "Value", "Text", @item1.ReferenceProg), new { @class = "form-control", @style = "width:80px;", onchange = "showCheckbox(this);" })
+
+                                                            </td>
+                                                            <td>
+                                                                <input maxlength="50" style="width:100%;" id="Area_@i@j" class="form-control" name="fundsourcedata[@i].progtypelist[@j].area" value="@item1.Area" type="text" />
+                                                            </td>
+                                                            @if (@item.progtypelist[@j].ReferenceProg == "4")
+                                                            {
+                                                                <td><input id="Minage_@i@j" style="width:100%;" readonly="true" class="form-control" name="fundsourcedata[@i].progtypelist[@j].minage"  onblur="checkage(this);" type="text"></td>
+                                                            <td><input id="Maxage_@i@j" style="width:100%;" readonly="true" class="form-control" name="fundsourcedata[@i].progtypelist[@j].maxage"  onblur="checkagemax(this);" type="text"></td>
+                                                            
+                                                            }
+                                                            else
+                                                            {
+                                                                <td><input id="Minage_@i@j" style="width:100%;" class="form-control" name="fundsourcedata[@i].progtypelist[@j].minage" value="@item1.MinAge" onblur="checkage(this);" type="text"></td>
+                                                            <td><input id="Maxage_@i@j" style="width:100%;" class="form-control" name="fundsourcedata[@i].progtypelist[@j].maxage" value="@item1.MaxAge" onblur="checkagemax(this);" type="text"></td>
+                                                            
+                                                            }
+                                                            
+                                                            <td><input id="programstartDate_@i@j" class="form-control" name="fundsourcedata[@i].progtypelist[@j].programstartdate" value="@item1.programstartDate" onblur="return Checkyearago(this);" type="text"></td>
+                                                            <td><input id="programendDate_@i@j" class="form-control" name="fundsourcedata[@i].progtypelist[@j].programenddate" value="@item1.programendDate" onblur="return Checkyearago(this);" type="text"></td>
+                                                            <td>
+                                                                <select class="form-control" accesskey="@item1.ProgramID" id="FundSourcedata[@i].progtypelist[@j].ProgStatus" name="FundSourcedata[@i].progtypelist[@j].ProgStatus" onchange="changestatus(this);" style="width:80px;">
+                                                                    @if (@item1.ProgStatus.ToString() == "0")
+                                                                    {
+                                                                        <option value="0" selected="selected">Active</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="0">Active</option>
+                                                                    }
+                                                                    @if (@item1.ProgStatus.ToString() == "1")
+                                                                    {
+                                                                        <option value="1" selected="selected">Inactive</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="1">Inactive</option>
+                                                                    }
+                                                                    @if (@item1.ProgStatus.ToString() == "2")
+                                                                    {
+                                                                        <option value="2" selected="selected">Suspended</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="2">Suspended</option>
+                                                                    }
+                                                                </select>
+                                                            </td>
+
+
+                                                            <td id="HealthReview_@i@j"><input id="HealthReview_@i@j" @if (@item1.HealthReview)
+                                                                                                                     { <text> checked="checked" </text>    } class="form-control" name="fundsourcedata[@i].progtypelist[@j].healthreview" @if (disabledhealth == 0)
+                                                                                                                                                                                                                                          { <text> disabled="disabled" </text>    } type="checkbox" value="true"></td>
+                                                            <td><a accesskey="@item1.ProgramID" onclick="RemoveProg(this);" style="cursor:pointer;">Delete</a> </td>
+
+                                                            <td style="display:none;">
+                                                                <input type="hidden" id="hdnOldFund" value="O" name="FundSourcedata[@i].OldFund" />
+                                                                <input type="hidden" value="@item1.ProgramID" id="hdnProgID" name="FundSourcedata[@i].progtypelist[@j].ProgramID">
+                                                                <input type="hidden" value="@item.FundID" id="hdnFundID" name="FundSourcedata[@i].progtypelist[@j].FundID">
+                                                            </td>
+                                                        </tr>
+                                                                                                                                                                                                                                          j++;
+                                                                                                                                                                                                                                          disabledhealth = 0;
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="fundquestion" @if (Showfundquestion == 0)
+                                                              { <text> style="display:none;" </text>     }>
+                                        <div class="col-lg-12 "><h4 class="page-header">Funded Enrollment by Program Options  </h4>  </div><div class="row" id="FundQuestion">
+
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>1.</strong> Center-based option (5 days per week) Full-day Enrollment </label>
+
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ1" value="@item.FundQ1" class="form-control" style="width:100%;" maxlength="10" placeholder="Full-day Enrollment" type="text"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <label class="lablewidth fund-label" for="email"><strong>1.a</strong> Number available as full-working-day enrollment of children  </label>
+
+                                            </div> <div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ2" value="@item.FundQ2" class="form-control" style="width:104%;" maxlength="10" placeholder="Full Working Day" type="text"> </div><div class="col-lg-6 col-md-6 col-sm-6">
+                                                <label class="lablewidth fund-label1" for="email"><strong>1.a.1</strong> Number available for the full-calendar-year of children</label>
+
+                                            </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                                <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ3" value="@item.FundQ3" class="form-control" maxlength="10" style="width:104%;" placeholder="Full Calendar Year" type="text">
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>2.</strong> Center-based option (5 days per week) Part-day Enrollment of children </label>
+
+                                                </div> <div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ4" value="@item.FundQ4" style="width:100%;" class="form-control" maxlength="10" placeholder="Part Day Enrollment" type="text"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <label class="lablewidth fund-label" for="email"><strong>2.a</strong> Number in double sessions of children</label>
+
+                                            </div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ5" value="@item.FundQ5" class="form-control" style="width:104%;" maxlength="10" placeholder="Double Sessions" type="text"></div><div class="row">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>3.</strong> Center-based option (4 days per week) Full-day Enrollment of children</label>
+
+                                                </div>  <div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ6" value="@item.FundQ6" class="form-control" style="width:100%;" maxlength="10" placeholder="Full Day Enrollment" type="text">  </div>
+
+                                            </div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>4.</strong> Center-based option (4 days per week) Part-day Enrollment  of children </label>
+
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ7" value="@item.FundQ7" class="form-control" style="width:100%;" maxlength="10" placeholder="Part Day Enrollment" type="text"></div>
+
+                                            </div>
+                                        </div> <div class="col-lg-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <label class="lablewidth fund-label" for="email"><strong>4.a</strong> Number in double sessions of children </label>
+
+                                            </div> <div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ8" value="@item.FundQ8" class="form-control" style="width:104%;" maxlength="10" placeholder="Double sessions" type="text"></div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+
+                                                <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>5.</strong> Home-based option of children </label></div><div class="col-lg-3 col-md-3 col-sm-3">
+
+                                                    <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ9" value="@item.FundQ9" class="form-control" maxlength="10" style="width:100%;" placeholder="Home Based Option" type="text">
+                                                </div>
+                                            </div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                    <label class="lablewidth" for="email"><strong>6.</strong> Combination option of children</label>
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                                    <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ10" value="@item.FundQ10" style="width:100%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">
+
+                                                </div>
+                                            </div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>7.</strong> Family child care option of children </label>
+
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" value="@item.FundQ11" name="FundSourcedata[@i].FundQ11" class="form-control" style="width:100%;" maxlength="10" placeholder="Child Care Option" type="text"></div>
+                                            </div>
+                                        </div><div class="col-lg-12">
+
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <label class="lablewidth fund-label" for="email"><strong>7.a</strong> Number available as full-working-day enrollment of children  </label>
+
+                                            </div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" value="@item.FundQ12" name="FundSourcedata[@i].FundQ12" style="width:104%;" class="form-control" maxlength="10" placeholder="Full Working Day Enrollment" type="text"></div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <label class="lablewidth fund-label1" for="email"><strong>7.a.1</strong> Number available for the full-calendar-year of children </label>
+
+                                            </div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ13" value="@item.FundQ13" style="width:104%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text"></div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>8.</strong> Locally designed option of children </label>
+
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3"><input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ14" value="@item.FundQ14" style="width:100%;" class="form-control" maxlength="10" placeholder="Locally Designed option" type="text"></div>
+
+                                            </div>
+                                        </div><div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>9.</strong> Funded enrollment at child care partners in the center-based program option of children </label>
+
+                                                </div> <div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ15" value="@item.FundQ15" style="width:100%;" class="form-control" maxlength="10" placeholder="Center Based Program Option" type="text"></div>
+
+                                            </div>
+                                        </div>
+                                        <div class="row  Ehsshow" @if (showfundq10 == 0)
+                                                                  { <text> style="display:none;" </text>        }>
+                                            <div class="col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <label class="lablewidth" for="email"><strong>10.</strong>Total number of pregnant women positions in funded enrollment of pregnant women </label>
+
+                                                </div><div class="col-lg-3 col-md-3 col-sm-3"> <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ16" value="@item.FundQ16" style="width:100%;" class="form-control" maxlength="10" placeholder="Funded Enrollment Of Pregnant Women" type="text"> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+
+
+
+
+
+                                    <script type="text/javascript">
+
+                                        var dateToday = new Date();
+                                        dateToday = dateToday.setFullYear(dateToday.getFullYear() - 1);
+                                        $("input[id^='Date']").each(function () {
+                                            $(this).datetimepicker({
+                                                timepicker: false,
+                                                format: 'm/d/Y',
+                                                changeMonth: true,
+                                                changeYear: true,
+                                                minDate: dateToday
+                                            });
+                                        });
+
+                                        $("input[id^='programstartDate']").each(function () {
+                                            $(this).datetimepicker({
+                                                timepicker: false,
+                                                format: 'm/d/Y',
+                                                minDate: dateToday
+                                            });
+                                        });
+
+                                        $("input[id^='programendDate']").each(function () {
+                                            $(this).datetimepicker({
+                                                timepicker: false,
+                                                format: 'm/d/Y',
+                                                minDate: dateToday
+                                            });
+                                        });
+
+
+                                        function changestatus(value) {
+
+                                            var ddlvalue = $(value).val();
+                                            //var status = $(value).parent('td').children().eq(0).val();
+                                            var s = $(value).attr("accesskey");
+                                            //if (ddlvalue == status) {
+                                            //    return;
+                                            //}
+                                            var message = '';
+                                            if (ddlvalue == 0)
+                                                message = "Do you want to activate this program type? ";
+                                            if (ddlvalue == 1)
+                                                message = "Do you want to deactivate this program type? ";
+                                            if (ddlvalue == 2)
+                                                message = "Do you want to suspend this program type? ";
+                                            BootstrapDialog.confirm(message, function yes(result) {
+                                                if (result) {
+                                                    $.ajax({
+                                                        url: HostedDir + "/SuperAdmin/updateprogstatus",
+                                                        type: "POST",
+                                                        data: {
+                                                            ProgramID: $(value).attr("accesskey"),
+                                                            mode: ddlvalue
+                                                        },
+                                                        dataType: "json",
+                                                        secureuri: false,
+                                                        async: false,
+                                                        success: function (response) {
+
+                                                            if (response == 1) {
+                                                                if (ddlvalue == 0)
+                                                                    customAlert("Program type activated successfully.");
+                                                                if (ddlvalue == 1)
+                                                                    customAlert("Program type deactivated successfully.");
+                                                                if (ddlvalue == 2)
+                                                                    customAlert("Program type suspended successfully.");
+                                                                getlistafterstatuschanged();
+                                                            }
+                                                        }
+                                                         , error: function (response) {
+                                                                customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                                                         }
+                                                    });
+                                                }
+                                                else {
+                                                    $(value).val(status);
+                                                }
+                                            }, function no() { });
+                                        }
+                                    </script>
+                                </div>
+                                                                  i++;
+                                                                  Showfundquestion = 0;
+                                                                  showfundq10 = 0;
+                            }
+                        }
+                    </div>
+
+                    @*End*@
+                    <div class="col-lg-6 col-md-12 col-sm-12">
+                    </div>
+                </div><!--row-->
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+
+                            <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidagencyInfo();" tabindex="21">Submit</button>
+                            <button id="btnExit" class="my-btn" type="button" tabindex="22">Exit</button>
+
+                            @if (Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
+                            {
+                                <button class="my-btn" onclick="CheckforProgramtype();" type="button" tabindex="22">Next</button>
+                            }
+                            <div class="clear"></div>
+                        </div>	<!--btnwrp_subcal--->
+                    </div>
+                </div>
+            </form>
+
+
+        </div><!--add-useragform--->
+    </div>
+}
+

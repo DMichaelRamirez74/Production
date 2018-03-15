@@ -1,0 +1,2060 @@
+﻿@model FingerprintsModel.Screening
+@using System.Data
+
+
+<input type="hidden" id="viewBagText" value="@ViewBag.Title"/>
+ 
+<div class="row" id="ScreeningDiv">
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+        <div class="panel with-nav-tabs panel-primary panelscreen">
+            <div class="panel-heading panelul">
+
+                <ul id="myTab" class="nav nav-tabs navtabs1">
+                    @{
+
+                        try
+                        {
+                            string TabName = "";
+                            string Tabid = "";
+                            if (@ViewBag.tabpageScreening == "1")
+                            {
+
+                                <li id="Screeningallowed"><a href="#AllowScreening" data-toggle="tab">Parent Approval</a></li>
+                                <li style="display:none;" id="Physical" class="active"><a href="#addPhysical" data-toggle="tab">30 Day Physical</a></li>
+                                <li style="display:none;" id="Vision"><a href="#addVision" data-toggle="tab">45 Day Vision</a></li>
+                                <li style="display:none;" id="Hearing"><a href="#addHearing" data-toggle="tab">45 Day Hearing</a></li>
+                                <li style="display:none;" id="Develop"> <a href="#addDevelop" data-toggle="tab">45 Day Developmental</a></li>
+                                <li style="display:none;" id="Dental"><a href="#addDental" data-toggle="tab">90 Day Dental</a></li>
+                                <li style="display:none;" id="Speech"><a href="#addSpeech" data-toggle="tab">Speech Screening</a></li>
+                                if (Model.CustomScreening != null && Model.CustomScreening.Rows.Count > 0)
+                                {
+                                    DataTable ScreeningNames = Model.CustomScreening.DefaultView.ToTable(true, "ScreeningName", "programtype");
+                                    foreach (DataRow Row in ScreeningNames.Rows)
+                                    {
+
+                                        TabName = "#add" + @Row["ScreeningName"].ToString();
+                                        Tabid = @Row["ScreeningName"].ToString() + "tabid";
+                                        <li style="display:none;" programtype="@Row["programtype"].ToString()" class="customtabhide" id="@Tabid"><a href="@TabName" data-toggle="tab">@Row["ScreeningName"].ToString()</a></li>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <li id="Screeningallowed" class="active"><a href="#AllowScreening" data-toggle="tab">Parent Approval</a></li>
+                                        <li style="display:none;" id="Physical"><a href="#addPhysical" data-toggle="tab">30 Day Physical</a></li>
+                                        <li style="display:none;" id="Vision"><a href="#addVision" data-toggle="tab">45 Day Vision</a></li>
+                                        <li style="display:none;" id="Hearing"><a href="#addHearing" data-toggle="tab">45 Day Hearing</a></li>
+                                        <li style="display:none;" id="Develop"> <a href="#addDevelop" data-toggle="tab">45 Day Developmental</a></li>
+                                        <li style="display:none;" id="Dental"><a href="#addDental" data-toggle="tab">90 Day Dental</a></li>
+                                        <li style="display:none;" id="Speech"><a href="#addSpeech" data-toggle="tab">Speech Screening</a></li>
+                                if (Model.CustomScreening != null && Model.CustomScreening.Rows.Count > 0)
+                                {
+                                    DataTable ScreeningNames = Model.CustomScreening.DefaultView.ToTable(true, "ScreeningName", "programtype");
+                                    foreach (DataRow Row in ScreeningNames.Rows)
+                                    {
+
+                                        TabName = "#add" + @Row["ScreeningName"].ToString();
+                                        Tabid = @Row["ScreeningName"].ToString() + "tabid";
+                                        <li style="display:none;" programtype="@Row["programtype"].ToString()" class="customtabhide" id="@Tabid"><a href="@TabName" data-toggle="tab">@Row["ScreeningName"].ToString()</a></li>
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (Exception Ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(Ex);
+                        }
+
+                    }
+                </ul>
+            </div>
+            <div id="myTabContent" class="tab-content">
+
+                <div class="tab-pane fade in active" id="AllowScreening">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                @Html.HiddenFor(m => m.ParentAppID, new { id = "ParentAppID" })
+                                @*@Html.HiddenFor(m => m.WellBabyExamMonth, new { id = "WellBabyExamMonth" })*@
+                                <div class="col-lg-12" id="ConsolidateHeading">
+                                    <h2 class="page-header" style="margin-top:0px !important;">
+                                        <span>Permission to Screen</span>
+                                    </h2>
+                                </div>
+                                <div class="col-lg-6" id="ScreenAcc">
+                                    <div class="form-group">
+                                        <label>Permission to screen <br />form <sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-10">
+                                                @Html.TextBoxFor(m => m.ScreeningAccept, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:100% !important;" })
+                                            </div>
+                                            <div class="col-sm-1" style="margin-top: 2%;">
+                                                <a target="_blank" id="ScreeningAcceptance" title="Click here to download" href="~/Agencyuser/getpdfimage/7,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="ParentName">
+                                    <div class="form-group">
+                                        <label for="email">Guardian</label>
+                                        @Html.TextBoxFor(m => m.Parentname, new { id = "Parentscreening", maxlength = "50", @class = "form-control", tabIndex = "2" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="PhysicalScreen">
+                                    <div class="form-group">
+                                        <label>Allow 30 Day Physical Screening? <sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddPhysical, 1, new { @id = "AddPhysical", onchange = "ShowPhysical();" })
+                                                <span style="font-size: 14px;">Yes</span>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddPhysical, 2, new { @id = "AddPhysical1", onchange = "HidePhysical();" })
+                                                <span style="font-size: 14px;">No</span>
+                                            </div>
+                                            <div class="col-sm-4 wellborn-browse">
+                                                @Html.TextBoxFor(m => m.Physical, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:161% !important;" })
+
+                                            </div>
+                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                @if (@Model.PhysicalFileName != "")
+                                                {
+                                                    <a target="_blank" id="Allow30DayPhysical" title="Click here to download" href="~/Agencyuser/getpdfimage/1,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="VisionScreen">
+                                    <div class="form-group">
+                                        <label>Allow 45 Day Vision Screening? <sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddVision, 1, new { @id = "AddVision", onchange = "ShowVision();" })
+                                                <span style="font-size: 14px;">Yes</span>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddVision, 2, new { @id = "AddVision1", onchange = "HideVision();" })
+                                                <span style="font-size: 14px;">No</span>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                @Html.TextBoxFor(m => m.Vision, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:159% !important;" })
+                                            </div>
+
+                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                @if (@Model.VisionFileName != "")
+                                                {
+                                                    <a target="_blank" id="Allow45DayVisionScreening" title="Click here to download" href="~/Agencyuser/getpdfimage/2,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="HearingScreen">
+                                    <div class="form-group">
+                                        <label>Allow 45 Day Hearing Screening? <sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddHearing, 1, new { @id = "AddHearing", onchange = "ShowHearing();" })
+                                                <span style="font-size: 14px;">Yes</span>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddHearing, 2, new { @id = "AddHearing1", onchange = "HideHearing();" })
+                                                <span style="font-size: 14px;">No</span>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                @Html.TextBoxFor(m => m.Hearing, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:161% !important;" })
+                                            </div>
+                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                <a target="_blank" id="Allow45DayHearingScreening" title="Click here to download" href="~/Agencyuser/getpdfimage/3,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (Session["Roleid"].ToString() != "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" && Session["Roleid"].ToString() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                                {
+                                    <div class="col-lg-6" id="DevelopScreen">
+                                        <div class="form-group">
+                                            <label>Allow 45 Day Developmental Screening? <sup>*</sup></label>
+                                            <div class="cont-sz">
+                                                <div class="col-sm-3">
+                                                    @Html.RadioButtonFor(m => m.AddDevelop, 1, new { @id = "AddDevelop", onchange = "ShowDevelop();" })
+                                                    <span style="font-size: 14px;">Yes</span>
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    @Html.RadioButtonFor(m => m.AddDevelop, 2, new { @id = "AddDevelop1", onchange = "HideDevelop();" })
+                                                    <span style="font-size: 14px;">No</span>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    @Html.TextBoxFor(m => m.Develop, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:159% !important;" })
+                                                </div>
+                                                <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                    <a target="_blank" id="Allow45DayDevelopmentalScreening" title="Click here to download" href="~/Agencyuser/getpdfimage/4,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-lg-6" id="DentalScreen">
+                                    <div class="form-group">
+                                        <label>Allow 90 Day Dental Screening? <sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddDental, 1, new { @id = "AddDental", onchange = "ShowDental();" })
+                                                <span style="font-size: 14px;">Yes</span>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddDental, 2, new { @id = "AddDental1", onchange = "HideDental();" })
+                                                <span style="font-size: 14px;">No</span>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                @Html.TextBoxFor(m => m.Dental, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:159% !important;" })
+                                            </div>
+                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                <a target="_blank" id="Allow90DayDentalScreening" title="Click here to download" href="~/Agencyuser/getpdfimage/5,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" id="SpeechScreen">
+                                    <div class="form-group">
+                                        <label>Allow Speech Screening? <sup>*</sup></label>
+                                        <div class="cont-sz">
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddSpeech, 1, new { @id = "AddSpeech", onchange = "ShowSpeech();" })
+                                                <span style="font-size: 14px;">Yes</span>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @Html.RadioButtonFor(m => m.AddSpeech, 2, new { @id = "AddSpeech1", onchange = "HideSpeech();" })
+                                                <span style="font-size: 14px;">No</span>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                @Html.TextBoxFor(m => m.Speech, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:161% !important;" })
+                                            </div>
+                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                <a target="_blank" id="AllowSpeechScreening" title="Click here to download" href="~/Agencyuser/getpdfimage/6,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*Custom Screening starts 12-20-2016*@
+
+
+                                @{
+                                    try
+                                    {
+                                        string i = "";
+                                        string i1 = "";
+                                        string filename = "";
+                                        string radioname = "";
+                                        string DownloadDocument = "";
+                                        if (Model.CustomScreening != null && Model.CustomScreening.Rows.Count > 0)
+                                        {
+                                            DataTable ScreeningNames = Model.CustomScreening.DefaultView.ToTable(true, "ScreeningName", "ScreeningID", "programtype");
+                                            foreach (DataRow Row in ScreeningNames.Rows)
+                                            {
+                                                i = @Row["ScreeningName"].ToString() + "101";
+                                                i1 = @Row["ScreeningName"].ToString() + "102";
+                                                filename = "k" + Row["ScreeningID"].ToString() + "k" + Row["ScreeningName"].ToString() + "_customscreeningdocument";
+                                                radioname = Row["ScreeningID"].ToString() + "@" + Row["ScreeningName"].ToString() + "_allowchildcustomscreening";
+                                                DownloadDocument = "Allow" + Row["ScreeningName"].ToString() + Row["ScreeningID"].ToString() + "Screening";
+
+                                                <div class="col-lg-6 customallowscreening" accesskey="@Row["programtype"].ToString()">
+                                                    <div class="form-group">
+                                                        <label> Allow @Row["ScreeningName"].ToString() Screening </label>
+                                                        <div class="cont-sz">
+                                                            <div class="col-sm-3">
+                                                                <input type="radio" class="customscreeningradioallowed" id="@i" onchange="showcustomscreening('@Row["ScreeningName"].ToString()');" name="@radioname" value="1" />
+                                                                <span style="font-size: 14px;">Yes</span>
+                                                            </div>
+                                                            <div class="col-sm-3">
+                                                                <input type="radio" class="customscreeningradioallowed" id="@i1" onchange="hidecustomscreening('@Row["ScreeningName"].ToString()');" name="@radioname" value="0" />
+                                                                <span style="font-size: 14px;">No</span>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <input name="@filename" id="@filename" class=" form-control" onchange="ValidateSingleInputpdf2(this)" type="file" value="" style="width:161% !important;">
+                                                            </div>
+                                                            <div class="col-sm-2" style="margin-top: 2%; padding-left: 11%;">
+                                                                <a target="_blank" class="customscreeningdocunettag" style="display:none;" id="@DownloadDocument" title="Click here to download" href="~/Agencyuser/getpdfimage/@Row["ScreeningID"].ToString(),@Model.ParentAppID"><i class="fa fa-download"></i></a>
+                                                            </div>
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    catch (Exception Ex)
+                                    {
+                                        FingerprintsModel.clsError.WriteException(Ex);
+                                    }
+                                }
+                                @*Custom Screening ends*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade in active" id="addPhysical">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="section-screen">
+                                    <div class="DivForScreening" style="display:none;">
+                                        <h3>Exam Dates</h3>
+                                        <div class="screeenig-table table-responsive">
+                                            <table class="table ehs-screening-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Months</th>
+                                                        <th>Scheduled Exam Date</th>
+                                                        <th>Examined Date</th>
+                                                        <th>Status</th>
+                                                        <th>Add Exam Details</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="screening-tbody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div id="target" class="fill-part">
+                                        <div class="DivScreenFields" style="display:none;">
+                                            <h2><span id="DivScreenFieldsHeading" text="" /></h2>
+                                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Physical Exam Date <sup>*</sup></label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F001physicalDate" maxlength="50" name="F001physicalDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F001physicalDate" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Physical Exam Status <sup>*</sup></label>
+                                                        <select name="F002physicalResults" class="form-control Wtext-clear" id="F002physicalResults">
+                                                            <option value="1"
+                                                                    @if (@Model.F002physicalResults == "1") { <text> selected="selected" </text>            }>
+                                                                Complete
+                                                            </option>
+                                                            <option value="2" @if (@Model.F002physicalResults == "2") { <text> selected="selected" </text>            }>Follow-Up Needed</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Reason for Follow-Up </label>
+                                                        <div class="date custom-time">
+                                                            <input data-val="true" class="form-control Wtext-clear" id="F003physicallFOReason" maxlength="100" name="F003physicallFOReason" type="text" value="@Model.F003physicallFOReason" />
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Medical Treatment/Follow-Up </label>
+                                                        <select name="F004medFollowup" class="form-control Wtext-clear" id="F004medFollowup">
+                                                            <option value="1" @if (@Model.F004medFollowup == "1") { <text> selected="selected" </text>            }>No Treatment/Follow-Up Needed</option>
+                                                            <option value="2" @if (@Model.F004medFollowup == "2") { <text> selected="selected" </text>            }>Treatment/Follow-Up Needed, Not Received</option>
+                                                            <option value="3" @if (@Model.F004medFollowup == "3") { <text> selected="selected" </text>            }>Treatment/Follow-Up Needed, Received Treatment/Follow-Up</option>
+                                                            <option value="4" @if (@Model.F004medFollowup == "4") { <text> selected="selected" </text>            }>Treatment/Follow-Up Received, Further Treatment/Follow-Up Needed</option>
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-7 col-md-7 col-sm-7">
+
+
+                                                    @*// @Html.TextBoxFor(m => m.WellBabyDoc, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:161% !important;"  @multiple= "multiple" })*@
+                                                    @*<input type="file" id="WellBabyDoc" name="WellBabyDoc" class="form-control" style="width:161% !important;" multiple  />*@
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Medical Treatment/Follow-Up Comments  </label>
+                                                        <div class="date custom-time">
+                                                            <input data-val="true" class="form-control Wtext-clear" id="F005MedFOComments" maxlength="100" name="F005MedFOComments" type="text" value="@Model.F005MedFOComments" />
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Blood Pressure Results  </label>
+                                                        <div class="date custom-time">
+                                                            <input data-val="true" class="form-control Wtext-clear" id="F006bpResults" maxlength="100" name="F006bpResults" type="text" value="@Model.F006bpResults" />
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Hgb/Hct Date</label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F007hgDate" maxlength="50" name="F007hgDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F007hgDate" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Hgb/Hct Status </label>
+                                                        <select name="F008hgStatus" class="form-control Wtext-clear" id="FhgStatus">
+                                                            <option value="1" @if (@Model.F008hgStatus == "1") { <text> selected="selected" </text>            }>Pass</option>
+                                                            <option value="2" @if (@Model.F008hgStatus == "2") { <text> selected="selected" </text>            }>Follow-Up Needed</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Hgb/Hct Results</label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F009hgResults" maxlength="100" name="F009hgResults" type="text" value="@Model.F009hgResults" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Hgb/Hct Referral Date</label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F010hgReferralDate" maxlength="50" name="F010hgReferralDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F010hgReferralDate" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Hgb/Hct Comments</label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F011hgComments" maxlength="100" name="F011hgComments" type="text" value="@Model.F011hgComments" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Hgb/Hct Rescreen Date</label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F012hgDate2" maxlength="50" name="F012hgDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F012hgDate2" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group datepicker-days">
+                                                        <label>Hgb/Hct Rescreen Results</label>
+                                                        <div class="date custom-time">
+                                                            <input class="form-control Wtext-clear" id="F013hgResults2" maxlength="100" name="F013hgResults2" type="text" value="@Model.F013hgResults2" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label>Hgb/Hct Follow-Up Status </label>
+                                                        <select name="F014hgFOStatus" class="form-control Wtext-clear" id="F014hgFOStatus">
+                                                            @*<option value="" @if (@Model.F014hgFOStatus == "") { <text> selected="selected" </text>   }></option>*@
+                                                            <option value="1" @if (@Model.F014hgFOStatus == "1") { <text> selected="selected" </text>            }>Follow-Up Needed but Not Yet Complete</option>
+                                                            <option value="2" @if (@Model.F014hgFOStatus == "2") { <text> selected="selected" </text>            }>Follow-Up Complete</option>
+                                                            <option value="3" @if (@Model.F014hgFOStatus == "3") { <text> selected="selected" </text>            }>N/A</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                <div id="Phyimagedocument">
+                                                </div>
+                                                <iframe style="display:none;width:100%;height:300px; " id="Phypdfdocument" src="" frameborder="0" scrolling="no"></iframe>
+                                                <div class="sep-files" style="margin-top: 34px;">
+
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="import-filetpr">
+                                                            <input type="file" id="WellBabyDoc" name="WellBabyDoc" class="form-control" style="width:161% !important;display: none;" multiple="">
+                                                            <label for="WellBabyDoc" class="my-btn" style="color: #fff;cursor:pointer;">Browse</label>
+                                                            <span id="filename">No file choosen</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group datepicker-days">
+                                                            <label>Lead Screening Date</label>
+                                                            <div class="date custom-time">
+                                                                <input class="form-control Wtext-clear" id="F015leadDate" maxlength="50" name="F015leadDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F015leadDate" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group">
+                                                            <label>Lead Screening Results </label>
+                                                            <select name="F016leadResults" class="form-control Wtext-clear" id="F016leadResults">
+                                                                @*<option value="" @if (@Model.F016leadResults == "") { <text> selected="selected" </text>   }></option>*@
+                                                                <option value="1" @if (@Model.F016leadResults == "1") { <text> selected="selected" </text>             }>Pass less than 5 ug/dL</option>
+                                                                <option value="2" @if (@Model.F016leadResults == "2") { <text> selected="selected" </text>             }>Follow-Up Needed greater than 5 ug/dL</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group datepicker-days">
+                                                            <label>Lead Referral Date</label>
+                                                            <div class="date custom-time">
+                                                                <input class="form-control Wtext-clear" id="F017leadReferDate" maxlength="50" name="F017leadReferDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F017leadReferDate" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group datepicker-days">
+                                                            <label>Lead Treatment Comments</label>
+                                                            <div class="date custom-time">
+                                                                <input class="form-control Wtext-clear" id="F018leadComments" maxlength="100" name="F018leadComments" type="text" value="@Model.F018leadComments" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group datepicker-days">
+                                                            <label>Lead Rescreen Date</label>
+                                                            <div class="date custom-time">
+                                                                <input class="form-control Wtext-clear" id="F019leadDate2" maxlength="50" name="F019leadDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.F019leadDate2" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group datepicker-days">
+                                                            <label>Lead Rescreen Results</label>
+                                                            <div class="date custom-time">
+                                                                <input class="form-control Wtext-clear" id="F020leadResults2" maxlength="100" name="F020leadResults2" type="text" value="@Model.F020leadResults2" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="form-group">
+                                                            <label>Lead Follow-Up Status</label>
+                                                            <select name="F021leadFOStatus" class="form-control Wtext-clear" id="F021leadFOStatus">
+                                                                @*<option value="" @if (@Model.F021leadFOStatus == "") { <text> selected="selected" </text>   }></option>*@
+                                                                <option value="1" @if (@Model.F021leadFOStatus == "1") { <text> selected="selected" </text>             }>Follow-Up Needed but Not Yet Complete</option>
+                                                                <option value="2" @if (@Model.F021leadFOStatus == "2") { <text> selected="selected" </text>             }>Follow-Up Complete</option>
+                                                                <option value="3" @if (@Model.F021leadFOStatus == "3") { <text> selected="selected" </text>             }>N/A</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="WellBabyHouseHoldId" value="@Request.QueryString["id"]" />
+                        <input type="hidden" id="WellBabyChildId" value="@Request.QueryString["Clientid"]" />
+
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="addVision">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+                                <div class="col-lg-7 col-md-7 col-sm-7">
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Vision Screening Date <sup>*</sup></label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v022date" maxlength="50" name="v022date" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v022date" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Vision Screening Results <sup>*</sup></label>
+
+                                            <select name="v023results" class="form-control" id="v023results">
+                                                <option value="1" @if (@Model.v023results == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.v023results == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Vision Screening Comments </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v024comments" maxlength="100" name="v024comments" type="text" value="@Model.v024comments" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Rescreening Date 1 </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v025dateR1" maxlength="50" name="v025dateR1" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v025dateR1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Results 1 </label>
+
+                                            <select name="v026resultsR1" class="form-control" id="v026resultsR1">
+                                                <option value="1" @if (@Model.v026resultsR1 == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.v026resultsR1 == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Comments 1</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v027commentsR1" maxlength="100" name="v027commentsR1" type="text" value="@Model.v027commentsR1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Rescreening Date 2 </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v028dateR2" maxlength="50" name="v028dateR2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v028dateR2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Results 2</label>
+
+                                            <select name="v029resultsR2" class="form-control" id="v029resultsR2">
+                                                @*<option value="" @if (@Model.v029resultsR2 == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.v029resultsR2 == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.v029resultsR2 == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Comments 2</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v030commentsR2" maxlength="100" name="v030commentsR2" type="text" value="@Model.v030commentsR2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Vision Referral Date</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v031ReferralDate" maxlength="50" name="v031ReferralDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v031ReferralDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Vision Treatment</label>
+
+                                            <select name="v032Treatment" class="form-control" id="v032Treatment">
+                                                @*<option value="" @if (@Model.v032Treatment == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.v032Treatment == "1") { <text> selected="selected" </text>               }>No Treatment Needed</option>
+                                                <option value="2" @if (@Model.v032Treatment == "2") { <text> selected="selected" </text>               }>Treatment Needed, Not Received</option>
+                                                <option value="3" @if (@Model.v032Treatment == "3") { <text> selected="selected" </text>               }>Treatment Needed, Received</option>
+                                                <option value="4" @if (@Model.v032Treatment == "4") { <text> selected="selected" </text>               }>Treatment Received, Further Treatment Needed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Vision Treatment Comments</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v033TreatmentComments" maxlength="100" name="v033TreatmentComments" type="text" value="@Model.v033TreatmentComments" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Vision Treatment Completion Date</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="v034Completedate" maxlength="50" name="v034Completedate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.v034Completedate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Vision Exam Status</label>
+
+                                            <select name="v035ExamStatus" class="form-control" id="v035ExamStatus">
+                                                @*<option value="" @if (@Model.v035ExamStatus == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.v035ExamStatus == "1") { <text> selected="selected" </text>               }>Complete</option>
+                                                <option value="2" @if (@Model.v035ExamStatus == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+
+
+                                    <div id="Visimagedocument">
+                                    </div>
+                                    <iframe style="display:none;width:100%;height:300px; " frameborder="0" scrolling="no" id="Vispdfdocument" class="embed-responsive" src="data:application/pdf;base64,"></iframe>
+                                </div>
+
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="addHearing">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+
+                                <div class="col-lg-7 col-md-7 col-sm-7">
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Hearing Screening Date <sup>*</sup></label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h036Date" maxlength="50" name="h036Date" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.h036Date" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Hearing Screening Results <sup>*</sup></label>
+
+                                            <select name="h037Results" class="form-control" id="h037Results">
+                                                @*<option value="" @if (@Model.h037Results == "") { <text> selected="selected" </text>   }> </option>*@
+                                                <option value="1" @if (@Model.h037Results == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.h037Results == "2") { <text> selected="selected" </text>               }>Fail</option>
+                                                <option value="3" @if (@Model.h037Results == "3") { <text> selected="selected" </text>               }>Follow-Up</option>
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Hearing Exam Comments</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h038Comments" maxlength="100" name="h038Comments" type="text" value="@Model.h038Comments" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Rescreening Date 1 </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h039DateR1" maxlength="50" name="h039DateR1" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.h039DateR1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Results 1 </label>
+
+                                            <select name="h040ResultsR1" class="form-control" id="h040ResultsR1">
+
+                                                <option value="1" @if (@Model.h040ResultsR1 == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.h040ResultsR1 == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Comments 1</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h041CommentsR1" maxlength="100" name="h041CommentsR1" type="text" value="@Model.h041CommentsR1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Rescreening Date 2 </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h042DateR2" maxlength="50" name="h042DateR2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.h042DateR2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Results 2</label>
+
+                                            <select name="h043ResultsR2" class="form-control" id="h043ResultsR2">
+                                                @*<option value="" @if (@Model.h043ResultsR2 == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.h043ResultsR2 == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.h043ResultsR2 == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Rescreening Comments 2</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h044CommentsR2" maxlength="100" name="h044CommentsR2" type="text" value="@Model.h044CommentsR2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Hearing Referral Date</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h045ReferralDate" maxlength="50" name="h045ReferralDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.h045ReferralDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Hearing Treatment</label>
+
+                                            <select name="h046Treatment" class="form-control" id="h046Treatment">
+                                                @*<option value="" @if (@Model.h046Treatment == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.h046Treatment == "1") { <text> selected="selected" </text>               }>No Treatment Needed</option>
+                                                <option value="2" @if (@Model.h046Treatment == "2") { <text> selected="selected" </text>               }>Treatment Needed, Not Received</option>
+                                                <option value="3" @if (@Model.h046Treatment == "3") { <text> selected="selected" </text>               }>Treatment Needed, Received</option>
+                                                <option value="4" @if (@Model.h046Treatment == "4") { <text> selected="selected" </text>               }>Treatment Received, Further Treatment Needed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Hearing Treatment Comments</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h047TreatmentComments" maxlength="100" name="h047TreatmentComments" type="text" value="@Model.h047TreatmentComments" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Hearing Treatment Completion Date</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="h048CompleteDate" maxlength="50" name="h048CompleteDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.h048CompleteDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Hearing Exam Status</label>
+
+                                            <select name="h049ExamStatus" class="form-control" id="h049ExamStatus">
+                                                @*<option value="" @if (@Model.h049ExamStatus == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.h049ExamStatus == "1") { <text> selected="selected" </text>               }>Complete</option>
+                                                <option value="2" @if (@Model.h049ExamStatus == "2") { <text> selected="selected" </text>               }>Follow-Up</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <div id="Hearimagedocument">
+                                    </div>
+                                    <iframe style="display:none;width:100%;height:300px; " id="Hearpdfdocument" frameborder="0" scrolling="no" class="embed-responsive" src="data:application/pdf;base64,"></iframe>
+                                </div>
+
+
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="addDevelop">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+                                <div class="col-lg-7 col-md-7 col-sm-7">
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Developmental Screening Date <sup>*</sup></label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="d050evDate" maxlength="50" name="d050evDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.d050evDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Developmental Screener Name </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="d051NameDEV" maxlength="100" name="d051NameDEV" type="text" value="@Model.d051NameDEV" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Developmental Screening Results <sup>*</sup></label>
+                                            <select name="d052evResults" class="form-control" id="d052evResults">
+                                                @*<option value="" @if (@Model.d052evResults == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.d052evResults == "1") { <text> selected="selected" </text>               }>Pass</option>
+                                                <option value="2" @if (@Model.d052evResults == "2") { <text> selected="selected" </text>               }>Concerns Exists, Follow-Up Required</option>
+                                                <option value="3" @if (@Model.d052evResults == "3") { <text> selected="selected" </text>               }>N/A</option>
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Developmental Screening Details <sup>*</sup></label>
+                                            <select name="d053evResultsDetails" class="form-control" id="d053evResultsDetails">
+                                                @*<option value="" @if (@Model.d053evResultsDetails == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.d053evResultsDetails == "1") { <text> selected="selected" </text>               }>Normal</option>
+                                                <option value="2" @if (@Model.d053evResultsDetails == "2") { <text> selected="selected" </text>               }>Abnormal</option>
+                                                <option value="3" @if (@Model.d053evResultsDetails == "3") { <text> selected="selected" </text>               }>Questionable</option>
+                                                <option value="4" @if (@Model.d053evResultsDetails == "4") { <text> selected="selected" </text>               }>Un-Testable</option>
+                                                <option value="5" @if (@Model.d053evResultsDetails == "5") { <text> selected="selected" </text>               }>N/A</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Developmental Rescreen Date <sup>*</sup></label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="d054evDate2" maxlength="50" name="d054evDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.d054evDate2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Developmental Rescreen Results <sup>*</sup></label>
+                                            <select name="d055evResults2" class="form-control" id="d055evResults2">
+                                                @*<option value="" @if (@Model.d055evResults2 == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.d055evResults2 == "1") { <text> selected="selected" </text>               }>Normal</option>
+                                                <option value="2" @if (@Model.d055evResults2 == "2") { <text> selected="selected" </text>               }>Abnormal</option>
+                                                <option value="3" @if (@Model.d055evResults2 == "3") { <text> selected="selected" </text>               }>Questionable</option>
+                                                <option value="4" @if (@Model.d055evResults2 == "4") { <text> selected="selected" </text>               }>Un-Testable</option>
+                                                <option value="5" @if (@Model.d055evResults2 == "5") { <text> selected="selected" </text>               }>N/A</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Was a Developmental Referral Made?<sup>*</sup></label>
+                                            <select name="d056evReferral" class="form-control" id="d056evReferral">
+                                                @*<option value="" @if (@Model.d056evReferral == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.d056evReferral == "1") { <text> selected="selected" </text>               }>Yes</option>
+                                                <option value="2" @if (@Model.d056evReferral == "2") { <text> selected="selected" </text>               }>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Developmental Follow-Up Status<sup>*</sup></label>
+                                            <select name="d057evFOStatus" class="form-control" id="d057evFOStatus">
+                                                @*<option value="" @if (@Model.d057evFOStatus == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.d057evFOStatus == "1") { <text> selected="selected" </text>               }>Follow-Up Required But Not Yet Complete</option>
+                                                <option value="2" @if (@Model.d057evFOStatus == "2") { <text> selected="selected" </text>               }>Follow-Up Complete</option>
+                                                <option value="3" @if (@Model.d057evFOStatus == "3") { <text> selected="selected" </text>               }>N/A</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Developmental Screening Comments </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="d058evComments" maxlength="100" name="d058evComments" type="text" value="@Model.d058evComments" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Developmental Screening Tool <sup>*</sup></label>
+                                            <select name="d059evTool" class="form-control" id="d059evTool">
+                                                @*<option value="" @if (@model.d059evtool= ="" ) {<text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.d059evTool == "1") { <text> selected="selected" </text>               }>Denver II</option>
+                                                <option value="2" @if (@Model.d059evTool == "2") { <text> selected="selected" </text>              }>I-PASS</option>
+                                                <option value="3" @if (@Model.d059evTool == "3") { <text> selected="selected" </text>              }>ASQ</option>
+                                                <option value="4" @if (@Model.d059evTool == "4") { <text> selected="selected" </text>              }>BRIGANCE</option>
+                                                <option value="5" @if (@Model.d059evTool == "5") { <text> selected="selected" </text>              }>Name included in IEP Document</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <div id="Devimagedocument">
+                                    </div>
+                                    <iframe style="display:none;width:100%;height:300px; " id="Devpdfdocument" class="embed-responsive" frameborder="0" scrolling="no" src="data:application/pdf;base64,"></iframe>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="addDental">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+
+                                <div class="col-lg-7 col-md-7 col-sm-7">
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Dental Screening Date <sup>*</sup></label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="E060denDate" maxlength="50" name="E060denDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.E060denDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Dental Screening Results</label>
+                                            <select name="E061denResults" class="form-control" id="E061denResults">
+                                                @*<option value="" @if (@Model.E061denResults == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.E061denResults == "1") { <text> selected="selected" </text>               }>Complete</option>
+                                                <option value="2" @if (@Model.E061denResults == "2") { <text> selected="selected" </text>               }>Treatment Needed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Dental Preventative Completed</label>
+
+                                            <select name="E062denPrevent" class="form-control" id="E062denPrevent">
+                                                @*<option value="" @if (@Model.E062denPrevent == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.E062denPrevent == "1") { <text> selected="selected" </text>               }>Yes</option>
+                                                <option value="2" @if (@Model.E062denPrevent == "2") { <text> selected="selected" </text>               }>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Dental Referral Date</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="E063denReferralDate" maxlength="50" name="E063denReferralDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.E063denReferralDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Dental Treatment</label>
+
+                                            <select name="E064denTreatment" class="form-control" id="E064denTreatment">
+                                                @*<option value="" @if (@Model.E064denTreatment == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.E064denTreatment == "1") { <text> selected="selected" </text>               }>No Treatment Needed</option>
+                                                <option value="2" @if (@Model.E064denTreatment == "2") { <text> selected="selected" </text>               }>Treatment Needed, Not Received</option>
+                                                <option value="3" @if (@Model.E064denTreatment == "3") { <text> selected="selected" </text>               }>Treatment Needed, Received</option>
+                                                <option value="4" @if (@Model.E064denTreatment == "4") { <text> selected="selected" </text>               }>Treatment Received, Further Treatment Needed</option>
+                                                <option value="5" @if (@Model.E064denTreatment == "5") { <text> selected="selected" </text>               }>Treatment Received, Refusal Signed</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Dental Treatment Comments</label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="E065denTreatmentComments" maxlength="100" name="E065denTreatmentComments" type="text" value="@Model.E065denTreatmentComments" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Has the child received dental treatment at any time this year? </label>
+
+                                            <select name="E066denTreatmentReceive" class="form-control" id="E066denTreatmentReceive">
+                                                @*<option value="" @if (@Model.E066denTreatmentReceive == "") { <text> selected="selected" </text>   }></option>*@
+                                                <option value="1" @if (@Model.E066denTreatmentReceive == "1") { <text> selected="selected" </text>             }>Yes</option>
+                                                <option value="2" @if (@Model.E066denTreatmentReceive == "2") { <text> selected="selected" </text>             }>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <div id="Dentimagedocument">
+                                    </div>
+                                    <iframe style="display:none;width:100%;height:300px; " id="Dentpdfdocument" frameborder="0" scrolling="no" class="embed-responsive" src="data:application/pdf;base64,"></iframe>
+                                </div>
+
+
+
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="addSpeech">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Speech Screening Date </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s067Date" maxlength="50" name="s067Date" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.s067Date" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Speech Screener Name </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s068NameTCR" maxlength="100" name="s068NameTCR" type="text" value="@Model.s068NameTCR" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Speech Screening Details </label>
+
+                                            <select name="s069Details" class="form-control" id="s069Details">
+
+                                                <option value="1" @if (@Model.s069Details == "1") { <text> selected="selected" </text>              }>Referred</option>
+                                                <option value="2" @if (@Model.s069Details == "2") { <text> selected="selected" </text>              }>Schedule for Evaluation</option>
+                                                <option value="3" @if (@Model.s069Details == "3") { <text> selected="selected" </text>              }>IEP</option>
+                                                <option value="4" @if (@Model.s069Details == "4") { <text> selected="selected" </text>              }>Private Speech Therapy</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Speech Screening Results </label>
+
+                                            <select name="s070Results" class="form-control" id="s070Results">
+
+                                                <option value="1" @if (@Model.s070Results == "1") { <text> selected="selected" </text>              }>Pass</option>
+                                                <option value="2" @if (@Model.s070Results == "2") { <text> selected="selected" </text>              }>Fail</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Does Child Need Speech Rescreen with Teacher </label>
+
+                                            <select name="s071RescreenTCR" class="form-control" id="s071RescreenTCR">
+
+                                                <option value="1" @if (@Model.s071RescreenTCR == "1") { <text> selected="selected" </text>              }>Yes, After 2nd Developmental Rescreen</option>
+                                                <option value="2" @if (@Model.s071RescreenTCR == "2") { <text> selected="selected" </text>              }>Yes, After 2nd Developmental Rescreen w/Interpreter</option>
+                                                <option value="3" @if (@Model.s071RescreenTCR == "3") { <text> selected="selected" </text>              }>Yes, After 2nd Guardian Response to Teacher Screening</option>
+                                                <option value="4" @if (@Model.s071RescreenTCR == "4") { <text> selected="selected" </text>              }>Yes, Within Two Weeks</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Teacher Rescreen Date </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s072RescreenTCRDate" maxlength="50" name="s072RescreenTCRDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.s072RescreenTCRDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Teacher Rescreen Results </label>
+
+                                            <select name="s073RescreenTCRResults" class="form-control" id="s073RescreenTCRResults">
+
+                                                <option value="1" @if (@Model.s073RescreenTCRResults == "1") { <text> selected="selected" </text>              }>Pass</option>
+                                                <option value="2" @if (@Model.s073RescreenTCRResults == "2") { <text> selected="selected" </text>              }>Fail</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Does Child Need a Referral for Speech Rescreen with Disabilities Coordinator </label>
+
+                                            <select name="s074ReferralDC" class="form-control" id="s074ReferralDC">
+
+                                                <option value="1" @if (@Model.s074ReferralDC == "1") { <text> selected="selected" </text>              }>Yes</option>
+                                                <option value="2" @if (@Model.s074ReferralDC == "2") { <text> selected="selected" </text>              }>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Speech Referral Date </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s075ReferDate" maxlength="50" name="s075ReferDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.s075ReferDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Disabilities Coordinator Screening Date </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s076DCDate" maxlength="50" name="s076DCDate" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.s076DCDate" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Disabilities Coordinator Name </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s077NameDC" maxlength="100" name="s077NameDC" type="text" value="@Model.s077NameDC" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Disabilities Coordinator Screening Result </label>
+
+                                            <select name="s078DetailDC" class="form-control" id="s078DetailDC">
+
+                                                <option value="1" @if (@Model.s078DetailDC == "1") { <text> selected="selected" </text>              }>Pass</option>
+                                                <option value="2" @if (@Model.s078DetailDC == "2") { <text> selected="selected" </text>              }>Fail, Refer to MH for Further Testing</option>
+                                                <option value="3" @if (@Model.s078DetailDC == "3") { <text> selected="selected" </text>              }>Fail, Refer to Outside Agency for Speech Evaluation</option>
+                                                <option value="4" @if (@Model.s078DetailDC == "4") { <text> selected="selected" </text>              }>Rescreen</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group datepicker-days">
+                                            <label>Disabilities Coordinator Rescreen Date </label>
+                                            <div class="date custom-time">
+                                                <input class="form-control" id="s079DCDate2" maxlength="50" name="s079DCDate2" onblur="return validatedate1(this);" placeholder="MM/DD/YYYY" type="text" value="@Model.s079DCDate2" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Disabilities Coordinator Rescreen Result </label>
+                                            <select name="s080DetailDC2" class="form-control" id="s080DetailDC2">
+
+                                                <option value="1" @if (@Model.s080DetailDC2 == "1") { <text> selected="selected" </text>              }>Pass</option>
+                                                <option value="2" @if (@Model.s080DetailDC2 == "2") { <text> selected="selected" </text>              }>Fail, Refer to MH for Further Testing</option>
+                                                <option value="3" @if (@Model.s080DetailDC2 == "3") { <text> selected="selected" </text>              }>Fail, Refer to Outside Agency for Speech Evaluation</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Speech Follow-Up Status</label>
+                                            <select name="s081FOStatus" class="form-control" id="s081FOStatus">
+
+                                                <option value="1" @if (@Model.s081FOStatus == "1") { <text> selected="selected" </text>              }>No Follow-Up Required</option>
+                                                <option value="2" @if (@Model.s081FOStatus == "2") { <text> selected="selected" </text>              }>Follow-Up Required, but Not Complete</option>
+                                                <option value="3" @if (@Model.s081FOStatus == "3") { <text> selected="selected" </text>              }>Follow-Up Complete</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                    <div id="Speechimagedocument">
+                                    </div>
+                                    <iframe style="display:none;width:100%;height:300px; " id="Speechpdfdocument" frameborder="0" scrolling="no" class="embed-responsive" src="data:application/pdf;base64,"></iframe>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                @*Custom Screening generate controls starts 12-20-2016*@
+
+
+                @{
+                    int r = 0;
+                    string customscreeningname = "";
+                    string TabName1 = "";
+                    string imagedocument = "";
+                    string pdfdocument = "";
+                    try
+                    {
+
+                        if (Model.CustomScreening != null && Model.CustomScreening.Rows.Count > 0)
+                        {
+                            DataTable ScreeningNames = Model.CustomScreening.DefaultView.ToTable(true, "ScreeningName", "ScreeningID");
+                            foreach (DataRow screeningrows in ScreeningNames.Rows)
+                            {
+                                TabName1 = "add" + @screeningrows["ScreeningName"].ToString();
+                                DataTable Questionids = Model.CustomScreening.DefaultView.ToTable(true, "ScreeningID", "QuestionID");
+                                imagedocument = @screeningrows["ScreeningName"].ToString() + "_imagedocument";
+                                pdfdocument = @screeningrows["ScreeningName"].ToString() + "_pdfdocument";
+                                <div class="tab-pane fade customtab" id="@TabName1">
+                                    <div class="add-useragform">
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                                <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+                                                    @foreach (DataRow Row in Questionids.Select("ScreeningID=" + @screeningrows["ScreeningID"].ToString()))
+                                                    {
+                                                        DataRow[] rows = Model.CustomScreening.Select("QuestionID=" + Convert.ToString(@Row["QuestionID"]));
+                                                        if (rows.Length == 1)
+                                                        {
+                                                            if (Convert.ToString(rows[0]["QuestionType"]) == "2")
+                                                            {
+                                                                customscreeningname = "";
+                                                                if (rows[0]["Question"].ToString().Replace(" ", "") == "ScreeningDate")
+                                                                {
+                                                                    customscreeningname = Convert.ToString(@rows[0]["QuestionAcronym"]) + "k_custscreeningquestin_$SD";
+                                                                }
+                                                                else
+                                                                {
+                                                                    customscreeningname = Convert.ToString(@rows[0]["QuestionAcronym"]) + "k_custscreeningquestin";
+                                                                }
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <label> @Convert.ToString(@rows[0]["Question"])  </label>
+                                                                        <input type="text" name="@customscreeningname" id='@rows[0]["QuestionAcronym"].ToString()' placeholder="MM/DD/YYYY" onblur="validatedates(this);" maxlength="30" class="form-control Sdate custscreeningquestin" />
+
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            if (Convert.ToString(rows[0]["QuestionType"]) == "5")
+                                                            {
+                                                                customscreeningname = "";
+                                                                customscreeningname = Convert.ToString(@rows[0]["QuestionAcronym"]) + "k_custscreeningquestin";
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <label>@Convert.ToString(@rows[0]["Question"]) </label>
+                                                                        <input type="text" name="@customscreeningname" id='@rows[0]["QuestionAcronym"].ToString()' maxlength="100" class="form-control custscreeningquestin" />
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            if (Convert.ToString(rows[0]["QuestionType"]) == "6")
+                                                            {
+                                                                customscreeningname = "";
+                                                                customscreeningname = Convert.ToString(@rows[0]["QuestionAcronym"]) + "k_custscreeningquestin";
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <label>@Convert.ToString(@rows[0]["Question"])</label>
+                                                                        <input type="text" name="@customscreeningname" id='@rows[0]["QuestionAcronym"].ToString()' maxlength="50" onblur="return checkNumeric(this);" class="form-control custscreeningquestin" />
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        if (rows.Length > 1)
+                                                        {
+                                                            if (Convert.ToString(rows[0]["QuestionType"]) == "1")
+                                                            {
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <label> @Convert.ToString(@rows[0]["Question"]) </label>
+                                                                        <div class="cont-sz">
+                                                                            @foreach (var item in rows)
+                                                                            {
+                                                                                string option = Convert.ToString(@rows[0]["QuestionAcronym"]) + "ko" + @Convert.ToString(@item["Optionid"]) + "o__custscreeningquestin";
+                                                                                string id = Convert.ToString(@rows[0]["QuestionAcronym"]) + "o" + @Convert.ToString(@item["Optionid"]);
+                                                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                    <input name="@option" class="minimal custscreeningquestin" id="@id" type="checkbox" style="width:auto;" value="true">
+                                                                                    <span>@Convert.ToString(@item["Optionname"])</span>
+                                                                                </div>
+
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            }
+                                                            if (Convert.ToString(rows[0]["QuestionType"]) == "3")
+                                                            {
+                                                                customscreeningname = "";
+                                                                customscreeningname = Convert.ToString(@rows[0]["QuestionAcronym"]) + "k_custscreeningquestinselect";
+                                                                <div class="col-lg-12 col-md-12 col-sm-12 adddivspace">
+                                                                    <div class="form-group">
+                                                                        <label>@Convert.ToString(@rows[0]["Question"]) </label>
+                                                                        <select name="@customscreeningname" id='@rows[0]["QuestionAcronym"].ToString()' class="form-control checkselectvalue custscreeningquestin">
+                                                                            @foreach (var item in rows)
+                                                                            {
+                                                                                <option value="@Convert.ToString(@item["Optionid"])">@Convert.ToString(@item["Optionname"])</option>
+                                                                            }
+                                                                        </select>
+                                                                        <input type="hidden" name="@customscreeningname" id="@rows[0]["QuestionAcronym"].ToString()" value="" />
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            if (Convert.ToString(rows[0]["QuestionType"]) == "4")
+                                                            {
+                                                                string Radio = Convert.ToString(@rows[0]["QuestionAcronym"]) + "_custrad_custscreeningquestin" + r;
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <label>@Convert.ToString(@rows[0]["Question"]) </label>
+                                                                        <div class="cont-sz">
+                                                                            @foreach (var item in rows)
+                                                                            {
+                                                                                string option = Convert.ToString(@rows[0]["QuestionAcronym"]) + "ko" + @Convert.ToString(@item["Optionid"]) + "o_custscreeningquestin";
+                                                                                string id = Convert.ToString(@rows[0]["QuestionAcronym"]) + "o" + @Convert.ToString(@item["Optionid"]);
+                                                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                    <input name="@Radio" type="radio" id="@id" class="custscreeningquestin" value="@option">
+                                                                                    <span style="font-size: 14px;">@Convert.ToString(@item["Optionname"])</span>
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                r++;
+                                                            }
+
+                                                        }
+                                                    }
+
+                                                </div>
+
+
+                                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                                    <div class="customscreeningdiv" id="@imagedocument">
+                                                        <script type="text/javascript">
+
+                                                            $(document).ready(function () {
+                                                                $('input').keypress(function () {
+                                                                    if ($(this).val() == 'MM/DD/YYYY') {
+                                                                        $(this).val('');
+                                                                        // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                                                                    }
+                                                                });
+
+                                                                $('#@imagedocument').ZoomCrop(
+                                                              {
+                                                                  image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                                                  updated: function (size, crop, position) {
+                                                                      console.log(size, crop, position);
+                                                                  }
+                                                              });
+                                                            });
+                                                        </script>
+                                                    </div>
+                                                    <iframe style="display:none;width:100%;height:300px; " id="@pdfdocument" frameborder="0" scrolling="no" class="embed-responsive" src="data:application/pdf;base64,"></iframe>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                    catch (Exception Ex)
+                    {
+                        FingerprintsModel.clsError.WriteException(Ex);
+                    }
+                }
+                @*Custom Screening generate controls ends*@
+
+
+
+
+
+
+
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+                            <input id="TypeScreening" name="TypeScreening" type="hidden" value="#addPhysical" />
+                            <input id="ClientID" name="ClientID" type="hidden" value="@Model.ClientID" />
+                            <input id="AgencyID" name="AgencyID" type="hidden" value="#@Model.AgencyID" />
+
+                            <div class="clear"></div>
+                        </div>	<!--btnwrp_subcal--->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $(".Sdate").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('.checkselectvalue').val("");
+        $('#Allow30DayPhysical').hide();
+        $('#Allow45DayVisionScreening').hide();
+        $('#Allow45DayHearingScreening').hide();
+        $('#Allow45DayDevelopmentalScreening').hide();
+        $('#Allow90DayDentalScreening').hide();
+        $('#ScreeningAcceptance').hide();
+        $('#AllowSpeechScreening').hide();
+        $('#addPhysical').removeClass("in");
+        $('#addPhysical').removeClass("active");
+        $('#ParentAppID').val(@Model.ParentAppID);
+        var ParentApp = $('#ParentAppID').val();
+        $('#PhysicalFileName').val(@Model.PhysicalFileName);
+        $('#VisionFileName').val(@Model.VisionFileName);
+        $('#HearingFileName').val(@Model.HearingFileName);
+        $('#DevelopFileName').val(@Model.DevelopFileName);
+        $('#DentalFileName').val(@Model.DentalFileName);
+        $('#SpeechFileName').val(@Model.SpeechFileName);
+        $('#ScreeningAcceptFileName').val(@Model.ScreeningAcceptFileName);
+        if ('@ViewBag.tabpageScreening' != '') {
+            if ('@ViewBag.tabpageScreening' == '1') {
+                //removeclasss();
+                $('#AllowScreening').removeClass("in");
+                $('#AllowScreening').removeClass("active");
+                $('#addPhysical').addClass("active");
+                $('#addPhysical').addClass("in");
+                $('#myTab li:eq(1) a').tab('show');
+            }
+        }
+        //Changes
+        $('#Consolidated1').change(function () {
+            if ($(this).is(":checked")) {
+                $('#ScreenAcc').show();
+                $('#ConsolidateHeading').show();
+                $('#ExplicitHeading').hide();
+                $('#ParentName').show();
+                $('#PhysicalScreen').hide();
+                $('#VisionScreen').hide();
+                $('#HearingScreen').hide();
+                $('#DevelopScreen').hide();
+                $('#DentalScreen').hide();
+                $('#SpeechScreen').hide();
+                $('#Explicit').prop("checked", false);
+            }
+        });
+        $('#Consolidated2').change(function () {
+            if ($(this).is(":checked")) {
+                $('#ParentName').show();
+                $('#ExplicitHeading').show();
+                $('#ScreenAcc').hide();
+                $('#ConsolidateHeading').hide();
+                $('#PhysicalScreen').show();
+                $('#VisionScreen').show();
+                $('#HearingScreen').show();
+                $('#DevelopScreen').show();
+                $('#DentalScreen').show();
+                $('#SpeechScreen').show();
+                $('#Consolidated').prop("checked", false);
+            }
+        });
+        $('#F001physicalDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F007hgDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F010hgReferralDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F012hgDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F015leadDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F017leadReferDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#F019leadDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v022date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v025dateR1').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v028dateR2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v031ReferralDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#v034Completedate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#h036Date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#h039DateR1').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#h042DateR2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#h045ReferralDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#h048CompleteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#d050evDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#d054evDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#E060denDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#E063denReferralDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#s067Date').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#sRescreenTCRDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#s072RescreenTCRDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#s075ReferDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#s076DCDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        $('#s079DCDate2').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+        if ('@Model.F002physicalResults' == "")
+            $('#F002physicalResults').val("");
+        if ('@Model.F004medFollowup' == "")
+            $('#F004medFollowup').val("");
+        if ('@Model.F008hgStatus' == "")
+            $('#FhgStatus').val("");
+        if ('@Model.F014hgFOStatus' == "")
+            $('#F014hgFOStatus').val("");
+        if ('@Model.F016leadResults' == "")
+            $('#F016leadResults').val("");
+        if ('@Model.F021leadFOStatus' == "")
+            $('#F021leadFOStatus').val("");
+        if ('@Model.v023results' == "")
+            $('#v023results').val("");
+        if ('@Model.v026resultsR1' == "")
+            $('#v026resultsR1').val("");
+        if ('@Model.v029resultsR2' == "")
+            $('#v029resultsR2').val("");
+        if ('@Model.v032Treatment' == "")
+            $('#v032Treatment').val("");
+        if ('@Model.v035ExamStatus' == "")
+            $('#v035ExamStatus').val("");
+        if ('@Model.h037Results' == "")
+            $('#h037Results').val("");
+        if ('@Model.h040ResultsR1' == "")
+            $('#h040ResultsR1').val("");
+        if ('@Model.h043ResultsR2' == "")
+            $('#h043ResultsR2').val("");
+        if ('@Model.h046Treatment' == "")
+            $('#h046Treatment').val("");
+        if ('@Model.h049ExamStatus' == "")
+            $('#h049ExamStatus').val("");
+        if ('@Model.d057evFOStatus' == "")
+            $('#d057evFOStatus').val("");
+        if ('@Model.d052evResults' == "")
+            $('#d052evResults').val("");
+        if ('@Model.d053evResultsDetails' == "")
+            $('#d053evResultsDetails').val("");
+        if ('@Model.d055evResults2' == "")
+            $('#d055evResults2').val("");
+        if ('@Model.d059evTool' == "")
+            $('#d059evTool').val("");
+        if ('@Model.E062denPrevent' == "")
+            $('#E062denPrevent').val("");
+        if ('@Model.E061denResults' == "")
+            $('#E061denResults').val("");
+        if ('@Model.E064denTreatment' == "")
+            $('#E064denTreatment').val("");
+        if ('@Model.E066denTreatmentReceive' == "")
+            $('#E066denTreatmentReceive').val("");
+        if ('@Model.s069Details' == "")
+            $('#s069Details').val("");
+        if ('@Model.s070Results' == "")
+            $('#s070Results').val("");
+        if ('@Model.s073RescreenTCRResults' == "")
+            $('#s073RescreenTCRResults').val("");
+        if ('@Model.s074ReferralDC' == "")
+            $('#s074ReferralDC').val("");
+        if ('@Model.s078DetailDC' == "")
+            $('#s078DetailDC').val("");
+        if ('@Model.s080DetailDC2' == "")
+            $('#s080DetailDC2').val("");
+        if ('@Model.s069Details' == "")
+            $('#s069Details').val("");
+        if ('@Model.s081FOStatus' == "")
+            $('#s081FOStatus').val("");
+        if ('@Model.d056evReferral' == "")
+            $('#d056evReferral').val("");
+        if ('@Model.s071RescreenTCR' == "")
+            $('#s071RescreenTCR').val("");
+
+        $('#Phyimagedocument').ZoomCrop(
+               {
+                   image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                   updated: function (size, crop, position) {
+                       console.log(size, crop, position);
+                   }
+               });
+        $('#Visimagedocument').ZoomCrop(
+                      {
+                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                          updated: function (size, crop, position) {
+                              console.log(size, crop, position);
+                          }
+                      });
+        $('#Hearimagedocument').ZoomCrop(
+                      {
+                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                          updated: function (size, crop, position) {
+                              console.log(size, crop, position);
+                          }
+                      });
+        $('#Devimagedocument').ZoomCrop(
+                      {
+                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                          updated: function (size, crop, position) {
+                              console.log(size, crop, position);
+                          }
+                      });
+        $('#Dentimagedocument').ZoomCrop(
+                      {
+                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                          updated: function (size, crop, position) {
+                              console.log(size, crop, position);
+                          }
+                      });
+        $('#Speechimagedocument').ZoomCrop(
+                      {
+                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                          updated: function (size, crop, position) {
+                              console.log(size, crop, position);
+                          }
+                      });
+        @*if ('@Session["Roleid"]' == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" ) {*@
+        if ('@Session["Roleid"]' != "a31b1716-b042-46b7-acc0-95794e378b26"){
+            if ($('#ChildId').val() != "0") {
+                $('#CDOB').attr("readonly", "readonly");
+                $('#customChecklist input[type=checkbox]').each(function () {
+                    $(this).attr("onclick", "return false");
+                });
+                $('#CGenderfemale').attr("onclick", "return false");
+                $('#CGendermale').attr("onclick", "return false");
+                $('#CGenderother').attr("onclick", "return false");
+
+                if ($('title').html().trim() == 'Add New Child')
+                {
+                    Getchild();
+                }
+
+            }
+        }
+        if ('@Session["Roleid"]' == "a31b1716-b042-46b7-acc0-95794e378b26") {
+
+
+            if ($('#ChildId').val() != "0") {
+                if($('#viewBagText').val() == "ChildDetails")
+                {
+                    GetHschild();
+                }
+                else
+                {
+                    Getchild();
+                }
+
+
+            }
+
+        }
+
+
+    });
+    function validatedate1(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (regex.test($(inputTextObject).val())) {
+                var dob = new Date();
+                var childdob = Date.parse($('#CDOB').val());
+                //var childdob = $('#CDOB').val();
+                if (Date.parse($(inputTextObject).val()) >= dob || Date.parse($(inputTextObject).val()) < childdob) {
+                    customAlert("Screening Date can not be earlier than the child's date of birth or greater than today date. ");
+                    $(inputTextObject).val('');
+                    plainValidation(inputTextObject);
+                    return false;
+                }
+                else {
+                    return true;
+                }
+
+            }
+            else {
+                customAlert("Invalid Date. ");
+                $(inputTextObject).val('');
+                plainValidation(inputTextObject);
+
+
+                return false;
+            }
+
+        }
+
+    }
+
+
+    function IsParentApprovalComplete() {
+        if (!$("input:radio[name='AddPhysical']").is(":checked")) {
+            isValid = false;
+            customAlert("30 Day Physical Screening is required. ");
+            return isValid;
+        }
+        if (!$("input:radio[name='AddVision']").is(":checked")) {
+            isValid = false;
+            customAlert("45 Day Vision Screening is required. ");
+            return isValid;
+        }
+        if (!$("input:radio[name='AddHearing']").is(":checked")) {
+            isValid = false;
+            customAlert("45 Day Hearing Screening is required. ");
+            return isValid;
+        }
+        if (!$("input:radio[name='AddDevelop']").is(":checked")) {
+            isValid = false;
+            customAlert("45 Day Developmental Screening is required. ");
+            return isValid;
+        }
+        if (!$("input:radio[name='AddDental']").is(":checked")) {
+            isValid = false;
+            customAlert("90 Day Dental Screening is required. ");
+            return isValid;
+        }
+        if (!$("input:radio[name='AddSpeech']").is(":checked")) {
+            isValid = false;
+            customAlert("Speech Screening is required. ");
+            return isValid;
+        }
+        //  $('#addPhysical').addClass("active");
+        //   $('#addPhysical').addClass("in");
+        // $('#addPhysical').show();
+        $('#myTab li:eq(1) a').tab('show');
+        //  $('#Physical').addClass("active");
+        $('#Physical').show();
+        //$('#addVision').addClass("active");
+        //$('#addVision').addClass("in");
+        $('#myTab li:eq(2) a').tab('show');
+        $('#Vision').show();
+        $('#myTab li:eq(3) a').tab('show');
+        $('#Hearing').show();
+        $('#myTab li:eq(4) a').tab('show');
+        $('#Develop').show();
+        $('#myTab li:eq(5) a').tab('show');
+        $('#Dental').show();
+        $('#myTab li:eq(6) a').tab('show');
+        $('#Speech').show();
+
+        //$('#addPhysical').show();
+        //$('addVision').show();
+        //$('#addHearing').show();
+        //$('#addDevelop').show();
+        //$('#addDental').show();
+        //$('#addSpeech').show();
+    }
+    function ShowPhysical()
+    {
+        $('#Physical').show();
+    }
+    function HidePhysical() {
+        $('#Physical').hide();
+    }
+    function ShowVision() {
+        $('#Vision').show();
+    }
+    function HideVision() {
+        $('#Vision').hide();
+    }
+    function ShowHearing() {
+        $('#Hearing').show();
+    }
+    function HideHearing() {
+        $('#Hearing').hide();
+    }
+    function ShowDevelop() {
+        $('#Develop').show();
+    }
+    function HideDevelop() {
+        $('#Develop').hide();
+    }
+    function ShowDental() {
+        $('#Dental').show();
+    }
+    function HideDental() {
+        $('#Dental').hide();
+    }
+    function ShowSpeech() {
+        $('#Speech').show();
+    }
+    function HideSpeech() {
+        $('#Speech').hide();
+    }
+    function showcustomscreening(object)
+    {
+        $('#'+object+"tabid").show();
+
+    }
+    function hidecustomscreening(object)
+    {
+
+        $('#'+object+"tabid").hide();
+
+    }
+    function validatedates(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (!regex.test($(inputTextObject).val())) {
+                customAlert("Invalid date.");
+                $(inputTextObject).val('');
+            }
+        }
+
+    }
+    function clearcustomscreening()
+    {
+        $('.customscreeningradioallowed').prop("checked", false);
+        $('.customscreeningdocunettag').hide();
+        $('.custscreeningquestin').each(function () {
+
+            if ($(this).attr("type") == "text")
+                $(this).val("");
+            if ($(this).attr("type") == "radio" || $(this).attr("type") == "checkbox")
+                $(this).prop("checked", false);
+            if ($(this).is("select")) {
+                $(this).val("");
+            }
+        });
+        $('iframe').attr("src", "");
+        $('iframe').hide();
+        $('.customscreeningdiv img').attr("src", HostedDir + "/Content/img/NoImageAvailable.jpg");
+        $('.customscreeningdiv').show();
+        $('.customtabhide').hide().removeClass("active");
+        $('.customtab').removeClass("active").removeClass("in");
+        $('.customallowscreening').each(function () {
+            $(this).show();
+        });
+
+    }
+
+    function SetCustomData(data)
+    {
+        var filename = null;
+        var fileextension = null;
+        var filedata = null;
+        clearcustomscreening();
+        var programtype = null;
+
+        $('#customChecklist input[type=checkbox]').each(function () {
+            if($(this).prop("checked"))
+            {
+                programtype = $(this).attr("accesskey");
+            }
+        });
+
+        if (programtype != null && (programtype == 1 || programtype == 2))
+        {
+            $('.customallowscreening').each(function () {
+                if ($(this).attr("accesskey") == programtype)
+                {
+                    $(this).show();
+                }
+                else
+                {
+                    $(this).hide();
+                }
+            });
+        }
+        if (data._CustomScreeningAlloweds != null && data._CustomScreeningAlloweds.length > 0) {
+            for (var i = 0; i < data._CustomScreeningAlloweds.length; i++)
+            {
+                $('.customscreeningradioallowed').each(function () {
+                    var screeingid=$(this).attr("name").split("@@");
+                    if(data._CustomScreeningAlloweds[i].Screeningid== screeingid[0])
+                    {
+                        if(data._CustomScreeningAlloweds[i].ScreeningAllowed==1)
+                        {
+                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "101").prop("checked", true);
+                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "tabid").show();
+                            //$('#add' + data._CustomScreeningAlloweds[i].ScreeningName ).show();
+                            if(data._childscreenings!=null && data._childscreenings.length >0)
+                            {
+                                for (var j = 0; j < data._childscreenings.length; j++)
+                                {
+                                    if (data._childscreenings[j].Screeningid == data._CustomScreeningAlloweds[i].Screeningid) {
+                                        var cusquesinputid = null;
+                                        if (data._childscreenings[j].optionid != "0")
+                                            cusquesinputid = data._childscreenings[j].QuestionAcronym + "o" + data._childscreenings[j].optionid;
+                                        else
+                                            cusquesinputid = data._childscreenings[j].QuestionAcronym;
+                                        if (cusquesinputid != null) {
+                                            var input = $('#' + cusquesinputid);
+                                            if ($(input).attr("type") == "text")
+                                                $(input).val(data._childscreenings[j].Value);
+                                            if ($(input).attr("type") == "radio" || $(input).attr("type") == "checkbox")
+                                                $(input).prop("checked", true);
+                                            if ($(input).is("select")) {
+                                                $(input).val(data._childscreenings[j].Value);
+                                            }
+                                        }
+
+                                        //Code to display document image or pdf
+                                        if(data._childscreenings[j].pdfpath!="")
+                                        {
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').hide();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').attr("src", HostedDir + data._childscreenings[j].pdfpath);
+                                        }
+                                        else if (data._childscreenings[j].Documentdata != "") {
+
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').hide();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').ZoomCrop(
+                                                 {
+                                                     image: "data:image/png;base64," + data._childscreenings[j].Documentdata,
+                                                     updated: function (size, crop, position) {
+                                                         console.log(size, crop, position);
+                                                     }
+                                                 });
+                                        }
+                                        ///End of code
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "102").prop("checked", true);
+                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "tabid").hide();
+                            if (data._childscreenings != null && data._childscreenings.length > 0) {
+                                for (var j = 0; j < data._childscreenings.length; j++) {
+                                    if (data._childscreenings[j].Screeningid == data._CustomScreeningAlloweds[i].Screeningid) {
+                                        //Code to display document image or pdf
+                                        if (data._childscreenings[j].pdfpath != "") {
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').hide();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').attr("src", HostedDir + data._childscreenings[j].pdfpath);
+                                        }
+                                        else if (data._childscreenings[j].Documentdata != "") {
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+                                            $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').show();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').hide();
+                                            $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').ZoomCrop(
+                                                 {
+                                                     image: "data:image/png;base64," + data._childscreenings[j].Documentdata,
+                                                     updated: function (size, crop, position) {
+                                                         console.log(size, crop, position);
+                                                     }
+                                                 });
+                                        }
+                                        ///End of code
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+</script>

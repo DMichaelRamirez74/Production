@@ -1,0 +1,71 @@
+﻿@{
+    @section Title
+{
+        Dashboard
+    }
+    ViewBag.Title = "AgencyHealthNurse";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Center Overview</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="agencybox1">
+                <div class="heading_box1"><h3>Center Statistics</h3></div>
+                <div class="inner-con">
+                    <div class="row">
+                        <div class="wrp-txt">
+                            <div class="col-sm-6" style="font-weight: bold;"><p style="color: #285b8f;">Center Name</p></div>
+                            <div class="col-sm-3">
+                                <p style="text-align: right; font-weight: bold; color: #285b8f; ">
+                                    Yakkr Count
+                                </p>
+                            </div>
+                        </div>
+                        @if (ViewBag.Centerlist != null)
+                        {
+                            foreach (FingerprintsModel.HrCenterInfo center in ViewBag.Centerlist)
+                            {
+                                <div class="wrp-txt">
+                                    @if (@center.yakkrcount != "0")
+                                    {
+                                        <div class="col-sm-6"><p><a href="~/Nurse/ViewCenterDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)&Name=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.Name)">@center.Name</a></p></div>
+                                    }
+                                    else
+                                    {
+                                         <div class="col-sm-6"><p><a href="#">@center.Name</a></p></div>
+                                    }
+
+                                    <div class="col-sm-3">
+                                        <p style="text-align: right; padding-right: 63px;">
+
+                                            @if (@center.yakkrcount != "0")
+                                            {
+                                                <a href="~/Nurse/ViewCenterDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)&Name=@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.Name)">
+                                                    @center.yakkrcount
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="#">
+                                                    @center.yakkrcount
+                                                </a>
+                                            }
+
+
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div><!---agencybox1-->
+        </div>
+    </div>
+}

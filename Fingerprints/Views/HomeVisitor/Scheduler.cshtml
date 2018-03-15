@@ -1,0 +1,1219 @@
+﻿@model FingerprintsModel.Scheduler
+
+@{
+    ViewBag.Title = "Scheduler";
+
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+
+
+
+    <style>
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 0 none;
+        }
+
+        .modal-dialog {
+            margin: auto !important;
+            ;
+            padding: 10px !important;
+        }
+
+        .logo-place {
+            max-height: 120px;
+        }
+    </style>
+
+    <script>
+
+        var selectedDate;
+        var calendar;
+        var selectedtitle = "";
+        var caallbak;
+        var eventtype = 0;
+        var deletedInstanceList = [];
+        var ParentEventList = [];
+        var currenteventrec = {
+            recurringId: "",
+            repeat: "",
+            repeatby: "",
+            repeaton: [],
+            starton: "",
+            endson: "",
+
+        };
+
+        function chkclick() {
+            if ($('#chkonlythis')[0].checked) {
+                $('#chkonlythis')[0].checked = false;
+            }
+            if ($('#chkthisandfollowing')[0].checked) {
+                $('#ckrepeat')[0].checked = true;
+            }
+            else {
+                $('#ckrepeat')[0].checked = false;
+            }
+        }
+        function chkclick2() {
+            if ($('#chkthisandfollowing')[0].checked) {
+                $('#chkthisandfollowing')[0].checked = false;
+            }
+        }
+        $(document).ready(function () {
+
+            var date = new Date();
+            var d = date.getDate();
+            var m = date.getMonth();
+            var y = date.getFullYear();
+            var listTime = [];
+            getclients();
+            var m;
+            var min;
+            for (var i = 0; i < 2; i++) {
+                if (i == 0) {
+                    m = 'AM';
+                } else {
+                    m = 'PM';
+                }
+                for (var j = 1; j < 13; j++) {
+                    if (j > 7 && m == 'AM' || j < 7 && m == 'PM') {
+                        for (var k = 0; k < 2; k++) {
+                            if (k == 0) {
+                                min = ':00 ';
+                            }
+                            else {
+                                min = ':30 ';
+                            }
+                            if (min == ':30 ' && j == 6)
+                            { break; }
+                            if (j == 12) {
+                                m = 'PM';
+                                listTime.push(j + min + m);
+                            }
+                            else {
+                                if (j > 9) {
+                                    listTime.push(j + min + m);
+                                }
+                                else {
+                                    listTime.push('0' + j + min + m);
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+
+            }
+            var mm = "";
+            var HH = "";
+            var listduration = [];
+            for (var j = 0; j < 5; j++) {
+                for (var i = 0; i < 2; i++) {
+                    if (i == 0) {
+                        mm = '00';
+                    }
+                    else {
+                        mm = '30';
+                    }
+                    if (j < 10) {
+                        HH = "0";
+                    }
+                    else {
+                        HH = "";
+                    }
+                    if (j == 0 && mm == '00') {
+
+                    }
+                    else {
+                        if (j == 4 && mm == '30') {
+                        } else {
+                            listduration.push(HH + j.toString() + ":" + mm);
+                        }
+                    }
+                }
+            }
+
+
+
+            //$('.fc-button-group .fc-next-button').click(function () {
+            //    var view = $('#calendar').fullCalendar('getView');
+            //    //alert("The view's title is " + view.title);
+            //});
+            // $('.fc-next-button').on("click", 'callnext');
+
+            $.each(listTime, function (i, item) {
+                $('#apptStartTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+            $.each(listduration, function (i, item) {
+                $('#apptEndTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+
+            $('input#ondate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' })
+            var min = new Date();
+
+            $('input#ondate').datetimepicker({
+                timepicker: false,
+                minDate: min,
+                format: 'm/d/Y',
+                scrollMonth: false,
+                scrollInput: false
+            });
+
+            calendar = $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'agendaDay,agendaWeek,month'
+                },
+                timeFormat: 'hh:mm A',
+                minTime: "08:00",
+                maxTime: "18:00",
+                defaultView: 'agendaWeek',
+                selectable: true,
+                selectHelper: true,
+                allDaySlot: false,
+                editable: true,
+                height: 'auto',
+                select: function (start, end, allDay) {
+                    eventtype = 1;
+                    selectedDate = moment(start).format('MM/DD/YYYY')
+                    endtime = moment(end).format('hh:mm A');
+                    starttime = moment(start).format('hh:mm A');
+                    if (new Date(moment(start).format('MM/DD/YYYY hh:mm A')) > new Date(moment().format('MM/DD/YYYY hh:mm A'))) {
+                        //if new event then show repeat option
+                        $('#divrepeat').show();
+                        //if new event then hide update option
+                        $('#divUpdate').hide();
+                        $('#divUp').hide();
+
+                        cleanValidation();
+                        $('#meetingdate')[0].innerText = new Date(selectedDate).toDateString();
+                        $('#myModal #apptStartTime').val(starttime);
+                        $('#myModal #apptEndTime').val(endtime);
+                        $('#myModal').modal('show');
+                    } else {
+                        customAlert("Can not select past date or time. ");
+                    }
+                },
+                eventClick: function (calEvent, jsEvent, view) {
+                    //eventtype = 2;
+                    alert(new Date(moment(calEvent.start).add(7,'d').format('MM/DD/YYYY hh:mm A')))
+                    alert(new Date(moment().format('MM/DD/YYYY hh:mm A')))
+                    if (new Date(moment(calEvent.start).add(7, 'd').format('MM/DD/YYYY hh:mm A')) > new Date(moment().format('MM/DD/YYYY hh:mm A'))) {
+                        selectedDate = moment(calEvent.start).format('MM/DD/YYYY');
+                        $('#meetingdate')[0].innerText = new Date(selectedDate).toDateString();
+                        $('#divrepeat').hide();
+                        cleanValidation();
+                        if (calEvent.ParentId) {
+                            if (calEvent.MeetingId) {
+                                if (calEvent.MeetingId == calEvent.ParentId) {
+                                    $('#divUpdate').show();
+                                    eventtype = 2;
+                                }
+
+                            }
+                        }
+                        else {
+                            if (calEvent.IsRecurrence) {
+                                $('#divUpdate').show();
+                                eventtype = 2;
+                            } else {
+                                $('#divUpdate').hide();
+                            }
+
+                        }
+                        $('#divUp').show();
+                        $('#myModal #_Id').val(calEvent._id);
+                        $('#myModal #meetingId').val(calEvent.MeetingId);
+                        $('#myModal #ParentId').val(calEvent.ParentId);
+                        $('#myModal #EndDate').val(calEvent.EndDate);
+                        $('#myModal #InstanceId').val(calEvent.InstanceId);
+                        $('#myModal #title').val(calEvent.title);
+                        $('#myModal #clients').val(calEvent.ClientName);
+                        $('#myModal #apptStartTime').val(moment(calEvent.start).format('hh:mm A'));
+                        var diff = (new Date(moment(calEvent.end).format('MM/DD/YYYY hh:mm A')).getTime() - new Date(moment(calEvent.start).format('MM/DD/YYYY hh:mm A')).getTime()) / 1000;
+                        diff /= 60;
+
+                        var tmin = Math.abs(Math.round(diff));
+
+                        var hrs = parseInt(tmin / 60);
+
+                        var min = tmin % 60;
+
+                        var endTime = (hrs.toString().length > 1 ? hrs : "0" + hrs) + ":" + (min.toString().length > 1 ? min : "0" + min);
+
+                        $('#myModal #apptEndTime').val(endTime);
+                        $('#myModal textarea#description').val(calEvent.Description);
+                        $('#myModal #meetingdate')[0].innerHtml = new Date(selectedDate).toLocaleDateString();
+                        $('#myModal').modal('show');
+                        if (calEvent.RecurringId) {
+                            alert(calEvent.RecurringId);
+                            $('#recurringId').val(calEvent.RecurringId)
+                            $('#repeat').val(calEvent.Recurrence.Repeat);
+                            $('#repeatby').val(calEvent.Recurrence.RepeatBy);
+                            $('[name="RepeatsOn"]').each(function (i) {
+                                if (calEvent.Recurrence.Repeaton[i] == $('checkbox[name="RepeatsOn"]')[i].value) {
+                                    $('checkbox[name="RepeatsOn"]')[i].checked = true;
+                                }
+                            });
+                            $('#recurenceStartdate').val(calEvent.Recurrence.StartsOn);
+                            if (calEvent.Recurrence.EndsOn.toLoverCase() == "never") {
+                            }
+                        }
+                    }
+                    else {
+                        customAlert("Can not select past date or time. ");
+                    }
+
+                },
+
+                events: function (start, end, timezone, callback) {
+                    caallbak = callback;
+                    $.ajax({
+                        url: HostedDir + "/HomeVisitor/getevents/",
+                        type: 'Post',
+                        success: function (response) {
+
+                            for (var i = response.length - 1; i >= 0; i--) {
+                                if (response[i].IsDeletedInstance) {
+                                    deletedInstanceList.push(response[i]);
+                                    response.splice(i, 1);
+                                    continue;
+                                }
+                                if (new Date(moment(response[i].end).format('MM/DD/YYYY hh:mm A')) >= new Date(moment(response[i].EndDate).format('MM/DD/YYYY hh:mm A'))) {
+                                    response.splice(i, 1);
+                                }
+                            }
+                            var mainInstanceList = [];
+                            ParentEventList = [];
+                            for (var j = response.length - 1; j >= 0 ; j--) {
+                                if (response[j].IsRecurrence) {
+                                    ParentEventList.push(response[j]);
+                                    response.splice(i, 1);
+                                } else {
+                                    mainInstanceList.push(response[j]);
+                                }
+                            }
+                            $('#calendar').fullCalendar('removeEvents');
+                            callback(mainInstanceList);
+
+                            var viwwew = calendar.fullCalendar('getView');
+                            creteeventdynamically(start, end, timezone);
+                        }
+
+                    });
+                }
+            });
+
+
+        });
+        function onchecked(value) {
+            if ($('#ckrepeat')[0].checked) {
+                //if ($('[name="Endson"]')[0].checked) {
+                //    currenteventrec.endson = "never";
+                //} else {
+                //    if ($('input#ondate').val() && new Date($('input#ondate').val()) !== "Invalid date") {
+                //    }
+                //    else {
+                //        $('input#ondate').val('');
+                //        plainValidation('input#ondate');
+                //        customAlert("Please enter correct date.")
+                //    }
+                //}
+                currenteventrec.endson = 'never';
+                currenteventrec.recurringId = '';//$('#recurringId').val();
+                currenteventrec.repeat = "Weekly"//$('#repeat').val();
+                currenteventrec.repeatby = 1 //$('#repeatby').val();
+                //  $('[name="RepeatsOn"]').each(function (i) {
+                //if ($('[name="RepeatsOn"]')[i].checked) {
+                currenteventrec.repeaton.push(parseInt(new Date(selectedDate).getDay()));
+                // }
+                //  });
+                currenteventrec.starton = selectedDate;
+                //$("#myrecModal").modal('hide');
+            }
+            else {
+                currenteventrec.endson = '';
+                currenteventrec.recurringId = '';//$('#recurringId').val();
+                currenteventrec.repeat = ""//$('#repeat').val();
+                currenteventrec.repeatby = 0 //$('#repeatby').val();
+                currenteventrec.repeaton = [];
+                currenteventrec.starton = '';
+            }
+        }
+
+        function saveevent(_event) {
+            var startdate = new Date(selectedDate + ' ' + $('#apptStartTime').val());
+            var enddate = new Date(selectedDate + ' ' + $('#apptEndTime').val());
+
+        }
+        function doSubmit2(start, end) {
+            var currentDate = new Date();
+            var eventid;
+            var startdate = new Date(selectedDate + ' ' + $('#apptStartTime').val());
+            var arr = $('#apptEndTime').val().split(":");
+            var dt = new Date(startdate);
+            var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+            var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+            var enddate = new Date(addmin);
+            var EndTime = moment(enddate).format('hh:mm A');
+            var MeetingId = $('#meetingId').val();
+            var ParentId = $('#ParentId').val();
+
+            var InstanceId = 0;
+            if ($('#InstanceId').val()) {
+                InstanceId = $('#InstanceId').val();
+            } else {
+                InstanceId = new Date(enddate).getTime();
+            }
+
+
+            if (startdate < currentDate) {
+                // Do whatever you want here.
+                customAlert('Cannot select past dates.');
+                return;
+            }
+            else if (startdate > enddate) {
+                customAlert('Start time can not be less than end time.');
+                return;
+            }
+            var viwwew = calendar.fullCalendar('getView');
+
+            var allgeneratedevents = calendar.fullCalendar('clientEvents', function () {
+                var view = calendar.fullCalendar('getView');
+                var st = view.intervalStart;
+                var en = view.intervalEnd;
+                return function (e) {
+                    // this is our event filter
+                    if (e.start >= st && e.end <= en) {
+                        // event e is within the view interval
+                        return true;
+                    }
+                    // event e is not within the current displayed interval
+                    return false;
+                };
+            });
+            var isoverlap = false;
+            for (var i = 0; i < allgeneratedevents.length; i++) {
+                if (MeetingId && parseInt(MeetingId) > 0) {
+                    if (MeetingId == allgeneratedevents[i]) {
+                        if (enddate >= new Date(moment(allgeneratedevents[i].start).format('MM/DD/YYYY hh:mm A')) && startdate <= new Date(moment(allgeneratedevents[i].end).format('MM/DD/YYYY hh:mm A'))) {
+                            isoverlap = true;
+                        }
+                    }
+
+                } else {
+                    if (enddate >= new Date(moment(allgeneratedevents[i].start).format('MM/DD/YYYY hh:mm A')) && startdate <= new Date(moment(allgeneratedevents[i].end).format('MM/DD/YYYY hh:mm A'))) {
+                        isoverlap = true;
+                    }
+                }
+            }
+
+            if (isoverlap) {
+                customAlert('Event timeing overlapping with other event.');
+                return;
+            }
+
+            if (currenteventrec.endson.toLowerCase() == 'never') {
+
+            }
+            else {
+
+            }
+
+            if ($('#_Id').val()) {
+                eventid = $('#_Id').val();
+                calendar.fullCalendar('removeEvents', eventid);
+            }
+            event._id = eventid;
+            var repet = '';
+            for (var i = 0; i < currenteventrec.repeaton.length; i++) {
+                if (currenteventrec.repeaton[i] == 1)
+                    repet = repet + "MO";
+                else if (currenteventrec.repeaton[i] == 2)
+                    repet = repet + "TU";
+                else if (currenteventrec.repeaton[i] == 3)
+                    repet = repet + "WE";
+                else if (currenteventrec.repeaton[i] == 4)
+                    repet = repet + "TH";
+                else if (currenteventrec.repeaton[i] == 5)
+                    repet = repet + "FR";
+                else if (currenteventrec.repeaton[i] == 6)
+                    repet = repet + "SA";
+                else if (currenteventrec.repeaton[i] == 0)
+                    repet = repet + "SU";
+            }
+            var mode = 0;
+            if ($('#chkonlythis')[0].checked) { mode = 3 }
+            else if ($('#chkthisandfollowing')[0].checked) { mode = 4 }
+            else {
+                mode = 1;
+            }
+
+            $.ajax({
+                url: HostedDir + "/HomeVisitor/SaveEvent",
+                type: "POST",
+                data: {
+                    MeetingId: MeetingId,
+                    ParentId: ParentId,
+                    InstanceId: InstanceId,
+                    AgencyId: "",
+                    title: $('#title').val(),
+                    ClientName: $('select#clients').val(),
+                    start: startdate,
+                    Date: new Date(moment(startdate).format('MM/DD/YYYY')),
+                    EndDate: new Date(moment(startdate).format('MM/DD/YYYY')),
+                    MeetingDate: selectedDate,
+                    end: enddate,
+                    StartTime: $('#apptStartTime').val(),
+                    EndTime: EndTime,
+                    Duration: $('#apptEndTime').val(),
+                    Description: $('textarea#description').val(),
+                    allDay: false,
+                    RecurringId: currenteventrec.recurringId,
+                    Repeat: currenteventrec.repeat,
+                    RepeatEvery: currenteventrec.repeatby,
+                    Repeaton: repet,
+                    IsRecurrence: $('#ckrepeat')[0].checked,
+                    RepeatBy: "",
+                    StartsOn: currenteventrec.starton,
+                    EndsOn: currenteventrec.endson,
+                    Mode: mode
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response == 'error') {
+                        customAlert(response);
+                        return;
+                    }
+                    else {
+                        customAlert('Schedule saved successfully');
+                    }
+                    clearcontrol();
+                    // var viwwew = calendar.fullCalendar('getView');
+                    calendar.fullCalendar('removeEvents');
+                    for (var i = response.length - 1; i >= 0; i--) {
+                        if (response[i].IsDeletedInstance) {
+                            deletedInstanceList.push(response[i]);
+                            response.splice(i, 1);
+                            continue;
+                        }
+                        if (new Date(moment(response[i].end).format('MM/DD/YYYY hh:mm A')) >= new Date(moment(response[i].EndDate).format('MM/DD/YYYY hh:mm A'))) {
+                            response.splice(i, 1);
+                        }
+                    }
+                    var mainInstanceList = [];
+                    ParentEventList = [];
+                    for (var j = response.length - 1; j >= 0 ; j--) {
+                        if (response[j].IsRecurrence) {
+                            ParentEventList.push(response[j]);
+                            response.splice(i, 1);
+                        } else {
+                            mainInstanceList.push(response[j]);
+                        }
+                    }
+                    calendar.fullCalendar('addEventSource', mainInstanceList);
+                    // caallbak(response);
+                    creteeventdynamically(viwwew.start, viwwew.end, null);
+                },
+                error: function (response) {
+                    alert(response)
+                }
+            });
+            $('#meetingId').val("");
+            $('#title').val("");
+            $('#apptStartTime').val("");
+            $('#apptEndTime').val("");
+            $('textarea#description').val("");
+            $('#ckrepeat')[0].checked = false;
+            currenteventrec = {
+                recurringId: "",
+                repeat: "",
+                repeatby: "",
+                repeaton: [],
+                starton: "",
+                endson: ""
+            };
+            $("#myModal").modal('hide');
+            calendar.fullCalendar('events');
+        }
+        function getMonthNo(title) {
+            var arr = title.split(" ");
+            if (arr[0].toString() == "January")
+                return 0;
+            else if (arr[0].toString() == "Fabruary")
+                return 1;
+            else if (arr[0].toString() == "March")
+                return 2;
+            else if (arr[0].toString() == "April")
+                return 3;
+            else if (arr[0].toString() == "May")
+                return 4;
+            else if (arr[0].toString() == "June")
+                return 5;
+            else if (arr[0].toString() == "July")
+                return 6;
+            else if (arr[0].toString() == "August")
+                return 7;
+            else if (arr[0].toString() == "September")
+                return 8;
+            else if (arr[0].toString() == "October")
+                return 9;
+            else if (arr[0].toString() == "November")
+                return 10;
+            else if (arr[0].toString() == "December")
+                return 11;
+
+        }
+        function doSubmit() {
+            var viwwew = calendar.fullCalendar('getView');
+            if ($('#ckrepeat')[0].checked > 0) {
+                doSubmit2(viwwew.start, viwwew.end);
+            }
+            else if ($('#ParentId').val()) {
+                doSubmit2(viwwew.start, viwwew.end);
+            }
+            else if ($('#meetingId').val()) {
+                var allgeneratedevents = calendar.fullCalendar('clientEvents', function () {
+                    var view = calendar.fullCalendar('getView');
+                    var st = view.intervalStart;
+                    var en = view.intervalEnd;
+                    return function (e) {
+                        // this is our event filter
+                        if (e.start >= st && e.end <= en) {
+                            // event e is within the view interval
+                            return true;
+                        }
+                        // event e is not within the current displayed interval
+                        return false;
+                    };
+                });
+                var result = $.grep(allgeneratedevents, function (e) { return e.MeetingId == $('#meetingId').val(); });
+                if (result.length > 0 && result[0].IsRecurrence) {
+                    $('#InstanceId').val(new Date(result[0].end).getTime());
+                    $('#ParentId').val($('#meetingId').val());
+                    doSubmit2(viwwew.start, viwwew.end);
+
+                } else {
+
+                    savenormalevent();
+                }
+
+            }
+            else {
+                savenormalevent();
+
+            }
+            clearcontrol();
+            $('#clients option:first-child').attr("selected", "selected");
+            $('#title').val("");
+            $('#description').val("");
+            $('#apptStartTime option:first-child').attr("selected", "selected");
+            $('#apptEndTime option:first-child').attr("selected", "selected");
+            $("#myModal").modal('hide');
+            calendar.fullCalendar('unselect');
+
+        }
+        function savenormalevent() {
+            var viwwew = calendar.fullCalendar('getView');
+            var currentDate = new Date();
+            var startdate = new Date(selectedDate + ' ' + $('#apptStartTime').val());
+            var arr = $('#apptEndTime').val().split(":");
+            var dt = new Date(startdate);
+            var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+            var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+            var enddate = new Date(addmin);
+            var EndTime = moment(enddate).format('hh:mm A');
+            var eventid = $('#_Id').val();
+            var MeetingId = $('#meetingId').val();
+            if (startdate < currentDate) {
+                // Do whatever you want here.
+                customAlert('Cannot select past dates.');
+                return;
+            }
+            else if (startdate > enddate) {
+                customAlert('Start time can not be less than end time.');
+                return;
+            }
+            var viwwew = calendar.fullCalendar('getView');
+
+            var allgeneratedevents = calendar.fullCalendar('clientEvents', function () {
+                var view = calendar.fullCalendar('getView');
+                var st = view.intervalStart;
+                var en = view.intervalEnd;
+                return function (e) {
+                    // this is our event filter
+                    if (e.start >= st && e.end <= en) {
+                        // event e is within the view interval
+                        return true;
+                    }
+                    // event e is not within the current displayed interval
+                    return false;
+                };
+            });
+            var isoverlap = false;
+            for (var i = 0; i < allgeneratedevents.length; i++) {
+                if (MeetingId && parseInt(MeetingId) > 0) {
+                    if (MeetingId == allgeneratedevents[i]) {
+                        if (enddate >= new Date(moment(allgeneratedevents[i].start).format('MM/DD/YYYY hh:mm A')) && startdate <= new Date(moment(allgeneratedevents[i].end).format('MM/DD/YYYY hh:mm A'))) {
+                            isoverlap = true;
+                        }
+                    }
+
+                } else {
+                    if (enddate >= new Date(moment(allgeneratedevents[i].start).format('MM/DD/YYYY hh:mm A')) && startdate <= new Date(moment(allgeneratedevents[i].end).format('MM/DD/YYYY hh:mm A'))) {
+                        isoverlap = true;
+                    }
+                }
+            }
+            if (isoverlap) {
+                customAlert('Event timeing overlapping with other event.');
+                return;
+            }
+
+            var Mode = 0;
+            if (MeetingId) {
+                Mode = 2;
+            }
+            else {
+                Mode = 1;
+            }
+            $.ajax({
+                url: HostedDir + "/HomeVisitor/SaveEvent",
+                type: "POST",
+                data: {
+                    MeetingId: MeetingId,
+                    AgencyId: "",
+                    title: $('#title').val(),
+                    ClientName: $('select#clients').val(),
+                    start: startdate,
+                    Date: new Date(moment(startdate).format('MM/DD/YYYY')),
+                    MeetingDate: selectedDate,
+                    end: enddate,
+                    InstanceId: new Date(enddate).getTime(),
+                    StartTime: $('#apptStartTime').val(),
+                    EndTime: EndTime,
+                    Duration: $('#apptEndTime').val(),
+                    Description: $('textarea#description').val(),
+                    allDay: false,
+                    IsRecurrence: false,
+                    Mode: Mode
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response == 'error') {
+                        customAlert(response);
+                    }
+                    else {
+                        customAlert('Schedule saved successfully');
+                    }
+                    clearcontrol();
+
+                    calendar.fullCalendar('removeEvents');
+                    for (var i = response.length - 1; i >= 0; i--) {
+                        if (response[i].IsDeletedInstance) {
+                            deletedInstanceList.push(response[i]);
+                            response.splice(i, 1);
+                            continue;
+                        }
+                        if (new Date(moment(response[i].end).format('MM/DD/YYYY hh:mm A')) >= new Date(moment(response[i].EndDate).format('MM/DD/YYYY hh:mm A'))) {
+                            response.splice(i, 1);
+                        }
+                    }
+                    var mainInstanceList = [];
+                    ParentEventList = [];
+                    for (var j = response.length - 1; j >= 0 ; j--) {
+                        if (response[j].IsRecurrence) {
+                            ParentEventList.push(response[j]);
+                            response.splice(i, 1);
+                        } else {
+                            mainInstanceList.push(response[j]);
+                        }
+                    }
+                    //callback(mainInstanceList);
+                    calendar.fullCalendar('addEventSource', mainInstanceList);
+                    // caallbak(response);
+                    creteeventdynamically(viwwew.start, viwwew.end, null);
+                },
+                error: function (response) {
+                    alert(response)
+                }
+            });
+        }
+        function getclients() {
+            $.ajax({
+                url: HostedDir + "/HomeVisitor/getclients",
+                type: "POST",
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    $.each(data.list, function (i, item) {
+                        $('#clients').append($('<option>', {
+                            value: item.clientid,
+                            text: item.clientname
+                        }));
+                    });
+                    $('#clients')[0].selectedIndex = -1;
+
+                }
+               , error: function (response) {
+               }
+            });
+        }
+        function selectlastname() {
+            if ($('#title').val().length > 0 && selectedtitle != $('#title').val()) {
+            }
+            else {
+                var arr = $('#clients option:selected').text().split(" ");
+                selectedtitle = "Home Visit - " + arr[arr.length - 1] + " Family";
+                $('#title').val(selectedtitle);
+            }
+        }
+        function Save() {
+
+            if ($('[name="Endson"]')[0].checked) {
+                currenteventrec.endson = "never";
+            } else {
+                if ($('input#ondate').val() && new Date($('input#ondate').val()) !== "Invalid date") {
+                }
+                else {
+                    $('input#ondate').val('');
+                    plainValidation('input#ondate');
+                    customAlert("Please enter correct date.")
+                }
+            }
+
+            currenteventrec.recurringId = $('#recurringId').val();
+            currenteventrec.repeat = $('#repeat').val();
+            currenteventrec.repeatby = $('#repeatby').val();
+            $('[name="RepeatsOn"]').each(function (i) {
+                if ($('[name="RepeatsOn"]')[i].checked) {
+                    currenteventrec.repeaton.push(parseInt($('[name="RepeatsOn"]')[i].value));
+                }
+            });
+            currenteventrec.starton = $('#recurenceStartdate').val();
+            $("#myrecModal").modal('hide');
+        }
+        function validatetime(e) {
+            //commented just for testing
+            //if ($('#clients').val()) { }
+            //else {
+            //    plainValidation('#clients');
+            //    customAlert("Please select client.");
+            //    e.preventDefault();
+            //    return;
+            //}
+            if ($('#title').val()) { }
+            else {
+                plainValidation('#title');
+                customAlert("Please enter title.");
+                e.preventDefault();
+                return;
+            }
+            if ($('#apptEndTime').val()) {
+                if ($('#apptStartTime').val()) {
+                    var startdate = new Date(selectedDate + ' ' + $('#apptStartTime').val());
+                    var arr = $('#apptEndTime').val().split(":");
+                    var dt = new Date(startdate);
+                    var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+                    var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+                    var enddate = new Date(addmin);
+                    var EndTime = moment(enddate).format('hh:mm A');
+                    if (enddate < startdate) {
+                        $('#apptEndTime').val('');
+                        plainValidation('#DdlCateList');
+                        customAlert("Can not select past time.");
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+            else {
+                $('#apptEndTime').val('');
+                plainValidation('#apptEndTime');
+                customAlert("Please select meeting duration.");
+                e.preventDefault();
+                return;
+            }
+            if ($('#meetingId').val() && $('#meetingId').val().length > 0) {
+                if ($('#ckupdate')[0].checked == true) {
+
+                } else if ($('#ckdelete')[0].checked == true) {
+
+                }
+                else {
+                    plainValidation('#ckupdate');
+                    customAlert("Please select an action.");
+                    e.preventDefault();
+                    return;
+                }
+            }
+            if (eventtype == 2) {
+                if ($('#chkonlythis')[0].checked == true) {
+                }
+                else if ($('#chkthisandfollowing')[0].checked == true) {
+                }
+                else {
+                    plainValidation('#chkonlythis');
+                    plainValidation('#chkthisandfollowing');
+                    customAlert("Please select update type.");
+                    e.preventDefault();
+                    return;
+                }
+            }
+            if ($('#ckdelete')[0].checked) {
+                deleteEvents();
+            } else {
+                doSubmit();
+            }
+
+        }
+        function deleteEvents() {
+            var viwwew = calendar.fullCalendar('getView');
+            var currentDate = new Date();
+            var startdate = new Date(selectedDate + ' ' + $('#apptStartTime').val());
+            var arr = $('#apptEndTime').val().split(":");
+            var dt = new Date(startdate);
+            var addtime = new Date(dt.setHours(startdate.getHours() + parseInt(arr[0])));
+            var addmin = new Date(addtime.setMinutes(addtime.getMinutes() + parseInt(arr[1])));
+            var enddate = new Date(addmin);
+            var EndTime = moment(enddate).format('hh:mm A');
+            var eventid = $('#_Id').val();
+            var MeetingId = $('#meetingId').val();
+            var ParentId = $('#ParentId').val();
+
+            var InstanceId = 0;
+            if ($('#InstanceId').val()) {
+                InstanceId = $('#InstanceId').val();
+            } else {
+                InstanceId = new Date(enddate).getTime();
+            }
+            var Mode = 0;
+            if ($('#ckrepeat')[0].checked) {
+                Mode = 3;
+            }
+            else {
+                //delete this
+                //if  this Only Is the case then ckonlythis must be checked
+                if ($('#chkonlythis')[0].checked == true) {
+                    Mode = 2;
+                }
+                else {
+                    Mode = 1;
+                }
+            }
+            $.ajax({
+                url: HostedDir + "/HomeVisitor/Delete",
+                type: "POST",
+                data: {
+                    MeetingId: MeetingId,
+                    AgencyId: "",
+                    ParentId: ParentId,
+                    title: $('#title').val(),
+                    ClientName: $('select#clients').val(),
+                    start: startdate,
+                    Date: new Date(moment(startdate).format('MM/DD/YYYY')),
+                    MeetingDate: selectedDate,
+                    end: enddate,
+                    EndDate: new Date(moment(startdate).format('MM/DD/YYYY')),
+                    InstanceId: new Date(enddate).getTime(),
+                    StartTime: $('#apptStartTime').val(),
+                    EndTime: EndTime,
+                    Duration: $('#apptEndTime').val(),
+                    Description: $('textarea#description').val(),
+                    allDay: false,
+                    IsRecurrence: $('#ckrepeat')[0].checked,
+                    Mode: Mode
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response == 'error') {
+                        customAlert(response);
+                    }
+                    else {
+                        customAlert('Schedule deleted successfully');
+                    }
+                    clearcontrol();
+
+                    calendar.fullCalendar('removeEvents');
+
+                    for (var i = response.length - 1; i >= 0; i--) {
+                        if (response[i].IsDeletedInstance) {
+                            deletedInstanceList.push(response[i]);
+                            response.splice(i, 1);
+                            continue;
+                        }
+                        if (new Date(moment(response[i].end).format('MM/DD/YYYY hh:mm A')) >= new Date(moment(response[i].EndDate).format('MM/DD/YYYY hh:mm A'))) {
+                            response.splice(i, 1);
+                        }
+                    }
+                    var mainInstanceList = [];
+                    ParentEventList = [];
+                    for (var j = response.length - 1; j >= 0 ; j--) {
+                        if (response[j].IsRecurrence) {
+                            ParentEventList.push(response[j]);
+                            response.splice(i, 1);
+                        } else {
+                            mainInstanceList.push(response[j]);
+                        }
+                    }
+                    //callback(mainInstanceList);
+                    calendar.fullCalendar('addEventSource', mainInstanceList);
+
+                    // caallbak(response);
+                    creteeventdynamically(viwwew.start, viwwew.end, null);
+                },
+                error: function (response) {
+                    alert(response)
+                }
+            });
+            $("#myModal").modal('hide');
+        }
+
+        function creteeventdynamically(startdatetime, enddatetime, timezone) {
+            var viwwew = calendar.fullCalendar('getView');
+            var events = calendar.fullCalendar('clientEvents', function () {
+                var view = calendar.fullCalendar('getView');
+                var st = view.intervalStart;
+                var en = view.intervalEnd;
+                return function (e) {
+                    // this is our event filter
+                    if (e.start >= st && e.end <= en) {
+                        // event e is within the view interval
+                        return true;
+                    }
+                    // event e is not within the current displayed interval
+                    return false;
+                };
+            });
+            for (var j = 0; j < ParentEventList.length; j++) {
+                var weekcount = 0;
+                //if (viwwew.intervalUnit == "month") {
+                if (ParentEventList[j].IsRecurrence == true) {
+                    //get the day of event for ex monday tuesday etc...
+                    var maineventstartday = new Date(moment(ParentEventList[j].start).format('MM/DD/YYYY hh:mm A'))
+                    //get month end date in the view
+
+                    var comparedate = new Date(moment(enddatetime).format('MM/DD/YYYY hh:mm A'));
+                    if (ParentEventList[j].EndDate) {
+                        comparedate = new Date(moment(ParentEventList[j].EndDate).format('MM/DD/YYYY hh:mm A'));
+                    }
+                    //get month start date in the view
+                    var eventscount = parseInt(((comparedate.getTime() - maineventstartday.getTime()) / (1000 * 60 * 60 * 24 * 7))) + 1;
+                    var newstratdate;
+                    var newenddate;
+                    for (var i = 0; i < eventscount; i++) {
+                        var createdev = {
+                            MeetingId: ParentEventList[j].MeetingId,
+                            ParentId: ParentEventList[j].MeetingId,
+                            title: ParentEventList[j].title,
+                            ClientName: ParentEventList[j].ClientName,
+                            Description: ParentEventList[j].Description,
+                            allDay: false,
+                            IsRecurrence: false,
+                            MeetingDescription: ParentEventList[j].title,
+                            Description: ParentEventList[j].Description,
+                            StartTime: ParentEventList[j].StartTime,
+                            EndTime: ParentEventList[j].EndTime,
+                            Date: ParentEventList[j].Date,
+                            MeetingDate: ParentEventList[j].MeetingDate,
+                            Day: ParentEventList[j].Day,
+                            TimeZone: ParentEventList[j].TimeZone,
+                            AgencyId: ParentEventList[j].AgencyId,
+                            StaffId: ParentEventList[j].StaffId,
+                            ClientId: ParentEventList[j].ClientId,
+                            ClientName: ParentEventList[j].ClientName,
+                            Duration: ParentEventList[j].Duration,
+                            title: ParentEventList[j].title,
+                            MeetingNotes: ParentEventList[j].MeetingNotes
+
+                        }
+
+                        var newstratdate = new Date(new Date(moment(ParentEventList[j].start).format('MM/DD/YYYY hh:mm A')).setDate(new Date(moment(ParentEventList[j].start).format('MM/DD/YYYY hh:mm A')).getDate() + (7 * i)));
+                        var newenddate = new Date(new Date(moment(ParentEventList[j].end).format('MM/DD/YYYY hh:mm A')).setDate(new Date(moment(ParentEventList[j].end).format('MM/DD/YYYY hh:mm A')).getDate() + (7 * i)));;
+
+
+                        //if (newstratdate.getFullYear() >= comparedate.getFullYear()){
+                        if (newenddate > comparedate) {
+                            break;
+                        }
+                        else {
+                            createdev._id = newenddate.getTime();
+                            createdev.InstanceId = newenddate.getTime();
+                            createdev.end = newenddate;
+                            createdev.EndDate = ParentEventList[j].EndDate;
+                            createdev.start = newstratdate;
+                            var renderEvent = true;
+                            for (var k = 0; k < events.length; k++) {
+                                if (events[k]._id == newenddate.getTime()) {
+                                    renderEvent = false;
+                                }
+                                if (parseInt(events[k].InstanceId) == newenddate.getTime()) {
+                                    renderEvent = false;
+                                }
+                            }
+                            for (var m = 0; m < deletedInstanceList.length; m++) {
+                                if (deletedInstanceList[m].InstanceId == newenddate.getTime()) {
+                                    renderEvent = false;
+                                }
+                            }
+                            if (newenddate > new Date(moment(viwwew.end).format('MM/DD/YYYY hh:mm A'))) {
+                                renderEvent = false;
+                            }
+                            if (renderEvent) {
+                                calendar.fullCalendar('renderEvent', createdev, true);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            clearcontrol();
+        }
+        function clearcontrol() {
+            $('#clients')[0].selectedIndex = -1;
+            $('#title').val("");
+            $('#description').val("");
+            $('#ckrepeat')[0].checked = false;
+            $('#chkonlythis')[0].checked = false;
+            $('#chkthisandfollowing')[0].checked = false;
+            $('#apptStartTime option:first-child').attr("selected", "selected");
+            $('#apptEndTime option:first-child').attr("selected", "selected");
+            $('#_id').val('');
+            $('#meetingId').val('');
+            $('#ParentId').val('');
+            $('#EndDate').val('');
+            $('#InstanceId').val('');
+            eventtype = 0;
+        }
+    </script>
+}
+
+@section MainContentHolder{
+
+    <div class="row" style="margin-top: 15px;">
+        <div class="col-lg-12">
+            <h2 class="page-header">Scheduler
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div id="calendar" style="line-height: normal; z-index: 99; position: relative; margin-bottom: 1px"></div>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" onclick="clearcontrol()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" style="font-weight: 700" id="exampleModalLabel">Schedule Appointment</h4>
+                        <h5><span id="meetingdate"></span></h5>
+
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" class="form-control" name="meetingId" id="_Id">
+                        <input type="hidden" class="form-control" name="meetingId" id="meetingId">
+                        <input type="hidden" class="form-control" name="meetingId" id="ParentId">
+                        <input type="hidden" class="form-control" name="meetingId" id="InstanceId">
+                        <input type="hidden" class="form-control" name="meetingId" id="EndDate">
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Clients:</label>
+                            <select type="text" class="form-control" onchange="selectlastname()" tabindex="1" name="Title" id="clients"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Description:</label>
+                            <input type="text" class="form-control" autocomplete="off" name="Title" tabindex="2" id="title">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <label for="exampleInputEmail1">Start Time:</label>
+                                    <select class="form-control" tabindex="3" id="apptStartTime"></select>
+                                </div>
+                                <div class="col-xs-6">
+                                    <label for="exampleInputEmail1">Duration(HH:MM):</label>
+                                    <select class="form-control" tabindex="4" id="apptEndTime"></select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="divrepeat">
+
+                            <label>
+                                Repeat:<input type="checkbox" onchange="onchecked(this)" tabindex="5" id="ckrepeat" value=""></label>
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Notes:</label>
+                            <textarea class="form-control" tabindex="6" id="description"></textarea>
+                        </div>
+                        <div id="divUp" class="form-group" style="display: none">
+                            <label>Action:</label>
+                            <div class="col-xs-6">
+                                <label>
+                                    <input type="radio" tabindex="7" name="update" onclick="" id="ckupdate" value="">
+                                    Update</label>
+                            </div>
+                            <div class="col-xs-6">
+                                <label>
+                                    <input type="radio" tabindex="7" name="update" onclick="" id="ckdelete" value="">
+                                    Delete</label>
+                            </div>
+                        </div>
+
+                        <div id="divUpdate" class="form-group" style="display: none">
+
+
+                            <label>Action Type:</label>
+                            <div class="col-xs-6">
+                                <label>
+                                    <input type="radio" onchange="onchecked(this)" tabindex="7" name="recurrenceupdate" onclick="chkclick2();" id="chkonlythis" value="">
+                                    Only This Schedule</label>
+                            </div>
+                            <div class="col-xs-6">
+                                <label>
+                                    <input type="radio" onchange="onchecked(this)" tabindex="8" name="recurrenceupdate" onclick="chkclick();" id="chkthisandfollowing" value="">
+                                    This And Following Schedules</label>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" onclick="validatetime(event);" tabindex="9" class="my-btn1">Submit </button>
+                        <button type="button" class="my-btn1" onclick="clearcontrol()" tabindex="10" data-dismiss="modal">Close</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+}

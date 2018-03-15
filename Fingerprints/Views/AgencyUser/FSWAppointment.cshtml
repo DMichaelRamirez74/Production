@@ -1,0 +1,2041 @@
+﻿@{
+    @section Title
+{
+        Today's Appointment
+
+    }
+
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@section Script{
+    <style type="text/css" media="screen">
+        div#schedule_popup .modal-lg {
+            width: 1050px;
+            max-width: 100%;
+        }
+
+        label.meeting-print {
+            width: 16%;
+            float: left;
+        }
+
+        .lbl-required:after {
+            margin-left: 2px;
+            content: "*";
+            color: #a94442;
+        }
+
+        .timeTextBox {
+            position: relative;
+            width: 54px;
+            height: 18px;
+            border: none;
+            padding-left: 5px;
+            top: 1px;
+            left: 1px;
+            outline: none;
+        }
+
+        .editableBox {
+            width: 75px;
+            height: 30px;
+        }
+
+            .editableBox option {
+                padding-left: 5px;
+            }
+
+        .kbw-signature {
+            width: 400px;
+            height: 200px;
+        }
+        /*.kbw-signature canvas{height: 140px!important;}*/
+    </style>
+
+    <script type="text/javascript">
+        var EnrolledObject = null;
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+
+
+        var totalSeconds = 0;
+        var timer = null;
+
+        function setTime() {
+            var minutesLabel = document.getElementById("minutes");
+            var secondsLabel = document.getElementById("seconds");
+            var hoursLabel = document.getElementById("hours");
+            ++totalSeconds;
+            secondsLabel.innerHTML = pad(totalSeconds % 60);
+            minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
+            hoursLabel.innerHTML = pad(parseInt(pad(parseInt(totalSeconds / 60)) / 60));
+        }
+
+        function pad(val) {
+            var valString = val + "";
+            if (valString.length < 2) {
+                return "0" + valString;
+            } else {
+                return valString;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            totalSeconds = 0;
+            document.getElementById("minutes").innerHTML = '00';
+            document.getElementById("seconds").innerHTML = '00';
+            document.getElementById("hours").innerHTML = '00';
+        }
+
+        function startTimer() {
+            timer = setInterval("setTime()", 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+
+        function BindReason(object) {
+
+            $.ajax({
+                url: HostedDir + "/Agencyuser/GetEnrollReason",
+                type: "POST",
+                data: {
+                    Status: $(object).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].ReasonID + '">' + response[i].ReasonText + '</option>';
+                        }
+                        $('#ddlreason').find('option').remove().end().append(option);
+                        $('#ddlreason').val('');
+                    }
+                    else {
+                        $('#ddlreason').find('option').remove();
+                    }
+                }
+                , error: function (response) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+
+        }
+
+        function Loadchangestatusmodel(object) {
+            cleanValidation();
+            $('#Divwaitinglist').hide();
+            if ($(object).attr("accesskey") == "5") {
+                BindReason(object);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Enrolled");
+                //  $('#lblNewStatus').text("Withdrawn");
+                $('#lblNewStatus').text("Dropped");
+                $('#Divwaitinglist').show();
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "6") {
+                BindReason(object);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Dropped");
+                $('#lblNewStatus').text("Re-enrolled");
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "7") {
+                BindReason(object);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Withdrawn");
+                $('#lblNewStatus').text("Re-enrolled");
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
+                BindReason(object);
+                EnrolledObject = object;
+                if ($(object).attr("accesskey") == "8") {
+                    $('#lblCurrentStatus').text("Enrollmentservices");
+                    $('#lblNewStatus').text("Withdrawn");
+                }
+                if ($(object).attr("accesskey") == "9") {
+                    $('#lblCurrentStatus').text("Re-enrolled");
+                    $('#lblNewStatus').text("Withdrawn");
+                }
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').modal('show');
+            }
+
+
+
+
+        }
+
+
+        function isValidChangestatus() {
+            cleanValidation();
+            $('#rblwaitinglist').removeAttr('style');
+            if ($('#ddlreason').val() == "" || $('#ddlreason').val() == null) {
+                isValid = false;
+                customAlert("Reason is required.");
+                plainValidation('#ddlreason');
+                return isValid;
+            }
+            else if ($('#ddlreason').val() == 0 && $('#txtreason').val() == "") {
+                isValid = false;
+                customAlert("Other reason is required.");
+                plainValidation('#txtreason');
+                return isValid;
+            }
+            else if ($('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
+                isValid = false;
+                customAlert("Waiting list is required.");
+                plainValidation('#rblwaitinglist');
+                return isValid;
+            }
+
+            else {
+
+                BootstrapDialog.confirm("Client status will be changed. Do you want to continue?", function (result) {
+                    if (result) {
+                        if (EnrolledObject != null) {
+                            $.ajax({
+                                url: HostedDir + "/AgencyUser/DropClient",
+                                type: "POST",
+                                data: {
+                                    ClientId: $(EnrolledObject).attr("clientid"),
+                                    HouseholdId: $(EnrolledObject).attr("householdid"),
+                                    Status: $(EnrolledObject).attr("accesskey"),
+                                    StatusText: $('#lblNewStatus').text(),
+                                    Reason: $('#txtreason').val(),
+                                    ddlreason: $('#ddlreason').val(),
+                                    ddlreasontext: $('#ddlreason').find("option:selected").text(),
+                                    IsWaiting: $("input:radio[name='waitinglist']:checked").val()
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+                                    if (response == 0) {
+                                        customAlert("Error occurred please try again.");
+                                    }
+                                    if (response == 1) {
+                                        customAlert("Client status changed successfully.");
+                                        setTimeout(function () {
+                                            //window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
+                                            window.location.href = HostedDir + "/Roster/Roster";
+                                        }, 300);
+                                    }
+                                    if (response == 2) {
+                                        customAlert("Client status already changed.");
+                                        setTimeout(function () {
+                                            window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
+                                        }, 300);
+                                    }
+                                }
+                                , error: function (response) {
+                                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+        }
+
+
+        function SelectDate(value) {
+
+            $('#StartDate').find('option').remove();
+            var fd = new Date();
+            var day = parseInt($('#Days').val());
+            var daytoadd = 0;
+            if (day == fd.getDay()) {
+
+            }
+            else if (day < fd.getDay()) {
+                for (var i = 0; i < 8 + day; i++) {
+                    if (i > fd.getDay()) {
+                        daytoadd++;
+                    }
+                }
+            }
+            else {
+                daytoadd = day - fd.getDay();
+            }
+            fd = new Date(new Date().setDate(new Date().getUTCDate() + daytoadd));
+            // date = (d.getUTCFullYear()) + '/' + (d.getUTCMonth() + 1) + '/' + (d.getUTCDate());
+
+            var n = ("0" + fd.getUTCDate()).slice(-2);
+            var m = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+            //  date = ((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+            date = (m + '/' + n + '/' + fd.getUTCFullYear());
+            var list = [];
+
+            for (var i = 0; i < 5; i++) {
+
+                if (i == 0) {
+                    var a = ("0" + fd.getUTCDate()).slice(-2);
+                    var b = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+                    list.push(b + '/' + a + '/' + fd.getUTCFullYear());
+
+                    //list.push((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+                }
+                else {
+
+                    var d = new Date(fd.setDate(fd.getUTCDate() + 7));
+                    var z = ("0" + d.getUTCDate()).slice(-2);
+                    var k = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+                    list.push(k + '/' + z + '/' + d.getUTCFullYear());
+                    //list.push((d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '/' + d.getUTCFullYear());
+                }
+            }
+            $.each(list, function (i, item) {
+                $('select#StartDate').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+            $('select#StartDate').val(date);
+
+        }
+
+
+        function getDates(dateEntered) {
+            var startDate = new Date(dateEntered)
+            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
+
+            var dates = [],
+                currentDate = startDate,
+                addDays = function (days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                };
+            while (currentDate <= endDate) {
+                if (currentDate != startDate) {
+                    dates.push(getFormattedDate(currentDate));
+                }
+                currentDate = addDays.call(currentDate, 1);
+            }
+            return dates;
+        }
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+        function getTime(dateselect, time1, time2) {
+            
+            //var dateselect = $('#StartDate').val();
+            //var time1 = $('#StartTime').val();
+            //var time2 = $('#TestEndTime').val();
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+
+            //  var totalstarttime = starttime.substring(0, 5);
+            time1 = get12HoursTo24HoursTime(time1);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins <= 9) {
+                mins = "0" + mins;
+            }
+
+            if (hours >= 12) {
+                am_pm = "PM";
+                if (hours > 12) {
+                    hours = (hours - 12);
+                    hours = (hours <= 9) ? '0' + hours : hours;
+                }
+            }
+            // alert(hours + ":" + mins + " " + am_pm);
+            return hours + ":" + mins + " " + am_pm;
+
+
+
+            //var d = new Date(dateselect + starttime);
+            //d.setHours(d.getHours() + 5);
+            //d.setMinutes(d.getMinutes() + 30);
+        }
+
+        function get12HoursTo24HoursTime(time) {
+            //var time = '02:05 AM';
+
+            var hours = Number(time.match(/^(\d+)/)[1]);
+            var minutes = Number(time.match(/:(\d+)/)[1]);
+            var AMPM = time.match(/\s(.*)$/)[1].toLowerCase();
+
+            if (AMPM == "pm" && hours < 12) hours = hours + 12;
+            if (AMPM == "am" && hours == 12) hours = hours - 12;
+            var sHours = hours.toString();
+            var sMinutes = minutes.toString();
+            if (hours < 10) sHours = "0" + sHours;
+            if (minutes < 10) sMinutes = "0" + sMinutes;
+            return sHours + ':' + sMinutes;
+        }
+
+        function getHour24(timeString) {
+            time = null;
+            var matches = timeString.match(/^(\d{1,2}):00 (\w{2})/);
+            if (matches != null && matches.length == 3) {
+                time = parseInt(matches[1]);
+                if (matches[2] == 'PM') {
+                    time += 12;
+                }
+            }
+            return time;
+        }
+
+        function GetMinutes(timeStr) {
+            debugger;
+
+            var str = timeStr.split(':');
+
+            var hours = parseInt(str[0]);
+            var mins = parseInt(str[1]);
+
+            var totalMins = hours * 60 + mins;
+
+            return totalMins;
+        }
+
+        function testTime(time) {
+
+            // var matches = time.test(/^(\d\d):(\d\d)\s/);
+            //    var re = /^(\d\d):(\d\d)/;
+            //  var re = /(((0[1-9])|(1[0-2])):([0-5])(0|5))/;
+            var time = $(time).val();
+            var re = /[0-2]?\d[.:][0-5]\d/;
+            //    var re=/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+            // var re = /^(1[0-2]|0?[1-9]):[0-5][0-9]/;
+            // var re = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            // var regex = /^(1[0-2])|0[1-9]:[0-5][0-9]$/;
+            var matches = re.test(time);
+            if (matches == true) {
+
+                return true;
+
+            } else {
+                customAlert("Invalid Time Format");
+                return false;
+            }
+
+        }
+
+        $(document).ready(function () {
+            $('#schedule_popup').on('shown.bs.modal', function (e) {
+
+                if ($('#hdnSessionUserID').val() == 'e4c80fc2-8b64-447a-99b4-95d1510b01e9') {
+                    $('#divForAttendanceType').show();
+                }
+                else
+                    $('#divForAttendanceType').hide();
+            });
+
+         
+            $('#TestEndTime').mask("99:99", { placeholder: 'HH:MM' });
+
+            var presentArray = ['HVP', 'HVFT', 'HVPM', 'HVS', 'HVMU', 'HVTRN'];
+            var absentArray = ['HVNS', 'HVPC', 'HVSC'];
+
+            $('#attendance-type-select').on('change', function () {
+
+                cleanValidation();
+
+                var attendSelectAttr = $(this).find(":selected").attr('acr');
+
+                if (presentArray.indexOf(attendSelectAttr) > -1) {
+                    // $('.household-label').addClass('lbl-required');
+                    $('#familyCheckBox').css({ 'background-color': "" });
+                    $('#reschedule-div').hide();
+                    $('#reschedule-meeting-div').hide();
+                    $('.parent-check[type=checkbox]').prop('checked', false);
+                    $('input[name=reschedule-radio]').prop('checked', false);
+                    $('#StartDate').val('');
+                    $('#StartTime').val('');
+                    $('#EndTime').val('');
+                    $('#TestEndTime').val('');
+                    $('#familyCheckBox').find('.signature-div-inner').remove();
+                    $('#household-div').show();
+                }
+                else if (absentArray.indexOf(attendSelectAttr) > -1) {
+                    //  $('.household-label').removeClass('lbl-required');
+                    $('#household-div').hide();
+
+                    $('input[name=reschedule-radio]').prop('checked', false);
+
+                    $('#reschedule-div').show();
+                    $('#reschedule-meeting-div').hide();
+                    $('#StartDate').val('');
+                    $('#StartTime').val('');
+                    $('#EndTime').val('');
+                    $('#TestEndTime').val('');
+                }
+                else {
+                    $('#household-div').hide();
+                    $('#reschedule-div').hide();
+                    $('#reschedule-meeting-div').hide();
+                    $('#StartDate').val('');
+                    $('#StartTime').val('');
+                    $('#EndTime').val('');
+                    $('#TestEndTime').val('');
+                }
+
+
+            });
+
+
+
+            $('input[name=reschedule-radio]').on('change', function () {
+
+                if ($(this).attr('value') === '1') {
+
+                    cleanValidation();
+                    $('#StartTime,#StartDate,#TestEndTime').val('');
+
+                    var dates = getDates(new Date());
+                    var dateString = '';
+                    if (dates.length > 0) {
+                        $.each(dates, function (i, date) {
+                            dateString += '<option value=' + date + '>' + date + '</option>';
+                        });
+                    }
+
+                    $('#reschedule-meeting-div').find('#StartDate').html(dateString).val('');
+
+                    $('#reschedule-meeting-div').show();
+                }
+                else {
+                    $('#StartTime,#StartDate,#TestEndTime').val('');
+                    $('#reschedule-meeting-div').hide();
+                }
+            });
+
+
+            $('#hvCompleteBtn').on('click', function () {
+
+                cleanValidation();
+
+                var enc_ClientId = $(this).attr('enc_clientid');
+                var accessKey = $(this).attr('accesskey');
+                var attendSelectValue = $('#attendance-type-select').find(":selected").val();
+                var attendSelectAttr = $('#attendance-type-select').find(":selected").attr('acr');
+                var meetingDate = $('#StartDate');
+                var startTime = $('#StartTime');
+                var endTimeSelect = $('#EndTime');
+                var endTimeText = $('#TestEndTime')
+
+                var isupdateEnroll = false;
+               
+                if ($('#hdnSessionUserID').val() == 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && attendSelectValue === '0') {
+                    plainValidation('#attendance-type-select');
+                    customAlert('Please select Attendance Type');
+                    return false;
+                };
+
+                if (presentArray.indexOf(attendSelectAttr) > -1) {
+                    isupdateEnroll = true;
+
+                    if ($('.parent-check[type=checkbox]:checked').length === 0) {
+                        plainValidation('#familyCheckBox');
+                        customAlert('Please select household(s) present');
+                        return false;
+                    }
+                    else {
+                        var counter = 0;
+                        $('.parent-check[type=checkbox]:checked').each(function () {
+                            var checkboxId = $(this).attr('id');
+                            var imageValue = $(this).parent('.check-div').siblings('#sig_' + checkboxId + '').find('#image_canvas_' + checkboxId + '').val();
+                            if (imageValue == '') {
+                                plainValidation('#canvas_' + checkboxId + '');
+                                customAlert('Please enter and accept signature');
+                                counter++;
+                            }
+                        });
+                        if (counter > 0) {
+                            return false;
+                        }
+                    }
+                }
+                else if (absentArray.indexOf(attendSelectAttr) > -1) {
+                    isupdateEnroll = false;
+
+                    if ($('input[name=reschedule-radio]:checked').length === 0) {
+                        customAlert('Please select Yes or No to Re-Schedule the meeting');
+                        return false;
+                    }
+                    else if ($('input[name=reschedule-radio]:checked').attr('value') === '1') {
+                        if (meetingDate.val() === null || meetingDate.val() == '') {
+                            plainValidation('#StartDate');
+                            customAlert('Please select Meeting Date');
+                            return false;
+                        }
+                        else if (startTime.val() === null || startTime.val() == '') {
+                            plainValidation('#StartTime');
+                            customAlert('Please select Meeting Time');
+                            return false;
+                        }
+                        else if (endTimeText.val() == '') {
+                            plainValidation('#TestEndTime');
+                            plainValidation('#EndTime');
+                            customAlert('Please select duration');
+                            return false;
+                        }
+                    }
+                }
+
+                var _isReschedule = ($('input[name=reschedule-radio]:checked').attr('value') === '1') ? true : false;
+
+                var parentCheckArray = [];
+
+                var parent1 = '';
+                var parent2 = '';
+                var pSig1 = '';
+                var pSig2 = '';
+
+
+
+                $('.parent-check[type=checkbox]:checked').each(function (i, parent) {
+
+                    var checkboxId = $(parent).attr('id');
+                    var imageValue = $(parent).parent('.check-div').siblings('#sig_' + checkboxId + '').find('#image_canvas_' + checkboxId + '').val();
+                    if (i == 0) {
+                        parent1 = $(this).attr('parent');
+                        pSig1 = imageValue;
+                    }
+                    else {
+                        parent2 = $(this).attr('parent');
+                        pSig2 = imageValue;
+                    }
+                    // parentCheckArray.push({ 'ParentName': '', 'ClientId': $(this).attr('parent'), 'PSignature':imageValue, 'ParentRole': parseInt($(this).attr('role')) })
+                });
+
+                var isScheduleAvail = false;
+
+                if (_isReschedule) {
+                    $.ajax({
+                        url: '/HomeVisitor/CheckAvailableAppointment',
+                        datatype: 'json',
+                        type: 'post',
+                        async: false,
+                        data: { startTime: startTime.val(), endTime: getTime(meetingDate.val().trim(), startTime.val().trim(), endTimeText.val().trim()), meetingDate: meetingDate.val() },
+                        success: function (data) {
+                            if (data) {
+                                isScheduleAvail = true;
+                                plainValidation('#StartDate');
+                                plainValidation('#StartTime');
+                                plainValidation('#EndTime');
+                                plainValidation('#TestEndTime');
+                                customAlert('Appointment already scheduled for the selected Date and Time')
+                            }
+                            else {
+                                isScheduleAvail = false;
+                            }
+
+                        },
+                        error: function (data) {
+
+                        }
+
+                    });
+                }
+
+                if (isScheduleAvail) {
+                    return false;
+                }
+
+
+
+
+                var schedular = {};
+                schedular.MeetingId = parseInt(accessKey);
+                schedular.StartTime = (startTime.val() == null || startTime.val() == '') ? "" : startTime.val().trim();
+                schedular.Duration = (endTimeText.val() == null || endTimeText.val() == '') ? "" : endTimeText.val().trim();
+                schedular.EndTime = (meetingDate.val() == null || meetingDate.val() == '') ? '' : getTime(meetingDate.val().trim(), startTime.val().trim(), endTimeText.val().trim());
+                schedular.Enc_ClientId = enc_ClientId;
+                schedular.MeetingDate = (meetingDate.val() == null || meetingDate.val() == '') ? "" : meetingDate.val().trim();
+                // schedular.ParentDetailsList = parentCheckArray;
+                schedular.AttendanceTypeId = (attendSelectValue === '') ? 0 : parseInt(attendSelectValue);
+                schedular.IsUpdateEnrollment = isupdateEnroll;
+                schedular.IsReSchedule = _isReschedule;
+                schedular.Day = (meetingDate.val() == null || meetingDate.val() == '') ? 0 : new Date(meetingDate.val().trim()).getDay();
+                schedular.ParentId1 = parent1;
+                schedular.ParentId2 = parent2;
+                schedular.PSignature1 = pSig1;
+                schedular.PSignature2 = pSig2;
+
+                var stringArray = JSON.stringify(schedular);
+                var startTimeElapsed = $('#startTimeLbl').html();
+                var endTimeDuration = $('#hours').text() + ':' + $('#minutes').text();
+                var endTimeElapsed = getTime(new Date(), startTimeElapsed, endTimeDuration);
+
+                $.ajax({
+
+                    url: HostedDir + "/HomeVisitor/UpdateScheduleAppointment",
+                    type: 'post',
+                    dataType: 'json',
+                    data: { scheduleString: stringArray, meetingStartTime: startTimeElapsed, meetingEndTime: endTimeElapsed, meetingDuration: endTimeDuration },
+                    success: function (data) {
+                        if (data) {
+                            customAlert('Record saved successfully');
+                            $('#schedule_popup').modal('hide');
+                            drawgrid();
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                });
+            });
+
+
+
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            //Added on 13jan2017
+            var currentdate = new Date();
+            // var mindate = new Date(currentdate.setDate(currentdate.getDate() - 30));
+            var listTime = [];
+
+            //for (var i = 8; i < 18; i++) {
+            //    for (var j = 0; j < 4; j++) {
+            //        if (j == 0) {
+            //            if (i > 9) {
+            //                listTime.push(i + ':00')
+            //            } else {
+            //                listTime.push('0' + i + ':00')
+            //            }
+            //        }
+            //        //if (j == 1) {
+            //        //    if (i > 9) {
+            //        //        listTime.push(i + ':15')
+            //        //    } else {
+            //        //        listTime.push('0' + i + ':15')
+            //        //    }
+
+            //        //}
+            //        else if (j == 2) {
+            //            if (i > 9) {
+            //                listTime.push(i + ':30')
+            //            } else {
+            //                listTime.push('0' + i + ':30')
+            //            }
+
+            //        }
+            //        //else if (j == 3) {
+            //        //    if (i > 9) {
+            //        //        listTime.push(i + ':45')
+            //        //    } else {
+            //        //        listTime.push('0' + i + ':45')
+            //        //    }
+
+            //        //}
+
+            //    }
+            //}
+            var m;
+            var min;
+            for (var i = 0; i < 2; i++) {
+                if (i == 0) {
+                    m = 'AM';
+                } else {
+                    m = 'PM';
+                }
+                for (var j = 1; j < 13; j++) {
+                    if (j > 7 && m == 'AM' || j < 7 && m == 'PM') {
+                        for (var k = 0; k < 2; k++) {
+                            if (k == 0) {
+                                min = ':00 ';
+                            }
+                            else {
+                                min = ':30 ';
+                            }
+                            if (min == ':30 ' && j == 6)
+                            { break; }
+                            if (j == 12) {
+                                m = 'PM';
+                                listTime.push(j + min + m);
+                            }
+                            else {
+                                if (j > 9) {
+                                    listTime.push(j + min + m);
+                                }
+                                else {
+                                    listTime.push('0' + j + min + m);
+                                }
+                            }
+                        }
+
+
+                    }
+                }
+
+            }
+            $.each(listTime, function (i, item) {
+                $('#StartTime').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+
+            //$.each(listTime, function (i, item) {
+            //    $('#EndTime').append($('<option>', {
+            //        value: item,
+            //        text: item
+            //    }));
+            //});
+            if ('@ViewBag.mode' == '0') {
+                $('#StartTime').val('');
+                $('#EndTime').val('');
+                $('#Days').val('');
+            }
+            //if ($('#MeetingId').val() == "0") {
+            //    $('#StartTime').val('');
+            //    $('#EndTime').val('');
+            //    $('#Days').val('');
+            //}
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+
+            //  $('#Days').val('');
+
+            //$('#StartTime').timepicker({ 'timeFormat': 'h:i A' });
+            //$('#EndTime').timepicker({ 'timeFormat': 'h:i A' });
+
+            $('#DashboardHV').removeClass("active");
+            drawgrid();
+            $('#GridScheduler > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thSN")
+                    return false;
+                if (sortOrder == "thRN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#GridScheduler > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#GridScheduler > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+        function getList() {
+
+            $.ajax({
+                url: HostedDir + "/AgencyUser/listAppointment",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    //Classroom: $("#Classroom").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                    $('#timeZoneText').val(data.timeZoneDiff);
+
+                }
+                , error: function (response) {
+                    //  customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#GridScheduler > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#GridScheduler").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            if (val == 'First') {
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+
+            $('#GridScheduler > tbody > tr').remove();
+
+            $('#hmAptct').html('(' + data.list.length + ')');
+
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#GridScheduler > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+
+                    // tr += "<td><a href='#' onclick='Getschool(this);' accesskey=" + data.list[i].SchoolDistrictID + ">" + ((typeof (data.list[i].Acronym) != 'undefined') && (data.list[i].Acronym != null) ? data.list[i].Acronym : '') + "</td>";
+                    tr += "<td style='width:20%'>" + ((typeof (data.list[i].ClientName) != 'undefined') && (data.list[i].ClientName != null) ? '<a href="#" onclick="Selectschedule(this);" accesskey="' + data.list[i].MeetingId + '">' + data.list[i].ClientName + ' </a>' : '') + " </span></td>";
+                    tr += "<td style='width:20%'>" + ((typeof (data.list[i].MeetingDescription) != 'undefined') && (data.list[i].MeetingDescription != null) ? data.list[i].MeetingDescription : '') + " </td>";
+                    tr += "<td style='width:9%'>" + ((typeof (data.list[i].MeetingDate) != 'undefined') && (data.list[i].MeetingDate != null) ? data.list[i].MeetingDate : '') + " </span></td>";
+                    tr += "<td style='text-align:center; width:16%' class='fr-to-time'>" + ((typeof (data.list[i].StartTime) != 'undefined') && (data.list[i].StartTime != null) ? data.list[i].StartTime + '-' + data.list[i].EndTime : '') + " </span></td>";
+                    tr += "<td style='text-align:left; width:14%'>" + ((typeof (data.list[i].HouseholdAddress) != 'undefined') && (data.list[i].HouseholdAddress != null) ? data.list[i].HouseholdAddress : '') + " </span></td>";
+                    tr += "<td style='width: 11%;white-space: nowrap;'>" + ((typeof (data.list[i].HouseholdPhoneNo) != 'undefined') && (data.list[i].HouseholdPhoneNo != null) ? data.list[i].HouseholdPhoneNo : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data.list[i].MeetingNotes) != 'undefined') && (data.list[i].MeetingNotes != null) ? data.list[i].MeetingNotes : '') + " </span></td>";
+
+                    tr += "</tr>";
+                    $('#GridScheduler > tbody').append(tr);
+
+                }
+            }
+        }
+        function Selectschedule(value) {
+
+            $('#MeetingId').val($(value).attr("accesskey"));
+
+            //var timeZoneId = $('#timeZoneText').val().trim();
+
+
+
+            //var from_to_time = $(value).parent('td').siblings('.fr-to-time').html().trim();
+
+
+            //var currentTime = formatAMPM(convertToUserTimeZone(timeZoneId));
+
+            //var fromTime = from_to_time.split('-')[0];
+            //var toTime = from_to_time.split('-')[1];
+
+            //var currentDateTime = new Date("01/01/2007 " + currentTime);
+            //var fromDateTime = new Date("01/01/2007 " + fromTime);
+            //var toDateTime = new Date("01/01/2007 " + toTime);
+
+
+            //var hourDiff = currentDateTime - fromDateTime;
+
+            //var hourDiff1 = currentDateTime - toDateTime;
+
+            //if (hourDiff < 0)
+            //{
+            //    customAlert('Scheduled time has not been attained yet');
+            //    return false;
+            //}
+            //else
+            //if (hourDiff1 > 0) {
+            //    customAlert('Scheduled time has been exceeded');
+            //    return false;
+            //}
+
+
+
+
+
+
+
+            $.ajax({
+                url: HostedDir + "/AgencyUser/getSchedule",
+                type: "POST",
+                data: {
+                    Id: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+                    if (response != null) {
+                        $('#Description').html(response.MeetingDescription);
+                        $('#Days').val(response.Day);
+                        //   SelectDateFetch(response.MeetingDate);
+                        $('#meetingDate').html(response.MeetingDate);
+
+                        $('#Resourece1')[0].innerText = "Today's Appointment for " + response.ClientName;
+                        $('#schedule_popup').find('#fromTime').html(response.StartTime);
+                        $('#schedule_popup').find('#endTime').html(response.EndTime);
+                        $('#Notes').html(response.MeetingNotes);
+
+                        var appendText = '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="/Roster/CaseNotesclient/?id=' + response.Enc_ClientId + '&amp;Householdid=' + response.Enc_HouseholdId + ' &amp;centerid=' + response.Enc_CenterId + '&amp;Programid=' + response.Enc_ProgramTypeId + '">CN </a>  &nbsp;\
+                        <a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="/Roster/FPAList/?id=' + response.Enc_ClientId + '&amp;Householdid=' + response.Enc_HouseholdId + ' &amp;centerid=' + response.Enc_CenterId + '&amp;Programid=' + response.Enc_ProgramTypeId + '&amp;ClientName=' + response.ClientName + '">FPA </a>\
+                                   &nbsp;<a title="Click here to get the Parent Matrix Analysis" href="/Roster/MatrixAnalysis/?id=' + response.Enc_ClientId + ' &amp;Householdid=' + response.Enc_HouseholdId + ' &amp;centerid=' + response.Enc_CenterId + '&amp;Programid=' + response.Enc_ProgramTypeId + '&amp;ClientName=' + response.ClientName + '" style="text-decoration: underline; cursor: pointer;"> ACR </a>  &nbsp;\
+                                   <a title="Schedule Home Visit" style="text-decoration: underline; cursor: pointer;" href="/AgencyUser/HomeVisitFSWNew/?id=' + response.Enc_ClientId + '&amp;Name=' + response.ClientName + ' &amp;LastName= ' + response.ClientName + '">HV </a>  &nbsp;\
+                                   <a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="/Roster/ReferralService/?id=' + response.Enc_ClientId + '&amp;Householdid=0&amp;centerid=' + response.Enc_CenterId + '&amp;Programid=' + response.Enc_ProgramTypeId + '&amp;ClientName=' + response.ClientName + '">REF </a> &nbsp;\
+                                   <a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=' + response.Enc_ClientId + '&amp;Single=true">ED </a>&nbsp;\
+                                       <a style="text-decoration:underline;cursor:pointer;" title="Click to change status" clientid=' + response.Enc_ClientId + ' name=' + response.ClientName + ' householdid=' + response.Enc_HouseholdId + ' onclick="Loadchangestatusmodel(this);" accesskey=' + response.RosterYakkr + '>STAT</a>';
+                        $('#schedule_popup').find('#servicesId').html(appendText);
+
+                        var parentCheck = '';
+                        $.each(response.ParentDetailsList, function (i, family) {
+
+                            var parent = family.ParentName + ' ';
+                            parent += (family.ParentRole == '1') ? '(Father)' : '(Mother)';
+                            parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><span style="margin-right:5px;">' + parent + '</span><input type="checkbox" style="position: relative;top: 3px;" id="parent_' + i + '" class="parent-check" parent=' + family.ClientId + ' role=' + family.ParentRole + ' pro-im="' + family.ProfilePicture + '" /></div>';
+                        });
+
+                        var attendList = '<option acr="0" value="0">--Select Attendance Type--</option>';
+
+                        if (response.AttendanceTypeList.length > 0) {
+                            $.map(response.AttendanceTypeList, function (attendance, j) {
+                                attendList += '<option acr=' + attendance.Acronym + ' value=' + attendance.AttendanceTypeId + '>' + attendance.Description + '</option>';
+                            });
+                        }
+
+                        $('#schedule_popup').find('#familyCheckBox').html(parentCheck);
+
+                        $('#schedule_popup').find('#attendance-type-select').html(attendList);
+
+                        $('#schedule_popup').find('#startTimeLbl').html(formatAMPM(convertToUserTimeZone(response.TimeZone)));
+
+                        $('#timeZoneText').val(response.TimeZone);
+
+                        $('#schedule_popup').find('#hvCompleteBtn').attr({ 'enc_clientid': response.Enc_ClientId, 'accesskey': $(value).attr("accesskey") });
+
+                        cleanValidation();
+                        $('#household-div,#reschedule-div, #reschedule-meeting-div').hide();
+
+
+                        $('.parent-check[type=checkbox]').on('change', function () {
+
+                            if ($(this).is(':checked')) {
+
+                                var id = $(this).attr('id');
+                                var pare_role = $(this).attr('role');
+                                var image = $(this).attr('pro-im');
+                                // var src = (pare_role === '1') ? (image == '') ? '/Content/img/ic_male.png' : "'data:image/jpg;base64,' + image + ''":(pare_role === '2') ? (image == '') ? '/Content/img/ic_female.png' : "'data:image/jpg;base64,' + image + ''" ;
+                                var src = '';
+                                if (pare_role === '1') {
+                                    if (image === '') {
+                                        src = '/Content/img/ic_male.png';
+                                    }
+                                    else {
+                                        src = 'data:image/jpg;base64,' + image + '';
+                                    }
+                                }
+                                else if (pare_role === '2') {
+                                    if (image === '') {
+                                        src = '/Content/img/ic_female.png';
+                                    }
+                                    else {
+                                        src = 'data:image/jpg;base64,' + image + '';
+                                    }
+                                }
+
+                                var src = (image == '') ? '/Content/img/ic_male.png' : 'data:image/jpg;base64,' + image + '';
+
+                                $('#signature-div').find('.signature-div-inner').attr('id', 'sig_' + id + '');
+
+                                $('#signature-div').find('.signature-div-inner').find('#parent-image').attr({ 'src': src });
+
+
+                                $('#signature-div').find('.imageSig').attr('id', 'image_canvas_' + id + '');
+
+                                $('#signature-div').find('.kbw-signature').attr('id', 'canvas_' + id + '')
+
+                                $('#signature-div').find('#clear').attr('canvas-id', 'canvas_' + id + '');
+
+                                $('#signature-div').find('#accept').attr('canvas-id', 'canvas_' + id + '');
+
+                                $(this).parent('.check-div').after($('#signature-div').html());
+
+
+                                $('#sig_' + $(this).attr('id') + '').find('#canvas_' + id + '').signature();
+
+                                $('#familyCheckBox').find('.signature-div-inner').each(function () {
+
+                                    $(this).find('#parent-image').zoomify();
+                                });
+
+                                $('#familyCheckBox').css({ 'background-color': '' });
+                            }
+
+
+
+                            else {
+
+                                $('#sig_' + $(this).attr('id') + '').remove();
+                                // $(this).parent('.check-div').parent('#familyCheckBox').find('#sig_' + $(this).attr('id') + '').remove();
+                            }
+                        });
+
+
+                        $('#schedule_popup').modal('show');
+                        // totalSeconds = 0;
+
+                        resetTimer();
+                        startTimer();
+                        // setInterval(setTime, 1000);
+                    }
+                    else
+                        customAlert(response);
+                }
+                   , error: function (response) {
+                   }
+            });
+        }
+
+
+        function ClearSignature(val) {
+
+            var canvas_id = $(val).attr('canvas-id');
+            isValid = false;
+
+            $('#' + canvas_id + '').signature('clear');
+            $('#' + canvas_id + '').siblings('#image_' + canvas_id + '').val('');
+
+            //$('#clearTeacher').click(function () {
+            //    $('#sig1').signature('clear');
+            //});
+            return isValid;
+        }
+
+        function SaveSignature(val) {
+
+            var canvas_id = $(val).attr('canvas-id');
+            isValid = false;
+            var sigToImage = $('#' + canvas_id + '').signature('toJSON');
+            $('#' + canvas_id + '').css({ 'background-color': '' });
+            $('#' + canvas_id + '').siblings('#image_' + canvas_id + '').val(sigToImage);
+
+            return isValid;
+        }
+
+        function IsValidDays() {
+            var isValid = true;
+            cleanValidation();
+            if ($('#Days')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select days from the list.");
+                plainValidation('#Days');
+                return isValid;
+            }
+            return true;
+            //if (isValid == "true")
+            //{
+            //    if (!$('#schedule_popup').hasClass('in'))
+            //        $('#schedule_popup').modal('toggle');
+            //}
+
+            // $('#schedule_popup').modal('show');
+
+        }
+
+        function ShowPopup() {
+
+            //$('#Clientbminame').text($('#Cfirstname').val() + ' ' + $('#Cmiddlename').val() + ' ' + $('#Clastname').val());
+            //$('#ClientDob').text($('#CDOB').val());
+
+            if (IsValidDays()) {
+                if (!$('#schedule_popup').hasClass('in'))
+                    $('#schedule_popup').modal('toggle');
+            }
+
+        }
+
+        //function get the user timezone//
+
+        function convertToUserTimeZone(minDiff) {
+            // var minDiff = 0;
+            milliseconds = (parseInt(minDiff) * 60000);
+            clientDate = new Date();
+            utc = clientDate.getTime() + (clientDate.getTimezoneOffset() * 60000);
+            serverDate = new Date(utc + (milliseconds));
+            return serverDate;
+        }
+
+        function formatAMPM(date) {
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            var strTime = hours + ':' + minutes + ' ' + ampm;
+            return strTime;
+        }
+
+        function SelectDate(value) {
+
+            $('#StartDate').find('option').remove();
+            var fd = new Date();
+            var day = parseInt($('#Days').val());
+            var daytoadd = 0;
+            if (day == fd.getDay()) {
+
+            }
+            else if (day < fd.getDay()) {
+                daytoadd = 7 - fd.getDay();
+
+            }
+            else {
+                daytoadd = day - fd.getDay();
+            }
+            fd = new Date(new Date().setDate(new Date().getUTCDate() + daytoadd));
+            // date = (d.getUTCFullYear()) + '/' + (d.getUTCMonth() + 1) + '/' + (d.getUTCDate());
+            date = ((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+            var list = [];
+
+            for (var i = 0; i < 5; i++) {
+
+                if (i == 0)
+                    list.push((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+                else {
+
+                    var d = new Date(fd.setDate(fd.getUTCDate() + 7));
+
+                    list.push((d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '/' + d.getUTCFullYear());
+                }
+            }
+            $.each(list, function (i, item) {
+                $('select#StartDate').append($('<option>', {
+                    value: item,
+                    text: item
+                }));
+            });
+            $('select#StartDate').val(date);
+
+        }
+        function checkInfo() {
+            var isValid = true;
+            cleanValidation();
+            if ($('#Description')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Description.");
+                plainValidation('#Description');
+                return isValid;
+            }
+            else if ($('#StartDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter date.");
+                plainValidation('#StartDate');
+                return isValid;
+            }
+            else if ($('#StartTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Start Time.");
+                plainValidation('#StartTime');
+                return isValid;
+            }
+            else if ($('#EndTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter End Time.");
+                plainValidation('#EndTime');
+                return isValid;
+            }
+
+            return true;
+        }
+
+        function clearcontrols() {
+            $('#Description')[0].value = "";
+            // $('#StartDate')[0].value = "";
+            $('#StartTime')[0].value = "";
+            $('#EndTime')[0].value = "";
+        }
+
+        function AddSchedulerDetails() {
+            if (checkInfo()) {
+                $.ajax({
+                    url: HostedDir + "/AgencyUser/AddSchedulerInfo",
+                    type: "POST",
+                    data: {
+
+                        Description: $('#Description').val(),
+                        Date: $('#StartDate').val(), //Changes on 28Dec2016
+                        StartTime: $('#StartTime').val(),
+                        EndTime: $('#EndTime').val(),
+                        Day: $('#Days').val(),
+                        ClientId: $('#ClientId').val(),
+                        Notes: $('#Notes').val(),
+                        MeetingId: $('#MeetingId').val(),
+                        isyakkr600601: false
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    success: function (response) {
+                        if (response != null) {
+
+                            if (response.result == "1") {
+
+                                drawgrid();
+                                $('#schedule_popup').modal('hide');
+                                //Binddoctordropdowndata(response.Info);
+                                clearcontrols();
+                                customAlert("Record added successfully.");
+                            }
+
+                            else if (response.result == "2") {
+
+                                $('#schedule_popup').modal('hide');
+                                clearcontrols();
+
+                                customAlert("Record updated successfully");
+                                drawgrid();
+
+                                //clearcontrolsD();
+                                //Binddoctordropdowndata(response.Info);
+
+                            }
+                            else if (response.result == "3") {
+                                customAlert("Record already exists.");
+                            }
+                            else
+                                customAlert(response);
+                        }
+                    },
+                    error: function (response) { alert(response); }
+                });
+            }
+        }
+
+        function deleteschedule(value) {
+            BootstrapDialog.confirm('Do you want to delete this Appointment?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyUser/Deleteschedule",
+                        type: "POST",
+                        data: {
+                            ID: $(value).attr("accesskey"),
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            if (response == 1) {
+                                customAlert("Appointment deleted successfully.");
+                                $(value).closest('tr').remove();
+
+                            }
+                        }
+                    , error: function (response) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+        //Changes on 7Feb2017
+        function SelectDateFetch(response) {
+
+            $('#StartDate').find('option').remove();
+            var fd = new Date();
+            var day = fd.getDay;
+            var daytoadd = 0;
+            if (day == fd.getDay()) {
+
+            }
+            else if (day < fd.getDay()) {
+                for (var i = 0; i < 8 + day; i++) {
+                    if (i > fd.getDay()) {
+                        daytoadd++;
+                    }
+                }
+            }
+            else {
+                // daytoadd = day - fd.getDay();
+            }
+            fd = new Date(new Date().setDate(new Date().getUTCDate() + daytoadd));
+            // date = (d.getUTCFullYear()) + '/' + (d.getUTCMonth() + 1) + '/' + (d.getUTCDate());
+            date = ((fd.getUTCMonth() + 1) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());// response;//
+            //response = parseInt(response, 10)
+            // date = response;
+            var list = [];
+
+            for (var i = 0; i < 5; i++) {
+
+                if (i == 0)
+                    //    list.push(("0" + fd.getUTCMonth() + 1).slice(-2) + '/' + fd.getUTCDate() + '/' + fd.getUTCFullYear());
+                    list.push(response);
+                else {
+
+                    var d = new Date(fd.setDate(fd.getUTCDate() + 7));
+                    var z = ("0" + d.getUTCDate()).slice(-2);
+                    var k = ("0" + (fd.getUTCMonth() + 1)).slice(-2);
+                    list.push(k + '/' + z + '/' + d.getUTCFullYear());
+                    //list.push(("0" + fd.getUTCMonth() + 1).slice(-2) + '/' + d.getUTCDate() + '/' + d.getUTCFullYear());
+                }
+            }
+            $.each(list, function (i, item) {
+                $('select#StartDate').append($('<option>', {
+
+                    value: item,
+                    text: item
+                }));
+            });
+            $('select#StartDate').val(response);
+            // $('#StartDate').val(response);
+
+        }
+
+    </script>
+
+
+
+}
+@section MainContentHolder{
+    <link href="~/Content/css/fswappointment.css" rel="stylesheet" />
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                <span>Today's Appointment</span>
+            </h2>
+            <div class="col-lg-12">
+                <h4>
+
+                    <span id="clientName" style="color: #285b8f;">@Request.QueryString["Name"]</span>
+
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" style="width: 74%; padding-left: 2%; padding-left: 2%;" type="text" placeholder="Search" /></li>
+                    <li><button id="btnsearch" style="margin-left: -102%;" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" style="margin-left: -115%;" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="GridScheduler">
+                    <thead style="cursor: pointer;">
+                        <tr>
+                            <th id="THCN">Client<img id="imgthIN" style="visibility: hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="THCUST">
+                                Description<img id="imgthIN" style="visibility: hidden" />
+                                <input type="hidden" id="directionNA" />
+                            </th>
+
+                            <th id="THCN">
+                                Date<img id="imgthCust" style="visibility: hidden" />
+                                <input type="hidden" id="directionUN" />
+                            </th>
+                            <th id="THIN">
+                                Time(12 hours format)<img id="imgthRN" style="visibility: hidden" />
+                                <input type="hidden" id="directionRN" />
+                            </th>
+
+                            <th id="THADDR">
+                                Address<img id="imgthRN" style="visibility: hidden" />
+                                <input type="hidden" id="directionRN" />
+                            </th>
+
+                            <th id="THPHN">
+                                Phone No<img id="imgthRN" style="visibility: hidden" />
+                                <input type="hidden" id="directionRN" />
+                            </th>
+
+                            <th id="THIN">
+                                Notes<img id="imgthRN" style="visibility: hidden" />
+                                <input type="hidden" id="directionRN" />
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align: center; display: none;">
+                    
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li>
+                        <input id='First' type='image' src="~/Images/previousarrow.png" style="cursor: pointer;" onclick="fnChangePage('First'); return false;" />
+                    </li>
+                    <li title="Back">
+                        <input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor: pointer;' onclick="fnChangePage('Back'); return false;" />
+                    </li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next">
+                        <input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor: pointer;' onclick="fnChangePage('Next'); return false;" />
+                    </li>
+                    <li title="Last">
+                        <input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor: pointer;' onclick="fnChangePage('Last'); return false;" />
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="schedule_popup" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="padding:10px;">
+                    <h3 id="Resourece1" style="margin:0;font-size:18px;font-weight:bold;">Today's Appointment<span class="extra-title muted"></span></h3>
+                </div>
+                <input type="hidden" id="hdnSessionUserID" value="@Request.RequestContext.HttpContext.Session["UserID"]" />
+                <div class="modal-body">
+                    <div style="width: 100%; height: 100%; margin: 0px; padding: 0px">
+                        <div class="col-xs-12" style="margin-bottom:0px;">
+
+                            <div class="col-xs-6" style="float:left;display:none;">
+                                <label>
+                                    <strong style="color:#285B90;">Start Time:</strong>&nbsp;
+                                    <span>
+                                        <label id="startTimeLbl" style="display:initial;"></label>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="col-xs-12  text-right" style="float:right;">
+                                <label style="display:initial;"><strong style="color:#285B90;">Time Elapsed :</strong></label>&nbsp; <span>
+                                    <label id="hours" style="display:initial;">00</label> Hour
+                                    <label id="minutes" style="display:initial;">00</label> Minutes
+                                    <label id="seconds" style="display:initial;">00</label> Seconds
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:10px 0px;border: 1px solid #ccc;float: left;width: 100%;">
+                            <div class="col-xs-6 col-md-3 col-sm-3" style="border-right: 1px solid #ccc;padding:0;text-align: center;height: 56px;">
+                                <label for="exampleInputEmail1" style="background-color:#285B90;color: #fff;padding: 5px;font-weight:bold;">Meeting Date</label>
+                                <label id="meetingDate" style="display:initial;"></label>
+                            </div>
+                            <div class="col-xs-6 col-md-3 col-sm-3" style="border-right: 1px solid #ccc;padding:0;text-align: center;height: 56px;">
+                                <label for="exampleInputEmail1" style="background-color:#285B90;color: #fff;padding: 5px;font-weight:bold;">From </label>
+                                <label id="fromTime" style="display:initial;"></label>
+                            </div>
+                            <div class="col-xs-6 col-md-3 col-sm-3" style="border-right: 1px solid #ccc;padding:0;text-align: center;height: 56px;">
+                                <label for="exampleInputEmail1" style="background-color:#285B90;color: #fff;padding: 5px;font-weight:bold;">To</label>
+                                <label id="endTime" style="display:initial;"></label>
+                            </div>
+                            <div class="col-xs-6 col-md-3 col-sm-3" style="padding:  0;text-align: center;">
+                                <label for="exampleInputEmail1" style="background-color:#285B90;color:#fff;padding:5px;font-weight:bold;">Services</label>
+                                <label id="servicesId" style="display:initial;word-break: break-word;float: inherit;">
+                                <a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="/Roster/CaseNotesclient/?id=MTQ4MTY=&amp;Householdid=0&amp;centerid=Nzc=&amp;Programid=MTAwNjQ=">CN </a>  &nbsp;               
+                                         <a title="Click here to open Family Partnership Agreement" style="text-decoration: underline; cursor: pointer;" href="/Roster/FPAList/?id=MTQ4MTY=&amp;Householdid=0&amp;centerid=Nzc=&amp;Programid=MTAwNjQ=&amp;ClientName=Henry Base">FPA </a>  &nbsp;
+                                <a title="Click here to get the Parent Matrix Analysis" href="/Roster/MatrixAnalysis/?id=MTQ4MTY=&amp;Householdid=Mzg0NQ== &amp;centerid=Nzc=&amp;Programid=MTAwNjQ=&amp;ClientName=Henry Base" style="text-decoration: underline; cursor: pointer;"> ACR </a> &nbsp;       
+                                  <a title="Schedule Home Visit" style="text-decoration: underline; cursor: pointer;" href="/AgencyUser/HomeVisitFSWNew/?id=MTQ4MTY=&amp;Name=Henry Base&amp;LastName= Base">HV </a>  &nbsp;                           
+                                 <a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="/Roster/ReferralService/?id=MTQ4MTY=&amp;Householdid=0&amp;centerid=Nzc=&amp;Programid=MTAwNjQ=&amp;ClientName=Henry Base">REF </a> &nbsp;                             
+                                <a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=MTQ4MTY=&amp;Single=true">ED </a>&nbsp;                            
+                                <a style="text-decoration:underline;cursor:pointer;" title="Click to change status" clientid="MTQ4MTY=" name="Henry  Base" householdid="Mzg0NQ==" onclick="Loadchangestatusmodel(this);" accesskey="5">STAT</a>
+                                </label>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-12 text-left" style="margin-bottom:10px;">
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <label for="RaceId" class="meeting-print1" style="display:initial;color:#285B90;font-weight:bold;">Description</label>
+
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-lg-8">
+                                    <label name="Description" id="Description" style="display:initial;"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 text-left" style="margin-bottom:10px;">
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <label for="RaceId" class="meeting-print1" style="display:initial;color:#285B90;font-weight:bold;">Notes</label>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-lg-8">
+                                    <label id="Notes" style="display:initial;"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row divForAttendanceType" style="display:none">
+                            <div class="col-xs-12 text-left" style="margin-bottom:10px;">
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <label class="meeting-print1 lbl-required" style="display: initial;margin-right: 0px;color:#285B90;font-weight:bold;">Select Attendance </label>
+                                </div>
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <select id="attendance-type-select" class="form-control"></select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row" style="display:none;" id="household-div">
+                            <div class="col-xs-12" style="margin-bottom:10px;">
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <label class="meeting-print1 household-label lbl-required" style="color:#285B90;font-weight:bold;">Household(s) Present</label>
+                                </div>
+
+                                <div class="col-xs-6 col-sm-12 col-lg-8">
+                                    <div id="familyCheckBox" style="display:inline-block;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" id="reschedule-div" style="display:none;">
+                            <div class="col-xs-12">
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <label class="lbl-required" style="display: initial;margin-right: 0px;color:#285B90;font-weight:bold;">Consider Re-Schedule Appointment ?</label>
+                                </div>
+
+                                <div class="col-xs-6 col-sm-6 col-lg-8">
+                                    <span>Yes&nbsp;<input type="radio" value="1" name="reschedule-radio" />&nbsp;&nbsp; No <input type="radio" value="0" name="reschedule-radio" /> </span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row" style="width:100%;float:left;margin-top: 10px; display:none;" id="reschedule-meeting-div">
+
+                            <div class="col-lg-12 col-xs-6">
+
+                                <div class="col-xs-6 col-sm-6 col-lg-4">
+                                    <label class="lbl-required" style="display: initial;margin-right: 0px;color:#285B90;font-weight:bold;">Meeting Details</label>
+                                </div>
+
+                                <div class="col-xs-6 col-sm-6 col-lg-8">
+
+
+
+                                    <div class="col-lg-4 col-xs-3 col-md-6 col-sm-3">
+
+                                        <label for="exampleInputEmail1">Meeting Date<sup style="color: red">*</sup></label><br>
+
+                                        <select type="text" name="StartDate" id="StartDate" style="width: 97px;position: absolute;"></select>
+
+                                    </div>
+
+                                    <div class="col-lg-4 col-xs-3  col-sm-3">
+
+                                        <label for="exampleInputEmail1" style="">From <sup style="color: red">*</sup></label><br>
+
+                                        <select name="StartTime" id="StartTime" placeholder="From" style="margin-left: -13%;position:absolute;" onmousedown="if(this.options.length>5){this.size=5;}" onchange="this.size=0;" onblur="this.size=0;" size="0"><option value="08:00 AM">08:00 AM</option><option value="08:30 AM">08:30 AM</option><option value="09:00 AM">09:00 AM</option><option value="09:30 AM">09:30 AM</option><option value="10:00 AM">10:00 AM</option><option value="10:30 AM">10:30 AM</option><option value="11:00 AM">11:00 AM</option><option value="11:30 AM">11:30 AM</option><option value="12:00 PM">12:00 PM</option><option value="12:30 PM">12:30 PM</option><option value="01:00 PM">01:00 PM</option><option value="01:30 PM">01:30 PM</option><option value="02:00 PM">02:00 PM</option><option value="02:30 PM">02:30 PM</option><option value="03:00 PM">03:00 PM</option><option value="03:30 PM">03:30 PM</option><option value="04:00 PM">04:00 PM</option><option value="04:30 PM">04:30 PM</option><option value="05:00 PM">05:00 PM</option><option value="05:30 PM">05:30 PM</option><option value="06:00 PM">06:00 PM</option></select>
+                                    </div>
+
+                                    <div class="col-lg-4 col-xs-3  col-sm-3">
+
+                                        <label for="exampleInputEmail1">Duration<sup style="color: red">*</sup></label><br />
+
+                                        <select class="editableBox" id="EndTime" style="position:absolute;" size="1" onmousedown="if(this.options.length>5){this.size=5;}" onchange='this.size=0; this.nextElementSibling.value=this.value' onblur="this.size=0;">
+                                            <option value=""></option>
+                                            <option value="00:30">00:30</option>
+                                            <option value="01:00">01:00</option>
+                                            <option value="01:30">01:30</option>
+                                            <option value="02:00">02:00</option>
+                                            <option value="02:30">02:30</option>
+                                            <option value="03:00">03:00</option>
+                                            <option value="03:30">03:30</option>
+                                            <option value="04:00">04:00</option>
+                                        </select>
+
+                                        <input class="timeTextBox" placeholder="HH:MM" id="TestEndTime" name="timebox" maxlength="5" onblur="testTime(this);" />
+
+                                    </div>
+
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+
+                    <input type="hidden" id="MeetingId" name="MeetingId" />
+                    <input type="hidden" value="@Request.QueryString["Name"]" id="ClientName" name="TabId" />
+                    <input type="hidden" value="@Request.QueryString["Id"]" id="ClientId" name="TabId" />
+                </div>
+                <div class="clearfix"></div>
+                <div style="width: 100%;display: inline-block;text-align: center; margin-bottom: 20px; margin-top:20px;">
+                    <button type="button" class="my-btn1" style="width:112px!important;" id="hvCompleteBtn">HV Complete</button>
+                    <button type="button" data-dismiss="modal" class="my-btn1">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="ChangeclientStatus" role="dialog">
+        <div class="modal-dialog income-popup width-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
+                </div>
+                <div class="control-group">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                            <div class="add-useragform">
+
+                                <div class="col-sm-12">
+                                    <fieldset style="border: 1px solid #295b8f; ">
+                                        <legend class="legend1"></legend>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Name</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Current Status</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="lblCurrentStatus"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">New Status</label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="lblNewStatus"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Reason<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <select id="ddlreason" style="width:100%;" onchange="Showreason(this);" class="form-control">
+                                                    <option>Others</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="Divreason">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;"></label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <textarea id="txtreason" placeholder="Reason" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9" style="margin-bottom:1%;display:none;" id="Divwaitinglist">
+                                            <div class="col-sm-3">
+                                                <label style="width:100%;">Place on Waiting List<sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-5" id="rblwaitinglist">
+                                                <div>
+                                                    <label class="radio-inline">
+                                                        <input data-val="true" id="rdWaintingList" name="waitinglist" tabindex="22" type="radio" value="1">                                                            <span>Yes</span>
+                                                    </label>
+                                                </div>
+                                                <div>
+                                                    <label class="radio-inline">
+                                                        <input id="rdWaintingList" name="waitinglist" tabindex="23" type="radio" value="0">
+                                                        <span>No  </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal">
+                                <button type="button" class="my-btn" onclick="return isValidChangestatus();">Submit</button>
+                                <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="signature-pad" class="signature-pad">
+            <div class="signature-pad--body">
+                <canvas></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12" id="signature-div" style="display:none;padding:0;margin-top:10px;margin-bottom:10px;">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals signature-div-inner" style="padding:0;margin-top:10px;margin-bottom:10px;">
+            <div class="col-xs-12 col-md-4 col-sm-4 col-lg-4">
+                <div>
+                    <img class="profile-image zoomify" id="parent-image" width="150" height="150" style="margin-top:30px;align-self:center;" src="/Content/img/ic_male.png">
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-md-8 col-sm-6 col-lg-8">
+
+
+                <div class="add-useragform student-scroll full-border full-border-margin">
+
+                    <div id="sig" class="kbw-signature" style="position:relative;">
+                        <p style="position:absolute;left:10px;top:10px;font-size:16px;font-weight:bold;color:#bfbfbf;">Sign Here</p>
+
+                    </div>
+
+                    <input type="hidden" id="childid">
+
+                    <input id="imageSig" class="imageSig" name="imageSig" type="hidden" value="">
+                    <input type="hidden" id="ConvertedImage" value="0">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals" style="width:398px;text-align:center;">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                            <div class="add-useragform student-scroll full-border full-border-margin">
+                                <h4> </h4>
+                                <button class="btnPassword" id="clear" onclick="return ClearSignature(this);" style="border-radius:50px;">Clear</button>
+                                <button class="btnPassword" id="accept" onclick="return SaveSignature(this);" style="border-radius:50px;">Accept Signature</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="timeZoneText" />
+
+    <script src="~/Scripts/jquery.touchsupport.js"></script>
+
+
+}

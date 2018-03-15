@@ -1,0 +1,265 @@
+﻿@model FingerprintsModel.AbsenceReasonModel
+
+@{
+    ViewBag.Title = "AbsenceReason";
+    Layout =(Session["AgencyId"] == null)? "~/Views/Shared/SuperAdminLayout.cshtml": "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section maincontentholder{
+    <link href="~/Content/css/daysoff.css" rel="stylesheet" />
+
+    <div class="row" style="width:100%;margin-left:0px;">
+        <div class="right-side-container-ch">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 no-padding">
+
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h2>Absence Reason</h2>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    <div class="form-div">
+
+                        <div class="col-xs-12 no-padding" id="comments-div">
+                            <div class="col-xs-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                <label style="" class="icr-abs-label">Enter Reason</label>
+                                <input type="text" class="ersa-select icr-abs-input" style="" id="reasonTxt">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 no-padding" id="submit-cancel-div">
+                            <div class="btnwrp_subcal">
+                                <button id="btnSubmitReason" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" type="submit" class="my-btn" accesskey="0">Submit</button>
+                                <button id="btnExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                        <div class="col-xs-12" style="width: 65%;margin:20px auto;float: none;">
+                            <div class="icr-table-fit table-responsive">
+                            <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="centerTable">
+                                <thead class="table-hd scroll-thead">
+                                    <tr>
+                                        <th>Reason</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="ersea-table-head bind_body scroll-tbody">
+
+                                    @if (Model.absenceReasonList.Count() > 0)
+                                    {
+                                        foreach (var item in Model.absenceReasonList)
+                                        {
+                                            <tr>
+                                                <td data-title="Reason" reason-id="@item.ReasonId" class="reason-td">
+                                                    <p class="reaon-text">@item.Reason</p>
+                                                </td>
+                                                <td data-title="Action">
+                                                    <p class="action icr-btn-abs" style="text-align:right;padding-bottom:20px;">
+                                                        <button type="button" class="btn btn-default btn-sm edit-item" accesskey="@item.ReasonId">
+                                                            <span class="glyphicon glyphicon-pencil"></span> Edit
+                                                        </button>
+                                                        <button type="button" class="btn btn-default btn-sm delete-item" accesskey="@item.ReasonId">
+                                                            <span class="glyphicon glyphicon-remove"></span> Delete
+                                                        </button>
+
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+
+                                    else
+                                    {
+                                        <tr>
+                                            <td style="padding:50px;margin:17px;text-align:center;font-size:15px;width:98.5%;">No record found</td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                            </table>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            var reasonTxt = $('#reasonTxt');
+            var submitBtn = $('#btnSubmitReason');
+            var cancelBtn = $('#btnExit');
+
+
+            // Changes the height of side menu based on display
+            if ($('body').width() > 800) {
+                var height = $('#side-menu').height() - 20;
+                $('#side-menu').height(height);
+
+            }
+
+            // Changes the height of right side container size based on the window size//
+            $(window).bind("load resize", function () {
+
+                topOffset = 50;
+                width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+                if (width < 768) {
+                    topOffset = 100; // 2-row-menu
+                }
+
+                height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+
+                height = height - topOffset;
+                if (height < 1) height = 1;
+                if (height > topOffset) {
+                    var fileHeight = height - 25;
+                    console.log(fileHeight + 'client');
+                    $('.right-side-container-ch').css('min-height', (fileHeight - 5) + 'px');
+                    $('.scroll-tbody').height(fileHeight - 317);
+                }
+
+                //if ($('body').width() > 800) {
+                //    $('.scroll-thead').width($('.scroll-tbody').width());
+                //}
+                //reSizeContent();
+            });
+
+
+            function reSizeContent() {
+
+                $('.scroll-tbody').height($('.right-side-container-ch').height() - 317);
+            }
+
+
+
+
+            $(submitBtn).on('click', function () {
+                var reasonId = $(this).attr('accesskey');
+                if (reasonTxt.val() == '') {
+                    customAlert('Please enter reason');
+                    plainValidation('#reasonTxt');
+                    return false;
+                }
+
+                var reasonName = reasonTxt.val();
+                saveData(reasonName, reasonId, true);
+            });
+
+            $(cancelBtn).on('click', function () {
+
+                cleanValidation();
+                submitBtn.attr('accesskey', '0');
+            });
+
+
+            function initializeClickEvent() {
+                $('.scroll-tbody').find('.edit-item').on('click', function () {
+
+                    var reasonId = $(this).parent('p').parent('td').siblings('.reason-td').attr('reason-id');
+                    // alert(reasonId);
+                    var reasonName = $(this).parent('p').parent('td').siblings('.reason-td').children('.reaon-text').html();
+                    reasonTxt.val(reasonName);
+                    submitBtn.attr('accesskey', reasonId);
+                });
+
+                $('.scroll-tbody').find('.delete-item').on('click', function () {
+
+                    var reasonId = $(this).parent('p').parent('td').siblings('.reason-td').attr('reason-id');
+                    var reasonName = $(this).parent('p').parent('td').siblings('.reason-td').children('.reaon-text').html();
+                    //reasonTxt.val(reasonName);
+                    //submitBtn.attr('reason-id', reasonId);
+                    saveData(reasonName, reasonId, false);
+                });
+            }
+
+            initializeClickEvent();
+
+
+
+            function saveData(reason, reasonId, status) {
+                $.ajax({
+
+                    url: '/Home/SaveAbsenceReason',
+                    type: 'post',
+                    datatype: 'json',
+                    data: { reasonId: reasonId, reason: reason, reasonStatus: status },
+                    success: function (data) {
+                        if (data.isResult) {
+                            if (status) {
+                                customAlert('Record saved successfully');
+                                reasonTxt.val('');
+                                submitBtn.attr('accesskey', '0');
+                            }
+                            else {
+                                customAlert('Record deleted successfully');
+                            }
+
+                            bindReasonTable(data.reasonList);
+                        }
+                        else {
+                            customAlert('Some error occured.Please try again later.');
+                        }
+
+                    },
+                    error: function (data) {
+                        customAlert('Some error occured.Pleas try again later.');
+                    }
+
+
+                })
+            }
+
+
+            function bindReasonTable(data) {
+                if (data != null) {
+                    if (data.length > 0) {
+                        var appendDiv = '';
+                        $.each(data, function (i, ele) {
+
+                            appendDiv += '<tr>\
+                                                <td data-title="Reason" reason-id=' + ele.ReasonId + ' class="reason-td">\
+                                                    <p class="reaon-text">'+ ele.Reason + '</p>\
+                                                </td>\
+                                                <td data-title="Action">\
+                                                    <p class="action icr-btn-abs" style="text-align:right;padding-bottom:20px;">\
+                                                        <button type="button" class="btn btn-default btn-sm edit-item" accesskey='+ ele.ReasonId + '>\
+                                                            <span class="glyphicon glyphicon-pencil"></span> Edit\
+                                                        </button>\
+                                                        <button type="button" class="btn btn-default btn-sm delete-item" accesskey='+ ele.ReasonId + '>\
+                                                            <span class="glyphicon glyphicon-remove"></span> Delete\
+                                                        </button>\
+                                                    </p>\
+                                                </td>\
+                                            </tr>';
+                        });
+
+                        $('.scroll-tbody').html(appendDiv);
+                        initializeClickEvent();
+
+
+                    }
+
+                    else
+                    {
+                        var appendNoData = '<tr>\
+                                            <td style="padding:50px;margin:17px;text-align:center;font-size:15px;width:98.5%;">No record found</td>\
+                                        </tr>';
+                        $('.scroll-tbody').html(appendNoData);
+                    }
+
+
+                }
+                else {
+                    var appendNoData = '<tr>\
+                                            <td style="padding:50px;margin:17px;text-align:center;font-size:15px;width:98.5%;">No record found</td>\
+                                        </tr>';
+                    $('.scroll-tbody').html(appendNoData);
+                }
+            }
+
+
+           
+        });
+    </script>
+
+}

@@ -1,0 +1,322 @@
+﻿@model FingerprintsModel.CommunityResource
+<script type="text/javascript">
+    function removeclasss() {
+        $('#ChildRecord').removeClass("active");
+        $('#ChildRecord').removeClass("in");
+    }
+    $(document).ready(function () {
+        $('input').keypress(function () {
+            if ($(this).val() == 'MM/DD/YYYY') {
+                $(this).val('');
+                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            }
+        });
+        $('#StartDTime').timepicker({ 'timeFormat': 'h:i A' });
+        $('#StopDTime').timepicker({ 'timeFormat': 'h:i A' });
+        $('#UsernameDentist').val('');
+        if ('@ViewBag.message' != '')
+            customAlert('@ViewBag.message');
+        $('#btnCancelPassword').click(function () {
+            popup_me_close('Change_Pass');
+        });
+        if ('@ViewBag.result' == 'Sucess') {
+            clearcontrols();
+        }
+        if ('@ViewBag.tabpage' == '4') {
+            removeclasss();
+            $('#ChildRecord').addClass("active");
+            $('#ChildRecord').addClass("in");
+            $('#myTab li:eq(3) a').tab('show');
+        }
+        $("#DPhoneno").mask("(999) 999-9999");
+    });
+    function isValidDCommunityInfo() {
+        var isValid = true;
+        cleanValidation();
+        if ($('#txtDTitle')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Please enter title.");
+            plainValidation('#txtDTitle');
+            return isValid;
+        }
+        if ($('#txtDFname')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Please enter first name.");
+            plainValidation('#txtDFname');
+            return isValid;
+        }
+        if ($('#txtDLname')[0].value.trim() == "") {
+            isValid = false;
+            customAlert("Please enter last name.");
+            plainValidation('#txtDLname');
+            return isValid;
+        }
+        //if ($('#txtLname')[0].value.trim() == "") {
+        //    isValid = false;
+        //    customAlert("Please enter last name.");
+        //    plainValidation('#txtLname');
+        //    return isValid;
+        //}
+
+        if ($('#DdlDCommunityList')[0].value.trim() == "0") {
+            isValid = false;
+            customAlert("Please select dentist from list.");
+            plainValidation('#DdlDCommunityList');
+            return isValid;
+        }
+        return isValid;
+        //$('#btnSubmit').enabled = false;
+        //return true;
+    }
+    function clearcontrols() {
+        $('#txtDTitle')[0].value = "";
+        $('#txtDCompanyName').val("");
+        $('#txtDRegion').val("");
+        $('#DAddress').val("");
+        $('#DPhoneno').val("");
+        $('#StartDTime').val("");
+        $('#StopDTime').val("");
+        $('#txtDNotes').val("");
+        $('#txtDFname')[0].value = "";
+        $('#txtDLname')[0].value = "";
+        $('#hdnDCommunityID')[0].value = "";
+        $('#btnDSubmit').enabled = true;
+        $('#txtDNotes')[0].value = "";
+        $('#hdnDCommunityID').val(0);
+    }
+
+    function AddDentistText() {
+        if ($('#UsernameDentist').val() == null) {
+            customAlert("Please select dentist from list.");
+            plainValidation('#UsernameDentist');
+            return;
+        }
+        $('#CDentist').val($('#UsernameDentist').find('option:selected').text());
+        $('#myModalDentist').modal('toggle');
+        $('#Dentist').val($('#UsernameDentist').find('option:selected').val());
+        $('#UsernameDentist').val('');
+      
+    }
+    function AddDentistNew() {
+       
+        if (isValidDCommunityInfo()) {
+            $.ajax({
+                url: HostedDir + "/AgencyUser/AdddentistAjax",
+                type: "POST",
+                data: {
+                    Title: $('#txtDTitle')[0].value,
+                    Fname: $('#txtDFname')[0].value,
+                    Lname: $('#txtDLname')[0].value,
+                    Community: $('#DdlDCommunityList')[0].value,
+                    Notes: $('#txtDNotes')[0].value
+                },
+                dataType: "json",
+                secureuri: false,
+                success: function (response) {
+                    if (response != null) {
+
+                        if (response == "1") {
+                            customAlert("Record added successfully.");
+                            clearcontrols();
+                        }
+
+                        else if (response == "2") {
+                            customAlert("Record updated successfully");
+                            clearcontrols();
+
+
+                        }
+                        else if (response == "3") {
+                            customAlert("Community resource already exist.");
+                        }
+                        else
+                            customAlert(response);
+                    }
+                },
+                error: function (response) { }
+            });
+        }
+    }
+</script>
+<div class="modal fade" id="myModalDentist" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Dentist Information <span class="extra-title muted"></span></h3>
+            </div>
+
+            <div class="control-group">
+               
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                        <form method="post" role="form" id="form2" autocomplete="off">
+                            <div class="add-useragform">
+                                @Html.HiddenFor(m => m.CommunityID, new { id = "hdnDCommunityID" })
+
+                                <div class="">
+
+
+                                    <div class="col-sm-12">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="email">Dentist <sup>*</sup></label>
+                                                    @*<div class="col-xs-6 col-sm-9">*@
+                                                    @{
+                                                        List<SelectListItem> dentistlist = new List<SelectListItem>();
+                                                        foreach (var item in ViewBag.dentist)
+                                                        {
+                                                            dentistlist.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                                        }
+                                                    }
+                                                    @Html.DropDownListFor(m => m.UsernameDentist, new SelectList(dentistlist, "Value", "Text"), new { @class = "form-control", tabIndex = "13" })
+                                                    @*</div>*@
+                                                </div>
+
+
+                                                @*@Html.TextBoxFor(m => m.Username, new { placeholder = "Search Doctor", id = "DdlDoctorList", Name = "DdlDoctorList", maxlength = "100", @class = "form-control", tabIndex = "1" })*@
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <button id="btnAddDentistText" onclick="AddDentistText();" class="btnPassword" type="button">Select & Close</button>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <label for="email" style="width: 100%;text-align: center;margin-bottom: 15px;margin-top: 11px;font-size: 19px;">Add New Dentist</label>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    @*<div class="col-lg-10 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Doctor <sup>*</sup></label>
+                                          
+                                            @{
+                                                List<SelectListItem> dentistlist = new List<SelectListItem>();
+                                                foreach (var item in ViewBag.dentist)
+                                                {
+                                                    dentistlist.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                                }
+                                            }
+                                            @Html.DropDownListFor(m => m.Username, new SelectList(dentistlist, "Value", "Text"), new { @class = "form-control", tabIndex = "13" })
+                                           
+                                            <button id="btnChangePassword" onclick="AddDoctorText();" name="Creates" class="btnPassword" type="button">Select</button>
+                                          
+                                        </div>
+                                    </div>*@
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+
+                                        <div class="form-group">
+                                            <label for="txtSubcategoryName">Title <sup>*</sup></label>
+
+                                            @Html.TextBoxFor(m => m.Title, new { placeholder = "Title", id = "txtDTitle", maxlength = "50", @class = "form-control", tabIndex = "1" })
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceId">First Name<sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.Fname, new { placeholder = "Firstname", id = "txtDFname", maxlength = "50", @class = "form-control", tabIndex = "2" })
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Last Name<sup>*</sup></label>
+                                            @Html.TextBoxFor(m => m.Lname, new { placeholder = "Lastname", id = "txtDLname", maxlength = "50", @class = "form-control", tabIndex = "3" })
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group" id="DivStatus">
+                                            <label for="Status">Community<sup>*</sup></label>
+                                            @{
+                                                List<SelectListItem> CommunityList = new List<SelectListItem>();
+
+                                                CommunityList.Add(new SelectListItem() { Text = "Dentist", Value = "2" });
+                                                //CommunityList.Add(new SelectListItem() { Text = "Doctor", Value = "1" });
+                                                //CommunityList.Add(new SelectListItem() { Text = "Other", Value = "3" });
+                                            }
+                                            @Html.DropDownListFor(m => m.Community, new SelectList(CommunityList, "Value", "Text"), new { id = "DdlDCommunityList", Name = "DdlCommunityList", @class = "form-control", tabIndex = "4", @readonly = "true" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="txtSubcategoryName">Organization Name <sup>*</sup></label>
+
+                                            @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Organisation Name", id = "txtDCompanyName", maxlength = "50", @class = "form-control", tabIndex = "1" })
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="txtSubcategoryName">Office Location </label>
+
+                                            @Html.TextBoxFor(m => m.Region, new { placeholder = "Office Location", id = "txtDRegion", maxlength = "50", @class = "form-control", tabIndex = "2" })
+
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Address</label>
+                                            @Html.TextBoxFor(m => m.Address, new { placeholder = "Address", id = "DAddress", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Phone No</label>
+                                            @Html.TextBoxFor(m => m.Phoneno, new { placeholder = "Phone No", id = "DPhoneno", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Start Time</label>
+                                            @Html.TextBoxFor(m => m.OperationHours, new { placeholder = "Start Time", id = "StartDTime", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Stop Time</label>
+                                            @Html.TextBoxFor(m => m.OperationHours, new { placeholder = "Stop Time", id = "StopDTime", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="RaceSubCatDesc">Notes</label>
+                                            @Html.TextBoxFor(m => m.Notes, new { placeholder = "Notes", id = "txtDNotes", maxlength = "50", @class = "form-control", tabIndex = "3" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!--row-->
+                            @* <div class="row">*@
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmitDentist" onclick="AddDentistNew();" class="my-btn" type="button" >Add</button>
+
+                                    <button id="btnCancelPassword" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+
+                                </div>
+                                <!--btnwrp_subcal--->
+                            </div>
+                            @* </div>*@
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

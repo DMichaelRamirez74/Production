@@ -1,0 +1,1803 @@
+﻿@model FingerprintsModel.SelectPoints
+@{
+    @section Title
+{
+      Selection Points
+    }
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var rounds = 1;
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+           
+           
+           
+           
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@ViewBag.result' == 'Sucess') {
+                emptycontrols();
+            }
+           
+            if ('@ViewBag.mode' == 0) {
+                $('#DdlProgRefList').val('');
+            }
+            @*if ('@ViewBag.mode' == 1) {
+                $('#gridquestion').val('');
+            }*@
+
+
+            $('#btnExit').click(function () {
+                window.location.href = HostedDir + "/Home/AgencyAdminDashboard";
+            });
+           // drawQuestionlist();
+            @*if ('@ViewBag.mode' == 0) {
+                $('#SingleParent').val('');
+                $('#TwoParent').val('');
+                $('#English').val('');
+                $('#Other').val('');
+                $('#HomelessYes').val('');
+                $('#HomelessNo').val('');
+                $('#TANF').val('');
+                $('#SSI').val('');
+                $('#SNAP').val('');
+                $('#WIC').val('');
+                $('#None').val('');
+                $('#Teenager').val('');
+                $('#Age20').val('');
+                $('#Age30over').val('');
+                $('#MilitaryStatusActive').val('');
+                $('#MilitaryStatusVeteran').val('');
+                $('#MilitaryStatusNone').val('');
+                $('#CurrentlyWorkYes').val('');
+                $('#CurrentlyWorkNo').val('');
+                $('#JobTrainingno').val('');
+                $('#JobTrainingyes').val('');
+                $('#G2Teenager').val('');
+                $('#G2Age20').val('');
+                $('#G2Age30over').val('');
+                $('#G2MilitaryStatusActive').val('');
+                $('#G2MilitaryStatusVeteran').val('');
+                $('#G2MilitaryStatusNone').val('');
+                $('#G2CurrentlyWorkYes').val('');
+                $('#G2CurrentlyWorkNo').val('');
+                $('#G2JobTrainingyes').val('');
+                $('#G2JobTrainingno').val('');
+                $('#MedicalHomeNo').val('');
+                $('#MedicalHomeYes').val('');
+                $('#DentalHomeNo').val('');
+                $('#DentalHomeYes').val('');
+                $('#InsuranceNo').val('');
+                $('#InsuranceYes').val('');
+                $('#Suspecteddocumentofdisabilty').val('');
+                $('#Suspecteddocumentofdisabilty').val('');
+                $('#ChildWlfareYes').val('');
+                $('#ChildWlfareNo').val('');
+                $('#FosterChildNo').val('');
+                $('#FosterChildYes').val('');
+                
+                $('#DualCustYes').val('');
+                $('#DualCustNo').val('');
+                $('#PMMedicalHomeNo').val('');
+                $('#PMMedicalHomeYes').val('');
+                $('#PMInsuranceYes').val('');
+                $('#PMInsuranceNo').val('');
+                $('#Trimester1').val('');
+                $('#Trimester2').val('');
+                $('#Trimester3').val('');
+               
+
+
+              
+            }*@
+
+
+
+
+
+
+
+           
+
+
+               
+
+
+               
+           
+        });
+        function drawQuestionlist() {
+
+            getqueslist();
+            bindGridQues(listQues, $("#gridquestion").find('tr')[0].cells.length);
+        }
+        function getqueslist() {
+           
+            $.ajax({
+
+                url: HostedDir + "/AgencyAdmin/listQuesDetails",
+                type: "POST",
+                dataType: "json",
+                data: {
+                   // CQID: $('#CQID').val(),
+                    ProgramId: $('#DdlProgRefList').val()
+                  //  SPID: $('#SPID').val()
+                },
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getQuesData(data);
+                   
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getQuesData(dataQues) {
+          
+            listQues = dataQues;
+        }
+
+        function bindGridQues(dataQuesDetail, num_cols) {
+          
+            rounds = 0;
+            $('#gridquestion > tbody > tr').remove();
+            if (dataQuesDetail.listQues.length == 0) {
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                var tbody = $('#gridquestion > tbody');
+                for (var i = 0; i < dataQuesDetail.listQues.length; i++) {
+                    var Question = "CustomQues[" + rounds + "].Question";
+                    var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+                    var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+                    var CQID = "CustomQues[" + rounds + "].CQID";
+                    $('#gridquestion').show();
+                    var tr = "";
+                    tr += "<tr><style='text-align:center;'>";
+                   
+                    tr = tr + '<td><input  name=' + Question + ' class = "form-control" type="text" value="' + dataQuesDetail.listQues[i].Question + '" ></td>';
+                    tr = tr + '<td><input  name=' + QuesYes + ' class = "form-control" type="text" value="' + dataQuesDetail.listQues[i].QuesYes + '" ></td>';
+                    tr = tr + '<td><input  name=' + QuesNo + ' class = "form-control" type="text" value="' + dataQuesDetail.listQues[i].QuesNo + '" ></td>';
+                       
+                    tr = tr + '<td><input type="hidden"  name="' + CQID + '" value="' + dataQuesDetail.listQues[i].CQID + '" /><a href="javascript:void(0)" onclick="RemoveQues(this);" accesskey="' + dataQuesDetail.listQues[i].CQID + '" style=" text-decoration:underline;">Delete</a></td></tr>';
+                    $('#gridquestion > tbody').append(tr);
+                    //$('#gridquestion > tbody tr').each(function () {
+                    //    var y = $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
+                    //});
+                    rounds = rounds + 1;
+                }
+            }
+        }
+
+
+
+
+    function emptycontrols() {
+        // $('#btnCancel').click(function () {
+        $('#DdlProgRefList').val('');
+        $('#SingleParent')[0].value = "0";
+        $('#TwoParent')[0].value = "0";
+        $('#English')[0].value = "0";
+        $('#Other')[0].value = "0";
+        $('#HomelessYes')[0].value = "0";
+        $('#HomelessNo')[0].value = "0";
+        $('#TANF')[0].value = "0";
+        $('#SSI')[0].value = "0";
+        $('#WIC')[0].value = "0";
+        $('#None')[0].value = "0";
+        $('#Teenager')[0].value = "0";
+        $('#Age20')[0].value = "0";
+        $('#Age30over')[0].value = "0";
+        $('#PMInsuranceYes')[0].value = "0";
+        $('#PMInsuranceNo')[0].value = "0";
+        $('#PMMedicalHomeYes')[0].value = "0";
+        $('#PMMedicalHomeNo')[0].value = "0";
+        $('#Trimester1')[0].value = "0";
+        $('#Trimester2')[0].value = "0";
+        $('#Trimester3')[0].value = "0";
+        $('#MilitaryStatusActive')[0].value = "0";
+        $('#MilitaryStatusVeteran')[0].value = "0";
+        $('#MilitaryStatusNone')[0].value = "0";
+        $('#CurrentlyWorkYes')[0].value = "0";
+        $('#CurrentlyWorkNo')[0].value = "0";
+        $('#JobTrainingyes')[0].value = "0";
+        $('#JobTrainingno')[0].value = "0";
+        $('#G2Teenager')[0].value = "0";
+        $('#G2Age20')[0].value = "0";
+        $('#G2Age30over')[0].value = "0";
+        $('#G2MilitaryStatusNone')[0].value = "0";
+        $('#G2MilitaryStatusActive')[0].value = "0";
+        $('#G2MilitaryStatusVeteran')[0].value = "0";
+        $('#G2CurrentlyWorkYes')[0].value = "0";
+        $('#G2CurrentlyWorkNo')[0].value = "0";
+        $('#G2JobTrainingyes')[0].value = "0";
+        $('#G2JobTrainingno')[0].value = "0";
+        $('#MedicalHomeYes')[0].value = "0";
+        $('#MedicalHomeNo')[0].value = "0";
+        $('#DentalHomeYes')[0].value = "0";
+        $('#DentalHomeNo')[0].value = "0";
+        $('#InsuranceYes')[0].value = "0";
+        $('#InsuranceNo')[0].value = "0";
+        $('#ChildWlfareYes')[0].value = "0";
+        $('#ChildWlfareNo')[0].value = "0";
+        $('#FosterChildYes')[0].value = "0";
+        $('#FosterChildNo')[0].value = "0";
+        $('#DualCustYes')[0].value = "0";
+        $('#DualCustNo')[0].value = "0";
+        $('#Age3yr')[0].value = "0";
+        $('#Age4yr')[0].value = "0";
+        $('#Age5yr')[0].value = "0";
+        $('#Age6yr')[0].value = "0";
+        //Commented  to break it into 2 parts 
+        //$('#SuspecteddocumentofdisabiltyYes')[0].value = "0";
+        //$('#SuspecteddocumentofdisabiltyNo')[0].value = "0";
+        $('#SuspecteddisabiltyYes')[0].value = "0";
+        $('#SuspecteddisabiltyNo')[0].value = "0";
+        $('#DocumentofdisabiltyYes')[0].value = "0";
+        $('#DocumentofdisabiltyNo')[0].value = "0";
+
+        $('#Ageless10weeks')[0].value = "0";
+        $('#Agegreater10weeks')[0].value = "0";
+        $('#Age3Months')[0].value = "0";
+        $('#Age6Months')[0].value = "0";
+        $('#Age1yr')[0].value = "0";
+        $('#Age2yr')[0].value = "0";
+        //Poverty points
+        $('#poverty0to25')[0].value = "0";
+        $('#poverty26to50')[0].value = "0";
+        $('#poverty51to75')[0].value = "0";
+        $('#poverty76to100')[0].value = "0";
+        $('#poverty100to130')[0].value = "0";
+        $('#povertygreater130')[0].value = "0";
+      
+        //$('#Age4yr')[0].value = "0";
+        //$('#Age5yr')[0].value = "0";
+        //$('#Age6yr')[0].value = "0";
+        
+
+
+    }
+    function checkIfNumericDigit(el) {
+
+        var ex = /^[0-9]+\.?[0-9]*$/;
+        if (ex.test(el.value) == false) {
+            el.value = "0";
+        }
+        var ex = /^\d*\.?\d{0,2}$/;
+        if (ex.test(el.value) == false) {
+           // el.value = el.value.substring(0, el.value.indexOf('.') + 3);
+            el.value = "0";
+        }
+        var lastChar = el.value.substring(el.value.length - 1);
+        if (lastChar == ".") {
+            //el.value = el.value.substring(0, el.value.length - 1);
+            el.value = "0";
+        }
+    }
+
+    //function checkIfNumericDigit(s) {
+    //    //This will check value is numeric or not
+    //    if (isNaN(s.value)) {
+    //        s.value = "0";
+    //        //alert("Not a number!");
+    //    }
+    //}
+
+        function isValidSelectInfo() {
+            cleanValidation();
+            if ($('#DdlProgRefList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select program type from list.");
+                plainValidation('#DdlProgRefList');
+                return isValid;
+            }
+            $('#spinner').show();
+            isValid = true;
+            return isValid;
+            $('#spinner').hide();
+        }
+
+        function FillPage(value)
+        {
+            $('#RefProgNamediv').show();
+            if ($("#DdlProgRefList").find("option:selected").text()=="PM") {
+            //if ($('#DdlProgRefList').SelectedText() == "hs") {
+                $('#PM').show();
+            }
+            else {
+                $('#PM').hide();
+            }
+            
+            if ($("#DdlProgRefList").find("option:selected").text() == "ehs" || $("#DdlProgRefList").find("option:selected").text() == "EHS") {
+                //if ($('#DdlProgRefList').SelectedText() == "hs") {
+                $('#ehschild').show();
+                $('#hschild').hide();
+            }
+            else {
+                $('#ehschild').hide();
+                $('#hschild').show();
+            }
+
+          
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/GetSelectPointlist",
+                type: "POST",
+                data: {
+                   // ProgramId: $(value).attr("accesskey"),
+                    ProgramId: $('#DdlProgRefList').val()
+                  //  SPID: $('#SPID').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditSelectPoint(data);
+                    drawQuestionlist();
+                    refproglist();
+                }
+           , error: function (response) {
+                  customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+           }
+            });
+        }
+
+        function refproglist()
+        {
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/GetRefProglist",
+                type: "POST",
+                data: {
+                    // ProgramId: $(value).attr("accesskey"),
+                    ProgramId: $('#DdlProgRefList').val()
+                    //  SPID: $('#SPID').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    $('#RefProg').val(data.RefProgName);
+                }
+         , error: function (response) {
+                customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+         }
+            });
+        }
+
+
+        function EditSelectPoint(data) {
+          
+            $('#hdnSPID').val(data.SPID);
+          //  $('#SPID').val(data.hdnSPID);
+            $('#SingleParent').val(data.SingleParent);
+            $('#TwoParent').val(data.TwoParent);
+            $('#English').val(data.English);
+            $('#Other').val(data.Other);
+            $('#HomelessYes').val(data.HomelessYes);
+            $('#HomelessNo').val(data.HomelessNo);
+            $('#TANF').val(data.TANF);
+            $('#SSI').val(data.SSI);
+            $('#WIC').val(data.WIC);
+            $('#None').val(data.None);
+            $('#Teenager').val(data.Teenager);
+            $('#Age20').val(data.Age20);
+            $('#Age30over').val(data.Age30over);
+            $('#MilitaryStatusActive').val(data.MilitaryStatusActive);
+            $('#MilitaryStatusVeteran').val(data.MilitaryStatusVeteran);
+            $('#MilitaryStatusNone').val(data.MilitaryStatusNone);
+            $('#CurrentlyWorkYes').val(data.CurrentlyWorkYes);
+            $('#JobTrainingyes').val(data.JobTrainingyes);
+            $('#JobTrainingno').val(data.JobTrainingno);
+            $('#G2Teenager').val(data.G2Teenager);
+            $('#G2Age20').val(data.G2Age20);
+            $('#G2Age30over').val(data.G2Age30over);
+            $('#G2MilitaryStatusNone').val(data.G2MilitaryStatusNone);
+            $('#G2MilitaryStatusActive').val(data.G2MilitaryStatusActive);
+            $('#G2MilitaryStatusVeteran').val(data.G2MilitaryStatusVeteran);
+            $('#G2CurrentlyWorkYes').val(data.G2CurrentlyWorkYes);
+            $('#G2JobTrainingyes').val(data.G2JobTrainingyes);
+            $('#G2CurrentlyWorkNo').val(data.G2CurrentlyWorkNo);
+            $('#G2JobTrainingyes').val(data.G2JobTrainingyes);
+            $('#MedicalHomeYes').val(data.MedicalHomeYes);
+            $('#MedicalHomeNo').val(data.MedicalHomeNo);
+            $('#DentalHomeYes').val(data.DentalHomeYes);
+            $('#DentalHomeNo').val(data.DentalHomeNo);
+            $('#InsuranceYes').val(data.InsuranceYes);
+            $('#InsuranceNo').val(data.InsuranceNo);
+            //Commented to break it into 2 parts
+            //$('#SuspecteddocumentofdisabiltyYes').val(data.SuspecteddocumentofdisabiltyYes);
+            //$('#SuspecteddocumentofdisabiltyNo').val(data.SuspecteddocumentofdisabiltyNo);
+            debugger;
+            $('#SuspecteddisabiltyYes').val(data.SuspecteddisabiltyYes);
+            $('#SuspecteddisabiltyNo').val(data.SuspecteddisabiltyNo);
+            $('#DocumentofdisabiltyYes').val(data.DocumentofdisabiltyYes);
+            $('#DocumentofdisabiltyNo').val(data.DocumentofdisabiltyNo);
+
+            $('#ChildWlfareYes').val(data.ChildWlfareYes);
+            $('#ChildWlfareNo').val(data.ChildWlfareNo);
+            $('#FosterChildYes').val(data.FosterChildYes);
+            $('#FosterChildNo').val(data.FosterChildNo);
+            $('#DualCustYes').val(data.DualCustYes);
+            $('#DualCustNo').val(data.DualCustNo);
+            $('#PMInsuranceYes').val(data.PMInsuranceYes);
+            $('#PMInsuranceNo').val(data.PMInsuranceNo);
+            $('#PMMedicalHomeYes').val(data.PMMedicalHomeYes);
+            $('#PMMedicalHomeNo').val(data.PMMedicalHomeNo);
+            $('#Trimester1').val(data.Trimester1);
+            $('#Trimester2').val(data.Trimester2);
+            $('#Trimester3').val(data.Trimester3);
+            $('#Ageless10weeks').val(data.Ageless10weeks);
+            $('#Agegreater10weeks').val(data.Agegreater10weeks);
+            $('#Age3Months').val(data.Age3Months);
+            $('#Age6Months').val(data.Age6Months);
+            $('#Age1yr').val(data.Age1yr);
+            $('#Age2yr').val(data.Age2yr);
+            $('#Age3yr').val(data.Age3yr);
+            $('#Age4yr').val(data.Age4yr);
+            $('#Age5yr').val(data.Age5yr);
+            $('#Age6yr').val(data.Age6yr);
+            $('#RefProg').val(data.RefProgName);
+            $('#hdnIsLocked').val(data.IsLocked);
+            $('#poverty0to25').val(data.poverty0to25);
+            $('#poverty26to50').val(data.poverty26to50);
+            $('#poverty51to75').val(data.poverty51to75);
+            $('#poverty76to100').val(data.poverty76to100);
+            $('#poverty100to130').val(data.poverty100to130);
+            $('#povertygreater130').val(data.povertygreater130);
+            //$('#SingleParent').val(data.SingleParent);
+            //$('#Rlastname').val(data.Rlastname);
+            //$('#RDescription').val(data.RDescription);
+
+
+        }
+
+        function AddQuestions() {
+            $('#div1').hide();
+            var Question = "CustomQues[" + rounds + "].Question";
+            var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+            var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+          //  var notesP = "ParentPhone1[" + rounds + "].notesP";
+           // var SmsP = "ParentPhone1[" + rounds + "].SmsP";
+            var tr = '<tr><td ><input style="width:100%;" class = "form-control" name=' + Question + ' type="text"  ></td><td ><input style="width:100%;" onblur="checkIfNumericDigit(this);" class = "form-control" name=' + QuesYes + ' type="text"  ></td><td ><input style="width:98%;" class = "form-control" onblur="checkIfNumericDigit(this);" name=' + QuesNo + ' type="text"  ></td><td><a href="javascript:void(0)" onclick="RemoveQues(this);" style=" text-decoration:underline;">Delete</a></td></tr>';
+            $('#gridquestion > tbody').append(tr);
+          
+            $('#gridquestion > tbody tr:last').find('td:eq(0) :input').val("");
+            rounds = rounds + 1;
+        }
+        function RemoveQues(value) {
+            if ($(value).attr("accesskey")) {
+                debugger;
+               // if ($('#gridquestion > tbody tr').length > 1) {
+                    BootstrapDialog.confirm('Do you want to delete this question?', function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: HostedDir + "/AgencyAdmin/Deletecustomques",
+                                type: "POST",
+                                data: {
+                                    CQID: $(value).attr("accesskey"),
+                                   
+                                },
+                                dataType: "json",
+                                secureuri: false,
+                                async: false,
+                                success: function (response) {
+
+                                    if (response == 1) {
+                                        customAlert("Question deleted successfully. ");
+                                        rounds = 0;
+                                        debugger;
+                                        if ($('#gridquestion > tbody tr').length == 1) {
+                                            $(value).closest('tr').remove();
+                                            $('#div1').show();
+                                        }
+                                        if ($('#gridquestion > tbody tr').length > 1) {
+
+                                            $(value).closest('tr').remove();
+                                            
+                                        }
+                                        $('#gridquestion > tbody tr').each(function () {
+                                            var Question = "CustomQues[" + rounds + "].Question";
+                                            var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+                                            var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+                                            var CQID = "CustomQues[" + round + "].CQID";
+                                            $(this).find('td:eq(0) :input[type="text"]').attr('name', Question);
+                                            $(this).find('td:eq(1) :input[type="text"]').attr('name', QuesYes);
+                                            $(this).find('td:eq(2) :input[type="text"]').attr('name', QuesNo);
+                                            $(this).find('td:eq(3)').find(':input').attr('name', CQID);
+                                            rounds = rounds + 1;
+                                        });
+                                    }
+                                }
+                            , error: function (response) {
+                                   customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                            }
+                            });
+                        }
+                    });
+                //}
+
+            }
+            else {
+                rounds = 0;
+                if ($('#gridquestion > tbody tr').length > 1) {
+                    $(value).closest('tr').remove();
+                }
+                $('#gridquestion > tbody tr').each(function () {
+                    var Question = "CustomQues[" + rounds + "].Question";
+                    var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+                    var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+                    var CQID = "CustomQues[" + round + "].CQID";
+                    $(this).find('td:eq(0) :input[type="text"]').attr('name', Question);
+                    $(this).find('td:eq(1) :input[type="text"]').attr('name', QuesYes);
+                    $(this).find('td:eq(2) :input[type="text"]').attr('name', QuesNo);
+                    $(this).find('td:eq(3)').find(':input').attr('name', CQID);
+                    rounds = rounds + 1;
+                });
+            }
+
+        }
+</script>
+}
+@section MainContentHolder{<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">
+           Selection Points
+        </h2>
+    </div>
+</div>
+   
+
+<div class="row">
+    <form method="post" role="form" id="form1" autocomplete="off">
+        <div class="mb20">
+            <div class="col-sm-3">
+            @*<div class="col-sm-6">*@
+
+                <label for="RaceSubCatDesc">Program Type<sup style="color:red;">*</sup></label>
+
+                @{
+                    List<SelectListItem> prog = new List<SelectListItem>();
+                    foreach (var item in ViewBag.RefList)
+                    {
+                        prog.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                    }
+                }
+                @Html.DropDownListFor(m => m.ReferenceProg, new SelectList(prog, "Value", "Text"), new { id = "DdlProgRefList", Name = "DdlProgRefList", @class = "form-control", tabIndex = "6", onchange = "FillPage(this);" })
+                @*<input id="RefProg" type="text" name="RefProg" readonly="readonly" style="float: left; font-size: 14px; width: 35% !important; position: relative; top: 8px; " value="@Model.RefProgName" />*@
+
+
+
+
+            </div>
+            @*@if (Model.RefProgName != null)
+            {
+                <label id="RefProg">@Model.RefProgName</label>
+                @Html.Label(Model.RefProgName}*@
+            <div class="col-sm-3" id="RefProgNamediv" style="line-height:normal; display:none">
+                <div style="margin-bottom:6px;">Reference Program </div>
+                
+                  
+                    @*@Html.LabelFor(m => m.RefProgName)*@
+                    @Html.TextBoxFor(m => m.RefProgName, new { id = "RefProg", @class = "form-control",@readonly="readonly" })
+                
+            </div>
+            </div>
+            <div class="col-lg-12">
+                <h5 class="page-header">Family Household</h5>
+            </div>
+
+
+            <div class="form-slection">
+                @*<form method="post" role="form" id="form1" autocomplete="off">*@
+                @Html.HiddenFor(m => m.SPID, new { id = "hdnSPID" })
+                @Html.HiddenFor(m => m.IsLocked, new { id = "hdnIsLocked" })
+                <div class="row mb20">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Single Parent Family <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            @Html.TextBoxFor(m => m.SingleParent, new { placeholder = "Points", id = "SingleParent", maxlength = "5", @class = "form-control", tabIndex = "1", onblur = "checkIfNumericDigit(this);" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Two Parent Family <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            @Html.TextBoxFor(m => m.TwoParent, new { placeholder = "Points", id = "TwoParent", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb20">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6" ><em>Primary Languauge</em><sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    English
+                                    @Html.TextBoxFor(m => m.English, new { placeholder = "Points", id = "English", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    Other
+                                    @Html.TextBoxFor(m => m.Other, new { placeholder = "Points", id = "Other", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Homeless<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.HomelessYes, new { placeholder = "Points", id = "HomelessYes", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.HomelessNo, new { placeholder = "Points", id = "HomelessNo", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Public Assistance <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4 mb10">
+                                    TANF
+                                    @Html.TextBoxFor(m => m.TANF, new { placeholder = "Points", id = "TANF", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    SSI
+                                    @Html.TextBoxFor(m => m.SSI, new { placeholder = "Points", id = "SSI", maxlength = "5", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    SNAP
+                                    @Html.TextBoxFor(m => m.SNAP, new { placeholder = "Points", id = "SNAP", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    WIC
+                                    @Html.TextBoxFor(m => m.WIC, new { placeholder = "Points", id = "WIC", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    NONE
+                                    @Html.TextBoxFor(m => m.None, new { placeholder = "Points", id = "None", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <h5 class="page-header">Guardian 1</h5>
+                </div>
+                <div class="row mb20">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Currently Working<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.CurrentlyWorkYes, new { placeholder = "Points", id = "CurrentlyWorkYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.CurrentlyWorkNo, new { placeholder = "Points", id = "CurrentlyWorkNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Job Training/School<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.JobTrainingno, new { placeholder = "Points", id = "JobTrainingno", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.JobTrainingyes, new { placeholder = "Points", id = "JobTrainingyes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb20">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Age <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4 mb10">
+                                    Teenager
+                                    @Html.TextBoxFor(m => m.Teenager, new { placeholder = "Points", id = "Teenager", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    20-29
+                                    @Html.TextBoxFor(m => m.Age20, new { placeholder = "Points", id = "Age20", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    30 over
+                                    @Html.TextBoxFor(m => m.Age30over, new { placeholder = "Points", id = "Age30over", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    @*</div>
+
+                    <div class="row">*@
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Military Status <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4 mb10">
+                                    Active
+                                    @Html.TextBoxFor(m => m.MilitaryStatusActive, new { placeholder = "Points", id = "MilitaryStatusActive", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    Veteran
+                                    @Html.TextBoxFor(m => m.MilitaryStatusVeteran, new { placeholder = "Points", id = "MilitaryStatusVeteran", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    None
+                                    @Html.TextBoxFor(m => m.MilitaryStatusNone, new { placeholder = "Points", id = "MilitaryStatusNone", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div class="col-lg-12">
+                    <h5 class="page-header">Guardian 2</h5>
+                </div>
+                <div class="row mb20">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Currently Working<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.G2CurrentlyWorkYes, new { placeholder = "Points", id = "G2CurrentlyWorkYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.G2CurrentlyWorkNo, new { placeholder = "Points", id = "G2CurrentlyWorkNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Job Training/School<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.G2JobTrainingyes, new { placeholder = "Points", id = "G2JobTrainingyes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.G2JobTrainingno, new { placeholder = "Points", id = "G2JobTrainingno", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb20 ">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Age <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4 mb10">
+                                    Teenager
+                                    @Html.TextBoxFor(m => m.G2Teenager, new { placeholder = "Points", id = "G2Teenager", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    20-29
+                                    @Html.TextBoxFor(m => m.G2Age20, new { placeholder = "Points", id = "G2Age20", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    30 over
+                                    @Html.TextBoxFor(m => m.G2Age30over, new { placeholder = "Points", id = "G2Age30over", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Military Status <sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4 mb10">
+                                    Active
+                                    @Html.TextBoxFor(m => m.G2MilitaryStatusActive, new { placeholder = "Points", id = "G2MilitaryStatusActive", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    Veteran
+                                    @Html.TextBoxFor(m => m.G2MilitaryStatusVeteran, new { placeholder = "Points", id = "G2MilitaryStatusVeteran", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4 mb10">
+                                    None
+                                    @Html.TextBoxFor(m => m.G2MilitaryStatusNone, new { placeholder = "Points", id = "G2MilitaryStatusNone", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-lg-12">
+                    <h5 class="page-header">Child</h5>
+                </div>
+                <div class="row mb20 ">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Medical Home<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.MedicalHomeYes, new { placeholder = "Points", id = "MedicalHomeYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.MedicalHomeNo, new { placeholder = "Points", id = "MedicalHomeNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Dental Home<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.DentalHomeYes, new { placeholder = "Points", id = "DentalHomeYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.DentalHomeNo, new { placeholder = "Points", id = "DentalHomeNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb20 ">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Insurance<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.InsuranceYes, new { placeholder = "Points", id = "InsuranceYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.InsuranceNo, new { placeholder = "Points", id = "InsuranceNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="col-sm-12" ></div>
+                        <div class="" ></div>
+                        <div class="col-sm-6">Suspected Disabilty<sup>*</sup>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.SuspecteddisabiltyYes, new { placeholder = "Points", id = "SuspecteddisabiltyYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.SuspecteddisabiltyNo, new { placeholder = "Points", id = "SuspecteddisabiltyNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">Document of Disability<sup>*</sup>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.DocumentofdisabiltyYes, new { placeholder = "Points", id = "DocumentofdisabiltyYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.DocumentofdisabiltyNo, new { placeholder = "Points", id = "DocumentofdisabiltyNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb20 ">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6"><em>Referred by Child Warefare Agency</em><sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.ChildWlfareYes, new { placeholder = "Points", id = "ChildWlfareYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.ChildWlfareNo, new { placeholder = "Points", id = "ChildWlfareNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Foster Child<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.FosterChildYes, new { placeholder = "Points", id = "FosterChildYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.FosterChildNo, new { placeholder = "Points", id = "FosterChildNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb20 ">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6">Dual Custody Child<sup>*</sup></div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    Yes
+                                    @Html.TextBoxFor(m => m.DualCustYes, new { placeholder = "Points", id = "DualCustYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                                <div class="col-sm-4">
+                                    No
+                                    @Html.TextBoxFor(m => m.DualCustNo, new { placeholder = "Points", id = "DualCustNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    </div>
+                <div class="row mb20">
+                    <div class="col-sm-12">
+                        <div class="col-sm-3">Age<sup>*</sup></div>
+                        <div class="col-sm-9">
+                            <div class="row">
+                                <div id="ehschild" style="display:none;">
+
+                                    
+                                        <div class="col-sm-2 mb10">
+                                            < 10 weeks
+                                            @Html.TextBoxFor(m => m.Ageless10weeks, new { placeholder = "Points", id = "Ageless10weeks", maxlength = "5", @class = "form-control input-width", tabIndex = "2" })
+                                        </div>
+                                        <div class="col-sm-3 mb10">
+                                            >10 weeks - 3 Months
+                                            @Html.TextBoxFor(m => m.Agegreater10weeks, new { placeholder = "Points", id = "Agegreater10weeks", maxlength = "5", @class = "form-control input-width", tabIndex = "2" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+                                            3 - 6 months
+                                            @Html.TextBoxFor(m => m.Age3Months, new { placeholder = "Points", id = "Age3Months", maxlength = "10", @class = "form-control input-width", tabIndex = "2" })
+                                        </div>
+                                    
+                                        <div class="col-sm-2 mb10">
+                                            6 - 12 months
+                                            @Html.TextBoxFor(m => m.Age6Months, new { placeholder = "Points", id = "Age6Months", maxlength = "10", @class = "form-control input-width", tabIndex = "2" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+                                            1 - 2 years
+                                            @Html.TextBoxFor(m => m.Age1yr, new { placeholder = "Points", id = "Age1yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+                                            2 - 3 years
+                                            @Html.TextBoxFor(m => m.Age2yr, new { placeholder = "Points", id = "Age2yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2" })
+                                        </div>
+                                    <div class="col-sm-2 mb10">
+                                        6 years or >
+                                        @Html.TextBoxFor(m => m.Age6yr, new { placeholder = "Points", id = "Age6yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>  
+                                </div>
+
+                                <div id="hschild">
+                                    <div class="col-sm-2 mb10">
+                                        3 years
+                                        @Html.TextBoxFor(m => m.Age3yr, new { placeholder = "Points", id = "Age3yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        4 years
+                                        @Html.TextBoxFor(m => m.Age4yr, new { placeholder = "Points", id = "Age4yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        5 years
+                                        @Html.TextBoxFor(m => m.Age5yr, new { placeholder = "Points", id = "Age5yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        6 years or >
+                                        @Html.TextBoxFor(m => m.Age6yr, new { placeholder = "Points", id = "Age6yr", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                    <div class="row mb20 ">
+                        <div class="col-sm-12">
+                            <div class="col-sm-3">Poverty Percentage Level <sup>*</sup></div>
+                            <div class="col-sm-9">
+                                <div class="row">
+                                    <div class="col-sm-2 mb10">
+                                        0-25.99 
+                                        @Html.TextBoxFor(m => m.poverty0to25, new { placeholder = "Points", id = "poverty0to25", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        26-50.99
+                                        @Html.TextBoxFor(m => m.poverty26to50, new { placeholder = "Points", id = "poverty26to50", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        51-75.99
+                                        @Html.TextBoxFor(m => m.poverty51to75, new { placeholder = "Points", id = "poverty51to75", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        76-100
+                                        @Html.TextBoxFor(m => m.poverty76to100, new { placeholder = "Points", id = "poverty76to100", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10" >@*style="font-size: 11.6px;"*@
+                                        100.01-130
+                                        @Html.TextBoxFor(m => m.poverty100to130, new { placeholder = "Points", id = "poverty100to130", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-2 mb10">
+                                        >130
+                                        @Html.TextBoxFor(m => m.povertygreater130, new { placeholder = "Points", id = "povertygreater130", maxlength = "10", @class = "form-control input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+
+               
+
+
+
+                <div id="PM" style="display:none;">
+                    @*id="PM" style="display:none;"*@
+                    <div class="col-lg-12">
+                        <h5 class="page-header">Pregnant Mother</h5>
+                    </div>
+                    <div class="row mb20">
+                        <div class="col-sm-6">
+                            <div class="col-sm-6">Medical Home<sup>*</sup></div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        Yes
+                                        @Html.TextBoxFor(m => m.PMMedicalHomeYes, new { placeholder = "Points", id = "PMMedicalHomeYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-4">
+                                        No
+                                        @Html.TextBoxFor(m => m.PMMedicalHomeNo, new { placeholder = "Points", id = "PMMedicalHomeNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="col-sm-6">Insurance<sup>*</sup></div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        Yes
+                                        @Html.TextBoxFor(m => m.PMInsuranceYes, new { placeholder = "Points", id = "PMInsuranceYes", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-4">
+                                        No
+                                        @Html.TextBoxFor(m => m.PMInsuranceNo, new { placeholder = "Points", id = "PMInsuranceNo", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="col-sm-6">Trimester <sup>*</sup></div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <div class="col-sm-4 mb10">
+                                        1st
+                                        @Html.TextBoxFor(m => m.Trimester1, new { placeholder = "Points", id = "Trimester1", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-4 mb10">
+                                        2nd
+                                        @Html.TextBoxFor(m => m.Trimester2, new { placeholder = "Points", id = "Trimester2", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+                                    <div class="col-sm-4 mb10">
+                                        3rd
+                                        @Html.TextBoxFor(m => m.Trimester3, new { placeholder = "Points", id = "Trimester3", maxlength = "10", @class = "form-control", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-sm-6">
+                    Add Other Questions
+                    <a href="javascript:void(0)" title="Add Questions" onclick="AddQuestions();"><i class="fa fa-plus-square"></i></a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main table-main" id="divP1">
+                    <div class="table-responsive">
+                        <table class="table table_size" id="gridquestion">
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                    <th style="width:64%;" id="thIN">Question</th>
+                                    <th style="width:20%;" id="thIN">Yes</th>
+                                    <th style="width:20%;" id="thIN">No</th>
+                                    <th style="width:20%;" id="thCust">Action </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+
+                                    <td><input style="width:100%;" class="form-control" name="CustomQues[0].Question" type="text" maxlength="500"></td>
+                                    <td><input class="form-control" name="CustomQues[0].QuesYes" type="text" onblur="checkIfNumericDigit(this);" maxlength="5"></td>
+                                    <td><input class="form-control" type="text" name="CustomQues[0].QuesNo" onblur="checkIfNumericDigit(this);" maxlength="5"></td>
+                                    <td><a href="javascript:void(0)" onclick="RemoveQues(this);" style=" text-decoration:underline;">Delete</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div id="div1" style="text-align:center;display:none;">
+                            <label style="font:bold !important;">No result found.</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidSelectInfo();" tabindex="12">Submit</button>
+                        @*<input id="hdnSPID" type="hidden" name="hdnSPID" value="@Model.SPID" />*@
+                        <button type="submit" id="btnLock" style="width:11% !important;" value="SaveLockSelectDetail" name="Command" onclick="return isValidSelectInfo();" class="my-btn">Submit & Lock</button>
+                        <button id="btnExit" class="my-btn" type="button" tabindex="13">Cancel</button>
+
+                    </div>
+
+                </div>
+                @*</form>*@
+            </div>
+</form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+        <form method="post" role="form" id="form1" autocomplete="off">
+            <div class="add-useragform">
+                @Html.HiddenFor(m => m.SPID, new { id = "hdnSPID" })*@
+                @*<div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Single Parent Family <sup>*</sup></label>
+
+                            @Html.TextBoxFor(m => m.SingleParent, new { placeholder = "Points", id = "SingleParent", maxlength = "5", @class = "form-control", tabIndex = "1" ,@style="width:42%;"})
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Two Parent Family<sup>*</sup></label>
+                            @Html.TextBoxFor(m => m.TwoParent, new { placeholder = "Points", id = "TwoParent", maxlength = "5", @class = "form-control", tabIndex = "2", @style = "width:42%;" })
+
+
+                        </div>
+                    </div>
+                   
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Primary Languauge<sup>*</sup></label>
+                            
+                            <div class="cont-sz row">
+                                <div class="col-xs-6">
+                                    <span>English</span>
+                                    @Html.TextBoxFor(m => m.English, new { placeholder = "Points", id = "English", maxlength = "5", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6">
+                                    <span>Other </span>
+                                    @Html.TextBoxFor(m => m.Other, new { placeholder = "Points", id = "Other", maxlength = "5", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Homeless<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.HomelessYes, new { placeholder = "Points", id = "HomelessYes", maxlength = "5", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.HomelessNo, new { placeholder = "Points", id = "HomelessNo", maxlength = "5", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 ">
+
+                        <div class="form-group">
+                            <label>Public Assistance <sup>*</sup></label>
+                          
+                            <div class="cont-sz">
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>TANF</span>
+                                        @Html.TextBoxFor(m => m.TANF, new { placeholder = "Points", id = "TANF", maxlength = "5", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>SSI</span>
+                                        @Html.TextBoxFor(m => m.SSI, new { placeholder = "Points", id = "SSI", maxlength = "5", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>SNAP</span>
+                                        @Html.TextBoxFor(m => m.SNAP, new { placeholder = "Points", id = "SNAP", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>WIC</span>
+                                        @Html.TextBoxFor(m => m.WIC, new { placeholder = "Points", id = "WIC", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>NONE</span>
+                                        @Html.TextBoxFor(m => m.None, new { placeholder = "Points", id = "None", maxlength = "10", @class = "form-control", tabIndex = "2" })
+                                       
+                                    </label>
+                                </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>*@
+                @*<div class="row">*@
+                    @*<div class="col-lg-12">
+                        <h5 class="page-header">Guardian 1</h5>
+                    </div>*@
+                    @*<div class="col-lg-6 col-md-6 col-sm-12 ">
+
+                        <div class="form-group">
+                            <label>Age<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>Teenager</span>
+                                        @Html.TextBoxFor(m => m.Teenager, new { placeholder = "Points", id = "Teenager", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>20-29</span>
+                                        @Html.TextBoxFor(m => m.Age20, new { placeholder = "Points", id = "Age20", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>30 over</span>
+                                        @Html.TextBoxFor(m => m.Age30over, new { placeholder = "Points", id = "Age30over", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                </div>
+
+                            </div>
+                    </div>*@
+
+                    @*<div class="col-lg-6 col-md-6 col-sm-12">
+
+                        <div class="form-group">
+                            <label>Military Status<sup>*</sup></label>
+                           
+                            <div class="cont-sz">
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>Active</span>
+                                        @Html.TextBoxFor(m => m.MilitaryStatusActive, new { placeholder = "Points", id = "MilitaryStatusActive", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>Veteran</span>
+                                        @Html.TextBoxFor(m => m.MilitaryStatusVeteran, new { placeholder = "Points", id = "MilitaryStatusVeteran", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>None</span>
+                                        @Html.TextBoxFor(m => m.MilitaryStatusNone, new { placeholder = "Points", id = "MilitaryStatusNone", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                               
+                                </div>
+
+                            </div>
+                    </div>*@
+
+                    @*<div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Currently Working<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.CurrentlyWorkYes, new { placeholder = "Points", id = "CurrentlyWorkYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.CurrentlyWorkNo, new { placeholder = "Points", id = "CurrentlyWorkNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Job Training/School<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.JobTrainingno, new { placeholder = "Points", id = "JobTrainingno", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.JobTrainingyes, new { placeholder = "Points", id = "JobTrainingyes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+                
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h5 class="page-header">Guardian 2</h5>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 ">
+
+                        <div class="form-group">
+                            <label>Age<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>Teenager</span>
+                                        @Html.TextBoxFor(m => m.G2Teenager, new { placeholder = "Points", id = "G2Teenager", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>20-29</span>
+                                        @Html.TextBoxFor(m => m.G2Age20, new { placeholder = "Points", id = "G2Age20", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>30 over</span>
+                                        @Html.TextBoxFor(m => m.G2Age30over, new { placeholder = "Points", id = "G2Age30over", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                </div>
+
+                            </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12 ">
+
+                        <div class="form-group">
+                           
+                                <label>Military Status<sup>*</sup></label>
+                            
+                            <div class="cont-sz">
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>Active</span>
+                                        @Html.TextBoxFor(m => m.G2MilitaryStatusActive, new { placeholder = "Points", id = "G2MilitaryStatusActive", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>Veteran</span>
+                                        @Html.TextBoxFor(m => m.G2MilitaryStatusVeteran, new { placeholder = "Points", id = "G2MilitaryStatusVeteran", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                <div class="col-xs-12 col-sm-12">
+                                    <label class="">
+                                        <span>None</span>
+                                        @Html.TextBoxFor(m => m.G2MilitaryStatusNone, new { placeholder = "Points", id = "G2MilitaryStatusNone", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                    </label>
+                                </div>
+                                
+                                </div>
+
+                            </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Currently Working<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.G2CurrentlyWorkYes, new { placeholder = "Points", id = "G2CurrentlyWorkYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.G2CurrentlyWorkNo, new { placeholder = "Points", id = "G2CurrentlyWorkNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Job Training/School<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.G2JobTrainingyes, new { placeholder = "Points", id = "G2JobTrainingyes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.G2JobTrainingno, new { placeholder = "Points", id = "G2JobTrainingno", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h5 class="page-header">Child</h5>
+                    </div>
+                    
+
+                    
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Medical Home<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.MedicalHomeNo, new { placeholder = "Points", id = "MedicalHomeNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.MedicalHomeYes, new { placeholder = "Points", id = "MedicalHomeYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Dental Home<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.DentalHomeNo, new { placeholder = "Points", id = "DentalHomeNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.DentalHomeYes, new { placeholder = "Points", id = "DentalHomeYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Insurance<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.InsuranceNo, new { placeholder = "Points", id = "InsuranceNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.InsuranceYes, new { placeholder = "Points", id = "InsuranceYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Suspected or document of disabilty<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.Suspecteddocumentofdisabilty, new { placeholder = "Points", id = "Suspecteddocumentofdisabilty", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.Suspecteddocumentofdisabilty, new { placeholder = "Points", id = "Suspecteddocumentofdisabilty", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Referred by Child Warefare Agency<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.ChildWlfareYes, new { placeholder = "Points", id = "ChildWlfareYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.ChildWlfareNo, new { placeholder = "Points", id = "ChildWlfareNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Foster Child<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.FosterChildNo, new { placeholder = "Points", id = "FosterChildNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.FosterChildYes, new { placeholder = "Points", id = "FosterChildYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Duel Custody Child<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.DualCustYes, new { placeholder = "Points", id = "DualCustYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.DualCustNo, new { placeholder = "Points", id = "DualCustNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h5 class="page-header">Pregnant Mother</h5>
+                    </div>
+
+
+
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Medical Home<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.PMMedicalHomeNo, new { placeholder = "Points", id = "PMMedicalHomeNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.PMMedicalHomeYes, new { placeholder = "Points", id = "PMMedicalHomeYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Insurance<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>Yes</span>
+                                    @Html.TextBoxFor(m => m.PMInsuranceYes, new { placeholder = "Points", id = "PMInsuranceYes", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>No </span>
+                                    @Html.TextBoxFor(m => m.PMInsuranceNo, new { placeholder = "Points", id = "PMInsuranceNo", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc">Trimester<sup>*</sup></label>
+                            <div class="cont-sz">
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>1st</span>
+                                    @Html.TextBoxFor(m => m.Trimester1, new { placeholder = "Points", id = "Trimester1", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>2nd </span>
+                                    @Html.TextBoxFor(m => m.Trimester2, new { placeholder = "Points", id = "Trimester2", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                                <div class="col-xs-6 col-sm-8">
+                                    <span>3rd </span>
+                                    @Html.TextBoxFor(m => m.Trimester3, new { placeholder = "Points", id = "Trimester3", maxlength = "10", @class = "form-control", tabIndex = "2" })
+
+                                </div>
+                               
+                            </div>
+                            <span>Add Custom Questions</span>
+                            <a href="javascript:void(0)" title="Add Questions" onclick="AddQuestions();"><i class="fa fa-plus-square"></i></a>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                    </div>*@
+                    @*<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main table-main">
+                        <div class="table-responsive">
+                            <table class="table table_size" id="gridquestion">
+                                <thead style="cursor:pointer;">
+                                    <tr>
+                                        <th style="width:20%" id="thIN">Program Type</th>
+                                        <th id="thIN">Question</th>
+                                        <th style="width:20%" id="thIN">Points</th>
+                                        <th id="thCust">Action </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+
+                                        <td><input style="width:98%;" class="form-control" name="CustomQuestion[0].ProgramType" type="text" maxlength="5"></td>
+                                        <td><input style="width:100%;" class="form-control" name="CustomQuestion[0].Question" type="text" maxlength="50"></td>
+                                        <td><input style="width:98%;" class="form-control" type="text" id="P1notes" data-val="true" name="CustomQuestion[0].Points" maxlength="5"></td>
+
+                                        <td><a href="javascript:void(0)" onclick="RemovePhone1(this);" style=" text-decoration:underline;">Delete</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>*@
+
+
+                   
+                @*</div>
+
+            </div>*@
+            <!--row-->
+            @* <div class="row">*@
+            @*<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="btnwrp_subcal">
+                    <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidProgramInfo();" tabindex="12">Submit</button>
+                    <button id="btnExit" class="my-btn" type="button" tabindex="13" onclick="clearcontrols(); return false;">Cancel</button>
+                  
+                </div>
+               
+            </div>*@
+            @* </div>*@
+        @*</form>
+    </div>
+</div>*@
+
+}

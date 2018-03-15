@@ -1,0 +1,606 @@
+﻿@model FingerprintsModel.SchoolDistrict
+
+@{
+    @section Title
+{
+       School Districts
+
+    }
+
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            drawgrid();
+            $('#txtTransitionDate').mask("99/99", { placeholder: 'MM/DD' });
+
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#form1 input:radio').attr('disabled', true);
+
+                        $(".my-btn22").attr("disabled", true);
+                        $(".my-btn22").bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                    }
+                }
+            }
+
+            $('#gridViewSchool > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewSchool > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewSchool").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewSchool > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewSchool").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+        function validatedate(inputTextObject)
+        {
+            
+          
+            var ret = true;
+                var newinput = $(inputTextObject).val();
+                var newinput = newinput.split("/");
+                if((newinput[0].length<2)|| newinput[0] < 1 || newinput[0] > 12)
+                {
+                    customAlert("Please enter correct month.");
+                    $(inputTextObject).val('');
+                    var ret = false;
+                }
+                if ((newinput[1].length < 2) || newinput[1] < 1 || newinput[1] > 31) {
+                    customAlert("Please enter correct date.");
+                    $(inputTextObject).val('');
+                    var ret = false;
+                }
+                if((newinput[0]==2)&& (newinput[1]>28 )) 
+                {
+                    customAlert("Please enter correct date.");
+                    $(inputTextObject).val('');
+                    var ret = false;
+                }
+                if ((newinput[0] == 4) && (newinput[1] > 30) || (newinput[0] == 6) && (newinput[1] > 30) || (newinput[0] == 9) && (newinput[1] > 30) || (newinput[0] == 11) && (newinput[1] > 30))
+                {
+                    customAlert("Please enter correct date.");
+                    $(inputTextObject).val('');
+                    var ret = false;
+                }
+
+            return ret;
+        }
+        function getList() {
+        
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/Schooldetails",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage,
+                
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewSchool > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewSchool").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewSchool").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewSchool").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            //getTotalRecord();
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+        
+            $('#gridViewSchool > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewSchool > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+                 
+                    tr += "<td><a href='#' onclick='Getschool(this);' accesskey=" + data.list[i].SchoolDistrictID + ">" + ((typeof (data.list[i].Acronym) != 'undefined') && (data.list[i].Acronym != null) ? data.list[i].Acronym : '') + "</td>";
+                 
+                    tr += "<td>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data.list[i].TransitionDate) != 'undefined') && (data.list[i].TransitionDate != null) ? data.list[i].TransitionDate : '') + " </span></td>";
+                
+                    tr += "<td>" + ((typeof (data.list[i].CreatedDate) != 'undefined') && (data.list[i].CreatedDate != null) ? data.list[i].CreatedDate : '') + "</td>";
+                    tr += "<td><a href='#' onclick='deleteschool(this);' accesskey=" + data.list[i].SchoolDistrictID + ">Delete</td>";
+                    tr += "</tr>";
+                    $('#gridViewSchool > tbody').append(tr);
+
+                }
+            }
+        }
+
+        function Getschool(value) {
+           
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/Getschooldetails",
+                type: "POST",
+                data: {
+                    SchoolDistrictID: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditSchool(data);
+                }
+               , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function EditSchool(data) {
+       
+       
+            $('#hdnSchoolDistrictID').val(data.SchoolDistrictID);
+       
+            $('#txtAcronym').val(data.Acronym);
+            $('#txtDescription').val(data.Description);
+       
+            $('#txtTransitionDate').val(data.TransitionDate);
+            if (data.FormalAgreement == true)
+                $('#txtFormalAgreement').prop("checked", true);
+           // $('#txtFormalAgreement').val(data.FormalAgreement);
+
+        }
+        function deleteschool(value) {
+            BootstrapDialog.confirm('Do you want to delete this school district?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyAdmin/Deleteschool",
+                        type: "POST",
+                        data: {
+                            SchoolDistrictID: $(value).attr("accesskey"),
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            if (response == 1) {
+                                customAlert("School district deleted successfully.");
+                                $(value).closest('tr').remove();
+                                //if ($('#gridViewCommunity > tbody tr').length == 0)
+                                //    $('#div1').show();
+                            }
+                        }
+                    , error: function (response) {
+                           customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+
+    </script>
+
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+        
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            if ('@ViewBag.result' == 'Sucess') {
+                clearcontrols();
+            }
+            $('#txtTransitionDate').mask("99/99", { placeholder: 'MM/DD' });
+        });
+
+        function clearcontrols() {
+            $('#txtAcronym')[0].value = "";
+            $('#txtDescription')[0].value = "";
+            $('#txtTransitionDate')[0].value = "";
+        //    $('#FormalAgreement')[0].value = "";
+            $('#txtFormalAgreement').prop('checked', false);
+            $('#hdnSchoolDistrictID')[0].value = "";
+            $('#btnSubmit').enabled = true;
+           
+            $('#hdnSchoolDistrictID').val(0);
+        }
+        function isValidSchoolInfo() {
+
+            cleanValidation();
+
+            if ($('#txtAcronym')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter acronym.");
+                plainValidation('#txtAcronym');
+                return isValid;
+            }
+            if ($('#txtDescription')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter description.");
+                plainValidation('#txtDescription');
+                return isValid;
+            }
+            if ($('#txtTransitionDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter transition date");
+                plainValidation('#txtTransitionDate');
+                return isValid;
+            }
+            $('#btnSubmit').enabled = false;
+            return true;
+        }
+    </script>
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+               School Districts
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                    @Html.HiddenFor(m => m.SchoolDistrictID, new { id = "hdnSchoolDistrictID" })
+                    <div class="row">
+
+
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtSubcategoryName">Acronym <sup>*</sup></label>
+
+                                @Html.TextBoxFor(m => m.Acronym, new { placeholder = "Acronym", id = "txtAcronym", maxlength = "50", @class = "form-control", tabIndex = "1" })
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceId">Description<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "txtDescription", maxlength = "50", @class = "form-control", tabIndex = "2" })
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Transition Date<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.TransitionDate, new { placeholder = "MM/DD", id = "txtTransitionDate", maxlength = "50", @class = "form-control", tabIndex = "3" ,onblur="validatedate(this);"})
+                            </div>
+                        </div>
+
+                      
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Formal Agreement</label>
+                                @Html.CheckBoxFor(m => m.FormalAgreement, new { id = "txtFormalAgreement", @class = "minimal", tabIndex = "4", @style = "width:5%;" })
+                                @*<span>Open on Saturday?</span>*@
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+                <!--row-->
+                @* <div class="row">*@
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidSchoolInfo();" tabindex="8">Submit</button>
+                        <button id="btnExit" class="my-btn" type="button" tabindex="9" onclick="clearcontrols(); return false;">Cancel</button>
+                        @*<div class="clear"></div>*@
+                    </div>
+                    <!--btnwrp_subcal--->
+                </div>
+                @* </div>*@
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">School Districts List  </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewSchool">
+                    <thead style="cursor:pointer;">
+                        <tr>
+
+                         
+                            <th id="thCust">Acronym<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thMN">Description<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="thRN">Transition Date<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="THCN">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            <th id="thAN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align:center;display:none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+}

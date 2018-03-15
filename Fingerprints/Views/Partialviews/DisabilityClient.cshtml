@@ -1,0 +1,1170 @@
+﻿<style>
+    .child_name .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        /*background-color: rgba(0, 0, 0, 0.18);*/
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        /*top: 28px;*/
+        left: 178px;
+        line-height: 25px;
+        border: 1px solid black;
+    }
+
+
+        .child_name .tooltiptext::after {
+            content: " ";
+            position: absolute;
+            top: 50%;
+            right: 100%; /* To the left of the tooltip */
+            margin-top: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent black transparent transparent;
+        }
+
+    .child_name:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .child_name:not( :hover ) .tooltiptext {
+        visibility: hidden;
+    }
+</style>
+
+
+<div class="modal fade scroll-modal" id="ModalPending" role="dialog">
+    <div class="modal-dialog income-popup width-auto">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h3 id="CenterName" class="text-center"> Disabled Roster</h3>
+                <div class="col-sm-5" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
+                    <span style="float:left;">Center Name:</span>
+                    <span id="centernameSpan" style="font-weight:normal;float:left;margin-left:10px; "></span>
+                </div>
+                <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                    <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                        <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group" id="dvscroll">
+                <div>
+                    <div class="row qualifierdiv">
+                        <div class="row" style="margin-bottom:3%;">
+                            <div class="col-sm-12">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                    <div class="table-responsive">
+                                        <table class="table table_size" id="DivPossibledisable">
+                                            <thead style="cursor:pointer;">
+                                                <tr>
+                                                    <th style="width: 18%;">Name</th>
+                                                    <th>Gender</th>
+                                                    <th>DOB</th>
+                                                    <th>District</th>
+                                                    <th>FSW</th>
+                                                    <th>Classroom Name</th>
+                                                    <th class="divtwo doc-date">Document Date <input type="hidden" value="DESC" id="directionDate" /> </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                        <div id="div1" style="text-align:center;display:none;">
+
+                                            <label>No result found.</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" id="divChangeStatus" style="display: none;">
+                                        <div class="col-sm-12">
+                                            <fieldset id="fieldsetid" style="border: 1px solid #295b8f;">
+                                                <legend class="legend1"></legend>
+
+                                                <div id="divform">
+
+                                                    <div class="col-sm-10">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;">Client</label>
+                                                            <input id="hdnModeType" name="hdnModeType" type="hidden" />
+                                                            <input id="hdnTypeOfCountData" name="hdnTypeOfCountData" type="hidden" />
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="ClientNameAccept"></label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-sm-10 adddivspace" id="disabilitySelectedDiv" style="display:none;">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;">Disability Type</label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <table style="border:1px solid gray;margin-bottom: 10px;" id="specialServiceTable">
+                                                                <thead style="background-color:#285B90;padding:0px;margin: 0;line-height: 20px;">
+                                                                    <tr>
+                                                                        <th style="color: white;padding: 10px;border: 1px solid gray;">Disability Type</th>
+                                                                        <th style="color: white;padding: 10px;border: 1px solid gray;">Received Special Services</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody style="border:1px solid black;line-height:30px;text-align:center;" id="specialServiceTbody"></tbody>
+                                                            </table>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-10 adddivspace">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Notes</label>
+                                                        </div>
+                                                        <div class="col-sm-9">
+                                                            <input name="txtappnotes" type="text" id="txtappnotes" class="form-control" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-10 adddivspace" id="divDocumentDate">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Document Date </label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input type="text" maxlength="20" placeholder="MM/DD/YYYY" name="DocumentDate" id="DocumentDate" onblur="return validatedate(this);" class="form-control" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-sm-10 adddivspace" id="divDocument">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Document </label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input type="file" name="FileUpload1" id="FileUpload1" class="form-control file-upload" />
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <a href="javascript:void(0);" class="upl">
+                                                                <img src="/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" id="add-atachment-image" onclick="addNewAttachment(this);" style="border-radius:5px;height: 34px;margin-left: -15px;">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-10 adddivspace" id="divDocumentDescription">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Document Description</label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input name="txtdocdesc" type="text" id="txtdocdesc" class="form-control" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="divddlpending" style="display:none" class="col-sm-10 adddivspace">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Disability Status</label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <select id="ddlqualifiedreleased" name="ddlqualifiedreleased" onchange="showDisabilityType(this);" class="form-control">
+                                                                <option> </option>
+                                                                <option>Qualified</option>
+                                                                <option>Released</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div id="divddlDisabilityType" class="col-sm-10 adddivspace" style="display:none;">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Disability Type </label>
+                                                        </div>
+                                                        <div class="col-sm-10" style="width: 137%;margin:15px 0px 15px 0px">
+
+                                                            <label class="checkbox-inline" id="pchechkbox"> </label>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-9">
+                                                        <div class="col-sm-2">
+
+
+                                                            <button type="button" class="my-btn" style="margin-top: 20%;" id="savechild" margin-bottom: 20%;" onclick="return SavePending();">
+                                                                Save
+                                                            </button>
+                                                        </div>
+                                                        <div class="col-sm-2">
+
+                                                            <button type="button" class="my-btn" id="cancelForm" style="margin-top: 20%; margin-bottom: 20%;" onclick="Cancelform()">
+                                                                Cancel
+                                                            </button>
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-sm-9" id="dvClientNameQualified">
+                                                    <div class="col-sm-2">
+                                                        <label style="width: 100%;">Client</label>
+                                                    </div>
+                                                    <div class="col-sm-10">
+                                                        <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="ClientNameQualified"></label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="table-responsive" style="float:left;width:99%" id="dvdisablenotes">
+                                                    <h4 style="text-align: center; margin-top: 4px !important" class="page-header"> Disability Notes</h4>
+                                                    <table class="table table_size" id="tblNotesList" style="display: none; margin:13px;  width:98%; ">
+                                                        <thead style="cursor:pointer;">
+                                                            <tr>
+
+                                                                <th>Notes</th>
+                                                                <th>Entered By</th>
+                                                                <th>Entered On</th>
+
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                    <div id="divnodata" style="text-align:center;display:none;">
+                                                        <label>No result found.</label>
+                                                    </div>
+                                                </div>
+                                                <div class="table-responsive" style="float:left;width:99%">
+                                                    <h4 style="text-align: center; margin-top: 4px !important" class="page-header"> Disability Documents</h4>
+
+                                                    <table class="table table_size" id="tblDocumentList" style="margin:13px;  width:98%; ">
+                                                        <thead style="cursor:pointer;">
+                                                            <tr>
+                                                                <th>Document</th>
+                                                                <th>Document Description</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                    <div id="Docdivnodata" style="text-align:center;display:none;">
+                                                        <label>No result found.</label>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    //method to bind the disability type//
+    function BindDropdownDisable() {;
+        $.ajax({
+            url: HostedDir + "/Home/BindDisabilityType",
+            type: "POST",
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                var dts = ''
+                $('#pchechkbox').html('');
+                for (var i = 0; i < data.list.disabilitytype.length; i++) {
+                    dts += '<div class="col-xs-6 col-sm-4" style="width:300px;"><label class="checkbox-inline"><input  type="checkbox" value=' + data.list.disabilitytype[i].Id + ' name="disabilitytype"><span>' + data.list.disabilitytype[i].DisabilityType + '</span></label></div>'
+                }
+                $('#pchechkbox').html(dts);
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
+
+    //method to validate date//
+    function validatedate(inputTextObject) {
+
+        debugger;
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (regex.test($(inputTextObject).val())) {
+                var dob = new Date();
+                if (Date.parse($(inputTextObject).val()) > dob) {
+
+                    customAlert("Invalid document date .Date of document must be less than or equal today's date. ");
+
+                    $(inputTextObject).val('');
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                customAlert("Invalid date of birth. ");
+                $(inputTextObject).val('');
+                return false;
+            }
+        }
+    }
+
+
+    //method to load the disabled children on click of count from dashboard
+    function LoadPendingDisable(Object, isYakkr) {
+
+        $('#tblNotesList').hide();
+        $('#divChangeStatus').hide();
+        $('#divnodata').hide();
+        $('#disableheader').hide();
+        $('#hdnTypeOfCountData').val($(Object).attr("typeofdatacount"));
+        $('#hdnModeType').val($(Object).attr("mode"));
+        $('#CenterName').html('');
+        $('#centerIdGrid').val($(Object).attr("accesskey"));
+        $('#ModalPending').find('h3').html('');
+        var heading = $('#hdnTypeOfCountData').val();
+        var ClientID = (isYakkr) ? $(Object).children('.ClientId').html() : '0';
+        if (heading == 'Indicated') {
+            $('#ModalPending').find('h3').append('Indicated Disability Client');
+        }
+        else if (heading == 'Pending') {
+            $('#ModalPending').find('h3').append('Pending Disability Client');
+        }
+
+        else if (heading == 'Qualified') {
+            $('#ModalPending').find('#specialServicesDiv').show();
+            $('#ModalPending').find('h3').append(' Qualified Disability Client');
+        }
+        else if (heading == 'Released') {
+            $('#ModalPending').find('h3').append('Released Disability Client');
+        }
+
+
+
+        if ($('#hdnTypeOfCountData').val() == 'Pending') {
+            $('#divddlpending').show();
+        }
+        else {
+            $('#divddlpending').hide();
+            $('#divddlDisabilityType').hide();
+        }
+        $.ajax({
+            url: HostedDir + "/Home/LoadPendingDisableRoster",
+            type: "POST",
+            data: {
+                Centerid: $('#centerIdGrid').val(),
+                Mode: $('#hdnTypeOfCountData').val(),
+                sortOrder: "ss",
+                sortDirection: "ss",
+                clientId: ClientID
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+              
+                BindLoadPendingDisable(data, isYakkr);
+                $('#ModalPending').find('#savechild').attr('isYakkr', isYakkr);
+                $('#ModalPending').find('#cancelForm').attr('isYakkr', isYakkr);
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
+
+
+    //method to load the disabled clients for sorting//
+    function LoadPendingDisableForSorting() {
+        $.ajax({
+            url: HostedDir + "/Home/LoadPendingDisableRoster",
+            type: "POST",
+            data: {
+                Centerid: $('#centerIdGrid').val(),
+                Mode: $('#hdnTypeOfCountData').val(),
+                sortOrder: "ss",
+                sortDirection: $('#directionDate').val(),
+                clientId: '0'
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                BindLoadPendingDisable(data);
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
+
+    //method to bind the disabled client roster//
+    function BindLoadPendingDisable(data, isYakkr) {
+        debugger;
+        if (data.list.Rosters == null) {
+            $('#DivPossibledisable > tbody > tr').remove();
+            $('#div1').show();
+
+        }
+        else {
+           
+            var heading = $('#hdnTypeOfCountData').val();
+            $('#ModalPending').find('#centernameSpan').html(data.list.Rosters[0].CenterName);
+            $('#div1').hide();
+
+            $('#DivPossibledisable > tbody > tr').remove();
+
+            if (heading == "Qualified") {
+
+
+                for (var i = 0; i < data.list.Rosters.length; i++) {
+                    var tr = "";
+                    tr += '<tr style="border:1px solid #cfcfcf;">';
+
+
+                    tr += '<td height="70"  class="child_name"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"  special-service="' + data.list.Rosters[i].SpecialService + '"  onmouseover="getProfilePicture(this);"  clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a><span class="tooltiptext"></span></td>';
+
+
+
+                    tr += '<td height="70" style="text-align:center;width:11%;">';
+                    if (data.list.Rosters[i].Gender == "2") {
+                        tr += 'Female';
+                    }
+                    else if (data.list.Rosters[i].Gender == "1") {
+                        tr += 'Male';
+                    }
+                    else if (data.list.Rosters[i].Gender == "3") {
+                        tr += 'Other';
+                    }
+                    tr += '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].District + '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].FSW + '</td>';
+                    tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].ClassroomName + '">' + data.list.Rosters[i].ClassroomName + '</td>';
+
+
+                    if (data.list.Rosters[i].totalday > 365) {
+                        tr += '<td title="Expired" height="70" style="width:13%; color:red" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+
+                    }
+                    else if (data.list.Rosters[i].totalday > 300) {
+                        tr += '<td title="Going to expire." height="70" style="width:13%; color:orange" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+                    }
+                    else {
+                        tr += '<td height="70" style="width:13%;" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+                    }
+
+
+
+                    tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                    $('#DivPossibledisable > tbody').append(tr);
+                }
+            }
+
+            else
+                for (var i = 0; i < data.list.Rosters.length; i++) {
+                    var tr = "";
+                    tr += '<tr style="border:1px solid #cfcfcf;">';
+                    tr += '<td height="70" class="child_name"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"  onmouseover="getProfilePicture(this);"  Clientid="' + data.list.Rosters[i].Eclientid + '" classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a><span class="tooltiptext"></span></td>';
+                    tr += '<td height="70" style="text-align:center;width:11%;">';
+                    if (data.list.Rosters[i].Gender == "2") {
+                        tr += 'Female';
+                    }
+                    else if (data.list.Rosters[i].Gender == "1") {
+                        tr += 'Male';
+                    }
+                    else if (data.list.Rosters[i].Gender == "3") {
+                        tr += 'Other';
+                    }
+                    tr += '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].District + '</td>';
+                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].FSW + '</td>';
+                    tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].ClassroomName + '">' + data.list.Rosters[i].ClassroomName + '</td>';
+                    tr += '<td height="70" style="width:13%;" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+                    tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                    $('#DivPossibledisable > tbody').append(tr);
+                }
+
+
+            $('#centerIdGrid').val(data.list.Rosters[0].CenterId);
+
+
+        }
+        $('#DivPossibledisable img').zoomify();
+        if (!$('#ModalPending').hasClass('in'))
+            $('#ModalPending').modal('toggle');
+
+
+
+        // check for hide column
+        if (heading == 'Indicated') {
+            $('.divtwo').hide();
+        }
+        else if (heading == 'Pending') {
+            $('.divtwo').show();
+        }
+        else if (heading == 'Qualified') {
+
+
+            $('.divtwo').show();
+        }
+        else if (heading == 'Released') {
+            $('.divtwo').hide();
+        }
+
+        if (isYakkr && data.list.Rosters != null) {
+            $('#ModalPending').find('.child_name').children('a').trigger('click');
+        }
+
+    }
+
+    //method to show the div on click of client name//
+    function showdiv(Aobject) {
+
+        $('#txtappnotes,#DocumentDate,#txtdocdesc,#ddlqualifiedreleased').val('');
+        $('.file-upload').val('');
+        $('.div-additional').remove();
+        _Object = Aobject;
+        var Transport = null;
+        $('#tblNotesList').show();
+        $('#disableheader').show();
+        $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
+        $('#ClientNameQualified').text($(Aobject).closest("tr").find("td:first").text());
+        $('#dvClientNameQualified').hide();
+        $('#divddlDisabilityType').hide();
+        LoadNotes(_Object);
+
+        $('#tblDocumentsList').show();
+        $('#divChangeStatus').show();
+
+        $('#dvscroll').scrollTop($('#DivPossibledisable')[0].scrollHeight);
+
+
+        var heading = $('#hdnTypeOfCountData').val();
+
+        if (heading == 'Qualified') {
+
+            $('#dvClientNameQualified').show();
+            $('#divDocumentDate').hide();
+            $('#divDocument').hide();
+            $('#divDocumentDescription').hide();
+            $('#divddlpending').hide();
+            $('#fieldsetid').show();
+
+            $('#ModalPending').find('input[name=specialRadio][value="' + $(Aobject).attr('special-service') + '"]').prop('checked', true);
+            $('#ModalPending').find('#specialServicesDiv').show();
+        }
+        else if (heading == 'Released') {
+            $('#dvClientNameQualified').show();
+            $('#divDocumentDate').hide();
+            $('#divDocument').hide();
+            $('#divDocumentDescription').hide();
+            $('#divddlpending').hide();
+            $('#fieldsetid').show();
+        }
+        else if (heading == 'Pending') {
+            $('#fieldsetid').show();
+        }
+        else if (heading == 'Indicated') {
+            $('#fieldsetid').show();
+        }
+
+    }
+
+    //method to add new Document attachment//
+    function addNewAttachment(val) {
+        var index = $('.AddAttachments-1').length + 1;
+
+        var appendDiv = '<div class="col-sm-10 adddivspace div-additional divDocument_' + index + '" id="divDocument_' + index + '">\
+                                                                    <div class="col-sm-3 divDocument_' + index + '">\
+                                                                        <label style="width: 100%;">  </label>\
+                                                                    </div>\
+                                                                    <div class="col-sm-5 divDocument_' + index + '" style="margin-left:26px;width:347px;">\
+                                                                        <input type="file" name="FileUpload' + index + '" id="FileUploa' + index + '" class="form-control file-upload">\
+                                                                    </div>\
+                                                                    <div class="col-sm-2 divDocument_' + index + '">\
+                                                                            <a href="javascript:void(0);" class="upl">\
+                                                                                <img src="/Content/imgs/close_1.png" class="AddAttachments-1" id="remove-atachment-image' + index + '"  onclick="removeAttachment(this);" accesskey=' + index + ' style="border-radius:5px;height: 34px;margin-left: -15px;">\
+                                                                            </a>\
+                                                                    </div>\
+                                                                </div>';
+        $('#divDocument').append(appendDiv);
+    }
+
+    //method to remove attached document//
+    function removeAttachment(val) {
+        var accesskey = $(val).attr('accesskey');
+
+        $('.divDocument_' + accesskey + '').remove();
+    }
+
+    //method to show disability type//
+    function showDisabilityType(val) {
+
+        if ($(val).val() == "Qualified") {
+            $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
+            $('#divddlDisabilityType').show();
+        }
+
+        else if ($(val).val() == "Released") {
+            $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
+            $('#divddlDisabilityType').hide();
+        }
+        else {
+            $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
+            $('#divddlDisabilityType').hide();
+        }
+
+    }
+
+
+    //method to save disability children process//
+    function SavePending() {
+        debugger;
+        var txtfileUpLoad1 = $('#FileUpload1');
+        var txtdocumentDate = $('#DocumentDate');
+        var txtAppNotes = $('#txtappnotes');
+        var txtDoc = $('#txtdocdesc');
+        var selectedDisability = $('#ddlqualifiedreleased');
+
+        var isYakkr = ($('#savechild').attr('isyakkr') == 'true') ? true : false;
+        cleanValidation();
+        isValid = true;
+        var checked = $("input[type=checkbox]:checked").length;
+
+        //Indicated Client Validation//
+
+        if ($('#FileUpload1')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#DocumentDate')[0].value.trim() != "") {
+            customAlert("Please select document.");
+            plainValidation('#FileUpload1');
+            isValid = false;
+            return isValid;
+        }
+
+        else if ($('#FileUpload1')[0].value.trim() != "" && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#DocumentDate')[0].value.trim() == "") {
+            customAlert("Please enter document date.");
+            plainValidation('#DocumentDate');
+            isValid = false;
+            return isValid;
+        }
+
+
+        else if (txtAppNotes.val().trim() == '' && txtdocumentDate.val().trim() == '' && txtfileUpLoad1.val().trim() == '' && $('#txtdocdesc').val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated") {
+            $('#divChangeStatus').hide();
+            return false;
+        }
+
+
+            //Pending Client Validation//
+
+        else if (txtAppNotes.val().trim() == '' && txtdocumentDate.val().trim() == '' && txtfileUpLoad1.val().trim() == '' && txtDoc.val().trim() == '' && selectedDisability.val() == '' && $('#ddlqualifiedreleased')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending") {
+            $('#divChangeStatus').hide();
+            return false;
+        }
+
+
+        else if ($('#FileUpload1')[0].value.trim() != "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#DocumentDate')[0].value.trim() == "") {
+            customAlert("Please enter document date.");
+            plainValidation('#DocumentDate');
+            isValid = false;
+            return isValid;
+        }
+
+        else if ($('#FileUpload1')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#DocumentDate')[0].value.trim() != "") {
+            customAlert("Please select document.");
+            plainValidation('#FileUpload1');
+            isValid = false;
+            return isValid;
+        }
+
+        else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && !$('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]').is(':checked')) {
+            customAlert("Please select disability Type.");
+            isValid = false;
+            return isValid;
+        }
+
+            //Qualified Client Validation//
+        else if (!$('#specialServiceTbody').find('input[class=dis-radio]').is(':checked') && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified") {
+            customAlert("Please select special services received or not.");
+            isValid = false;
+            return isValid;
+        }
+
+
+        else if (txtAppNotes.val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Released") {
+            $('#divChangeStatus').hide();
+            return false;
+        }
+
+
+
+        if (_Object != null) {
+            var mode = '';
+            var yakkrmode = $('#hdnModeType').val();
+
+            if (yakkrmode == 'QualifyReleased') {
+                mode = $('#ddlqualifiedreleased').val();
+                if (mode == '')
+                    mode = 'Qualified';
+            }
+            else {
+                mode = yakkrmode;
+            }
+
+            var data = new FormData();
+            $('.file-upload').each(function (i, vak) {
+                var files = $(this).get(0).files;
+
+                if (files.length > 0) {
+                    data.append("MyImages" + i + "", files[0]);
+                }
+
+            });
+
+
+
+            var checkedDisType = "";
+
+            checkedDisType = $('#pchechkbox input:checked').map(function () { return this.value; }).get().join(",");
+            var serviceReceived = '';
+
+            if ($('#hdnTypeOfCountData')[0].value.trim() == "Qualified") {
+                var checkedArr = [];
+                $('#specialServiceTbody').find('input[class=dis-radio][value=1]:checked').each(
+                    function () {
+                        checkedArr.push($(this).attr('dis-id'));
+                    });
+                if (checkedArr.length > 0) {
+                    serviceReceived = checkedArr.join(",");
+                }
+                else {
+                    serviceReceived = '0';
+                }
+                checkedDisType = $('#specialServiceTable').attr('disability-types');
+            }
+
+
+            data.append("txtdocdesc", txtDoc.val().trim());
+            data.append("Clientid", $(_Object).attr("clientid"));
+            data.append("ClassroomID", $(_Object).attr("classroomid"));
+            data.append("centerid", $(_Object).attr("centerid"));
+            data.append("Programid", $(_Object).attr("Programid"));
+            data.append("Notes", txtAppNotes.val().trim());
+            data.append("Mode", mode);
+            data.append("DocumentDate", txtdocumentDate.val().trim());
+            data.append("disabilitytype", checkedDisType);
+            data.append("ddlqualifiedreleased", $('#ddlqualifiedreleased').val());
+            data.append("receivedService", serviceReceived);
+            $.ajax({
+                url: HostedDir + "/Home/SavePendingDisableUser",
+                type: "POST",
+                data: data,
+                processData: false,
+                contentType: false,
+                secureuri: false,
+                async: false,
+                success: function (response) {
+
+                    if (response == '1') {
+
+                        if (txtdocumentDate.val().trim() != '' && txtfileUpLoad1.val() != '') {
+                            $(_Object).parent('td').parent('tr').children('.doc-date').html(txtdocumentDate.val().trim());
+                        }
+
+
+                        if ($('#FileUpload1')[0].value.trim() != "") {
+
+                            if ($('#hdnTypeOfCountData')[0].value.trim() == 'Pending') {
+                                if ($('#ddlqualifiedreleased').val() != '') {
+
+
+                                    if (isYakkr) {
+                                        window.location.reload();
+                                    }
+                                    else {
+                                        $(_Object).closest("tr").remove();
+                                        $("#fieldsetid").hide();
+                                    }
+                                }
+                                else {
+                                    customAlert("Record saved successfully");
+                                    $('#divChangeStatus').hide();
+
+                                }
+                            }
+                            else {
+
+                                if (isYakkr) {
+                                    window.location.reload();
+                                }
+                                else {
+                                    $(_Object).closest("tr").remove();
+                                    $("#fieldsetid").hide();
+                                }
+
+                            }
+
+                        }
+
+                        else if ($('#hdnTypeOfCountData')[0].value.trim() != 'Qualified' || $('#hdnTypeOfCountData')[0].value.trim() != 'Released') {
+                            {
+                                if ($('#hdnTypeOfCountData')[0].value.trim() == 'Pending') {
+                                    if ($('#ddlqualifiedreleased').val() == '') {
+
+                                        if (txtAppNotes.val().trim() != '') {
+                                            customAlert('Record saved successfully');
+                                        }
+                                        $('#divChangeStatus').hide();
+                                        return false;
+                                    }
+                                    else {
+
+                                        if (isYakkr) {
+                                            window.location.reload();
+                                        }
+                                        else {
+                                            $(_Object).closest("tr").remove();
+                                            $("#fieldsetid").hide();
+                                        }
+
+                                    }
+                                }
+                                else if ($('#hdnTypeOfCountData')[0].value.trim() == 'Indicated') {
+
+                                    if ($('#FileUpload1').val() == '') {
+                                        $("#fieldsetid").hide();
+                                    }
+                                    else {
+                                        if (isYakkr) {
+                                            window.location.reload();
+                                        }
+                                        else {
+                                            $(_Object).closest("tr").remove();
+                                            $("#fieldsetid").hide();
+                                        }
+                                    }
+                                }
+                            }
+
+                            if ($('#hdnTypeOfCountData')[0].value.trim() == 'Qualified' || $('#hdnTypeOfCountData')[0].value.trim() == 'Released') {
+                                $("#fieldsetid").hide();
+                            }
+
+                            $('#form1').trigger("reset");
+
+                            if (serviceReceived != '') {
+                                if (serviceReceived.indexOf(',') > 0) {
+                                    serviceReceived = serviceReceived.split(',');
+                                    $.each(serviceReceived, function (i, service) {
+                                        $('#specialServiceTbody').find('input[name=disabilityRadio' + service + '][value=1]').prop('checked', true);
+                                    });
+                                }
+                                else {
+                                    if (serviceReceived == '0') {
+                                        $('#specialServiceTbody').find('input[class=dis-radio][value=0]').prop('checked', true);
+                                    }
+                                    else {
+                                        $('#specialServiceTbody').find('input[name=disabilityRadio' + serviceReceived + '][value=1]').prop('checked', true);
+
+                                    }
+                                }
+                            }
+                            customAlert("Record saved successfully.");
+                        }
+                    }
+                }
+                , error: function (response) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+        }
+
+    }
+
+    //method to bind the notes from db//
+    function LoadNotes(Object) {
+        $.ajax({
+            url: HostedDir + "/Home/LoadNotes",
+            type: "POST",
+            data: {
+                Clientid: $(Object).attr("clientid")
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+
+                if (data != null) {
+                   
+                    BindSelectedDisabilities(data);
+                    BindNotesHtml(data);
+                    BindDocumentsHtml(data);
+                }
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
+
+    //method to bind the selected disabilities to modal popup//
+    function BindSelectedDisabilities(data) {
+
+        if (data.list.disablenotes != null) {
+    
+            var arr = '';
+            if (data.list.disablenotes.length > 0) {
+                $.each(data.list.disablenotes, function (k, dis) {
+                    if (dis.NotesList.length > 0) {
+                        arr = jQuery.grep(dis.NotesList, function (n, i) {
+                            return (n.DisabilityTypeID !== '' && n.DisabilityTypeID !== null);
+                        });
+                    }
+                });
+            }
+
+            if (arr.length > 0) {
+
+                var disabId = arr[0].DisabilityTypeID;
+                var disService = arr[0].SpecialServiceDisability;
+
+                var disArray = [];
+
+                if (disService.indexOf(',') > 0) {
+                    if (disService[disService.length - 1] == ',') {
+                        disArray = disService.slice(0, -1).split(',');
+                    }
+                    else {
+                        disArray = disService.split(',');
+
+                    }
+                }
+                else {
+                    disArray.push(disService);
+                }
+
+             
+                var disabilityname = '';
+                if (disabId.indexOf(',') > 0) {
+
+                    if (disabId[disabId.length - 1] == ',') {
+
+                        $('#specialServiceTable').attr('disability-types', disabId.slice(0, -1));
+                        disabId = disabId.slice(0, -1).split(',');
+                    }
+                    else {
+                        $('#specialServiceTable').attr('disability-types', disabId);
+                        disabId = disabId.split(',');
+                    }
+                    if (disabId.length > 0) {
+                        var arr1 = [];
+                        var tbodyData = '';
+
+                        $.each(disabId, function (i, dis) {
+
+                            if (dis != ',' || dis != '') {
+                                disabilityname = $('input[name="disabilitytype"][value="' + dis + '"]').siblings('span').text();
+                                tbodyData += '<tr>\
+                                                    <td style="border: 1px solid #cfcfcf;">' + disabilityname + '</td>\
+                                                     <td style="border: 1px solid #cfcfcf;">\
+                                                      <input type="radio" value="1" dis-id="' + dis + '"  name="disabilityRadio' + dis + '" class="dis-radio">&nbsp; Yes &nbsp;&nbsp;\
+                                                         <input type="radio" value="0" dis-id="' + dis + '" name="disabilityRadio' + dis + '" class="dis-radio" checked>&nbsp; No &nbsp;&nbsp;\
+                                                     </td>\
+                                                 </tr>';
+
+                            }
+                        });
+                        $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').html(tbodyData);
+
+                        if (disArray.length > 0) {
+                            if (disArray.length === 1) {
+                                if (disArray[0] == '0') {
+                                    $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').find('input[type=radio][value=0]').prop('checked', true);
+
+                                }
+                                else {
+                                    $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').find('input[name=disabilityRadio' + disArray[0] + '][value=1]').prop('checked', true);
+
+                                }
+                            }
+                            else {
+                                $.each(disArray, function (l, ser) {
+                                    $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').find('input[name=disabilityRadio' + ser + '][value=1]').prop('checked', true);
+                                });
+                            }
+
+                        }
+
+                        $('#disabilitySelectedDiv').show();
+                    }
+                }
+                else {
+
+                    $('#specialServiceTable').attr('disability-types', disabId);
+                    disabilityname = $('input[name="disabilitytype"][value="' + disabId + '"]').siblings('span').text();
+
+                    if (disabilityname != '') {
+
+                        var tbodyData2 = '<tr>\
+                                                    <td style="border: 1px solid #cfcfcf;">' + disabilityname + '</td>\
+                                                     <td style="border: 1px solid #cfcfcf;">\
+                                                      <input type="radio" value="1" dis-id="' + disabId + '"  name="disabilityRadio' + disabId + '" class="dis-radio">&nbsp; Yes &nbsp;&nbsp;\
+                                                         <input type="radio" value="0" dis-id="' + disabId + '" name="disabilityRadio' + disabId + '" class="dis-radio" checked>&nbsp; No &nbsp;&nbsp;\
+                                                     </td>\
+                                                 </tr>';
+
+                        $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').html(tbodyData2);
+
+                        if (disArray.length > 0) {
+                            if (disArray.length === 1) {
+                                if (disArray[0] == '0') {
+                                    $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').find('input[type=radio][value=0]').prop('checked', true);
+                                }
+                                else {
+                                    $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').find('input[name=disabilityRadio' + disArray[0] + '][value=1]').prop('checked', true);
+                                }
+                            }
+                            else {
+                                $.each(disArray, function (l, ser) {
+                                    $('#disabilitySelectedDiv').find('#specialServiceTable').find('#specialServiceTbody').find('input[name=disabilityRadio' + ser + '][value=1]').prop('checked', true);
+                                });
+                            }
+                        }
+                        $('#disabilitySelectedDiv').show();
+                    }
+                }
+
+            }
+        }
+    }
+
+    //method to bind the notes to modal popup//
+    function BindNotesHtml(data) {
+
+        if (data.list.disablenotes == null) {
+            $('#tblNotesList > tbody > tr').remove();
+            $('#divnodata').show();
+        }
+        else {
+            $('#divnodata').hide();
+            $('#disableheader').show();
+            $('#tblNotesList > tbody > tr').remove();
+
+            for (var i = 0; i < data.list.disablenotes.length; i++) {
+
+                if (data.list.disablenotes[i].NotesList.length > 0) {
+                    $.each(data.list.disablenotes[i].NotesList, function (k, notes) {
+                        var tr = "";
+                        tr += "<tr>";
+                        tr += '<td height="50">' + notes.Notes + '</td>';
+                        tr += '<td height="50">' + notes.Name + '</td>';
+                        tr += '<td height="50">' + notes.Createdon + '</td>';
+                        tr += "</tr>";
+                        $('#tblNotesList > tbody').append(tr);
+                    });
+                }
+            }
+
+
+        }
+    }
+
+    //method to bind the disability documents to modal popup//
+    function BindDocumentsHtml(data) {
+
+
+        if (data.list.disablenotes == null) {
+
+            $('#Docdivnodata').show();
+            $('#tblDocumentList > tbody > tr').remove();
+        }
+        else {
+            $('#Docdivnodata').hide();
+            $('#disableheader').show();
+            $('#tblDocumentList > tbody > tr').remove();
+            for (var i = 0; i < data.list.disablenotes.length; i++) {
+                if (data.list.disablenotes[i].DocumentList.length > 0) {
+
+                    var tr = "";
+                    var documentDesc = '';
+                    var docName = '';
+
+                    $.each(data.list.disablenotes[i].DocumentList, function (j, notes) {
+
+                        if (notes.DisableDocumentName != '') {
+
+                            docName += '<tr><td height="50">\
+                                            <a title="Click here to open document" style="text-decoration:underline;font-size:17px;cursor:pointer;" href="/Home/getDisableDocument/' + notes.NotesId + '"> ' + notes.DisableDocumentName + '<i class="fa fa-arrow-down"></i></a></td>\
+                                            <td height="50">'+ notes.DocumentDescription + '</td></tr>';
+                        }
+                    });
+                    if (docName != '') {
+                        $('#tblDocumentList > tbody').html(docName);
+                        $('#Docdivnodata').hide();
+                    }
+                    else {
+                        $('#Docdivnodata').show();
+                        $('#tblDocumentList > tbody > tr').remove();
+                    }
+
+
+                }
+                else {
+                    $('#Docdivnodata').show();
+                    $('#tblDocumentList > tbody > tr').remove();
+                }
+            }
+        }
+    }
+
+
+    //method to clear the form//
+    function Cancelform() {
+        $('#divChangeStatus').hide();
+        $('#tblNotesList').hide();
+        $('#divnodata').hide();
+        $('#disableheader').hide();
+    }
+
+
+    //method to get the profile picture on hover of client name//
+    function getProfilePicture(pic) {
+        var enc_id = $(pic).attr('clientid');
+        var position = $(pic).position();
+        var topalignment = position.top;
+        $.ajax({
+            url: '/Roster/GetChildrenImage',
+            dataType: 'json',
+            type: 'post',
+            data: { enc_clientId: enc_id },
+            success: function (data) {
+
+                var image = '';
+                if (data.Text == "" && data.Value == "2") {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_female.png" />';
+                }
+                else if (data.Text == "" && data.Value == "1") {
+                    image = '<img class="roundimage" width="100" height="100"   src="/Content/img/ic_male.png" />';
+                }
+                else if (data.Text == "" && ata.Text == "3") {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
+                }
+                else if (data.Text != "") {
+                    image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                }
+                else {
+                    image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
+                }
+
+                $(pic).parent('td').parent('tr').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                $(pic).parent('td').parent('tr').find('.roundimage').zoomify();
+
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+
+</script>

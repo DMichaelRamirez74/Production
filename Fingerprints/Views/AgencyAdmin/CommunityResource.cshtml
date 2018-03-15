@@ -1,0 +1,1373 @@
+﻿@model FingerprintsModel.CommunityResource
+@using MvcCheckBoxList
+
+@{
+    @section Title
+{
+        Community Resource
+
+    }
+
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#DdlCommunityList').val('');
+            $('#ZipCode')[0].value = "";//Added by Akansha on 14Dec2016
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            if ('@ViewBag.result' == 'Sucess') {
+                clearcontrols();
+            }
+            drawgrid();
+            $('#StartTime').timepicker({ 'timeFormat': 'h:i A' });
+            $('#StopTime').timepicker({ 'timeFormat': 'h:i A' });
+            $('#MonFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#MonTo').timepicker({ 'timeFormat': 'h:i A' });
+            $('#TueFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#TueTo').timepicker({ 'timeFormat': 'h:i A' });
+            $('#WedFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#WedTo').timepicker({ 'timeFormat': 'h:i A' });
+            $('#ThursFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#ThursTo').timepicker({ 'timeFormat': 'h:i A' });
+            $('#FriFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#FriTo').timepicker({ 'timeFormat': 'h:i A' });
+            $('#SatFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#SatTo').timepicker({ 'timeFormat': 'h:i A' });
+            $('#SunFrom').timepicker({ 'timeFormat': 'h:i A' });
+            $('#SunTo').timepicker({ 'timeFormat': 'h:i A' });
+            $("#Phoneno").mask("(999) 999-9999");
+            $('#li8 a').removeClass("active");
+            $('#li9').removeClass("active");
+            $('#txtTitle')[0].value = "";
+            $('#txtCompanyName')[0].value = "";
+            $('#txtRegion')[0].value = "";
+            $('#txtFname')[0].value = "";
+            $('#txtLname')[0].value = "";
+            $('#hdnCommunityID')[0].value = "";
+            $('#btnSubmit').enabled = true;
+            $('#txtNotes')[0].value = "";
+            // $('#ZipCode')[0].value = "";
+           // $('#ZipCode').val('');
+            $('#hdnCommunityID').val(0);
+
+
+            if ('@ViewBag.mode' == 0) {
+                $('#DdlCommunityList').val('');
+                $('#ZipCode').val('');
+                // $('#DdlStatusList').val('');
+                //$('#DdlPRole').val('');
+            }
+
+
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#form1 input:radio').attr('disabled', true);
+
+                        $(".my-btn22").attr("disabled", true);
+                        $(".my-btn22").bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                    }
+                }
+            }
+
+            $('#gridViewCommunity > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewCommunity > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewCommunity").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewCommunity > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewCommunity").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/Communitydetails",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage,
+                    //CommunityId:$('#CommunityId').val(),
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewCommunity > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewCommunity").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewCommunity").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewCommunity").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            //getTotalRecord();
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+          
+            $('#gridViewCommunity > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewCommunity > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+                    //  tr += "<td>" + ((typeof (data.list[i].Title) != 'undefined') && (data.list[i].Title != null) ? data.list[i].Title : '') + " </span></td>";
+                    tr += "<td><a href='#' onclick='Getcommunity(this);' accesskey=" + data.list[i].CommunityID + ">" + ((typeof (data.list[i].Fname) != 'undefined') && (data.list[i].Lname != null) ? data.list[i].Fname + ' ' + data.list[i].Lname : '') + "</td>";
+                    //  tr += '<td><a onclick="EditSubcategory(this);" style="text-decoration: underline;" href="#" accesskey="' + data.list[i].RaceSubCategoryID + '" >' + ((typeof (data.list[i].SubCategoryName) != 'undefined') && (data.list[i].SubCategoryName != null) ? data.list[i].SubCategoryName : '') + '</a></td>';
+                    tr += "<td>" + ((typeof (data.list[i].Companyname) != 'undefined') && (data.list[i].Companyname != null) ? data.list[i].Companyname : '') + " </span></td>";
+                    //   tr += "<td>" + ((typeof (data.list[i].Notes) != 'undefined') && (data.list[i].Notes != null) ? data.list[i].Notes : '') + " </span></td>";
+                    // tr += "<td>" + ((typeof (data.list[i].Community) != 'undefined') && (data.list[i].Community != null) ? data.list[i].Community : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].CreatedDate) != 'undefined') && (data.list[i].CreatedDate != null) ? data.list[i].CreatedDate : '') + "</td>";
+                    tr += "<td><a href='#' onclick='deletecommunity(this);' accesskey=" + data.list[i].CommunityID + ">Delete</td>";
+                    tr += "</tr>";
+                    $('#gridViewCommunity > tbody').append(tr);
+
+                }
+
+
+            }
+        }
+
+        function Getcommunity(value) {
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/Getcommunity",
+                type: "POST",
+                data: {
+                    CommunityID: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditCommunity(data);
+                }
+               , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function EditCommunity(data) {
+
+            //  $('#hdnCommunityID').val($(value).attr("accesskey"));
+            $('#hdnCommunityID').val(data.CommunityID);
+            // $('#CommunityID').val($(value).attr("accesskey"));
+            $('#txtTitle').val(data.Title);
+            $('#txtFname').val(data.Fname);
+            $('#txtLname').val(data.Lname);
+            $('#txtNotes').val(data.Notes);
+            $('#DdlCommunityList').val(data.Community);
+            $('#txtCompanyName').val(data.Companyname);
+            $('#txtRegion').val(data.Region);
+            $('#Address').val(data.Address);
+            $('#Phoneno').val(data.Phoneno);
+            $('#StartTime').val(data.StartTime);
+            $('#StopTime').val(data.StopTime);
+            $('#ZipCode').val(data.ZipCode);
+            $('#City').find('option').remove().end().append("<option>"+data.City+ "</option>");
+            //$('#City').val(data.City);
+
+            $('#State').val(data.State);
+            $('#County').val(data.County);
+            $('#Email').val(data.Email);
+            $('#Comments').val(data.Comments);
+            //Added by Akansha on 14Dec2016
+            if (data.Community == "1")
+            {
+                $('#divmedicalCenter').show();
+                $('#divmedicalnotes').show();
+                $('#MedicalCenter').val(data.MedicalCenter);
+                $('#MedicalNotes').val(data.MedicalNotes);
+                $('#divdentalCenter').hide();
+                $('#divdentalnotes').hide();
+
+            }
+            if (data.Community == "2") {
+                $('#divmedicalCenter').hide();
+                $('#divmedicalnotes').hide();
+                $('#divdentalCenter').show();
+                $('#DentalCenter').val(data.DentalCenter);
+                $('#divdentalnotes').show();
+                $('#DentalNotes').val(data.DentalNotes);
+            }
+            if (data.Community == "3") {
+                $('#divmedicalCenter').hide();
+                $('#divmedicalnotes').hide();
+                $('#divdentalCenter').hide();
+                $('#divdentalnotes').hide();
+            }
+
+            //End
+
+            if (data.office24hours == true) {
+                $('#office24hours').prop("checked", true);
+            }
+            if (data.Mon == true) {
+                $('#Mon').prop("checked", true);
+            }
+            if (data.Tue == true) {
+                $('#Tue').prop("checked", true);
+            }
+            if (data.Wed == true) {
+                $('#Wed').prop("checked", true);
+            }
+            if (data.Thurs == true) {
+                $('#Thurs').prop("checked", true);
+            }
+            if (data.Fri == true) {
+                $('#Fri').prop("checked", true);
+            }
+            if (data.Sat == true) {
+                $('#Sat').prop("checked", true);
+            }
+            if (data.Sun == true) {
+                $('#Sun').prop("checked", true);
+            }
+
+            $('#MonTo').val(data.MonTo);
+            $('#MonFrom').val(data.MonFrom);
+            $('#TueTo').val(data.TueTo);
+            $('#TueFrom').val(data.TueFrom);
+            $('#WedTo').val(data.WedTo);
+            $('#WedFrom').val(data.WedFrom);
+            $('#ThursTo').val(data.ThursTo);
+            $('#ThursFrom').val(data.ThursFrom);
+            $('#FriTo').val(data.FriTo);
+            $('#FriFrom').val(data.FriFrom);
+            $('#SatTo').val(data.SatTo);
+            $('#SatFrom').val(data.SatFrom);
+            if (data.gender == "1") {
+                $('#gender1').prop("checked", true);
+            }
+            if (data.gender == "2") {
+                $('#gender2').prop("checked", true);
+            }
+            if (data.gender == "3") {
+                $('#gender3').prop("checked", true);
+            }
+            $('#SunTo').val(data.SunTo);
+            $('#SunFrom').val(data.SunFrom);
+            // $('#PostedPostedService.ServiceID').val(data.Services);
+
+            //if (data.OpenonSat == true)
+            //    $('#OpenonSat').prop("checked", true);
+
+            $('#chk input[type=checkbox]').each(function () {
+                $(this).prop("checked", false);
+            });
+
+            if (data.AvailableService != null && data.AvailableService.length > 0) {
+                for (var i = 0; i < data.AvailableService[0].ServiceInfoDetail.length; i++) {
+
+                    $('#chk input[type=checkbox]').each(function () {
+
+                        if ($(this).val() == data.AvailableService[0].ServiceInfoDetail[i].Id)
+                            $(this).prop("checked", true);
+                    });
+                }
+            }
+
+
+            $("#DivCenter input[type=checkbox]").each(function () {
+                    $(this).prop("checked", false);
+            });
+            if(data.HrcenterList!=null && data.HrcenterList.length > 0)
+            {
+                for (var i = 0; i < data.HrcenterList.length; i++) {
+                    $("#DivCenter input[type=checkbox]").each(function () {
+                        if($(this).val()==data.HrcenterList[i].CenterId)
+                        {
+                            $(this).prop("checked", true);
+                        }
+                    });
+                }
+            }
+            
+         
+            var count = 1;
+            $("#DivCenter input[type=checkbox]").each(function () {
+                if (!$(this).prop('checked')) {
+                    count = 0;
+                }
+            });
+            if (count == 1) {
+                $('#Chkcenter').prop('checked', true);
+
+            }
+            else
+                $('#Chkcenter').prop('checked', false);
+        }
+        function deletecommunity(value) {
+            BootstrapDialog.confirm('Do you want to delete this community resource?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyAdmin/Deletecommunity",
+                        type: "POST",
+                        data: {
+                            CommunityID: $(value).attr("accesskey"),
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            if (response == 1) {
+                                customAlert("Community resource deleted successfully.");
+                                $(value).closest('tr').remove();
+                                //if ($('#gridViewCommunity > tbody tr').length == 0)
+                                //    $('#divE1').show();
+                            }
+                        }
+                    , error: function (response) {
+                           customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                    }
+                    });
+                }
+            });
+
+        }
+        function checkdata() {
+            if ($('#CheckedAll').prop("checked")) {
+                $('#chk input[type="checkbox"]').prop("checked", true);
+                $('#UncheckedAll').prop("checked", false);
+            }
+            if (!$('#CheckedAll').prop("checked")) {
+                $('#chk input[type="checkbox"]').prop("checked", false);
+                $('#CheckedAll').prop("checked", false);
+            }
+        }
+        function uncheckdata() {
+            if ($('#UncheckedAll').prop("checked")) {
+                $('#chk input[type="checkbox"]').prop("checked", false);
+                $('#CheckedAll').prop("checked", false);
+            }
+        }
+
+        function uncheckdays() {
+            if ($('#office24hours').prop("checked")) {
+                $('#Mon').prop("checked", false);
+                $('#Tue').prop("checked", false);
+                $('#Wed').prop("checked", false);
+                $('#Thurs').prop("checked", false);
+                $('#Fri').prop("checked", false);
+                $('#Sat').prop("checked", false);
+                // $('#Sun').prop("checked", false);
+
+            }
+        }
+        function uncheckhours() {
+            if (($('#Mon').prop("checked", true)) || ($('#Tue').prop("checked", true)) || ($('#Wed').prop("checked", true)) || ($('#Thurs').prop("checked", true)) || ($('#Fri').prop("checked", true)) || ($('#Sat').prop("checked", true))) {
+                $('#office24hours').prop("checked", false);
+            }
+        }
+        function checkZipCode(inputTextObject) {
+
+            if ($(inputTextObject).val() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();
+                var len = Zipcode.length;
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddress(1);
+                return ret;
+            }
+            else {
+
+                $('#City').find('option').remove();
+                $('#State').val('');
+                $('#County').val('');
+            }
+        }
+        function CheckAddress(value) {
+          
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $('#ZipCode').val();
+
+
+
+            if ($('#ZipCode').val().trim() != "") {
+
+                $.ajax({
+                    url: HostedDir + "/AgencyAdmin/Checkaddress",
+                    type: "POST",
+                    data: {
+                        Address: $('#ZipCode').val(),
+                        //HouseHoldId: $('#HouseholdId').val(),
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (value == 1) {
+                            if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                                var option = "";
+                                for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                    option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                                }
+                                $('#City').find('option').remove().end().append(option);
+                                $('#City').val('');
+                                $('#State').val(response.Zipcodelist[0].State);
+                                $('#County').val(response.Zipcodelist[0].County);
+                                $('#ZipCode').val(response.Zipcodelist[0].Zipcode);
+                            }
+                            else {
+                                $('#City').find('option').remove().end();
+                                $('#City').val('');
+                                $('#State').val('');
+                                $('#ZipCode').val('');
+                                $('#County').val('');
+                                customAlert("Could not find zipcode details.");
+
+                            }
+                        }
+                    }
+                        , error: function (response) {
+                               customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        }
+                });
+            }
+
+
+        }
+    </script>
+
+    <script type="text/javascript">
+        var isValid = true;
+        @*$(document).ready(function () {
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            if ('@ViewBag.result' == 'Sucess') {
+                clearcontrols();
+            }
+        });*@
+
+        function clearcontrols() {
+            //Added by Akansha on 14Dec2016
+            $('#MedicalCenter').val("");
+            $('#MedicalNotes').val("");
+            $('#DentalCenter').val("");
+            $('#DentalNotes').val("");
+            //End
+
+
+            $('#txtTitle')[0].value = "";
+            $('#txtCompanyName')[0].value = "";
+            $('#txtRegion')[0].value = "";
+            $('#txtFname')[0].value = "";
+            $('#txtLname')[0].value = "";
+            $('#Address')[0].value = "";
+            $('#Phoneno')[0].value = "";
+
+            $('#ZipCode')[0].value = "";
+            $('#City')[0].value = "";
+            $('#State')[0].value = "";
+            $('#Email')[0].value = "";
+            $('#Comments')[0].value = "";
+
+            $('#CheckedAll').prop('checked', false);
+            $('#UnCheckedAll').prop('checked', false);
+            $('#office24hours').prop('checked', false);
+            $('#Mon').prop('checked', false);
+            $('#Tue').prop('checked', false);
+            $('#Wed').prop('checked', false);
+            $('#Thurs').prop('checked', false);
+            $('#Fri').prop('checked', false);
+            $('#Sat').prop('checked', false);
+            $('#chk input[type="checkbox"]').prop("checked", false);
+            $('#MonFrom')[0].value = "";
+            $('#MonTo')[0].value = "";
+            $('#TueFrom')[0].value = "";
+            $('#TueTo')[0].value = "";
+            $('#WedFrom')[0].value = "";
+            $('#WedTo')[0].value = "";
+            $('#ThursFrom')[0].value = "";
+            $('#ThursTo')[0].value = "";
+            $('#FriFrom')[0].value = "";
+            $('#FriTo')[0].value = "";
+            $('#SatFrom')[0].value = "";
+            $('#SatTo')[0].value = "";
+            $('#County')[0].value = "";
+            // $('#County')[0].value = "";
+            // $('#County')[0].value = "";
+
+            $('#gender1').prop('checked', false);
+            $('#gender2').prop('checked', false);
+            $('#gender3').prop('checked', false);
+            $('#hdnCommunityID')[0].value = "";
+            $('#btnSubmit').enabled = true;
+            //  $('#txtNotes')[0].value = "";
+            $('#hdnCommunityID').val(0);
+            //Added by Akansha on 14Dec2016
+            $('#DdlCommunityList')[0].value = "";
+            $('#divdentalCenter').hide();
+            $('#divdentalnotes').hide();
+            $('#divmedicalCenter').hide();
+            $('#divmedicalnotes').hide();
+        }
+        function isValidCommunityInfo() {
+
+            cleanValidation();
+            if ($('#txtFname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter first name.");
+                plainValidation('#txtFname');
+                return isValid;
+            }
+            if ($('#txtLname')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter last name.");
+                plainValidation('#txtLname');
+                return isValid;
+            }
+            if ($('#DdlCommunityList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select community.");
+                plainValidation('#DdlCommunityList');
+                return isValid;
+            }
+            if ($('#DdlCommunityList').val() == "1") {
+                if ($('#txtCompanyName')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please enter medical center.");
+                    plainValidation('#txtCompanyName');
+                    return isValid;
+                }
+            }
+            if ($('#DdlCommunityList').val() == "2") {
+                if ($('#txtCompanyNameDe')[0].value.trim() == "") {
+                        isValid = false;
+                        customAlert("Please enter dental center.");
+                        plainValidation('#txtCompanyNameDe');
+                        return isValid;
+                    }
+            }
+
+            //if ($('#txtCompanyName')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter organization name.");
+            //    plainValidation('#txtCompanyName');
+            //    return isValid;
+            //}
+            if ($('#Phoneno')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter phone no.");
+                plainValidation('#Phoneno');
+                return isValid;
+            }
+            if ($('#Address')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter address.");
+                plainValidation('#Address');
+                return isValid;
+            }
+            if ($('#ZipCode')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter zipcode.");
+                plainValidation('#ZipCode');
+                return isValid;
+            }
+            if ($('#City')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter city.");
+                plainValidation('#City');
+                return isValid;
+            }
+            if ($('#State')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter state.");
+                plainValidation('#State');
+                return isValid;
+            }
+
+
+            if ($('#Email')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter email.");
+                plainValidation('#Email');
+                return isValid;
+            }
+            var check = 0;
+            $("#DivCenter input[type=checkbox]").each(function () {
+                if ($(this).prop('checked')) {
+                    check = 1;
+                }
+            });
+            if (check == 0) {
+                isValid = false;
+                customAlert("Please select center from centers list.");
+                plainValidation('#DivCenter');
+                $('#DivCenter').focus();
+                return isValid;
+            }
+
+
+            $('#spinner').show();
+            $('#btnSubmit').enabled = false;
+            return true;
+            $('#spinner').hide();
+        }
+
+        function ucfirst(str, force) {
+            str = force ? str.toLowerCase() : str;
+            return str.replace(/(\b)([a-zA-Z])/,
+                     function (firstLetter) {
+                         return firstLetter.toUpperCase();
+                     });
+        }
+        function Changefirstchar(value) {
+            var cp_value = ucfirst($(value).val(), true);
+            $(value).val(cp_value);
+        }
+        function CheckallCenter(_object)
+        {
+            if($(_object).prop("checked"))
+            {
+                $("#DivCenter input[type=checkbox]").each(function () {
+                    $(this).prop('checked', true);
+                });
+
+            }
+            else
+            {
+                $("#DivCenter input[type=checkbox]").each(function () {
+                    $(this).prop('checked', false);
+                });
+
+            }
+        }
+
+
+        function uncheck(object)
+        {
+            var count = 1;
+            if (!$(object).prop("checked")) {
+                $('#Chkcenter').prop('checked', false);
+
+            }
+            $("#DivCenter input[type=checkbox]").each(function () {
+                if(!$(this).prop('checked'))
+                {
+                    count = 0;
+                }
+            });
+            if(count==1)
+            {
+                $('#Chkcenter').prop('checked', true);
+
+            }
+                
+
+
+        }
+        //Added by Akansha on 14Dec2016
+        function ShowCenter(object)
+        {
+            if (($('#DdlCommunityList').val()) == "1")
+            {
+                $('#divmedicalCenter').show();
+                $('#divmedicalnotes').show();
+                $('#divdentalCenter').hide();
+                $('#divdentalnotes').hide();
+            }
+            else if (($('#DdlCommunityList').val()) == "2")
+            {
+                $('#divdentalCenter').show();
+                $('#divdentalnotes').show();
+                $('#divmedicalCenter').hide();
+                $('#divmedicalnotes').hide();
+            }
+            else {
+                $('#divdentalCenter').hide();
+                $('#divdentalnotes').hide();
+                $('#divmedicalCenter').hide();
+                $('#divmedicalnotes').hide();
+            }
+        }
+        //End
+
+
+    </script>
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Community Resource
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                    @Html.HiddenFor(m => m.CommunityID, new { id = "hdnCommunityID" })
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtSubcategoryName">Title </label>
+
+                                @Html.TextBoxFor(m => m.Title, new { placeholder = "Title", id = "txtTitle", maxlength = "100", @class = "form-control", tabIndex = "1" })
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceId">First Name<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Fname, new { placeholder = "First Name", id = "txtFname", maxlength = "100", @class = "form-control", tabIndex = "2" })
+
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Last Name<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Lname, new { placeholder = "Last Name", id = "txtLname", maxlength = "100", @class = "form-control", tabIndex = "3" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group" id="DivStatus">
+                                <label for="Status">Community<sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> CommunityList = new List<SelectListItem>();
+                                    CommunityList.Add(new SelectListItem() { Text = "Dentist", Value = "2" });
+                                    CommunityList.Add(new SelectListItem() { Text = "Doctor", Value = "1" });
+
+                                    CommunityList.Add(new SelectListItem() { Text = "Other", Value = "3" });
+                                }
+                                @Html.DropDownListFor(m => m.Community, new SelectList(CommunityList, "Value", "Text"), new { id = "DdlCommunityList", Name = "DdlCommunityList", @class = "form-control", tabIndex = "4" ,onchange="ShowCenter(this);" })
+                            </div>
+                        </div>
+                        @*Added by Akansha on 14Dec2016*@
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalCenter" style="display:none;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Medical Center<sup>*</sup></label>
+                                @*@Html.TextBoxFor(m => m.MedicalCenter, new { placeholder = "Medical Center", maxlength = "100", @class = "form-control", tabIndex = "7" })*@
+                                @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Medical Center", id = "txtCompanyName", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalnotes" style="display:none;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Notes</label>
+                                @Html.TextBoxFor(m => m.MedicalNotes, new { placeholder = "Notes", maxlength = "100", @class = "form-control", tabIndex = "8" })
+                            </div>
+                        </div>
+
+
+                        @*End*@
+                        @*Added by Akansha on 14Dec2016*@
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalCenter" style="display:none;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Dental Center<sup>*</sup></label>
+                                @*@Html.TextBoxFor(m => m.DentalCenter, new { placeholder = "Dental Center", maxlength = "100", @class = "form-control", tabIndex = "7" })*@
+                                @Html.TextBoxFor(m => m.CompanynameD, new { placeholder = "Dental Center", id = "txtCompanyNameDe", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalnotes" style="display:none;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Notes</label>
+                                @Html.TextBoxFor(m => m.DentalNotes, new { placeholder = "Notes", maxlength = "100", @class = "form-control", tabIndex = "8" })
+                            </div>
+                        </div>
+
+
+                        @*End*@
+
+
+
+
+
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtSubcategoryName">Organization Name <sup>*</sup></label>
+
+                                @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Organization Name", id = "txtCompanyName", maxlength = "50", @class = "form-control", tabIndex = "5" })
+
+                            </div>
+                        </div>*@
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtSubcategoryName">Office Location </label>
+
+                                @Html.TextBoxFor(m => m.Region, new { placeholder = "Office Location", id = "txtRegion", maxlength = "50", @class = "form-control", tabIndex = "6" })
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Phone No<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Phoneno, new { placeholder = "Phone No", id = "Phoneno", maxlength = "50", @class = "form-control", tabIndex = "8" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Address<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Address, new { placeholder = "Address", id = "Address", maxlength = "50", @class = "form-control", tabIndex = "7" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Zip Code<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.ZipCode, new { placeholder = "Zip Code", id = "ZipCode", maxlength = "5", @class = "form-control", tabIndex = "11", onblur = "checkZipCode(this);" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">City<sup>*</sup></label>
+                                @*@Html.TextBoxFor(m => m.City, new { placeholder = "City", id = "City", maxlength = "50", @class = "form-control", onblur = "Changefirstchar(this);", tabIndex = "12" })*@
+                                <select id="City" name="City" class="form-control" tabindex="6">
+
+                                    <option value="@Model.City">@Model.City</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">State<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.State, new { placeholder = "State", id = "State", maxlength = "50", @class = "form-control", tabIndex = "13", @readonly = "readonly" })
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">County</label>
+                                @Html.TextBoxFor(m => m.County, new { placeholder = "County", id = "County", maxlength = "50", @class = "form-control", tabIndex = "14", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Email<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Email, new { placeholder = "Email", id = "Email", maxlength = "50", @class = "form-control", tabIndex = "15" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Comments</label>
+                                @Html.TextBoxFor(m => m.Comments, new { placeholder = "Comments", id = "Comments", maxlength = "100", @class = "form-control", tabIndex = "15" })
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <h5 class="page-header">Services Provided</h5>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc"></label>
+                                @Html.CheckBoxFor(m => m.CheckedAll, new { id = "CheckedAll", Name = "CheckedAll", @class = "minimal", tabIndex = "16", @style = "width:3%;;", @onchange = "checkdata();" })
+                                <label for="RaceSubCatDesc" style="width:20%;">Check All</label>
+                                @Html.CheckBoxFor(m => m.UncheckedAll, new { id = "UncheckedAll", Name = "UncheckedAll", @class = "minimal", tabIndex = "16", @style = "width:5%;", @onchange = "uncheckdata();" })
+                                <label for="RaceSubCatDesc">Uncheck All</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 program_type">
+                            <div class="row">
+                                <div id="CategoryInfo">
+                                    @{
+                                        int i = 0;
+
+                                    }
+                                    @if (Model.AvailableService != null)
+                                    {
+                                        foreach (var item in Model.AvailableService)
+                                        {
+
+                                            <div class="mb20">
+                                                <div class="col-sm-12 col-md-2"><label for="RaceSubCatDesc">@item.CategoryName</label><div class="clearfix"></div></div>
+                                                <div class="col-sm-12 col-md-10">
+                                                    <div class="check-sz" style="float:left;" id="chk">
+                                                        @Html.CheckBoxListFor(m => m.PostedPostedService.ServiceID, m => m.AvailableService[@i].ServiceInfoDetail, m => m.Id, m => m.Name, m => m.IsSelected, MvcCheckBoxList.Model.Position.Vertical)
+
+                                                    </div>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <input type="hidden" value="@item.CategoryId" name="@item.CategoryName" />
+                                            i++;
+                                        }
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb20 ">
+                            <div class="col-sm-12">
+                                <div class="col-sm-2"><label for="RaceSubCatDesc" style="width:100%;">Office hours</label></div>
+                                <div class="col-sm-9">
+                                    <div class="row">
+                                        <div class="col-sm-12 mb10">
+                                            @Html.CheckBoxFor(m => m.office24hours, new { id = "office24hours", @class = "minimal", tabIndex = "16", @onchange = "uncheckdays();", @style = "width:auto; margin-right:5px;" })
+
+                                            <label for="RaceSubCatDesc">24 hours a day / 7 days a week</label>
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+
+                                            @Html.CheckBoxFor(m => m.Mon, new { id = "Mon", @class = "minimal", tabIndex = "16", @onchange = "uncheckhours();" })
+                                            <label for="RaceSubCatDesc"> Mon</label>
+                                            @Html.TextBoxFor(m => m.MonFrom, new { placeholder = "From", id = "MonFrom", maxlength = "50", @class = "form-control", tabIndex = "9" })
+
+                                            @Html.TextBoxFor(m => m.MonTo, new { placeholder = "To", id = "MonTo", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+
+                                            @Html.CheckBoxFor(m => m.Tue, new { id = "Tue", @class = "minimal", tabIndex = "16", @onchange = "uncheckhours();" })
+                                            <label for="RaceSubCatDesc"> Tue</label>
+                                            @Html.TextBoxFor(m => m.TueFrom, new { placeholder = "From", id = "TueFrom", maxlength = "50", @class = "form-control", tabIndex = "9" })
+
+                                            @Html.TextBoxFor(m => m.TueTo, new { placeholder = "To", id = "TueTo", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+
+                                            @Html.CheckBoxFor(m => m.Wed, new { id = "Wed", @class = "minimal", tabIndex = "16", @onchange = "uncheckhours();" })
+                                            <label for="RaceSubCatDesc"> Wed</label>
+                                            @Html.TextBoxFor(m => m.WedFrom, new { placeholder = "From", id = "WedFrom", maxlength = "50", @class = "form-control", tabIndex = "9" })
+
+                                            @Html.TextBoxFor(m => m.WedTo, new { placeholder = "To", id = "WedTo", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+
+                                            @Html.CheckBoxFor(m => m.Thurs, new { id = "Thurs", @class = "minimal", tabIndex = "16", @onchange = "uncheckhours();" })
+                                            <label for="RaceSubCatDesc"> Thurs</label>
+                                            @Html.TextBoxFor(m => m.ThursFrom, new { placeholder = "From", id = "ThursFrom", maxlength = "50", @class = "form-control", tabIndex = "9" })
+
+                                            @Html.TextBoxFor(m => m.ThursTo, new { placeholder = "To", id = "ThursTo", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+
+                                            @Html.CheckBoxFor(m => m.Fri, new { id = "Fri", @class = "minimal", tabIndex = "16", @onchange = "uncheckhours();" })
+                                            <label for="RaceSubCatDesc"> Fri</label>
+                                            @Html.TextBoxFor(m => m.FriFrom, new { placeholder = "From", id = "FriFrom", maxlength = "50", @class = "form-control", tabIndex = "9", })
+
+                                            @Html.TextBoxFor(m => m.FriTo, new { placeholder = "To", id = "FriTo", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                        <div class="col-sm-2 mb10">
+                                            @Html.CheckBoxFor(m => m.Sat, new { id = "Sat", @class = "minimal", tabIndex = "16", @onchange = "uncheckhours();" })
+                                            <label for="RaceSubCatDesc"> Sat</label>
+                                            @Html.TextBoxFor(m => m.SatFrom, new { placeholder = "From", id = "SatFrom", maxlength = "50", @class = "form-control", tabIndex = "9" })
+
+                                            @Html.TextBoxFor(m => m.SatTo, new { placeholder = "To", id = "SatTo", maxlength = "50", @class = "form-control", tabIndex = "9" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row adddivspace mb10">
+                            <div class="col-sm-6">
+                                <div class="col-sm-4">
+                                    <label for="RaceSubCatDesc" style="width:100%;">Gender Served</label>
+                                </div>
+
+                                <div class="col-sm-8">
+                                    <div class="row">
+                                        <div class="col-sm-4 mb20">
+                                            @Html.RadioButtonFor(m => m.gender, 1, new { @id = "gender1", tabIndex = "8" })
+                                            Male
+                                        </div>
+                                        <div class="col-sm-4 mb20">
+                                            @Html.RadioButtonFor(m => m.gender, 2, new { @id = "gender2", tabIndex = "8" })
+                                            Female
+                                        </div>
+                                        <div class="col-sm-4 mb20">
+                                            @Html.RadioButtonFor(m => m.gender, 3, new { @id = "gender3", tabIndex = "8" })
+                                            Both
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="col-lg-12">
+                                <h3 class="page-header">Centers</h3>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="col-sm-5">
+                                        <input id="Chkcenter" onchange="CheckallCenter(this);"   type="checkbox"  style="width:auto !important; " />
+                                        <label style="margin-left:2%;">All Centers</label>
+                                    </div>
+                                   
+                                  
+                                    
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                           
+                                                    <div id="DivCenter" class="input_wd1">
+                                                        @if (Model != null && Model.HrcenterList != null && Model.HrcenterList.Count > 0)
+                                                        {
+                                                            foreach (var item1 in Model.HrcenterList)
+                                                            {
+                                                                if (item1.CenterId != "0")
+                                                                {
+                                                                    <div class="centerinhorizontal">
+                                                                        <input type="checkbox" name="Centers.CenterID" onchange="uncheck(this);" id="@item1.CenterId" value="@item1.CenterId" />
+                                                                        <label class="chk_1" for="chk_1">@item1.Name </label>
+                                                                    </div>
+                                                                }
+
+                                                            }
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <label>No center found</label>
+                                                        }
+                                                    </div>
+
+                                                
+                                             
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidCommunityInfo();" tabindex="17">Submit</button>
+                        <button id="btnExit" class="my-btn" type="button" tabindex="18" onclick="clearcontrols(); return false;">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Community Resource List  </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewCommunity">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th id="thCust">User Name<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thMN">Organization Name<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="THCN">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            <th id="thAN">Action<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align:center;display:none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+}

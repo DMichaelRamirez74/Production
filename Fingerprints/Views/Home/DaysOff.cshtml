@@ -1,0 +1,1004 @@
+﻿@model FingerprintsModel.DaysOffModel
+
+
+@{
+    ViewBag.Title = "DaysOff";
+    bool isCenterManager = false;
+    Layout = (Session["RoleId"].ToString().ToUpper() == "A65BB7C2-E320-42A2-AED4-409A321C08A5") ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/AgencyStaffLayout.cshtml";
+    isCenterManager = (Session["RoleId"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b");
+}
+@section maincontentholder{
+
+    <link href="~/Content/css/daysoff.css" rel="stylesheet" />
+
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+
+                        <div class="col-xs-12 ersea-detl-title">
+                            <h2>Center Closure</h2>
+                            <div class="ersea_ovr"><img src="~/images/text-bdr.png" class="img-responsive"></div>
+                        </div>
+                        <div class="form-div edu-prnt">
+                            <div class="col-xs-12 no-padding">
+                                <div class="col-xs-12 serch-billing-block" style="margin-top: 20px;width: 100%;display: inline-block;">
+                                    <label style="" class="lbl-required icr-day-label">Days Off Type</label>
+                                    <select name="" class="ersa-select" id="select_days_Off_type">
+                                        <option value="0">--Days Off Type--</option>
+                                        <option value="1">Agency Wide Closure</option>
+                                        <option value="2">Entire Center Closure</option>
+                                        <option value="3">Classroom Closure</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-xs-12 serch-billing-block" id="center_based_div" style="margin-top: 20px;width: 100%;display:none;">
+
+                                    <label style="" class="lbl-required icr-day-label">Center</label>
+
+                                    <select class="ersa-select" id="ddlCenterdetails">
+                                        <option value="0">--Select Center--</option>
+                                        @if (Model.CenterList.Count() > 0)
+                                        {
+                                            foreach (var item in Model.CenterList)
+                                            {
+                                                <option value="@item.CenterId">@item.CenterName</option>
+                                            }
+                                        }
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-xs-12 serch-billing-block" id="classroom_based_div" style="margin-top: 20px;display:none;">
+
+                                <label style="" class="lbl-required icr-day-label">Classroom </label>
+                                <form style="display:inline-block;color:#fff;font-size:14px;width:auto;margin-left:5px;" id="classroomForm"></form>
+
+                            </div>
+
+                            <div class="col-xs-12 no-padding icr-label-media" id="from-to-div">
+                                <div class="col-xs-12 serch-billing-block icr-header-top" style="">
+                                    <label style="" class="lbl-required icr-day-label ire">From Date</label>
+                                    <input type="text" class="ersa-select date-input" style="color:#fff;font-size:14px;background:transparent;" id="from-date" placeholder="MM/DD/YYYY">
+                                </div>
+                                <div class="col-xs-12 serch-billing-block icr-header-top rk-box" style="">
+                                    <label style="" class="lbl-required icr-day-label rk-auto">To Date</label>
+                                    <input type="text" class="ersa-select date-input" style="color:#fff;font-size:14px;background:transparent;" id="to-date" placeholder="MM/DD/YYYY">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 no-padding" id="comments-div">
+                                <div class="col-xs-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label style="vertical-align:top;" class="icr-day-label">Comments</label>
+                                    <textarea type="text" class="ersa-select rk-textarea" style="" id="daysOffComments"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 no-padding" id="submit-cancel-div">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmitDays" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" type="submit" class="my-btn" accesskey="0">Submit</button>
+                                    <button id="btnExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button" tabindex="13">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                                <table class="col-md-12 table-striped table-condensed cf table-change ersea-table" id="centerTable">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th>Days Off Type</th>
+                                            <th>Center Name</th>
+                                            <th>Classroom </th>
+                                            <th>From Date</th>
+                                            <th>To Date</th>
+                                            <th>Comments</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="ersea-table-head bind_body scroll-tbody">
+
+
+
+                                        @if (Model.DaysOffList.Count() > 0)
+
+                                        {
+                                            foreach (var item in Model.DaysOffList)
+                                            {
+                                                <tr>
+                                                    <td data-title="Days Off Type">
+                                                        <p class="days-off-type" rec-type="@item.RecordType">@item.RecordName</p>
+                                                    </td>
+                                                    <td data-title="Center Name">
+                                                        <p class="center-Name" cen-id="@item.CenterId">@item.CenterName</p>
+                                                    </td>
+
+
+                                                    @if (item.ClassRoomIdArray.Count() > 0)
+                                                    {
+                                                        <td data-title="Classroom">
+                                                            <!--<p class="classroom-name" clas-id="@item.ClassRoomId">@item.ClassRoomName</p>-->
+                                                            <p class="classroom-name">
+
+                                                                @foreach (var item2 in item.ClassRoomIdArray)
+                                                                {
+
+                                                                    <span cls-id="@item2.ClassRoomId" days-off-id="@item2.DaysOffId">@item2.ClassRoomName</span>
+                                                                }
+                                                            </p>
+                                                        </td>
+                                                    }
+
+
+                                                    <td data-title="From Date">
+                                                        <p class="from-date">@item.FromDate</p>
+                                                    </td>
+                                                    <td data-title="To Date">
+                                                        <p class="to-date">@item.ToDate</p>
+                                                    </td>
+                                                    <td data-title="Comments">
+                                                        <p class="daysoff-comments">@item.OffDayComments</p>
+                                                    </td>
+                                                    <td data-title="Action">
+                                                        <p class="action" style="text-align:right;padding-bottom:20px;">
+                                                            <button type="button" class="btn btn-default btn-sm edit-item" accesskey="@item.DaysOffID">
+                                                                <span class="glyphicon glyphicon-pencil"></span> Edit
+                                                            </button>
+                                                            <button type="button" class="btn btn-default btn-sm delete-item" accesskey="@item.DaysOffID">
+                                                                <span class="glyphicon glyphicon-remove"></span> Delete
+                                                            </button>
+
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            <tr style="width: 98.5%;"><td colspan="6" style="padding:30px;text-align:center;">No Data found</td></tr>
+                                        }
+
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.Hidden("centerList", Model.CenterListString)
+    @Html.Hidden("classroomList", Model.ClassRoomListString)
+    @Html.Hidden("offDaysString", Model.OffDaysString)
+    <script>
+        $(function () {
+
+            var daysOffSelect = $('#select_days_Off_type');
+            var centerSelectDiv = $('#center_based_div');
+            var classRoomSelectDiv = $('#classroom_based_div');
+            var centerDetailsSelect = $('#ddlCenterdetails');
+            var classRoomForm = $('#classroomForm');
+            var classRoomString = $('#classroomList');
+            var from_to_div = $('#from-to-div');
+            var comments_div = $('#comments-div');
+            var submit_div = $('#submit-cancel-div');
+            var btnSubmitDays = $('#btnSubmitDays');
+            var fromDate = $('#from-date');
+            var toDate = $('#to-date');
+            var daysOffComments = $('#daysOffComments');
+            var offDaysString = $('#offDaysString');
+
+
+            fromDate.prop('disabled', true);
+            toDate.prop('disabled', true);
+
+            if ($('body').width() > 800) {
+                var height = $('#side-menu').height() - 20;
+                $('#side-menu').height(height);
+
+            }
+
+            $(window).bind("load resize", function () {
+
+                topOffset = 50;
+                width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+                if (width < 768) {
+                    topOffset = 100; // 2-row-menu
+                }
+
+                height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+
+                height = height - topOffset;
+                if (height < 1) height = 1;
+                if (height > topOffset) {
+                    var fileHeight = height - 25;
+                    console.log(fileHeight + 'client');
+                    $('.right-side-container-ch').css('min-height', (fileHeight - 5) + 'px');
+                    $('.scroll-tbody').height(fileHeight - 317);
+                }
+
+                //if ($('body').width() > 800) {
+                //    $('.scroll-thead').width($('.scroll-tbody').width());
+                //}
+                //reSizeContent();
+            });
+
+
+            function reSizeContent() {
+
+                $('.scroll-tbody').height($('.right-side-container-ch').height() - 317);
+            }
+
+
+
+            function getOffDays() {
+                var jsonOffdays = '';
+                var arr = [];
+
+                if (offDaysString.val().length > 0) {
+                    var jsonOffdays = JSON.parse(offDaysString.val());
+
+                }
+                if (jsonOffdays.length > 0) {
+                    arr = $.map(jsonOffdays, function (el) { return el; })
+                }
+                return arr;
+            }
+
+            function initializeDateTimePicker() {
+
+
+                $('#from-date').datetimepicker({
+                    timepicker: false,
+                    mask: true,
+                    formatDate: 'm/d/Y',
+                    format: 'm/d/Y',
+                    onSelectDate: function () { dateChangeEvent(true) },
+                    scrollInput: false,
+                    closeOnDateSelect: true,
+                    minDate: new Date()
+                });
+
+                $('#to-date').datetimepicker({
+
+                    timepicker: false,
+                    mask: true,
+                    formatDate: 'm/d/Y',
+                    format: 'm/d/Y',
+                    onSelectDate: function () { dateChangeEvent(false) },
+                    scrollInput: false,
+                    closeOnDateSelect: true,
+                    minDate: new Date()
+                });
+            }
+
+            initializeDateTimePicker();
+
+
+
+            function dateChangeEvent(isFromDate) {
+
+
+
+                var err = 0;
+                if ($('#select_days_Off_type').val() != '0') {
+
+                    var fromDateVal = (fromDate.val() == "__/__/____") ? toDate.val() : fromDate.val();
+                    var ToDateVal = (toDate.val() == "__/__/____") ? fromDate.val() : toDate.val();
+                    var centerID = (daysOffSelect.val() == '2' || daysOffSelect.val() == '3') ? centerDetailsSelect.val() : '0';
+                    var classarray = [];
+                    classRoomForm.find('input[type=checkbox]:checked').map(function () {
+                        classarray.push({ 'ClassRoomId': parseInt($(this).attr('classroomid')), 'DaysOffId': $(this).attr('daysoffid'), 'CenterId': centerID });
+                    });
+
+                    var daysOffId = btnSubmitDays.attr('accesskey');
+                    if ($('#select_days_Off_type').val() == '2') {
+                        if (centerDetailsSelect.val() == '0') {
+
+                            plainValidation('#ddlCenterdetails');
+                            customAlert('Pleas select Center');
+                            err++;
+                        }
+                    }
+
+                    if ($('#select_days_Off_type').val() == '3') {
+
+                        if (centerDetailsSelect.val() == '0') {
+
+                            plainValidation('#ddlCenterdetails');
+                            customAlert('Pleas select Center');
+                            err++;
+                        }
+
+                        if (classRoomForm.find('input[type=checkbox]:checked').length == 0) {
+                            plainValidation('#classroomForm');
+                            customAlert('Please Select Classroom');
+                            err++;
+                        }
+                    }
+
+                    if (isFromDate) {
+                        if (fromDate.val() != "__/__/____" && toDate.val() != "__/__/____") {
+
+                            if (new Date(fromDate.val()) > new Date(toDate.val())) {
+                                plainValidation('#from-date');
+                                customAlert('From Date should not be greater than To Date');
+                                err++;
+                            }
+                        }
+
+                    }
+                    else {
+                        if (fromDate.val() != "__/__/____" && toDate.val() != "__/__/____") {
+
+                            if (new Date(fromDate.val()) > new Date(toDate.val())) {
+                                plainValidation('#to-date');
+                                customAlert('To Date should not be lesser than From Date');
+                                return false;
+                            }
+                        }
+                    }
+
+
+
+                    console.log(classarray);
+                    if (err == 0) {
+
+                        $.ajax({
+                            url: '/Home/GetOffDayValidation',
+                            type: 'post',
+                            datatype: 'json',
+                            data: { fromDate: fromDateVal, toDate: ToDateVal, centerId: centerID, classroomArray: JSON.stringify(classarray), daysOffType: daysOffSelect.val(), daysOffId: daysOffId },
+                            success: function (data) {
+                                if (data) {
+                                    if (isFromDate) {
+                                        customAlert('Entered Date already Exists');
+                                        plainValidation('#from-date');
+                                    }
+                                    else if (isFromDate) {
+                                        customAlert('Date is already in the list');
+                                        plainValidation('#to-date');
+                                    }
+                                    else {
+                                        customAlert('Date is already in the list');
+                                        plainValidation('#from-date,#to-date');
+                                    }
+
+                                }
+                                else {
+                                    cleanValidation();
+
+                                    if (isFromDate) {
+
+
+                                        if (toDate.val() == "__/__/____") {
+                                            $('#to-date').datetimepicker('destroy');
+
+                                            $('#to-date').datetimepicker({
+                                                timepicker: false,
+                                                mask: true,
+                                                formatDate: 'm/d/Y',
+                                                format: 'm/d/Y',
+                                                onSelectDate: function () { dateChangeEvent(false) },
+                                                closeOnDateSelect: true,
+                                                minDate: new Date(fromDate.val())
+                                            }).val(fromDate.val());
+                                        }
+                                    }
+
+
+                                }
+                            },
+                            error: function (data) {
+
+                            }
+                        });
+                    }
+                }
+
+            }
+
+
+
+
+
+
+            daysOffSelect.on('change', function () {
+
+                // alert($(this).val());
+                fromDate.prop('disabled', false);
+                toDate.prop('disabled', false);
+
+                if (centerSelectDiv.is(':visible')) {
+
+                    if ($(this).val() == '3') {
+                        if (centerDetailsSelect.val() != '0') {
+
+
+                            loadClassRoomDiv(centerDetailsSelect.val(), null);
+                            classRoomSelectDiv.show();
+                        }
+                        else {
+                            //  alert('no class');
+                            classRoomSelectDiv.hide();
+                        }
+                    }
+                }
+                switch ($(this).val()) {
+                    case '0':
+                        //  alert();
+                        fromDate.prop('disabled', true);
+                        toDate.prop('disabled', true);
+                        centerDetailsSelect.val(0);
+                        centerSelectDiv.hide();
+                        classRoomSelectDiv.find('input[type=checkbox]').prop('checked', false).attr({ 'classroomid': '0', 'daysoffid': '0' });
+                        classRoomSelectDiv.hide();
+                        break;
+                    case '1':
+                        centerDetailsSelect.val(0);
+                        centerSelectDiv.hide();
+                        classRoomSelectDiv.find('input[type=checkbox]').prop('checked', false).attr({ 'classroomid': '0', 'daysoffid': '0' });
+                        classRoomSelectDiv.hide();
+                        break;
+                    case '2':
+                        centerDetailsSelect.val(0);
+                        centerSelectDiv.show();
+                        classRoomSelectDiv.find('input[type=checkbox]').prop('checked', false).attr({ 'classroomid': '0', 'daysoffid': '0' });
+                        classRoomSelectDiv.hide();
+                        break;
+                    case '3':
+                        centerSelectDiv.show();
+                        classRoomSelectDiv.find('input[type=checkbox]').prop('checked', false).attr({ 'classroomid': '0', 'daysoffid': '0' });
+                        break;
+                    default:
+                        fromDate.prop('disabled', true);
+                        toDate.prop('disabled', true);
+                        centerSelectDiv.hide();
+                        classRoomSelectDiv.hide();
+                        break;
+                }
+
+
+                cleanValidation();
+
+            });
+
+            centerDetailsSelect.on('change', function () {
+                if (daysOffSelect.val() == '3') {
+
+
+                    var centerId = $(this).val();
+
+                    loadClassRoomDiv(centerId, null);
+
+                    $('#classroomForm').find('input[type=checkbox]').on('click', function () {
+                        // alert();
+                        if ($(this).is(':checked')) {
+
+                            $('#classroomForm').css({ 'background-color': '' });
+                            if (fromDate.val() != "__/__/____" || toDate.val() != "__/__/____") {
+                                dateChangeEvent(null);
+                            }
+                        }
+                        else if (classRoomForm.find('input[type=checkbox]:checked').length > 0) {
+                            $('#classroomForm').css({ 'background-color': '' });
+                            if (fromDate.val() != "__/__/____" || toDate.val() != "__/__/____") {
+                                dateChangeEvent(null);
+                            }
+                        }
+                        else {
+                            cleanValidation();
+                            $('#classroomForm').css({ 'background-color': 'pink' });
+                            customAlert('Please select classroom');
+                        }
+                    });
+                }
+
+                cleanValidation();
+
+                if (daysOffSelect.val() == '2') {
+                    if ($(this).val() != '0') {
+                        if (fromDate.val() != "__/__/____" || toDate.val() != "__/__/____") {
+
+                            dateChangeEvent(null);
+                        }
+                    }
+                }
+
+                if (daysOffSelect.val() == '3') {
+                    if ($(this).val() != '0') {
+                        if (classRoomForm.find('input[type=checkbox]:checked').length > 0) {
+                            if (fromDate.val() != "__/__/____" || toDate.val() != "__/__/____") {
+
+                                dateChangeEvent(null);
+                            }
+                        }
+                    }
+                }
+
+
+
+            });
+
+
+
+
+            btnSubmitDays.on('click', function () {
+                cleanValidation();
+                if (daysOffSelect.val() == '0') {
+                    customAlert('Please select Days Off type');
+                    plainValidation('#select_days_Off_type');
+                    return false;
+                }
+
+                if (centerSelectDiv.is(':visible')) {
+                    if (centerDetailsSelect.val() == '0') {
+                        customAlert('Please select Center.');
+                        plainValidation('#ddlCenterdetails');
+                        return false;
+                    }
+                }
+
+                if (classRoomForm.is(':visible')) {
+                    if (classRoomForm.find('input[type=checkbox]:checked').length == 0) {
+                        customAlert('Please select classroom name');
+                        //  plainValidation('#classroomForm');
+                        return false;
+                    }
+                    else {
+                        $('#classroomForm').css({ 'background-color': '' });
+                    }
+                }
+
+                if (fromDate.val() == "__/__/____") {
+                    customAlert('Please enter From Date.');
+                    plainValidation('#from-date');
+                    return false;
+                }
+
+                if (toDate.val() == "__/__/____") {
+                    customAlert('Please enter To Date.');
+                    plainValidation('#to-date');
+                    return false;
+                }
+
+
+
+                var arr = [];
+                classRoomForm.find('input[type=checkbox]').map(function () {
+
+                    var daysOffId = $(this).attr('daysoffid');
+                    var classRoomId = $(this).attr('classroomid');
+                    var isChecked = $(this).is(':checked');
+
+                    if (isChecked) {
+                        arr.push({ 'DaysOffId': daysOffId, 'ClassRoomId': classRoomId, 'CenterId': centerDetailsSelect.val(), 'Status': true });
+                    }
+                    else if (daysOffId != '0') {
+                        arr.push({ 'DaysOffId': daysOffId, 'ClassRoomId': classRoomId, 'CenterId': centerDetailsSelect.val(), 'Status': false });
+                    }
+
+                });
+
+
+                var daysOff = {};
+                // daysOff.CenterId = parseInt(daysOffSelect.val());
+                daysOff.DaysOffID = btnSubmitDays.attr('accesskey');
+                daysOff.CenterId = parseInt(centerDetailsSelect.val());
+                daysOff.ClassRoomIdArray = arr;
+                daysOff.OffDayComments = daysOffComments.val();
+                daysOff.FromDate = fromDate.val();
+                daysOff.ToDate = toDate.val();
+                daysOff.RecordType = daysOffSelect.val();
+
+
+                $.ajax({
+                    url: '/Home/GetOffDayValidation',
+                    type: 'post',
+                    datatype: 'json',
+                    async: false,
+                    data: { fromDate: fromDate.val(), toDate: toDate.val(), centerId: parseInt(centerDetailsSelect.val()), classroomArray: JSON.stringify(arr), daysOffType: daysOffSelect.val(), daysOffId: btnSubmitDays.attr('accesskey') },
+                    success: function (data) {
+                        if (data) {
+
+                            customAlert('Entered Date already exists');
+                            plainValidation('#from-date');
+
+                            customAlert('Entered Date already exists');
+
+                            plainValidation('#to-date');
+
+
+                        }
+                        else {
+                            cleanValidation();
+                            $('#classroomForm').css({ 'background-color': '' });
+                            $.ajax({
+                                url: "/Home/InsertOffDays",
+                                type: "POST",
+                                datatype: 'post',
+                                data: { daysOffString: JSON.stringify(daysOff) },
+                                success: function (data) {
+                                    if (data.DaysOffList.length > 0) {
+                                        resetForm();
+                                        customAlert('Record saved successfully');
+                                        bindTable(data);
+
+                                    }
+
+                                },
+                                error: function (data) {
+                                    customAlert('Some Error Occured.Please try again later')
+                                }
+                            });
+
+
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                });
+
+
+
+
+
+
+
+
+
+            });
+
+            function loadClassRoomDiv(_centerID, classpara) {
+                if (_centerID != '0') {
+                    var classRoomnModel = JSON.parse(classRoomString.val());
+                    if (classRoomnModel.length > 0) {
+                        classRoomnModel = $.grep(classRoomnModel, function (k, i) {
+                            return k.CenterId == _centerID
+                        });
+                    }
+
+                    if (classRoomnModel.length > 0) {
+                        var appendstring = '';
+                        $.each(classRoomnModel, function (j, cls) {
+                            appendstring += '<input type="checkbox" style="display:inline-block;color:#fff;font-size:14px;width:auto"  daysoffid="0"   classroomId=' + cls.ClassRoomId + '>&nbsp;' + cls.ClassRoomName + '&nbsp;';
+                        });
+
+                        classRoomForm.html(appendstring);
+                        classRoomForm.show();
+                        classRoomSelectDiv.show();
+
+                        if (classpara != null) {
+                            var clssDiv = '';
+                            classpara.find('span').each(function () {
+                                debugger;
+
+                                //clssDiv += '<input type="checkbox" style="display:inline-block;color:#fff;font-size:14px;width:auto"  daysoffid=' + $(this).attr('days-off-id') + '  checked  classroomId=' + $(this).attr('cls-id') + '>&nbsp;' + $(this).text() + '&nbsp;';
+                                classRoomForm.find('input[classroomId=' + $(this).attr('cls-id') + ']').prop('checked', true).attr('daysoffid', $(this).attr('days-off-id'));
+                            });
+
+
+                        }
+                    }
+                    else {
+                        classRoomForm.html('');
+                        classRoomForm.hide();
+                    }
+
+
+
+                }
+            }
+
+
+            function deleteOnClick(val) {
+                var accesskey = $(val).attr('accesskey');
+                var arr = [];
+                if (accesskey.indexOf('') > -1) {
+                    arr = accesskey.split(',');
+                }
+                else {
+                    arr.push(accesskey);
+                }
+
+                console.log(arr);
+                $.ajax({
+                    url: '/Home/DeleteOffDays',
+                    type: 'post',
+                    datatype: 'json',
+                    data: { dayOffIdString: JSON.stringify(arr) },
+                    success: function (data) {
+                        if (data.DaysOffList.length > 0) {
+                            resetForm();
+                            customAlert('Record deleted successfully');
+                            bindTable(data);
+                        }
+                    },
+                    error: function (data) {
+                        customAlert('Some error occured.Please try again later.')
+                    }
+                })
+            }
+
+            function editOnclick(val) {
+
+                cleanValidation();
+                var daysOffId = $(val).attr('accesskey');
+                var childTd = $(val).closest('td').parent('tr').children('td');
+
+                var recType = childTd.eq(0).children('p').attr('rec-type');
+                var centerId = childTd.eq(1).children('p').attr('cen-id');
+                var classRoomIdpara = childTd.eq(2).children('p');
+                var FromDate_val = childTd.eq(3).children('p').html();
+                var ToDate = childTd.eq(4).children('p').html();
+                var comments = childTd.eq(5).children('p').html();
+                btnSubmitDays.attr('accesskey', daysOffId);
+
+                fromDate.prop('disabled', false);
+                toDate.prop('disabled', false);
+
+                //initializeDateTimePicker();
+
+                $('#from-date').datetimepicker('destroy');
+                $('#to-date').datetimepicker('destroy');
+
+
+                $('#from-date').datetimepicker({
+                    timepicker: false,
+                    mask: true,
+                    formatDate: 'm/d/Y',
+                    format: 'm/d/Y',
+                    onSelectDate: function () { dateChangeEvent(true) },
+                    scrollInput: false,
+                    closeOnDateSelect: true
+                    // minDate: new Date()
+                });
+
+                $('#to-date').datetimepicker({
+
+                    timepicker: false,
+                    mask: true,
+                    formatDate: 'm/d/Y',
+                    format: 'm/d/Y',
+                    onSelectDate: function () { dateChangeEvent(false) },
+                    scrollInput: false,
+                    closeOnDateSelect: true
+                    // minDate: new Date()
+                });
+
+                daysOffSelect.prop('disabled', true);
+                switch (recType) {
+                    case '1':
+                        daysOffSelect.val(recType);
+                        fromDate.val(FromDate_val);
+                        toDate.val(ToDate);
+                        daysOffComments.val(comments);
+                        centerSelectDiv.hide();
+                        classRoomSelectDiv.hide();
+                        from_to_div.show();
+                        submit_div.show();
+                        comments_div.show();
+                        break;
+                    case '2':
+
+                        daysOffSelect.val(recType);
+                        fromDate.val(FromDate_val);
+                        toDate.val(ToDate);
+                        daysOffComments.val(comments);
+                        centerDetailsSelect.val(centerId);
+                        centerSelectDiv.show();
+                        classRoomSelectDiv.hide();
+                        from_to_div.show();
+                        submit_div.show();
+                        comments_div.show();
+
+                        break;
+                    case '3':
+                        daysOffSelect.val(recType);
+                        fromDate.val(FromDate_val);
+                        toDate.val(ToDate);
+                        daysOffComments.val(comments);
+                        centerDetailsSelect.val(centerId);
+                        loadClassRoomDiv(centerId, classRoomIdpara);
+
+                        centerSelectDiv.show();
+                        classRoomSelectDiv.show();
+                        from_to_div.show();
+                        submit_div.show();
+                        comments_div.show();
+
+                        break;
+                }
+
+            }
+
+            $('.scroll-tbody').find('.edit-item').on('click', function () {
+
+                editOnclick(this);
+            });
+
+            $('.scroll-tbody').find('.delete-item').on('click', function () {
+
+                deleteOnClick(this);
+            });
+
+
+
+            $('#btnExit').on('click', function () {
+                resetForm();
+            });
+
+            function getFormattedDate(date) {
+                date = new Date(date);
+                var year = date.getFullYear();
+
+                var month = (1 + date.getMonth()).toString();
+                month = month.length > 1 ? month : '0' + month;
+
+                var day = date.getDate().toString();
+                day = day.length > 1 ? day : '0' + day;
+
+                return month + '/' + day + '/' + year;
+            }
+
+
+            function bindTable(data) {
+                var appendDiv = '';
+
+                offDaysString.val(data.OffDaysString);
+
+
+
+                resetForm();
+                if (data != null) {
+
+                    if (data.DaysOffList != null) {
+
+
+                        if (data.DaysOffList.length > 0) {
+
+                            $.each(data.DaysOffList, function (i, table) {
+                                var classSpan = '';
+                                var arr = [];
+                                if (table.ClassRoomIdArray.length > 0) {
+                                    $.each(table.ClassRoomIdArray, function (k, classroom) {
+
+                                        if ((table.ClassRoomIdArray.length > 1) && k == (table.ClassRoomIdArray.length - 1) && table.ClassRoomName != "") {
+                                            classSpan += ',';
+                                        }
+                                        classSpan += '<span cls-id=' + classroom.ClassRoomId + ' days-off-id=' + classroom.DaysOffId + '>' + classroom.ClassRoomName + '</span>';
+                                        arr.push(classroom.DaysOffId);
+                                    });
+
+                                }
+                                console.log(arr);
+                                var daysOffId = arr.join(',');
+                                appendDiv += '<tr>\
+                                                    <td data-title="Days Off Type">\
+                                                        <p class="days-off-type" rec-type='+ table.RecordType + '>' + table.RecordName + '</p>\
+                                                    </td>\
+                                                    <td data-title="Center Name">\
+                                                        <p class="center-Name" cen-id='+ table.CenterId + '>' + table.CenterName + '</p>\
+                                                    </td>\
+                                                    <td data-title="Classroom">\
+                                                        <p class="classroom-name">'+ classSpan + '</p>\
+                                                    </td>\
+                                                    <td data-title="From Date">\
+                                                        <p class="from-date">'+ table.FromDate + '</p>\
+                                                    </td>\
+                                                    <td data-title="To Date">\
+                                                        <p class="to-date">'+ table.ToDate + '</p>\
+                                                    </td>\
+                                                    <td data-title="Comments">\
+                                                        <p class="daysoff-comments">'+ table.OffDayComments + '</p>\
+                                                    </td>\
+                                                    <td data-title="Action">\
+                                                        <p class="action" style="text-align:right;padding-bottom:20px;">\
+                                                            <button type="button" class="btn btn-default btn-sm edit-item" accesskey=' + daysOffId + '>\
+                                                                <span class="glyphicon glyphicon-pencil"></span> Edit\
+                                                            </button>\
+                                                            <button type="button" class="btn btn-default btn-sm delete-item" accesskey=' + daysOffId + '>\
+                                                                <span class="glyphicon glyphicon-remove"></span> Delete\
+                                                            </button>\
+                                                        </p>\
+                                                    </td>\
+                                                </tr>';
+                            });
+                            $('.scroll-tbody').html(appendDiv);
+                            $('.scroll-tbody').find('.edit-item').on('click', function () {
+
+                                editOnclick(this);
+                            });
+
+                            $('.scroll-tbody').find('.delete-item').on('click', function () {
+
+                                deleteOnClick(this);
+                            });
+                        }
+                    }
+                }
+                else {
+                    $('.scroll-tbody').html('<tr style="width: 98.5%;"><td colspan="6" style="padding:30px;text-align:center;">No Data found</td></tr>');
+                }
+
+
+
+
+
+            }
+
+            function resetForm() {
+                daysOffSelect.val(0);
+                centerDetailsSelect.val(0);
+                centerSelectDiv.hide();
+                daysOffSelect.prop('disabled', false);
+                classRoomForm.find('input[type=checkbox]').prop('checked', false).attr({ 'daysoffid': '0', 'classroomid': '0' });
+                classRoomSelectDiv.hide();
+                $('#from-date').datetimepicker('destroy').val('');
+                $('#to-date').datetimepicker('destroy').val('');
+
+                var arr = getOffDays();
+                initializeDateTimePicker();
+                daysOffComments.val('');
+                btnSubmitDays.attr('accesskey', '0');
+            }
+
+
+            function getDates(startDate, endDate) {
+                var dates = [],
+                    currentDate = startDate,
+                    addDays = function (days) {
+                        var date = new Date(this.valueOf());
+                        date.setDate(date.getDate() + days);
+                        return date;
+                    };
+                while (currentDate <= endDate) {
+                    dates.push(getFormattedDate(currentDate));
+                    currentDate = addDays.call(currentDate, 1);
+                }
+                return dates;
+            };
+
+
+
+            function isDate(txtDate) {
+                var currVal = txtDate;
+                if (currVal == '')
+                    return false;
+
+                var rxDatePattern = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/; //Declare Regex
+                var dtArray = currVal.match(rxDatePattern); // is format OK?
+
+                if (dtArray == null)
+                    return false;
+
+                //Checks for mm/dd/yyyy format.
+                dtMonth = dtArray[1];
+                dtDay = dtArray[3];
+                dtYear = dtArray[5];
+
+                if (dtMonth < 1 || dtMonth > 12)
+                    return false;
+                else if (dtDay < 1 || dtDay > 31)
+                    return false;
+                else if ((dtMonth == 4 || dtMonth == 6 || dtMonth == 9 || dtMonth == 11) && dtDay == 31)
+                    return false;
+                else if (dtMonth == 2) {
+                    var isleap = (dtYear % 4 == 0 && (dtYear % 100 != 0 || dtYear % 400 == 0));
+                    if (dtDay > 29 || (dtDay == 29 && !isleap))
+                        return false;
+                }
+                return true;
+            }
+
+
+        });
+    </script>
+
+}

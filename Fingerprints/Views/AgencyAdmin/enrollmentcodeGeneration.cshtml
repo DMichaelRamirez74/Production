@@ -1,0 +1,623 @@
+﻿@{
+    @section Title
+{
+        Enrollment Request
+
+    }
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+@section Script{
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            drawgrid();
+            if ('@Session["Roleid"]'.length > 0) {
+                var role = '@Session["Roleid"].ToString()';
+                if (role == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#form1 input:radio').attr('disabled', true);
+
+                        //$('#form1 #btnExit').attr('disabled', false);
+                        $(".my-btn22").attr("disabled", true);
+                        $(".my-btn22").bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                    }
+                }
+            }
+            $('#li3').addClass("active");
+            if ('@ViewBag.emailalert' != '')
+                customAlert('@ViewBag.emailalert');
+
+
+            $('#gridViewAgency > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+
+
+            //$('a').each(function() {
+            //    var href= $(this).attr('href');
+            //    $(this).attr('href','javascript:void(0);');
+            //    $(this).attr('jshref',href);
+            //});
+
+            $('.loginAgency').bind('click', function (e) {
+
+                //e.stopImmediatePropagation();
+                //e.preventDefault();
+                //e.stopPropagation();
+                var href = $(this).attr('jshref');
+                if (!e.metaKey && e.ctrlKey)
+                    e.metaKey = e.ctrlKey;
+                if (!e.metaKey) {
+                    //location.href = href;
+                    $("a.loginAgency").attr("href", 'javascript:void(0);');
+                    $(this).attr('target', 'AgencyLogin');
+                    $(this).attr('href', href);
+
+                    return true;
+
+                }
+                return false;
+            })
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            //var totalRecord = getTotalRecord();
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+
+        function getList() {
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/listEnrolementmentcode",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewAgency > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewAgency").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            //getTotalRecord();
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+            $('#gridViewAgency > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewAgency > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+                    var tr = "";
+                    tr += "<tr>";
+                    tr += "<td>" + ((typeof (data.list[i].AuthorisationCode) != 'undefined') && (data.list[i].AuthorisationCode != null) ? data.list[i].AuthorisationCode : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].DateEntered) != 'undefined') && (data.list[i].DateEntered != null) ? data.list[i].DateEntered : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].ValidUpto) != 'undefined') && (data.list[i].ValidUpto != null) ? data.list[i].ValidUpto : '') + "</td>";
+                    if (data.list[i].status == "1")
+                        tr += "<td>Active</td>";
+                    else
+                        tr += "<td>Expired</td>";
+                    if (data.list[i].status == "1") {
+                        tr += "<td><a style='width:100%  !important; text-decoration:underline;cursor: pointer;' onclick='updateenrollment(this);'  class='my-btn22' id='btnsendEmail' data-toggle='modal' data-target='#myModal1'  type='button'>Resend Code</a></td>";
+                    }
+                    else
+                        tr += "<td></td>";
+                    tr += "</tr>";
+                    $('#gridViewAgency > tbody').append(tr);
+                    if ('@Session["Roleid"]'.length > 0) {
+                        var role = '@Session["Roleid"].ToString()';
+                        if (role== "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                            if ('@Session["AgencyID"]'.length > 0) {
+
+                                $(".my-btn22").attr("disabled", true);
+                                $(".my-btn22").bind("click", function (e) {
+                                    e.preventDefault();
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function updateenrollment(value) {
+            if ($(value).is('[disabled=disabled]'))
+                return;
+            //$('#enrollmentCode').val($(value).closest('tr').find('td:eq(0)').text());
+            $('#enrollmentCodepopup').val($(value).closest('tr').find('td:eq(0)').text());
+
+        }
+
+    </script>
+    <script type="text/javascript">
+        var email = '';
+        $(document).ready(function () {
+            
+            $('#emailId').tagsInput({ width: 'auto',delimiter:[',',' ',';'] });
+            $('#Email1').tagsInput({ width: 'auto', delimiter: [',', ' ', ';'] });
+           
+            if ('@Session["Roleid"]'.length > 0) {
+                var role = '@Session["Roleid"].ToString()';
+                if (role == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d") {
+                    $('#emailId_tag').attr('disabled', true);
+                    $('#btnExit').click(function () {
+                        window.location.href = HostedDir + "/Home/SuperAdminDashboard";
+                    });
+                }
+                else {
+                    $('#btnExit').click(function () {
+                        window.location.href = HostedDir + "/Home/AgencyAdminDashboard";
+                    });
+                }
+            }
+        });
+        var isValid = true;
+        var emailid = '';
+        function isValidagencyInfo() {
+            isValid = true;
+            if ($("#enrollmentCode")[0].value.trim() == "") {
+                customAlert("Please generate enrollment code to send to valid email id.");
+                isValid = false;
+            }
+            else if ($("#emailId")[0].value.trim() == "") {
+                customAlert("Please enter email id.");
+                isValid = false;
+            }
+            $('#emailId_tagsinput .tag span').each(function () {
+                emailid = emailid + $(this).text().trim()+';';
+            });
+            $("#emailId").val(emailid);
+            emailid = '';
+            return isValid;
+        }
+        function resendcode() {
+            isValid = true;
+            if ($("#Email1")[0].value.trim() == "") {
+                customAlert("Please enter email id.");
+                isValid = false;
+            }
+            else {
+                $('#Email1_tagsinput .tag span').each(function () {
+                    emailid = emailid + $(this).text().trim() + ';';
+                });
+                $("#Email1").val(emailid);
+                emailid = '';
+                $.ajax({
+                    url: HostedDir + "/AgencyAdmin/Resendemail",
+                    type: "POST",
+                    data: {
+                        emailid: $("#Email1")[0].value,
+                        enrollmentCode: $("#enrollmentCodepopup")[0].value
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        customAlert('Invitation email has been sent to mentioned email ID.');
+                        $("#Email1").val('');
+                        $('#Email1_tagsinput').find('span').remove()
+                    }
+                   , error: function (response) {
+                          customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                   }
+                });
+            }
+            return isValid;
+        }
+
+        function cleartaggrid()
+        {
+
+            $('#Email1_tagsinput').find('span').remove();
+        }
+
+    </script>
+
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                Enrollment Request
+            </h2>
+        </div>
+    </div>
+    <div class="row" id="div2">
+        <form method="post" id="form1" autocomplete="off">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <div class="add-useragform">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group enroll">
+                                <ul>
+                                    <li class="code-exp"><span for="email">Code Expiration</li>
+                                    <li>
+                                        <input type="radio" id="24hours" name="activate" value="1" checked />
+                                        <p> 24 Hours</p>
+                                    </li>
+                                    <li>
+                                        <input type="radio" id="48hours" name="activate" value="2" />
+                                        <p>48 Hours </p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group ">
+                                <label for="email">Description</label>
+                                @*<input id="Description" maxlength="100" type="text" name="Description" />*@
+                                <input class="form-control" id="Description" maxlength="100" name="Description" value="@ViewBag.description" type="text">
+                                @*<ul>
+                                        <li><span for="email">Description</span></li>
+                                        <li><input id="Description" maxlength="100" type="text" name="Description" /></li>
+                                    </ul>*@
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group ">
+                                <div class="btn-inpupwrp">
+                                    <button id="btnSubmit" class="my-btn generate-code" value="GenerateCode" name="Command" type="submit">Generate New Code</button>
+                                    @*<span id="span1">@ViewBag.message</span>*@
+                                    <input id="enrollmentCode" type="text" name="enrollmentCode" readonly="readonly" style="float: left; font-size: 14px; width: 35% !important; position: relative; top: 8px; " value="@ViewBag.message" />
+                                    @*<h4 style="font:bold;color:black; margin-left:300px !important;"><label id="">@ViewBag.message</label> </h4>*@
+                                    <div class="clear"></div>
+                                </div><!---btn-inpupwrp-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input id="emailId" type="text" name="emailId" class="form-control"  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="btnwrp_subcal new-send">
+                                <button id="btnSend" type="submit" class="my-btn" value="SendEmail" name="Command" onclick="return isValidagencyInfo();" style="width:120px!important;">Send Request</button>
+                                <button id="btnExit" class="my-btn" type="button">Exit</button>
+                                <div class="clear"></div>
+                            </div>
+                            @*<span id="span1"><h5 style="margin-left:300px;margin-top:-20px;">Authorisation code has been sent with registration link to the enrollee's.</h5></span>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <h3 class="page-header">
+                Enrollment Code List
+            </h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor:pointer;">
+                        <tr>
+                            <th id="thIN" width="16%;">Enrollment Code<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
+                            <th id="thCust">Description<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="thRN" width="17%;">Created Date<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="thCN" width="17%;">Code Expiration<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                            <th id="thKN" width="8%;">Status<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                            <th id="thAN" width="13%;">Send<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align:center;display:none;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    @*modal box*@
+
+    @if (Session["Roleid"] != null)
+    {
+        if (!(Session["Roleid"].ToString() == "f87b4a71-f0a8-43c3-aea7-267e5e37a59d"))
+        {
+            <div class="modal fade" id="myModal1" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Resend Code <span class="extra-title muted"></span></h3>
+                        </div>
+                        <div class="control-group">
+                            <label for="current_password" class="control-label">Enrollment Code<span style="color:red;"> *</span> </label>
+                            <div class="controls">
+                                <input id="enrollmentCodepopup" class="Password" type="text" name="enrollmentCodepopup" readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label for="current_password" class="control-label">Email<span style="color:red;"> *</span> </label>
+                            <div class="controls">
+                                <input id="Email1" placeholder="Enter Email" class="Password" type="text" name="email1" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnChangePassword" onclick="resendcode();" data-dismiss="modal" name="Creates" class="btnPassword" type="button">Resend Code</button>
+                            <button id="btnCancelPassword" class="btnPassword" data-dismiss="modal" onclick="cleartaggrid();" type="button">Exit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+}

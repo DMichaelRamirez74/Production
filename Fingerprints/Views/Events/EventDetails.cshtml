@@ -1,0 +1,271 @@
+﻿@model FingerprintsModel.ShowEventDetails
+
+@{
+    ViewBag.Title = "EventDetails";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section maincontentholder
+    {
+    <link href="~/Content/css/events.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+    </style>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header">
+                        <div class="col-xs-12 no-padding">
+                            <div class="top-header-title-client">
+                                <h1>EVENT DETAILS</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-md-12">
+                            <div class="eml_lst">
+
+                                <ul>
+                                    <li class="work_top_content">
+                                        <span class="work_top_content-im image_drop" enc_id="@Model.Events.Enc_EventId">
+                                            <img src="@Model.Events.ImagePath" id="event_image" style="cursor:pointer;width: 314px;height: 150px;">
+
+                                        </span>
+
+                                        <h2 style="display:initial;">@Model.Events.WorkShopName</h2><p>
+                                            @Model.Events.EventDescription
+                                        </p>
+                                    </li>
+                                    <li><i class="fa fa-arrow-up" aria-hidden="true"></i>&nbsp; Click on image to change</li>
+                                    <li><span class="lft">Speaker</span><span class="rgt">@Model.Events.SpeakerName</span></li>
+                                    <li>
+                                        <span class="lft">Center Name</span><span class="rgt">
+                                            @Model.Events.CenterName
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span class="lft">Center Address</span><span class="rgt">
+                                            @Model.Events.CenterAddress
+                                        </span>
+                                    </li>
+                                    <li><span class="lft">Date</span><span class="rgt">@Model.Events.EventDate</span></li>
+                                    <li><span class="lft">Duration</span><span class="rgt">@Model.Events.TotalDuration&nbsp;Minutes</span></li>
+                                    <li><span class="lft">Last Date to RSVP</span><span class="rgt">@Model.Events.RSVPCutOffDate</span></li>
+                                    <li><span class="lft">Total Slots</span><span class="rgt">@Model.Events.MaxAttend</span></li>
+                                    <li><span class="lft">Event Status</span><span class="rgt">@Model.Events.EventStatus</span></li>
+                                </ul>
+
+                                <!----------registered_members------------->
+                                <div class="serch-client-block registered_member">
+                                    <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;">
+                                        <div class="registered_title col-xs-12 no-padding">
+                                            <h1>Registered Members</h1><a href="#">Remaining Seats:@Model.Events.AvailableSlots</a>
+                                        </div>
+                                        <div class="reg-width">
+                                            <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 20px;width:100%;">
+                                                <table class="col-md-12 table-striped table-condensed cf table-change library-table" style="width:100%;">
+                                                    <thead class="scroll-thead">
+                                                        <tr>
+                                                            <th>Name</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="library-table-head scroll-tbody">
+                                                        @if (Model.RegisteredUsers.Count() > 0)
+                                                        {
+                                                            foreach (var item in Model.RegisteredUsers)
+                                                            {
+                                                                <tr>
+                                                                    <td data-title="Name">
+                                                                        <div class="library-content-desc" style="position: relative;">
+                                                                            <p>@item.FullName</p>
+                                                                            @if (item.IsOther)
+                                                                            {
+
+                                                                                <i class="fa fa-user-times" style="margin-left: 122px; margin-top: -25px;position: absolute;" title="Member not from household"></i>
+
+                                                                            }
+                                                                            @if (item.IsOtherCenter)
+                                                                            {
+                                                                                <i class="fa fa-ban" style="margin-left:80px; margin-top: -25px;position: absolute;" title="Member not from household"></i>
+                                                                            }
+
+                                                                        </div>
+                                                                    </td>
+
+                                                                </tr>
+                                                            }
+                                                        }
+
+                                                    </tbody>
+
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 no-padding legends-sec">
+                                            <div class="legends">
+                                                <ul>
+                                                    <li><i class="fa fa-ban" aria-hidden="true"></i>Members from other centers</li>
+                                                    <li><i class="fa fa-user-times" aria-hidden="true"></i>Other People</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <!----------registered_members------------->
+
+                                <div class="sub_clr_btn register_btn">
+                                    <a href="/Events/Events" class="clear">Exit</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+
+        (function (window) {
+            function triggerCallback(e, callback) {
+
+                if (!callback || typeof callback !== 'function') {
+                    return;
+                }
+                var files;
+                if (e.dataTransfer) {
+                    files = e.dataTransfer.files;
+                    alert(e.dataTransfer.files.name);
+                } else if (e.target) {
+                    files = e.target.files;
+                }
+                callback.call(null, files);
+            }
+            function makeDroppable(ele, callback) {
+
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('multiple', false);
+                input.setAttribute('class', 'fileAttachments');
+                input.style.display = 'none';
+                input.addEventListener('change', function (e) {
+                    triggerCallback(e, callback);
+                });
+                ele.appendChild(input);
+
+                ele.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    ele.classList.add('dragover');
+                });
+
+                ele.addEventListener('dragleave', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    ele.classList.remove('dragover');
+                });
+
+                ele.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    ele.classList.remove('dragover');
+                    triggerCallback(e, callback);
+
+                });
+
+                ele.addEventListener('click', function () {
+                    input.value = null;
+                    input.click();
+                });
+            }
+            window.makeDroppable = makeDroppable;
+        })(this);
+        (function (window) {
+            debugger;
+            makeDroppable(window.document.querySelector('.image_drop'), function (files) {
+
+                console.log(files);
+                SaveFile();
+            });
+        })(this);
+
+
+        function SaveFile() {
+            var enc_eventid = $('.image_drop').attr('enc_id');
+            var data = new FormData();
+            $('.fileAttachments').each(function (i, vak) {
+                var files = $(this).get(0).files;
+                if (files.length > 0) {
+                    data.append("MyImages" + i + "", files[0]);
+                    data.append('eventId', enc_eventid);
+                }
+            });
+            $.ajax({
+                url: "/Events/ChangeImage",
+                type: "POST",
+                processData: false,
+                contentType: false,
+                asyn: false,
+                data: data,
+                success: function (imagepath) {
+                    if (imagepath.isResult) {
+                        if (imagepath._imgpath.length > 0) {
+                            $.each(imagepath._imgpath, function (k, im) {
+                                $('#event_image').attr('src', im);
+
+                            });
+
+                            customAlert('Image updated successfully.');
+                        }
+                    }
+                    else {
+                        customAlert('Error occured,Try again later.')
+                    }
+                },
+                error: function (er) {
+                    alert(er);
+                }
+            });
+        }
+
+    </script>
+
+}
+
+

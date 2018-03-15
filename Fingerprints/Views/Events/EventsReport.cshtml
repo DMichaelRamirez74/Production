@@ -1,0 +1,249 @@
+﻿@{
+    ViewBag.Title = "EventsReport";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section MainContentHolder{
+    <link href="~/Content/css/events.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+        .library-content-desc p {
+            min-height: 90px !important;
+        }
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 600px;
+        }
+
+        .report_heading label {
+            width: auto;
+            display: inline-block;
+            font-size: 18px;
+            color: #fff;
+            float: right;
+            margin-top: 10px;
+        }
+    </style>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header">
+
+                        <div class="col-xs-12 no-padding">
+                            <div class="top-header-title-client">
+                                <h1>EVENT REPORT</h1>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-xs-12 text-center serch-library-block workshop_heading report_heading">
+
+                    @Html.DropDownList("Workshop", Fingerprints.Utilities.Helper.GetWorkShop(), new { @class = "library-select" })
+                    @Html.DropDownList("Center", Fingerprints.Utilities.Helper.GetCentersByUserIdSearch(Session["UserID"].ToString(), Session["AgencyId"].ToString(),Session["RoleID"].ToString()), new { @class = "library-select" })
+
+
+                    <label id="totalCount">Total:03</label>
+                </div>
+
+
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-md-12">
+                            <div class="eml_lst">
+
+                                <!----------registered_members------------->
+                                <div class="serch-client-block ">
+                                    <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding: 10px;padding-bottom:0;margin-bottom: 20px;">
+
+                                        <div id="no-more-tables_workshop" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                            <table class="col-md-12 table-striped table-condensed cf table-change library-table">
+                                                <thead class="scroll-thead">
+                                                    <tr>
+
+                                                        <th>Name</th>
+                                                        <th>Center</th>
+                                                        <th>Speaker</th>
+                                                        <th>Center Address</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="library-table-head table-body scroll-tbody" style="height:340px!important;padding-top: 10px;"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!----------registered_members------------->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        $(window).resize(function () {
+            resise();
+
+        });
+        $(window).load(function () {
+            resise();
+
+        });
+        $(document).ready(function () {
+            GetWorkshopDetails();
+            $('#Workshop,#Center').change(function () {
+                GetWorkshopDetails();
+                $('#totalCount').html('Total:' + $('.table-body-tr').length + '');
+            });
+        });
+        function GetWorkshopDetails() {
+            $.ajax({
+                type: "POST",
+                url: "/Events/GetWorkshopReport",
+                data: { 'Workshopid': $('#Workshop').val(), 'CenterId': $('#Center').val() },
+                success: function (data) {
+                    $('.table-body').empty();
+
+                    var Template = '<tr class="table-body-tr">\
+                                                    <td data-title="Name">\
+                                                        <div class="library-content-desc" style="position: relative;">\
+                                                            <p>##Name##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                    <td data-title="Center">\
+                                                        <div class="library-content-desc">\
+                                                            <p>##CenterName##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                    <td data-title="Speaker">\
+                                                        <div class="library-content-desc">\
+                                                            <p>##Speaker##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                    <td data-title="Address">\
+                                                        <div class="library-content-desc">\
+                                                            <p>##Address##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                    <td data-title="Date">\
+                                                        <div class="library-content-desc">\
+                                                            <p>##Date##</p>\
+                                                        </div>\
+                                                    </td>\
+                                                </tr>';
+
+                    var JsonData = JSON.parse(data);
+                  
+                    if (JSON.parse(data).length > 1) {
+                        $.each(JSON.parse(data), function (i, val) {
+                            console.log(parseFloat(val["FixedAmount"]).toFixed());
+                            var input = Template;
+                            input = input.replace("##Name##", val["FullName"]);
+                            input = input.replace("##CenterName##", val["CenterName"]);
+                            input = input.replace("##Speaker##", val["Speaker"]);
+                            input = input.replace("##Address##", val["Address"]);
+                            input = input.replace("##Date##", val["Date"]);
+                            $('.table-body').append(input);
+                        });
+                    }
+                    else if (JSON.parse(data).length == 1) {
+                        var input = Template;
+                        input = input.replace("##Name##", JsonData[0].FullName);
+                        input = input.replace("##CenterName##", JsonData[0].CenterName);
+                        input = input.replace("##Speaker##", JsonData[0].Speaker);
+                        input = input.replace("##Address##", JsonData[0].Address);
+                        input = input.replace("##Date##", JsonData[0].Date);
+                        $('.table-body').append(input);
+                    }
+                    else {
+                        var NoRecordTemplate = '<tr><td colspan="5"><div class="library-content-desc"><p style="min-height: 40px!important;text-align:center;">No Record Found</p></div></td></tr>';
+                        $('.table-body').append(NoRecordTemplate);
+                    }
+
+                    $('#totalCount').html('Total:' + $('.table-body-tr').length + '');
+                },
+                error: function (data) {
+                    console.log('Error');
+                }
+            });
+        }
+        function resise() {
+
+            topOffset = 50;
+            width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+            if (width < 768) {
+                topOffset = 100; // 2-row-menu
+            }
+
+            height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+            console.log(height + 'height');
+            height = height - topOffset;
+            if (height < 1) height = 1;
+            if (height > topOffset) {
+                var fileHeight = height - 25;
+
+                $('.right-side-container').css('min-height', (fileHeight - 5) + 'px');
+            }
+
+            var win = $(window).height();
+            var widleft = $(".sidebar").width();
+            var htcpy = $(".footer-one").height();
+            var httphdr = $(".header_ge").height();
+
+            $(".left-side-container").css({
+                height: win
+            });
+            $(".right-side-container").css({
+                height: win - htcpy - 40
+
+            });
+            $(".dashboard-content-pad").css({
+                height: win - httphdr - htcpy - 110
+
+            });
+            $(".dashboard-content-pad").css({
+                height: win - httphdr - htcpy - 110
+
+            });
+        }
+    </script>
+
+}

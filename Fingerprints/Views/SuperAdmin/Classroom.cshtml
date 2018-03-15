@@ -1,0 +1,510 @@
+﻿@model FingerprintsModel.AgencyStaff
+@{
+    @section Title
+{
+
+        FSW Classroom Assignment
+
+    }
+
+    if (Session["AgencyID"] != null && Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")))
+    {
+        if (Session["LeftMenu"] != null)
+        {
+            if (Session["LeftMenu"].ToString() == "SuperAdmin")
+            {
+                Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+            }
+            else
+            {
+                Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+            }
+        }
+        else
+        {
+            Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+        }
+    }
+    else
+    {
+        Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+    }
+}
+@section Script{
+
+    <script type="text/javascript">
+        var isValid = true;
+
+        //var round = 0;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            $('#dashboard').removeClass('active');
+            $('#Yakkr').removeClass('active');
+            try {
+                $("#DdlAgencyList").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/Agency/AutoCompleteAgency",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term, Active: "1" },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.agencyName, id: item.agencyId
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#HiddenAgencyId').val(ui.item.id);
+                     //   BindCenter(ui.item.id);
+                        
+                    },
+                    messages: {
+                        noResults: "", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+          //Commented on 03092016
+            @*if ('@Session["AgencyID"]' != "") {
+
+                BindCenter();
+            }*@
+
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlert('@TempData["message"]');
+            }
+
+        });
+
+        function isValidclassInfo() {
+            cleanValidation();
+            isValid = true;
+            if ('@Session["AgencyID"]' == "")
+            {             
+                if ($('#DdlAgencyList')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please select agency.");
+                    plainValidation('#DdlAgencyList');
+                    return isValid;
+                }
+            }
+
+            if (!$('#HomeBased').prop("checked") && !$('#FswBased').prop("checked"))
+            {
+
+                isValid = false;
+                customAlert("Classroom assignment is required.");
+                return isValid;
+            }
+            if ($('#DdlCentersList').val() == "" || $('#DdlCentersList').val() == null) {
+                isValid = false;
+                customAlert("Please select center from list.");
+                plainValidation('#DdlCentersList');
+                return isValid;
+            }
+
+
+            $('#gridViewCenter > tbody > tr').each(function () {
+                if ($(this).find('td').find('select').val() == "" || $(this).find('td').find('select').val() == null)
+                {
+                    isValid = false;
+                    if ($('#HomeBased').prop("checked"))
+                        customAlert("HV Users is required.");
+                    if ($('#FswBased').prop("checked"))
+                        customAlert("FSW Users is required.");
+                    plainValidation($(this).find('td').find('select'));
+                    return isValid;
+
+
+                }
+
+
+            });
+
+
+
+
+
+
+
+            return isValid;
+        }
+        function BindCenter() {
+            cleanValidation();
+            if ('@Session["AgencyID"]' != "") {
+                $('#HiddenAgencyId').val('@Session["AgencyID"]');
+            }
+            $.ajax({
+                url: HostedDir + "/Agency/getagencyid",
+                type: "POST",
+                data: {
+                    // AgencyId: Id,
+                    AgencyId: $('#HiddenAgencyId').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+
+                            option = option + '<option value="' + response[i].CenterId + '">' + response[i].Name + '</option>';
+
+                        }
+                        $('#DdlCentersList').find('option').remove().end().append(option);
+                        $('#DdlCentersList').val('');
+
+                    }
+                    else {
+                        option = "";
+                        $('#DdlCentersList').val('');
+                        $('#DdlCentersList').find('option').remove().end().append(option);
+                        $('#gridViewCenter > tbody').append('');
+                        $('#gridViewCenter > tbody > tr').remove();
+                        $('#div1').show();
+                    }
+                }
+            });
+        }
+
+        function getddlvalue(value) {
+
+            var x = $(value).val();
+            $('#UserList').val(x);
+        }
+
+        function BindClassroom(value) {
+            var Id = $(value).val();
+            $('#centerlist').val($(value).val());
+            $.ajax({
+                url: HostedDir + "/Agency/getClassroomCenter",
+                type: "POST",
+                data: {
+                    CenterId: Id,
+
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+
+                    if (response.Classroom.length > 0 && response.UserList.length > 0) {
+
+                        $('#div1').hide();
+
+                        $('#gridViewCenter > tbody > tr').remove();
+                        var option = "";
+                        var content = "";
+                        var tbody = $('#gridViewCenter > tbody');
+
+                        var option = "";
+                        for (var i = 0; i < response.Classroom.length; i++) {
+
+                            var tr = "";
+                            tr += "<tr>";
+                            var ClassroomID = "Classroom[" + i + "].ClassroomID";
+                            var userId = "UserList[" + i + "].userId";
+
+                            tr += "<td>" + ((typeof (response.Classroom[i].ClassName) != 'undefined') && (response.Classroom[i].ClassName != null) ? response.Classroom[i].ClassName : '') + "</td>";// value="' + $('#Classroom').val() + '"value='Classroom[" + i + "].ClassroomID'
+                            tr += "<td style='display:none;'>" + ((typeof (response.Classroom[i].ClassroomID) != 'undefined') && (response.Classroom[i].ClassroomID != null) ? response.Classroom[i].ClassroomID : '') + "<input type='hidden' name='UserList[" + i + "].ClassroomID' value='" + response.Classroom[i].ClassroomID + "' />" + "</td>";
+
+                            tr += "<td><select class='form-control' name='UserList[" + i + "].userId' onchange='getddlvalue(this);' style='width: 97%;'>";
+                            for (var j = 0; j < response.UserList.length; j++) {
+                                option = option + '<option value="' + response.UserList[j].userId + '">' + response.UserList[j].Name + '</option>';
+                            }
+
+                            tr += option + "</td>";
+                            tr += '</select>';
+                            option = "";
+                            tr += "</tr>";
+                            $('#gridViewCenter > tbody').append(tr);
+                        }
+
+                    }
+                    else {
+
+                        $('#gridViewCenter > tbody').append('');
+                        $('#gridViewCenter > tbody > tr').remove();
+                        $('#div1').show();
+
+
+                    }
+                }
+                  , error: function (response) {
+                         customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                  }
+            });
+        }
+        function BindClassroomAssign(value, classassignId) {
+            cleanValidation();
+            $('#gridViewCenter > tbody > tr').remove();
+            var Id = $(value).val();
+            $('#centerlist').val($(value).val());
+            var Type = null;
+            if ($('#HomeBased').prop("checked"))
+                Type=1;
+            if( $('#FswBased').prop("checked"))
+                Type = 2;
+
+
+            if ('@Session["AgencyID"]' != "") {
+                $('#HiddenAgencyId').val('@Session["AgencyID"]');
+            }
+
+            $.ajax({
+                url: HostedDir + "/Agency/getClassroomCenterAssign",
+                type: "POST",
+                data: {
+                    CenterId: Id,
+                    Type: Type,
+                    Agencyid: $('#HiddenAgencyId').val()
+
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.UserAssignList != null && response.Classroom.length > 0 && response.UserList.length > 0) {
+                        $('#div1').hide();
+                        $('#gridViewCenter > tbody > tr').remove();
+                        var option = "";
+                        var content = "";
+                        var tbody = $('#gridViewCenter > tbody');
+                        var option = "";
+                        for (var i = 0; i < response.Classroom.length; i++) {
+                            var tr = "";
+                            tr += "<tr>";
+                            var ClassroomID = "Classroom[" + i + "].ClassroomID";
+                            var userId = "UserList[" + i + "].userId";
+                            tr += "<td>" + ((typeof (response.Classroom[i].ClassName) != 'undefined') && (response.Classroom[i].ClassName != null) ? response.Classroom[i].ClassName : '') + "</td>";// value="' + $('#Classroom').val() + '"value='Classroom[" + i + "].ClassroomID'
+                            tr += "<td style='display:none;'>" + ((typeof (response.Classroom[i].ClassroomID) != 'undefined') && (response.Classroom[i].ClassroomID != null) ? response.Classroom[i].ClassroomID : '') + "<input type='hidden' name='UserList[" + i + "].ClassroomID' value='" + response.Classroom[i].ClassroomID + "' />" + "</td>";
+                            tr += "<td style='display:none;'>" + ((typeof (response.UserAssignList[i].ClassroomID) != 'undefined') && (response.UserAssignList[i].ClassroomID != null) ? response.UserAssignList[i].ClassroomID : '') + "<input type='hidden' name='UserAssignList[" + i + "].ClassroomID' value='" + response.UserAssignList[i].ClassroomID + "' />" + "</td>";
+                            tr += "<td><select class='form-control' name='UserList[" + i + "].userId' selected='selected' onchange='getddlvalue(this);' style='width: 97%;'>";
+                            for (var j = 0; j < response.UserList.length; j++) {
+                                if (response.UserAssignList[i].userId == response.UserList[j].userId) {
+                                    option = option + '<option value="' + response.UserList[j].userId + '" selected="selected">' + response.UserList[j].Name + '</option>';
+                                }
+                                else {
+                                    option = option + '<option value="' + response.UserList[j].userId + '">' + response.UserList[j].Name + '</option>';
+                                }
+                            }
+                            tr += option + "</td>";
+                            tr += '</select>';
+                            option = "";
+                            tr += "</tr>";
+                            $('#gridViewCenter > tbody').append(tr);
+                          //  $("select[name='UserList[" + i + "].userId']").val('');
+                        }
+                    }
+                    else if (response.UserAssignList == null && response.Classroom.length > 0 && response.UserList.length > 0) {
+                        $('#div1').hide();
+                        $('#gridViewCenter > tbody > tr').remove();
+                        var option = "";
+                        var content = "";
+                        var tbody = $('#gridViewCenter > tbody');
+                        var option = "";
+                        for (var i = 0; i < response.Classroom.length; i++) {
+                            var tr = "";
+                            tr += "<tr>";
+                            var ClassroomID = "Classroom[" + i + "].ClassroomID";
+                            var userId = "UserList[" + i + "].userId";
+                            tr += "<td>" + ((typeof (response.Classroom[i].ClassName) != 'undefined') && (response.Classroom[i].ClassName != null) ? response.Classroom[i].ClassName : '') + "</td>";// value="' + $('#Classroom').val() + '"value='Classroom[" + i + "].ClassroomID'
+                            tr += "<td style='display:none;'>" + ((typeof (response.Classroom[i].ClassroomID) != 'undefined') && (response.Classroom[i].ClassroomID != null) ? response.Classroom[i].ClassroomID : '') + "<input type='hidden' name='UserList[" + i + "].ClassroomID' value='" + response.Classroom[i].ClassroomID + "' />" + "</td>";
+
+                            tr += "<td><select class='form-control' name='UserList[" + i + "].userId' onchange='getddlvalue(this);' style='width: 97%;'>";
+                            for (var j = 0; j < response.UserList.length; j++) {
+                                option = option + '<option value="' + response.UserList[j].userId + '">' + response.UserList[j].Name + '</option>';
+                            }
+                            tr += option + "</td>";
+                            tr += '</select>';
+                            option = "";
+                            tr += "</tr>";
+                            $('#gridViewCenter > tbody').append(tr);
+                            $("select[name='UserList[" + i + "].userId']").val('');
+                        }
+
+                    }
+                    else {
+                        $('#gridViewCenter > tbody').append('');
+                        $('#gridViewCenter > tbody > tr').remove();
+                        $('#div1').show();
+                    }
+                }
+                  , error: function (response) {
+                         customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                  }
+            });
+        }
+        //
+        function GetCenters(object)
+        {
+            cleanValidation();
+            if ($(object).val() == 1)
+            {
+                $('#thMN').text('HV Users');
+            }
+            if ($(object).val() == 2) {
+                $('#thMN').text('FSW Users');
+            }
+            $('#gridViewCenter > tbody > tr').remove();
+
+            if ('@Session["AgencyID"]' != "") {
+                $('#HiddenAgencyId').val('@Session["AgencyID"]');
+            }
+            $.ajax({
+                url: HostedDir + "/Agency/getagencyid",
+                type: "POST",
+                data: {
+                    AgencyId: $('#HiddenAgencyId').val(),
+                    Type: $(object).val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        var option = "";
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].CenterId + '">' + response[i].Name + '</option>';
+                        }
+                        $('#DdlCentersList').find('option').remove().end().append(option);
+                        $('#DdlCentersList').val('');
+                    }
+                    else {
+                        option = "";
+                        $('#DdlCentersList').val('');
+                        $('#DdlCentersList').find('option').remove().end().append(option);
+                        $('#gridViewCenter > tbody').append('');
+                        $('#gridViewCenter > tbody > tr').remove();
+                        $('#div1').show();
+                    }
+                }
+            });
+
+
+        }
+
+
+    </script>
+}
+@section MainContentHolder{
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+                FSW & HV Classroom Assignment
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                    <div class="row">
+                        @if (Session["AgencyID"] == null)
+                        {
+                            
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <div class="cont-sz">
+                                    <div class="col-xs-6 col-sm-4">
+                                        <span>Agency<sup>*</sup></span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-7">
+                                        @Html.TextBoxFor(m => m.AgencyName, new { placeholder = "Search Agency", id = "DdlAgencyList", Name = "DdlAgencyList", maxlength = "100", @class = "form-control", tabIndex = "1" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        }
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <div class="cont-sz">
+                                    <div class="col-xs-6 col-sm-4">
+                                        <span>Classroom Assignment For<sup>*</sup></span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-3">
+                                        <input type="radio" id="HomeBased" onchange="GetCenters(this);" value="1" name="HH" />
+                                        <span>Home Visitor</span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4">
+                                        <input type="radio" name="HH" id="FswBased" onchange="GetCenters(this);" value="2" />
+                                        <span>Family Service Worker</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            <div class="form-group">
+                                <div class="cont-sz">
+                                    <div class="col-xs-6 col-sm-4">
+                                        <span>Center<sup>*</sup></span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-7">
+                                        <select id="DdlCentersList" name="DdlCentersList" onchange="BindClassroomAssign(this);" class="form-control"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @Html.HiddenFor(m => m.SelectedAgencyId, new { id = "HiddenAgencyId", Name = "HiddenAgencyId" })
+                        @Html.HiddenFor(m => m.ClassAssignID, new { id = "HiddenClassAssignID", Name = "HiddenClassAssignID" })
+                        <input type="hidden" value="@Model.centerlist" id="centerlist" name="centerlist" />
+                    </div>
+                    <div class="col-lg-6 col-md-12 col-sm-12">
+                    </div>
+                </div>
+                <div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h2 class="page-header">Classrooms </h2>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                        <div class="table-responsive">
+                            <table class="table table_size" id="gridViewCenter">
+                                <thead style="cursor:pointer;">
+                                    <tr>
+                                        <th id="thCust" style='width: 40%;'>Classrooms<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                                        <th id="thMN" style='width: 40%;'>FSW Users<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div id="div1" style="text-align: center; display: none;">
+                                <label>No result found.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="btnwrp_subcal">
+                            <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidclassInfo();" tabindex="21">Submit</button>
+                            @*<button id="btnExit" class="my-btn" type="button" tabindex="22">Exit</button>*@
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+

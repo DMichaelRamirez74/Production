@@ -1,0 +1,1048 @@
+﻿@{
+    ViewBag.Title = "ChildHeadStartTransition";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+}
+
+
+@section MainContentHolder{
+    <link href="~/Content/css/Transition.css" rel="stylesheet" />
+    <style>
+            #page-wrapper {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            
+.no-padding{padding: 0;}
+.right-side-container-ch {
+    width: 100%;
+    float: left;
+    background: url('../../Images/body-bg.jpg') center no-repeat;
+    background-size: cover;
+    min-height:689px;
+}
+    .error-notify{    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    color: red;
+    font-size: 13px;
+    margin-left: 2px;
+    font-weight: bold;}
+    .err-message,.other-ins-err{display:none;color: red;font-size: 12px;margin: 6px;height:10px; }
+    .addInnerChildContent {
+    border: 1px solid #ddd;
+    margin-bottom: 24px;
+}
+    .err-container,irr-error {
+    width: 100%;
+    float: left;
+    margin: 6px 0;
+}
+.icr-img img { margin-top:5px;float: right;}
+    .info-heading h2
+    {
+            color: #000;
+    font-size: 18px;
+    text-transform: uppercase;
+    padding:20px 10px!important;
+    text-align: center;
+    display: block;
+    font-weight: bold;
+    margin: 0;
+    }
+    </style>
+    <div class="container-fluid">
+    <div class="row">
+        <div class="right-side-container-ch">
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 top-header-background no-padding">
+                    <div class="top-header" style="margin-top:20px;">
+                        <div class="nav-icon1">
+                            <img src="images/nav-bar.png">
+                        </div>
+                        <div class="col-xs-12 no-padding">
+                            <div class="top-header-title-transportation">
+                                <h1>Pregnant Mother Transition</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 no-padding">
+
+                        @*<div class="col-xs-12 transition-section" style="background: none; margin: 0; padding-right: 0 !important;">
+                            <div class="transition-analysis-btn" style="margin-bottom: 0; text-align: right;">
+                                <a id="addChild" style="cursor:pointer;">Add Child</a>
+                            </div>
+                        </div>*@
+
+                        <div class="col-xs-12  mCustomScrollbar">
+                            <div class="col-xs-12 transition-section">
+                                <div class="col-xs-12 info-heading">
+                                    <h2>Pregnant Mother Information</h2>
+                                </div>
+                                <div class="col-xs-12 preginfo" >
+
+                                  
+                                    <form role="form">
+                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p>Date of transition<span class="error-notify">*</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-9 col-xs-7 no-padding">
+                                                <div class="transition-inner" style="position: relative;">
+                                                    <span class="transition-field-style"></span>
+                                                    <input type="text" maxlength="10" placeholder="MM/DD/YYYY" style="margin-bottom: 5px;" class="form-control txt-date mandatory transitionDate" value="@DateTime.Now.ToString("MM/dd/yyy")" />
+                                                    <div class="err-container irr-error">
+                                                        <span class="err-message">Date is required</span>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p>Insurance Type<span class="error-notify">*</span></p>
+                                                </div>
+                                            </div>
+                                         
+
+                                            <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                                <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="PregInsType" class="PregInsuranceType" value="C3A1">
+                                                            <label>Medicare / Chip</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="PregInsType" class="PregInsuranceType" value="C3B1">
+                                                            <label>State Insurance</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="PregInsType" class="PregInsuranceType" value="C3C1">
+                                                            <label>Private Insurance</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="PregInsType" class="PregInsuranceType" value="C4">
+                                                            <label>No Insurance</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="PregInsType" class="PregInsuranceType" value="C3D1">
+                                                            <label>Other Insurance</label>
+                                                            <div class="transition-inner divPregInsType" style="position: relative;display: none;">
+                                                                <span class="transition-field-style"></span>
+                                                                <input type="text" class="form-control optional" id="PregOtherInsuranceType" value="">
+                                                                <div class="err-container irr-error">
+                                                                    <span class="other-ins-err"></span>
+                                                                  </div>
+                                                               
+                                                              </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </div>
+
+                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                    <span class="err-message err-message-preginstype">Insurance type is required</span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p>Type of Birth<span class="error-notify">*</span></p>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                                <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="0">
+                                                            <label>No Birth</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="1">
+                                                            <label>Left Before Birth of Child</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="2">
+                                                            <label>Single Child Birth</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-12 no-padding">
+                                                        <div class="radio radio-info" style="width:100%;">
+                                                            <input type="radio" name="BirthType" class="ClsBirthType" value="3">
+                                                            <label>Multi Child Birth</label>
+                                                            <div class="transition-inner divBirthType col-xs-12 no-padding" style="position: relative;display: none;">
+                                                                <span class="transition-field-style"></span>
+                                                                <input type="text" class="form-control" id="MultiChildBirth" value="" style="width: 80px;display:inline-block;height: 36px;margin-top: 3px;" onkeypress="return isNumber(event)">
+                                                                <span id="spnMultiChildBirth" style="display:inline-block;background: #1e5482;/* width: 42px; *//* height: 42px; */text-align: center;line-height: 32px;color: #fff;font-size: 24px;cursor: pointer;font-size: 15px;padding: 0 10px;border-radius: 5px;margin-left: 10px;margin-top: 6px;">Load Forms</span>
+                                                              
+                                                            </div>
+                                                            <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                                <span id="spnMultiChildBirthErr" class="err-message"></span>
+                                                              
+                                                            </div>
+                                                        </div>
+
+
+                                                       
+
+                                                    </div>
+                                                 
+                                                </div>
+
+                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                    <span class="err-message err-message-birthtype">Type of child birth is required</span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12   mCustomScrollbar" >
+
+                            <div class="col-xs-12 transition-section addNewChild" style="display:none;">
+                                <div class="col-xs-12 info-heading">
+                                    <h2 id="InsTypeHeading"></h2>
+                                </div>
+                                 <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                        <div class="transition-content-desc" style="position: relative;">
+                                            <p>Insurance Type<span class="error-notify">*</span></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3A1">
+                                                    <label>Medicare / Chip</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3B1">
+                                                    <label>State Insurance</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3C1">
+                                                    <label>Private Insurance</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C4">
+                                                    <label>No Insurance</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="InsType" class="InsuranceType" value="C3D1">
+                                                    <label>Other Insurance</label>
+                                                    <div class="transition-inner divInsType" style="position: relative;display: none;">
+                                                        <span class="transition-field-style"></span>
+                                                        <input type="text" class="form-control optional" id="OtherInsuranceType" value="">
+                                                        <div class="err-container irr-error">
+                                                            <span class="other-ins-err"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                            <span class="err-message err-message-instype">Insurance type is required</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 info-heading">
+                                    <h2>Child Information</h2>
+                                </div>
+                                <div class="col-xs-12 addNewChildBody">
+                                    <div class="col-xs-12 addInnerChildContent">
+                                        <form role="form">
+                                           <div class="col-xs-12 no-padding" style="margin-bottom: 10px;margin-top:15px;">
+                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                                    <div class="transition-content-desc" style="position: relative;">
+                                                        <p>Name<span class="error-notify">*</span></p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-9 col-xs-7 no-padding">
+                                                    <div class="transition-content-desc" style="position: relative;">
+                                                        <input type="text" style="margin-bottom: 5px;" class="form-control childmandatory childName" />
+
+                                                    <div class="err-container irr-error">
+                                                        <span class="err-message">Child name is required</span>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p>DOB<span class="error-notify">*</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-9 col-xs-7 no-padding">
+                                                <div class="transition-inner" style="position: relative;">
+                                                    <span class="transition-field-style"></span>
+                                                    <input type="text" maxlength="10" class="form-control txt-date childmandatory dob" style="margin-bottom: 5px;" placeholder="MM/DD/YYYY" value="" />
+                                                    <div class="err-container  irr-error">
+                                                        <span class="err-message">Date of birth is required</span>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p>Gender<span class="error-notify">*</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-9 col-xs-7 no-padding transition-radio-btn">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="yn" class="gender" value="1">
+                                                    <label>Male</label>
+                                                </div>
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="yn" class="gender" value="2">
+                                                    <label>Female</label>
+                                                </div>
+
+                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                    <span class="err-message err-message-gender">Gender is required</span>
+                                                </div>
+                                            </div>
+
+
+
+                                            </div>
+
+                                       
+                                            <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                                <div class="enroll-sec" style="padding-left: 0;">
+                                                    <div class="transition-content-desc" style="position: relative;">
+                                                        <p style="background: none;border: none;">Will the newborn be enrolled into the EHS program?<span class="error-notify">*</span></p>
+                                                    </div>
+                                                </div>
+                                                <div class="transition-radio-btn enroll-sec margin-enroll">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="yn1" class="IsEHS" value="true">
+                                                        <label>Yes</label>
+                                                    </div>
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="yn1" class="IsEHS" value="false">
+                                                        <label>No</label>
+                                                    </div>
+
+                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                        <span class="err-message err-message-ehs">EHS program is required</span>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="transition-analysis-btn">
+                                <a id="submitTransition" style="cursor:pointer;">Submit</a>
+                                <a href="/Roster/Roster" style="background:#e74c3c;">Cancel</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="SeatsAvailability" role="dialog">
+    <div class="modal-dialog">
+        @*Modal content*@
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Information</h4>
+            </div>
+
+            <div class="form-group">
+                <label id="lblSeatsAvailability" style="width:  100%; text-align:  center;padding:  0; margin:  0;font-family: inherit;" class="control-label"></label>
+          
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="RedirectToDashboard()" class="my-btn1">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+               
+
+                <script>
+
+
+                    function RedirectToDashboard()
+                    {
+                        location.href = '/Roster/Roster';
+                    }
+                    $("body").on('keyup', '.txt-date', function (e) {
+
+                        flags = 0;
+                        if (e.keyCode != 193 && e.keyCode != 111) {
+                            if (e.keyCode != 8) {
+                                if ($(this).val().length == 2) {
+                                    $(this).val($(this).val() + "/");
+                                } else if ($(this).val().length == 5) {
+                                    $(this).val($(this).val() + "/");
+                                }
+                            } else {
+                                var temp = $(this).val();
+                                if ($(this).val().length == 5) {
+                                    $(this).val(temp.substring(0, 4));
+                                } else if ($(this).val().length == 2) {
+                                    $(this).val(temp.substring(0, 1));
+                                }
+                            }
+                        } else {
+                            var temp = $(this).val();
+                            var tam = $(this).val().length;
+                            $(this).val(temp.substring(0, tam - 1));
+                        }
+
+
+                    });
+
+                    var flags = 0;
+
+                    $('body').on("keydown", "#datecompleted,.txt-date", function (e) {
+                        flags++;
+                        if (flags > 1) {
+                            e.preventDefault();
+                        }
+
+                        //var regex = /^[0-9]*(?:\.\d{1,2})?$/;
+
+
+                        //if( !regex.test(e.value) ) {
+                        //    return false;
+                        //}
+
+                        var key = e.charCode || e.keyCode || 0;
+
+                        // allow backspace, tab, delete, enter, arrows, numbers and keypad numbers ONLY
+                        // home, end, period, and numpad decimal
+                        return (key == 8 || key == 9 || key == 13 || key == 46 || key == 37 || key == 39 ||
+                            key == 35 || key == 36 || key == 110 || key == 190 || key == 191 ||
+                           (key >= 96 && key <= 111 || key >= 48 && key <= 57 && !e.shiftKey));
+                        //(e.which == keyCode.ENTER)
+
+
+                        var owner = this,
+                      pps = owner.properties,
+                      charCode = e.which || e.keyCode || e.charCode || 0;
+
+                        // hit backspace when last character is delimiter
+
+                        if (Util.isAndroid() &&
+                            e.target.value.length &&
+                            e.target.value.length === this._lastEventValue.length - 1 &&
+                            Util.isDelimiter(pps.result.slice(-1), pps.delimiter, pps.delimiters)
+                        ) {
+                            e.charCode = 8;
+                        }
+                        if (e.charCode === 8 &&
+                            Util.isDelimiter(pps.result.slice(-1), pps.delimiter, pps.delimiters)) {
+                            pps.backspace = true;
+                        }
+                        else {
+                            pps.backspace = false;
+                        }
+                        this._lastEventValue = e.target.value;
+
+                    });
+
+
+                    function validatedateChild(inputTextObject) {
+                     
+                        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                          
+                            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                            var regex = new RegExp(dateformat);
+                            if (regex.test($(inputTextObject).val())) {
+                               
+                                return true;
+                            }
+                            else {
+                               
+                               
+                              return false;
+                            }
+
+                        }
+
+                    }
+                    $('#submitTransition').click(function () {
+
+                        if (ValidateInput()) {
+                            var Transition = {};
+                            Transition.ClientId = '@ViewBag.ClientId';
+                            Transition.ProgramTypeId = '@ViewBag.ProgramId';
+                            Transition.DateOfTransition = $('.transitionDate').val();
+                            Transition.TrnsInsuranceType = $('.PregInsuranceType:checked').val();
+                            Transition.OtherInsuranceTypeDesc = $('#PregOtherInsuranceType').val();
+                            Transition.ChildInsuranceType = $('.InsuranceType:checked').val();
+                            Transition.ChildOtherInsuranceTypeDesc = $('#OtherInsuranceType').val();
+                            Transition.BirthType = $('.ClsBirthType:checked').val();
+
+
+                            //Child Info List
+                            var child = [];
+                            $('.addInnerChildContent').each(function () {
+                                var Child = {};
+                                Child.Name = $(this).find('.childName').val();
+                                Child.DOB = $(this).find('.dob').val(); Child.Gender = $(this).find('input[name="yn"]:checked').val();
+                                Child.InsuranceType = $(this).find('.InsuranceType').val();                               
+                                Child.IsEHS = $(this).find('input[name="yn1"]:checked').val() == "true" ? true : false;
+                                child.push(Child);
+                            });
+
+                            var TransitionDetails = { Transition: Transition, PregMomChilds: child };
+                            TransitionDetails = JSON.stringify({ 'Transition': TransitionDetails });
+
+                        
+
+
+                            $.ajax({
+                                //dataType: 'json',
+                                //type: 'POST',
+                                //url: '/Roster/SaveChildHeadStartTranstion',
+                                //data: Transition,
+                                //success: function (data) {
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                type: "POST",                               
+                                url: "/Roster/SaveChildEarlyHeadStartTranstion",
+                                data: TransitionDetails,
+                                success: function (data) {
+                                  
+                                    var names = "";
+                                    
+                                        for(var i=0;i<data.length;i++)
+                                        {
+                                           
+                                            if (data[i].Result == 4)
+                                            {
+                                                names += " , " + data[i].ChildName;
+                                            }                                                                                                                      
+                                        }
+                                        if (names != "")
+                                        {
+                                            names = names.slice(2);
+                                            $("#lblSeatsAvailability").text("No slot or classroom available for " + names + ". They will be moved to waiting list.");
+                                            $('#SeatsAvailability').modal('show');
+                                        }
+                                        else
+                                        {
+                                            $("#lblSeatsAvailability").text("Record Updated Successfully.");
+                                            $('#SeatsAvailability').modal('show');
+                                        }
+                                       
+                                   // console.log(data);
+                                    //alert("Saved Sccessfully");
+                                   //;
+                                }
+                            })
+                        }
+
+                    });
+
+
+                    //Append Child Dynamically
+                    $('#addChild').click(function () {
+                        $(this).find('img').show();
+                        $('.addNewChildBody').append($('.addNewChildBody').html());
+                        $('.addNewChildBody').addClass('childcontainer');
+
+                    });
+
+                    //$('.remove-child').click(function () {
+                    $('.addNewChildBody').on('click', '.remove-child', function () {
+                        
+                        if ($('.addInnerChildContent').length > 1) {
+                            $(this).parent().parent().parent().parent().remove();
+                        }
+                        if ($('.addInnerChildContent').length == 1) {
+                            $('.addNewChildBody').removeClass('childcontainer');
+                            customAlert("Minimum one child is required.");
+                        }
+                    });
+
+
+                    function ValidateInput() {
+                       
+                        var isValid = true;
+                        debugger;
+                        $('.mandatory').each(function () {
+                            if ($(this).val() == "") {
+                                    $(this).closest('div').find('.err-message').show();
+                                if (isValid)
+                                    isValid = false;
+                            }
+                            if ($(this).hasClass('transitionDate') && !validatedateChild(this)) {
+                                $(this).closest('div').find('.err-message').text("Invalid transition date");
+                                $(this).closest('div').find('.err-message').show();
+                                if (isValid)
+                                    isValid = false;
+                            }
+                           else if ($(this).hasClass('transitionDate') && $(this).val() != "") {
+                                var transitionDate = new Date($(this).val());
+                                var todayDate = new Date();
+
+                                if (transitionDate > todayDate) {
+                                    $(this).closest('div').find('.err-message').text("Transition date must be less than future date.");
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+
+                                }
+                            }
+                            else if ($(this).hasClass('transitionDate') && $(this).val() == "" ) {
+
+                               $(this).closest('div').find('.err-message').text("Transition date is required.");
+                               $(this).closest('div').find('.err-message').show();
+                               if (isValid)
+                                   isValid = false;
+                            }
+                           
+
+                             if ($(this).hasClass('dob') && $(this).val() == "") {
+
+                                $(this).closest('div').find('.err-message').text("Date of birth is required.");
+                                $(this).closest('div').find('.err-message').show();
+                                if (isValid)
+                                    isValid = false;
+                            }
+
+                           else if ($(this).hasClass('dob') && !validatedateChild(this)) {
+                                $(this).closest('div').find('.err-message').text("Invalid date of birth");
+                                $(this).closest('div').find('.err-message').show();
+                                if (isValid)
+                                    isValid = false;
+                            }
+                           else if ($(this).hasClass('dob') && $(this).val() != "") {
+                               
+                                var From_date = new Date($(this).val());
+                                var To_date = new Date();
+
+                                var startDay = new Date(From_date);
+                                var endDay = new Date(To_date);
+                                var millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+                                var millisBetween = endDay.getTime() - startDay.getTime();
+                                var days = millisBetween / millisecondsPerDay;
+
+                                // Round down.
+                                var totalDays = Math.floor(days);
+                                if (parseInt(totalDays) >= 60) {
+                                    $(this).closest('div').find('.err-message').text("A child date of birth must be less than 60 days.");
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+
+                                }
+                            }
+
+                           
+                        });
+                        if ($('#PregOtherInsuranceType').is(':visible') == true && $('#PregOtherInsuranceType').val()=="")
+                        {
+                            $('.other-ins-err').text("Other Insurance Type is Required.");
+                            $('.other-ins-err').show();
+                            if (isValid)
+                                isValid = false;
+                        }
+                        
+                        if ($('.addInnerChildContent').is(':visible') == true)
+                        {
+                            $('.childmandatory').each(function () {
+                                if ($(this).val() == "") {
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+                                if ($(this).hasClass('transitionDate') && !validatedateChild(this)) {
+                                    $(this).closest('div').find('.err-message').text("Invalid transition date");
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+                                else if ($(this).hasClass('transitionDate') && $(this).val() != "") {
+                                    var transitionDate = new Date($(this).val());
+                                    var todayDate = new Date();
+
+                                    if (transitionDate > todayDate) {
+                                        $(this).closest('div').find('.err-message').text("Transition date must be less than future date.");
+                                        $(this).closest('div').find('.err-message').show();
+                                        if (isValid)
+                                            isValid = false;
+
+                                    }
+                                }
+                                else if ($(this).hasClass('transitionDate') && $(this).val() == "") {
+
+                                    $(this).closest('div').find('.err-message').text("Transition date is required.");
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+
+
+                                if ($(this).hasClass('dob') && $(this).val() == "") {
+
+                                    $(this).closest('div').find('.err-message').text("Date of birth is required.");
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+
+                                else if ($(this).hasClass('dob') && !validatedateChild(this)) {
+                                    $(this).closest('div').find('.err-message').text("Invalid date of birth");
+                                    $(this).closest('div').find('.err-message').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+                                else if ($(this).hasClass('dob') && $(this).val() != "") {
+
+                                    var From_date = new Date($(this).val());
+                                    var To_date = new Date();
+
+                                    var startDay = new Date(From_date);
+                                    var endDay = new Date(To_date);
+                                    var millisecondsPerDay = 1000 * 60 * 60 * 24;
+
+                                    var millisBetween = endDay.getTime() - startDay.getTime();
+                                    var days = millisBetween / millisecondsPerDay;
+
+                                    // Round down.
+                                    var totalDays = Math.floor(days);
+                                    if (parseInt(totalDays) >= 60) {
+                                        $(this).closest('div').find('.err-message').text("A child date of birth must be less than 60 days.");
+                                        $(this).closest('div').find('.err-message').show();
+                                        if (isValid)
+                                            isValid = false;
+
+                                    }
+                                }
+
+
+                            });
+
+
+
+                            if ($('input[name="InsType"]:checked').length == 0) {
+
+                                $('.err-message-instype').show();
+
+                                if (isValid)
+                                    isValid = false;
+                            }
+                            if ($('input[name="InsType"]:checked').length > 0) {
+                                if ($('input[name="InsType"]:checked').val() == "C3D1") {
+                                    if ($('input[name="InsType"]:checked').closest('div').find('input[type="text"]').val() == "") {
+                                        $('.other-ins-err').text("Other Insurance Type is Required.");
+                                        $('.other-ins-err').show();
+                                        if (isValid)
+                                            isValid = false;
+                                    }
+                                    else {
+                                        $('.other-ins-err').hide();
+                                    }
+
+                                }
+                            }
+
+                            $('.addInnerChildContent').each(function () {
+                                $(this).find('.err-message-instype').hide();
+                                $(this).find('.err-message-gender').hide();
+                                $(this).find('.err-message-ehs').hide();
+
+                             
+                                if ($(this).find('input[name="yn"]:checked').length == 0) {
+                                    $(this).find('.err-message-gender').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+                                if ($(this).find('input[name="yn1"]:checked').length == 0) {
+                                    $(this).find('.err-message-ehs').show();
+                                    if (isValid)
+                                        isValid = false;
+                                }
+                            });
+
+
+                        }
+
+                        $('.preginfo').each(function () {
+                            $(this).find('.err-message-preginstype').hide();
+                            $(this).find('.err-message-birthtype').hide();
+
+                            if ($(this).find('input[name="PregInsType"]:checked').length == 0) {
+                                $(this).find('.err-message-preginstype').show();
+                                if (isValid)
+                                    isValid = false;
+                            }
+                            if ($(this).find('input[name="PregInsType"]:checked').length > 0) {
+
+                                if ($(this).find('input[name="PregInsType"]:checked').val() == "C3D1") {
+                                    if ($(this).find('input[name="PregInsType"]:checked').closest('div').find('input[type="text"]').val() == "") {
+                                        $(this).closest('div').find('.other-ins-err').text("Other Insurance Type is Required.");
+                                        $('.other-ins-err').show();
+                                        if (isValid)
+                                            isValid = false;
+                                    }
+                                    else {
+                                        $('.other-ins-err').hide();
+                                    }
+                                }
+                            }
+
+                            if ($(this).find('input[name="BirthType"]:checked').length == 0) {
+                                $(this).find('.err-message-birthtype').show();
+                                if (isValid)
+                                    isValid = false;
+                            }
+
+                            if ($('input[name="BirthType"]:checked').length > 0) {
+                                if ($('input[name="BirthType"]:checked').val() == "3") {
+                                    if ($('input[name="BirthType"]:checked').closest('div').find('input[type="text"]').val() == "" ) {
+                                        $('.err-message-birthtype').text("Please enter number of child.");
+                                        $('.err-message-birthtype').show();
+                                        if (isValid)
+                                            isValid = false;
+                                    }
+                                 
+                                    else if ($('.addInnerChildContent').is(':visible') == false) {
+                                        $('.err-message-birthtype').text("Please load the form to enter child information.");
+                                        $('.err-message-birthtype').show();
+                                        if (isValid)
+                                            isValid = false;
+                                    }
+                                    else {
+                                        $('.err-message-birthtype').hide();
+                                    }
+
+                                }
+                            }
+                        
+                        });
+
+                     
+
+                      
+                        
+
+                        return isValid;
+                    }
+                    
+
+                    $('body').on("change keyup", ".mandatory", function () {
+                        if ($(this).closest('div').find('.err-message').is(':visible'))
+                            $(this).closest('div').find('.err-message').hide();
+                      
+                    });
+                    $('body').on("change keyup", ".childmandatory", function () {
+                        if ($(this).closest('div').find('.err-message').is(':visible'))
+                            $(this).closest('div').find('.err-message').hide();
+
+                    });
+                    $('body').on("change keyup", ".optional", function () {
+                        if ($(this).closest('div').find('.other-ins-err').is(':visible'))
+                            $(this).closest('div').find('.other-ins-err').hide();
+
+                    }); 
+
+                    //Disability Status
+                    $('body').on('change', 'input[name="yn1"]', function () {
+                        $('.err-message-ehs').hide();
+                    });
+
+                    //Gender Status
+                    $('body').on('change', 'input[name="yn"]', function () {
+                        $('.err-message-gender').hide();
+                    });
+
+                    $(function () {
+                       // $('.mCustomScrollbar').find('div').eq(2).find('.remove-child').hide();
+                        //$('.mCustomScrollbar').find('div').eq(2).find('.remove-child').hide();
+                    });
+                    //$(document).ready(function () { });
+
+                    //$('#MultiChildBirth').bind("keyup", function (event) {
+                    //    if (event.keyCode == 13) {
+                    //        alert($(this).val())
+                    //    }
+                    //});
+                    //$('body').off().on('keypress', '#MultiChildBirth', function (e) {
+                    //    alert(1)
+                    // });
+
+                    function isNumber(evt) {
+                        evt = (evt) ? evt : window.event;
+                        var charCode = (evt.which) ? evt.which : evt.keyCode;
+                        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                            return false;
+                        }
+                        return true;
+                    }
+                    $(document).ready(function () {
+                        
+                        $(".transition-radio-btn input[name='PregInsType']").click(function () {
+                            
+                            var val = "0";
+                            if ($(this).is(":checked")) {
+                                 val = $(this).val(); 
+                            }
+                            if (val == "C3D1") {
+                                $(this).closest('div').find('.divPregInsType').show();
+                            }
+                            else {
+
+                                $('.divPregInsType').hide();
+                            }
+                        });
+
+                        $(".transition-radio-btn input[name='BirthType']").click(function () {
+
+                            //addNewChild
+                            var val = "0";
+                            if ($(this).is(":checked")) {
+                                val = $(this).val();
+                              
+                            }
+
+                            if (val == "0")
+                            {
+                                $('.addNewChild').hide();
+                                $('.divBirthType').hide();
+                            }
+                            else if (val == "1") {
+                                $('.addNewChild').hide();
+                                $('.divBirthType').hide();
+                            }
+                            else if (val == "2") {
+                                $('#InsTypeHeading').text("Insurance Type For Child");
+                                $('.addNewChild').show();
+                                $('.divBirthType').hide();
+
+                                if ($('.addInnerChildContent.childcontainer').length >= 1) {
+                                    $('.addInnerChildContent.childcontainer').each(function (i) {
+                                        $(this).remove();
+                                    });
+                                }
+                            }
+                            else if (val == "3") {
+                                $('.addNewChild').hide();
+                               // $('.addNewChildBody').addClass('childcontainer');
+                                $(this).closest('div').find('.divBirthType').show();
+                            }
+                            else {
+                              
+                                $('.divBirthType').hide();
+                            }
+
+                        });
+
+                        $(".transition-radio-btn input[name='InsType']").click(function () {
+                          
+                            var val = "0";
+                            if ($(this).is(":checked")) {
+                                val = $(this).val();
+                            }
+                            if (val == "C3D1") {
+                                $(this).closest('div').find('.divInsType').show();
+                            }
+                            else {
+
+                                $('.divInsType').hide();
+                            }
+                        });
+
+                   
+                        $('#spnMultiChildBirth').click(function () {
+                            $('.err-message-birthtype').hide();
+                            if ($('#MultiChildBirth').val() == "" || $('#MultiChildBirth').val() == null)
+                            {
+                                $('#spnMultiChildBirthErr').text("Please enter number of child.");
+                                $('#spnMultiChildBirthErr').show();
+                                return false;
+                            }
+
+                            $('#InsTypeHeading').text("Insurance Type For Children");
+                            if ($('.addInnerChildContent.childcontainer').length >= 1) {
+                                $('.addInnerChildContent.childcontainer').each(function (i) {
+                                    $(this).remove();
+                                });
+                            }
+                            $('.addNewChild').show();
+                          
+                            var multiChild = parseInt($('#MultiChildBirth').val());
+                          
+                            var htmlContent = $('.addNewChildBody').html();
+                            for (var i = 1; i < multiChild; i++) {                           
+                                $('.addNewChildBody').append(htmlContent);
+                              
+                            }
+                            var inc = 1;
+                            $('.addInnerChildContent').each(function (i) {
+                                if (inc != 1) {
+                                    $(this).addClass('childcontainer');
+                                }
+                                inc++;
+                            });
+                        })
+                    });
+            
+                   
+                </script>
+}
+
+

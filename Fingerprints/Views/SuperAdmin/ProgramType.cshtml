@@ -1,0 +1,855 @@
+﻿@model FingerprintsModel.ProgramType
+
+@{
+    @section Title
+{
+     Program Type
+
+    }
+
+    Layout = "~/Views/Shared/SuperAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var sortOrder = '';
+        var sortDirection = '';
+        var imgID = '';
+        var direction = '';
+        var pageSize = 50;
+        var requestedPage = 0;
+        var pageLoadedFirst = true;
+        var totalRecords = 0;
+        var numOfPages = 0;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var search = '';
+        var listAgency = null;
+
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            drawgrid();
+            
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            if ('@Session["RoleName"]'.length > 0) {
+                var role = '@Session["RoleName"].ToString()';
+                if (role.toUpperCase() == "SUPERADMIN") {
+                    if ('@Session["AgencyID"]'.length > 0) {
+                        $('#form1 input').attr('readonly', true);
+                        $('#form1 Button').attr('disabled', true);
+                        $('#form1 select').attr('disabled', true);
+                        $('#form1 input:radio').attr('disabled', true);
+
+                        $(".my-btn22").attr("disabled", true);
+                        $(".my-btn22").bind("click", function (e) {
+                            e.preventDefault();
+                        });
+                    }
+                }
+            }
+
+            $('#gridViewProgram > thead > tr > th').click(function () {
+                sortOrder = this.id;
+                if (sortOrder == "thAN")
+                    return false;
+                imgID = $("#" + this.id).find('img').attr('id');
+                $('#gridViewProgram > thead > tr > th > img').css("visibility", "hidden");
+                direction = $("#" + imgID).siblings('input').val();
+                if (direction == "Asc") {
+                    $("#" + imgID).siblings('input').val("Desc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                } else {
+                    $("#" + imgID).siblings('input').val("Asc");
+                    sortDirection = $("#" + imgID).siblings('input').val();
+                }
+                getList();
+                bindGridUser(listAgency, $("#gridViewProgram").find('tr')[0].cells.length);
+            });
+            $("#txtsearch").on('change keypress paste', function (e) {
+                var key = e.which;
+                if (key == 13) {
+                    drawgrid();
+
+                }
+            });
+            $('#ddlpaging').change(function () {
+                getListafterupdation();
+            });
+
+        });
+        function getListafterupdation() {
+
+            pageSize = $('#ddlpagetodisplay').val();
+            requestedPage = $('#ddlpaging').val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+            $('#gridViewProgram > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+           
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else {
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            bindGridUser(listAgency, $("#gridViewProgram").find('tr')[0].cells.length);
+            $("#ddlpaging").val(requestedPage);
+        }
+   
+        function getList() {
+        
+
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/Programdetails",
+                type: "POST",
+                data: {
+                    sortOrder: sortOrder,
+                    sortDirection: sortDirection,
+                    search: $("#txtsearch").val(),
+                    pageSize: $('#ddlpagetodisplay').val(),
+                    requestedPage: requestedPage,
+                
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getData(data);
+                    getTotalRecord(data.totalrecord)
+                }
+                , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                }
+            });
+
+        }
+        function getData(dataAgency) {
+            listAgency = dataAgency;
+        }
+        function GoToNextPage(requestedPage, pageSize) {
+            $('#gridViewProgram > thead > tr > th > img').css("visibility", "hidden");
+            if (imgID != '' && imgID != 'undefined' && imgID != null) {
+                direction = $("#" + imgID).siblings('input').val();
+            }
+            if (direction == "Asc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+
+            } else if (direction == "Desc") {
+                sortDirection = $("#" + imgID).siblings('input').val();
+            }
+            getList();
+            bindGridUser(listAgency, $("#gridViewProgram").find('tr')[0].cells.length);
+        }
+        function getlistafterstatuschanged() {
+            getList();
+            bindGridUser(listAgency, $("#gridViewProgram").find('tr')[0].cells.length);
+
+        }
+        function drawgrid() {
+            requestedPage = 1;
+            getList();
+            bindGridUser(listAgency, $("#gridViewProgram").find('tr')[0].cells.length);
+            LastIndex = 0;
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+        }
+        function cleargrid() {
+            $('#txtsearch')[0].value = "";
+            sortOrder = '';
+            sortDirection = '';
+            drawgrid();
+        }
+        function fnChangePage(val) {
+            pageLoadedFirst = false;
+            pageSize = $('#ddlpagetodisplay').val();
+            
+
+            if (val == 'First') {
+
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                requestedPage = ((StartIndex / 10) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+                LastIndex = 0;
+
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize)
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $('#First').attr('disabled', false);
+                $('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize)
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                }
+            }
+            else {
+            }
+        }
+        function getTotalRecord(data) {
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            pageSize = $('#ddlpagetodisplay').val();
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $('#First').attr('disabled', true);
+                    $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $("#ddlpaging").empty()
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $("#ddlpaging").append(newOption);
+                }
+                $("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+        }
+        function bindGridUser(data, num_cols) {
+           
+            $('#gridViewProgram > tbody > tr').remove();
+            if (data.list.length == 0) {
+                $('#divPaging').hide();
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                $('#divPaging').show();
+                var tbody = $('#gridViewProgram > tbody');
+                for (var i = 0; i < data.list.length; i++) {
+
+                    var tr = "";
+                    tr += "<tr>";
+                 
+                    tr += "<td><a href='#' onclick='Getprog(this);' accesskey=" + data.list[i].ProgramID + ">" + ((typeof (data.list[i].ProgramTypes) != 'undefined') && (data.list[i].ProgramTypes != null) ? data.list[i].ProgramTypes : '') + "</td>";
+                    if (data.list[i].ReferenceProg == "1") {
+                        tr += "<td style='width:15%;'>" + ((typeof (data.list[i].ReferenceProg) != 'undefined') && (data.list[i].ReferenceProg != null) ? 'EHS' : '') + " </span></td>";
+                    }
+                    if (data.list[i].ReferenceProg == "2") {
+                        tr += "<td style='width:15%;'>" + ((typeof (data.list[i].ReferenceProg) != 'undefined') && (data.list[i].ReferenceProg != null) ? 'HS' : '') + " </span></td>";
+                    }
+                    if (data.list[i].ReferenceProg == "3") {
+                        tr += "<td style='width:15%;'>" + ((typeof (data.list[i].ReferenceProg) != 'undefined') && (data.list[i].ReferenceProg != null) ? 'Migrant' : '') + " </span></td>";
+                    }
+                    if (data.list[i].ReferenceProg == "4") {
+                        tr += "<td style='width:15%;'>" + ((typeof (data.list[i].ReferenceProg) != 'undefined') && (data.list[i].ReferenceProg != null) ? 'PM' : '') + " </span></td>";
+                    }
+                    if (data.list[i].ReferenceProg == "5") {
+                        tr += "<td style='width:15%;'>" + ((typeof (data.list[i].ReferenceProg) != 'undefined') && (data.list[i].ReferenceProg != null) ? 'Sea' : '') + " </span></td>";
+                    }
+                    if (data.list[i].ReferenceProg == "6") {
+                        tr += "<td style='width:15%;'>" + ((typeof (data.list[i].ReferenceProg) != 'undefined') && (data.list[i].ReferenceProg != null) ? 'Other' : '') + " </span></td>";
+                    }
+                    tr += "<td style='width:15%;'>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + " </span></td>";
+                 
+                    if (data.list[i].PIRReport == "True")
+                    {
+                        tr += "<td>" + ((typeof (data.list[i].PIRReport) != 'undefined') && (data.list[i].PIRReport != null) ? 'Yes' : '') + " </span></td>";
+                    }
+                    else
+                    {
+                        tr += "<td>" + ((typeof (data.list[i].PIRReport) != 'undefined') && (data.list[i].PIRReport != null) ? 'No' : '') + " </span></td>";
+                    }
+                    tr += "<td>" + ((typeof (data.list[i].Slots) != 'undefined') && (data.list[i].Slots != null) ? data.list[i].Slots : '') + " </span></td>";
+                  //  tr += "<td style='width:15%;'>" + ((typeof (data.list[i].GranteeNumber) != 'undefined') && (data.list[i].GranteeNumber != null) ? data.list[i].GranteeNumber : '') + " </span></td>";
+                   // tr += "<td>" + ((typeof (data.list[i].CreatedDate) != 'undefined') && (data.list[i].CreatedDate != null) ? data.list[i].CreatedDate : '') + "</td>";
+                    tr += "<td  align='center'><input  type='hidden' value='" + data.list[i].Status + "'/><select  onchange='changestatus(this);' style='margin-right: 5%;height:22px;' accesskey=" + data.list[i].ProgramID + " >";
+                    if (data.list[i].Status != null && data.list[i].Status == 0)
+                        tr += "<option value='0' selected='selected'>Active</option><option value='1' >Inactive</option><option value='2' >Suspended</option></select>";
+                    if (data.list[i].Status != null && data.list[i].Status == 1)
+                        tr += "<option value='0' >Active</option><option selected='selected' value='1' >Inactive</option><option value='2' >Suspended</option></select>";
+                    if (data.list[i].Status != null && data.list[i].Status == 2)
+                        tr += "<option value='0' >Active</option><option value='1' >Inactive</option><option selected='selected' value='2' >Suspended</option></select>";
+                    tr += "</tr>";
+                    $('#gridViewProgram > tbody').append(tr);
+
+                }
+            }
+        }
+
+        function Getprog(value) {
+           
+            $.ajax({
+                url: HostedDir + "/SuperAdmin/Getprogdetails",
+                type: "POST",
+                data: {
+                    ProgramID: $(value).attr("accesskey")
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditProg(data);
+                }
+               , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+               }
+            });
+        }
+        function EditProg(data) {
+           
+            $('#hdnProgramID').val(data.ProgramID);
+            $('#ProgramType').val(data.ProgramTypes);
+            $('#Slots').val(data.Slots);
+            $('#Description').val(data.Description);
+            $('#GranteeNumber').val(data.GranteeNumber);
+          //  $('#Area').val(data.Area);
+            $('#AgeMin').val(data.MinAge);
+            $('#AgeMax').val(data.MaxAge);
+           // $('#StartTime').val(data.StartTime);
+           // $('#StopTime').val(data.StopTime);
+            $('#Description').val(data.Description);
+          //  $('#ProgYear').val(data.ProgYear);
+            
+            $('#DdlProgRefList').val(data.ReferenceProg);
+            
+            if (data.PIRReport == "True")
+                $('#PIRReport').prop("checked", true);
+           else
+                $('#PIRReport').prop("checked", false);
+        
+        }
+        function changestatus(value) {
+           
+            var ddlvalue = $(value).val();
+            var status = $(value).parent('td').children().eq(0).val();
+            var s = $(value).attr("accesskey");
+            if (ddlvalue == status) {
+                return;
+            } var message = '';
+            if (ddlvalue == 0)
+                message = "Do you want to activate this program type? ";
+            if (ddlvalue == 1)
+                message = "Do you want to deactivate this program type? ";
+            if (ddlvalue == 2)
+                message = "Do you want to suspend this program type? ";
+            BootstrapDialog.confirm(message, function yes(result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/SuperAdmin/updateprogstatus",
+                        type: "POST",
+                        data: {
+                            ProgramID: $(value).attr("accesskey"),
+                            mode: ddlvalue
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            debugger;
+                            if (response == 1) {
+                                if (ddlvalue == 0)
+                                    customAlert("Program type activated successfully.");
+                                if (ddlvalue == 1)
+                                    customAlert("Program type deactivated successfully.");
+                                if (ddlvalue == 2)
+                                    customAlert("Program type suspended successfully.");
+                                getlistafterstatuschanged();
+                            }
+                        }
+                         , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                         }
+                    });
+                }
+                else {
+                    $(value).val(status);
+                }
+            }, function no() { });
+        }
+
+        function copytoagencies()
+        {
+            BootstrapDialog.confirm('Do you want to copy program types to all agencies ?', function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/SuperAdmin/CopyProgAgency",
+                        type: "POST",
+
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Program type copied successfully to all agencies.");
+                                $('#btnSubmit').enabled = false;
+                            }
+                            else {
+                                customAlert("Program type already copied to all agencies.");
+                            }
+                        }
+                       , error: function (response) {
+                              customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                       }
+
+                    });
+                }
+            });
+            }
+
+    </script>
+
+    <script type="text/javascript">
+        var isValid = true;
+        $(document).ready(function () {
+            $('#StartTime').timepicker({ 'timeFormat': 'h:i A' });
+            $('#StopTime').timepicker({ 'timeFormat': 'h:i A' });
+            $('#ProgYear').mask("9999", { placeholder: 'YYYY' });
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@TempData["message"]' != null && '@TempData["message"]' != '') {
+                customAlertforlongtime('@TempData["message"]');
+            }
+            @{
+                TempData["message"] = null;
+            }
+            if ('@ViewBag.result' == 'Sucess') {
+                clearcontrols();
+            }
+            if('@ViewBag.mode'==0)
+            {
+                //$('#ReferenceProg').val('');
+                $('#DdlProgRefList').val('');
+                $('#AgeMin')[0].value = "";
+                $('#AgeMax')[0].value = "";
+                
+            }
+           
+        });
+        function ValidYear(inputTextObject)
+        {
+            var ret = true;
+            var newinput = $(inputTextObject).val();
+            if (newinput < 2016) {
+                customAlert("Program year Can't be less than the current year .");
+                $(inputTextObject).val('');
+                var ret = false;
+            }
+            return ret;
+        }
+        function clearcontrols() {
+            debugger;
+            $('#ProgramType')[0].value = "";
+            $('#Description')[0].value = "";
+            $('#Slots')[0].value = "";
+        //    $('#FormalAgreement')[0].value = "";
+            $('#PIRReport').prop('checked', false);
+         //   $('#GranteeNumber')[0].value = "";
+          //  $('#ProgYear')[0].value = "";
+          //  $('#ReferenceProg')[0].value = "";
+            $('#DdlProgRefList')[0].value = "";
+         //   $('#Area')[0].value = "";
+            $('#AgeMin')[0].value = "";
+            $('#AgeMax')[0].value = "";
+         //   $('#StartTime')[0].value = "";
+         //   $('#StopTime')[0].value = "";
+            $('#btnSubmit').enabled = true;
+            $('#WorkingDays').prop('checked', false);
+            $('#hdnProgramID').val(0);
+        }
+        function isValidProgramInfo() {
+          
+            cleanValidation();
+
+            if ($('#ProgramType')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter program type .");
+                plainValidation('#ProgramType');
+                return isValid;
+            }
+            if ($('#Description')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter description .");
+                plainValidation('#Description');
+                return isValid;
+            }
+            if (!$("input:radio[name='PIRReport']").is(":checked")) {
+                isValid = false;
+                customAlert("Please enter PIR .");
+                return isValid;
+            }
+            if ($('#Slots')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter people .");
+                plainValidation('#Slots');
+                return isValid;
+            }
+            //if ($('#GranteeNumber')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter grantee number .");
+            //    plainValidation('#GranteeNumber');
+            //    return isValid;
+            //}
+           
+            if ($('#DdlProgRefList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter reference program .");
+                plainValidation('#DdlProgRefList');
+                return isValid;
+            }
+            if ($('#AgeMin')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter age min .");
+                plainValidation('#AgeMin');
+                return isValid;
+            }
+            if ($('#AgeMax')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter age max .");
+                plainValidation('#AgeMax');
+                return isValid;
+            }
+            //if ($('#StartTime')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter start time .");
+            //    plainValidation('#StartTime');
+            //    return isValid;
+            //}
+            //if ($('#StopTime')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter stop type .");
+            //    plainValidation('#StopTime');
+            //    return isValid;
+            //}
+            //if ($('#Area')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter area .");
+            //    plainValidation('#Area');
+            //    return isValid;
+            //}
+            //if ($('#ProgYear')[0].value.trim() == "") {
+            //    isValid = false;
+            //    customAlert("Please enter program year .");
+            //    plainValidation('#ProgYear');
+            //    return isValid;
+            //}
+            //if (!$("input:radio[name='WorkingDays']").is(":checked")) {
+            //    isValid = false;
+            //    customAlert("Please enter working days .");
+            //    return isValid;
+            //}
+            
+            $('#btnSubmit').enabled = false;
+            return true;
+        }
+    </script>
+
+}
+@section MainContentHolder{
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">
+              Program Type
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="add-useragform">
+                    @Html.HiddenFor(m => m.ProgramID, new { id = "hdnProgramID" })
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtSubcategoryName">Type <sup>*</sup></label>
+
+                                @Html.TextBoxFor(m => m.ProgramTypes, new { placeholder = "Type", id = "ProgramType", maxlength = "5", @class = "form-control", tabIndex = "1" })
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="txtSubcategoryName">Description<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "Description", maxlength = "50", @class = "form-control", tabIndex = "2" })
+
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">PIR<sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-xs-6 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.PIRReport, true, new { id = "PIRReport", tabIndex = "3" })
+                                        <span>Yes</span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.PIRReport, false, new { id = "PIRReport", tabIndex = "4" })
+                                        <span>No </span>
+                                    </div>
+                                </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">People<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.Slots, new { placeholder = "People", id = "Slots", maxlength = "5", @class = "form-control", tabIndex = "4", onblur = "checkIfNumeric(this);" })
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Grantee Number<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.GranteeNumber, new { placeholder = "Grantee Number", id = "GranteeNumber", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                                    </div>
+                                </div>*@
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Reference Program<sup>*</sup></label>
+                                      
+                                        @*@{
+                                            List<SelectListItem> proglist = new List<SelectListItem>();
+                                            proglist.Add(new SelectListItem() { Text = "HS", Value = "0" });
+                                            proglist.Add(new SelectListItem() { Text = "EHS", Value = "1" });
+                                            proglist.Add(new SelectListItem() { Text = "Migrant", Value = "2" });
+                                            proglist.Add(new SelectListItem() { Text = "Sea", Value = "3" });
+                                            proglist.Add(new SelectListItem() { Text = "Other", Value = "4" });
+                                        }*@
+                                        @{
+                                            List<SelectListItem> prog = new List<SelectListItem>();
+                                            foreach (var item in ViewBag.RefList)
+                                            {
+                                                prog.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                            }
+                                        }
+                                        @Html.DropDownListFor(m => m.ReferenceProg, new SelectList(prog, "Value", "Text"), new { id = "DdlProgRefList", Name = "DdlProgRefList", @class = "form-control", tabIndex = "6" })
+                                      
+                                        @*@Html.DropDownListFor(m => m.ReferenceProg, new SelectList(proglist, "Value", "Text"), new { @class = "form-control", tabIndex = "6" })*@
+                                    </div>
+                                </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Area ID</label>
+                                @{
+                                    List<SelectListItem> AreaList = new List<SelectListItem>();
+                                    //AreaList.Add(new SelectListItem() { Text = "", Value = "1" });
+                                    // AreaList.Add(new SelectListItem() { Text = "", Value = "2" });
+                                }
+                                @Html.DropDownListFor(m => m.Area, new SelectList(AreaList, "Value", "Text"), new { @class = "form-control" })
+                                @*@Html.TextBoxFor(m => m.Area, new { placeholder = "Area ID", id = "Area", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "checkIfNumeric(this);" })*@
+                            </div>
+                        </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Age Min<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.MinAge, new { placeholder = "Minimum age for enrollment", id = "AgeMin", maxlength = "3", @class = "form-control", tabIndex = "8", onblur = "checkIfNumeric(this);" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Age Max<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.MaxAge, new { placeholder = "Maximum age for enrollment", id = "AgeMax", maxlength = "3", @class = "form-control", tabIndex = "9", onblur = "checkIfNumeric(this);" })
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">Start Time<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.StartTime, new { placeholder = "Start Time",id = "StartTime", maxlength = "50", @class = "form-control", tabIndex = "10" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
+                                        <label for="RaceSubCatDesc">End Time<sup>*</sup></label>
+                                        @Html.TextBoxFor(m => m.StopTime, new {  placeholder = "End Time",id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "11" })
+                                    </div>
+                                </div>*@
+                       
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Program Year<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.ProgYear, new { placeholder = "YYYY", id = "ProgYear", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "ValidYear(this);" })
+                            </div>
+                        </div>*@
+                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label> Working Days <sup>*</sup></label>
+                                <div class="cont-sz">
+                                    <div class="col-xs-5 col-sm-4">
+                                        @Html.RadioButtonFor(m => m.WorkingDays, "1", new { tabIndex = "11" })
+                                        <span>Monday to Friday </span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-5">
+                                        @Html.RadioButtonFor(m => m.WorkingDays, "2", new { tabIndex = "12" })
+                                        <span>Saturday to Sunday</span>
+                                    </div>
+                                    <div class="col-xs-6 col-sm-3">
+                                        @Html.RadioButtonFor(m => m.WorkingDays, "3", new { tabIndex = "13" })
+                                        <span>All Days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>*@
+
+
+                            </div>
+
+                </div>
+                <!--row-->
+                @* <div class="row">*@
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidProgramInfo();" tabindex="12">Submit</button>
+                        <button id="btnExit" class="my-btn" type="button" tabindex="13" onclick="clearcontrols(); return false;">Cancel</button>
+                        @*<button id="btnCopy" class="my-btn" type="button" tabindex="13">Copy to agency</button>*@
+                        @*<div class="clear"></div>*@
+                    </div>
+                    <!--btnwrp_subcal--->
+                </div>
+                @* </div>*@
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h2 class="page-header">Program Type List  </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="search-box">
+                <ul>
+                    <li><input id="txtsearch" type="text" placeholder="Search.." /></li>
+                    <li><button id="btnsearch" onclick="drawgrid();">Search</button></li>
+                    <li><button id="btnclear" onclick="cleargrid();">Clear</button></li>
+                    @*<li><button id="CpyAgency" onclick="copytoagencies();">Copy To Agencies</button></li>*@
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive">
+                <table class="table table_size" id="gridViewProgram">
+                    <thead style="cursor:pointer;">
+                        <tr>
+
+                         
+                            <th id="THIN">Type<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="THRP">Reference Program<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                            <th id="THCUST">Description<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="THMN">PIR <img id="imgthRN" style="visibility:hidden" /> <input type="hidden" value="Desc" id="directionRN" /></th>
+                            <th id="THCN">People<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                            @*<th id="THGN">Grantee Number<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
+                            <th id="thAN">Status<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div id="div1" style="text-align:center;">
+                    <label>No result found.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+            <div class="pages_display">
+                <ul>
+                    <li>Display</li>
+                    <li>
+                        <select id="ddlpagetodisplay" onchange="drawgrid();">
+                            <option value="10" selected="selected">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </li>
+                    <li>Records Per Page</li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+            <div id="divPaging" class="pagination_wrp">
+                <ul id="ulPaging" class="pagination">
+                    <li><input id='First' type='image' src="~/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" /></li>
+                    <li title="Back"><input id='Back' type='image' src="~/Images/prevarrow.png" style='cursor:pointer;' onclick="fnChangePage('Back'); return false;" /></li>
+                    <li title="Select">
+                        <select class="select_cl" id="ddlpaging"></select>
+                    </li>
+                    <li title="Next"><input id='Next' type='image' src="~/Images/nextarrow1.png" style='cursor:pointer;' onclick="fnChangePage('Next'); return false;" /></li>
+                    <li title="Last"><input id='Last' type='image' src="~/Images/nextarrow.png" style='cursor:pointer;' onclick="fnChangePage('Last'); return false;" /></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+}

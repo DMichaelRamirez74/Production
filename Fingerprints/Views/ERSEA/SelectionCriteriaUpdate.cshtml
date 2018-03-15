@@ -1,0 +1,1308 @@
+﻿@model FingerprintsModel.SelectPoints
+@{
+    ViewBag.Title = "SelectionCriteriaUpdate";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+        var rounds = 1;
+        var isValid = true;
+        $(document).ready(function () {
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+
+
+
+
+            if ('@ViewBag.message' != '')
+                customAlert('@ViewBag.message');
+            if ('@ViewBag.result' == 'Sucess') {
+                emptycontrols();
+            }
+
+            if ('@ViewBag.mode' == 0) {
+                $('#DdlProgRefList').val('');
+            }
+            @*if ('@ViewBag.mode' == 1) {
+                $('#gridquestion').val('');
+            }*@
+
+            $('#btn-search').click(function () {
+                if ($('#DdlProgRefList').val() != null) {
+                    $('.search-results').show();
+                    FillPage($('#DdlProgRefList'));
+                }
+                else {
+                    $('.search-results').hide();
+                }
+                 
+            });
+            $('#btnExit').click(function () {
+                window.location.href = HostedDir + "/ERSEA/ERSEADashboard";
+            });
+
+        });
+        function drawQuestionlist() {
+
+            getqueslist();
+            bindGridQues(listQues, $("#gridquestion").find('tr')[0].cells.length);
+        }
+        function getqueslist() {
+
+            $.ajax({
+
+                url: HostedDir + "/ERSEA/listQuesDetails",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    // CQID: $('#CQID').val(),
+                    ProgramId: $('#DdlProgRefList').val()
+                    //  SPID: $('#SPID').val()
+                },
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    getQuesData(data);
+
+                }
+                , error: function (response) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+
+        }
+        function getQuesData(dataQues) {
+
+            listQues = dataQues;
+        }
+
+        function bindGridQues(dataQuesDetail, num_cols) {
+
+            rounds = 0;
+            $('#gridquestion > tbody > tr').remove();
+            if (dataQuesDetail.listQues.length == 0) {
+                $('#div1').show();
+            }
+            else {
+                $('#div1').hide();
+                var tbody = $('#gridquestion > tbody');
+                for (var i = 0; i < dataQuesDetail.listQues.length; i++) {
+                    var Question = "CustomQues[" + rounds + "].Question";
+                    var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+                    var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+                    var CQID = "CustomQues[" + rounds + "].CQID";
+                    $('#gridquestion').show();
+                    var tr = "";
+                    tr += "<tr><style='text-align:center;'>";
+
+                    tr = tr + '<td><input  name=' + Question + ' class = "form-control" type="text" value="' + dataQuesDetail.listQues[i].Question + '" ></td>';
+                    tr = tr + '<td><input  name=' + QuesYes + ' class = "form-control" type="text" value="' + dataQuesDetail.listQues[i].QuesYes + '" ></td>';
+                    tr = tr + '<td><input  name=' + QuesNo + ' class = "form-control" type="text" value="' + dataQuesDetail.listQues[i].QuesNo + '" ></td>';
+
+                    tr = tr + '<td><input type="hidden"  name="' + CQID + '" value="' + dataQuesDetail.listQues[i].CQID + '" /><a href="javascript:void(0)" onclick="RemoveQues(this);" accesskey="' + dataQuesDetail.listQues[i].CQID + '" style=" text-decoration:underline;">Delete</a></td></tr>';
+                    $('#gridquestion > tbody').append(tr);
+                    //$('#gridquestion > tbody tr').each(function () {
+                    //    var y = $(this).find('td:eq(1) :input[type="text"]').mask("(999) 999-9999");
+                    //});
+                    rounds = rounds + 1;
+                }
+            }
+        }
+
+
+
+
+        function emptycontrols() {
+            // $('#btnCancel').click(function () {
+            $('#DdlProgRefList').val('');
+            $('#SingleParent')[0].value = "0";
+            $('#TwoParent')[0].value = "0";
+            $('#English')[0].value = "0";
+            $('#Other')[0].value = "0";
+            $('#HomelessYes')[0].value = "0";
+            $('#HomelessNo')[0].value = "0";
+            $('#TANF')[0].value = "0";
+            $('#SSI')[0].value = "0";
+            $('#WIC')[0].value = "0";
+            $('#None')[0].value = "0";
+            $('#Teenager')[0].value = "0";
+            $('#Age20')[0].value = "0";
+            $('#Age30over')[0].value = "0";
+            $('#PMInsuranceYes')[0].value = "0";
+            $('#PMInsuranceNo')[0].value = "0";
+            $('#PMMedicalHomeYes')[0].value = "0";
+            $('#PMMedicalHomeNo')[0].value = "0";
+            $('#Trimester1')[0].value = "0";
+            $('#Trimester2')[0].value = "0";
+            $('#Trimester3')[0].value = "0";
+            $('#MilitaryStatusActive')[0].value = "0";
+            $('#MilitaryStatusVeteran')[0].value = "0";
+            $('#MilitaryStatusNone')[0].value = "0";
+            $('#CurrentlyWorkYes')[0].value = "0";
+            $('#CurrentlyWorkNo')[0].value = "0";
+            $('#JobTrainingyes')[0].value = "0";
+            $('#JobTrainingno')[0].value = "0";
+            $('#G2Teenager')[0].value = "0";
+            $('#G2Age20')[0].value = "0";
+            $('#G2Age30over')[0].value = "0";
+            $('#G2MilitaryStatusNone')[0].value = "0";
+            $('#G2MilitaryStatusActive')[0].value = "0";
+            $('#G2MilitaryStatusVeteran')[0].value = "0";
+            $('#G2CurrentlyWorkYes')[0].value = "0";
+            $('#G2CurrentlyWorkNo')[0].value = "0";
+            $('#G2JobTrainingyes')[0].value = "0";
+            $('#G2JobTrainingno')[0].value = "0";
+            $('#MedicalHomeYes')[0].value = "0";
+            $('#MedicalHomeNo')[0].value = "0";
+            $('#DentalHomeYes')[0].value = "0";
+            $('#DentalHomeNo')[0].value = "0";
+            $('#InsuranceYes')[0].value = "0";
+            $('#InsuranceNo')[0].value = "0";
+            $('#ChildWlfareYes')[0].value = "0";
+            $('#ChildWlfareNo')[0].value = "0";
+            $('#FosterChildYes')[0].value = "0";
+            $('#FosterChildNo')[0].value = "0";
+            $('#DualCustYes')[0].value = "0";
+            $('#DualCustNo')[0].value = "0";
+            $('#Age3yr')[0].value = "0";
+            $('#Age4yr')[0].value = "0";
+            $('#Age5yr')[0].value = "0";
+            $('#Age6yr')[0].value = "0";
+            //Commented  to break it into 2 parts
+            //$('#SuspecteddocumentofdisabiltyYes')[0].value = "0";
+            //$('#SuspecteddocumentofdisabiltyNo')[0].value = "0";
+            $('#SuspecteddisabiltyYes')[0].value = "0";
+            $('#SuspecteddisabiltyNo')[0].value = "0";
+            $('#DocumentofdisabiltyYes')[0].value = "0";
+            $('#DocumentofdisabiltyNo')[0].value = "0";
+
+            $('#Ageless10weeks')[0].value = "0";
+            $('#Agegreater10weeks')[0].value = "0";
+            $('#Age3Months')[0].value = "0";
+            $('#Age6Months')[0].value = "0";
+            $('#Age1yr')[0].value = "0";
+            $('#Age2yr')[0].value = "0";
+            //Poverty points
+            $('#poverty0to25')[0].value = "0";
+            $('#poverty26to50')[0].value = "0";
+            $('#poverty51to75')[0].value = "0";
+            $('#poverty76to100')[0].value = "0";
+            $('#poverty100to130')[0].value = "0";
+            $('#povertygreater130')[0].value = "0";
+
+            //$('#Age4yr')[0].value = "0";
+            //$('#Age5yr')[0].value = "0";
+            //$('#Age6yr')[0].value = "0";
+
+
+
+        }
+        function checkIfNumericDigit(el) {
+
+            var ex = /^[0-9]+\.?[0-9]*$/;
+            if (ex.test(el.value) == false) {
+                el.value = "0";
+            }
+            var ex = /^\d*\.?\d{0,2}$/;
+            if (ex.test(el.value) == false) {
+                // el.value = el.value.substring(0, el.value.indexOf('.') + 3);
+                el.value = "0";
+            }
+            var lastChar = el.value.substring(el.value.length - 1);
+            if (lastChar == ".") {
+                //el.value = el.value.substring(0, el.value.length - 1);
+                el.value = "0";
+            }
+        }
+
+        //function checkIfNumericDigit(s) {
+        //    //This will check value is numeric or not
+        //    if (isNaN(s.value)) {
+        //        s.value = "0";
+        //        //alert("Not a number!");
+        //    }
+        //}
+
+        function isValidSelectInfo() {
+            cleanValidation();
+            if ($('#DdlProgRefList')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please select program type from list.");
+                plainValidation('#DdlProgRefList');
+                return isValid;
+            }
+            $('#spinner').show();
+            isValid = true;           
+
+            return isValid;
+            $('#spinner').hide();
+        }
+
+        function FillPage(value) {
+            $('#RefProgNamediv').show();
+            if ($("#DdlProgRefList").find("option:selected").text() == "PM") {
+                //if ($('#DdlProgRefList').SelectedText() == "hs") {
+                $('#PM').show();
+            }
+            else {
+                $('#PM').hide();
+            }
+
+            if ($("#DdlProgRefList").find("option:selected").text() == "ehs" || $("#DdlProgRefList").find("option:selected").text() == "EHS") {
+                //if ($('#DdlProgRefList').SelectedText() == "hs") {
+                $('#ehschild').show();
+                $('#hschild').hide();
+            }
+            else {
+                $('#ehschild').hide();
+                $('#hschild').show();
+            }
+
+
+            $.ajax({
+                url: HostedDir + "/ERSEA/GetSelectPointlist",
+                type: "POST",
+                data: {
+                    // ProgramId: $(value).attr("accesskey"),
+                    ProgramId: $('#DdlProgRefList').val()
+                    //  SPID: $('#SPID').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    EditSelectPoint(data);
+                    drawQuestionlist();
+                    refproglist();
+                }
+           , error: function (response) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+            });
+        }
+
+        function refproglist() {
+            $.ajax({
+                url: HostedDir + "/ERSEA/GetRefProglist",
+                type: "POST",
+                data: {
+                    // ProgramId: $(value).attr("accesskey"),
+                    ProgramId: $('#DdlProgRefList').val()
+                    //  SPID: $('#SPID').val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    $('#RefProg').val(data.RefProgName);
+                }
+         , error: function (response) {
+             customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+         }
+            });
+        }
+
+
+        function EditSelectPoint(data) {
+
+            $('#hdnSPID').val(data.SPID);
+            //  $('#SPID').val(data.hdnSPID);
+            $('#SingleParent').val(data.SingleParent);
+            $('#TwoParent').val(data.TwoParent);
+            $('#English').val(data.English);
+            $('#Other').val(data.Other);
+            $('#HomelessYes').val(data.HomelessYes);
+            $('#HomelessNo').val(data.HomelessNo);
+            $('#TANF').val(data.TANF);
+            $('#SSI').val(data.SSI);
+            $('#WIC').val(data.WIC);
+            $('#None').val(data.None);
+            $('#Teenager').val(data.Teenager);
+            $('#Age20').val(data.Age20);
+            $('#Age30over').val(data.Age30over);
+            $('#MilitaryStatusActive').val(data.MilitaryStatusActive);
+            $('#MilitaryStatusVeteran').val(data.MilitaryStatusVeteran);
+            $('#MilitaryStatusNone').val(data.MilitaryStatusNone);
+            $('#CurrentlyWorkYes').val(data.CurrentlyWorkYes);
+            $('#JobTrainingyes').val(data.JobTrainingyes);
+            $('#JobTrainingno').val(data.JobTrainingno);
+            $('#G2Teenager').val(data.G2Teenager);
+            $('#G2Age20').val(data.G2Age20);
+            $('#G2Age30over').val(data.G2Age30over);
+            $('#G2MilitaryStatusNone').val(data.G2MilitaryStatusNone);
+            $('#G2MilitaryStatusActive').val(data.G2MilitaryStatusActive);
+            $('#G2MilitaryStatusVeteran').val(data.G2MilitaryStatusVeteran);
+            $('#G2CurrentlyWorkYes').val(data.G2CurrentlyWorkYes);
+            $('#G2JobTrainingyes').val(data.G2JobTrainingyes);
+            $('#G2CurrentlyWorkNo').val(data.G2CurrentlyWorkNo);
+            $('#G2JobTrainingyes').val(data.G2JobTrainingyes);
+            $('#MedicalHomeYes').val(data.MedicalHomeYes);
+            $('#MedicalHomeNo').val(data.MedicalHomeNo);
+            $('#DentalHomeYes').val(data.DentalHomeYes);
+            $('#DentalHomeNo').val(data.DentalHomeNo);
+            $('#InsuranceYes').val(data.InsuranceYes);
+            $('#InsuranceNo').val(data.InsuranceNo);
+            //Commented to break it into 2 parts
+            //$('#SuspecteddocumentofdisabiltyYes').val(data.SuspecteddocumentofdisabiltyYes);
+            //$('#SuspecteddocumentofdisabiltyNo').val(data.SuspecteddocumentofdisabiltyNo);
+            //debugger;
+            $('#SuspecteddisabiltyYes').val(data.SuspecteddisabiltyYes);
+            $('#SuspecteddisabiltyNo').val(data.SuspecteddisabiltyNo);
+            $('#DocumentofdisabiltyYes').val(data.DocumentofdisabiltyYes);
+            $('#DocumentofdisabiltyNo').val(data.DocumentofdisabiltyNo);
+
+            $('#ChildWlfareYes').val(data.ChildWlfareYes);
+            $('#ChildWlfareNo').val(data.ChildWlfareNo);
+            $('#FosterChildYes').val(data.FosterChildYes);
+            $('#FosterChildNo').val(data.FosterChildNo);
+            $('#DualCustYes').val(data.DualCustYes);
+            $('#DualCustNo').val(data.DualCustNo);
+            $('#PMInsuranceYes').val(data.PMInsuranceYes);
+            $('#PMInsuranceNo').val(data.PMInsuranceNo);
+            $('#PMMedicalHomeYes').val(data.PMMedicalHomeYes);
+            $('#PMMedicalHomeNo').val(data.PMMedicalHomeNo);
+            $('#Trimester1').val(data.Trimester1);
+            $('#Trimester2').val(data.Trimester2);
+            $('#Trimester3').val(data.Trimester3);
+            $('#Ageless10weeks').val(data.Ageless10weeks);
+            $('#Agegreater10weeks').val(data.Agegreater10weeks);
+            $('#Age3Months').val(data.Age3Months);
+            $('#Age6Months').val(data.Age6Months);
+            $('#Age1yr').val(data.Age1yr);
+            $('#Age2yr').val(data.Age2yr);
+            $('#Age3yr').val(data.Age3yr);
+            $('#Age4yr').val(data.Age4yr);
+            $('#Age5yr').val(data.Age5yr);
+            $('#Age6yr').val(data.Age6yr);
+            $('#RefProg').val(data.RefProgName);
+            $('#hdnIsLocked').val(data.IsLocked);
+            $('#poverty0to25').val(data.poverty0to25);
+            $('#poverty26to50').val(data.poverty26to50);
+            $('#poverty51to75').val(data.poverty51to75);
+            $('#poverty76to100').val(data.poverty76to100);
+            $('#poverty100to130').val(data.poverty100to130);
+            $('#povertygreater130').val(data.povertygreater130);
+            //$('#SingleParent').val(data.SingleParent);
+            //$('#Rlastname').val(data.Rlastname);
+            //$('#RDescription').val(data.RDescription);
+
+
+        }
+
+        function AddQuestions() {
+            $('#div1').hide();
+            var Question = "CustomQues[" + rounds + "].Question";
+            var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+            var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+            //  var notesP = "ParentPhone1[" + rounds + "].notesP";
+            // var SmsP = "ParentPhone1[" + rounds + "].SmsP";
+            var tr = '<tr><td ><input style="width:100%;" class = "form-control" name=' + Question + ' type="text"  ></td><td ><input style="width:100%;" onblur="checkIfNumericDigit(this);" class = "form-control" name=' + QuesYes + ' type="text"  ></td><td ><input style="width:98%;" class = "form-control" onblur="checkIfNumericDigit(this);" name=' + QuesNo + ' type="text"  ></td><td><a href="javascript:void(0)" onclick="RemoveQues(this);" style=" text-decoration:underline;">Delete</a></td></tr>';
+            $('#gridquestion > tbody').append(tr);
+
+            $('#gridquestion > tbody tr:last').find('td:eq(0) :input').val("");
+            rounds = rounds + 1;
+        }
+        function RemoveQues(value) {
+            if ($(value).attr("accesskey")) {
+                //debugger;
+                // if ($('#gridquestion > tbody tr').length > 1) {
+                BootstrapDialog.confirm('Do you want to delete this question?', function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: HostedDir + "/ERSEA/Deletecustomques",
+                            type: "POST",
+                            data: {
+                                CQID: $(value).attr("accesskey"),
+
+                            },
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            success: function (response) {
+
+                                if (response == 1) {
+                                    customAlert("Question deleted successfully. ");
+                                    rounds = 0;
+                                    //debugger;
+                                    if ($('#gridquestion > tbody tr').length == 1) {
+                                        $(value).closest('tr').remove();
+                                        $('#div1').show();
+                                    }
+                                    if ($('#gridquestion > tbody tr').length > 1) {
+
+                                        $(value).closest('tr').remove();
+
+                                    }
+                                    $('#gridquestion > tbody tr').each(function () {
+                                        var Question = "CustomQues[" + rounds + "].Question";
+                                        var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+                                        var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+                                        var CQID = "CustomQues[" + round + "].CQID";
+                                        $(this).find('td:eq(0) :input[type="text"]').attr('name', Question);
+                                        $(this).find('td:eq(1) :input[type="text"]').attr('name', QuesYes);
+                                        $(this).find('td:eq(2) :input[type="text"]').attr('name', QuesNo);
+                                        $(this).find('td:eq(3)').find(':input').attr('name', CQID);
+                                        rounds = rounds + 1;
+                                    });
+                                }
+                            }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                        });
+                    }
+                });
+                //}
+
+            }
+            else {
+                rounds = 0;
+                if ($('#gridquestion > tbody tr').length > 1) {
+                    $(value).closest('tr').remove();
+                }
+                $('#gridquestion > tbody tr').each(function () {
+                    var Question = "CustomQues[" + rounds + "].Question";
+                    var QuesYes = "CustomQues[" + rounds + "].QuesYes";
+                    var QuesNo = "CustomQues[" + rounds + "].QuesNo";
+                    var CQID = "CustomQues[" + round + "].CQID";
+                    $(this).find('td:eq(0) :input[type="text"]').attr('name', Question);
+                    $(this).find('td:eq(1) :input[type="text"]').attr('name', QuesYes);
+                    $(this).find('td:eq(2) :input[type="text"]').attr('name', QuesNo);
+                    $(this).find('td:eq(3)').find(':input').attr('name', CQID);
+                    rounds = rounds + 1;
+                });
+            }
+
+        }
+    </script>
+}
+
+@section MainContentHolder{
+    <link href="~/Content/ERSEA/erseamain.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        select option {
+            background: #1f4f7d;
+        }
+        .display-sec label,.display-sec1 label,.display-secch1 label{font-size:12px!important;}
+    </style>
+    <div class="container-fluid">
+        <div class="row">
+            <form method="post" role="form" id="form1" autocomplete="off">
+                <div class="right-side-container-ch">
+
+
+                    @*<div class="col-xs-12 no-padding">
+                            <div class="top-header-title-ersea">
+                                <h1>ERSEA ROLE</h1>
+                            </div>
+                        </div>*@
+                    <div class="col-xs-12 no-padding">
+                        <div class="col-xs-12 no-padding">
+                            <div class="col-xs-12 ersea-detl-title">
+                                <h2>Selection Criteria Update</h2>
+                                <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                            </div>
+                            <div class="col-xs-12 text-center serch-billing-block">
+                                <!--                                                            <input type="text" placeholder="" class="ersa-select">-->
+                                @*<select name="" class="ersa-select">
+                                        <option value="0">Program Type</option>
+                                    </select>*@
+                                @{
+                                    List<SelectListItem> prog = new List<SelectListItem>();
+                                    foreach (var item in ViewBag.RefList)
+                                    {
+                                        prog.Add(new SelectListItem() { Text = item.Name, Value = item.Id });
+                                    }
+                                }
+                                @Html.DropDownListFor(m => m.ReferenceProg, new SelectList(prog, "Value", "Text"), new { id = "DdlProgRefList", Name = "DdlProgRefList", @class = "form-control ersa-select", tabIndex = "6", onchange = "FillPage(this);" })
+                                <div class="ersa-search-btn">
+                                    <a href="javascript:void(0)" id="btn-search">Search</a>
+                                </div>
+                                <div class="search-results" style="display:none;">
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="col-lg-4 col-xs-12" style="margin-top:20px;">
+
+                                            <div class="ersa-content-desc" style="position: relative;text-align:left;">
+                                                <label for="" class="new-lbl-wth" style="color:#fff;margin-top:10px;">Reference Number<sup>*</sup></label>
+                                                @Html.TextBoxFor(m => m.RefProgName, new { id = "RefProg", @class = "form-control new-input-ch", @readonly = "readonly" })
+                                            </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 mob_remove" style="padding: 0 11px;">
+                                            <div class="ersa_title family_title">
+                                                <h4>Family House</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0;">
+                                            <div class="select_criteria_frm">
+                                                <div class="col-lg-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.SPID, new { id = "hdnSPID" })
+                                                    @Html.HiddenFor(m => m.IsLocked, new { id = "hdnIsLocked" })
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Single Parent Family<sup>*</sup></label>
+                                                        @Html.TextBoxFor(m => m.SingleParent, new { placeholder = "Points", id = "SingleParent", maxlength = "5", @class = "form-control new-input-ch", tabIndex = "1", onblur = "checkIfNumericDigit(this);" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Two Parent Family<sup>*</sup></label>
+                                                        @Html.TextBoxFor(m => m.TwoParent, new { placeholder = "Points", id = "TwoParent", maxlength = "5", @class = "form-control new-input-ch", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Primary Language<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-sec">
+                                                                <label>English</label>
+                                                                @Html.TextBoxFor(m => m.English, new { placeholder = "Points", id = "English", maxlength = "5", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                            </div>
+                                                            <div class="display-sec">
+                                                                <label>Other</label>
+                                                                @Html.TextBoxFor(m => m.Other, new { placeholder = "Points", id = "Other", maxlength = "5", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Homeless<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-sec">
+                                                                <label>Yes</label>
+                                                                @Html.TextBoxFor(m => m.HomelessYes, new { placeholder = "Points", id = "HomelessYes", maxlength = "5", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                            </div>
+                                                            <div class="display-sec">
+                                                                <label>No</label>
+                                                                @Html.TextBoxFor(m => m.HomelessNo, new { placeholder = "Points", id = "HomelessNo", maxlength = "5", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                            </div>
+                                                    </div>
+
+
+                                                </div>
+
+
+
+                                            
+
+
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Public Assistance<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-secch1">
+                                                                <label>TANF</label>
+                                                                @Html.TextBoxFor(m => m.TANF, new { placeholder = "Points", id = "TANF", maxlength = "5", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                               </div>
+                                                                 <div class="display-secch1">
+                                                                    <label>SSI</label>
+                                                                    @Html.TextBoxFor(m => m.SSI, new { placeholder = "Points", id = "SSI", maxlength = "5", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                  </div>
+                                                                     <div class="display-secch1">
+                                                                        <label>SNAP</label>
+                                                                        @Html.TextBoxFor(m => m.SNAP, new { placeholder = "Points", id = "SNAP", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                       </div>
+                                                                          <div class="display-secch1">
+                                                                            <label>WIC</label>
+                                                                            @Html.TextBoxFor(m => m.WIC, new { placeholder = "Points", id = "WIC", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                            </div>
+                                                                <div class="display-secch1">
+                                                                    <label>NONE</label>
+                                                                    @Html.TextBoxFor(m => m.None, new { placeholder = "Points", id = "None", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                                </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="col-xs-12 mob_remove" style="padding: 0 11px;">
+                                            <div class="ersa_title">
+                                                <h4>Guardian 1</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0;">
+                                            <div class="select_criteria_frm">
+                                                <div class="col-lg-6 col-xs-12">
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Currently Working<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-sec">
+                                                                <label>Yes</label>
+                                                                @Html.TextBoxFor(m => m.CurrentlyWorkYes, new { placeholder = "Points", id = "CurrentlyWorkYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                                <div class="display-sec">
+                                                                    <label>No</label>
+                                                                    @Html.TextBoxFor(m => m.CurrentlyWorkNo, new { placeholder = "Points", id = "CurrentlyWorkNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                                </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Job Training/School<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-sec">
+                                                                <label>Yes</label>
+                                                                @Html.TextBoxFor(m => m.JobTrainingno, new { placeholder = "Points", id = "JobTrainingno", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                                <div class="display-sec">
+                                                                    <label>No</label>
+                                                                    @Html.TextBoxFor(m => m.JobTrainingyes, new { placeholder = "Points", id = "JobTrainingyes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                               </div>
+                                                                 </div>
+
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Age<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-secch1">
+                                                                <label>Teenager</label>
+                                                                @Html.TextBoxFor(m => m.Teenager, new { placeholder = "Points", id = "Teenager", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                                <div class="display-secch1">
+                                                                    <label>20-90</label>
+                                                                    @Html.TextBoxFor(m => m.Age20, new { placeholder = "Points", id = "Age20", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    <div class="display-secch1">
+                                                                        <label>30 Over</label>
+                                                                        @Html.TextBoxFor(m => m.Age30over, new { placeholder = "Points", id = "Age30over", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                            </div>
+                                                    </div>
+
+
+                                                </div>
+
+
+
+                                                <div class="col-lg-6 col-xs-12">
+
+
+                                                    <div class="ersa-content-desc" style="position: relative;">
+                                                        <label for="" class="new-lbl-wth">Military Status<sup>*</sup></label>
+                                                        <div class="yes_no_option yes_no_option-ch">
+                                                            <div class="display-secch1">
+                                                                <label>Active</label>
+                                                                @Html.TextBoxFor(m => m.MilitaryStatusActive, new { placeholder = "Points", id = "MilitaryStatusActive", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                </div>
+                                                                <div class="display-secch1">
+                                                                    <label>Veteran</label>
+                                                                    @Html.TextBoxFor(m => m.MilitaryStatusVeteran, new { placeholder = "Points", id = "MilitaryStatusVeteran", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    <div class="display-secch1">
+                                                                        <label>None</label>
+                                                                        @Html.TextBoxFor(m => m.MilitaryStatusNone, new { placeholder = "Points", id = "MilitaryStatusNone", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                            </div>
+                                                    </div>
+
+
+                                                </div>
+
+
+
+                                            </div>
+
+
+                                        </div>
+                                        <div class="guard_child" >
+                                            <div class="guard">
+
+                                                <div class="col-xs-12 mob_remove" style="padding: 0 11px;">
+                                                    <div class="ersa_title">
+                                                        <h4>Guardian 2</h4>
+                                                    </div>
+                                                </div>
+
+
+
+                                                <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1% 0px 1%;border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0;">
+                                                    <div class="select_criteria_frm">
+                                                        <div class="col-lg-6 col-xs-12">
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Currently Working<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.G2CurrentlyWorkYes, new { placeholder = "Points", id = "G2CurrentlyWorkYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                        <div class="display-sec">
+                                                                            <label>No</label>
+                                                                            @Html.TextBoxFor(m => m.G2CurrentlyWorkNo, new { placeholder = "Points", id = "G2CurrentlyWorkNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Job Training/School<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.G2JobTrainingyes, new { placeholder = "Points", id = "G2JobTrainingyes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                        <div class="display-sec">
+                                                                            <label>No</label>
+                                                                            @Html.TextBoxFor(m => m.G2JobTrainingno, new { placeholder = "Points", id = "G2JobTrainingno", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    </div>
+
+
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Age<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-secch1">
+                                                                        <label>Teenager</label>
+                                                                        @Html.TextBoxFor(m => m.G2Teenager, new { placeholder = "Points", id = "G2Teenager", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                       </div>
+                                                                         <div class="display-secch1">
+                                                                            <label>20-90</label>
+                                                                            @Html.TextBoxFor(m => m.G2Age20, new { placeholder = "Points", id = "G2Age20", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                            </div>
+                                                                            <div class="display-secch1">
+                                                                                <label>30 Over</label>
+                                                                                @Html.TextBoxFor(m => m.G2Age30over, new { placeholder = "Points", id = "G2Age30over", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                            </div>
+                                                                        </div>
+                                                            </div>
+
+
+                                                        </div>
+
+
+
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Military Status<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-secch1">
+                                                                        <label>Active</label>
+                                                                        @Html.TextBoxFor(m => m.G2MilitaryStatusActive, new { placeholder = "Points", id = "G2MilitaryStatusActive", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                        <div class="display-secch1">
+                                                                            <label>Veteran</label>
+                                                                            @Html.TextBoxFor(m => m.G2MilitaryStatusVeteran, new { placeholder = "Points", id = "G2MilitaryStatusVeteran", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                          </div>
+                                                                              <div class="display-secch1">
+                                                                                <label>None</label>
+                                                                                @Html.TextBoxFor(m => m.G2MilitaryStatusNone, new { placeholder = "Points", id = "G2MilitaryStatusNone", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                            </div>
+                                                                            </div>
+                                                            </div>
+
+
+                                                        </div>
+
+
+
+                                                    </div>
+
+
+                                                </div>
+
+                                            </div>
+                                            <div class="child">
+
+                                                <div class="col-xs-12 mob_remove" style="padding: 0 11px;">
+                                                    <div class="ersa_title child_title">
+                                                        <h4>Child</h4>
+                                                    </div>
+                                                </div>
+
+
+
+                                                <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0;">
+                                                    <div class="select_criteria_frm">
+                                                        <div class="col-lg-6 col-xs-12">
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Medical Home<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.MedicalHomeYes, new { placeholder = "Points", id = "MedicalHomeYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                       </div>
+                                                                         <div class="display-sec">
+                                                                            <label>No</label>
+                                                                            @Html.TextBoxFor(m => m.MedicalHomeNo, new { placeholder = "Points", id = "MedicalHomeNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                         </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Dental Home<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.DentalHomeYes, new { placeholder = "Points", id = "DentalHomeYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                       </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.DentalHomeNo, new { placeholder = "Points", id = "DentalHomeNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Insurance<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.InsuranceYes, new { placeholder = "Points", id = "InsuranceYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.InsuranceNo, new { placeholder = "Points", id = "InsuranceNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+
+
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        <div class="col-md-6 col-xs-12">
+                                                            <div class="col-lg-6 col-xs-12" style="padding:0;">
+                                                                <div class="ersa-content-desc" style="position: relative;">
+                                                                    <label for="" class="new-lbl-wth" style="width:100%!important;">Suspected Disability<sup>*</sup></label>
+                                                                    <div class="yes_no_option yes_no_option-ch" style="width:100%!important;">
+                                                                        <div class="display-sec">
+                                                                            <label>Yes</label>
+                                                                            @Html.TextBoxFor(m => m.SuspecteddisabiltyYes, new { placeholder = "Points", id = "SuspecteddisabiltyYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                        <div class="display-sec">
+                                                                            <label>No</label>
+                                                                            @Html.TextBoxFor(m => m.SuspecteddisabiltyNo, new { placeholder = "Points", id = "SuspecteddisabiltyNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                </div>
+
+                                                            </div>
+                                                            <div class="col-md-6 col-xs-12" style="padding:0;">
+                                                                <div class="ersa-content-desc" style="position: relative;">
+                                                                    <label for="" class="new-lbl-wth" style="width:100%!important;">Document of Disability<sup>*</sup></label>
+                                                                    <div class="yes_no_option yes_no_option-ch" style="width:100%!important;">
+                                                                        <div class="display-sec">
+                                                                            <label>Yes</label>
+                                                                            @Html.TextBoxFor(m => m.DocumentofdisabiltyYes, new { placeholder = "Points", id = "DocumentofdisabiltyYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                        <div class="display-sec">
+                                                                            <label>No</label>
+                                                                            @Html.TextBoxFor(m => m.DocumentofdisabiltyNo, new { placeholder = "Points", id = "DocumentofdisabiltyNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        <div class="col-lg-6 col-xs-12">
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Reffered by Child Welfare Agency<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.ChildWlfareYes, new { placeholder = "Points", id = "ChildWlfareYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.ChildWlfareNo, new { placeholder = "Points", id = "ChildWlfareNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+                                                            </div>
+                                                        </div>
+                                                       
+
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Foster Child<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.FosterChildYes, new { placeholder = "Points", id = "FosterChildYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                      </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.FosterChildNo, new { placeholder = "Points", id = "FosterChildNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Dual Custody Child<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.DualCustYes, new { placeholder = "Points", id = "DualCustYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                      </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.DualCustNo, new { placeholder = "Points", id = "DualCustNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+
+
+                                                            </div>
+
+                                                        </div>
+
+
+
+                                                        <div class="col-xs-12">
+
+
+                                                            @*<div class="ersa-content-desc" style="position: relative;">
+                                    <label for="">Age<sup>*</sup></label>
+                                    <div class="yes_no_option">
+                                        <label>Teenager</label>
+                                        <input type="text" placeholder="0" value="" />
+                                        <label>20-90</label>
+                                        <input type="text" placeholder="0" value="" />
+                                        <label>30 Over</label>
+                                        <input type="text" placeholder="0" value="" />
+                                    </div>
+                                </div>*@
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth1">Age<sup>*</sup></label>
+                                                                <div id="ehschild" class="yes_no_option yes_no_option-ch2" style="display:none;line-height: 45px;">
+                                                                    <div class="display-sec1">
+                                                                        <label>< 10 weeks</label>
+                                                                        @Html.TextBoxFor(m => m.Ageless10weeks, new { placeholder = "Points", id = "Ageless10weeks", maxlength = "5", @class = "input-width", tabIndex = "2" })
+                                                                        </div>
+                                                                        <div class="display-sec1 display-sec-ch">
+                                                                            <label>>10 weeks - 3 Months</label>
+                                                                            @Html.TextBoxFor(m => m.Agegreater10weeks, new { placeholder = "Points", id = "Agegreater10weeks", maxlength = "5", @class = "input-width input-width-sec-ch", tabIndex = "2",@style= "width: 67%!important;" })
+                                                                          </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>3 - 6 months</label>
+                                                                        @Html.TextBoxFor(m => m.Age3Months, new { placeholder = "Points", id = "Age3Months", maxlength = "10", @class = "input-width", tabIndex = "2" })
+                                                                       </div>
+                                                                         @*<br />*@
+                                                                    <div class="display-sec1">
+                                                                        <label>6 - 12 months</label>
+                                                                        @Html.TextBoxFor(m => m.Age6Months, new { placeholder = "Points", id = "Age6Months", maxlength = "10", @class = "input-width", tabIndex = "2" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>1 - 2 years</label>
+                                                                        @Html.TextBoxFor(m => m.Age1yr, new { placeholder = "Points", id = "Age1yr", maxlength = "10", @class = "input-width", tabIndex = "2" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>2 - 3 years</label>
+                                                                        @Html.TextBoxFor(m => m.Age2yr, new { placeholder = "Points", id = "Age2yr", maxlength = "10", @class = "input-width", tabIndex = "2" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>6 years or ></label>
+                                                                        @Html.TextBoxFor(m => m.Age6yr, new { placeholder = "Points", id = "Age6yr", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+                                                                <div id="hschild" class="yes_no_option yes_no_option-ch2">
+                                                                    <div class="display-sec1">
+                                                                        <label>3 years</label>
+                                                                        @Html.TextBoxFor(m => m.Age3yr, new { placeholder = "Points", id = "Age3yr", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>>4 years</label>
+                                                                        @Html.TextBoxFor(m => m.Age4yr, new { placeholder = "Points", id = "Age4yr", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                       </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>5 years</label>
+                                                                        @Html.TextBoxFor(m => m.Age5yr, new { placeholder = "Points", id = "Age5yr", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>6 years or ></label>
+                                                                        @Html.TextBoxFor(m => m.Age6yr, new { placeholder = "Points", id = "Age6yr", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+                                                            </div>
+
+
+                                                        </div>
+
+
+
+                                                        <div class="col-lg-12 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth1">Poverty Percentage Level<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch2 option-ht-ch">
+                                                                    <div class="display-sec1">
+                                                                        <label>0-25.99</label>
+                                                                        @Html.TextBoxFor(m => m.poverty0to25, new { placeholder = "Points", id = "poverty0to25", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>26-50.99</label>
+                                                                        @Html.TextBoxFor(m => m.poverty26to50, new { placeholder = "Points", id = "poverty26to50", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>51-75.99</label>
+                                                                        @Html.TextBoxFor(m => m.poverty51to75, new { placeholder = "Points", id = "poverty51to75", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>76-100</label>
+                                                                        @Html.TextBoxFor(m => m.poverty76to100, new { placeholder = "Points", id = "poverty76to100", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                        @*<br />*@
+                                                                    <div class="display-sec1">
+                                                                        <label>100.01-130</label>
+                                                                        @Html.TextBoxFor(m => m.poverty100to130, new { placeholder = "Points", id = "poverty100to130", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec1">
+                                                                        <label>>130</label>
+                                                                        @Html.TextBoxFor(m => m.povertygreater130, new { placeholder = "Points", id = "povertygreater130", maxlength = "10", @class = "input-width", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+                                                            </div>
+
+
+                                                        </div>
+
+
+
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                            <div id="PM" class="guard" style="display:none;">
+
+                                                <div class="col-xs-12 mob_remove" style="padding: 0 11px;">
+                                                    <div class="ersa_title">
+                                                        <h4>Pregnant Mother</h4>
+                                                    </div>
+                                                </div>
+
+
+
+                                                <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1% 0px 1%;border-top-left-radius: 0;border-top-right-radius: 0;margin-top: 0;">
+                                                    <div class="select_criteria_frm">
+                                                        <div class="col-lg-6 col-xs-12">
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Medical Home<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.PMMedicalHomeYes, new { placeholder = "Points", id = "PMMedicalHomeYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.PMMedicalHomeNo, new { placeholder = "Points", id = "PMMedicalHomeNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                   </div>
+                                                                     </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Insurance<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-sec">
+                                                                        <label>Yes</label>
+                                                                        @Html.TextBoxFor(m => m.PMInsuranceYes, new { placeholder = "Points", id = "PMInsuranceYes", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                       </div>
+                                                                    <div class="display-sec">
+                                                                        <label>No</label>
+                                                                        @Html.TextBoxFor(m => m.PMInsuranceNo, new { placeholder = "Points", id = "PMInsuranceNo", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+
+
+                                                            </div>
+
+                                                        </div>
+                                                        <div class="col-lg-6 col-xs-12">
+
+
+                                                            <div class="ersa-content-desc" style="position: relative;">
+                                                                <label for="" class="new-lbl-wth">Trimester<sup>*</sup></label>
+                                                                <div class="yes_no_option yes_no_option-ch">
+                                                                    <div class="display-secch1">
+                                                                        <label>1st</label>
+                                                                        @Html.TextBoxFor(m => m.Trimester1, new { placeholder = "Points", id = "Trimester1", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-secch1">
+                                                                        <label>2nd</label>
+                                                                        @Html.TextBoxFor(m => m.Trimester2, new { placeholder = "Points", id = "Trimester2", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                        </div>
+                                                                    <div class="display-secch1">
+                                                                        <label>3rd</label>
+                                                                        @Html.TextBoxFor(m => m.Trimester3, new { placeholder = "Points", id = "Trimester3", maxlength = "10", tabIndex = "2", onblur = "checkIfNumericDigit(this);" })
+                                                                    </div>
+                                                                    </div>
+                                                            </div>
+
+
+                                                        </div>
+
+
+
+
+
+
+
+                                                    </div>
+
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                        <div class="col-lg-12 col-xs-12">
+                                            <a href="javascript:void(0)" title="Add Questions" class="add_queus" onclick="AddQuestions();">+ Add Questions</a>
+                                        </div>
+                                        <div class="col-xs-12 serch-client-block" id="divP1">
+                                            <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding-bottom:0;">
+
+                                                <div id="no-more-tables6" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                                    <table id="gridquestion" class="col-md-12 table-striped table-condensed cf table-change library-table educ_library_table">
+                                                        <thead>
+                                                            <tr>
+
+
+                                                                <th class="librart-txt-width" id="thIN">Question</th>
+                                                                <th id="thIN">Yes</th>
+                                                                <th id="thIN">No</th>
+                                                                <th id="thCust">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="library-table-head">
+                                                            <tr>
+
+                                                                <td><input style="width:100%;" class="form-control" name="CustomQues[0].Question" type="text" maxlength="500"></td>
+                                                                <td><input class="form-control" name="CustomQues[0].QuesYes" type="text" onblur="checkIfNumericDigit(this);" maxlength="5"></td>
+                                                                <td><input class="form-control" type="text" name="CustomQues[0].QuesNo" onblur="checkIfNumericDigit(this);" maxlength="5"></td>
+                                                                <td><a href="javascript:void(0)" onclick="RemoveQues(this);" style="text-decoration:underline;">Delete</a></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <div id="div1" style="text-align:center;display:none;">
+                                                        <label style="font:bold !important;">No result found.</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="sub_lock_can_btn">
+                                            
+                                                <div class="btnwrp_subcal">
+                                                    <button id="btnSubmit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" type="submit" class="my-btn" onclick="return isValidSelectInfo();" tabindex="12">Submit</button>
+                                                    <button type="submit" id="btnLock" style="width: auto !important;background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" value="SaveLockSelectDetail" name="Command" onclick="return isValidSelectInfo();" class="my-btn">Submit & Lock</button>
+                                                    <button id="btnExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button" tabindex="13">Cancel</button>
+
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+                $(document).ready(function () {
+                    var linkys = document.getElementsByClassName('dropdown-toggle');
+                    for (var i = 0; i < linkys.length; ++i) {
+                        linkys[i].onclick = function (e) {
+                            this.focus();
+                            e.preventDefault();
+                        };
+                    }
+                });
+    </script>
+    <script type="text/javascript">
+                function toggleIcon(e) {
+                    $(e.target)
+                            .prev('.panel-heading')
+                            .find(".more-less")
+                            .find(".more-less1")
+                            .toggleClass('glyphicon-plus glyphicon-minus');
+                }
+                $('.panel-group').on('hidden.bs.collapse', toggleIcon);
+                $('.panel-group').on('shown.bs.collapse', toggleIcon);
+    </script>
+
+}

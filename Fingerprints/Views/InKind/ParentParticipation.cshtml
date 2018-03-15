@@ -1,0 +1,727 @@
+﻿@model FingerprintsModel.ParentParticipation
+
+@{
+    ViewBag.Title = "Parent Participation";
+    Layout = "~/Views/Shared/ParentLayout.cshtml";
+}
+
+<link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
+<script src="~/Scripts/Samplescript/jquery.datetimepicker.full.min.js"></script>
+
+<script src="~/Scripts/jquery.touchsupport.js"></script>
+<script type="text/javascript">
+
+
+    $(function () {
+        var searchBtn = $('#searchByNamebtn');
+        var searchText = $('#searchText');
+        $('#sig1').signature({ distance: 50, color: '#333' });
+
+        //$('.image-div').show();
+
+        $('.image-div').delay(1500).fadeIn('slow').delay(1000).fadeOut('slow');
+       // $('.image-div').delay(1500).fadeIn('slow');
+
+        // $('.image-div').fadeTo("slow", 1.2);
+
+        $('input[name=radiocompany]').on('click', function () {
+
+            if ($(this).val() === '1') {
+
+                showParentEntry();
+            }
+            else {
+                showCompanyEntry();
+            }
+        });
+
+        searchBtn.on('click', function () {
+
+
+            cleanValidation();
+            if (searchText.val() == '') {
+                customAlert('Please enter name to search');
+                plainValidation('#searchText');
+                return false;
+            }
+            else {
+                // $('.not-exists-div').show();
+                // $('#contact-legend').html('Add Contact Information');
+                //// $('#contact-info-form').trigger('reset');
+                getInkindDonorsFromDb(searchText.val());
+            }
+
+        });
+
+        $('#activity-date').datetimepicker({
+            timepicker: false,
+            format: 'm/d/Y',
+            validateOnBlur: false,
+            value: getFormattedDate(new Date()),
+            maxDate: new Date(),
+            autoClose: true
+        });
+
+        $('#datetimepicker1').on('click', function () {
+
+            $('#activity-date').datetimepicker('show');
+        });
+
+        $("body").on('keyup', '#activity-date', function (e) {
+
+            flags = 0;
+            if (e.keyCode != 193 && e.keyCode != 111) {
+                if (e.keyCode != 8) {
+                    if ($(this).val().length == 2) {
+                        $(this).val($(this).val() + "/");
+                    } else if ($(this).val().length == 5) {
+                        $(this).val($(this).val() + "/");
+                    }
+                } else {
+                    var temp = $(this).val();
+                    if ($(this).val().length == 5) {
+                        $(this).val(temp.substring(0, 4));
+                    } else if ($(this).val().length == 2) {
+                        $(this).val(temp.substring(0, 1));
+                    }
+                }
+            } else {
+                var temp = $(this).val();
+                var tam = $(this).val().length;
+                $(this).val(temp.substring(0, tam - 1));
+            }
+
+
+        });
+
+        var flags = 0;
+
+        $('body').on("keydown", "#activity-date", function (e) {
+            flags++;
+            if (flags > 1) {
+                e.preventDefault();
+            }
+
+            //var regex = /^[0-9]*(?:\.\d{1,2})?$/;
+
+
+            //if( !regex.test(e.value) ) {
+            //    return false;
+            //}
+
+            var key = e.charCode || e.keyCode || 0;
+
+            // allow backspace, tab, delete, enter, arrows, numbers and keypad numbers ONLY
+            // home, end, period, and numpad decimal
+            return (key == 8 || key == 9 || key == 13 || key == 46 || key == 37 || key == 39 ||
+                key == 35 || key == 36 || key == 110 || key == 190 || key == 191 ||
+               (key >= 96 && key <= 111 || key >= 48 && key <= 57 && !e.shiftKey));
+            //(e.which == keyCode.ENTER)
+
+
+            var owner = this,
+          pps = owner.properties,
+          charCode = e.which || e.keyCode || e.charCode || 0;
+
+            // hit backspace when last character is delimiter
+
+            if (Util.isAndroid() &&
+                e.target.value.length &&
+                e.target.value.length === this._lastEventValue.length - 1 &&
+                Util.isDelimiter(pps.result.slice(-1), pps.delimiter, pps.delimiters)
+            ) {
+                e.charCode = 8;
+            }
+            if (e.charCode === 8 &&
+                Util.isDelimiter(pps.result.slice(-1), pps.delimiter, pps.delimiters)) {
+                pps.backspace = true;
+            }
+            else {
+                pps.backspace = false;
+            }
+            this._lastEventValue = e.target.value;
+
+        });
+
+
+        $('#parent-activity-type').on('change', function () {
+
+            var thisVal = $(this).val();
+
+            if (thisVal === '0') {
+                $('#parent-part-hours-div,#parent-part-minutes-div,#parent-part-sig-div').hide();
+            }
+            else {
+                $.ajax({
+                    url: '/InKind/GetDetailsByActivityType',
+                    datatype: 'json',
+                    type: 'post',
+                    data: { activityCode: thisVal, reqDetails: 1, hours: '' },
+                    success: function (data) {
+
+
+                        // $('#inkindHoursText').val('');
+                        //  $('#inkindAmountTxt').val('');
+                        //  $('#inkindMilesText').val('');
+                        // $('#inkindAmountTxt').prop('disabled', true);
+
+
+
+                        if (data.ActivityAmountType === '2')//Hours Type
+                        {
+
+                            $('#parent-part-hours-div').show();
+                            $('#parent-part-minutes-div').show();
+                            //   $('.amount-div').show();
+
+                        }
+
+                        else if (data.ActivityAmountType === '1') {
+
+                            $('.inkind-miles-div').show();
+                            $('.inkind-hours-div').hide();
+                            $('.amount-div').show();
+                        }
+                        else if (data.ActivityAmountType === '3') {
+                            $('.inkind-miles-div').hide();
+                            $('.inkind-hours-div').hide();
+                            $('.amount-div').show();
+                            $('#inkindAmountTxt').prop('disabled', false);
+                        }
+
+                        if (data.IsSignatureRequired) {
+                            $('#parent-part-sig-div').show();
+                        }
+                        else {
+                            $('#parent-part-sig-div').hide();
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+
+
+                });
+            }
+
+        });
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+    function SaveSignature() {
+        $('#sig1').css('background-color', '#83a0b7');
+        isValid = false;
+        var sigToImage = $('#sig1').signature('toJSON');
+        if (sigToImage == '{"lines":[]}' || sigToImage.length <= 12) {
+            plainValidation('#sig1');
+            customAlert('Please enter signature');
+            return isValid;
+        }
+
+        else if (sigToImage.length <= 200) {
+            plainValidation('#sig1');
+            customAlert('Please enter valid signature');
+            return isValid;
+        }
+        else {
+
+            $('#imageSig1').val(sigToImage);
+            $('#ConvertedImage').val(1);
+            $('#sigtype').val(1);
+            return isValid;
+        }
+
+    }
+
+
+
+    function getFormattedDate(date) {
+        date = new Date(date);
+        var year = date.getFullYear();
+
+        var month = (1 + date.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+
+        var day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+
+        return month + '/' + day + '/' + year;
+    }
+
+    function ClearSignature(val) {
+        isValid = false;
+        if (val === 1) {
+            $('#sig1').css('background-color', '#83a0b7');
+            $('#sig1').signature('clear');
+        }
+        return isValid;
+    }
+</script>
+
+
+<style>
+    .btnPassword {
+        padding: 4px 12px;
+        line-height: 26px;
+        vertical-align: middle;
+        cursor: pointer;
+        padding: 4px 12px;
+        cursor: pointer;
+        background: #295b8f;
+        border: 0;
+        color: #ffffff;
+        -webkit-transition: 0.3s ease;
+        transition: 0.3s ease;
+    }
+
+    .label-color {
+        color: #fff;
+        float: left;
+    }
+
+    .parent-table-cel form {
+        width: 100%;
+        float: left;
+    }
+
+    .parent-table-cel {
+        width: 100%;
+        max-width: 750px;
+        margin: auto;
+        float: none;
+    }
+
+    .parent-group {
+        margin-bottom: 10px;
+    }
+
+        .parent-group input, .parent-group select, .parent-group textarea {
+            background: transparent;
+            color: #fff;
+            border-color: #fff;
+        }
+
+            .parent-group select option {
+                color: #1d5381;
+            }
+
+    #sig1 {
+        background: transparent;
+        border-color: #fff;
+    }
+
+    .bill-detl-title h2 {
+        text-align: center;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .family_ovr {
+        text-align: center;
+    }
+
+    .checkbox-validation {
+        padding-bottom: 0px;
+        padding-top: 5px;
+        border-radius: 10px;
+        background-color: #ffc0cb7d;
+    }
+</style>
+
+<link href="~/Content/css/Inkindprocessing.css" rel="stylesheet" />
+<link href="~/Content/css/parentcontact.css" rel="stylesheet" />
+
+<div class="row">
+
+    <div class="col-xs-12 bill-detl-title">
+        <h2>Parent Participation</h2>
+        <div class="family_ovr"><img src="/Content/imagechild/text-bdr.png"></div>
+    </div>
+
+
+
+
+    <div class="col-lg-12 col-md-12 col-xs-12 image-div" style="text-align:center;display:none;">
+        <img src="~/Images/Inkindthankyou.png" @*class="fade-in one"*@ style="height:400px;width:100%;padding:20px;" />
+    </div>
+
+
+
+
+
+
+    <div class="col-lg-12 col-xs-12" style="margin-top:20px;">
+        <div class="parent-table-cel">
+            <form id="inkind-info-form">
+
+
+
+
+                <div class="col-xs-12 col-lg-12 parent-group">
+                    <label class="lbl-required label-color col-lg-4 col-md-4">Activity Date</label>
+                    <div class="col-lg-4 col-md-6 col-xs-12">
+
+                        <div class='input-group date' id='datetimepicker1'>
+                            <input type='text' id="activity-date" maxlength="10" class="form-control" placeholder="MM/DD/YYYY" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-lg-12 parent-group">
+                    <label class="lbl-required col-lg-4 col-md-4 label-color">Select Child(s)</label>
+                    <div class="col-lg-6 col-md-4  part-multi-child">
+                        @if (Model.ChildDetailsList.Count() > 0)
+                        {
+                            foreach (var child in Model.ChildDetailsList)
+                            {
+
+                                <div class="col-md-8 col-sm-12 col-lg-8" style="padding: 0;">
+                                    <span class="check-space"> <input type="checkbox" name="childCheck" value="@child.ClientId" cen-id="@child.CenterId" cls-id="@child.ClassRoomId"></span>
+                                    <label style="color:#fff;">@child.ChildrenName</label>
+                                </div>
+                            }
+                        }
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-xs-12 col-lg-12 parent-group" id="parent-activity-type-div" style="display:none;">
+                    <label class="lbl-required col-lg-4 col-md-4 label-color">Activity Type</label>
+                    <div class="col-lg-4 col-md-4  part-multi">
+                        @if (Model.InKindActivityList.Count() > 0)
+                        {
+                            foreach (var activity in Model.InKindActivityList)
+                            {
+                                int sigReq = (activity.IsSignatureRequired) ? 1 : 0;
+
+                                if (activity.SubActivityList != null && activity.SubActivityList.Count() > 0)
+                                {
+                                    foreach (var subactivity in activity.SubActivityList)
+                                    {
+                                        <div class="col-md-6 col-sm-12" style="padding: 0;">
+                                            <span class="check-space"> <input type="checkbox" name="activityCheck" is-sig="@sigReq" value="@subactivity.ActivityCode"></span>
+                                            <label style="color:#fff;">@subactivity.ActivityDescription</label>
+                                        </div>
+                                    }
+                                }
+
+                            }
+                        }
+
+
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-lg-12 parent-group" id="parent-part-hours-div" style="display:none;">
+                    <label class="lbl-required col-lg-4 col-md-4 label-color">Hours</label>
+                    <div class="col-lg-4 col-md-4 hours-div">
+
+                        <span class="sec-radios">
+                            <span class="check-space"><input type="radio" name="activityHours" value="0"><label>0</label></span>
+                            <span class="check-space"><input type="radio" name="activityHours" value="1"><label>1</label></span>
+                            <span class="check-space"><input type="radio" name="activityHours" value="2"><label>2</label></span>
+                            <span class="check-space"><input type="radio" name="activityHours" value="3"><label>3</label></span>
+                            <span class="check-space"><input type="radio" name="activityHours" value="4"><label>4</label></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-lg-12 parent-group" id="parent-part-minutes-div" style="display:none;">
+                    <label class="lbl-required col-lg-4 col-md-4 label-color">Minutes</label>
+                    <div class="col-lg-4 col-md-4 minutes-div">
+                        <span class="sec-radios">
+                            <span class="check-space"><input type="radio" name="activityMinutes" value="0"><label>0</label></span>
+                            <span class="check-space"><input type="radio" name="activityMinutes" value="15"><label>15</label></span>
+                            <span class="check-space"><input type="radio" name="activityMinutes" value="30"><label>30</label></span>
+                            <span class="check-space"><input type="radio" name="activityMinutes" value="45"><label>45</label></span>
+
+                        </span>
+                    </div>
+                </div>
+
+
+                <div class="col-xs-12 col-lg-12 parent-group">
+                    <label class="col-lg-4 col-md-4 label-color">Activity Notes</label>
+                    <div class="col-lg-4 col-md-4">
+                        <textarea class="form-control" rows="5" id="parent-part-notes"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-lg-12 parent-group" id="parent-part-sig-div" style="display:none;">
+                    <label class="lbl-required col-lg-4 col-md-4 label-color">Signature</label>
+                    <div class="col-lg-4 col-md-4">
+                        <div class="form-control kbw-signature" id="sig1" style="background-color:#6787a2;">
+
+                        </div>
+
+                        <input type="hidden" id="imageSig1" />
+                        <div class="add-useragform student-scroll full-border full-border-margin" style="margin-top:10px;">
+                            <button class="btnPassword" id="clear" onclick="return ClearSignature(1);" style="border-radius:50px;background-color:#83a0b7;">Clear</button>
+                            <button class="btnPassword" id="accept" onclick="return SaveSignature();" style="border-radius:50px;background-color:#83a0b7;">Accept Signature</button>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group final-btn">
+                    <button class="btn btn-success" type="button" id="parentParticipateSubmit">Submit</button>
+                    <button class="btn btn-danger" type="button" id="parentParticipateCancel">Cancel</button>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+
+    @Html.Hidden("enc_parent", Model.ParentId)
+</div>
+
+
+<script>
+
+    $(function () {
+
+        $('input[name=activityCheck]').on('click', function () {
+
+            var descValue = '';
+            var istrue = 0;
+            $('input[name=activityCheck]:checked').each(function (i, checked) {
+
+                var desc = $(checked).parent('.check-space').siblings('label').html();
+                var thisValue = $(checked).val();
+
+                descValue += ' ' + desc + ',';
+
+                if ($(checked).attr('is-sig') == '1') {
+                    istrue++;
+                }
+
+
+            });
+
+            var lastChar = descValue.trim().slice(-1);
+            if (lastChar == ',') {
+                descValue = descValue.slice(0, -1);
+            }
+
+            $('#parent-part-notes').val(descValue);
+
+            if (istrue > 0) {
+                $('#parent-part-sig-div').show();
+            }
+            else {
+                $('#parent-part-sig-div').hide();
+                $('#sig1').signature('clear');
+                $('#imageSig1').val('');
+            }
+        });
+
+        $('input[name=childCheck]').on('click', function () {
+
+
+            if ($('input[name=childCheck]:checked').length > 0) {
+
+                if (!$('#parent-activity-type-div').is(':visible')) {
+                    $('#parent-activity-type-div').find('input[name=activityCheck]').prop('checked', false);
+                    $('#parent-activity-type-div,#parent-part-hours-div,#parent-part-minutes-div').show();
+                }
+            }
+            else {
+                $('#parent-activity-type-div').hide();
+                $('input[name=activityHours]').prop('checked', false);
+                $('input[name=activityMinutes]').prop('checked', false);
+                $('#parent-part-notes').val('');
+            }
+
+        });
+
+        $('#parentParticipateSubmit').on('click', function () {
+
+            cleanValidation();
+            $('.part-multi,.part-multi-child,.hours-div,.minutes-div').removeClass('checkbox-validation');
+            $('#sig1').css('background-color', '#6787a2');
+
+            if ($('#activity-date').val() === '') {
+                plainValidation('#activity-date');
+                customAlert('Please Select Activity Date');
+                return false;
+            }
+
+            if ($('#activity-date').val() != '') {
+                if (new Date(new Date($('#activity-date').val()).setHours(0, 0, 0, 0)) > new Date(new Date().setHours(0, 0, 0, 0))) {
+                    plainValidation('#activity-date');
+                    customAlert('Future dates are not allowed');
+                    return false;
+                }
+            }
+
+            if ($('input[name=childCheck]:checked').length <= 0) {
+                $('.part-multi-child').addClass('checkbox-validation');
+                customAlert('Please Select Child(s)');
+                return false;
+            }
+
+            if ($('input[name=activityCheck]:checked').length <= 0) {
+                $('.part-multi').addClass('checkbox-validation');
+                customAlert('Please Select Activity Type');
+                return false;
+            }
+
+            if ($('input[name=activityHours]:checked').length <= 0) {
+                $('.hours-div').addClass('checkbox-validation');
+                customAlert('Please Select Activity Hours');
+                return false;
+            }
+
+            if ($('input[name=activityMinutes]:checked').length <= 0) {
+                $('.minutes-div').addClass('checkbox-validation');
+                customAlert('Please Select Activity Minutes');
+                return false;
+            }
+
+            if ($('#parent-part-sig-div').is(':visible')) {
+                if ($('#imageSig1').val() == '') {
+                    $('#sig1').css('background-color', 'pink');
+                    customAlert('Please enter and accept signature');
+                    return false;
+                }
+            }
+
+            var parentId = $('#enc_parent').val();
+            var InKindTransactionsList = [];
+            var parentActivityDate = $('#activity-date').val();
+            var activtiy_hr_mins = {
+                'hours': '',
+                'minutes': ''
+            };
+            var minutesValue = ($('input[name=activityMinutes]:checked').val() == undefined || $('input[name=activityMinutes]:checked').val() == null) ? '0' : $('input[name=activityMinutes]:checked').val();
+
+            var hoursValue = ($('input[name=activityHours]:checked').val() == undefined || $('input[name=activityHours]:checked').val() == null) ? '0' : $('input[name=activityHours]:checked').val();
+
+            var checkedActivity = $('input[name=activityCheck]:checked').length;
+
+            if (checkedActivity > 0) {
+                var splittedMinutes = (((parseInt(hoursValue) * 60) + parseInt(minutesValue)) / checkedActivity);
+
+                activtiy_hr_mins = minutesToStr(splittedMinutes);
+
+            }
+            var activityNotes = $('#parent-part-notes').val();
+
+            var donorSig = ($('#parent-part-sig-div').is(':visible')) ? $('#imageSig1').val() : '';
+            $('input[name=childCheck]:checked').each(function (c, child) {
+
+                var childId = $(child).val();
+             
+                    var InKindTransactions = {
+                        'ClientID': childId,
+                        'ParentID':parentId,
+                        'ActivityDate': parentActivityDate,
+                        'ActivityID': '0',
+                        'Hours': hoursValue,
+                        'Minutes': minutesValue,
+                        'ActivityNotes': activityNotes,
+                        'IsCompany': false,
+                        'DonorSignature': donorSig
+                    };
+                    InKindTransactionsList.push(InKindTransactions);
+            });
+
+
+            $.ajax({
+
+                url: '/InKind/InsertParentParticipation',
+                datatype: 'json',
+                type: 'post',
+                data: { transactionString: JSON.stringify(InKindTransactionsList), parentID: parentId },
+                success: function (data) {
+                    if (data) {
+                        customAlert('In-kind Activity entry saved successfully');
+                        $('#inkind-info-form').trigger('reset');
+                        $('#sig1').signature('clear');
+                        $('#imageSig1').val('');
+                        $('#parent-activity-type-div,#parent-part-hours-div,#parent-part-minutes-div,#parent-part-sig-div').hide();
+                        $('#activity-date').val(getFormattedDate(new Date()));
+                    }
+
+                    else {
+                        customAlert('Some Error Occured.Please,try again later.');
+                    }
+                },
+                error: function (data) {
+                    customAlert('Some Error Occured.Please,try again later.');
+
+                }
+
+            });
+        });
+
+        $('#parentParticipateCancel').on('click', function () {
+
+
+            //$('input[name=childCheck]').prop('checked', false);
+            //$('input[name=activityCheck]').prop('checked', false);
+            //$('input[name=activityHours]').prop('checked', false);
+            //$('input[name=activityMinutes]').prop('checked', false);
+            //$('#parent-part-notes').val('');
+
+            $('#inkind-info-form').trigger('reset');
+            $('#sig1').signature('clear');
+            $('#imageSig1').val('');
+            $('#activity-date').val(getFormattedDate(new Date()));
+            $('#parent-activity-type-div,#parent-part-hours-div,#parent-part-minutes-div,#parent-part-sig-div').hide();
+        });
+    });
+
+
+
+    function minutesToStr(minutes) {
+
+        var activtiy_time = {
+            'hours': '',
+            'minutes': ''
+        };
+        var sign = '';
+        if (minutes < 0) {
+            sign = '-';
+        }
+
+        var hours = leftPad(Math.floor(Math.abs(minutes) / 60));
+        var minutes = leftPad(Math.abs(minutes) % 60);
+        activtiy_time.hours = hours;
+        activtiy_time.minutes = minutes;
+
+        //return sign + hours + ':' + minutes;
+        return activtiy_time;
+
+    }
+
+
+
+
+
+
+    function leftPad(number) {
+        return ((number < 10 && number >= 0) ? '0' : '') + number;
+    }
+</script>
