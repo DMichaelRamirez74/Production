@@ -3,14 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
     public class ERSEADashBoard
     {
+        public ERSEADashBoard()
+        {
+            this.MonthOrdersList = new List<SelectListItem>();
+            this.TotalADA = new ADA();
+        }
+
+
+       
+
         public List<ApplicationEnrollment> lstApplication = new List<ApplicationEnrollment>();
 
         public List<ADA> listADA = new List<ADA>();
+
+        public int FirstMonth { get; set; }
+
+        public Month MonthDetails { get; set; }
+
+        public List<SelectListItem> MonthOrdersList { get; set; }
+
+        public ADA TotalADA { get; set; }
+
+        public decimal OverAllPercentage { get; set; }
+        public int OverAllApplication { get; set; }
+
+        public int OverAllEnrollment { get; set; }
+
+        public int OverAllWithdrawn { get; set; }
+       public int OverAllDropped { get; set; }
+
+       
     }
 
     public class ApplicationEnrollment
@@ -31,6 +59,14 @@ namespace FingerprintsModel
     }
     public class ADA
     {
+        public object this[string propertyName]
+        {
+            get { return this.GetType().GetProperty(propertyName).GetValue(this, null); }
+            set { this.GetType().GetProperty(propertyName).SetValue(this, value, null); }
+        }
+
+    
+
         public string CenterName { get; set; }
         public decimal Jan { get; set; }
         public decimal Feb { get; set; }
@@ -45,5 +81,23 @@ namespace FingerprintsModel
         public decimal Nov { get; set; }
         public decimal Dec { get; set; }
 
+    }
+
+
+    public enum Month
+    {
+        NotSet = 0,
+        Jan = 1,
+        Feb = 2,
+        Mar = 3,
+        Apr = 4,
+        May = 5,
+        Jun = 6,
+        Jul = 7,
+        Aug = 8,
+        Sep = 9,
+        Oct = 10,
+        Nov = 11,
+        Dec = 12
     }
 }

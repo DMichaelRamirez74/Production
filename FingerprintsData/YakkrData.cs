@@ -375,6 +375,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Status", Status));
                 command.Parameters.Add(new SqlParameter("@Command", "YakkrCount"));
                 Object objCount = command.ExecuteScalar();
+                Connection.Close();
                 if (objCount != null)
                     YakkrCount = Convert.ToInt32(objCount);
             }
@@ -435,9 +436,9 @@ namespace FingerprintsData
             }
             return listDetail;
         }
-        
 
-        public List<YakkrClientDetail> GetYakkrListByCode(Guid AgencyId, Guid UserId, string YakkrCode,string Status)
+
+        public List<YakkrClientDetail> GetYakkrListByCode(Guid AgencyId, Guid UserId, string YakkrCode, string Status)
         {
             List<YakkrClientDetail> listDetail = new List<YakkrClientDetail>();
             try
@@ -602,6 +603,104 @@ namespace FingerprintsData
                 Connection.Close();
             }
             return dictEmail;
+        }
+
+
+        public RosterNew.CaseNote GetCaseNoteByYakkr(string clientId, string yakkrId)
+        {
+            RosterNew.CaseNote casenote = new RosterNew.CaseNote();
+            StaffDetails staffDetails = StaffDetails.GetInstance();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetCaseNoteInfoByYakkrId";
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        casenote = new RosterNew.CaseNote();
+
+                        casenote.ClientId = _dataset.Tables[0].Rows[0]["ClientId"].ToString();
+                        casenote.ClientName = _dataset.Tables[0].Rows[0]["ClientName"].ToString();
+                        casenote.CaseNoteDate = _dataset.Tables[0].Rows[0]["CaseNoteDate"].ToString();
+                        casenote.CaseNoteid = _dataset.Tables[0].Rows[0]["CaseNoteId"].ToString();
+                        casenote.Note = _dataset.Tables[0].Rows[0]["Notes"].ToString();
+                        casenote.CaseNotetitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
+                        casenote.AttachmentIdArray = (from DataRow dr1 in _dataset.Tables[0].Rows
+                                                      where Convert.ToInt32(dr1["AttachmentId"].ToString()) > 0
+                                                      select dr1["AttachmentId"].ToString()
+                                                    ).ToArray();
+
+                    }
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return casenote;
+        }
+
+        /// <summary>
+        /// method to inactive the yakkr for the client based on yakkr id.
+        /// </summary>
+        /// <param name="clientId"></param>
+        /// <param name="yakkrId"></param>
+        /// <returns>Boolean</returns>
+        public bool DeleteYakkrRoutingById(long clientId, long yakkrId)
+        {
+
+            bool isRowsAffected = false;
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_DeleteYakkrRoutingByYakkrId";
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrId));
+                Connection.Open();
+                isRowsAffected = (command.ExecuteNonQuery() > 0) ? true : false;
+                Connection.Close();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+
+            return isRowsAffected;
+
         }
     }
 }

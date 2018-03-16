@@ -15,6 +15,8 @@
     <link href="~/Content/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
     <link href="~/Content/testcss/jquery.datetimepicker.css" rel="stylesheet" />
     <link href="~/Content/jquery.tagsinput.css" rel="stylesheet" />
+    <script src="~/Content/ckeditor/ckeditor.js"></script>
+    <script src="~/Content/ckeditor/config.js"></script>
     <script src="~/Scripts/Samplescript/jquery.min.js"></script>
     <script src="~/Scripts/jquery-ui-1.9.0.min.js"></script>
     <script src="~/Scripts/Samplescript/jquery-ui.min.js"></script>
@@ -50,10 +52,21 @@
                 }
             });
 
+            $(window).resize(function () {
+                var footerHeight = $('.footer-one').height();
+                var bodyHeight = $('body').height();
+                var logoimageHeight = $('.logo-side-image').height();
+                var sidemenu = $('#side-menu');
+                var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
+                sidemenu.height(height);
+            });
+
+
             //side menu height change//
 
             var footerHeight = $('.footer-one').height();
             var bodyHeight = $('body').height();
+            var windowHeight = window.height;
             var logoimageHeight = $('.logo-side-image').height();
             var sidemenu = $('#side-menu');
             var height = ((bodyHeight - (footerHeight + logoimageHeight)) - 7);
@@ -735,7 +748,6 @@
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
 
                             <li><a id="li6" onclick="AgencyViewagencystaff();" href="#"><i class="fa fa-users"></i> Staff List</a></li>
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
                             <li><a id="li7" href="~/AgencyUser/staffReport"><i class="fa fa-bar-chart-o fa-fw"></i> Staff Report</a></li>
                             <li><a id="li7" href="~/Reporting/Reporting"><i class="fa fa-bar-chart-o fa-fw"></i>Reporting</a></li>
                             <li id="li8">
@@ -746,6 +758,12 @@
                                         <li><a id="li5" href="~/AgencyAdmin/pendingVerification"> Pending Verification</a></li>*@
                                     <li><a id="li4" onclick="homeVisitHistorical();" href="#">Home Visit(s) Historical</a></li>
                                     <li><a id="li8" onclick="CenterBasedHistorical();" href="#">Center Based Historical</a></li>
+                                    <li>
+                                        <a id="Yakkr" onclick="YakkrYakkr();" href="#">
+                                            <i class="fa fa-dashboard fa-fw"></i> Yakkr Mappings
+                                        </a>
+                                    </li>
+
                                     @*<li><a id="li5" onclick="AgencyAdminPendingVerification();" href="#"> Pending Verification</a></li>*@
 
                                 </ul>
@@ -779,17 +797,12 @@
                                     <li> <a id="Holiday" href="~/Home/AbsenceReason"><i class="fa fa-user-times"></i> Absence Reason</a> </li>
                                     <li> <a id="Holiday" href="~/Home/AttendanceType"><i class="fa fa-check-square"></i> Attendance Types</a> </li>
                                     <li> <a id="Holiday" href="~/InKind/InKindActivities"><i class="fa fa-bar-chart"></i> Inkind Activity</a> </li>
-                                    @*<li> <a id="viewDevelopmental" onclick="AgencyAdminDemographic();" href="#"><i class="fa fa-pie-chart"></i> Demographic Roles</a> </li>*@
+                                    <li> <a id="viewDevelopmental" onclick="AgencyAdminDemographic();" href="#"><i class="fa fa-pie-chart"></i> Demographic Roles</a> </li>
 
                                 </ul>
                             </li>
                             <li><a id="liFSWClass" onclick="SuperAdminClassroom();" href="#"><i class="fa fa-users"></i> FSW & HV Classroom Assignment</a></li>
-                            <li>
-                                <a id="Yakkr" onclick="YakkrYakkr();" href="#">
-                                    <i class="fa fa-dashboard fa-fw"></i> Yakkr
-                                </a>
-                            </li>
-
+                           
                         }
                         else
                         {
@@ -827,8 +840,8 @@
                             </li>
 
                         }
-                        <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>YakkrList(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-                        @*@if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
+                        <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
+                       @*@if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
                         {
                             <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Seciton</a></li>
                         }*@

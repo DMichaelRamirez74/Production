@@ -18,28 +18,61 @@ $(function () {
     });
 
     $('body').on('click', '.remove-attachment', function () {
-       
+
         $(this).parent().parent().parent().remove();
     });
     $('.btn-clear').click(function () {
         Clear();
     });
-    $('#txtURL').keypress(function (e) {
-        var regex = new RegExp("^[a-zA-Z0-9-.]+$");
+    function GetKey(evt) {
+        evt = (evt) ? evt : (window.event) ? event : null;
+        if (evt) {
+            var cCode = (evt.charCode) ? evt.charCode :
+                    ((evt.keyCode) ? evt.keyCode :
+                    ((evt.which) ? evt.which : 0));
+
+
+            return cCode;
+        }
+    }
+    //$('#txtURL').keypress(function (e) {
+    //    var regex = new RegExp("^[a-zA-Z0-9-.]+$");
+    //    var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);        
+    //    if (e.keyCode != 0 && navigator.userAgent.indexOf("Firefox")!=-1)
+    //        str = e.keyCode;
+    //    //$('#txtURLNote').val(str);
+    //    if (regex.test(str)) {
+    //        return true;
+    //    }        
+    //    e.preventDefault();
+    //    return false;
+    //});
+
+    $('#txtURL').bind('keypress', function (e) {
+        var regex = new RegExp("^[a-zA-Z0-9-.:/]+$");
         var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (e.keyCode != 0 && navigator.userAgent.indexOf("Firefox") != -1)
+            str = e.keyCode;
+
         if (regex.test(str)) {
             return true;
         }
-
         e.preventDefault();
         return false;
     });
-   
+
+    $('#txtURL').bind('keyup', function () {
+        $(this).val($(this).val().replace(/[^a-zA-Z0-9@.:/]+/, ''));
+    });
+
     BindMaterials();
     var EductionMaterial = {};
     EductionMaterial.AttachmentPath = [];
     $('.btn-submit').click(function () {
+      
         var txt = $('#txtURL').val().trim();
+        console.log('Length:' + txt.split('.').length);
+        
         var re = /(http(s)?:\\)?([\w-]+\.)+[\w-]+[.com|.in|.org]+(\[\?%&=]*)?/
         var patt = /^[a-zA-Z0-9\.\_]*$/;
         var isAllow = true;
@@ -51,20 +84,18 @@ $(function () {
             customAlert("Title is mandatory");
             isAllow = false;
         }
-        else if (!re.test(txt) && txt!="") {
-           customAlert("Enter valid url");
-           isAllow = false;
-        }   
-        else if (isAllow)
-        {
-            $('.fileAttachments').each(function (i,val) {
-                if ($(this).val().trim() == "" && isAllow)
-                {
+        else if ((!re.test(txt) || txt.split('.').length < 3) && txt != "") {
+            customAlert("Enter valid url");
+            isAllow = false;
+        }
+        else if (isAllow && $('.material-id').val().trim() == "") {
+            $('.fileAttachments').each(function (i, val) {
+                if ($(this).val().trim() == "" && isAllow) {
                     isAllow = false;
                     customAlert("Please upload file");
-                }                 
+                }
             });
-        }       
+        }
         if (isAllow) {
             if ($('.material-id').val().trim() != "")
                 EductionMaterial.Id = $('.material-id').val();
@@ -84,16 +115,13 @@ $(function () {
     });
     $('.btn-search').click(function () {
         var searchtext = $('#ddlGroupSearch').val().trim().toLocaleLowerCase();
-        if (searchtext !== "0")
-        {
+        if (searchtext !== "0") {
             $('.library-table-head tr').each(function () {
                 var text = $(this).attr('group').toLocaleLowerCase();
-                if(searchtext==text)
-                {
+                if (searchtext == text) {
                     $(this).show();
                 }
-                else
-                {
+                else {
                     $(this).hide();
                 }
                 //if (text.indexOf(searchtext) != -1) {
@@ -104,18 +132,17 @@ $(function () {
                 //}
             });
         }
-        else
-        {
+        else {
             $('.library-table-head tr').show();
         }
-        
+
     });
     $('body').on('click', '.dropdown', function () {
         setTimeout(function ()
         { $('.dropdown').addClass('open'); }, 100);
 
     });
-    $('body').on('click', '.Delete', function () {
+    $('body').on('click touchstart', '.Delete', function () {
         var id = $(this).closest('tr').attr('Id');
         BootstrapDialog.confirm('Do you want to delete this record?', function (result) {
             if (result) {
@@ -125,7 +152,7 @@ $(function () {
         });
 
     });
-    $('body').on('click', '.edit', function () {
+    $('body').on('click touchstart', '.edit', function () {
         var currentrow = $(this).closest('tr');
         $('.material-id').val(currentrow.attr('id'));
         $('#ddlGroup').val(currentrow.attr('group'));
@@ -158,12 +185,11 @@ $(function () {
         var data = new FormData();
         $('.fileAttachments').each(function (i, vak) {
             var files = $(this).get(0).files;
-            console.log(files);
-            console.log($(this).val());
+          
             if (files.length > 0) {
                 data.append("MyImages" + i + "", files[0]);
             }
-            console.log(data);
+           
         });
 
         $.ajax({
@@ -257,7 +283,7 @@ $(function () {
             url: "/EducationMaterial/GetMaterialDetails",
             // data: { 'DomainId': DomainId },
             success: function (data) {
-                console.log(data);
+             
                 $('.library-table-head').empty();
 
                 var input = "<option value='0'>Choose</option>";
@@ -296,20 +322,19 @@ $(function () {
                                                 <td data-title="Action">\
                                                     <div style="width: auto;display: inline-block;">\
                                                         <div class="Status-title-library">\
-                                                            <p style="margin-top: 0;" class="edit">\
+                                                            <p style="margin-top: 0;cursor: pointer;" class="edit">\
                                                                 <i class="fa fa-pencil" aria-hidden="true"></i><span>Edit</span>\
                                                             </p>\
                                                         </div>\
                                                         <div class="Status-title-library">\
-                                                            <p style="margin-top: 5px;" class="delete Delete">\
+                                                            <p style="margin-top: 5px;cursor: pointer;" class="delete Delete">\
                                                                 <i class="fa fa-trash-o" aria-hidden="true"></i><span>Delete</span>\
                                                             </p>\
                                                         </div>\
                                                     </div>\
                                                 </td>\
                                             </tr>';
-                    console.log(val["UserId"]);
-                    console.log(data.UserId);
+                   
                     if (val["UserId"] != data.UserId) {
                         template = '<tr group="{Group}" Id="{Id}">\
                                                 <td data-title="Title">\
@@ -373,7 +398,7 @@ $(function () {
             url: "/EducationMaterial/GetMaterialDetails",
             // data: { 'DomainId': DomainId },
             success: function (data) {
-                console.log(data);
+               
                 $('.library-table-head').empty();
 
                 var input = "<option value='0'>Choose</option>";
@@ -412,20 +437,19 @@ $(function () {
                                                 <td data-title="Action">\
                                                     <div style="width: auto;display: inline-block;">\
                                                         <div class="Status-title-library">\
-                                                            <p style="margin-top: 0;" class="edit">\
+                                                            <p style="margin-top: 0;cursor: pointer;" class="edit">\
                                                                 <i class="fa fa-pencil" aria-hidden="true"></i><span>Edit</span>\
                                                             </p>\
                                                         </div>\
                                                         <div class="Status-title-library">\
-                                                            <p style="margin-top: 5px;" class="delete Delete">\
+                                                            <p style="margin-top: 5px;cursor: pointer;" class="delete Delete">\
                                                                 <i class="fa fa-trash-o" aria-hidden="true"></i><span>Delete</span>\
                                                             </p>\
                                                         </div>\
                                                     </div>\
                                                 </td>\
                                             </tr>';
-                    console.log(val["UserId"]);
-                    console.log(data.UserId);
+                   
                     if (val["UserId"] != data.UserId) {
                         template = '<tr group="{Group}" Id="{Id}">\
                                                 <td data-title="Title">\
@@ -464,7 +488,7 @@ $(function () {
                                                 </td>\
                                             </tr>';
                     }
-                 
+
                     template = template.replace("{Id}", val["Id"]);
                     template = template.replace("{Group}", val["Group"]);
                     template = template.replace("{Title}", val["Title"]);

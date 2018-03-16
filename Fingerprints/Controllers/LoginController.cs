@@ -244,6 +244,8 @@ namespace Fingerprints.Controllers
             {
                 string IPAddress = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
                 bool isCoreTeam = false;
+                bool isDemographic = false;
+                bool isAcceptance = false;
                 if (string.IsNullOrEmpty(IPAddress))
                     IPAddress = Request.ServerVariables["REMOTE_ADDR"];
 
@@ -292,15 +294,21 @@ namespace Fingerprints.Controllers
                     Session["Roleid"] = UserInfo.roleId;
                     Session["MenuEnable"] = UserInfo.MenuEnable;
                     Session["IsCoreTeam"] = false;
+                    Session["IsDemographic"] = false;
+                    Session["isAcceptance"] = false;
                     if (UserInfo.AgencyId != null)
                     {
                         Session["AgencyID"] = UserInfo.AgencyId;
                         isCoreTeam = new LoginData().IsDevelopmentTeam(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
+                        isDemographic= new LoginData().IsDemographic(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
                         if(isCoreTeam)
                         {
                             Session["IsCoreTeam"] = true;
                         }
-
+                        if (isDemographic)
+                        {
+                            Session["IsDemographic"] = true;
+                        }
                         if (RoleList != null)
                         {
                             Session["RoleList"] = RoleList;

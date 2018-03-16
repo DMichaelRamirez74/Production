@@ -4,7 +4,14 @@
         YakkrList
     }
     ViewBag.Title = "YakkrList";
-    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
 
     string typeofdatacount = string.Empty;
     string mode = string.Empty;
@@ -18,6 +25,11 @@
 
 @section MainContentHolder{
     <style>
+        #caseNoteNotes p {
+            max-height: 200px;
+            overflow: auto;
+        }
+
         .form-group-al {
             margin: auto;
         }
@@ -229,6 +241,97 @@
         .download-ic {
             color: #163b69;
         }
+
+        .modal-dialog-ch {
+            width: 5 60%;
+        }
+
+        #Casenotedevelopement {
+            /*background: rgba(0,0,0,0.6);*/
+            background:rgba(0, 0, 0, 0);
+        }
+
+            #Casenotedevelopement .modal-body {
+                background: #34495e none repeat scroll 0 0;
+                border: 6px solid #ffffff;
+                border-radius: 3px;
+                /* color: #ffffff; */
+                float: left;
+                padding: 15px 3%;
+                position: relative;
+                width: 100%;
+            }
+
+            #Casenotedevelopement .close {
+                opacity: 1;
+                position: absolute;
+                right: -14px;
+                top: -15px;
+            }
+
+            #Casenotedevelopement .modal-body > h2 {
+                margin-top: 0px;
+                float: left;
+                font-size: 24px;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 10px;
+                color: #fff;
+            }
+
+        .addn-poup-div1 p {
+            color: #333;
+            font-size: 18px;
+            text-align: left;
+            font-weight: 400;
+            margin-top: 5px;
+            margin-bottom: 3px;
+            width: 100%;
+        }
+
+            .addn-poup-div1 p a {
+                display: inline-block;
+            }
+
+        .download-ic {
+            font-size: 25px !important;
+            padding: 5px !important;
+            color: #163b69 !important;
+        }
+
+        .max_items_addn {
+            background: #f1f5f8 none repeat scroll 0 0;
+            border: 3px solid #ffffff;
+            float: left;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .addn-al {
+            margin-bottom: 10px;
+        }
+
+        .addn-poup-div label {
+            color: #163b69;
+            font-size: 18px;
+            text-align: right;
+            font-weight: 600;
+            margin-top: 5px;
+            margin-bottom: 3px;
+            width: 100%;
+        }
+
+        .addn-poup-div1 input, .addn-poup-div1 textarea {
+            position: relative;
+            color: #333;
+            background: #fff;
+            border: 1px solid #fff;
+            border-radius: 0;
+            font-style: italic;
+            box-shadow: none;
+        }
     </style>
     <div class="row">
         <div class="col-lg-12">
@@ -247,120 +350,156 @@
 
                 <div class="table-responsive">
                     <table class="table table_size" id="Gridclient">
-                        <thead style="cursor:pointer;">
-                            <tr>
-                                <th></th>
-                                <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
-                                <th id="thCust">DOB<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
-                                <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                                <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
-                            </tr>
-                        </thead>
+                        @if (ViewBag.YakkrCode == "750")
+                        {
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                    <th></th>
+                                    <th id="thMN">Slot Count<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            @if (Model.Count() > 0)
-                            {
-                                foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                            <tbody>
+                                @if (Model.Count() > 0)
                                 {
-                                    if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
-                                    {
-                                        <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
-                                    }
-                                    else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
-                                    {
-                                        <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.FromUserID)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
-                                        @*<tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@detail.FromUserID">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>*@
-
-                                    }
-                                    else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
-                                    {
-                                        <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
-                                    }
-                                    else if (ViewBag.YakkrCode == "704")
+                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
                                     {
                                         <tr>
                                             <td class="ClientName">
-                                                <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
-                                                <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
+                                                <a href="/Agency/AdditionalSlots?YakkrID=@detail.YakkrID">Select</a>
                                             </td>
-                                            <td>@detail.ClientName</td>
-                                            <td>@detail.DOB</td>
-                                            <td>@detail.CenterName</td>
-                                            <td>@detail.FromUser</td>
+                                            <td>@detail.Slots</td>
                                             <td>@detail.Date</td>
                                         </tr>
-                                    }
 
-                                    else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303")
-                                    {
-
-
-                                        // typeofdatacount= (@ViewBag.YakkrCode == "300")?
-                                        if (ViewBag.YakkrCode == "300")
-                                        {
-                                            typeofdatacount = "Indicated";
-                                            mode = "Pending";
-                                        }
-                                        if (ViewBag.YakkrCode == "301")
-                                        {
-                                            typeofdatacount = "Pending";
-                                            mode = "QualifyReleased";
-                                        }
-                                        if (ViewBag.YakkrCode == "302")
-                                        {
-                                            typeofdatacount = "Qualified";
-                                            mode = "Released";
-                                        }
-                                        if (ViewBag.YakkrCode == "303")
-                                        {
-                                            typeofdatacount = "Released";
-                                            mode = "All";
-                                        }
-
-                                        <tr>
-                                            <td class="ClientName" onclick="LoadPendingDisable(this,true);" accesskey="@detail._EncCenterId" typeofdatacount="@typeofdatacount" mode="@mode">
-                                                <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
-                                                <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                <a href="javascript:void(0);" id="disabilitySelect">Select</a>
-                                            </td>
-                                            <td>@detail.ClientName</td>
-                                            <td>@detail.DOB</td>
-                                            <td>@detail.CenterName</td>
-                                            <td>@detail.FromUser</td>
-                                            <td>@detail.Date</td>
-                                        </tr>
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td class="ClientName">
-                                                <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
-                                                <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
-                                                <span class="ClientId" style="display:none;">@detail.ClientId</span>
-                                                <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
-                                                <a href="javascript:void(0)">Select</a>
-                                            </td>
-                                            <td>@detail.ClientName</td>
-                                            <td>@detail.DOB</td>
-                                            <td>@detail.CenterName</td>
-                                            <td>@detail.FromUser</td>
-                                            <td>@detail.Date</td>
-                                        </tr>
                                     }
                                 }
-                            }
-                            else
-                            {
-                                <tr><td colspan="5">No Result Found</td></tr>
-                            }
+                                else
+                                {
+                                    <tr><td colspan="5">No Result Found</td></tr>
+                                }
 
-                        </tbody>
+                            </tbody>
+                        }
+                        else
+                        {
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                    <th></th>
+                                    <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                                    <th id="thCust">DOB<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                                    <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @if (Model.Count() > 0)
+                                {
+                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                    {
+                                        if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+                                        {
+                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                        }
+                                        else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
+                                        {
+                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.FromUserID)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                            @*<tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=@detail.FromUserID">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>*@
+
+                                        }
+                                        else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "501"))
+                                        {
+                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/AgencyUser/FamilyDetails/?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.HouseHoldId)&Yakkrid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Yakkr=1&Staffid=">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                        }
+                                        else if (ViewBag.YakkrCode == "704")
+                                        {
+                                            <tr>
+                                                <td class="ClientName">
+                                                    <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                    <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                    <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                    <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                    <a href="~/ExternalLeads/ExternalApplicantInformation/?parentId=@detail.ClientId">Select</a>
+                                                </td>
+                                                <td>@detail.ClientName</td>
+                                                <td>@detail.DOB</td>
+                                                <td>@detail.CenterName</td>
+                                                <td>@detail.FromUser</td>
+                                                <td>@detail.Date</td>
+                                            </tr>
+                                        }
+
+                                        else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303")
+                                        {
+
+
+                                            // typeofdatacount= (@ViewBag.YakkrCode == "300")?
+                                            if (ViewBag.YakkrCode == "300")
+                                            {
+                                                typeofdatacount = "Indicated";
+                                                mode = "Pending";
+                                            }
+                                            if (ViewBag.YakkrCode == "301")
+                                            {
+                                                typeofdatacount = "Pending";
+                                                mode = "QualifyReleased";
+                                            }
+                                            if (ViewBag.YakkrCode == "302")
+                                            {
+                                                typeofdatacount = "Qualified";
+                                                mode = "Released";
+                                            }
+                                            if (ViewBag.YakkrCode == "303")
+                                            {
+                                                typeofdatacount = "Released";
+                                                mode = "All";
+                                            }
+
+                                            <tr>
+                                                <td class="ClientName" onclick="LoadPendingDisable(this,true);" accesskey="@detail._EncCenterId" typeofdatacount="@typeofdatacount" mode="@mode">
+                                                    <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                    <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                    <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                    <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                    <a href="javascript:void(0);" id="disabilitySelect">Select</a>
+                                                </td>
+                                                <td>@detail.ClientName</td>
+                                                <td>@detail.DOB</td>
+                                                <td>@detail.CenterName</td>
+                                                <td>@detail.FromUser</td>
+                                                <td>@detail.Date</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td class="ClientName">
+                                                    <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                    <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                    <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                    <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                                    <a href="javascript:void(0)">Select</a>
+                                                </td>
+                                                <td>@detail.ClientName</td>
+                                                <td>@detail.DOB</td>
+                                                <td>@detail.CenterName</td>
+                                                <td>@detail.FromUser</td>
+                                                <td>@detail.Date</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="5">No Result Found</td></tr>
+                                }
+
+                            </tbody>
+                        }
+
                     </table>
                     <div id="div1" style="text-align:center;display:none;">
                         <label>No result found.</label>
@@ -569,16 +708,16 @@
                     <input type="hidden" name="childname" id="childname" value="">
                     <label class="alert-dismissible" for="current_password">Child Absent Request</label>
                 </div>
-               
-                    <div class="form-group">
-                        <label style="padding-left: 170px;font-size: 15px;" class="control-label" for="current_password">Reason:</label>
-                        <span style="font-size: 14px;" class="new-absent-status"></span>
-                    </div>
-                    @*<div class="form-group">
+
+                <div class="form-group">
+                    <label style="padding-left: 170px;font-size: 15px;" class="control-label" for="current_password">Reason:</label>
+                    <span style="font-size: 14px;" class="new-absent-status"></span>
+                </div>
+                @*<div class="form-group">
                         <label class="control-label" for="current_password">Notes:</label>
                         <span class="new-absent-notes"></span>
                     </div>*@
-              
+
                 <div class="modal-footer">
                     <button class="btnPassword address-btn btn-absent-change">Approve</button>
                     <button class="btnPassword address-btn" data-dismiss="modal">Cancel</button>
@@ -863,6 +1002,104 @@
 
         </div>
     </div>
+
+    <div class="modal fade scroll-modal in" id="Casenotedevelopement" role="dialog" aria-hidden="false">
+        <div class="modal-dialog modal-dialog-ch">
+            <div class="modal-content">
+
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                    <h2 id="CaseNoteHeading" class="extra-title muted">Case Note Development Team</h2>
+                    <div class="max_items_addn popup-addn-scroll">
+                        <input type="hidden" id="case_clientId" name="caseNoteClient" />
+                        <input type="hidden" id="case_yakkrId" name="caseNoteYakkr" />
+
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div class="col-sm-4">
+                                <div class="addn-poup-div">
+                                    <label>Client :</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="addn-poup-div1">
+                                    <p id="caseNoteClientName"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div class="col-sm-4">
+                                <div class="addn-poup-div">
+                                    <label>Title :</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="addn-poup-div1">
+                                    <p id="caseNoteTitle"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div class="col-sm-4">
+                                <div class="addn-poup-div">
+                                    <label>Date :</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="addn-poup-div1">
+                                    <p id="caseNoteDate"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div class="col-sm-4">
+                                <div class="addn-poup-div">
+                                    <label>Notes :</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="addn-poup-div1">
+                                    <p id="caseNoteNotes"></p>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div id="Attachments">
+                                <div class="col-sm-12 adddivspace" style="padding: 0;">
+                                    <div class="col-sm-4">
+                                        <div class="addn-poup-div">
+                                            <label>Attachment(s) :</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <div class="addn-poup-div1" id="attachements_div">
+                                            <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                            <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                            <a target="_blank" title="Download" href="#"><i class="fa fa-download download-ic"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12" style="margin-top:10px;margin-bottom:0px;padding:0;">
+                        <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                            <button type="button" class="my-btn pull-right btn-success" data-dismiss="modal" >Save</button>
+                            <button type="button" class="my-btn pull-right btn-danger" id="btnRemoveYakkr">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
 
     <input type="hidden" id="centerIdGrid" />
 
@@ -1336,7 +1573,7 @@
                         data: { 'YakkrId': YakkrID },
                         success: function (data) {
                             $('.new-absent-status').text(data[0]);
-                           // $('.new-absent-notes').text(data[1]);
+                            // $('.new-absent-notes').text(data[1]);
                         },
                         error: function (data) {
                             console.log('Error');
@@ -1533,6 +1770,51 @@
                     $('#transportation1').modal('show');
                 }
 
+                else if ($('.yakkr-code').text().trim() == "350") {
+                    $.ajax({
+                        url: '/Yakkr/GetCaseNoteDetailsByYakkr',
+                        datatype: 'json',
+                        type: 'post',
+                        data: { clientId: ClientId, yakkrId: YakkrID },
+                        success: function (data) {
+
+                            var caseNoteModal = $('#Casenotedevelopement');
+                            var attachmentDiv = '';
+                            if (data != null) {
+                                caseNoteModal.find('#caseNoteClientName').html(data.ClientName);
+                                caseNoteModal.find('#caseNoteTitle').html(data.CaseNotetitle);
+                                caseNoteModal.find('#caseNoteDate').html(data.CaseNoteDate);
+                                caseNoteModal.find('#caseNoteNotes').html(data.Note);
+                                if (data.AttachmentIdArray.length > 0) {
+                                    $.each(data.AttachmentIdArray, function (i, attach) {
+                                        if (attach != '0') {
+                                            attachmentDiv += "<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + attach + ",CaseNote,0'><i class='fa fa-download download-ic' style='font-size:18px!important;'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;"
+                                            //attachmentDiv+='<a target="_blank" accesskey='+attach+'  title="Click here to download" href="#"><i class="fa fa-download download-ic"></i></a>'
+                                        }
+
+                                    });
+
+                                }
+                                else {
+                                    attachmentDiv = '<div class="addn-poup-div1">\
+                                <p>Not Available</p>\
+                            </div>';
+                                }
+                                $('#attachements_div').html(attachmentDiv)
+                            }
+
+                            $('#Casenotedevelopement').find('#case_clientId').val(ClientId);
+                            $('#Casenotedevelopement').find('#case_yakkrId').val(YakkrID);
+
+                            $('#Casenotedevelopement').modal('show');
+
+                        },
+                        error: function (data) {
+
+                        }
+                    });
+                }
+
             });
 
             $('.btn-close-transportaion').click(function () {
@@ -1568,6 +1850,39 @@
                     }
                 });
             });
+
+
+            $('#Casenotedevelopement').find('#btnRemoveYakkr').on('click', function () {
+
+                var caseNoteClient = $('#Casenotedevelopement').find('#case_clientId').val();
+                var caseNoteyakkr = $('#Casenotedevelopement').find('#case_yakkrId').val();
+
+                $.ajax({
+                    url: '/Yakkr/DeleteYakkrByYakkrId',
+                    type: 'post',
+                    datatype: 'json',
+                    data: { clientId: parseInt(caseNoteClient), yakkrId: parseInt(caseNoteyakkr) },
+                    success: function (data) {
+                        if (data) {
+                            customAlert("Record deleted successfully.");
+                            setTimeout(function () {
+                                $('#Casenotedevelopement').modal('hide');
+                                window.location.reload(true);
+                            }, 1500);
+                           
+                        }
+                        else {
+                            customAlert("Some error occured.Please,try again later.");
+                        }
+                    },
+                    error: function (data) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+
+                });
+            });
+
+
         });
 
         function getFormattedDate(date) {

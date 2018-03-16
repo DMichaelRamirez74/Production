@@ -386,6 +386,14 @@
         font-size: 18px;
         margin: 0; /* font-weight: bold; */
     }
+
+       .no-padding{
+           padding:0;
+       }
+
+       #TeacherRoster tbody th{
+           border:1px solid #ccc;
+       }
 </style>
 
 <form method="post" enctype="multipart/form-data">
@@ -439,25 +447,23 @@
             </h2>
 
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                    <div class="table-responsive">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform no-padding">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace no-padding">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main no-padding">
+                    <div class="table-responsive no-padding">
                         <table class="table table_size" id="TeacherRoster">
                             <thead class="cursor:pointer">
                                 <tr style="background-color:#285B90;color:#ffffff">
-                                    <th align="left">Child's Name</th>
+                                    <th align="left">Client</th>
                                     <th>DOB</th>
-                                    <th>Child's Picture</th>
+                                    <th>Profile Picture</th>
                                     <th>Class Start Date</th>
                                     <th>Check-In Status</th>
                                     <th>Daily Health Check</th>
                                     <th>% Absent</th>
                                     <th>Enrollment Days</th>
-                                    <th>Obervation Note</th>
-                                    <th>Manual Attendance</th>
-                                    <th>Referrals</th>
                                     <th>Disabilities</th>
+                                    <th>Services</th>
                                 </tr>
 
                             </thead>
@@ -470,14 +476,7 @@
 
                                     <th EClientId="@j.Enc_ClientId" class="childName">@j.CName</th>
                                     <th>@j.CDOB</th>
-                                    @*@if (j.CImage.Length != 0)
-                                    {
-                                    <th><img id="img1" src="data:image;base64,@System.Convert.ToBase64String(@j.CIFileData)" alt="image" height="50" class="roundimage" width="50" /></th>
-                                    }
-                                    else
-                                    {
-                                    <th><img src="~/Images/ic_male.png" alt="image" height="50" width="50" /></th>
-                                    }*@
+                                   
                                     <th><a href="javascript:void(0)" onclick="showImage(this);" EClientId='@j.Enc_ClientId'>View</a></th>
 
                                     <th>@j.Dateofclassstartdate</th>
@@ -485,7 +484,6 @@
                                     @if (j.AttendanceType == "Not Checked In" && (j.IsLateArrival || j.IsCaseNoteEntered != 0))
                                     {
                                     <th style="font-family:Arial;color:blueviolet;">Marked as Late Arrival<br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
-
                                     }
                                     else
                                     {
@@ -502,7 +500,6 @@
 
 
 
-                                                        @*<a href="@Url.Action("CheckInCheckOutDetail", "Teacher", new { clientid = @j.ClientID, accesstype = 1 }, null)" title="Details" class="links">*@
                                                         <a href="~/Teacher/CheckInCheckOutDetail?clientid=@j.ClientID&accesstype=1" title="Details" class="links">
                                                             @j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i>
 
@@ -510,11 +507,20 @@
                                     </th>
 
                                     }
-                                    else
+                                    else if(j.AttendanceType == "Absent Excused")
                                     {
-                                    <th style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
+                                    <th style="font-family:Arial;color:#9c27b0;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
+                                        }
+                                        else if (j.AttendanceType == "Present Other")
+                                        {
+                                            <th style="font-family:Arial;color:#ff5722;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
+                                        }
+                                        else
+                                        {
+                                            <th style="font-family:Arial;color:red;">@j.AttendanceType <br /> <i style="font-family:Arial;color:black;"> @Html.Raw(j.CNotes) </i></th>
 
-                                    }
+                                        }
+
                                     }
 
                                     @if (j.ObservationChecked)
@@ -542,32 +548,11 @@
 
                                     <th>@j.PercentAbsent %</th>
                                     <th>@j.EnrollmentDays</th>
-                                    <th>
+                                 
 
-
-
-                                        <a style="text-decoration:underline;cursor:pointer;" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)"><img src="~/Images/referral.png" /> </a>
-
-                                    </th>
-
-
-
-                                    <th>
-                                        @if (Model.ClosedDetails.ClosedToday > 0)
-                                        {
-                                        <a href="#" class="open-myModal" data-id="@j.ClientID-@j.CName" style="pointer-events:none;"> <i class="fa fa-arrow-up"></i></a>
-
-                                        }
-                                        else
-                                        {
-                                        <a href="#myModal" data-toggle="modal" class="open-myModal" data-id="@j.ClientID-@j.CName"> <i class="fa fa-arrow-up"></i></a>
-
-                                        }
-
-
-                                    </th>
-                                    <th class="referral-icon"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" /><img src="~/Images/referral.png" /></th>
-                                    @if (j.Disability == "1")
+                                    @*<th class="referral-icon"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" /><img src="~/Images/referral.png" /></th>*@
+                                  
+                                      @if (j.Disability == "1")
                                     {
                                     <th>
                                         <img src="~/Images/whiteCheck.jpg" title="@j.DisabilityDescription" />
@@ -577,7 +562,30 @@
                                     {
                                     <th><img src="~/Images/whiteX.gif" title="No Disability Recorded" /></th>
                                     }
-                                </tr>
+
+                                    <th style="white-space:nowrap;">
+
+
+                                        @if (Model.ClosedDetails.ClosedToday > 0)
+                                        {
+                                            <a href="#" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModal" data-id="@j.ClientID-@j.CName">ATN</a>
+
+                                        }
+                                        else
+                                        {
+                                            <a href="#myModal" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" data-toggle="modal" class="open-myModal" data-id="@j.ClientID-@j.CName">ATN</a>
+
+                                        }
+
+
+                                        <a style="text-decoration:underline;cursor:pointer;" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON</a>
+
+                                        <a class="referral-icon" style="text-decoration:underline;cursor:pointer;"  title="Click here for Referrals" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />REF</a>
+                                    
+                                        <a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED </a>
+                                       
+                                         </th>
+                                    </tr>
 
                                 }
 

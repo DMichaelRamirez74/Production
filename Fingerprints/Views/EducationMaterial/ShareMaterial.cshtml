@@ -11,7 +11,7 @@
     <style>
         #page-wrapper {
             padding-left: 0;
-            padding-right: 0;   
+            padding-right: 0;
         }
 
         select option {
@@ -26,15 +26,24 @@
         <div class="row">
             <div class="right-side-container-ch">
                 @*<div class="col-xs-12 top-header-background no-padding">
-                    <div class="top-header">
-                      
-                    </div>
-                </div>*@
+                        <div class="top-header">
+
+                        </div>
+                    </div>*@
                 <div class="col-xs-12 no-padding">
                     <div class="top-header-title-client">
                         <h1>Educational Material Library</h1>
                     </div>
+                    @if (Session["RoleID"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
+                    {
+                        <a href="/Teacher/Roster" style="padding:18px;float: right;color: #fff;margin-right:18px;background-color:#9b59b6;border-radius: 4px; ">Back To Roster</a>
 
+                    }
+                    else
+                    {
+                        <a href="/Roster/Roster" style="padding:18px;float: right;color: #fff;margin-right:18px;background-color:#9b59b6;border-radius: 4px; ">Back To Roster</a>
+
+                    }
                 </div>
                 <div class="col-xs-12 no-padding">
                     <div class="col-xs-12 no-padding">
@@ -71,10 +80,7 @@
                                                 <th class="action-width">Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="library-table-head">
-                                           
-                                         
-                                        </tbody>
+                                        <tbody class="library-table-head"></tbody>
                                     </table>
                                 </div>
                             </div>
@@ -102,21 +108,21 @@
                                 </div>
                             }
 
-                           
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-<script src="~/Content/EducationMaterial/js/bootstrap.js"></script>
-<script src="~/Content/EducationMaterial/js/jquery.js"></script>
-<script src="~/Content/EducationMaterial/js/jquery.mCustomScrollbar.min.js"></script>
-<script src="~/Content/EducationMaterial/js/script.js"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        BindMaterials();
+
+    <script src="~/Content/EducationMaterial/js/bootstrap.js"></script>
+    <script src="~/Content/EducationMaterial/js/jquery.js"></script>
+    <script src="~/Content/EducationMaterial/js/jquery.mCustomScrollbar.min.js"></script>
+    <script src="~/Content/EducationMaterial/js/script.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            BindMaterials();
             var linkys = document.getElementsByClassName('dropdown-toggle');
             for (var i = 0; i < linkys.length; ++i) {
                 linkys[i].onclick = function (e) {
@@ -130,7 +136,6 @@
 
             });
             $('.btn-search').click(function () {
-                
                 $.ajax({
                     type: "POST",
                     url: "/EducationMaterial/GetMaterialDetailsBySerachText",
@@ -167,16 +172,16 @@
                                                         <p>{URL}</p>\
                                                     </div>\
                                                 </td>\
-                                                <td data-title="Action">\
+                                                <td data-title="Action" class="action-width">\
                                                     <div style="width: auto;display: inline-block;">\
                                                         <div class="Status-title-library">\
-                                                            <p style="margin-top: 0;background:#3498db;padding-left: 15px;">\
+                                                            <p style="margin-top: 0;background:#3498db;padding-left: 15px;" class="btn-print">\
                                                                 <span style="width: auto;display: inline-block;margin-right: 5px;"><img src="/Content/EducationMaterial/images/print-lib.png"></span>\
                                                                 Print\
                                                             </p>\
                                                         </div>\
                                                         <div class="Status-title-library">\
-                                                            <p style="margin-top: 5px;;background:#e67e22;padding-left: 15px;">\
+                                                            <p style="margin-top: 5px;;background:#e67e22;padding-left: 15px;" class="btn-email">\
                                                                 <span style="width: auto;display: inline-block;margin-right: 5px;"><img src="/Content/EducationMaterial/images/email-lib.png"></span>\
                                                                 Email\
                                                             </p>\
@@ -207,7 +212,7 @@
                     }
                 });
             });
-            $('body').on('click', '.btn-post', function () {
+            $('body').on('click touchstart', '.btn-post', function () {
                 var Id = $(this).closest('tr').attr('Id');
                 $.ajax({
                     type: "POST",
@@ -220,19 +225,21 @@
                     error: function (data) {
                     }
                 });
-                    
+
             });
-            $('body').on('click', '.btn-email', function () {
+            $('body').on('click touchstart', '.btn-email', function () {
                 var Id = $(this).closest('tr').attr('Id');
                 $.ajax({
                     type: "POST",
                     url: "/EducationMaterial/SendEmail",
                     data: { 'Id': Id },
                     success: function (data) {
-                        if (data)
+                        if (data == "1")
                             customAlertSuccess("Mail has been sent");
-                        else
+                        else if (data == "0")
                             customAlertSuccess("Sorry,Unable to send mail");
+                        else if (data == "2")
+                            customAlertSuccess("Sorry,Client doesn't have a email id");
                         //GetPostedDocumentsDetails();
                     },
                     error: function (data) {
@@ -241,11 +248,10 @@
 
             });
 
-            $('body').on('click', '.btn-print', function () {
+            $('body').on('click touchstart', '.btn-print', function () {
                 var Id = $(this).closest('tr').attr('Id');
                 var Status = $(this).closest('tr').find('td').eq(3).text().trim();
-                if (Status == "Yes")
-                {
+                if (Status == "Yes") {
                     $.ajax({
                         type: "POST",
                         url: "/EducationMaterial/DownloadDocuments",
@@ -267,7 +273,7 @@
                         }
                     });
                 }
-          
+
 
             });
 
@@ -304,7 +310,7 @@
                         console.log(JSON.parse(data.JSONString));
                         $('.library-table-head').empty();
 
-                       // var input = "<option value='0'>Choose</option>";
+                        // var input = "<option value='0'>Choose</option>";
                         $.each(JSON.parse(data.JSONString), function (i, val) {
                             var template = '   <tr group="{Group}" Id="{Id}">\
                                                 <td data-title="">\
@@ -332,7 +338,7 @@
                                                         <p>{URL}</p>\
                                                     </div>\
                                                 </td>\
-                                                <td data-title="Action">\
+                                                <td data-title="Action" class="action-width">\
                                                     <div style="width: auto;display: inline-block;">\
                                                         <div class="Status-title-library">\
                                                             <p style="margin-top: 0;background:#3498db;padding-left: 15px;" class="btn-print">\
@@ -356,7 +362,7 @@
                                             </tr>';
                             template = template.replace("{Id}", val["Id"]);
                             template = template.replace("{MaterialId}", val["Id"]);
-                            
+
                             template = template.replace("{Group}", val["Group"]);
                             template = template.replace("{Title}", val["Title"]);
                             template = template.replace("{Description}", val["Description"] == null || val["Description"] == "null" ? "" : val["Description"]);
@@ -414,7 +420,7 @@
                                                     </div>\
                                                 </td>\
                                             </tr>';
-                           
+
                             template = template.replace("{Description}", val["Description"] == null || val["Description"] == "null" ? "" : val["Description"]);
                             template = template.replace("{URL}", val["URL"]);
                             template = template.replace("{Attachment}", val["Attachment"]);
@@ -431,8 +437,8 @@
                 });
             }
         });
-</script>
-<script type="text/javascript">
+    </script>
+    <script type="text/javascript">
         function toggleIcon(e) {
             $(e.target)
                     .prev('.panel-heading')
@@ -441,5 +447,5 @@
         }
         $('.panel-group').on('hidden.bs.collapse', toggleIcon);
         $('.panel-group').on('shown.bs.collapse', toggleIcon);
-</script>
+    </script>
 }

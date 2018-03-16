@@ -58,6 +58,8 @@ namespace FingerprintsModel
         public string logoFileName { get; set; }
         public string logoFileExtension { get; set; }
         public string logourl { get; set; }
+        public int Slots { get; set; }
+        public int SlotId { get; set; }
         public string LastLogin { get; set; }
         public List<FundSource> FundSourcedata = new List<FundSource>();
         public class FundSource
@@ -170,6 +172,21 @@ namespace FingerprintsModel
         public string SlotAllocated { get; set; }
         public string Slots { get; set; }
         public bool MenuEnabled { get; set; }
+    }
+
+   
+
+    public class AgencyAdditionalSlots
+    {
+        public int SlotId { get; set; }
+        public int SlotsCount { get; set; }
+       public string ProgramType { get; set; }
+        public string Slot { get; set; }
+        public string ExistingSlot { get; set; }
+        public string AgencyId { get; set; }
+        public int CenterId { get; set; }
+        public int ClassroomId { get; set; }
+        public int Seats { get; set; }
     }
 
     public class HomeBased

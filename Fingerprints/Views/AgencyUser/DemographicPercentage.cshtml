@@ -1,0 +1,1160 @@
+﻿@{
+    ViewBag.Title = "DemographicPercentage";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+  
+
+@section Script{
+
+    <script src="~/Scripts/amcharts.js"></script>
+    <script src="~/Scripts/gauge.js"></script>
+<script src="~/Scripts/serial.js"></script>
+<script src="~/Scripts/export.min.js"></script>
+<link href="~/Content/css/export.css" rel="stylesheet" />
+<script src="~/Scripts/light.js"></script>
+<script src="~/Scripts/pie.js"></script>
+
+<div id="chartdiv"></div>		
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            GetChart();
+          
+         
+          
+        });
+
+
+        function GetChart() {
+
+      
+            $.ajax({
+                url: HostedDir + "/AgencyUser/GetDemographicPercentage",
+                type: "POST",
+                
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+                    console.log(response);
+                    if (response != null) {
+
+                      //  var as=(parseFloat(response.ClientDoctorPercent).toFixed(2));
+                        $('#clientdoctor1').text(response.ClientDoctor);
+                        $('#clientdoctor2').text(response.TotalClient);
+                        $('#workingparent1').text(response.WorkingParent);
+                        $('#workingparent2').text(response.TotalParent);
+                        $('#insurance1').text(response.Insurance);
+                        $('#insurance2').text(response.TotalClient);
+                        $('#dental1').text(response.ClientDental);
+                        $('#dental2').text(response.TotalClient);
+                        $('#training1').text(response.JobParent);
+                        $('#training2').text(response.TotalParent);
+                      
+                        $('#attendanceIssue1').text(response.AttendanceIssue);
+                        $('#attendanceIssue2').text(response.TotalClient);
+                        $('#disablility1').text(response.ClientDisability);
+                        $('#disablility2').text(response.TotalClient);
+
+                        $('#otherlang1').text(response.OtherLangSpeakers);
+                        $('#otherlang2').text(response.TotalClient);
+                        var chart = AmCharts.makeChart("OtherLangSpeakers", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.OtherLangSpeakersPercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor":"#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+                                    
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue": parseFloat(response.OtherLangSpeakersPercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.OtherLangSpeakersPercent).toFixed(2)
+                            }]
+                        });
+                        var chart = AmCharts.makeChart("ClientDoctor", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.ClientDoctorPercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue": parseFloat(response.ClientDoctorPercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.ClientDoctorPercent).toFixed(2)
+                            }]
+                        });
+                        var chart = AmCharts.makeChart("ClientAttendanceIssue", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.AttendIssuePercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue": parseFloat(response.AttendIssuePercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.AttendIssuePercent).toFixed(2)
+                            }]
+                        });
+                        var chart = AmCharts.makeChart("ClientInsurance", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.InsurancePercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue": parseFloat(response.InsurancePercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.InsurancePercent).toFixed(2)
+                            }]
+                        });
+
+                        var chart = AmCharts.makeChart("ClientDental", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.ClientDentalPercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue": parseFloat(response.ClientDentalPercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.ClientDentalPercent).toFixed(2)
+                            }]
+                        });
+                        var chart11 = AmCharts.makeChart("ClientJobTraining", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.JobParentPercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue": parseFloat(response.JobParentPercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.JobParentPercent).toFixed(2)
+                            }]
+                        });
+                        
+                        var chart = AmCharts.makeChart("chartdivDisability", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.ClientDisablilyPercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                                //"tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+                                    "endValue":  parseFloat(response.ClientDisablilyPercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.ClientDisablilyPercent).toFixed(2)
+                            }]
+                        });
+                        var chart = AmCharts.makeChart("chartdivWorkingParent", {
+                            "theme": "dark",
+                            "type": "gauge",
+                            "axes": [{
+                                "topTextFontSize": 20,
+                                "topTextYOffset": 70,
+                                //"axisColor": "#31d6ea",
+                                "axisColor": "#fd2306",
+                                "axisThickness": 1,
+                                "topText": parseFloat(response.WorkingParentPercent).toFixed(2) + "%",
+                                "endValue": 100,
+                                "gridInside": true,
+                                "inside": true,
+                                "radius": "50%",
+                                "valueInterval": 10,
+                               // "tickColor": "#67b7dc",
+                                "tickColor": "#fd2306",
+                                "startAngle": -90,
+                                "endAngle": 90,
+                                "unit": "%",
+                                "bandOutlineAlpha": 0,
+                                "bands": [{
+                                    //"color": "#CD0D74",
+                                    "color": "#cae0f6",
+
+                                    "endValue": 100,
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }, {
+                                    //"color": "#754DEB",
+                                    "color": "#01d1fd",
+
+                                    "endValue": parseFloat(response.WorkingParentPercent).toFixed(2),
+                                    "innerRadius": "105%",
+                                    "radius": "170%",
+                                    "gradientRatio": [0.5, 0, -0.5],
+                                    "startValue": 0
+                                }]
+                            }],
+                            "arrows": [{
+                                "alpha": 1,
+                                "innerRadius": "35%",
+                                "nailRadius": 0,
+                                "radius": "170%",
+                                "value": parseFloat(response.WorkingParentPercent).toFixed(2)
+                            }]
+                        });
+
+                  
+
+                        var EthicityStaff = AmCharts.makeChart("EthicityStaff", {
+                            "type": "pie",
+                            "theme": "light",
+                            "dataProvider": [{
+                                "country": "Non-Hispanic",
+                                "value": 260
+                            },
+                            {
+                                "country": "Hispanic",
+                                "value": 201
+                            },
+                            ],
+                            "valueField": "value",
+                            "titleField": "country",
+                            "outlineAlpha": 0.4,
+                            "depth3D": 15,
+                            "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                            "angle": 40,
+
+                        });
+
+                        var EthicityClient = AmCharts.makeChart("EthicityClient", {
+                            "type": "pie",
+                            "theme": "light",
+                            "balloon": {
+                                "adjustBorderColor": true,
+                                "color": "#000000",
+                                // "cornerRadius": 5,
+                                "fontSize": 14,
+                                "maxWidth": 220,
+                                "verticalPadding": 20,
+                                "fillColor": "#FFFFFF"
+                            },
+                            "dataProvider": [{
+                                "country": "Non-Hispanic",
+                                "value": response.NonEthnicity,
+                                "color": "#4b187f"
+                            },
+                            {
+                                "country": "Hispanic",
+                                "value": response.Ethnicity,
+                                "color": "#00d2ad"
+                            },
+                            ],
+                            "valueField": "value",
+                            "titleField": "country",
+                            "colorField": "color",
+                            "outlineAlpha": 0.4,
+                            "depth3D": 15,
+                            "balloonText": "[[title]]&nbsp<span style='font-size:14px'><b>([[value]])</b> ([[percents]]%)</span>",
+                            "angle": 40,
+
+                        });
+                        var chart12 = AmCharts.makeChart("AverageAge", {
+                            "theme": "light",
+                            "type": "serial",
+                            "startDuration": 1,
+                            "fontSize": 14,
+                            "balloon": {
+                                "adjustBorderColor": true,
+                                "color": "#000000",
+                                // "cornerRadius": 5,
+                                "fontSize": 14,
+                                "maxWidth": 420,
+                                "verticalPadding": 20,
+                                "fillColor": "#FFFFFF"
+                            },
+                            "marginLeft": 10,
+                            "marginRight": 10,
+                            "marginBottom": 10,
+                            "marginTop": 10,
+                            "dataProvider": [{
+                                "country": "FSW/HV",
+                                "visits": parseFloat(response.FSWAvgAge).toFixed(2),
+                                "color": "#FF0F00"
+                            }, {
+                                "country": "Teacher",
+                                "visits": parseFloat(response.TeacherAvgAge).toFixed(2),
+                                "color": "#3946f6"
+                            }, {
+                                "country": "Families",
+                                "visits": parseFloat(response.FamilyAvgAge).toFixed(2),
+                                "color": "#00d2ad"
+                            }],
+                            "valueAxes": [{
+                                "position": "left",
+                                "title": "Average Age"
+                            }],
+                            "graphs": [{
+                                "balloonText": "[[country]] : <span style='font-size:14px'><b>[[value]]</b></span>",
+
+                                //  "balloonText": "[[category]]: <br><b>[[value]]</b></br>",
+                                "fillColorsField": "color",
+                                "fillAlphas": 1,
+                                "lineAlpha": 0.1,
+                                "type": "column",
+                                "valueField": "visits"
+                            }],
+                            "depth3D": 20,
+                            "angle": 30,
+                            "chartCursor": {
+                                "categoryBalloonEnabled": false,
+                                "cursorAlpha": 0,
+                                "zoomable": false
+                            },
+                            "categoryField": "country",
+                            "categoryAxis": {
+                                "gridPosition": "start",
+                                //"labelRotation": 90
+                            },
+
+
+                        });
+
+                        var chart = AmCharts.makeChart("ChartRaceStaff", {
+                            "type": "pie",
+                            "startDuration": 0,
+                            "theme": "light",
+                            "addClassNames": true,
+                            "balloon": {
+                                "adjustBorderColor": true,
+                                "color": "#000000",
+                                // "cornerRadius": 5,
+                                "fontSize": 14,
+                                "maxWidth": 420,
+                                "verticalPadding": 20,
+                                "fillColor": "#FFFFFF"
+                            },
+                            "legend": {
+                                "position": "right",
+                                "marginRight": 10,
+                                "autoMargins": false
+                            },
+                            "innerRadius": "20%",
+                            "defs": {
+                                "filter": [{
+                                    "id": "shadow",
+                                    "width": "300%",
+                                    "height": "300%",
+                                    "feOffset": {
+                                        "result": "offOut",
+                                        "in": "SourceAlpha",
+                                        "dx": 0,
+                                        "dy": 0
+                                    },
+                                    "feGaussianBlur": {
+                                        "result": "blurOut",
+                                        "in": "offOut",
+                                        "stdDeviation": 5
+                                    },
+                                    "feBlend": {
+                                        "in": "SourceGraphic",
+                                        "in2": "blurOut",
+                                        "mode": "normal"
+                                    }
+                                }]
+                            },
+                            "dataProvider": [
+
+
+                                {
+                                    "country": "AmericanIndian/Alaska Native",
+                                    "litres": response.StaffAmericanIndian,
+                                    "color": "#FF0F00"
+                                }, {
+                                    "country": "Asian",
+                                    "litres": response.StaffAsian,
+                                    "color": "#04D215"
+                                }, {
+                                    "country": "Biracial/Multi-Racial",
+                                    "litres": response.StaffBiracialOrMulti,
+                                    "color": "#754DEB"
+                                }, {
+                                    "country": "Black/African American",
+                                    "litres": response.StaffBlackOrAfrican,
+                                    "color": "#FF6600"
+                                }, {
+                                    "country": "Native Hawailian/Other Pacific Islander",
+                                    "litres": response.StaffNativeHawaiian,
+                                    "color": "#861c1b"
+                                }, {
+                                    "country": "Other",
+                                    "litres": response.StaffOther,
+                                    "color": "#B3F349"
+                                }, {
+                                    "country": "White",
+                                    "litres": response.StaffWhite,
+                                    "color": "#F3497D"
+                                }],
+                            "valueField": "litres",
+                            "titleField": "country",
+                            "colorField": "color",
+                           
+                        });
+
+                        var chart = AmCharts.makeChart("ChartRace", {
+                            "type": "pie",
+                            "startDuration": 0,
+                            "theme": "light",
+                            "addClassNames": true,
+                            "balloon": {
+                                "adjustBorderColor": true,
+                                "color": "#000000",
+                                // "cornerRadius": 5,
+                                "fontSize": 14,
+                                "maxWidth": 320,
+                                "verticalPadding": 20,
+                                "fillColor": "#FFFFFF"
+                            },
+                            "legend": {
+                                "position": "right",
+                                "marginRight": 10,
+                                "autoMargins": false
+                            },
+                            "innerRadius": "20%",
+                            "defs": {
+                                "filter": [{
+                                    "id": "shadow",
+                                    "width": "300%",
+                                    "height": "300%",
+                                    "feOffset": {
+                                        "result": "offOut",
+                                        "in": "SourceAlpha",
+                                        "dx": 0,
+                                        "dy": 0
+                                    },
+                                    "feGaussianBlur": {
+                                        "result": "blurOut",
+                                        "in": "offOut",
+                                        "stdDeviation": 5
+                                    },
+                                    "feBlend": {
+                                        "in": "SourceGraphic",
+                                        "in2": "blurOut",
+                                        "mode": "normal"
+                                    }
+                                }]
+                            },
+                            "dataProvider": [
+                                                          
+
+                                {
+                                    "country": "AmericanIndian/Alaska Native",
+                                    "litres": response.AmericanIndian,
+                                    "color": "#FF0F00"
+                                }, {
+                                    "country": "Asian",
+                                    "litres": response.Asian,
+                                    "color": "#04D215"
+                                }, {
+                                    "country": "Biracial/Multi-Racial",
+                                    "litres": response.BiracialOrMulti,
+                                    "color": "#754DEB"
+                                }, {
+                                    "country": "Black/African American",
+                                    "litres": response.BlackOrAfrican,
+                                    "color": "#FF6600"
+                                }, {
+                                    "country": "Native Hawailian/Other Pacific Islander",
+                                    "litres": response.NativeHawaiian,
+                                    "color": "#861c1b"
+                                }, {
+                                    "country": "Other",
+                                    "litres": response.Other,
+                                    "color": "#B3F349"
+                                }, {
+                                    "country": "White",
+                                    "litres": response.White,
+                                    "color": "#F3497D"
+                                }],
+                            "valueField": "litres",
+                            "titleField": "country",
+                            "colorField": "color",
+                        });
+
+                        chart.addListener("init", handleInit);
+
+                        chart.addListener("rollOverSlice", function (e) {
+                            handleRollOver(e);
+                        });
+
+                        function handleInit() {
+                            chart.legend.addListener("rollOverItem", handleRollOver);
+                        }
+
+                        function handleRollOver(e) {
+                            var wedge = e.dataItem.wedge.node;
+                            wedge.parentNode.appendChild(wedge);
+                        }
+                    
+                    }
+                }
+            });
+        }
+        </script>
+   }
+@section MainContentHolder{
+<style>
+    .import-jpart {
+    /*width: 100% !important;*/
+    width:98% !important;
+    }
+    div#EthicityStaff {
+    width: 50% !important;
+    float: left;
+}
+    div#EthicityClient {
+    width: 50%;
+    float: left;
+}
+   #ChartRace,#chartdivRacePercentage,#ChartRaceStaff,#OtherLangSpeakers,#chartdivDisability,#chartdivWorkingParent,#EthicityStaff,#EthicityClient,#AverageAge,#ClientInsurance,#ClientJobTraining,#ClientDental,#ClientDoctor,#ClientAttendanceIssue {
+	width		: 100%;
+	height		: 500px;
+	font-size	: 11px;
+}
+
+    .amcharts-pie-slice {
+  transform: scale(1);
+  transform-origin: 50% 50%;
+  transition-duration: 0.3s;
+  transition: all .3s ease-out;
+  -webkit-transition: all .3s ease-out;
+  -moz-transition: all .3s ease-out;
+  -o-transition: all .3s ease-out;
+  cursor: pointer;
+  box-shadow: 0 0 30px 0 #000;
+}
+
+.amcharts-pie-slice:hover {
+  transform: scale(1.1);
+  filter: url(#shadow);
+}	
+#balloon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px;
+  font-size: 14px;
+  color: #000;
+  margin: 20px 0 0 20px;
+}
+    b {
+  font-family: inherit;
+  font-size: 12px;
+}
+
+    .import-const {
+        width: 48%;
+        float: left;
+        margin: 1%;
+        background: #f1f5f8;
+        border-radius: 5px;
+    }
+    .top-section-title {
+        /*background: #ea2641;*/
+        background: #9b59b6;
+    }
+    .top-section-title h2{
+            color: #fff;
+    font-size: 20px;
+    text-transform: capitalize;
+    /*padding: 20px 10px;*/
+    padding-top:15px;
+    padding-bottom:15px!important;
+       text-align: center;
+    display: block;
+    font-weight: bold;
+    margin: 0;
+    }
+        .amcharts-main-div {
+    margin-left: 4%;
+}
+    @@media only screen and (min-width: 320px) and (max-width: 767px) {
+    .dailySummarydetails {top: 400px !important;    width: 98% !important; margin: 0 4px !important;left: 0 !important;right: 0;}
+   
+
+    
+     }
+</style>
+<link href="~/Content/css/agencystaffdashboard.css" rel="stylesheet" />
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+<div class="row" id="Hideattchart">
+
+    @*<div class="col-xs-12 no-padding">
+        <div class="top-header-title" style="margin-top: 30px;">
+            <h1>Demographic Section</h1>
+        </div>
+    </div>*@
+
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-change">Demographic Section
+        
+            <span class="view-btn backto_listspan" id="BackToList">
+                <a href="/Home/Dashboard" style="padding:8px;font-size:14px;float:right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px; ">Back To Dashboard</a>
+            </span>
+        
+        </h2>
+    </div>
+
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Other Languages Spoken</h2>
+            </div>
+        </div>
+        <div class="col-sm-12" style="position:relative;">
+            <div id="OtherLangSpeakers">
+
+            </div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="todayReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Other Languages Spoken Count</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;white-space:nowrap;"> <p>Other Languages Spoken </p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="otherlang1" class="totalstud" style="text-align:right;"> 29 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Clients</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="otherlang2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Disability Percentage</h2>
+            </div>
+        </div>
+        <div class="col-sm-12" style="position:relative;">
+            <div id="chartdivDisability">
+
+            </div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="todayReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Clients Disability Count</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;"> <p>Disability Clients </p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="disablility1" class="totalstud" style="text-align:right;"> 29 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Clients</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="disablility2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Working Parents Percentage</h2>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="chartdivWorkingParent"></div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="weeklyReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Working Parents Count</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;"> <p>Working Parents</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="workingparent1" class="totalstud" style="text-align:right;"> 43 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Parents</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p  id="workingparent2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+   
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Clients Insurance</h2>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="ClientInsurance"></div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="weeklyReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Clients Insurance Count</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;"> <p>Insurance Holders</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="insurance1" class="totalstud" style="text-align:right;"> 17 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Clients</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p  id="insurance2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Clients  Dental</h2>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="ClientDental"></div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="weeklyReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Clients Dental Count</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;"> <p>Clients Dental Count</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="dental1" class="totalstud" style="text-align:right;"> 43 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Clients</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p  id="dental2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Parents Job Training</h2>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="ClientJobTraining"></div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="weeklyReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Parents Job Training</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;text-transform:none;"> <p>Parents in Training</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="training1" class="totalstud" style="text-align:right;"> 30 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Parents</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="training2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Clients  Doctor</h2>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="ClientDoctor"></div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="weeklyReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Clients Doctor Count</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;"> <p>Doctors Holders</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="clientdoctor1" class="totalstud" style="text-align:right;"> 30 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Clients</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p  id="clientdoctor2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Clients Attendance Issue</h2>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div id="ClientAttendanceIssue"></div>
+            <div class="dailySummarydetails">
+                <div class='dailySummary-data' id="weeklyReport">
+                    <div class="col-sm-12 amcharts-chart-div-label">
+                        <h2>Clients Attendance Details</h2>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label ">
+                        <div class="col-xs-6" style="padding:0;"> <p>Attendance Issue</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="attendanceIssue1" class="totalstud" style="text-align:right;"> 8 </p></div>
+                    </div>
+                    <div class="col-sm-12 amcharts-chart-div-label totdays">
+                        <div class="col-xs-6" style="padding:0;"> <p>Total Clients</p></div>
+                        <div class="col-xs-6" style="padding:0;"><p id="attendanceIssue2" class="totaldays" style="text-align:right;">78 </p></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+
+
+        @*<div class="import-const import-jpart" style="border: 1px solid #cfcfcf;">
+            <div class="col-xs-12 no-padding">
+                <div class="top-section-title" style="margin-top: 0px;">
+                    <h1>Race Percentage</h1>
+                </div>
+            </div>
+            <div class="col-sm-12" style="position:relative;">
+                <div id="chartdivRacePercentage">
+
+                </div>
+
+            </div>
+        </div>*@
+   
+    <div class="import-const import-jpart" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2 style="text-transform:none;">Clients Ethnicity</h2>
+            </div>
+        </div>
+        @*<div class="col-sm-12" style="position:relative;">
+
+            <div id="EthicityStaff" style="width:100%!important">
+
+            </div>
+           
+
+        </div>*@
+        <div class="col-sm-12" style="position:relative;">
+            <div id="EthicityClient" style="width:100%!important">
+
+            </div>
+
+
+        </div>
+
+    </div>
+    <div class="import-const import-jpart" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2 style="text-transform:none;">Clients Race </h2>
+            </div>
+        </div>
+        <div class="col-sm-12" style="position:relative;">
+            <div id="ChartRace" style="width:100%!important;padding-left:0px!important">
+            </div>
+        </div>
+    </div>
+    <div class="import-const import-jpart" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Staffs Race</h2>
+            </div>
+        </div>
+        <div class="col-sm-12" style="position:relative;">
+            <div id="ChartRaceStaff" style="width:100%!important;padding-left:0px!important">
+            </div>
+        </div>
+    </div>
+    <div class="import-const" style="border: 1px solid #cfcfcf;">
+        <div class="col-xs-12 no-padding">
+            <div class="top-section-title" style="margin-top: 0px;">
+                <h2>Average Age</h2>
+            </div>
+        </div>
+        <div class="col-sm-12" style="position:relative;">
+            <div id="AverageAge">
+
+            </div>
+        </div>
+    </div>
+   
+   
+
+
+
+
+</div>
+
+
+    }
+
+

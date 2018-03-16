@@ -30,8 +30,10 @@
     }
 }
 @section Script{
+
     <script type="text/javascript">
         var count = 1;
+       //var tags_array = ["lorem, ipsum, dolar, sit, amet"];
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -46,7 +48,17 @@
             $('#Yakkrli').removeClass("active");
             $('#Appointmentli').removeClass("active");
             $('#CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-            $('#CaseNotetags').tagsInput({ width: 'auto', height: '38px', delimiter: [',', ';'] });
+            $('#CaseNotetags').tagsInput({
+                width: 'auto',
+                height: '38px',
+                delimiter: [',', ';'],
+                autocomplete_url: '',
+                autocomplete: {
+                     //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInput()
+                },
+                //allowDuplicates: false
+            });
             $('#txtSearch').tagsInput({ width: 'auto', height: '38px', delimiter: ["','"] });
 
             CKEDITOR.replace('Note', {
@@ -132,6 +144,40 @@
             });
         });
 
+
+
+        function getTagsOnInput()
+        {
+            var tagInp = $('#CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype:'json',
+                type: 'post',
+                async:true,
+                data: { searchText: tagInp },
+                success:function(data)
+                {
+                    if(data!=null)
+                    {
+                        if(data.length>0)
+                        {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error:function(data)
+                {
+
+                }
+
+            });
+
+            return tagsArr;
+        }
 
 
         function Getcasenote(Casenoteid) {
@@ -859,12 +905,12 @@
                         @if (ViewBag.Householdid != null && Convert.ToString(ViewBag.Householdid) != "0")
                         {
                             <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Case Note</a>
-                            <a href="~/Agencyuser/FamilyDetails/@ViewBag.Householdid" class="backto_list">Back To Family Intake</a>
+                            <a href="~/Agencyuser/FamilyDetails/@ViewBag.Householdid" style="background-color:#9b59b6;" class="backto_list">Back To Family Intake</a>
                         }
                         else
                         {
-                            <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Case Note</a>
-                            <a href="~/Roster/Roster" class="backto_list">Back To Roster</a>
+                            <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');"  class="backto_list">Add New Case Note</a>
+                            <a href="~/Roster/Roster" class="backto_list" style="background-color:#9b59b6;">Back To Roster</a>
 
 
                         }
@@ -1578,7 +1624,7 @@
                         <div class="modal-body">
                             <button type="button" class="close" data-dismiss="modal"><img src="~/Content/CaseNote/images/close.png" /></button>
                             <h2 id="CaseNoteHeading" class="extra-title muted">Add New Case Note</h2>
-                            <div class="col-sm-12 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="col-sm-12 col-xs-12 pull-right" style="padding-right:0;display:none;">
                                 <div class="btnwrp_subcal" style="padding:0; margin:0;">
                                     <h3 id="CaseNoteTitle" class="text-center pull-left"><span class="extra-title muted"></span></h3>
                                     <input id="ClientId" type="hidden" name="ClientId" value="@ViewBag.Client" />

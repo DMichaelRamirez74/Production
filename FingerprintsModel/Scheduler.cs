@@ -60,6 +60,9 @@ namespace FingerprintsModel
 
         public List<AttendanceType> AttendanceTypeList { get; set; }
 
+        public Scheduler ScheduledAppointment { get; set; }
+     
+
         public long AttendanceTypeId { get; set; }
         public bool IsUpdateEnrollment { get; set; }
         public bool IsReSchedule { get; set; }

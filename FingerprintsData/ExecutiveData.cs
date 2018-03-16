@@ -25,6 +25,10 @@ namespace FingerprintsData
             ExecutiveDashBoard executive = new ExecutiveDashBoard();
             try
             {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@Command", Command));
@@ -32,9 +36,11 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetEACDashboardDetails";
                 command.CommandTimeout = 120;
+                Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                Connection.Close();
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
                     //SeatsandSlots

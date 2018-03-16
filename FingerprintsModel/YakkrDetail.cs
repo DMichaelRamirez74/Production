@@ -15,6 +15,7 @@ namespace FingerprintsModel
 
     public class YakkrClientDetail
     {
+        public string Slots { get; set; }
         public string YakkrID { get; set; }
         public string ClientId { get; set; }
         public string YakkrCode { get; set; }

@@ -43,6 +43,7 @@ namespace Fingerprints.Controllers
          roleid=047c02fe-b8f1-4a9b-b01f-539d6a238d80 (Disabilities Manager)
          roleid=9c34ec8E-2359-4704-be89-d9f4b7706e82 (Disability Staff)
          roleid=944d3851-75cc-41e9-b600-3fa904cf951f (Billing Manager)
+         roleid=825f6940-9973-42d2-b821-5b6c7c937bfe(Facilities Manager)
          */
         DisabilityManagerData _DisabilityManagerData = new DisabilityManagerData();
         SuperAdminData superAdmin = new SuperAdminData();
@@ -535,7 +536,7 @@ namespace Fingerprints.Controllers
                 {
                     ViewBag.RoleName = "Area Manager"; ViewBag.ViewType = "Center";
                 }
-                ExecutiveDashBoard executive;
+                ExecutiveDashBoard executive=new ExecutiveDashBoard();
                 executive = new ExecutiveData().GetExecutiveDetails(Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
                 TempData["CaseNote"] = executive.listCaseNote;
 

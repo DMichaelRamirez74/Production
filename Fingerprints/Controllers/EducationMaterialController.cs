@@ -31,6 +31,7 @@ namespace Fingerprints.Controllers
     public class EducationMaterialController : Controller
     {
 
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult EducationMaterialMaintenance()
         {
             return View();
@@ -73,6 +74,7 @@ namespace Fingerprints.Controllers
             return Json(_imgpath, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult SaveEducationMaterial(EductionMaterial objEductaion)
         {
             bool Result = false;
@@ -91,7 +93,7 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
-
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult GetMaterialDetails()
         {
             string JSONString = string.Empty;
@@ -108,7 +110,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { JSONString, UserId });
         }
-
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult GetMaterialDetailsShare()
         {
             string JSONString = string.Empty;
@@ -125,7 +127,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { JSONString, UserId });
         }
-
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult GetMaterialDetailsBySerachText(string SearchText)
         {
             string JSONString = string.Empty;
@@ -141,6 +143,7 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult GetPostedDocumentsDetails()
         {
             string JSONString = string.Empty;
@@ -172,6 +175,7 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult GetAttachmentByMaterialId(string MaterialId)
         {
             string JSONString = string.Empty;
@@ -187,8 +191,8 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
-
         [HttpPost]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public JsonResult DeleteMaterial(string Id)
         {
             bool isResult = false;
@@ -203,7 +207,7 @@ namespace Fingerprints.Controllers
             }
             return Json(isResult);
         }
-
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult EducationMaterialGroupShare()
         {
             try
@@ -233,6 +237,7 @@ namespace Fingerprints.Controllers
 
             return View();
         }
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public JsonResult Getclassrooms(string Centerid = "0")
         {
             try
@@ -245,9 +250,8 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-
         [JsonMaxLengthAttribute]
-        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public JsonResult LoadGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -260,6 +264,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult ShareMaterial(string ClientId)
         {
             TempData["Single"] = "";
@@ -273,6 +278,7 @@ namespace Fingerprints.Controllers
             return View();
         }
         [HttpPost]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public JsonResult SendPost(string Id)
         {
             bool isPosted = false;
@@ -303,11 +309,11 @@ namespace Fingerprints.Controllers
             }
             return Json(isPosted);
         }
-
         [HttpPost]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public JsonResult SendEmail(string Id)
         {
-            bool isPosted = false;
+            string isPosted = "0";
             string EMailTemplate = string.Empty;
             try
             {
@@ -372,8 +378,12 @@ namespace Fingerprints.Controllers
                             if (Email.Trim() != "")
                             {
                                 bool isSent = SendMail.SendBillingEmail(Email, EMailTemplate, Session["EmailID"].ToString(), Attachments, cc);
-                                if (!isPosted)
-                                    isPosted = isSent;
+                                if (isSent)
+                                    isPosted = "1";
+                            }
+                            else
+                            {
+                                isPosted = "2";
                             }
 
 
@@ -442,8 +452,7 @@ namespace Fingerprints.Controllers
                                         cc = !string.IsNullOrEmpty(ds.Tables[0].Rows[1][0].ToString()) ? ds.Tables[0].Rows[1][0].ToString() : "";
                                 }
                             }
-                            Email = "Aravindh.Adhithan@gmail.com";
-                            cc = "Aravindhanmca06@gmail.com";
+                         
                             if (ds.Tables[1].Rows.Count > 0)
                                 Template = Template.Replace("{ChildName}", !string.IsNullOrEmpty(ds.Tables[1].Rows[0][0].ToString()) ? ds.Tables[1].Rows[0][0].ToString() : "");
                             if (ds.Tables[2].Rows.Count > 0)
@@ -499,26 +508,27 @@ namespace Fingerprints.Controllers
             }
             return Json(Template);
         }
-   /**     public void LoadImage(string InputPDFFile, int PageNumber)
-        {
+        //public void LoadImage(string InputPDFFile, int PageNumber)
+        //{
 
-            string outImageName = Path.GetFileNameWithoutExtension(InputPDFFile);
-            outImageName = outImageName + "_" + PageNumber.ToString() + "_.png";
+        //    string outImageName = Path.GetFileNameWithoutExtension(InputPDFFile);
+        //    outImageName = outImageName + "_" + PageNumber.ToString() + "_.png";
 
 
-            GhostscriptPngDevice dev = new GhostscriptPngDevice(GhostscriptPngDeviceType.Png256);
-            dev.GraphicsAlphaBits = GhostscriptImageDeviceAlphaBits.V_4;
-            dev.TextAlphaBits = GhostscriptImageDeviceAlphaBits.V_4;
-            dev.ResolutionXY = new GhostscriptImageDeviceResolution(290, 290);
-            dev.InputFiles.Add(InputPDFFile);
-            dev.Pdf.FirstPage = PageNumber;
-            dev.Pdf.LastPage = PageNumber;
-            dev.CustomSwitches.Add("-dDOINTERPOLATE");
-            dev.OutputPath = Server.MapPath(@"~/Content/PDFToImages/" + outImageName);
-            dev.Process();
+        //    GhostscriptPngDevice dev = new GhostscriptPngDevice(GhostscriptPngDeviceType.Png256);
+        //    dev.GraphicsAlphaBits = GhostscriptImageDeviceAlphaBits.V_4;
+        //    dev.TextAlphaBits = GhostscriptImageDeviceAlphaBits.V_4;
+        //    dev.ResolutionXY = new GhostscriptImageDeviceResolution(290, 290);
+        //    dev.InputFiles.Add(InputPDFFile);
+        //    dev.Pdf.FirstPage = PageNumber;
+        //    dev.Pdf.LastPage = PageNumber;
+        //    dev.CustomSwitches.Add("-dDOINTERPOLATE");
+        //    dev.OutputPath = Server.MapPath(@"~/Content/PDFToImages/" + outImageName);
+        //    dev.Process();
 
-        }
-**/
+        //}
+
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
         public ActionResult DownloadDocuments(string MaterialId)
         {
             string FilePath = "";

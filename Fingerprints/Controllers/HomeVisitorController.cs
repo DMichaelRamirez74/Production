@@ -221,8 +221,9 @@ namespace Fingerprints.Controllers
                 scheduler.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(scheduler.Enc_ClientId));
                 scheduler.AgencyId = new Guid(Session["AgencyId"].ToString());
                 scheduler.StaffId = new Guid(Session["UserId"].ToString());
+                scheduler.StaffRoleId = new Guid(Session["RoleID"].ToString());
                 isResult = new HomevisitorData().UpdateScheduleAppointment(scheduler, meetingStartTime, meetingEndTime, meetingDuration);
-
+                var res = Session["RoleID"].ToString();
             }
             catch (Exception ex)
             {

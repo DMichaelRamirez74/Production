@@ -80,6 +80,10 @@ namespace FingerprintsData
 
             try
             {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
                 command.Parameters.Add(new SqlParameter("@clientid", id));
@@ -88,9 +92,11 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getcasenotes";
+                Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                Connection.Close();
                 if (_dataset.Tables[0] != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -4980,6 +4986,61 @@ namespace FingerprintsData
             }
             return isaffected;
         }
+
+
+        public List<SelectListItem> GetCaseNoteTagsonInput(string searchText)
+        {
+
+            List<SelectListItem> tagsList = new List<SelectListItem>();
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@SearchText", searchText));
+                    command.CommandText = "USP_GetCaseNoteTagsBytext";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if(_dataset!=null && _dataset.Tables[0].Rows.Count>0)
+                {
+                    tagsList = (from DataRow dr1 in _dataset.Tables[0].Rows
+                                select new SelectListItem
+                                {
+                                    Text = dr1["TagName"].ToString(),
+                                    Value = dr1["TagKey"].ToString()
+                                }
+                              ).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return tagsList;
+        }
+
 
     }
 }

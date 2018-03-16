@@ -17,6 +17,16 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
 
+
+        public ERSEAData()
+        {
+            this.Connection = connection.returnConnection();
+            this.command = new SqlCommand();
+            if (this.Connection.State == ConnectionState.Open)
+            {
+                this.Connection.Close();
+            }
+        }
         public List<CenterAnalysis> GetCenterAnalysisList(out CenterAnalysisPercentage calcAnalysis, out List<SelectListItem> programList, Guid userId, Guid agencyId, long programId)
         {
             List<CenterAnalysis> centerAnalysisList = new List<CenterAnalysis>();
@@ -983,41 +993,81 @@ namespace FingerprintsData
             }
         }
 
-        public void GetADABasedonCenter(ref List<ADA> lstADA, string AgencyId)
+        public ERSEADashBoard GetADABasedonCenter(ref List<ADA> lstADA, ref int firstMonth, string AgencyId)
         {
             lstADA = new List<ADA>();
+            ERSEADashBoard erseaDashboard = new ERSEADashBoard();
             try
             {
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
                 command.Parameters.Clear();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetADAForMonth";
                 command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                Connection.Close();
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        //{
+                        //    ADA obj = new ADA();
+                        //    obj.CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "";
+                        //    obj.Jan = !string.IsNullOrEmpty(dr["Jan"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jan"].ToString()), 0) : 0;
+                        //    obj.Feb = !string.IsNullOrEmpty(dr["Feb"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Feb"].ToString()), 0) : 0;
+                        //    obj.Mar = !string.IsNullOrEmpty(dr["Mar"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Mar"].ToString()), 0) : 0;
+                        //    obj.Apr = !string.IsNullOrEmpty(dr["Apr"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Apr"].ToString()), 0) : 0;
+                        //    obj.May = !string.IsNullOrEmpty(dr["May"].ToString()) ? Math.Round(Convert.ToDecimal(dr["May"].ToString()), 0) : 0;
+                        //    obj.Jun = !string.IsNullOrEmpty(dr["Jun"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jun"].ToString()), 0) : 0;
+                        //    obj.Jul = !string.IsNullOrEmpty(dr["Jul"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jul"].ToString()), 0) : 0;
+                        //    obj.Aug = !string.IsNullOrEmpty(dr["Aug"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Aug"].ToString()), 0) : 0;
+                        //    obj.Sep = !string.IsNullOrEmpty(dr["Sep"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Sep"].ToString()), 0) : 0;
+                        //    obj.Oct = !string.IsNullOrEmpty(dr["Oct"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Oct"].ToString()), 0) : 0;
+                        //    obj.Nov = !string.IsNullOrEmpty(dr["Nov"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Nov"].ToString()), 0) : 0;
+                        //    obj.Dec = !string.IsNullOrEmpty(dr["Dec"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Dec"].ToString()), 0) : 0;
+                        //    lstADA.Add(obj);
+                        //}
+
+                        erseaDashboard.listADA = _dataset.Tables[0].AsEnumerable().Select(x => new ADA
                         {
-                            ADA obj = new ADA();
-                            obj.CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "";
-                            obj.Jan = !string.IsNullOrEmpty(dr["Jan"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jan"].ToString()), 0) : 0;
-                            obj.Feb = !string.IsNullOrEmpty(dr["Feb"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Feb"].ToString()), 0) : 0;
-                            obj.Mar = !string.IsNullOrEmpty(dr["Mar"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Mar"].ToString()), 0) : 0;
-                            obj.Apr = !string.IsNullOrEmpty(dr["Apr"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Apr"].ToString()), 0) : 0;
-                            obj.May = !string.IsNullOrEmpty(dr["May"].ToString()) ? Math.Round(Convert.ToDecimal(dr["May"].ToString()), 0) : 0;
-                            obj.Jun = !string.IsNullOrEmpty(dr["Jun"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jun"].ToString()), 0) : 0;
-                            obj.Jul = !string.IsNullOrEmpty(dr["Jul"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Jul"].ToString()), 0) : 0;
-                            obj.Aug = !string.IsNullOrEmpty(dr["Aug"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Aug"].ToString()), 0) : 0;
-                            obj.Sep = !string.IsNullOrEmpty(dr["Sep"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Sep"].ToString()), 0) : 0;
-                            obj.Oct = !string.IsNullOrEmpty(dr["Oct"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Oct"].ToString()), 0) : 0;
-                            obj.Nov = !string.IsNullOrEmpty(dr["Nov"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Nov"].ToString()), 0) : 0;
-                            obj.Dec = !string.IsNullOrEmpty(dr["Dec"].ToString()) ? Math.Round(Convert.ToDecimal(dr["Dec"].ToString()), 0) : 0;
-                            lstADA.Add(obj);
-                        }
+                            CenterName = !string.IsNullOrEmpty(x.Field<string>("CenterName").ToString()) ? x.Field<string>("CenterName").ToString() : "",
+                            Jan = !string.IsNullOrEmpty(x.Field<decimal>("Jan").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Jan"))) : 0,
+                            Feb = !string.IsNullOrEmpty(x.Field<decimal>("Feb").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Feb"))) : 0,
+                            Mar = !string.IsNullOrEmpty(x.Field<decimal>("Mar").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Mar"))) : 0,
+                            Apr = !string.IsNullOrEmpty(x.Field<decimal>("Apr").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Apr"))) : 0,
+                            May = !string.IsNullOrEmpty(x.Field<decimal>("May").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("May"))) : 0,
+                            Jun = !string.IsNullOrEmpty(x.Field<decimal>("Jun").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Jun"))) : 0,
+                            Jul = !string.IsNullOrEmpty(x.Field<decimal>("Jul").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Jul"))) : 0,
+                            Aug = !string.IsNullOrEmpty(x.Field<decimal>("Aug").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Aug"))) : 0,
+                            Sep = !string.IsNullOrEmpty(x.Field<decimal>("Sep").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Sep"))) : 0,
+                            Oct = !string.IsNullOrEmpty(x.Field<decimal>("Oct").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Oct"))) : 0,
+                            Nov = !string.IsNullOrEmpty(x.Field<decimal>("Nov").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Nov"))) : 0,
+                            Dec = !string.IsNullOrEmpty(x.Field<decimal>("Dec").ToString()) ? Math.Round(Convert.ToDecimal(x.Field<decimal>("Dec"))) : 0,
+
+                        }).ToList();
+
+
+
+                    }
+
+                    if (_dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        erseaDashboard.MonthOrdersList = _dataset.Tables[1].AsEnumerable().Select(x => new SelectListItem
+                        {
+
+                            Text = x.Field<string>("Month"),
+                            Value = x.Field<int>("MonthNumber").ToString()
+
+                        }).ToList();
                     }
                 }
             }
@@ -1030,14 +1080,95 @@ namespace FingerprintsData
                 if (Connection != null)
                     Connection.Close();
             }
+            return erseaDashboard;
         }
 
-        public ChildrenInfoClass GetChildrenByCenter(string CenterId, string AgencyId, long programID, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetChildrenByCenter(CenterAnalysisParameters centerParameters)
         {
             List<ChildrenInfo> childrenList = new List<ChildrenInfo>();
             List<ClassRoomDetails> ClassRoomList = new List<ClassRoomDetails>();
-            ClassRoomDetails classRoom = null;
-            ChildrenInfo childrenInfo = null;
+
+            ChildrenInfoClass childrenInfoClass = new ChildrenInfoClass();
+            try
+            {
+
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetChildrenByCenter";
+                    command.Parameters.AddWithValue("@AgencyId", centerParameters.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@CenterId", centerParameters.CenterId);
+                    command.Parameters.AddWithValue("@ProgramId", centerParameters.ProgramId);
+                    command.Parameters.AddWithValue("@Take", centerParameters.Take);
+                    command.Parameters.AddWithValue("@Skip", centerParameters.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", centerParameters.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", centerParameters.SearchText);
+                    command.Parameters.AddWithValue("@ClassRoomId", centerParameters.ClassRoomId);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        childrenInfoClass.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
+
+                        childrenInfoClass.ChildrenList = (from DataRow dr1 in _dataset.Tables[0].Rows
+                                                          select new ChildrenInfo
+                                                          {
+                                                              ClientName = dr1["name"].ToString(),
+                                                              ClassStartDate = dr1["Dateofclassstartdate"].ToString(),
+                                                              //Image = dr1["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr1["ProfilePic"]),
+                                                              Foster = dr1["fosterChild"].ToString(),
+                                                              Gender = dr1["gender"].ToString(),
+                                                              CenterName = dr1["CenterName"].ToString(),
+                                                              OverIncome = dr1["OverIncome"].ToString(),
+                                                              AttendancePercentage = Math.Round(Convert.ToDouble(dr1["AttendancePercentage"])).ToString(),
+                                                              ChildAttendance = dr1["AttendanceType"].ToString(),
+                                                              Dob = dr1["Dob"].ToString(),
+                                                              ClientId = EncryptDecrypt.Encrypt64(dr1["ClientId"].ToString())
+                                                          }).ToList();
+                    }
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+
+                        childrenInfoClass.ClassRoomInfoList = (from DataRow dr2 in _dataset.Tables[1].Rows
+
+                                                               select new ClassRoomDetails
+                                                               {
+
+                                                                   EnC_ClassRoomId = EncryptDecrypt.Encrypt64(dr2["ClassroomID"].ToString()),
+                                                                   ClassRoomId = Convert.ToInt64(dr2["ClassroomID"].ToString()),
+                                                                   ClassRoomName = dr2["ClassroomName"].ToString()
+                                                               }).ToList();
+
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                command.Dispose();
+                _dataset.Dispose();
+            }
+            return childrenInfoClass;
+        }
+
+        public ChildrenInfoClass GetChildrenByClassRoom(CenterAnalysisParameters getchildParameter)
+        {
+            List<ChildrenInfo> childrenList = new List<ChildrenInfo>();
+            ChildrenInfo childrenInfo = new ChildrenInfo();
             ChildrenInfoClass childrenInfoClass = new ChildrenInfoClass();
             try
             {
@@ -1045,13 +1176,14 @@ namespace FingerprintsData
                 command.Parameters.Clear();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetChildrenByCenter";
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
-                command.Parameters.AddWithValue("@CenterId", CenterId);
-                command.Parameters.AddWithValue("@ProgramId", programID);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
+                command.CommandText = "USP_GetChildrenByClassRoom";
+                command.Parameters.AddWithValue("@AgencyId", getchildParameter.StaffDetails.AgencyId);
+                command.Parameters.AddWithValue("@CenterId", getchildParameter.CenterId);
+                command.Parameters.AddWithValue("@ClassRoomId", getchildParameter.ClassRoomId);
+                command.Parameters.AddWithValue("@ProgramId", getchildParameter.ProgramId);
+                command.Parameters.AddWithValue("@Take", getchildParameter.Take);
+                command.Parameters.AddWithValue("@Skip", getchildParameter.Skip);
+                command.Parameters.AddWithValue("@RequestedPage", getchildParameter.RequestedPage);
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -1060,38 +1192,25 @@ namespace FingerprintsData
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
                         childrenInfoClass.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             childrenInfo = new ChildrenInfo();
                             childrenInfo.ClientName = dr["name"].ToString();
-                            childrenInfo.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"].ToString()).ToString("MM/dd/yyyy");
+                            childrenInfo.ClassStartDate = dr["Dateofclassstartdate"].ToString();
                             childrenInfo.Image = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
                             childrenInfo.Foster = dr["fosterChild"].ToString();
                             childrenInfo.Gender = dr["gender"].ToString();
                             childrenInfo.OverIncome = dr["OverIncome"].ToString();
-                            childrenInfo.AttendancePercentage = Math.Round(Convert.ToDouble(dr["AttendancePercentage"])).ToString();
+                            childrenInfo.AttendancePercentage = dr["AttendancePercentage"].ToString();
                             childrenInfo.ChildAttendance = dr["AttendanceType"].ToString();
-                            childrenInfo.Gender = dr["gender"].ToString();
-                            childrenInfo.Dob = Convert.ToDateTime(dr["Dob"].ToString()).ToString("MM/dd/yyyy");
+                            childrenInfo.Dob = dr["Dob"].ToString();
                             childrenList.Add(childrenInfo);
                         }
                     }
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr1 in _dataset.Tables[1].Rows)
-                        {
-                            classRoom = new ClassRoomDetails();
-                            classRoom.EnC_ClassRoomId = EncryptDecrypt.Encrypt64(dr1["ClassroomID"].ToString());
-                            classRoom.ClassRoomId = Convert.ToInt64(dr1["ClassroomID"].ToString());
-                            classRoom.ClassRoomName = dr1["ClassroomName"].ToString();
-                            ClassRoomList.Add(classRoom);
-                        }
-                    }
-                    childrenInfoClass.ChildrenList = childrenList;
-                    childrenInfoClass.ClassRoomInfoList = ClassRoomList;
-
-
                 }
+
+                childrenInfoClass.ChildrenList = childrenList;
 
             }
             catch (Exception ex)
@@ -1106,83 +1225,34 @@ namespace FingerprintsData
             return childrenInfoClass;
         }
 
-        public List<ChildrenInfo> GetChildrenByClassRoom(long CenterId, Guid AgencyId, long classRoomId, long programId)
+        public ChildrenInfoClass GetEnrolledChildrenData(CenterAnalysisParameters enrolledParameter)
         {
-            List<ChildrenInfo> childrenList = new List<ChildrenInfo>();
-            ChildrenInfo childrenInfo = null;
 
-            try
-            {
-
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetChildrenByClassRoom";
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
-                command.Parameters.AddWithValue("@CenterId", CenterId);
-                command.Parameters.AddWithValue("@ClassRoomId", classRoomId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                if (_dataset != null)
-                {
-                    if (_dataset.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        {
-                            childrenInfo = new ChildrenInfo();
-                            childrenInfo.ClientName = dr["name"].ToString();
-                            childrenInfo.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"].ToString()).ToString("MM/dd/yyyy");
-                            childrenInfo.Image = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
-                            childrenInfo.Foster = dr["fosterChild"].ToString();
-                            childrenInfo.Gender = dr["gender"].ToString();
-                            childrenInfo.OverIncome = dr["OverIncome"].ToString();
-                            childrenInfo.AttendancePercentage = dr["AttendancePercentage"].ToString();
-                            childrenInfo.ChildAttendance = dr["AttendanceType"].ToString();
-                            childrenInfo.Gender = dr["gender"].ToString();
-                            childrenInfo.Dob = Convert.ToDateTime(dr["Dob"].ToString()).ToString("MM/dd/yyyy");
-                            childrenList.Add(childrenInfo);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            finally
-            {
-                if (Connection != null)
-                    Connection.Close();
-            }
-            return childrenList;
-        }
-
-        public ChildrenInfoClass GetEnrolledChildrenData(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
-        {
-            List<ChildrenInfo> enrolledList = new List<ChildrenInfo>();
             ChildrenInfoClass childrenInfoClass = new ChildrenInfoClass();
-            childrenInfoClass.ChildrenList = new List<ChildrenInfo>();
             try
             {
-                StaffDetails details = StaffDetails.GetInstance();
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetEnrolledChildByCenter";
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                command.Parameters.AddWithValue("@CenterId", centerId);
-                command.Parameters.AddWithValue("@UserId", details.UserId);
-                command.Parameters.AddWithValue("@RoleId", details.RoleId);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetEnrolledChildByCenter";
+                    command.Parameters.AddWithValue("@AgencyId", enrolledParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", enrolledParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", enrolledParameter.CenterId);
+                    command.Parameters.AddWithValue("@UserId", enrolledParameter.StaffDetails.UserId);
+                    command.Parameters.AddWithValue("@RoleId", enrolledParameter.StaffDetails.RoleId);
+                    command.Parameters.AddWithValue("@Take", enrolledParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", enrolledParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", enrolledParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", enrolledParameter.SearchText);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -1219,45 +1289,45 @@ namespace FingerprintsData
             }
             finally
             {
-                if (Connection != null)
-                    Connection.Close();
+                Connection.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
 
 
             return childrenInfoClass;
         }
 
-        public ChildrenInfoClass GetReturningChildren(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetReturningChildren(CenterAnalysisParameters returningParameter)
         {
-            List<ChildrenInfo> enrolledList = new List<ChildrenInfo>();
-
-
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            childInfo.ReturningList = new List<ChildrenInfo>();
             try
             {
-
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetReturningChildByCenter";
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                command.Parameters.AddWithValue("@CenterId", centerId);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetReturningChildByCenter";
+                    command.Parameters.AddWithValue("@AgencyId", returningParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", returningParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", returningParameter.CenterId);
+                    command.Parameters.AddWithValue("@Take", returningParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", returningParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", returningParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", returningParameter.SearchText);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
 
                         childInfo.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
-
-
 
                         childInfo.ReturningList = (from DataRow dr1 in _dataset.Tables[0].Rows
                                                    select new ChildrenInfo
@@ -1275,27 +1345,6 @@ namespace FingerprintsData
                                                        Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientId"].ToString())
                                                    }
                                                  ).ToList();
-
-
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-
-                        //    children = new ChildrenInfo();
-                        //    children.ClientName = dr["name"].ToString();
-                        //    children.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"].ToString()).ToString("MM/dd/yyyy");
-                        //    //children.Image = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
-                        //    children.Foster = dr["fosterChild"].ToString();
-                        //    children.Gender = dr["gender"].ToString();
-                        //    children.OverIncome = dr["OverIncome"].ToString();
-                        //    children.AttendancePercentage = dr["AttendancePercentage"].ToString();
-                        //    children.ChildAttendance = dr["AttendanceType"].ToString();
-                        //    children.Gender = dr["gender"].ToString();
-                        //    children.Dob = Convert.ToDateTime(dr["Dob"].ToString()).ToString("MM/dd/yyyy");
-                        //    children.CenterName = dr["CenterName"].ToString();
-                        //    children.ProgramType = dr["ProgramType"].ToString();
-                        //    children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString());
-                        //    enrolledList.Add(children);
-                        //}
                     }
                 }
 
@@ -1306,18 +1355,17 @@ namespace FingerprintsData
             }
             finally
             {
-                if (Connection != null)
-                    Connection.Close();
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
             return childInfo;
         }
 
-        public ChildrenInfoClass GetGraduatingChildrenData(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetGraduatingChildrenData(CenterAnalysisParameters gradParameter)
         {
-            List<ChildrenInfo> gradList = new List<ChildrenInfo>();
-            ChildrenInfo children = null;
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            childInfo.GraduatingList = new List<ChildrenInfo>();
             try
             {
 
@@ -1326,17 +1374,19 @@ namespace FingerprintsData
 
                 using (Connection)
                 {
-                    Connection.Close();
+
                     command.Parameters.Clear();
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_GetGraduatingChildByCenter";
-                    command.Parameters.AddWithValue("@AgencyId", agencyId);
-                    command.Parameters.AddWithValue("@ProgramId", programId);
-                    command.Parameters.AddWithValue("@CenterId", centerId);
-                    command.Parameters.AddWithValue("@Take", take);
-                    command.Parameters.AddWithValue("@Skip", skip);
-                    command.Parameters.AddWithValue("@RequestedPage", requestedPage);
+                    command.Parameters.AddWithValue("@AgencyId", gradParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", gradParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", gradParameter.CenterId);
+                    command.Parameters.AddWithValue("@Take", gradParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", gradParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", gradParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", gradParameter.SearchText);
+                    Connection.Open();
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
@@ -1365,27 +1415,6 @@ namespace FingerprintsData
                                                         Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientId"].ToString())
                                                     }).ToList();
 
-
-
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-
-                        //    children = new ChildrenInfo();
-                        //    children.ClientName = dr["name"].ToString();
-                        //    children.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"].ToString()).ToString("MM/dd/yyyy");
-                        //    //children.Image = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
-                        //    children.Foster = dr["fosterChild"].ToString();
-                        //    children.Gender = dr["gender"].ToString();
-                        //    children.OverIncome = dr["OverIncome"].ToString();
-                        //    children.AttendancePercentage = dr["AttendancePercentage"].ToString();
-                        //    children.ChildAttendance = dr["AttendanceType"].ToString();
-                        //    //children.Gender = dr["gender"].ToString();
-                        //    children.Dob = Convert.ToDateTime(dr["Dob"].ToString()).ToString("MM/dd/yyyy");
-                        //    children.CenterName = dr["CenterName"].ToString();
-                        //    children.ProgramType = dr["ProgramType"].ToString();
-                        //    children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString());
-                        //    gradList.Add(children);
-                        //}
                     }
                 }
 
@@ -1396,58 +1425,63 @@ namespace FingerprintsData
             }
             finally
             {
-                if (Connection != null)
-                    Connection.Close();
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
             return childInfo;
         }
 
-        public ChildrenInfoClass GetWatitingChildrenData(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetWatitingChildrenData(CenterAnalysisParameters waitingParameter)
         {
-            List<WaitingChildren> waitingChildList = new List<WaitingChildren>();
-            WaitingChildren children = null;
             ChildrenInfoClass childrenInfo = new ChildrenInfoClass();
-            childrenInfo.WaitingChildrenList = new List<WaitingChildren>();
             try
             {
-
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetWaitingChildByCenter";
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                command.Parameters.AddWithValue("@CenterId", centerId);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetWaitingChildByCenter";
+                    command.Parameters.AddWithValue("@AgencyId", waitingParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", waitingParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", waitingParameter.CenterId);
+                    command.Parameters.AddWithValue("@Take", waitingParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", waitingParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", waitingParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", waitingParameter.SearchText);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
                         childrenInfo.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        {
-                            children = new WaitingChildren();
-                            children.ChildrenName = dr["ChildrenName"].ToString();
-                            children.Gender = dr["Gender"].ToString();
-                            children.CenterName = dr["centername"].ToString();
-                            // children.ProfileImage = dr["profilepic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
-                            children.ProgramId = Convert.ToInt64(dr["ProgramTypeId"].ToString());
-                            children.ProgramType = dr["ProgramType"].ToString();
-                            children.Dob = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
-                            children.DateOnList = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
-                            children.SelectionPoints = Convert.ToInt64(dr["SelectionPoints"].ToString());
-                            children.CenterChoice = dr["Centerchoice"].ToString();
-                            children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["clientId"].ToString());
-                            waitingChildList.Add(children);
-                        }
+
+                        childrenInfo.WaitingChildrenList = (from DataRow dr1 in _dataset.Tables[0].Rows
+                                                            select new WaitingChildren
+                                                            {
+                                                                ChildrenName = dr1["ChildrenName"].ToString(),
+                                                                Gender = dr1["Gender"].ToString(),
+                                                                CenterName = dr1["centername"].ToString(),
+                                                                ProgramId = Convert.ToInt64(dr1["ProgramTypeId"].ToString()),
+                                                                ProgramType = dr1["ProgramType"].ToString(),
+                                                                Dob = dr1["dob"].ToString(),
+                                                                DateOnList = dr1["DateEntered"].ToString(),
+                                                                SelectionPoints = Convert.ToInt64(dr1["SelectionPoints"].ToString()),
+                                                                CenterChoice = dr1["Centerchoice"].ToString(),
+                                                                Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["clientId"].ToString())
+                                                            }
+
+                                                          ).ToList();
+
                     }
                 }
-                childrenInfo.WaitingChildrenList = waitingChildList;
             }
             catch (Exception ex)
             {
@@ -1457,40 +1491,37 @@ namespace FingerprintsData
             {
                 if (Connection != null)
                     Connection.Close();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
             return childrenInfo;
         }
 
-        public ChildrenInfoClass GetWithdrawnChildList(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetWithdrawnChildList(CenterAnalysisParameters withdrawnParameter)
         {
-            List<WaitingChildren> waitingChildList = new List<WaitingChildren>();
             ChildrenInfoClass childrenInfo = new ChildrenInfoClass();
-            childrenInfo.WithdrawnChildrenList = new List<WaitingChildren>();
             try
             {
-
-                StaffDetails staffDetails = StaffDetails.GetInstance();
-
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
 
                 using (Connection)
                 {
-
-
-                    Connection.Open();
                     command.Parameters.Clear();
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_WithdrawnChildByCenter";
-                    command.Parameters.AddWithValue("@AgencyId", agencyId);
-                    command.Parameters.AddWithValue("@ProgramId", programId);
-                    command.Parameters.AddWithValue("@CenterId", centerId);
-                    command.Parameters.AddWithValue("@UserId", staffDetails.UserId);
-                    command.Parameters.AddWithValue("@RoleId", staffDetails.RoleId);
-                    command.Parameters.AddWithValue("@Take", take);
-                    command.Parameters.AddWithValue("@Skip", skip);
-                    command.Parameters.AddWithValue("@RequestedPage", requestedPage);
+                    command.Parameters.AddWithValue("@AgencyId", withdrawnParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", withdrawnParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", withdrawnParameter.CenterId);
+                    command.Parameters.AddWithValue("@UserId", withdrawnParameter.StaffDetails.UserId);
+                    command.Parameters.AddWithValue("@RoleId", withdrawnParameter.StaffDetails.RoleId);
+                    command.Parameters.AddWithValue("@Take", withdrawnParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", withdrawnParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", withdrawnParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", withdrawnParameter.SearchText);
+                    Connection.Open();
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
@@ -1518,24 +1549,6 @@ namespace FingerprintsData
                                                                   Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["clientId"].ToString())
 
                                                               }).ToList();
-
-
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    children = new WaitingChildren();
-                        //    children.ChildrenName = dr["ChildrenName"].ToString();
-                        //    children.Gender = dr["Gender"].ToString();
-                        //    children.CenterName = dr["centername"].ToString();
-                        //    // children.ProfileImage = dr["profilepic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
-                        //    children.ProgramId = Convert.ToInt64(dr["ProgramTypeId"].ToString());
-                        //    children.ProgramType = dr["ProgramType"].ToString();
-                        //    children.Dob = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
-                        //    children.DateOnList = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
-                        //    children.SelectionPoints = Convert.ToInt64(dr["SelectionPoints"].ToString());
-                        //    // children.CenterChoice = dr["Centerchoice"].ToString();
-                        //    children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["clientId"].ToString());
-                        //    waitingChildList.Add(children);
-                        //}
                     }
                 }
 
@@ -1550,42 +1563,46 @@ namespace FingerprintsData
                     Connection.Close();
 
                 command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
             return childrenInfo;
         }
 
-        public ChildrenInfoClass GetDroppedChildList(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetDroppedChildList(CenterAnalysisParameters droppedParameter)
         {
-            List<WaitingChildren> waitingChildList = new List<WaitingChildren>();
 
             ChildrenInfoClass childrenInfo = new ChildrenInfoClass();
-            childrenInfo.DroppedChildrenList = new List<WaitingChildren>();
             try
             {
 
-                StaffDetails staffDetails = new StaffDetails();
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_DroppedChildByCenter";
+                    command.Parameters.AddWithValue("@AgencyId", droppedParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", droppedParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", droppedParameter.CenterId);
+                    command.Parameters.AddWithValue("@UserId", droppedParameter.StaffDetails.UserId);
+                    command.Parameters.AddWithValue("@RoleId", droppedParameter.StaffDetails.RoleId);
+                    command.Parameters.AddWithValue("@Take", droppedParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", droppedParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", droppedParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", droppedParameter.SearchText);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
 
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_DroppedChildByCenter";
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                command.Parameters.AddWithValue("@CenterId", centerId);
-                command.Parameters.AddWithValue("@UserId", staffDetails.UserId);
-                command.Parameters.AddWithValue("@RoleId", staffDetails.RoleId);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
 
-                        //int.TryParse(_dataset.Tables[0].Rows[0]["TotalRecord"].ToString(), out childrenInfo.TotalRecord);
                         childrenInfo.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
 
 
@@ -1604,24 +1621,6 @@ namespace FingerprintsData
                                                             }
 
                                                           ).ToList();
-
-
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    children = new WaitingChildren();
-                        //    children.ChildrenName = dr["ChildrenName"].ToString();
-                        //    children.Gender = dr["Gender"].ToString();
-                        //    children.CenterName = dr["centername"].ToString();
-                        //    // children.ProfileImage = dr["profilepic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
-                        //    children.ProgramId = Convert.ToInt64(dr["ProgramTypeId"].ToString());
-                        //    children.ProgramType = dr["ProgramType"].ToString();
-                        //    children.Dob = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
-                        //    children.DateOnList = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
-                        //    children.SelectionPoints = Convert.ToInt64(dr["SelectionPoints"].ToString());
-                        //    // children.CenterChoice = dr["Centerchoice"].ToString();
-                        //    children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["clientId"].ToString());
-                        //    waitingChildList.Add(children);
-                        //}
                     }
                 }
 
@@ -1634,11 +1633,15 @@ namespace FingerprintsData
             {
                 if (Connection != null)
                     Connection.Close();
+
+                Connection.Dispose();
+                command.Dispose();
+                _dataset.Dispose();
             }
             return childrenInfo;
         }
 
-        public ChildrenInfoClass GetOverIncomeChildrenData(out List<SelectListItem> parentNameList, long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetOverIncomeChildrenData(out List<SelectListItem> parentNameList, CenterAnalysisParameters oIParameter)
         {
             List<ChildrenInfo> overIncomChildList = new List<ChildrenInfo>();
             parentNameList = new List<SelectListItem>();
@@ -1653,19 +1656,18 @@ namespace FingerprintsData
 
                 using (Connection)
                 {
-
-                    Connection.Open();
-
                     command.Parameters.Clear();
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_GetOverIncomeChildByCenter";
-                    command.Parameters.AddWithValue("@AgencyId", agencyId);
-                    command.Parameters.AddWithValue("@ProgramId", programId);
-                    command.Parameters.AddWithValue("@CenterId", centerId);
-                    command.Parameters.AddWithValue("@Take", take);
-                    command.Parameters.AddWithValue("@Skip", skip);
-                    command.Parameters.AddWithValue("@RequestedPage", requestedPage);
+                    command.Parameters.AddWithValue("@AgencyId", oIParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", oIParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", oIParameter.CenterId);
+                    command.Parameters.AddWithValue("@Take", oIParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", oIParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", oIParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", oIParameter.SearchText);
+                    Connection.Open();
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
@@ -1695,27 +1697,6 @@ namespace FingerprintsData
                                                                 ClientId2 = dr1["clientId2"].ToString()
 
                                                             }).ToList();
-
-
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    children = new ChildrenInfo();
-                        //    children.ClientName = dr["name"].ToString();
-                        //    children.Gender = dr["Gender"].ToString();
-                        //    children.CenterName = dr["centername"].ToString();
-                        //    // children.Image = dr["profilepic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
-                        //    children.ProgramType = dr["ProgramType"].ToString();
-                        //    children.Dob = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
-                        //    children.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"]).ToString("MM/dd/yyyy");
-                        //    children.ClassRoomName = dr["ClassRoomName"].ToString();
-                        //    long povCalculated = Convert.ToInt64(dr["PovertyCalculated"].ToString());
-                        //    children.ChildIncome = (povCalculated > 100 && povCalculated < 130) ? "less than 130%" : "greater than 130%";
-                        //    children.ClientId = dr["ClientId"].ToString();
-                        //    children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString());
-                        //    children.ClientId1 = dr["clientId1"].ToString();
-                        //    children.ClientId2 = dr["clientId2"].ToString();
-                        //    overIncomChildList.Add(children);
-                        //}
                     }
 
                     if (_dataset.Tables[1].Rows.Count > 0)
@@ -1742,34 +1723,42 @@ namespace FingerprintsData
             {
                 if (Connection != null)
                     Connection.Close();
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
             return childInfo;
         }
 
 
 
-        public ChildrenInfoClass GetFosterChildData(long centerId, long programId, Guid userId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetFosterChildData(CenterAnalysisParameters fosterParameter)
         {
-            List<FosterChild> childList = new List<FosterChild>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            childInfo.FosterChildrenList = new List<FosterChild>();
             try
             {
 
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", agencyId));
-                command.Parameters.Add(new SqlParameter("@CenterId", centerId));
-                command.Parameters.Add(new SqlParameter("@ProgramId", programId));
-                command.Parameters.Add(new SqlParameter("@UserId", userId));
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetFosterChildByCenter";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyId", fosterParameter.StaffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@CenterId", fosterParameter.CenterId));
+                    command.Parameters.Add(new SqlParameter("@ProgramId", fosterParameter.ProgramId));
+                    command.Parameters.Add(new SqlParameter("@UserId", fosterParameter.StaffDetails.UserId));
+                    command.Parameters.AddWithValue("@Take", fosterParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", fosterParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", fosterParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", fosterParameter.SearchText);
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetFosterChildByCenter";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset.Tables[0] != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -1794,23 +1783,6 @@ namespace FingerprintsData
 
                                                       ).ToList();
 
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    fosterChild = new FosterChild();
-                        //    fosterChild.ClientName = dr["Name"].ToString();
-                        //    fosterChild.ClientId = Convert.ToInt64(dr["ClientID"]);
-                        //    fosterChild.CenterId = Convert.ToInt64(dr["CenterId"]);
-                        //    fosterChild.FileAttached = dr["FosterAttachment"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["FosterAttachment"]);
-                        //    fosterChild.FileName = dr["FosterFileName"].ToString();
-                        //    fosterChild.FileExtension = dr["FosterFileExtension"].ToString();
-                        //    fosterChild.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"].ToString()).ToString("MM/dd/yyyy");
-                        //    // fosterChild.ProfileImage = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
-                        //    fosterChild.Gender = dr["gender"].ToString();
-                        //    fosterChild.Dob = Convert.ToDateTime(dr["Dob"].ToString()).ToString("MM/dd/yyyy");
-                        //    fosterChild.CenterName = dr["CenterName"].ToString();
-                        //    fosterChild.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString());
-                        //    childList.Add(fosterChild);
-                        //}
                     }
 
                 }
@@ -1826,31 +1798,36 @@ namespace FingerprintsData
             {
                 DataAdapter.Dispose();
                 command.Dispose();
+                Connection.Dispose();
             }
             return childInfo;
         }
-        public ChildrenInfoClass GetHomelessChildrenData(long centerId, long programId, Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetHomelessChildrenData(CenterAnalysisParameters homelessParameter)
         {
-            List<HomelessChildren> HomelessChildList = new List<HomelessChildren>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            childInfo.HomeLessChildrenList = new List<HomelessChildren>();
             try
             {
 
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GethomelessChildByCenter";
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                command.Parameters.AddWithValue("@CenterId", centerId);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GethomelessChildByCenter";
+                    command.Parameters.AddWithValue("@AgencyId", homelessParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", homelessParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", homelessParameter.CenterId);
+                    command.Parameters.AddWithValue("@Take", homelessParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", homelessParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", homelessParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", homelessParameter.SearchText);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
 
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -1875,22 +1852,6 @@ namespace FingerprintsData
 
                                                         ).ToList();
 
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    children = new HomelessChildren();
-                        //    children.ChildrenName = dr["name"].ToString();
-                        //    children.Gender = dr["Gender"].ToString();
-                        //    children.CenterName = dr["centername"].ToString();
-                        //    //  children.ProfileImage = dr["profilepic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
-                        //    children.ProgramId = Convert.ToInt64(dr["ProgramId"].ToString());
-                        //    children.ProgramType = dr["ProgramType"].ToString();
-                        //    children.Dob = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
-                        //    children.ClassStartDate = Convert.ToDateTime(dr["Dateofclassstartdate"]).ToString("MM/dd/yyyy");
-                        //    children.ClassRoomId = Convert.ToInt64(dr["ClassRoomId"].ToString());
-                        //    children.ClassRoomName = dr["ClassRoomName"].ToString();
-                        //    children.Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString());
-                        //    HomelessChildList.Add(children);
-                        //}
                     }
                 }
 
@@ -1909,27 +1870,30 @@ namespace FingerprintsData
 
 
 
-        public ChildrenInfoClass GetLeadsChildrenData(long centerId, long programId, Guid userId,Guid agencyId, int requestedPage, int take, int skip)
+        public ChildrenInfoClass GetLeadsChildrenData(CenterAnalysisParameters leadsParameter)
         {
-            List<LeadsChildren> leadschildList = new List<LeadsChildren>();
-            LeadsChildren leadschild = new LeadsChildren();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            childInfo.LeadsChildrenList = new List<LeadsChildren>();
             try
             {
-                command.Parameters.Clear();
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetLeadsByChildCenter";
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
-                command.Parameters.AddWithValue("@ProgramId", programId);
-                command.Parameters.AddWithValue("@CenterId", centerId);
-                command.Parameters.AddWithValue("@Take", take);
-                command.Parameters.AddWithValue("@Skip", skip);
-                command.Parameters.AddWithValue("@RequestedPage", requestedPage);
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetLeadsByChildCenter";
+                    command.Parameters.AddWithValue("@AgencyId", leadsParameter.StaffDetails.AgencyId);
+                    command.Parameters.AddWithValue("@ProgramId", leadsParameter.ProgramId);
+                    command.Parameters.AddWithValue("@CenterId", leadsParameter.CenterId);
+                    command.Parameters.AddWithValue("@Take", leadsParameter.Take);
+                    command.Parameters.AddWithValue("@Skip", leadsParameter.Skip);
+                    command.Parameters.AddWithValue("@RequestedPage", leadsParameter.RequestedPage);
+                    command.Parameters.AddWithValue("@SearchText", leadsParameter.SearchText);
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -1943,27 +1907,15 @@ namespace FingerprintsData
                                                            ParentName = dr1["ParentName"].ToString(),
                                                            Disability = dr1["Disability"].ToString(),
                                                            Gender = dr1["Gender"].ToString(),
-                                                           Dob = Convert.ToDateTime(dr1["DateofBirth"]).ToString("MM/dd/yyyy"),
+                                                           Dob = dr1["DateofBirth"].ToString(),
                                                            CenterName = dr1["CenterName"].ToString(),
                                                            ContactStatus = dr1["ContactStatus"].ToString(),
                                                            YakkrStatus = dr1["YakkrStatus"].ToString(),
-                                                           RejectParentId = dr1["RejectParentId"].ToString()
+                                                           RejectParentId = dr1["RejectParentId"].ToString(),
+                                                           Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ChildId"].ToString()),
+                                                           FSWName = dr1["FSWName"].ToString(),
+                                                           StaffUserId = dr1["StaffUserId"].ToString()
                                                        }).ToList();
-
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    leadschild = new LeadsChildren();
-                        //    leadschild.ChildrenName = dr["ChildrenName"].ToString();
-                        //    leadschild.ParentName = dr["ParentName"].ToString();
-                        //    leadschild.Disability = dr["Disability"].ToString();
-                        //    leadschild.Gender = dr["Gender"].ToString();
-                        //    leadschild.Dob = Convert.ToDateTime(dr["DateofBirth"]).ToString("MM/dd/yyyy");
-                        //    leadschild.CenterName = dr["CenterName"].ToString();
-                        //    leadschild.ContactStatus = dr["ContactStatus"].ToString();
-                        //    leadschild.YakkrStatus = dr["YakkrStatus"].ToString();
-                        //    leadschild.RejectParentId = dr["RejectParentId"].ToString();
-                        //    leadschildList.Add(leadschild);
-                        //}
                     }
                 }
             }
@@ -1975,6 +1927,10 @@ namespace FingerprintsData
             {
                 if (Connection != null)
                     Connection.Close();
+
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
             }
             return childInfo;
         }

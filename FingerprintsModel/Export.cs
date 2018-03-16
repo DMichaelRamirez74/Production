@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using iTextSharp;
 using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using ClosedXML;
 using ClosedXML.Excel;
-using System.Drawing;
-using iTextSharp.text.html.simpleparser;
 using System.Data;
-
-
-
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -642,6 +634,897 @@ namespace FingerprintsModel
             }
             return memoryStream;
         }
+
+
+        public MemoryStream ExportERSEACenterAnalysisReport(string reportFor, ChildrenInfoClass infoClass, List<SelectListItem> parentList, bool isAllCenter)
+        {
+            MemoryStream memoryStream = new MemoryStream();
+            try
+            {
+
+                XLWorkbook wb = new XLWorkbook();
+                IXLWorksheet workSheet = null;
+                int ReportRow = 3;
+                switch (reportFor)
+                {
+                    case "#FosterDisplaymodal":
+                        workSheet = wb.Worksheets.Add("Enrolled Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value = (isAllCenter) ? "Enrolled Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy") : "Enrolled Client Report for " + infoClass.ChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if (isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 5).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Attendance";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Over Income";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 8).Value = "Foster";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 9).Value = "Attendance Status";
+                            workSheet.Cell(ReportRow, 9).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 9).WorksheetColumn().Width = 20;
+                        }
+                        else
+                        {
+
+
+                            workSheet.Cell(ReportRow, 5).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Attendance";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Over Income";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 8).Value = "Foster";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 9).Value = "Attendance Status";
+                            workSheet.Cell(ReportRow, 9).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 9).WorksheetColumn().Width = 20;
+                        }
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.ChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ClientName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+                            if (isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 7).Value = item.AttendancePercentage + "%";
+                                workSheet.Cell(ReportRow, 8).Value = item.OverIncome;
+                                workSheet.Cell(ReportRow, 9).Value = (item.Foster == "1") ? "Y" : "N";
+                                workSheet.Cell(ReportRow, 10).Value = (item.ChildAttendance == "0") ? "Not Checked-in" : (item.ChildAttendance == "1") ? "Present" : (item.ChildAttendance == "2") ? "Absent Excused" : (item.ChildAttendance == "3") ? "Absent No Show" : "Present Other";
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 6).Value = item.AttendancePercentage + "%";
+                                workSheet.Cell(ReportRow, 7).Value = item.OverIncome;
+                                workSheet.Cell(ReportRow, 8).Value = (item.Foster == "1") ? "Y" : "N";
+                                workSheet.Cell(ReportRow, 9).Value = (item.ChildAttendance == "0") ? "Not Checked-in" : (item.ChildAttendance == "1") ? "Present" : (item.ChildAttendance == "2") ? "Absent Excused" : (item.ChildAttendance == "3") ? "Absent No Show" : "Present Other";
+                            }
+                            ReportRow++;
+                        }
+                        break;
+                    case "#EnrolledModal":
+                        workSheet = wb.Worksheets.Add("Enrolled Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value = (isAllCenter) ? "Enrolled Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy") : "Enrolled Client Report for " + infoClass.ChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if (isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Nae";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+
+                            workSheet.Cell(ReportRow, 6).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 7).Value = "Attendance";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 8).Value = "Over Income";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 9).Value = "Foster";
+                            workSheet.Cell(ReportRow, 9).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 9).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 10).Value = "Attendance Status";
+                            workSheet.Cell(ReportRow, 10).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 10).WorksheetColumn().Width = 20;
+                        }
+
+
+                        else
+                        {
+
+
+                            workSheet.Cell(ReportRow, 5).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Attendance";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Over Income";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 8).Value = "Foster";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 9).Value = "Attendance Status";
+                            workSheet.Cell(ReportRow, 9).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 9).WorksheetColumn().Width = 20;
+                        }
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.ChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ClientName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if (isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 7).Value = item.AttendancePercentage + "%";
+                                workSheet.Cell(ReportRow, 8).Value = item.OverIncome;
+                                workSheet.Cell(ReportRow, 9).Value = (item.Foster == "1") ? "Y" : "N";
+                                workSheet.Cell(ReportRow, 10).Value = (item.ChildAttendance == "0") ? "Not Checked-in" : (item.ChildAttendance == "1") ? "Present" : (item.ChildAttendance == "2") ? "Absent Excused" : (item.ChildAttendance == "3") ? "Absent No Show" : "Present Other";
+
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 6).Value = item.AttendancePercentage + "%";
+                                workSheet.Cell(ReportRow, 7).Value = item.OverIncome;
+                                workSheet.Cell(ReportRow, 8).Value = (item.Foster == "1") ? "Y" : "N";
+                                workSheet.Cell(ReportRow, 9).Value = (item.ChildAttendance == "0") ? "Not Checked-in" : (item.ChildAttendance == "1") ? "Present" : (item.ChildAttendance == "2") ? "Absent Excused" : (item.ChildAttendance == "3") ? "Absent No Show" : "Present Other";
+
+
+                            }
+
+                            ReportRow++;
+                        }
+                        break;
+
+
+                    case "#WithdrawnModal":
+                        workSheet = wb.Worksheets.Add("Withdrawn Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value = (isAllCenter) ? "Withdrawn Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy") : "Withdrawn Client Report for " + infoClass.WithdrawnChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if (isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Date on List";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 7).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 8).Value = "Selection Points";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 20;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Date on List";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Selection Points";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                        }
+
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.WithdrawnChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ChildrenName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if (isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.DateOnList;
+                                workSheet.Cell(ReportRow, 7).Value = item.ProgramType;
+                                workSheet.Cell(ReportRow, 8).Value = item.SelectionPoints;
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.DateOnList;
+                                workSheet.Cell(ReportRow, 6).Value = item.ProgramType;
+                                workSheet.Cell(ReportRow, 7).Value = item.SelectionPoints;
+                            }
+
+                            ReportRow++;
+                        }
+                        break;
+
+
+                    case "#DroppedModal":
+                        workSheet = wb.Worksheets.Add("Dropped Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value = (isAllCenter) ? "Dropped Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy") : "Dropped Client Report for " + infoClass.DroppedChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if (isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Date on List";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+
+                            workSheet.Cell(ReportRow, 8).Value = "Selection Points";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 20;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Date on List";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Selection Points";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                        }
+
+
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.DroppedChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ChildrenName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if (isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.DateOnList;
+                                workSheet.Cell(ReportRow, 7).Value = item.ProgramType;
+                                workSheet.Cell(ReportRow, 8).Value = item.SelectionPoints;
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.DateOnList;
+                                workSheet.Cell(ReportRow, 6).Value = item.ProgramType;
+                                workSheet.Cell(ReportRow, 7).Value = item.SelectionPoints;
+                            }
+
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#WaitingModal":
+                        workSheet = wb.Worksheets.Add("Waiting Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value = (isAllCenter) ? "Waiting Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy") : "Waiting Client Report for " + infoClass.WaitingChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if (isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Date on List";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "Center Choice";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+
+                            workSheet.Cell(ReportRow, 8).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 20;
+
+                            workSheet.Cell(ReportRow, 9).Value = "Selection Points";
+                            workSheet.Cell(ReportRow, 9).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 9).WorksheetColumn().Width = 15;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Date on List";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Center Choice";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 8).Value = "Selection Points";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+                        }
+
+
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.WaitingChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ChildrenName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if (isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.DateOnList;
+                                workSheet.Cell(ReportRow, 7).Value = item.CenterChoice;
+                                workSheet.Cell(ReportRow, 8).Value = item.ProgramType;
+                                workSheet.Cell(ReportRow, 9).Value = item.SelectionPoints;
+
+                            }
+                            else
+                            {
+
+                                workSheet.Cell(ReportRow, 5).Value = item.DateOnList;
+                                workSheet.Cell(ReportRow, 6).Value = item.CenterChoice;
+                                workSheet.Cell(ReportRow, 7).Value = item.ProgramType;
+                                workSheet.Cell(ReportRow, 8).Value = item.SelectionPoints;
+                            }
+
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#ReturningModal":
+                        workSheet = wb.Worksheets.Add("Returning Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value =(isAllCenter) ? "Returning Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy"): "Returning Client Report for " + infoClass.ReturningList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if(isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Start Date";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                        }
+
+                       
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.ReturningList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ClientName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if(isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 7).Value = item.ProgramType;
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 6).Value = item.ProgramType;
+                            }
+
+                           
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#GraduatingModal":
+                        workSheet = wb.Worksheets.Add("Graduating Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value =(isAllCenter) ? "Graduating Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy"): "Graduating Client Report for " + infoClass.GraduatingList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+                        if(isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Start Date";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Program Type";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                        }
+
+                       
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.GraduatingList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ClientName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if(isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 7).Value = item.ProgramType;
+
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.ClassStartDate;
+                                workSheet.Cell(ReportRow, 6).Value = item.ProgramType;
+                            }
+                            
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#OverIncomeModal":
+                        workSheet = wb.Worksheets.Add("Over Income Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value =(isAllCenter) ? "Over Income Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy"): "Over Income Client Report for " + infoClass.OverIncomeChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if(isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "Parent/Guardian";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+
+                            workSheet.Cell(ReportRow, 8).Value = "Income Percentage";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 20;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                            workSheet.Cell(ReportRow, 6).Value = "Parent/Guardian";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 20;
+                            workSheet.Cell(ReportRow, 7).Value = "Income Percentage";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 20;
+                        }
+                 
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.OverIncomeChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ClientName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+
+                            if(isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.ClassStartDate;
+
+                                item.ParentName = "";
+                                if (parentList.Count() > 0)
+                                {
+                                    string[] parentArr = parentList.Where(x => x.Value == EncryptDecrypt.Decrypt64(item.Enc_ClientId)).Select(x => x.Text).ToArray();
+                                    if (parentArr.Count() > 0)
+                                    {
+                                        item.ParentName = String.Join(",", parentArr);
+                                    }
+                                }
+                                workSheet.Cell(ReportRow, 7).Value = item.ParentName;
+                                workSheet.Cell(ReportRow, 8).Value = item.ChildIncome;
+
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.ClassStartDate;
+                                item.ParentName = "";
+                                if (parentList.Count() > 0)
+                                {
+                                    string[] parentArr = parentList.Where(x => x.Value == EncryptDecrypt.Decrypt64(item.Enc_ClientId)).Select(x => x.Text).ToArray();
+                                    if (parentArr.Count() > 0)
+                                    {
+                                        item.ParentName = String.Join(",", parentArr);
+                                    }
+                                }
+                                workSheet.Cell(ReportRow, 6).Value = item.ParentName;
+                                workSheet.Cell(ReportRow, 7).Value = item.ChildIncome;
+                            }
+
+                        
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#FosterModal":
+                        workSheet = wb.Worksheets.Add("Foster Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value =(isAllCenter) ? "Foster Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy"): "Foster Client Report for " + infoClass.FosterChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if(isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            //workSheet.Cell(ReportRow, 6).Value = "Attachment";
+                            //workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            //workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+                        }
+                        //else
+                        //{
+                        //    workSheet.Cell(ReportRow, 5).Value = "Attachment";
+                        //    workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                        //    workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                        //}
+
+                   
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.FosterChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ClientName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+                            if(isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                               // workSheet.Cell(ReportRow, 6).Value = item.FileAttached;
+
+
+                            }
+                            //else
+                            //{
+                            //    workSheet.Cell(ReportRow, 5).Value = item.FileAttached;
+
+                            //}
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#HomeLessModal":
+                        workSheet = wb.Worksheets.Add("Homeless Client Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value =(isAllCenter) ? "Homeless Client Report as on " + DateTime.Now.ToString("MM/dd/yyyy"): "Homeless Client Report for " + infoClass.HomeLessChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+
+                        if(isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 6).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 5).Value = "Class Start Date";
+                            workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+                        }
+              
+                        ReportRow = ReportRow + 1;
+
+                        foreach (var item in infoClass.HomeLessChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ChildrenName;
+                            workSheet.Cell(ReportRow, 3).Value = (item.Gender == "1") ? "Male" : (item.Gender == "2") ? "Female" : "Others";
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+                            if (isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 6).Value = item.ClassStartDate;
+
+
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 5).Value = item.ClassStartDate;
+                            }
+                           
+                            ReportRow++;
+                        }
+                        break;
+
+                    case "#ExternalLeadsModal":
+                        workSheet = wb.Worksheets.Add("External Leads Report");
+                        workSheet.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        workSheet.Range("B1:H1").Merge().Value = "External Leads Report for " + infoClass.LeadsChildrenList[0].CenterName + " as on " + DateTime.Now.ToString("MM/dd/yyyy");
+                        workSheet.Range("B1:H1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                        workSheet.Range("B1:H1").Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 1).Value = "Client ID";
+                        workSheet.Cell(ReportRow, 1).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).Value = "Client Name";
+                        workSheet.Cell(ReportRow, 2).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 2).WorksheetColumn().Width = 30;
+                        workSheet.Cell(ReportRow, 3).Value = "Gender";
+                        workSheet.Cell(ReportRow, 3).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 3).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).Value = "Date of Birth";
+                        workSheet.Cell(ReportRow, 4).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 4).WorksheetColumn().Width = 15;
+                        workSheet.Cell(ReportRow, 5).Value = "Parent/Guardian";
+                        workSheet.Cell(ReportRow, 5).Style.Font.SetBold(true);
+                        workSheet.Cell(ReportRow, 5).WorksheetColumn().Width = 15;
+
+                        if(isAllCenter)
+                        {
+                            workSheet.Cell(ReportRow, 6).Value = "Center Name";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "FSW Assigned";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 8).Value = "Contacted by FSW";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 9).Value = "Disability";
+                            workSheet.Cell(ReportRow, 9).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 9).WorksheetColumn().Width = 15;
+                        }
+                        else
+                        {
+                            workSheet.Cell(ReportRow, 6).Value = "FSW Assigned";
+                            workSheet.Cell(ReportRow, 6).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 6).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 7).Value = "Contacted by FSW";
+                            workSheet.Cell(ReportRow, 7).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 7).WorksheetColumn().Width = 15;
+
+                            workSheet.Cell(ReportRow, 8).Value = "Disability";
+                            workSheet.Cell(ReportRow, 8).Style.Font.SetBold(true);
+                            workSheet.Cell(ReportRow, 8).WorksheetColumn().Width = 15;
+                        }
+                    
+                        ReportRow = ReportRow + 1;
+                        //                        myExcelWorksheet.Columns[
+
+                        //"X:Z"].HorizontalAlignment = HorizontalAlignment.Center;
+
+
+                        foreach (var item in infoClass.LeadsChildrenList)
+                        {
+                            workSheet.Cell(ReportRow, 1).Value = EncryptDecrypt.Decrypt64(item.Enc_ClientId);
+                            workSheet.Cell(ReportRow, 2).Value = item.ChildrenName;
+                            workSheet.Cell(ReportRow, 3).Value = item.Gender;
+                            workSheet.Cell(ReportRow, 4).Value = item.Dob;
+                            workSheet.Cell(ReportRow, 5).Value = item.ParentName;
+
+                            if(isAllCenter)
+                            {
+                                workSheet.Cell(ReportRow, 6).Value = item.CenterName;
+                                workSheet.Cell(ReportRow, 7).Value = item.FSWName;
+                                workSheet.Cell(ReportRow, 8).Value = item.ContactStatus;
+                                workSheet.Cell(ReportRow, 9).Value = item.Disability;
+                            }
+                            else
+                            {
+                                workSheet.Cell(ReportRow, 6).Value = item.FSWName;
+                                workSheet.Cell(ReportRow, 7).Value = item.ContactStatus;
+                                workSheet.Cell(ReportRow, 8).Value = item.Disability;
+
+                            }
+
+                            ReportRow++;
+                        }
+                        break;
+                    default:
+                        workSheet = wb.Worksheets.Add("Default Client Report");
+                        break;
+                }
+
+                wb.SaveAs(memoryStream);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return memoryStream;
+        }
+
     }
 
     public class TwoColumnHeaderFooter : PdfPageEventHelper

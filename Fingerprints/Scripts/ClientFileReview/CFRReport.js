@@ -4,8 +4,6 @@
 
     GetCenters();
 
-    
-
     function GetCenters() {
         $.ajax({
 
@@ -26,7 +24,6 @@
             }
         });
     }
-
 
     function GetCFRReport(centerId) {
         $.ajax({

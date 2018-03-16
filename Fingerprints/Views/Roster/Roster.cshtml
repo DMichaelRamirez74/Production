@@ -1302,21 +1302,6 @@
 
                     tr += '<td height="70" style="text-align:center;width:11%;">';
                     tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
-                    //if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
-                    //    tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/ic_female.png" />';
-                    //}
-                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
-                    //    tr += '<img class="roundimage" width="50" height="50"   src="' + HostedDir + '/Content/img/ic_male.png" />';
-                    //}
-                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
-                    //    tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/ic_male_default.png" />';
-                    //}
-                    //else if (data.list.Rosters[i].Picture != "") {
-                    //    tr += '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
-                    //}
-                    //else {
-                    //    tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/download.jpg" />';
-                    //}
                     tr += '</td>';
 
                     //Picture End//
@@ -1350,14 +1335,6 @@
                         }
 
                     //For Attendance issue//
-
-                    //if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d') {
-
-                    //    tr += '<td height="70" style="width:13%;"></td>';
-                    //}
-
-
-                    //tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
 
                     tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].ClassroomName + '</td>';
 
@@ -1419,6 +1396,15 @@
 
                         tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastFPADate + '</td>';
                         tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastReferralDate + '</td>';
+
+                        if (roleid === 'a31b1716-b042-46b7-acc0-95794e378b26')
+                        {
+                            tr += '<td height="70" style="width:26%;">';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                            tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
+                            tr += '</td>';
+                        }
+                       
                         tr += '</tr>';
 
                     }
@@ -1768,9 +1754,6 @@
     *@
 
     <style>
-
-
-
         #MyModalLateArrival .close {
             opacity: 1;
             position: absolute;
@@ -1972,7 +1955,7 @@
             {
                 <div class="col-sm-4 col-lg-3">
                     <select id="filterSelect" style="height:38px !important;" class="form-control">
-                        <option value="0">-Select-</option>
+                        <option value="0">--Select--</option>
                         <option value="1">ABT</option>
                         <option value="2">TRN</option>
                     </select>
@@ -2015,13 +1998,14 @@
                 <table class="table table_size" id="GridRoster">
                     <thead style="cursor:pointer;">
                         <tr>
-                            <th id="thIN">Child Name<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                            <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
 
-                            <th><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                            @*<th><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>*@
 
 
+                            <th id="thSN"><img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
 
-                            <th id="thCust">Child's Picture<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                            <th id="thCust">Profile Picture<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
 
                             @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))))
                             {
@@ -2036,6 +2020,12 @@
                                 <th id="thSN" style="width: 10%;">Date of Last Case Note</th>
                                 <th id="thSN" style="width: 10%;">Date of Last FPA</th>
                                 <th id="thSN" style="width: 10%;">Date of Last Referral</th>
+
+                                if (Session["RoleId"] != null && (Session["RoleId"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26"))
+                                {
+                                    <th id="thSN" style="width: 24%;">Services</th>
+                                }
+
                             }
 
                             @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))))

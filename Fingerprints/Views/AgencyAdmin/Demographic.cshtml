@@ -1,0 +1,114 @@
+﻿@{
+    @section Title
+{
+        Developmental Team
+    }
+    ViewBag.Title = "Demographic";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Script{
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+
+
+            function CheckisDemographic() {
+                var isValid = true;
+                $('input[type=checkbox]:checked').each(function () {
+                    var b1 = $(this).next('input[type=color]').val();
+                    if (b1 == '#000000') {
+                        isValid = false;
+                        customAlert("Please Select Another Color");
+                        $(this).find("td").css("border-color", "red");
+                        return isValid;
+
+                    }
+                    else {
+                        return isValid;
+
+                    }
+
+                });
+
+                var count = 0;
+                $('#Coreteam input:checked').each(function () {
+                    if ($(this).prop("checked")) {
+                        count = 1;
+                    }
+                });
+
+                if (count == 0) {
+                    isValid = false;
+                    customAlert("Is Demographic Section Member is required.");
+                    $('#Coreteam').focus();
+                    return isValid;
+                }
+                return isValid;
+            }
+       
+        });
+        
+
+</script>
+
+    }
+   
+
+@section MainContentHolder{
+    <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">
+                    <span>Demographic Section</span>
+                    <span class="view-btn backto_listspan" id="BackToList">
+                        <button type="submit" class="my-btn1" onclick="return CheckisDemographic();" name="Command">Submit</button>
+                        @*<input type="button" id="Testbtn" class="my-btn1"  value="Submit"/>*@
+                    </span>
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                <d iv class="table-responsive coreteam" id="Coreteam">
+                    <table class="table table_size" id="filltable">
+                        <thead style="cursor:pointer;">
+                            <tr>
+                                <th>Staff Role</th>
+                                <th style="width:32%;">Is Include in Demographic Section?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.DemographicList != null)
+                            {
+                                int i = 0;
+                                foreach (var item in ViewBag.DemographicList)
+                                {
+                                    <tr>
+                                        <td><input type="hidden" name="Demographics[@i].RoleId" value="@item.RoleId" />@item.RoleName</td>
+                                        <td style="text-align:center;">
+                                            <input type="checkbox" @*style="margin-left:70px"*@
+                                                   @if (@item.IsDemographic) { <text> checked="checked" </text>       }
+                                                   name="Demographics[@i].IsDemographic" value="true" />
+                                            @*@if (@item.IsDemographic)
+                                            {
+                                                <input type="color" value="@item.UserColor" originalvalue="@item.UserColor" id="btn_UserColor" name="Demographics[@i].UserColor" />
+                                            }
+                                            else
+                                            {
+                                                <input type="color" value="@item.UserColor" originalvalue="@item.UserColor" name="Demographics[@i].UserColor" setattribute="Demographics[@i].UserColor" class="hidden" id="btn_change" />
+                                            }*@
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+
+    </form>
+}

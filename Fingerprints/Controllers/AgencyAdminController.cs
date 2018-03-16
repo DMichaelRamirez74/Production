@@ -1789,6 +1789,46 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        public ActionResult Demographic()
+        {
+            try
+            {
+                ViewBag.message = "";
+                ViewBag.DemographicList = agencyData.GetDemographicSection(Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                return View();
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return View();
+            }
+        }
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [HttpPost]
+        public ActionResult Demographic(List<Demographic> Demographics)
+        {
+            try
+            {
+                string message = "";
+                ViewBag.DemographicList = agencyData.SaveDemographic(ref message, Demographics, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                if (message == "1")
+                {
+                    ViewBag.message = "Record saved successfully.";
+                }
+                else
+                {
+                    ViewBag.message = "Plaese try again.";
+                }
+                Response.Redirect(Request.RawUrl);
+                return View();
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return View();
+            }
+        }
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public JsonResult NoOfSeats(string AgencyID, string Classid, string Seats = "0")
         {
             CenterData obj = new CenterData();

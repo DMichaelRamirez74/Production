@@ -119,7 +119,7 @@ namespace Fingerprints.Controllers
             try
             {
                 agencyinfo.AccessDays = collection["DdlAccessType"].ToString() == "-1" ? null : collection["DdlAccessType"].ToString();
-               if (agencyinfo.agencyId == null)
+                if (agencyinfo.agencyId == null)
                 {
                     ViewBag.mode = 0;
                     string RandomPassword = GenerateRandomPassword.GenerateRandomCode(10);
@@ -161,7 +161,7 @@ namespace Fingerprints.Controllers
                                 agency = textInfo.ToTitleCase(agency);
                                 string oldemailid = Session["oldemailid"].ToString();
                                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
-                                Thread thread = new Thread(delegate()
+                                Thread thread = new Thread(delegate ()
                                 {
                                     sendMail(oldemailid, agencyinfo.primaryEmail, agency, oldemailid + "," + agencyinfo.primaryEmail, Server.MapPath("~/MailTemplate"), imagepath);
 

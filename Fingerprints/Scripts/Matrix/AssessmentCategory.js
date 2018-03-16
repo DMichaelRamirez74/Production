@@ -27,6 +27,8 @@ $(document).ready(function () {
             return false;
         if (sortOrder == "thRN")
             return false;
+        if (sortOrder == "thPos")
+            return false;
 
         if ($(this).children('i').hasClass('fa-sort')) {
             $('#CategoryTable > thead > tr > th').children('i').removeClass('fa-sort fa-sort-up fa-sort-down');

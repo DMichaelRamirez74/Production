@@ -56,18 +56,18 @@ $(document).ready(function () {
         data: { CurrentMonth: checkMonth },
         success: function (data) {
 
-            if (data.centers.length > 0) {
-                var center = '<option value="0">Select Center</option>';
+            //if (data.centers.length > 0) {
+            //    var center = '<option value="0">Select Center</option>';
 
-                $.each(data.centers, function (i, element1) {
-                    center += '<option value=' + element1.CenterId + '>' + element1.CenterName + '</option>';
+            //    $.each(data.centers, function (i, element1) {
+            //        center += '<option value=' + element1.CenterId + '>' + element1.CenterName + '</option>';
 
-                });
-                var classsection = '<option value="0">Select Classroom</option>';
-                $('.centerSelect').html(center);
-                $('.classroomSelect').html(classsection);
+            //    });
+            //    var classsection = '<option value="0">Select Classroom</option>';
+            //    $('.centerSelect').html(center);
+            //    $('.classroomSelect').html(classsection);
 
-            }
+            //}
             if (data.clientsList.length > 0) {
                 var center = '';
                 var classroom = '';
@@ -125,7 +125,7 @@ $(document).ready(function () {
             data: { CenterID: centerId },
             success: function (data) {
                 if (data.length > 0) {
-                    var classroom = '<option value="0">Select Classroom</option>';
+                    var classroom = '<option value="0">--Select Classroom--</option>';
 
                     $.each(data, function (i, element1) {
                         classroom += '<option value=' + element1.ClassRoomId + '>' + element1.ClassRoomName + '</option>';

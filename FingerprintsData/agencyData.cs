@@ -3075,6 +3075,48 @@ namespace FingerprintsData
             }
             return _CoreTeamList;
         }
+        public List<Demographic> GetDemographicSection(string AgencyId, string UserId)
+        {
+            List<Demographic> _DemographicList = new List<Demographic>();
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GetDemographic";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        Demographic obj = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            obj = new Demographic();
+                            obj.RoleId = dr["Roleid"].ToString();
+                            obj.RoleName = dr["Rolename"].ToString();
+                            obj.IsDemographic = Convert.ToBoolean(dr["IsDemographic"]);
+                            // obj.UserColor = string.IsNullOrEmpty(dr["UserColor"].ToString())?"#ffffff": dr["iscoreteam"].ToString();
+                            // obj.UserColor = dr["UserColor"].ToString();
+                            _DemographicList.Add(obj);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return _DemographicList;
+        }
         public List<CoreTeam> SaveCoreTeam(ref string message, List<CoreTeam> CoreTeams, string AgencyId, string UserId)
         {
             List<CoreTeam> _CoreTeamList = new List<CoreTeam>();
@@ -3135,6 +3177,67 @@ namespace FingerprintsData
                     Connection.Close();
             }
             return _CoreTeamList;
+        }
+        public List<Demographic> SaveDemographic(ref string message, List<Demographic> Demographics, string AgencyId, string UserId)
+        {
+            List<Demographic> _DemographicList = new List<Demographic>();
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                //command.Parameters.Add(new SqlParameter("@UserColor", string.Empty));
+                command.Parameters["@result"].Direction = ParameterDirection.Output;
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[2] {
+                    new DataColumn("RoleId", typeof(string)),
+                      new DataColumn("IsDemographic",typeof(bool))
+
+
+                    });
+                foreach (Demographic Team in Demographics)
+                {
+                    if (Team.RoleId != null && Team.IsDemographic)
+                    {
+                        dt.Rows.Add(Team.RoleId, Team.IsDemographic);
+
+                    }
+                }
+                command.Parameters.Add(new SqlParameter("@Demographics", dt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveDemographic";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                message = command.Parameters["@result"].Value.ToString();
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        Demographic obj = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            obj = new Demographic();
+                            obj.RoleId = dr["Roleid"].ToString();
+                            obj.RoleName = dr["Rolename"].ToString();
+                            obj.IsDemographic = Convert.ToBoolean(dr["IsDemographic"]);
+                            obj.UserColor = dr["UserColor"].ToString();
+                            _DemographicList.Add(obj);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return _DemographicList;
         }
         public AgencySlots GetRefProgram(string Agencyid)
         {
@@ -3460,6 +3563,50 @@ namespace FingerprintsData
             }
             return HomeBasedList;
 
+        }
+        public List<SelectListItem> GetUsersByRoleId(string roleId, string agencyId)
+        {
+            List<SelectListItem> usersList = new List<SelectListItem>();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetUsersByRoleId";
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", agencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", roleId));
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        usersList = (from DataRow dr in _dataset.Tables[0].Rows
+                                     select new SelectListItem
+                                     {
+                                         Text = dr["StaffName"].ToString(),
+                                         Value = dr["UserID"].ToString()
+                                     }
+                                   ).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+                command.Dispose();
+            }
+            return usersList;
         }
     }
 }

@@ -40,8 +40,16 @@ namespace FingerprintsModel
             public bool IsLateArrival { get; set; }
             public string NewReason { get; set; }
 
+            public string ClientName { get; set; }
+
             public int ReasonID { get; set; }
-            public string DateOfTransition { get; set; }
+           public string DateOfTransition { get; set; }
+
+            public List<RosterNew.Attachment> CaseNoteAttachmentList { get; set; }
+
+            public string[] AttachmentIdArray { get; set; }
+
+
         }
 
         public class ClientUsers

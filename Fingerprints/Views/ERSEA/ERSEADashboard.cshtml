@@ -3,6 +3,7 @@
     ViewBag.Title = "ERSEADashboard";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     int i = 0;
+    int j = 0;
 }
 @section MainContentHolder{
     <link href="~/Content/ERSEA/erseamain.css" rel="stylesheet" />
@@ -41,20 +42,42 @@
                 table-layout: fixed;
             }
 
-             .scroll-tbody tr td, .scroll-tbody1 tr td {
-                word-break: break-word;
-            }
-
-              .scroll-tbody1 {
-                display: block;
-            }
-
-                .scroll-tbody1 tr {
-                    display: table;
-                    width: 100%;
-                    table-layout: fixed;
-               
+                .scroll-tbody tr td, .scroll-tbody1 tr td {
+                    word-break: break-word;
                 }
+
+        .scroll-tbody1 {
+            display: block;
+        }
+
+            .scroll-tbody1 tr {
+                display: table;
+                /*width: 100%;*/
+                width: 98.5%;
+                table-layout: fixed;
+            }
+
+        .ersea-table thead tr th {
+            font-size: 16px;
+        }
+
+        .top-header-title-ersea {
+            margin-top: 30px;
+        }
+
+        .pagination-ch {
+            padding: 6px 11px;
+            height: 33px;
+            background: #fff;
+            display: inline-block !important;
+            cursor: pointer;
+            vertical-align: top;
+        }
+
+            .pagination-ch i {
+                font-size: 17px;
+                padding-top: 3px;
+            }
     </style>
     <div class="container-fluid">
         <div class="row">
@@ -68,6 +91,8 @@
 
                 @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
+
+                <input type="hidden" id="CenterCount" value="@Model.listADA.Count().ToString()" />
 
                 <div class="col-xs-12 no-padding">
                     <!---------------------------------------------->
@@ -90,10 +115,10 @@
                                                         <tr>
                                                             <th style="text-align: center;">Zip Code</th>
                                                             <th style="text-align: center;">City Name</th>
-                                                            <th style="text-align: center;">Application by Zip Code (@ViewBag.OverAllApplication)</th>
-                                                            <th style="text-align: center;">Enrollment by Zip Code (@ViewBag.OverAllEnroll)</th>
-                                                            <th style="text-align: center;">Withdrawn by Zip Code (@ViewBag.OverAllWithdrawn)</th>
-                                                            <th style="text-align: center;">Dropped by Zip Code (@ViewBag.OverAllDoped)</th>
+                                                            <th style="text-align: center;">Application (@Model.OverAllApplication)</th>
+                                                            <th style="text-align: center;">Enrollment (@Model.OverAllEnrollment)</th>
+                                                            <th style="text-align: center;">Withdrawn (@Model.OverAllWithdrawn)</th>
+                                                            <th style="text-align: center;">Dropped (@Model.OverAllDropped)</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="ersea-table-head-enroll scroll-tbody">
@@ -106,16 +131,16 @@
                                                                 <td data-title="City Name">
                                                                     <p style="text-align: center;">@obj.CityName</p>
                                                                 </td>
-                                                                <td data-title="Application by Zip Code (@ViewBag.OverAllApplication)">
+                                                                <td data-title="Application (@Model.OverAllApplication)">
                                                                     <p style="text-align: center;">@obj.Application</p>
                                                                 </td>
-                                                                <td data-title="Enrollment by Zip Code (@ViewBag.OverAllEnroll)">
+                                                                <td data-title="Enrollment (@Model.OverAllEnrollment)">
                                                                     <p style="text-align: center;">@obj.Enrollment</p>
                                                                 </td>
-                                                                <td data-title="Withdrawn by Zip Code (@ViewBag.OverAllWithdrawn)">
+                                                                <td data-title="Withdrawn (@Model.OverAllWithdrawn)">
                                                                     <p style="text-align: center;">@obj.Withdrawn</p>
                                                                 </td>
-                                                                <td data-title="Dropped by Zip Code (@ViewBag.OverAllDoped)">
+                                                                <td data-title="Dropped (@Model.OverAllDropped)">
                                                                     <p style="text-align: center;">@obj.Dropped</p>
                                                                 </td>
 
@@ -127,6 +152,40 @@
                                                     </tbody>
                                                 </table>
                                             </div>
+
+                                            <div class="col-xs-12 poppage-slot" style="padding:0px;display:none;">
+                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                                    <div class="pages_display">
+                                                        <ul>
+                                                            <li style="color:#fff;">Display</li>
+                                                            <li>
+                                                                <select id="ddlpagetodisplay" onchange="drawgrid('#FosterDisplaymodal',this);" center="NzU=">
+                                                                    <option value="10" selected="selected">10</option>
+                                                                    <option value="25">25</option>
+                                                                    <option value="50">50</option>
+                                                                    <option value="100">100</option>
+                                                                </select>
+                                                            </li>
+                                                            <li style="color:#fff;">Records Per Page</li>
+                                                        </ul>
+                                                        <div class="clear"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                    <div id="divPaging" class="pagination_wrp">
+                                                        <ul id="ulPaging" class="pagination">
+                                                            <li class="pagination-ch"><i class="fa fa-angle-double-left"></i></li>
+                                                            <li class="pagination-ch" title="Back"><i class="fa fa-angle-left"></i></li>
+                                                            <li title="Select">
+                                                                <select class="select_cl" style="top: 0;" id="ddlpaging" onchange="getListafterupdation('#FosterDisplaymodal', this)" center="NzU="><option value="1">1</option><option value="2">2</option></select>
+                                                            </li>
+                                                            <li class="pagination-ch" title="Next"><i class="fa fa-angle-right"></i></li>
+                                                            <li class="pagination-ch" title="Last"><i class="fa fa-angle-double-right"></i></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
 
 
@@ -144,76 +203,100 @@
 
                                         <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
                                             <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
-                                                <div class="tab_tlt">Center ADA Report<span>@ViewBag.OverAllPercentage%</span></div>
+                                                <div class="tab_tlt">Center ADA Report<span>@Model.OverAllPercentage%</span></div>
                                                 <table class="col-md-12 table-striped table-condensed cf table-change ersea-table">
                                                     <thead class="table-hd scroll-thead" id="ada_head" style="width:100%">
                                                         <tr>
                                                             <th>Center Name</th>
-                                                            <th>Jan</th>
-                                                            <th>Feb</th>
-                                                            <th>Mar</th>
-                                                            <th>Apr</th>
-                                                            <th>May</th>
-                                                            <th>Jun</th>
-                                                            <th>Jul</th>
-                                                            <th>Aug</th>
-                                                            <th>Sep</th>
-                                                            <th>Oct</th>
-                                                            <th>Nov</th>
-                                                            <th>Dec</th>
+                                                       
+                                                            
+                                                            @foreach (var item in Model.MonthOrdersList)
+                                                            {
+                                                                if (j <=2)
+                                                                {
+                                                                    <th style="background:#FF9800;">@item.Text.ToUpper()</th>
+                                                                }
+                                                                else if (j > 2 && j <= 5)
+                                                                {
+                                                                    <th style="background:#dc6eab;">@item.Text.ToUpper()</th>
+
+                                                                }
+                                                                else if (j >5 && j <=8)
+                                                                {
+                                                                    <th style = "background:#8a0fbc;" > @item.Text.ToUpper() </th>
+
+                                                                }
+                                                                else if (j > 8 && j <= 11)
+                                                                {
+                                                                    <th style="background:#33e0ed;"> @item.Text.ToUpper() </th>
+                                                                }
+
+
+                                                                j++;
+                                                            }
+
                                                         </tr>
                                                     </thead>
                                                     <tbody class="ersea-table-head ada_body scroll-tbody" id="ada_body">
-                                                      
+
                                                         @foreach (FingerprintsModel.ADA obj in Model.listADA)
                                                         {
+
                                                             <tr id="tr_ada_@i">
                                                                 <td data-title="Center Name">
                                                                     <p>@obj.CenterName</p>
                                                                 </td>
-                                                                <td data-title="Aug">
-                                                                    <p>@obj.Jan%</p>
-                                                                </td>
-                                                                <td data-title="Sep">
-                                                                    <p>@obj.Feb%</p>
-                                                                </td>
-                                                                <td data-title="Oct">
-                                                                    <p>@obj.Mar%</p>
-                                                                </td>
-                                                                <td data-title="Nov">
-                                                                    <p>@obj.Apr%</p>
-                                                                </td>
-                                                                <td data-title="Dec">
-                                                                    <p>@obj.May%</p>
-                                                                </td>
-                                                                <td data-title="Jan">
-                                                                    <p>@obj.Jun%</p>
-                                                                </td>
+                                                                @foreach (var item2 in Model.MonthOrdersList)
+                                                                {
+                                                                    //var k = Model.FirstMonth;
+                                                                    //var j = Model.MonthOrdersList.Where(x => x.Value == (k%12).ToString()).Select(x => x.Text).ToString();
+                                                                    <td data-title="@item2.Text">
+                                                                        <p>@((decimal)obj[item2.Text])%</p>
+                                                                    </td>
 
-                                                                <td data-title="Mar">
-                                                                    <p>@obj.Jul%</p>
-                                                                </td>
-                                                                <td data-title="Apr">
-                                                                    <p>@obj.Aug%</p>
-                                                                </td>
-                                                                <td data-title="May">
-                                                                    <p>@obj.Sep%</p>
-                                                                </td>
-                                                                <td data-title="Jun">
-                                                                    <p>@obj.Oct%</p>
-                                                                </td>
-                                                                <td data-title="Jul">
-                                                                    <p>@obj.Nov%</p>
-                                                                </td>
-                                                                <td data-title="Feb">
-                                                                    <p>@obj.Dec%</p>
-                                                                </td>
+                                                                }
+
+
+                                                                @*<td data-title="Sep">
+                                                                        <p>@obj.Feb%</p>
+                                                                    </td>
+                                                                    <td data-title="Oct">
+                                                                        <p>@obj.Mar%</p>
+                                                                    </td>
+                                                                    <td data-title="Nov">
+                                                                        <p>@obj.Apr%</p>
+                                                                    </td>
+                                                                    <td data-title="Dec">
+                                                                        <p>@obj.May%</p>
+                                                                    </td>
+                                                                    <td data-title="Jan">
+                                                                        <p>@obj.Jun%</p>
+                                                                    </td>
+
+                                                                    <td data-title="Mar">
+                                                                        <p>@obj.Jul%</p>
+                                                                    </td>
+                                                                    <td data-title="Apr">
+                                                                        <p>@obj.Aug%</p>
+                                                                    </td>
+                                                                    <td data-title="May">
+                                                                        <p>@obj.Sep%</p>
+                                                                    </td>
+                                                                    <td data-title="Jun">
+                                                                        <p>@obj.Oct%</p>
+                                                                    </td>
+                                                                    <td data-title="Jul">
+                                                                        <p>@obj.Nov%</p>
+                                                                    </td>
+                                                                    <td data-title="Feb">
+                                                                        <p>@obj.Dec%</p>
+                                                                    </td>*@
 
                                                             </tr>
                                                             i++;
                                                         }
 
-                                                   
+
                                                     </tbody>
                                                 </table>
 
@@ -226,42 +309,46 @@
                                                             <td data-title="Center Name">
                                                                 <p><strong>TOTAL</strong></p>
                                                             </td>
-                                                            <td data-title="Aug">
-                                                                <p><strong>@ViewBag.TotalPercentage.Jan%</strong></p>
-                                                            </td>
-                                                            <td data-title="Sep">
-                                                                <p><strong>@ViewBag.TotalPercentage.Feb%</strong></p>
-                                                            </td>
-                                                            <td data-title="Oct">
-                                                                <p><strong>@ViewBag.TotalPercentage.Mar%</strong></p>
-                                                            </td>
-                                                            <td data-title="Nov">
-                                                                <p><strong>@ViewBag.TotalPercentage.Apr%</strong></p>
-                                                            </td>
-                                                            <td data-title="Dec">
-                                                                <p><strong>@ViewBag.TotalPercentage.May%</strong></p>
-                                                            </td>
-                                                            <td data-title="Jan">
-                                                                <p><strong>@ViewBag.TotalPercentage.Jun%</strong></p>
-                                                            </td>
-                                                            <td data-title="Feb">
-                                                                <p><strong>@ViewBag.TotalPercentage.Jul%</strong></p>
-                                                            </td>
-                                                            <td data-title="Mar">
-                                                                <p><strong>@ViewBag.TotalPercentage.Aug%</strong></p>
-                                                            </td>
-                                                            <td data-title="Apr">
-                                                                <p><strong>@ViewBag.TotalPercentage.Sep%</strong></p>
-                                                            </td>
-                                                            <td data-title="May">
-                                                                <p><strong>@ViewBag.TotalPercentage.Oct%</strong></p>
-                                                            </td>
-                                                            <td data-title="Jun">
-                                                                <p><strong>@ViewBag.TotalPercentage.Nov%</strong></p>
-                                                            </td>
-                                                            <td data-title="Jul">
-                                                                <p><strong>@ViewBag.TotalPercentage.Dec%</strong></p>
-                                                            </td>
+                                                            @foreach (var item3 in Model.MonthOrdersList)
+                                                            {
+                                                                <td data-title="@item3.Text">
+                                                                    <p><strong>@((decimal)Model.TotalADA[item3.Text])%</strong></p>
+                                                                </td>
+                                                            }
+
+                                                            @*<td data-title="Sep">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Feb%</strong></p>
+                                                                </td>
+                                                                <td data-title="Oct">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Mar%</strong></p>
+                                                                </td>
+                                                                <td data-title="Nov">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Apr%</strong></p>
+                                                                </td>
+                                                                <td data-title="Dec">
+                                                                    <p><strong>@ViewBag.TotalPercentage.May%</strong></p>
+                                                                </td>
+                                                                <td data-title="Jan">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Jun%</strong></p>
+                                                                </td>
+                                                                <td data-title="Feb">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Jul%</strong></p>
+                                                                </td>
+                                                                <td data-title="Mar">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Aug%</strong></p>
+                                                                </td>
+                                                                <td data-title="Apr">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Sep%</strong></p>
+                                                                </td>
+                                                                <td data-title="May">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Oct%</strong></p>
+                                                                </td>
+                                                                <td data-title="Jun">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Nov%</strong></p>
+                                                                </td>
+                                                                <td data-title="Jul">
+                                                                    <p><strong>@ViewBag.TotalPercentage.Dec%</strong></p>
+                                                                </td>*@
 
                                                         </tr>
                                                     </tbody>
@@ -305,9 +392,9 @@
                     e.preventDefault();
                 };
             }
-          
+
         });
-       
+
     </script>
     <script type="text/javascript">
         function toggleIcon(e) {
@@ -321,26 +408,41 @@
         $('.panel-group').on('shown.bs.collapse', toggleIcon);
         $(document).ready(function () {
 
-                var bodyHeight = 0;
-                $(window).on('load', function () {
-                    $('#ada_body').find('tr').each(function (i, k) {
-                        bodyHeight += $(k).height();
-                    });
-                   
-                    var bindBodyHeight = $('#ada_body').height();
+            var bodyHeight = 0;
+            $(window).on('load', function () {
+
+                $('#ada_body').find('tr').each(function (i, k) {
+                    bodyHeight += $(k).height();
+                });
+                debugger;
+                var bindBodyHeight = $('#ada_body').height();
+
+                if (parseInt($('#CenterCount').val()) >= 3) {
 
                     if (bodyHeight < bindBodyHeight) {
                         //$('#ada_body').css({
                         //    'height': bodyHeight
 
                         //});
-                        $('#ada_head').css({ "width": "100%" });
+                        // $('#ada_head').css({ "width": "100%" });
+                        $('#ada_head').css({ "width": "calc( 100% - 17px )" });
+
+                        $('.scroll-tbody1').css('width', '100%')
+
                     }
                     else {
                         $('#ada_head').css({ "width": "calc( 100% - 17px )" });
+                        //$('#ada_head').css({ "width": "100%" });
+                        $('.scroll-tbody1').css('width', '100%')
                     }
+                }
+                else {
+                    $('#ada_head').css({ "width": "100%" });
 
-                });
+                    $('.scroll-tbody1').css('width', '101.5%')
+                }
+
+            });
             $(window).bind("load resize", function () {
 
                 topOffset = 50;
@@ -350,7 +452,7 @@
                 }
 
                 height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
-             
+
                 height = height - topOffset;
                 if (height < 1) height = 1;
                 if (height > topOffset) {
@@ -363,14 +465,13 @@
                 //reSizeContent();
             });
 
-           
-           
+
+
         });
-       
-        function reSizeContent()
-        {
-           
-            $('.scroll-tbody').height($('.right-side-container-ch').height()- 317);
+
+        function reSizeContent() {
+
+            $('.scroll-tbody').height($('.right-side-container-ch').height() - 317);
         }
     </script>
 

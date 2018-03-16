@@ -2172,5 +2172,24 @@ namespace Fingerprints.Controllers
         //    new RosterData().InsertParentDetailsMatrixScore(matrixScore, Session["AgencyID"].ToString(), Session["UserID"].ToString());
         //    return null;
         //}
+
+        /// <summary>
+            /// JsonResult Method to get the Tags Inputs while entering the Tag Name.
+            /// </summary>
+            /// <param name="searchText"></param>
+            /// <returns></returns>
+        public JsonResult GetCaseNoteTagonInput(string searchText)
+        {
+            List<SelectListItem> tagsList = new List<SelectListItem>();
+            try
+            {
+                tagsList = new RosterData().GetCaseNoteTagsonInput(searchText);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(tagsList, JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -93,7 +93,9 @@ namespace FingerprintsModel
         public string centerlist { get; set; }
         public string Rolelist { get; set; }
 
-     
+        public List<PrimaryLanguages> LangList = new List<PrimaryLanguages>();
+
+
 
         public List<HrCenterInfo> centers = new List<HrCenterInfo>();
         public int Id
@@ -326,7 +328,35 @@ namespace FingerprintsModel
        
 
     }
+    public class AcceptanceProcess
+    {
+        public string RoleId { get; set; }
+        public string RoleName { get; set; }
+        public bool IsAcceptance { get; set; }
+     
 
+
+    }
+    public class Demographic
+    {
+        public string RoleId { get; set; }
+        public string RoleName { get; set; }
+        public bool IsDemographic { get; set; }
+        public string UserColor { get; set; }
+
+
+    }
+    //public class DemographicPercentage
+    //{
+    //    public string WorkingParent { get; set; }
+    //    public string TotalChild { get; set; }
+    //    public string Disability { get; set; }
+    //    public string HadDoctor { get; set; }
+    //    public string HadDental { get; set; }
+
+
+    //}
+    
 
     public class TimeZoneinfo
     {

@@ -43,9 +43,12 @@ namespace Fingerprints.Controllers
                 List<ApplicationEnrollment> lstApplication = new List<ApplicationEnrollment>();
                 List<ADA> lstADA = new List<ADA>();
                 List<CityName> lstCityName = new List<CityName>();
+                int firstMonth = 0;
                 new ERSEAData().GetApplicationEnrollmentBasedonZip(ref lstApplication, Session["AgencyID"].ToString());
-                new ERSEAData().GetADABasedonCenter(ref lstADA, Session["AgencyID"].ToString());
+                obj = new ERSEAData().GetADABasedonCenter(ref lstADA, ref firstMonth, Session["AgencyID"].ToString());
                 new ERSEAData().GetCityName(ref lstCityName);
+
+                // var firstnM = Enum.GetName(typeof(Month), 0);
                 if (lstApplication.Count() > 0)
                 {
                     foreach (ApplicationEnrollment objEnroll in lstApplication)
@@ -62,37 +65,56 @@ namespace Fingerprints.Controllers
 
                     }
                 }
-                obj.lstApplication = lstApplication;
-                obj.listADA = lstADA;
-                ADA totalADA = new ADA();
-                int count = lstADA.Count() * 100;
 
-                totalADA.Jan = Math.Round((lstADA.Sum(a => a.Jan) / count) * 100, 0);
-                totalADA.Feb = Math.Round((lstADA.Sum(a => a.Feb) / count) * 100, 0);
-                totalADA.Mar = Math.Round((lstADA.Sum(a => a.Mar) / count) * 100, 0);
-                totalADA.Apr = Math.Round((lstADA.Sum(a => a.Apr) / count) * 100, 0);
-                totalADA.May = Math.Round((lstADA.Sum(a => a.May) / count) * 100, 0);
-                totalADA.Jun = Math.Round((lstADA.Sum(a => a.Jun) / count) * 100, 0);
-                totalADA.Jul = Math.Round((lstADA.Sum(a => a.Jul) / count) * 100, 0);
-                totalADA.Aug = Math.Round((lstADA.Sum(a => a.Aug) / count) * 100, 0);
-                totalADA.Sep = Math.Round((lstADA.Sum(a => a.Sep) / count) * 100, 0);
-                totalADA.Oct = Math.Round((lstADA.Sum(a => a.Oct) / count) * 100, 0);
-                totalADA.Nov = Math.Round((lstADA.Sum(a => a.Nov) / count) * 100, 0);
-                totalADA.Dec = Math.Round((lstADA.Sum(a => a.Dec) / count) * 100, 0);
-                ViewBag.TotalPercentage = totalADA;
-                decimal total = (totalADA.Jan + totalADA.Feb +totalADA.Mar+ totalADA.Apr + totalADA.May + totalADA.Jun + totalADA.Jul + totalADA.Aug + totalADA.Sep + totalADA.Oct + totalADA.Nov + totalADA.Dec);
+
+                //  obj.MonthOrdersList = new List<SelectListItem>();
+                //if (firstMonth > 0)
+                //{
+                //    for (int i = 1; i <= 12; i++)
+                //    {
+                //        int modulus = (firstMonth % 12) == 0 ? 12 : (firstMonth % 12);
+                //        obj.MonthOrdersList.Add(new SelectListItem
+                //        {
+                //            Text = Enum.GetName(typeof(Month), modulus),
+                //            Value = modulus.ToString()
+                //        });
+                //        firstMonth++;
+                //    }
+                //}
+
+                obj.lstApplication = lstApplication;
+                //obj.listADA = lstADA;
+              //  obj.TotalADA = new ADA();
+                int count = (obj.listADA.Count() > 0) ? obj.listADA.Count() * 100 : 0;
+
+                if (count > 0)
+                {
+                    obj.TotalADA.Jan = Math.Round((obj.listADA.Sum(a => a.Jan) / count) * 100, 0);
+                    obj.TotalADA.Feb = Math.Round((obj.listADA.Sum(a => a.Feb) / count) * 100, 0);
+                    obj.TotalADA.Mar = Math.Round((obj.listADA.Sum(a => a.Mar) / count) * 100, 0);
+                    obj.TotalADA.Apr = Math.Round((obj.listADA.Sum(a => a.Apr) / count) * 100, 0);
+                    obj.TotalADA.May = Math.Round((obj.listADA.Sum(a => a.May) / count) * 100, 0);
+                    obj.TotalADA.Jun = Math.Round((obj.listADA.Sum(a => a.Jun) / count) * 100, 0);
+                    obj.TotalADA.Jul = Math.Round((obj.listADA.Sum(a => a.Jul) / count) * 100, 0);
+                    obj.TotalADA.Aug = Math.Round((obj.listADA.Sum(a => a.Aug) / count) * 100, 0);
+                    obj.TotalADA.Sep = Math.Round((obj.listADA.Sum(a => a.Sep) / count) * 100, 0);
+                    obj.TotalADA.Oct = Math.Round((obj.listADA.Sum(a => a.Oct) / count) * 100, 0);
+                    obj.TotalADA.Nov = Math.Round((obj.listADA.Sum(a => a.Nov) / count) * 100, 0);
+                    obj.TotalADA.Dec = Math.Round((obj.listADA.Sum(a => a.Dec) / count) * 100, 0);
+                }
+                decimal total = (obj.TotalADA.Jan + obj.TotalADA.Feb + obj.TotalADA.Mar + obj.TotalADA.Apr + obj.TotalADA.May + obj.TotalADA.Jun + obj.TotalADA.Jul + obj.TotalADA.Aug + obj.TotalADA.Sep + obj.TotalADA.Oct + obj.TotalADA.Nov + obj.TotalADA.Dec);
                 //decimal total = (lstADA.Sum(a => a.Jan) + lstADA.Sum(a => a.Feb) + lstADA.Sum(a => a.Mar) + lstADA.Sum(a => a.Apr) + lstADA.Sum(a => a.May) + lstADA.Sum(a => a.Jun) + lstADA.Sum(a => a.Jul) + lstADA.Sum(a => a.Aug) + lstADA.Sum(a => a.Sep) + lstADA.Sum(a => a.Oct) + lstADA.Sum(a => a.Nov) + lstADA.Sum(a => a.Dec));
-                if(count==0)
+                if (count == 0)
                 {
 
                 }
                 // ViewBag.OverAllPercentage = Math.Round((total / (300)) * 100, 0);
-                ViewBag.OverAllPercentage = Math.Round((total / (12)), 0);
-                ViewBag.OverAllApplication = lstApplication.Sum(a => a.Application);
-                ViewBag.OverAllEnroll = lstApplication.Sum(a => a.Enrollment);
-                ViewBag.OverAllWithdrawn = lstApplication.Sum(a => a.Withdrawn);
-                ViewBag.OverAllDoped = lstApplication.Sum(a => a.Dropped);
-              
+                obj.OverAllPercentage = Math.Round((total / (12)), 0);
+                obj.OverAllApplication = lstApplication.Sum(a => a.Application);
+                obj.OverAllEnrollment = lstApplication.Sum(a => a.Enrollment);
+                obj.OverAllWithdrawn = lstApplication.Sum(a => a.Withdrawn);
+                obj.OverAllDropped = lstApplication.Sum(a => a.Dropped);
+
             }
             catch (Exception ex)
             {
@@ -336,10 +358,10 @@ namespace Fingerprints.Controllers
             {
                 clsError.WriteException(ex);
             }
-            return Json(new { workshopList, centerList,isLink  }, JsonRequestBehavior.AllowGet);
+            return Json(new { workshopList, centerList, isLink }, JsonRequestBehavior.AllowGet);
         }
 
-       
+
 
         [JsonMaxLength]
         public JsonResult GetGraduatingChildByProgram(string programTypeID)
@@ -411,16 +433,25 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
-       public ActionResult GETChildrenByCenter(string CenterID, string programId,int reqPage=0,int pgSize=0,int skipRow=0)
+        public ActionResult GETChildrenByCenter(string centerId,string classRoomId, string programId,  int reqPage = 0, int pgSize = 0, int skipRow = 0, string searchText = "")
         {
             ChildrenInfoClass childrenInfo = new ChildrenInfoClass();
             try
             {
-                var centerId = EncryptDecrypt.Decrypt64(CenterID);
-                var AgencyId = Session["AgencyID"].ToString();
-                ERSEAData centerlist = new ERSEAData();
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString()));
-                childrenInfo = centerlist.GetChildrenByCenter(centerId, AgencyId, programID, reqPage,pgSize, skipRow);
+
+                CenterAnalysisParameters CenterAnalysisParameters = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    ClassRoomId=(classRoomId=="0" || classRoomId=="")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(classRoomId)),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+
+                childrenInfo = new ERSEAData().GetChildrenByCenter(CenterAnalysisParameters);
 
             }
             catch (Exception ex)
@@ -428,63 +459,86 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(ex);
             }
             return Json(childrenInfo, JsonRequestBehavior.AllowGet);
-          
+
         }
 
         [JsonMaxLength]
-        public ActionResult GetChildrenByClassRoom(string CenterId, string classroomId, string programId)
+        public ActionResult GetChildrenByClassRoom(string centerId, string classroomId, string programId, int reqPage = 0, int pgSize = 0, int skipRow = 0)
         {
             List<ChildrenInfo> children_List = new List<ChildrenInfo>();
+            ChildrenInfoClass childInfoClass = new ChildrenInfoClass();
             try
             {
 
-                long dec_CenterId =(CenterId=="0")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(CenterId));
-                long dec_ClassRoomId = (classroomId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
-                long dec_ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                Guid AgencyId = new Guid(Session["AgencyID"].ToString());
-
-                children_List = new ERSEAData().GetChildrenByClassRoom(dec_CenterId, AgencyId, dec_ClassRoomId, dec_ProgramId);
+                CenterAnalysisParameters getchildClassParameter = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    ClassRoomId= (classroomId == "0" || classroomId == "") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId))
+            };
+                childInfoClass = new ERSEAData().GetChildrenByClassRoom(getchildClassParameter);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
-             return Json(children_List, JsonRequestBehavior.AllowGet);
-           
-          
+            return Json(childInfoClass, JsonRequestBehavior.AllowGet);
+
+
         }
 
         [JsonMaxLength]
-        public JsonResult GetEnrolledChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow )
+        public JsonResult GetEnrolledChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
             List<ChildrenInfo> enrolledList = new List<ChildrenInfo>();
 
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
-          
+
             try
             {
-                long centerID =(centerId=="0")?0: Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                childInfo = new ERSEAData().GetEnrolledChildrenData(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
+                // long centerID =(centerId=="0")?0: Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
+                // long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
+
+                CenterAnalysisParameters CenterAnalysisParameters = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+                childInfo = new ERSEAData().GetEnrolledChildrenData(CenterAnalysisParameters);
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
-          
+
             return Json(childInfo, JsonRequestBehavior.AllowGet);
         }
 
         [JsonMaxLength]
-        public JsonResult GetReturningChildren(string centerId, string programId,int reqPage, int pgSize, int skipRow)
+        public JsonResult GetReturningChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
-            List<ChildrenInfo> returningList = new List<ChildrenInfo>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
             try
             {
-                long centerID =(centerId=="0")?0: Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                childInfo = new ERSEAData().GetReturningChildren(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage, pgSize, skipRow);
+                CenterAnalysisParameters returningParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+                childInfo = new ERSEAData().GetReturningChildren(returningParam);
 
             }
             catch (Exception ex)
@@ -495,15 +549,22 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
-        public JsonResult GetGraduatingChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow)
+        public JsonResult GetGraduatingChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
-            List<ChildrenInfo> graduatingList = new List<ChildrenInfo>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
             try
             {
-                long centerID =(centerId=="0")?0: Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                childInfo = new ERSEAData().GetGraduatingChildrenData(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
+                CenterAnalysisParameters gradParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+                childInfo = new ERSEAData().GetGraduatingChildrenData(gradParam);
 
             }
             catch (Exception ex)
@@ -514,78 +575,24 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
-        public JsonResult GetWaitingChildren(string centerId, string programId, int reqPage,int pgSize, int skipRow)
+        public JsonResult GetWaitingChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
-            List<WaitingChildren> waitingList = new List<WaitingChildren>();
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            string jsonData = string.Empty;
-            try
-            {
-                long centerID = (centerId=="0")?0: Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                childInfo = new ERSEAData().GetWatitingChildrenData(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
-                // jsonData = js.Serialize(waitingList);
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            return Json(childInfo, JsonRequestBehavior.AllowGet);
-        }
-
-        [JsonMaxLength]
-        public JsonResult GetWithdrawnChildren(string centerId, string programId,int reqPage,int pgSize,int skipRow)
-        {
-          
-            string jsonData = string.Empty;
-            ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            try
-            {
-                long centerID =(centerId=="0")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                childInfo = new ERSEAData().GetWithdrawnChildList(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);               
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            return Json(childInfo, JsonRequestBehavior.AllowGet);
-        }
-
-        [JsonMaxLength]
-        public JsonResult GetDroppedChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow)
-        {
-            List<WaitingChildren> dropped = new List<WaitingChildren>();
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            ChildrenInfoClass childInfo = new ChildrenInfoClass();
-            string jsonData = string.Empty;
-            try
-            {
-                long centerID =(centerId=="0")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                childInfo = new ERSEAData().GetDroppedChildList(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            return Json(childInfo, JsonRequestBehavior.AllowGet);
-        }
-
-        [JsonMaxLength]
-        public JsonResult GetHomelessChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow)
-        {
-            List<HomelessChildren> homeLessChilren = new List<HomelessChildren>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
             try
             {
 
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                long centerID = (centerId=="0")?0: Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
+                CenterAnalysisParameters waitingParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
 
-                ERSEAData homelessList = new ERSEAData();
-                childInfo = new ERSEAData().GetHomelessChildrenData(centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
+                };
+
+                childInfo = new ERSEAData().GetWatitingChildrenData(waitingParam);
             }
             catch (Exception ex)
             {
@@ -595,18 +602,105 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
-        public JsonResult GetOverIncomeChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow)
+        public JsonResult GetWithdrawnChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
-            List<ChildrenInfo> overIncomeChildList = new List<ChildrenInfo>();
+
+            ChildrenInfoClass childInfo = new ChildrenInfoClass();
+            try
+            {
+                CenterAnalysisParameters withdramParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+
+                childInfo = new ERSEAData().GetWithdrawnChildList(withdramParam);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(childInfo, JsonRequestBehavior.AllowGet);
+        }
+
+        [JsonMaxLength]
+        public JsonResult GetDroppedChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
+        {
+            ChildrenInfoClass childInfo = new ChildrenInfoClass();
+            try
+            {
+                CenterAnalysisParameters droppedParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+
+                childInfo = new ERSEAData().GetDroppedChildList(droppedParam);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(childInfo, JsonRequestBehavior.AllowGet);
+        }
+
+        [JsonMaxLength]
+        public JsonResult GetHomelessChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
+        {
+            ChildrenInfoClass childInfo = new ChildrenInfoClass();
+            try
+            {
+
+                CenterAnalysisParameters homeLessParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+
+                };
+
+                childInfo = new ERSEAData().GetHomelessChildrenData(homeLessParam);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(childInfo, JsonRequestBehavior.AllowGet);
+        }
+
+        [JsonMaxLength]
+        public JsonResult GetOverIncomeChildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
+        {
             List<SelectListItem> ParentList = new List<SelectListItem>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
             try
             {
 
-                long programID = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId));
-                long centerID = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
+                CenterAnalysisParameters overIncomeParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
 
-                childInfo = new ERSEAData().GetOverIncomeChildrenData(out ParentList, centerID, programID, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
+                };
+
+                childInfo = new ERSEAData().GetOverIncomeChildrenData(out ParentList, overIncomeParam);
             }
             catch (Exception ex)
             {
@@ -617,17 +711,22 @@ namespace Fingerprints.Controllers
 
 
         [JsonMaxLength]
-        public JsonResult GetFosterChild(string centerId, string programID, int reqPage, int pgSize, int skipRow)
+        public JsonResult GetFosterChild(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
-            List<FosterChild> fosterchildList = new List<FosterChild>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
             try
             {
-                long centerID = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programId = (programID == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programID));
-                Guid userId = new Guid(Session["UserID"].ToString());
-                Guid AgencyId = new Guid(Session["AgencyId"].ToString());
-                childInfo = new ERSEAData().GetFosterChildData(centerID, programId, userId, AgencyId,reqPage,pgSize,skipRow);
+
+                CenterAnalysisParameters fosterParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+                };
+                childInfo = new ERSEAData().GetFosterChildData(fosterParam);
 
             }
             catch (Exception ex)
@@ -638,17 +737,24 @@ namespace Fingerprints.Controllers
         }
 
         [JsonMaxLength]
-        public JsonResult GetLeadschildren(string centerId, string programID, int reqPage, int pgSize, int skipRow)
+        public JsonResult GetLeadschildren(string centerId, string programId, int reqPage, int pgSize, int skipRow, string searchText = "")
         {
             List<LeadsChildren> leadsChildrenlist = new List<LeadsChildren>();
             ChildrenInfoClass childInfo = new ChildrenInfoClass();
             try
             {
 
-                long CenterID = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
-                long programId = (programID == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programID));
-                Guid userId = new Guid(Session["UserID"].ToString());
-                childInfo = new ERSEAData().GetLeadsChildrenData(CenterID,programId, userId, new Guid(Session["AgencyId"].ToString()),reqPage,pgSize,skipRow);
+                CenterAnalysisParameters leadsParam = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    Skip = skipRow,
+                    Take = pgSize,
+                    RequestedPage = reqPage,
+                    SearchText = searchText
+                };
+
+                childInfo = new ERSEAData().GetLeadsChildrenData(leadsParam);
             }
             catch (Exception ex)
             {
@@ -667,12 +773,12 @@ namespace Fingerprints.Controllers
 
                 item = new ERSEAData().GetChildrenImageData(clientId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
             return Json(item, JsonRequestBehavior.AllowGet);
-        }     
+        }
         public JsonResult GetgeometryByZip(string Zipcode)
         {
             string geometry = string.Empty;
@@ -717,7 +823,7 @@ namespace Fingerprints.Controllers
             bool Result = false;
             try
             {
-                  Result = new ERSEAData().SaveGeoJsonZipcode(zipcode, geometry);                
+                Result = new ERSEAData().SaveGeoJsonZipcode(zipcode, geometry);
             }
             catch (Exception Ex)
             {
@@ -725,6 +831,102 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
-        
+
+
+        public ActionResult DownloadERSEAReport(string centerId, string programId, string reportFor, bool isAllCenter)
+        {
+            try
+            {
+                ChildrenInfoClass infoModel = new ChildrenInfoClass();
+                List<SelectListItem> parentNameList = new List<SelectListItem>();
+                Export export = new Export();
+                Response.Clear();
+                Response.Buffer = true;
+                Response.Charset = "";
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                //Response.AddHeader("content-disposition", "attachment;filename=ERSEA Status Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                CenterAnalysisParameters parameters = new CenterAnalysisParameters
+                {
+                    CenterId = (centerId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId)),
+                    ProgramId = (programId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(programId.ToString())),
+                    RequestedPage = 1,
+                    SearchText = "",
+                    Take = 500,
+                    Skip = 0
+
+                };
+
+                switch (reportFor)
+                {
+                    case "#FosterDisplaymodal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Enrolled Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                        infoModel = new ERSEAData().GetChildrenByCenter(parameters);
+                        break;
+
+                    case "#EnrolledModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Enrolled Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                        infoModel = new ERSEAData().GetEnrolledChildrenData(parameters);
+                        break;
+                    case "#WithdrawnModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Withdrawn Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                        infoModel = new ERSEAData().GetWithdrawnChildList(parameters);
+                        break;
+                    case "#DroppedModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Dropped Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                        infoModel = new ERSEAData().GetDroppedChildList(parameters);
+                        break;
+
+                    case "#WaitingModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Waiting Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                        infoModel = new ERSEAData().GetWatitingChildrenData(parameters);
+                        break;
+                    case "#ReturningModal":
+
+                        Response.AddHeader("content-disposition", "attachment;filename=Returning Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                        infoModel = new ERSEAData().GetReturningChildren(parameters);
+                        break;
+                    case "#GraduatingModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Graduating Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                        infoModel = new ERSEAData().GetGraduatingChildrenData(parameters);
+                        break;
+                    case "#OverIncomeModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Over Income Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                        infoModel = new ERSEAData().GetOverIncomeChildrenData(out parentNameList, parameters);
+                        break;
+                    case "#FosterModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Foster Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                        infoModel = new ERSEAData().GetFosterChildData(parameters);
+                        break;
+                    case "#HomeLessModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=Homeless Client Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                        infoModel = new ERSEAData().GetHomelessChildrenData(parameters);
+                        break;
+                    case "#ExternalLeadsModal":
+                        Response.AddHeader("content-disposition", "attachment;filename=External Leads Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+
+                        infoModel = new ERSEAData().GetLeadsChildrenData(parameters);
+                        break;
+                }
+
+
+                System.IO.MemoryStream ms = export.ExportERSEACenterAnalysisReport(reportFor, infoModel, parentNameList, isAllCenter);
+                ms.WriteTo(Response.OutputStream);
+                Response.Flush();
+                Response.End();
+                return View();
+                // return File(fullPath, "application/vnd.ms-excel", file);
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occured please try again.");
+            }
+        }
+
     }
 }

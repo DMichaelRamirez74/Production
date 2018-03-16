@@ -5002,7 +5002,7 @@ namespace Fingerprints.Controllers
             }
         }
         //Changes on 1Feb2017
-      //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult AddOthersHouseholdAjax(FormCollection obj, HttpPostedFileBase HouseHoldAvatar)
         {
             FamilyHousehold _familyinfo = new FamilyHousehold();
@@ -6230,7 +6230,6 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-    
     
     **/
     

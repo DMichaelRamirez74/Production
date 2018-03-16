@@ -88,6 +88,23 @@ namespace FingerprintsModel
     }
     public class ChildrenInfoClass
     {
+
+        public ChildrenInfoClass()
+        {
+            this.ChildrenList = new List<ChildrenInfo>();
+            this.ClassRoomInfoList = new List<ClassRoomDetails>();
+            this.WaitingChildrenList = new List<WaitingChildren>();
+            this.WithdrawnChildrenList = new List<WaitingChildren>();
+            this.DroppedChildrenList = new List<WaitingChildren>();
+            this.ReturningList = new List<ChildrenInfo>();
+            this.GraduatingList = new List<ChildrenInfo>();
+            this.OverIncomeChildrenList = new List<ChildrenInfo>();
+            this.FosterChildrenList = new List<FosterChild>();
+            this.HomeLessChildrenList = new List<HomelessChildren>();
+            this.LeadsChildrenList = new List<LeadsChildren>();
+            this.TotalRecord = 0;
+        }
+
         public List<ChildrenInfo> ChildrenList { get; set; }
         public List<ClassRoomDetails> ClassRoomInfoList { get; set; }
 
@@ -177,6 +194,11 @@ namespace FingerprintsModel
         public string RejectParentId { get; set; }
         public string ParentId { get; set; }
         public string YakkrStatus { get; set; }
+
+        public string Enc_ClientId { get; set; }
+        public string ClientId { get; set; }
+        public string StaffUserId { get; set; }
+        public string FSWName { get; set; }
     }
 
     public class ClassRoomDetails
@@ -201,6 +223,30 @@ namespace FingerprintsModel
         public long SelectionPoints { get; set; }
         public string CenterChoice { get; set; }
         public string Enc_ClientId { get; set; }
+
+
+    }
+
+    public class CenterAnalysisParameters
+    {
+
+        public CenterAnalysisParameters()
+        {
+            this.StaffDetails = StaffDetails.GetInstance();
+            this.SearchText = string.Empty;
+        }
+        public StaffDetails StaffDetails { get; set; }
+        public int Take { get; set; }
+        public int Skip { get; set; }
+        public string SearchText { get; set; }
+
+        public long ProgramId { get; set; }
+
+        public long CenterId { get; set; }
+
+        public int RequestedPage { get; set; }
+
+        public long ClassRoomId { get; set; }
 
 
     }

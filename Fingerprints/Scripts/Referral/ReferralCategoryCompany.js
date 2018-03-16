@@ -181,7 +181,7 @@
         AddReferral.AgencyId = AgencyId;
         AddReferral.CommunityId = parseInt(commId);
         AddReferral.ReferralClientServiceId = parseInt(ReferralClientServiceId);
-        AddReferral.ClientId = parseInt(ClientId);
+        AddReferral.ClientId = ClientId;
         AddReferral.HouseHoldId = parseInt(HouseHoldId);
 
         $.ajax({
@@ -242,7 +242,6 @@
         }
 
         else if (!isDate($('#datepicker').val())) {
-            debugger;
             $('#errshow').hide();
             $('#errshow').text("");
             $('#errspan').hide();

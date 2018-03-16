@@ -72,6 +72,8 @@ $(function () {
                 $.each(JSON.parse(data), function (i, val) {
                     $('.sp-seats-count').text(val["Count"]);
                     $('.sp-seatpercentage-count').text(val["Percentage"]);
+                    $('.sp-seats-home-count').text(val["HomePresent"]);
+                    $('.sp-seatpercentage-home-count').text(val["HomePercentage"]);
 
                 });
             },
@@ -228,7 +230,7 @@ $(function () {
 
 
 
-   
+    //GoogleChart();
     $('body').on('click', '.dropdown', function () {
         setTimeout(function ()
         { $('.dropdown').addClass('open'); }, 100);

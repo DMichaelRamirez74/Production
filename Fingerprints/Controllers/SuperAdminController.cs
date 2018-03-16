@@ -1365,14 +1365,14 @@ namespace Fingerprints.Controllers
             // return View();
         }
 
-  /**      public ActionResult GetCategoryBySearchText(string SearchText)
+        public ActionResult GetCategoryBySearchText(string SearchText)
         {
             SuperAdminData obj = new SuperAdminData();
             List<SelectListItem> lstItems = new List<SelectListItem>();
             try
             {
                 // if (string.IsNullOrEmpty(FamilyId))
-                obj.GetCategoryBySearchText(ref lstItems, SearchText);
+                obj.GetCategoryBySearchText(ref lstItems,SearchText);
                 //else
                 //    new BillingData().GetClientByFamilyId(ref lstItems, FamilyId, Session["AgencyID"].ToString(), ProgramId, CenterId, SearchText);
             }
@@ -1381,7 +1381,7 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(Ex);
             }
             return Json(lstItems);
-        }**/
+        }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public JsonResult GetWorkshopdetails(string WorkshopID = "0")
         {

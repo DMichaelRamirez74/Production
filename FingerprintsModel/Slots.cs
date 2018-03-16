@@ -10,6 +10,7 @@ namespace FingerprintsModel
     {
         public int SlotId { get; set; }
         public string Slot { get; set; }
+        public string ExistingSlot { get; set; }
         public string AgencyId { get; set; }
         public int ProgramId { get; set; }
         public string ProgramType { get; set; }
