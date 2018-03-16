@@ -3247,18 +3247,18 @@ namespace FingerprintsData
                 MatrixScore.MatrixScoreList = listMatrix;
 
             }
-            if (ds.Tables[2] != null && ds.Tables[2].Rows.Count > 0)
-            {
-                foreach (DataRow dr in ds.Tables[2].Rows)
-                {
-                    Names = new ParentNames();
-                    Names.ParentID = Convert.ToInt32(dr["parentid"]);
-                    Names.ParentName = dr["ParentName"].ToString();
-                    Names.ParentInvolved = DBNull.Value==dr["ParentInvolved"]?0:Convert.ToInt32(dr["ParentInvolved"]);
-                    ParentList.Add(Names);
-                }
-                MatrixScore.ParentList = ParentList;
-            }
+            //if (ds.Tables[2] != null && ds.Tables[2].Rows.Count > 0)
+            //{
+            //    foreach (DataRow dr in ds.Tables[2].Rows)
+            //    {
+            //        Names = new ParentNames();
+            //        Names.ParentID = Convert.ToInt32(dr["parentid"]);
+            //        Names.ParentName = dr["ParentName"].ToString();
+            //        Names.ParentInvolved = DBNull.Value==dr["ParentInvolved"]?0:Convert.ToInt32(dr["ParentInvolved"]);
+            //        ParentList.Add(Names);
+            //    }
+            //    MatrixScore.ParentList = ParentList;
+            //}
         }
               catch (Exception ex)
             {

@@ -3075,10 +3075,10 @@ namespace FingerprintsData
                         if (_dataset.Tables[0].Rows[0]["ParentDisable"].ToString() != "")
                             obj.CParentdisable = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ParentDisable"]);
                         //Added by Santosh For IsIEP IsFSP
-                        if (_dataset.Tables[0].Rows[0]["IsIEP"].ToString() != "")
-                            obj.IsIEP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsIEP"].ToString());
-                        if (_dataset.Tables[0].Rows[0]["IsIFSP"].ToString() != "")
-                            obj.IsIFSP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsIFSP"].ToString());
+                        if (_dataset.Tables[0].Rows[0]["IEP"].ToString() != "")
+                            obj.IsIEP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IEP"].ToString());
+                        if (_dataset.Tables[0].Rows[0]["IFSP"].ToString() != "")
+                            obj.IsIFSP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IFSP"].ToString());
                         if (_dataset.Tables[0].Rows[0]["IsExpired"].ToString() != "")
                             obj.IsExpired = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsExpired"].ToString());
                         //
