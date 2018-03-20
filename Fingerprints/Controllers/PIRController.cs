@@ -10,6 +10,7 @@ using System.Threading;
 using System.Globalization;
 using FingerprintsData;
 using Fingerprints.Filters;
+using System.Web.Script.Serialization;
 
 namespace Fingerprints.Controllers
 {
@@ -40,6 +41,56 @@ namespace Fingerprints.Controllers
                 //Session["PIRQuestion"] = _PIR.pirQuestion;
 
            
+        }
+		
+		 /// <summary>
+        /// Get the Staff under the PIR Access Roles.
+        /// </summary>
+        /// <returns></returns>
+        public JsonResult GetPIRUsers(int reqPage, int pgSize, int skipRow, string searchText = "")
+        {
+            PIRAccessStaffs pirStaffs = new PIRAccessStaffs();
+
+            try
+            {
+                pirStaffs.RequestedPage = reqPage;
+                pirStaffs.Skip = skipRow;
+                pirStaffs.SearchText = searchText;
+                pirStaffs.Take = pgSize;
+                pirStaffs = new PIRData().GetPIRUsers(pirStaffs);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(pirStaffs, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Ajax JsonResult method to insert the staff's record for allow/disallow the Section B in PIR.
+        /// </summary>
+        /// <param name="pirAccessStaffs"></param>
+        /// <returns></returns>
+        public JsonResult InsertPIRSectionBAccessStaffs(string pirAccessStaffs="")
+        {
+            bool isResult = false;
+            try
+            {
+                PIRAccessStaffs staffAccess = new PIRAccessStaffs();
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                staffAccess = serializer.Deserialize<PIRAccessStaffs>(pirAccessStaffs);
+
+                isResult = new PIRData().InsertPIRSectionBAccessStaffs(staffAccess);
+
+            
+            }
+            catch(Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+            return Json(isResult, JsonRequestBehavior.AllowGet);
         }
        
     }

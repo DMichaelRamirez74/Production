@@ -554,10 +554,10 @@ namespace FingerprintsData
                                 }
                                 DateTime dt1 = new DateTime();
                                 DateTime.TryParse(dr["programstartDate"].ToString(), out dt1);
-                                objprog.programstartDate = dt.ToString("MM/dd/yyyy");
+                                objprog.programstartDate = dt1.ToString("MM/dd/yyyy");
                                 DateTime dt2 = new DateTime();
                                 DateTime.TryParse(dr["programendDate"].ToString(), out dt2);
-                                objprog.programendDate = dt.ToString("MM/dd/yyyy");
+                                objprog.programendDate = dt2.ToString("MM/dd/yyyy");
                                 listfundprog.Add(objprog);
                             }
                             obj.progtypelist = listfundprog;
@@ -3607,6 +3607,115 @@ namespace FingerprintsData
                 command.Dispose();
             }
             return usersList;
+        }
+        /// <summary>
+        /// method to get the List of  Roles to access the PIR Section.
+        /// </summary>
+        /// <returns></returns>
+        public List<PIRAccessRoles> GetPIRAccessRoles()
+        {
+            List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetPIRAccessRoles";
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        pirAccessrolesList = _dataset.Tables[0].AsEnumerable().OrderBy(x => x.Field<string>("RoleName")).Select(x => new PIRAccessRoles
+                        {
+                            RoleId = x.Field<Guid>("RoleId"),
+                            RoleName = x.Field<String>("RoleName"),
+                            IsAccessPIR = x.Field<bool>("IsAccessPIR")
+                        }).ToList();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return pirAccessrolesList;
+        }
+        /// <summary>
+        /// method to insert the allowed PIR Roles in the database.
+        /// </summary>
+        /// <param name="isRowsAffected"></param>
+        /// <param name="accessRolesList"></param>
+        /// <returns></returns>
+        public List<PIRAccessRoles> InsertPIRAccessRoles(out int isRowsAffected, List<PIRAccessRoles> accessRolesList)
+        {
+            List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
+
+            isRowsAffected = 0;
+            DataTable pirAccessdt = new DataTable();
+
+            pirAccessdt.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("PIRTeamId", typeof(int)),
+                    new DataColumn("AgencyId",typeof(Guid)),
+                    new DataColumn("RoleId",typeof(Guid)),
+                    new DataColumn("IsShowPIR",typeof(bool)),
+                    new DataColumn("Status",typeof(bool))
+
+                    });
+
+
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                foreach (var item in accessRolesList)
+                {
+                    pirAccessdt.Rows.Add(0, staffDetails.AgencyId, item.RoleId, item.IsAccessPIR, (item.IsAccessPIR) ? true : false);
+                }
+
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@PIRAccessRolesType", pirAccessdt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_InsertPIRAccessRoles";
+                Connection.Open();
+                isRowsAffected = command.ExecuteNonQuery();
+                if (isRowsAffected > 0)
+                {
+                    pirAccessrolesList = this.GetPIRAccessRoles();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return pirAccessrolesList;
         }
     }
 }

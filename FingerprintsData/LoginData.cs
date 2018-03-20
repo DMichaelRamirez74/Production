@@ -52,6 +52,8 @@ namespace FingerprintsData
                             Login.AgencyId = Guid.Parse(_Dataset.Tables[0].Rows[0]["AgencyId"].ToString());
                         else
                             Login.AgencyId = null;
+                        Login.IsShowPIR = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowPIR"]);
+                        Login.IsShowSectionB = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowSectionB"]);
                     }
                     if (_Dataset != null && _Dataset.Tables.Count > 1 && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0)
                     {
