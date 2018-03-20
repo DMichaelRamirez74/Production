@@ -7,6 +7,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
 using FingerprintsModel;
+using System.Web.Mvc;
+
 namespace FingerprintsData
 {
     public class SuperAdminData
@@ -1460,6 +1462,40 @@ namespace FingerprintsData
             }
         }
 
+        public void GetCategoryBySearchText(ref List<SelectListItem> lstItems, string SearchText)
+        {
+            lstItems = new List<SelectListItem>();
+            _dataset = new DataSet();
+            try
+            {
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_SearchCategory";
+                command.Parameters.AddWithValue("@SearchText", SearchText);
+                DataAdapter = new SqlDataAdapter(command);
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            lstItems.Add(new SelectListItem { Text = dr["Category"].ToString(), Value = dr["Category"].ToString() });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+        }
         public Workshop GetWorkshopinfo(string WorkshopID, string agencyId)
         {
             Workshop obj = new Workshop();

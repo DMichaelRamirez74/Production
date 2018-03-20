@@ -12,7 +12,7 @@ namespace FingerprintsModel
         public Guid AgencyID { get; set; }        
         public Guid ImageId { get; set; }
         public bool PassFailCode { get; set; }
-        public Int64? CenterId { get; set; }
+        public Int64 CenterId { get; set; }
         public Int64 ClassRoomId { get; set; }
         public Guid StaffId { get; set; }
         public DateTime? Date { get; set; }
