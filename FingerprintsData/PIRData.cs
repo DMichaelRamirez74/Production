@@ -89,6 +89,12 @@ namespace FingerprintsData
                          _PIR.A_20B_1 = dr["A20B_1"].ToString();
                          _PIR.A_20B_2 = dr["A20B_2"].ToString();
                          _PIR.A_20B_3 = dr["A20B_3"].ToString();
+                         _PIR.A_21 = dr["A21"].ToString();
+                         _PIR.A_22 = dr["A22"].ToString();
+                         _PIR.A_22_A = dr["A22A"].ToString();
+                         _PIR.A_22_B = dr["A22B"].ToString();
+
+
                          _PIR.A_25a1 = dr["A25a1"].ToString();
                          _PIR.A_25a2 = dr["A25a2"].ToString();
                          _PIR.A_25b1 = dr["A25b1"].ToString();
@@ -140,15 +146,28 @@ namespace FingerprintsData
                            _PIR.C_3C_2 = dr["C3C_EndEnroll"].ToString();
                            _PIR.C_3D_1 = dr["C3D_AtEnroll"].ToString();
                            _PIR.C_3D_2 = dr["C3D_EndEnroll"].ToString();
-                        /*   _PIR.C_4_1 = dr["C4_AtEnroll"].ToString();
-                           _PIR.C_4_2 = dr["C4_EndEnroll"].ToString();
-                           _PIR.C_5_1 = dr["C5_AtEnroll"].ToString();
-                           _PIR.C_5_2 = dr["C5_EndEnroll"].ToString();
-                           _PIR.C_6_1 = dr["C6_AtEnroll"].ToString();
-                           _PIR.C_6_2 = dr["C6_EndEnroll"].ToString();
-                           _PIR.C_8_1 = dr["C8_AtEnroll"].ToString();
-                           _PIR.C_8_2 = dr["C8_EndEnroll"].ToString();
-                           **/
+                           _PIR.C_4_1 = dr["C4_1"].ToString();
+                           _PIR.C_4_2 = dr["C4_2"].ToString();
+                           _PIR.C_14_A = dr["C14A"].ToString();
+                           _PIR.C_14_B = dr["C14B"].ToString();
+                           _PIR.C_14_C = dr["C14C"].ToString();
+                           _PIR.C_14_D = dr["C14D"].ToString();
+                           _PIR.C_14_E = dr["C14E"].ToString();
+                           _PIR.C_14_F = dr["C14F"].ToString();
+                           _PIR.C_14_G = dr["C14G"].ToString();
+                           _PIR.C_15_A = dr["C15A"].ToString();
+                           _PIR.C_15_B = dr["C15B"].ToString();
+                           _PIR.C_15_C = dr["C15C"].ToString();
+                           _PIR.C_21 = dr["C21"].ToString();
+
+                        
+                                            /*   _PIR.C_5_1 = dr["C5_AtEnroll"].ToString();
+                                              _PIR.C_5_2 = dr["C5_EndEnroll"].ToString();
+                                              _PIR.C_6_1 = dr["C6_AtEnroll"].ToString();
+                                              _PIR.C_6_2 = dr["C6_EndEnroll"].ToString();
+                                              _PIR.C_8_1 = dr["C8_AtEnroll"].ToString();
+                                              _PIR.C_8_2 = dr["C8_EndEnroll"].ToString();
+                                              **/
 
                     }
 
