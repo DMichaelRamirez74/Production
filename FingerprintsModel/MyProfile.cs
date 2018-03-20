@@ -63,5 +63,13 @@ namespace FingerprintsModel
         public string FBFileUploaded { get; set; }
         public string BCIFileUploaded { get; set; }
         public string NCFileUploaded { get; set; }
+       public List<PrimaryLanguages> LangList { get; set; }
+    }
+    public class PrimaryLanguages
+    {
+        public int LanguageId { get; set; }
+        public string LanguageName { get; set; }
+        public bool IsSpoken { get; set; }
+        public string OtherLanguage { get; set; }
     }
 }
