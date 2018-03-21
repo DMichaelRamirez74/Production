@@ -188,8 +188,7 @@ namespace FingerprintsData
 
             command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-              //  command.CommandText = "SP_getPIR";
-            command.CommandText = "SP_getPIR_Client_03_20_2018";
+                command.CommandText = "SP_getPIR";
 
             DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
