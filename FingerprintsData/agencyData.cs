@@ -351,6 +351,23 @@ namespace FingerprintsData
                         command.Parameters["@UsrID"].Size = 50;
                         command.Parameters.Add(new SqlParameter("@AgncyCode", string.Empty)).Direction = ParameterDirection.Output;
                         command.Parameters["@AgncyCode"].Size = 50;
+                        // to add primary language
+
+                        DataTable dt = new DataTable();
+                        dt.Columns.AddRange(new DataColumn[3] {
+                                 new DataColumn("LanguageId", typeof(string)),
+                                 new DataColumn("IsSpoken",typeof(bool)),
+                                  new DataColumn("OtherLanguage",typeof(string))
+                    });
+                        foreach (PrimaryLanguages lang in obj.LangList)
+                        {
+                            if (lang.LanguageId != 0 && lang.IsSpoken)
+                            {
+                                dt.Rows.Add(lang.LanguageId, lang.IsSpoken,lang.OtherLanguage);
+
+                            }
+                        }
+                        command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
                         command.CommandType = CommandType.StoredProcedure;
                         command.ExecuteNonQuery();
                         res = command.Parameters["@result"].Value.ToString();
@@ -407,6 +424,7 @@ namespace FingerprintsData
                         agency.agencyCode = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyCode"]);
                         agency.agencyId = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyId"]);
                         agency.agencyName = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyName"]);
+                        agency.AcceptanceProcess = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WaterFallOrLinear"]);
                         if (!string.IsNullOrEmpty((_dataset.Tables[0].Rows[0]["city"]).ToString()))
                             agency.city = (_dataset.Tables[0].Rows[0]["city"]).ToString();
                         else
@@ -686,6 +704,7 @@ namespace FingerprintsData
         {
             //  List<AgencyStaff> _agencyStafflist = new List<AgencyStaff>();
             AgencyStaff _staff = new AgencyStaff();
+            PrimaryLanguages language = new PrimaryLanguages();
 
             try
             {
@@ -698,6 +717,7 @@ namespace FingerprintsData
                         ds = new DataSet();
                         command.Connection = Connection;
                         command.CommandText = "Sp_Sel_AgencyUser_Dropdowndata";
+                        command.Parameters.Add(new SqlParameter("@AgencyStaffId", id));
                         if (!string.IsNullOrEmpty(agencyid))
                             command.Parameters.Add(new SqlParameter("@agencyID", agencyid));
                         command.CommandType = CommandType.StoredProcedure;
@@ -896,6 +916,20 @@ namespace FingerprintsData
                     }
                     _staff.Classroom = classlist;
                 }
+                if (ds.Tables[12].Rows.Count > 0)
+                {
+
+                    foreach (DataRow dr in ds.Tables[12].Rows)
+                    {
+                        language = new PrimaryLanguages();
+                        language.LanguageId = Convert.ToInt32(dr["LanguageID"]);
+                        language.LanguageName = Convert.ToString(dr["PrimaryLanguage"]);
+                        language.OtherLanguage = Convert.ToString(dr["OtherLanguage"]);
+                        language.IsSpoken = ((dr["IsSpoken"]) == DBNull.Value) ? false : true;
+                        _staff.LangList.Add(language);
+                    }
+
+                }
                 //if (ds.Tables[11] != null && ds.Tables[11].Rows.Count > 0)
                 //{
 
@@ -926,6 +960,7 @@ namespace FingerprintsData
         }
         public AgencyStaff GetAgencyStaffDetail(Guid id, AgencyStaff obj)
         {
+            PrimaryLanguages language = new PrimaryLanguages();
             //AgencyStaff obj = new AgencyStaff();
             try
             {
@@ -1017,6 +1052,19 @@ namespace FingerprintsData
 
 
                 }
+                //if (ds.Tables[4].Rows.Count > 0)
+                //{
+
+                //    foreach (DataRow dr in ds.Tables[4].Rows)
+                //    {
+                //        language = new PrimaryLanguages();
+                //        language.LanguageId = Convert.ToInt32(dr["LanguageID"]);
+                //        language.LanguageName = Convert.ToString(dr["PrimaryLanguage"]);
+                //        language.IsSpoken = ((dr["IsSpoken"]) == DBNull.Value) ? false : true;
+                //        obj.LangList.Add(language);
+                //    }
+
+                //}
                 obj.HrcenterList = centerList;
                 #region
                 DataTable dtcenter = new DataTable();
@@ -1346,6 +1394,9 @@ namespace FingerprintsData
                             obj.AccessStop = dr["AccessStop"].ToString();
                             obj.TimeZoneID = dr["TimeZone_ID"].ToString();
                             obj.ActiveProgYear = dr["ActiveProgramYear"].ToString();
+                            obj.Slots = Convert.ToInt32(dr["Slots"]);
+                            obj.SlotId = Convert.ToInt32(dr["SlotId"]);
+
 
                             AgencyList.Add(obj);
                         }
@@ -2398,7 +2449,7 @@ namespace FingerprintsData
         {
             //  List<AgencyStaff> _agencyStafflist = new List<AgencyStaff>();
             AgencyStaff _staff = new AgencyStaff();
-
+            PrimaryLanguages language = new PrimaryLanguages();
             try
             {
                 DataSet ds = null;
@@ -2409,9 +2460,11 @@ namespace FingerprintsData
                     {
                         ds = new DataSet();
                         command.Connection = Connection;
+                        command.Parameters.Clear();
                         command.CommandText = "Sp_Sel_AgencyUser_Dropdowndata";
                         command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@agencyID", agencyid));
+                        command.Parameters.Add(new SqlParameter("@AgencyStaffId", id));
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
                     }
@@ -2565,7 +2618,20 @@ namespace FingerprintsData
                     //TimeZonelist.Insert(0, new TimeZoneinfo() { TimZoneId = "0", TimZoneName = "Select" });
                     _staff.TimeZonelist = TimeZonelist;
                 }
+                if (ds.Tables[12].Rows.Count > 0)
+                {
 
+                    foreach (DataRow dr in ds.Tables[12].Rows)
+                    {
+                        language = new PrimaryLanguages();
+                        language.LanguageId = Convert.ToInt32(dr["LanguageID"]);
+                        language.LanguageName = Convert.ToString(dr["PrimaryLanguage"]);
+                        language.OtherLanguage= Convert.ToString(dr["OtherLanguage"]);
+                        language.IsSpoken = ((dr["IsSpoken"]) == DBNull.Value) ? false : true;
+                        _staff.LangList.Add(language);
+                    }
+
+                }
 
                 if (i == 1)
                 {
@@ -3075,6 +3141,7 @@ namespace FingerprintsData
             }
             return _CoreTeamList;
         }
+
         public List<Demographic> GetDemographicSection(string AgencyId, string UserId)
         {
             List<Demographic> _DemographicList = new List<Demographic>();
@@ -3116,6 +3183,48 @@ namespace FingerprintsData
                     Connection.Close();
             }
             return _DemographicList;
+        }
+
+        public List<AcceptanceRole> GetAcceptanceProcess(string AgencyId)
+        {
+            List<AcceptanceRole> _AcceptanceProcessList = new List<AcceptanceRole>();
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+              
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GetAcceptanceProcess";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        AcceptanceRole obj = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            obj = new AcceptanceRole();
+                            obj.RoleID =new Guid( dr["Roleid"].ToString());
+                          obj.isAllowIncome = Convert.ToBoolean(dr["isAllowIncome"]);
+                            obj.Priority = Convert.ToInt32(dr["PriorityLevel"]);
+                          
+                            _AcceptanceProcessList.Add(obj);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return _AcceptanceProcessList;
         }
         public List<CoreTeam> SaveCoreTeam(ref string message, List<CoreTeam> CoreTeams, string AgencyId, string UserId)
         {
@@ -3178,6 +3287,7 @@ namespace FingerprintsData
             }
             return _CoreTeamList;
         }
+
         public List<Demographic> SaveDemographic(ref string message, List<Demographic> Demographics, string AgencyId, string UserId)
         {
             List<Demographic> _DemographicList = new List<Demographic>();
@@ -3239,6 +3349,70 @@ namespace FingerprintsData
             }
             return _DemographicList;
         }
+        public List<AcceptanceProcess> SaveAcceptanceProcess(ref string message, List<AcceptanceProcess> AcceptanceProcess, string AgencyId, string UserId)
+        {
+            List<AcceptanceProcess> _AcceptanceProcessList = new List<AcceptanceProcess>();
+            string result = "";
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
+                //command.Parameters.Add(new SqlParameter("@UserColor", string.Empty));
+                command.Parameters["@result"].Direction = ParameterDirection.Output;
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[2] {
+                    new DataColumn("RoleId", typeof(string)),
+                      new DataColumn("IsAcceptance",typeof(bool)),
+
+
+                    });
+                foreach (AcceptanceProcess Team in AcceptanceProcess)
+                {
+                    if (Team.RoleId != null && Team.IsAcceptance)
+                    {
+                        dt.Rows.Add(Team.RoleId, Team.IsAcceptance);
+
+                    }
+                }
+                command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveAcceptanceRole";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                message = command.Parameters["@result"].Value.ToString();
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        AcceptanceProcess obj = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            obj = new AcceptanceProcess();
+                            obj.RoleId = dr["Roleid"].ToString();
+                            obj.RoleName = dr["Rolename"].ToString();
+                            obj.IsAcceptance = Convert.ToBoolean(dr["IsAcceptance"]);
+                            //  obj.UserColor = dr["UserColor"].ToString();
+                            _AcceptanceProcessList.Add(obj);
+                        }
+                    }
+                }
+                result = command.Parameters["@result"].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return _AcceptanceProcessList;
+        }
+
         public AgencySlots GetRefProgram(string Agencyid)
         {
             AgencySlots agencySlot = new AgencySlots();
@@ -3564,6 +3738,8 @@ namespace FingerprintsData
             return HomeBasedList;
 
         }
+
+
         public List<SelectListItem> GetUsersByRoleId(string roleId, string agencyId)
         {
             List<SelectListItem> usersList = new List<SelectListItem>();
@@ -3608,114 +3784,215 @@ namespace FingerprintsData
             }
             return usersList;
         }
-        /// <summary>
-        /// method to get the List of  Roles to access the PIR Section.
-        /// </summary>
-        /// <returns></returns>
-        public List<PIRAccessRoles> GetPIRAccessRoles()
+
+        public AgencyAdditionalSlots GetAdditionalSlotDetails(string AgencyId, string UserId, string yakkrid)
         {
-            List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
+            AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
             try
             {
-                StaffDetails staffDetails = StaffDetails.GetInstance();
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                command.Connection = Connection;
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
-                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
-                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+
+                command.Parameters.Add(new SqlParameter("@userid", UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@yakkrid", yakkrid));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetPIRAccessRoles";
-                Connection.Open();
+                command.CommandText = "SP_GetAddtionalSeatsDetails";
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
-                Connection.Close();
-                if (_dataset != null)
+
+                if (_dataset.Tables[0] != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        pirAccessrolesList = _dataset.Tables[0].AsEnumerable().OrderBy(x => x.Field<string>("RoleName")).Select(x => new PIRAccessRoles
-                        {
-                            RoleId = x.Field<Guid>("RoleId"),
-                            RoleName = x.Field<String>("RoleName"),
-                            IsAccessPIR = x.Field<bool>("IsAccessPIR")
-                        }).ToList();
+                        slots.SlotsCount = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Slots"]);
+
                     }
                 }
-
             }
             catch (Exception ex)
             {
+
                 clsError.WriteException(ex);
+
             }
             finally
             {
-                Connection.Dispose();
-                DataAdapter.Dispose();
-                _dataset.Dispose();
+                if (Connection != null)
+                    Connection.Close();
             }
-            return pirAccessrolesList;
+            return slots;
+
         }
-        /// <summary>
-        /// method to insert the allowed PIR Roles in the database.
-        /// </summary>
-        /// <param name="isRowsAffected"></param>
-        /// <param name="accessRolesList"></param>
-        /// <returns></returns>
-        public List<PIRAccessRoles> InsertPIRAccessRoles(out int isRowsAffected, List<PIRAccessRoles> accessRolesList)
+
+
+
+        public bool SaveAdditionalSeats(string AgencyId, string UserId, List<AgencyAdditionalSlots> Seats, int YakkrID)
         {
-            List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
-
-            isRowsAffected = 0;
-            DataTable pirAccessdt = new DataTable();
-
-            pirAccessdt.Columns.AddRange(new DataColumn[5] {
-                    new DataColumn("PIRTeamId", typeof(int)),
-                    new DataColumn("AgencyId",typeof(Guid)),
-                    new DataColumn("RoleId",typeof(Guid)),
-                    new DataColumn("IsShowPIR",typeof(bool)),
-                    new DataColumn("Status",typeof(bool))
-
-                    });
-
-
+            AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
+            bool result = false;
             try
             {
-                StaffDetails staffDetails = StaffDetails.GetInstance();
-                foreach (var item in accessRolesList)
-                {
-                    pirAccessdt.Rows.Add(0, staffDetails.AgencyId, item.RoleId, item.IsAccessPIR, (item.IsAccessPIR) ? true : false);
-                }
-
-
-
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
+                Connection.Open();
                 command.Connection = Connection;
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
-                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
-                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
-                command.Parameters.Add(new SqlParameter("@PIRAccessRolesType", pirAccessdt));
+                DataTable dt = new DataTable();
+                if (Seats != null && Seats.Count > 0)
+                {
+
+                    dt.Columns.AddRange(new DataColumn[4] {
+                    new DataColumn("CenterId", typeof(int)),
+                    new DataColumn("ClassId",typeof(int)),
+                    new DataColumn("SeatCount",typeof(int)),
+                    new DataColumn("ProgramType",typeof(string)),
+
+                    });
+                    foreach (AgencyAdditionalSlots seat in Seats)
+                    {
+                        if (seat != null)
+                        {
+                            dt.Rows.Add(seat.CenterId, seat.ClassroomId, seat.Seats, seat.ProgramType);
+                        }
+                    }
+                    //command.Parameters.Add(new SqlParameter("@tblphone", dt));
+
+                }
+                command.Parameters.Add(new SqlParameter("@CreatedBy", UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@Yakkrid", YakkrID));
+                command.Parameters.Add(new SqlParameter("@AdditionalSeats", dt));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_InsertPIRAccessRoles";
-                Connection.Open();
-                isRowsAffected = command.ExecuteNonQuery();
-                if (isRowsAffected > 0)
-                {
-                    pirAccessrolesList = this.GetPIRAccessRoles();
-                }
+                command.CommandText = "SP_InsertAdditionalSeats";
+                int isrowaffected = command.ExecuteNonQuery();
+                if (isrowaffected > 0)
+                    result = true;
+
 
             }
             catch (Exception ex)
             {
+
                 clsError.WriteException(ex);
+
             }
-            return pirAccessrolesList;
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return result;
+
         }
+
+        public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles)
+        {
+            AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
+            bool result = false;
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                DataTable dt = new DataTable();
+                if (Roles != null && Roles.Count > 0)
+                {
+
+                    dt.Columns.AddRange(new DataColumn[3] {
+                    new DataColumn("RoleId", typeof(Guid)),
+                    new DataColumn("PriorityLevel",typeof(int)),
+                      new DataColumn("IsAllowIncome",typeof(bool)),
+
+                    });
+                    foreach (AcceptanceRole role in Roles)
+                    {
+                        if (role != null)
+                        {
+                            dt.Rows.Add(role.RoleID,role.Priority,role.isAllowIncome);
+                        }
+                    }
+                 
+
+                }
+                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@result", ""));
+                command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveAcceptanceRole";
+                int isrowaffected = command.ExecuteNonQuery();
+                if (isrowaffected > 0)
+                    result = true;
+
+
+            }
+            catch (Exception ex)
+            {
+
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return result;
+
+        }
+        
+
+
+        //public List<SelectListItem> GetFamiliesUnderUserId(string userId, string agencyId,string roleId)
+        //{
+        //    List<SelectListItem> usersList = new List<SelectListItem>();
+        //    try
+        //    {
+        //        if (Connection.State == ConnectionState.Open)
+        //            Connection.Close();
+        //        Connection.Open();
+        //        command.Connection = Connection;
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "USP_GetFamiliesUnderUserId";
+        //        command.Parameters.Clear();
+        //        command.Parameters.Add(new SqlParameter("@Agencyid", agencyId));
+        //        command.Parameters.Add(new SqlParameter("@UserId", userId));
+        //        command.Parameters.Add(new SqlParameter("@RoleId", roleId));
+
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataset = new DataSet();
+        //        DataAdapter.Fill(_dataset);
+        //        if (_dataset != null)
+        //        {
+        //            if (_dataset.Tables[0].Rows.Count > 0)
+        //            {
+        //                usersList = (from DataRow dr in _dataset.Tables[0].Rows
+        //                             select new SelectListItem
+        //                             {
+        //                                 Text = dr["clientFamily"].ToString(),
+        //                                 Value = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString())
+        //                             }
+        //                           ).ToList();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+
+        //    }
+        //    finally
+        //    {
+        //        if (Connection != null)
+        //            Connection.Close();
+        //        command.Dispose();
+        //    }
+        //    return usersList;
+        //}
     }
 }
