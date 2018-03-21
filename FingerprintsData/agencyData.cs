@@ -159,6 +159,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@FSWYearlyVisit", agencyDetails.FSWYearlyVisit));
                 command.Parameters.Add(new SqlParameter("@Areabreakdown", agencyDetails.Areabreakdown));
                 command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
+                command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
 
                 HttpPostedFileBase _file = agencyDetails.logo;
@@ -1683,6 +1684,20 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@AvtrH", obj.AvatarhUrl);
                 command.Parameters.AddWithValue("@Avtrs", obj.AvatarsUrl);
                 command.Parameters.AddWithValue("@AvtrT", obj.AvatartUrl);
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[2] {
+                                 new DataColumn("LanguageId", typeof(string)),
+                                 new DataColumn("IsSpoken",typeof(bool))
+                    });
+                foreach (PrimaryLanguages lang in obj.LangList)
+                {
+                    if (lang.LanguageId != 0 && lang.IsSpoken)
+                    {
+                        dt.Rows.Add(lang.LanguageId, lang.IsSpoken);
+
+                    }
+                }
+                command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.CommandText = "SP_Staff_Personalinfo";
                 command.ExecuteNonQuery();
