@@ -13349,10 +13349,10 @@ namespace FingerprintsData
                 //                per.StaffOtherLang = Convert.ToInt32(dr["SpeakersCount"]);
                 //                break;
 
-                //        }
-                    }
+              //        }
+               //     }
 
-                }
+               // }
             }
             catch (Exception ex)
             {

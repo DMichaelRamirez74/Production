@@ -5,6 +5,8 @@ var pageSize = 10;
 var StartIndex = 0;
 var LastIndex = 0;
 var numOfPages = 0;
+var searchText = '';
+var skip = 0;
 
 var totalRecords = 0;
 $(document).ready(function () {
@@ -49,7 +51,7 @@ $(document).ready(function () {
     getList(0);
 });
 $('#searchByprogramId').click(function () {
-    var Prog_Id = $('.select_programType option:selected').val();;
+    var Prog_Id = $('.select_programType option:selected').val();
     getList(Prog_Id);
 });
 
@@ -380,7 +382,9 @@ $('#centerTable').on('click', '.center-name', function () {
     var center_Name = $(this).html();
     var ProgramId = $('.select_programType').val();
     $('#FosterDisplaymodal').find('#centerName').html(center_Name);
+    $('#FosterDisplaymodal').find('#Centers1').find('option').remove();
 
+    $('#FosterDisplaymodal').find('.searchTextAll').val('');
     requestedPage = 1;
     pageSize = 10;
     Displayrosters(centerId, ProgramId, requestedPage, pageSize);
@@ -391,12 +395,15 @@ $('#centerTable').on('click', '.center-name', function () {
 });
 
 $('#centerTable').on('click', '.enroll-count', function () {
+
+
     if ($(this).html() == '0') {
         return false;
     }
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#EnrolledModal').find('.searchTextAll').val('');
     requestedPage = 1;
     pageSize = 10;
     getEnrolledChildrens(center_ID, ProgramId, requestedPage, pageSize);
@@ -414,6 +421,7 @@ $('#centerTable').on('click', '.withdrawn-count', function () {
     lengthTd = $(this).html();
     var Wait_center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#WithdrawnModal').find('.searchTextAll').val('');
     requestedPage = 1;
     pageSize = 10;
     getWithdrawnChildren(Wait_center_ID, ProgramId, requestedPage, pageSize);
@@ -432,6 +440,8 @@ $('#centerTable').on('click', '.dropped-count', function () {
 
     var Wait_center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#DroppedModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getDroppedChildren(Wait_center_ID, ProgramId, requestedPage, pageSize);
@@ -449,6 +459,8 @@ $('#centerTable').on('click', '.waiting-count-span', function () {
     lengthTd = $(this).html();
     var Wait_center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#WaitingModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getWaitingChildren(Wait_center_ID, ProgramId, requestedPage, pageSize);
@@ -467,6 +479,8 @@ $('#centerTable').on('click', '.return-count', function () {
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#ReturningModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
 
@@ -485,6 +499,8 @@ $('#centerTable').on('click', '.grad-count', function () {
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#GraduatingModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getGraduatingChildrens(center_ID, ProgramId, requestedPage, pageSize);
@@ -502,6 +518,8 @@ $('#centerTable').on('click', '.oi-count', function () {
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#OverIncomeModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getOverIncomChildren(center_ID, ProgramId, requestedPage, pageSize);
@@ -520,6 +538,8 @@ $('#centerTable').on('click', '.foster-count', function () {
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#FosterModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getFosterChild(center_ID, ProgramId, requestedPage, pageSize);
@@ -537,6 +557,8 @@ $('#centerTable').on('click', '.homeless-count', function () {
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#HomeLessModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getHomelessChildren(center_ID, ProgramId, requestedPage, pageSize);
@@ -554,6 +576,8 @@ $('#centerTable').on('click', '.leads-count', function () {
     lengthTd = $(this).html();
     var center_ID = $(this).closest('tr').children('td').eq(0).children('p').attr('center-id');
     var ProgramId = $('.select_programType').val();
+    $('#ExternalLeadsModal').find('.searchTextAll').val('');
+
     requestedPage = 1;
     pageSize = 10;
     getLeadsChildren(center_ID, ProgramId, requestedPage, pageSize);
@@ -599,18 +623,19 @@ function getTotalRecord(data, modal) {
 
 
 function Displayrosters(centerID, prog_Id, reqPage, pgSize) {
-    var skip = 0;
+
+
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
+    searchText = $('#FosterDisplaymodal').find('.searchTextAll').val();
+    var clsroomId=$('#FosterDisplaymodal').find('#Centers1').val();
     $.ajax({
-
         url: '/ERSEA/GETChildrenByCenter',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { CenterID: centerID, programId: prog_Id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerID, classRoomId:clsroomId, programId: prog_Id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         //  data: { CenterID: centerID, programId: prog_Id },
         success: function (data) {
 
@@ -629,15 +654,19 @@ function Displayrosters(centerID, prog_Id, reqPage, pgSize) {
             $('#FosterDisplaymodal').find('.totalCountSpan').text(data.TotalRecord);
 
             var ClassData = '';
-            if (data.ClassRoomInfoList.length > 1) {
-                ClassData += '<option value="0" center-id=' + centerID + ' style="color:#fff;">-- Classroom --</option>';
+
+            if ($('#FosterDisplaymodal').find('#Centers1').find('option').length === 0) {
+                if (data.ClassRoomInfoList.length > 1) {
+                    ClassData += '<option value="0" center-id=' + centerID + ' style="color:#fff;">-- Classroom --</option>';
+                }
+                $.each(data.ClassRoomInfoList, function (c, value1) {
+
+                    ClassData += '<option value=' + value1.EnC_ClassRoomId + ' center-id=' + centerID + ' style="color:#fff;">' + value1.ClassRoomName + '</option>';
+
+                });
+                $('#Centers1').html(ClassData);
             }
-            $.each(data.ClassRoomInfoList, function (c, value1) {
 
-                ClassData += '<option value=' + value1.EnC_ClassRoomId + ' center-id=' + centerID + ' style="color:#fff;">' + value1.ClassRoomName + '</option>';
-
-            });
-            $('#Centers1').html(ClassData);
 
             $('#FosterDisplaymodal').modal('show');
 
@@ -646,27 +675,26 @@ function Displayrosters(centerID, prog_Id, reqPage, pgSize) {
 }
 
 function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
-    // var prog_id = $('.select_programType').val();
 
-
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
+    searchText = $('#EnrolledModal').find('.searchTextAll').val();
+    //isShowLoader(true);
+    $('#spinner').show();
     $.ajax({
         url: '/ERSEA/GetEnrolledChildren',
         datatype: 'json',
         type: 'post',
         async: false,
         // data: { centerId: center, programID: prog_id },
-        data: { centerId: center, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: center, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
 
             var bindEle = '';
             var image = '';
             var foster = '';
-
+            isShowLoader(false);
             getTotalRecord(data.TotalRecord, '#EnrolledModal');
             $('#EnrolledModal').find('.totalCountSpan').text(data.TotalRecord);
             $('#EnrolledModal').find('#ddlpagetodisplay').attr('center', center);
@@ -677,7 +705,7 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
             $('#EnrolledModal').find('#Last').attr('center', center);
 
             if (data.ChildrenList.length > 0) {
-                if (center === 0) {
+                if (center.toString() === '0') {
                     $('#EnrolledModal').find('#centerName').html('Client List');
                     $('#EnrolledModal').find('.center_name_head').show();
                 }
@@ -694,32 +722,44 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
                     else if (enrChild.Foster == "2") {
                         foster = "N"
                     }
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
 
-                    if (center === 0) {
+                    if (center.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
                     }
 
                     bindEle += '<td data-title="Class Start Date">' + enrChild.ClassStartDate + '</td>\
                         <td data-title="Attendance">' + enrChild.AttendancePercentage + '% </td><td data-title="Over Income">' + enrChild.OverIncome + '</td><td data-title="Foster">' + foster + '</td>';
+                    //    bindEle += (enrChild.ChildAttendance == '1') ?
+                    //'<td data-title="Present/Absent"><i style="color:#3c763d;" title="Present" class="fa fa-check"></i></td>' :
+                    //(enrChild.ChildAttendance == '2') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Absent" class="fa fa-times"></i></td>' :
+                    //(enrChild.ChildAttendance == '3') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Left Earlier" class="fa fa-times"></i></td>'
+                    //: '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Absent" class="fa fa-times"></i></td>';
+                    //    bindEle += '</tr>';
+
+
                     bindEle += (enrChild.ChildAttendance == '1') ?
-                '<td data-title="Present/Absent"><i style="color:#3c763d;" title="Present" class="fa fa-check"></i></td>' :
-                (enrChild.ChildAttendance == '2') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Absent" class="fa fa-times"></i></td>' :
-                (enrChild.ChildAttendance == '3') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Left Earlier" class="fa fa-times"></i></td>'
-                : '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Absent" class="fa fa-times"></i></td>';
+            '<td data-title="Present/Absent"><i style="color:#3c763d;" title="Present" class="fa fa-check"></i></td>' :
+            (enrChild.ChildAttendance == '2') ? '<td data-title="Present/Absent"><i  style="color:#9c27b0;" title="Absent Excused" class="fa fa-times"></i></td>' :
+            (enrChild.ChildAttendance == '3') ? '<td data-title="Present/Absent"><i style="color:#ff5722;" title="Absent No Show" class="fa fa-times"></i></td>'
+            : (enrChild.ChildAttendance == '4') ? '<td data-title="Present/Absent"><i style="color:#ff5722;" title="Present Other" class="fa fa-times"></i></td>' :
+             (enrChild.ChildAttendance == '0') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>' :
+           '<td data-title="Present/Absent"><i style="color:#ff5722;" title="Absent" class="fa fa-times"></i></td>';
                     bindEle += '</tr>';
+
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#EnrolledModal').find('.enrolledModalBody').html(bindEle);
             $('#EnrolledModal').modal('show');
         },
         error: function (data) {
             alert('error');
+            isShowLoader(false);
         }
 
     });
@@ -730,28 +770,22 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
 
 function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
 
-
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
-    // var prog_id = $('.select_programType').val();
+    searchText = $('#WithdrawnModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetWithdrawnChildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
             var bindEle = '';
             var image = '';
-
-
+            isShowLoader(false);
             getTotalRecord(data.TotalRecord, '#WithdrawnModal');
-
-
-
 
             $('#WithdrawnModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#WithdrawnModal').find('#ddlpaging').attr('center', centerId);
@@ -775,7 +809,7 @@ function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $.each(data.WithdrawnChildrenList, function (k, enrChild) {
                     //bindEle += '<tr><td data-title="Name">' + enrChild.ChildrenName + '</td>';
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
@@ -784,17 +818,18 @@ function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
                     }
 
                     bindEle += '<td data-title="Date on List">' + enrChild.DateOnList + '</td><td data-title="Program Type">' + enrChild.ProgramType + '</td>' +
-                                '</td><td data-title="Selection Points">' + enrChild.SelectionPoints + '</td></tr>'
+                                '</td><td data-title="Selection Points">' + enrChild.SelectionPoints + '</td></tr>';
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#WithdrawnModal').find('.withdrwnChildren').html(bindEle);
             $('#WithdrawnModal').modal('show');
 
         },
         error: function (data) {
+            isShowLoader(false);
             alert('error');
         }
 
@@ -803,24 +838,23 @@ function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
 
 
 function getDroppedChildren(centerId, prog_id, reqPage, pgSize) {
-
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
-    pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
+    pgSize = pgSize == '' || pgSize == null ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
 
-
+    searchText = $('#DroppedModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetDroppedChildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
             var bindEle = '';
             var image = '';
 
-
+            isShowLoader(false);
             getTotalRecord(data.TotalRecord, '#DroppedModal');
 
 
@@ -837,7 +871,7 @@ function getDroppedChildren(centerId, prog_id, reqPage, pgSize) {
 
             if (data.DroppedChildrenList.length > 0) {
                 lengthTd = data.DroppedChildrenList.length;
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#DroppedModal').find('#centerName').html('Client List');
                     $('#DroppedModal').find('.center_name_head').show();
 
@@ -850,26 +884,27 @@ function getDroppedChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $.each(data.DroppedChildrenList, function (k, enrChild) {
                     //bindEle += '<tr><td data-title="Name">' + enrChild.ChildrenName + '</td>';
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
                     }
 
                     bindEle += '<td data-title="Date on List">' + enrChild.DateOnList + '</td><td data-title="Program Type">' + enrChild.ProgramType + '</td>' +
-                                '</td><td data-title="Selection Points">' + enrChild.SelectionPoints + '</td></tr>'
+                                '</td><td data-title="Selection Points">' + enrChild.SelectionPoints + '</td></tr>';
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#DroppedModal').find('.droppedChildren').html(bindEle);
             $('#DroppedModal').modal('show');
 
         },
         error: function (data) {
+            isShowLoader(false);
             alert('error');
         }
 
@@ -881,22 +916,23 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
     // var prog_id = $('.select_programType').val();
 
 
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
+    searchText = $('#WaitingModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetWaitingChildren',
         datatype: 'json',
         type: 'post',
         async: false,
         //  data: { centerId: centerId, programID: prog_id },
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
 
         success: function (data) {
             var bindEle = '';
             var image = '';
+            isShowLoader(false);
             if (data.WaitingChildrenList.length > 0) {
 
                 lengthTd = data.WaitingChildrenList.length;
@@ -912,7 +948,7 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $('#WaitingModal').find('.totalCountSpan').text(data.TotalRecord);
 
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#WaitingModal').find('#centerName').html('Client List');
 
                 }
@@ -922,7 +958,7 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $.each(data.WaitingChildrenList, function (k, enrChild) {
                     //bindEle += '<tr><td data-title="Name">' + enrChild.ChildrenName + '</td>';
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
@@ -931,13 +967,14 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#WaitingModal').find('.waitingChildren').html(bindEle);
             $('#WaitingModal').modal('show');
 
         },
         error: function (data) {
+            isShowLoader(false);
             alert('error');
         }
 
@@ -946,29 +983,22 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
 
 
 function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
-    // var prog_id = $('.select_programType').val();
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
+    searchText = $('#ReturningModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetReturningChildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
             var bindEle = '';
             var image = '';
             var foster = '';
-
-
-
-
-
-
-
+            isShowLoader(false);
             $('#ReturningModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#ReturningModal').find('#ddlpaging').attr('center', centerId);
             $('#ReturningModal').find('#Back').attr('center', centerId);
@@ -983,7 +1013,7 @@ function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
                 $('#ReturningModal').find('.totalCountSpan').text(data.TotalRecord);
                 lengthTd = data.ReturningList.length;
 
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#ReturningModal').find('#centerName').html('Client List');
                     $('#ReturningModal').find('.center_name_head').show();
                 }
@@ -997,14 +1027,14 @@ function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
                         foster = "Y"
                     }
                     else if (enrChild.Foster == "2") {
-                        foster = "N"
+                        foster = "N";
                     }
                     //bindEle += '<tr><td data-title="Name">' + enrChild.ClientName + '</td>';
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
                     }
 
@@ -1016,34 +1046,36 @@ function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#ReturningModal').find('.returningChildren').html(bindEle);
             $('#ReturningModal').modal('show');
+        },
+        error: function (data) {
+            isShowLoader(false);
         }
 
     });
 }
 
 function getGraduatingChildrens(centerId, prog_id, reqPage, pgSize) {
-    // var prog_id = $('.select_programType').val();
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
+    searchText = $('#GraduatingModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetGraduatingChildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
 
         success: function (data) {
             var bindEle = '';
             var image = '';
             var foster = '';
-
+            isShowLoader(false);
             $('#GraduatingModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#GraduatingModal').find('#ddlpaging').attr('center', centerId);
             $('#GraduatingModal').find('#Back').attr('center', centerId);
@@ -1056,33 +1088,33 @@ function getGraduatingChildrens(centerId, prog_id, reqPage, pgSize) {
                 $('#GraduatingModal').find('.totalCountSpan').text(data.TotalRecord);
                 lengthTd = data.GraduatingList.length;
 
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#GraduatingModal').find('#centerName').html('Client List');
                     $('#GraduatingModal').find('.center_name_head').show();
 
                 }
                 else {
                     $('#GraduatingModal').find('#centerName').html(data.GraduatingList[0].CenterName);
-                    $('#GraduatingModal').find('.center_name_head').show();
+                    $('#GraduatingModal').find('.center_name_head').hide();
 
                 }
 
 
                 $.each(data.GraduatingList, function (k, enrChild) {
                     if (enrChild.Foster == "1") {
-                        foster = "Y"
+                        foster = "Y";
                     }
                     else if (enrChild.Foster == "2") {
                         foster = "N"
                     }
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
 
                     // bindEle += '<tr><td data-title="Name">' + enrChild.ClientName + '</td>';
 
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
                     }
 
@@ -1094,36 +1126,39 @@ function getGraduatingChildrens(centerId, prog_id, reqPage, pgSize) {
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#GraduatingModal').find('.gradChildren').html(bindEle);
             $('#GraduatingModal').modal('show');
+        },
+        error: function (data) {
+            isShowLoader(false);
         }
 
     });
 }
 
 function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
-    
+
     requestedPage = reqPage;
     pageSize = pgSize;
-    // var prog_id = $('.select_programType').val();
     prog_id = (prog_id == '0') ? $('.select_programType').val() : prog_id;
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
+    searchText = $('#OverIncomeModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetOverIncomeChildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programId: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
             var bindEle = '';
             var image = '';
             var foster = '';
-
+            isShowLoader(false);
             $('#OverIncomeModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#OverIncomeModal').find('#ddlpaging').attr('center', centerId);
             $('#OverIncomeModal').find('#Back').attr('center', centerId);
@@ -1134,10 +1169,10 @@ function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
 
             if (data != null && data.childInfo.OverIncomeChildrenList != null && data.childInfo.OverIncomeChildrenList.length > 0) {
 
-                getTotalRecord(data.TotalRecord, '#OverIncomeModal');
-                $('#OverIncomeModal').find('.totalCountSpan').text(data.TotalRecord);
+                getTotalRecord(data.childInfo.TotalRecord, '#OverIncomeModal');
+                $('#OverIncomeModal').find('.totalCountSpan').text(data.childInfo.TotalRecord);
                 lengthTd = data.childInfo.OverIncomeChildrenList.length;
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#OverIncomeModal').find('#centerName').html("Client List");
                     $('#OverIncomeModal').find('.center_name_head').show();
 
@@ -1151,19 +1186,19 @@ function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $.each(data.childInfo.OverIncomeChildrenList, function (k, enrChild) {
                     if (enrChild.Foster == "1") {
-                        foster = "Y"
+                        foster = "Y";
                     }
                     else if (enrChild.Foster == "2") {
-                        foster = "N"
+                        foster = "N";
                     }
                     // bindEle += '<tr><td data-title="Name">' + enrChild.ClientName + '</td>';
 
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
 
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
 
                     }
@@ -1183,10 +1218,14 @@ function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#OverIncomeModal').find('.overIncomeChildren').html(bindEle);
             $('#OverIncomeModal').modal('show');
+        },
+        error: function (data) {
+            isShowLoader(false);
+
         }
 
     });
@@ -1196,10 +1235,11 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
     requestedPage = reqPage;
     pageSize = pgSize;
     prog_id = (prog_id == '0') ? $('.select_programType').val() : prog_id;
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
+    searchText = $('#FosterModal').find('.searchTextAll').val();
+    isShowLoader(true);
 
     $.ajax({
 
@@ -1207,11 +1247,11 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
             var bindDiv = '';
             var image = '';
-
+            isShowLoader(false);
             $('#FosterModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#FosterModal').find('#ddlpaging').attr('center', centerId);
             $('#FosterModal').find('#Back').attr('center', centerId);
@@ -1224,15 +1264,15 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
 
                 getTotalRecord(data.TotalRecord, '#FosterModal');
                 $('#FosterModal').find('.totalCountSpan').text(data.TotalRecord);
-                lengthTd = data.childInfo.FosterChildrenList.length;
+                lengthTd = data.FosterChildrenList.length;
 
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#FosterModal').find('#centerName').html('Client List');
                     $('#FosterModal').find('.center_name_head').show();
 
                 }
                 else {
-                    $('#FosterModal').find('#centerName').html(data[0].CenterName);
+                    $('#FosterModal').find('#centerName').html(data.FosterChildrenList[0].CenterName);
                     $('#FosterModal').find('.center_name_head').hide();
 
                 }
@@ -1241,12 +1281,12 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
 
                     bindDiv += '<tr>';
                     // bindDiv += '<td style="line-height: 25px;" data-title="Attachment">' + fosterchild.ClientName + ' </td>';
-                    bindDiv += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + fosterchild.Enc_ClientId + '><div>' + fosterchild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindDiv += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + fosterchild.Enc_ClientId + '><div>' + fosterchild.ClientName + '<span class="tooltiptext"></span></div></td>';
 
                     bindDiv += (fosterchild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (fosterchild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindDiv += '<td data-title="Date Of Birth">' + fosterchild.Dob + '</td>';
 
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindDiv += '<td data-title="Center Name">' + fosterchild.CenterName + '</td>';
                     }
 
@@ -1258,10 +1298,19 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
                         bindDiv += '<td data-title="Attachment" style="text-align:center;"><a style="cursor:pointer;" class="attachment"  title="Download"  data-type="pdf"><img  style="display:none;" src="data:application/octet-stream;base64,' + fosterchild.FileAttached + '"><i class="fa fa-download download-ic"></i></a></td>';
                     }
                 });
-                $('#FosterModal').find('.fosterChildren').html(bindDiv);
-                $('#FosterModal').modal('show');
-            }
 
+            }
+            else {
+                bindDiv += '<tr style="color:#333;"><th style="\
+                height: 120px;\
+                ">Records not found</th></tr>';
+            }
+            $('#FosterModal').find('.fosterChildren').html(bindDiv);
+            $('#FosterModal').modal('show');
+
+        },
+        error: function (data) {
+            isShowLoader(false);
         }
 
     });
@@ -1271,21 +1320,21 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
     requestedPage = reqPage;
     pageSize = pgSize;
     prog_id = (prog_id == '0') ? $('.select_programType').val() : prog_id;
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-   
+    searchText = $('#HomeLessModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetHomelessChildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
             var bindEle = '';
             var image = '';
-
+            isShowLoader(false);
             $('#HomeLessModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#HomeLessModal').find('#ddlpaging').attr('center', centerId);
             $('#HomeLessModal').find('#Back').attr('center', centerId);
@@ -1299,7 +1348,7 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
                 $('#HomeLessModal').find('.totalCountSpan').text(data.TotalRecord);
                 lengthTd = data.HomeLessChildrenList.length;
 
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#HomeLessModal').find('#centerName').html('Client List');
                     $('#HomeLessModal').find('.center_name_head').show();
 
@@ -1314,11 +1363,11 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
 
                     //  bindEle += '<tr><td data-title="Name">' + hlChild.ChildrenName + '</td>';
 
-                    bindEle += '<tr><td data-title="Name" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + hlChild.Enc_ClientId + '><div>' + hlChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + hlChild.Enc_ClientId + '><div>' + hlChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
 
                     bindEle += (hlChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (hlChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + hlChild.Dob + '</td>';
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + hlChild.CenterName + '</td>';
                     }
 
@@ -1326,10 +1375,13 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
                 });
             }
             else {
-                bindEle = 'No details found';
+                bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#HomeLessModal').find('.homeLessChildren').html(bindEle);
             $('#HomeLessModal').modal('show');
+        },
+        error: function (data) {
+            isShowLoader(false);
         }
 
     });
@@ -1340,19 +1392,19 @@ function getLeadsChildren(centerId, prog_id, reqPage, pgSize) {
     requestedPage = reqPage;
     pageSize = pgSize;
     prog_id = (prog_id == '0') ? $('.select_programType').val() : prog_id;
-    var skip = 0;
     reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
     pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
     skip = (pgSize * (reqPage - 1));
-
+    searchText = $('#ExternalLeadsModal').find('.searchTextAll').val();
+    isShowLoader(true);
     $.ajax({
         url: '/ERSEA/GetLeadschildren',
         datatype: 'json',
         type: 'post',
         async: false,
-        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
+        data: { centerId: centerId, programID: prog_id, reqPage: reqPage, pgSize: pgSize, skipRow: skip, searchText: searchText },
         success: function (data) {
-
+            isShowLoader(false);
             $('#ExternalLeadsModal').find('#ddlpagetodisplay').attr('center', centerId);
             $('#ExternalLeadsModal').find('#ddlpaging').attr('center', centerId);
             $('#ExternalLeadsModal').find('#Back').attr('center', centerId);
@@ -1366,7 +1418,7 @@ function getLeadsChildren(centerId, prog_id, reqPage, pgSize) {
                 $('#ExternalLeadsModal').find('.totalCountSpan').text(data.TotalRecord);
                 lengthTd = data.LeadsChildrenList.length;
 
-                if (centerId === 0) {
+                if (centerId.toString() === '0') {
                     $('#ExternalLeadsModal').find('#centerName').html('Client List');
                     $('#ExternalLeadsModal').find('.center_name_head').show();
 
@@ -1379,25 +1431,32 @@ function getLeadsChildren(centerId, prog_id, reqPage, pgSize) {
                 }
                 var bindEle = '';
                 $.each(data.LeadsChildrenList, function (k, leadChild) {
-                    bindEle += '<tr><td data-title="Name">' + leadChild.ChildrenName + '</td>';
+                    bindEle += '<tr><td data-title="Client">' + leadChild.ChildrenName + '</td>';
                     bindEle += '<td data-title="Gender">' + leadChild.Gender + '</td>';
                     bindEle += '<td data-title="Date of Birth">' + leadChild.Dob + '</td>';
                     bindEle += '<td data-title="Parent/Guardian">' + leadChild.ParentName + '</td>';
-                    if (centerId === 0) {
+                    if (centerId.toString() === '0') {
                         bindEle += '<td data-title="Center Name">' + leadChild.CenterName + '</td>';
 
                     }
-
+                    bindEle += '<td data-title="FSW Assigned" style="text-align:center;">' + leadChild.FSWName + '</td>';
                     bindEle += '<td data-title="Contacted by FSW" style="text-align:center;">' + leadChild.ContactStatus + '</td>';
                     bindEle += '<td data-title="Disability">' + leadChild.Disability + '</td>';
                     bindEle += '</tr>';
                 });
             }
             else {
-                bindEle = 'No details found';
+
+                bindEle += '<tr style="color:#333;"><th style="\
+                height: 120px;\
+                ">Records Not Found</th></tr>';
             }
+
             $('#ExternalLeadsModal').find('.LeadsModalBody').html(bindEle);
             $('#ExternalLeadsModal').modal('show');
+        },
+        error: function (data) {
+            isShowLoader(false);
         }
 
     });
@@ -1420,23 +1479,9 @@ function bindGridByCenter(binData) {
             else if (value1.Foster == "2") {
                 foster = "N"
             }
-            if (value1.Image == "" && value1.Gender == "2") {
-                image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
-            }
-            else if (value1.Image == "" && value1.Gender == "1") {
-                image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
-            }
-            else if (value1.Image == "" && value1.Gender == "3") {
-                image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
-            }
-            else if (value1.Image != "") {
-                image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + value1.Image + '"/></td>'
-            }
-            else {
-                image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
-            }
+            value += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + value1.ClientId + '><div>' + value1.ClientName + '<span class="tooltiptext"></span></div></td>';
 
-            value += '<tr><td data-title="Name">' + value1.ClientName + '</td><td data-title="Image">' + image + '</td>';
+
             value += (value1.Gender == "1") ? '<td data-title="Gender">Male</td>' : (value1.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
             value += '<td data-title="DOB">' + value1.Dob + '</td>';
             value += '<td data-title="Start Date">' + value1.ClassStartDate + '</td>\
@@ -1446,15 +1491,17 @@ function bindGridByCenter(binData) {
 
             value += (value1.ChildAttendance == '1') ?
                 '<td data-title="Present/Absent"><i style="color:#3c763d;" title="Present" class="fa fa-check"></i></td>' :
-                (value1.ChildAttendance == '2') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Absent" class="fa fa-times"></i></td>' :
-                (value1.ChildAttendance == '3') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Left Earlier" class="fa fa-times"></i></td>'
-                : '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Absent" class="fa fa-times"></i></td>';
+                (value1.ChildAttendance == '2') ? '<td data-title="Present/Absent"><i  style="color:#9c27b0;" title="Absent Excused" class="fa fa-times"></i></td>' :
+                (value1.ChildAttendance == '3') ? '<td data-title="Present/Absent"><i style="color:#ff5722;" title="Absent No Show" class="fa fa-times"></i></td>'
+                : (value1.ChildAttendance == '4') ? '<td data-title="Present/Absent"><i style="color:#ff5722;" title="Present Other" class="fa fa-times"></i></td>' :
+                 (value1.ChildAttendance == '0') ? '<td data-title="Present/Absent"><i style="color:#ff2222;" title="Not Checked In" class="fa fa-user-times"></i></td>' :
+               '<td data-title="Present/Absent"><i style="color:#ff5722;" title="Absent" class="fa fa-times"></i></td>';
             value += '</tr>';
         });
     }
 
     else {
-        value = 'No detail Found';
+        value = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
     }
 
 
@@ -1470,19 +1517,47 @@ function bindGridByCenter(binData) {
 }
 
 
-function btnSearch() {
+function btnSearch(ele, reqPage, pgSize) {
+    reqPage = (reqPage == '' || reqPage == null) ? 1 : reqPage;
+    pgSize = (pgSize == '' || pgSize == null) ? 10 : pgSize;
+    skip = (pgSize * (reqPage - 1));
+    LastIndex = 0;
+    $('#FosterDisplaymodal').find('#ddlpagetodisplay').val(pgSize);
+    $('#FosterDisplaymodal').find('#ddlpaging').val(requestedPage);
 
     var ClassroomId = $('#Centers1 option:selected').val();
     var centerId = $('#Centers1 option:selected').attr('center-id');
     var programId = $('.select_programType').val();
+    isShowLoader(true);
+
+
+
     $.ajax({
         url: '/ERSEA/GetChildrenByClassRoom',
         datatype: 'json',
         type: 'post',
-        data: { CenterId: centerId, classroomId: ClassroomId, programId: programId },
+        data: { centerId: centerId, classroomId: ClassroomId, programId: programId, reqPage: reqPage, pgSize: pgSize, skipRow: skip },
         success: function (data) {
-            bindGridByCenter(data);
+            isShowLoader(false);
+
+            getTotalRecord(data.TotalRecord, '#FosterDisplaymodal');
+
+            bindGridByCenter(data.ChildrenList);
+
             $('#FosterDisplaymodal').find('#ddlpagetodisplay').attr('center', centerId);
+            $('#FosterDisplaymodal').find('#ddlpaging').attr('center', centerId);
+            $('#FosterDisplaymodal').find('#Back').attr('center', centerId);
+            $('#FosterDisplaymodal').find('#First').attr('center', centerId);
+            $('#FosterDisplaymodal').find('#Next').attr('center', centerId);
+            $('#FosterDisplaymodal').find('#Last').attr('center', centerId);
+
+            $('#FosterDisplaymodal').find('.totalCountSpan').text(data.TotalRecord);
+
+
+            $('#FosterDisplaymodal').find('#ddlpagetodisplay').attr('center', centerId);
+        },
+        error: function (data) {
+            isShowLoader(false);
         }
 
     });
@@ -1510,7 +1585,7 @@ function getChildrenImage(val) {
                 image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/ic_male_default.png" />';
             }
             else if (data.Text != "") {
-                image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                image = '<img class="roundimage" width="100" height="100"   src="data:image/jpg;base64,' + data.Text + '"/></td>';
             }
             else {
                 image = '<img class="roundimage"  width="100" height="100"  src="/Content/img/download.jpg" />';
@@ -1579,7 +1654,7 @@ function fnChangePage(clas, val) {
     else if (val == 'Back') {
         requestedPage = requestedPage - 1;
         LastIndex = parseInt(LastIndex) - parseInt(pageSize);
-        GoToNextPage(requestedPage, pageSize, clas, centrId)
+        GoToNextPage(requestedPage, pageSize, clas, centrId);
         if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
             $(clas).find('#Next').attr('disabled', true);
             $(clas).find('#Last').attr('disabled', true);
@@ -1689,3 +1764,84 @@ function callDisplayAjaxMethods(_reqPage, _pgSize, _clsName, _centerId) {
 
     }
 }
+
+
+function searchByClientName(clsname, ele) {
+    cleanValidation();
+    var inputText = $(ele).siblings('.searchTextAll');
+
+    //if (inputText.val()=== null || inputText.val() === '')
+    //{
+    //    //  plainValidation('#' + inputText.attr('id') + '');
+    //    inputText.css("background-color", 'pink');
+    //    customAlert('Please enter name to search');
+    //    return false;
+    //}
+    //else {
+
+
+    requestedPage = 1;
+    pageSize = 10;
+    var ctrID = $(clsname).find('#ddlpagetodisplay').attr('center');
+    callDisplayAjaxMethods(requestedPage, pageSize, clsname, ctrID);
+    return true;
+    //}
+}
+
+
+function downloadReportExcel(clsname, ele) {
+    var centerId = $(clsname).find('#ddlpagetodisplay').attr('center');
+    var progId = $('.select_programType').val();
+    var isallCenter = (centerId === '0') ? true : false;
+    clsname = clsname.replace("#", "%23");
+    window.location.href = HostedDir + "/ERSEA/DownloadERSEAReport?centerId=" + centerId + "&programId=" + progId + "&reportFor=" + "" + clsname + "" + "&isAllCenter=" + isallCenter;
+
+    //$.ajax({
+
+    //    url: '/ERSEA/DownloadERSEAReport',
+    //    datatype: 'json',
+    //    contenttype: "application/json; charset=utf-8",
+    //    type: 'GET',
+    //    data: { centerId: centerId, programId: progId, reportFor: clsname, isAllCenter: isallCenter },
+    //    success:function(data)
+    //    {
+
+    //    },
+    //    error:function(data)
+    //    {
+
+    //    }
+
+    //});
+}
+
+
+
+function DownLoadExcelFile() {
+
+    if ($('#DivclientmissingList > tbody > tr').length > 0) {
+        if (Center != null) {
+            var centerid = $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
+            window.location.href = HostedDir + "/Nurse/DownloadScreeningMatrixExcel?Centerid=" + $(Center).attr("accesskey") + "&Classroom=" + centerid;
+        }
+    }
+    else {
+        customAlert("No record to print.");
+    }
+}
+
+function isShowLoader(isShow) {
+    switch (isShow) {
+        case true:
+            $('#spinner').show();
+            break;
+        case false:
+            $('#spinner').hide();
+            break;
+        default:
+            $('#spinner').hide();
+            break;
+    }
+}
+
+

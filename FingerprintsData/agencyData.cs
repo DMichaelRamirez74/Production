@@ -159,7 +159,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@FSWYearlyVisit", agencyDetails.FSWYearlyVisit));
                 command.Parameters.Add(new SqlParameter("@Areabreakdown", agencyDetails.Areabreakdown));
                 command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
-                command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
+               // command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
 
                 HttpPostedFileBase _file = agencyDetails.logo;
@@ -425,7 +425,7 @@ namespace FingerprintsData
                         agency.agencyCode = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyCode"]);
                         agency.agencyId = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyId"]);
                         agency.agencyName = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyName"]);
-                        agency.AcceptanceProcess = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WaterFallOrLinear"]);
+                      //  agency.AcceptanceProcess = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WaterFallOrLinear"]);
                         if (!string.IsNullOrEmpty((_dataset.Tables[0].Rows[0]["city"]).ToString()))
                             agency.city = (_dataset.Tables[0].Rows[0]["city"]).ToString();
                         else
@@ -3200,47 +3200,47 @@ namespace FingerprintsData
             return _DemographicList;
         }
 
-        public List<AcceptanceRole> GetAcceptanceProcess(string AgencyId)
-        {
-            List<AcceptanceRole> _AcceptanceProcessList = new List<AcceptanceRole>();
-            try
-            {
-                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+        //public List<AcceptanceRole> GetAcceptanceProcess(string AgencyId)
+        //{
+        //    List<AcceptanceRole> _AcceptanceProcessList = new List<AcceptanceRole>();
+        //    try
+        //    {
+        //        command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
               
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_GetAcceptanceProcess";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                if (_dataset.Tables[0] != null)
-                {
-                    if (_dataset.Tables[0].Rows.Count > 0)
-                    {
-                        AcceptanceRole obj = null;
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        {
-                            obj = new AcceptanceRole();
-                            obj.RoleID =new Guid( dr["Roleid"].ToString());
-                          obj.isAllowIncome = Convert.ToBoolean(dr["isAllowIncome"]);
-                            obj.Priority = Convert.ToInt32(dr["PriorityLevel"]);
+        //        command.Connection = Connection;
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_GetAcceptanceProcess";
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataset = new DataSet();
+        //        DataAdapter.Fill(_dataset);
+        //        if (_dataset.Tables[0] != null)
+        //        {
+        //            if (_dataset.Tables[0].Rows.Count > 0)
+        //            {
+        //                AcceptanceRole obj = null;
+        //                foreach (DataRow dr in _dataset.Tables[0].Rows)
+        //                {
+        //                    obj = new AcceptanceRole();
+        //                    obj.RoleID =new Guid( dr["Roleid"].ToString());
+        //                  obj.isAllowIncome = Convert.ToBoolean(dr["isAllowIncome"]);
+        //                    obj.Priority = Convert.ToInt32(dr["PriorityLevel"]);
                           
-                            _AcceptanceProcessList.Add(obj);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            finally
-            {
-                if (Connection != null)
-                    Connection.Close();
-            }
-            return _AcceptanceProcessList;
-        }
+        //                    _AcceptanceProcessList.Add(obj);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+        //    finally
+        //    {
+        //        if (Connection != null)
+        //            Connection.Close();
+        //    }
+        //    return _AcceptanceProcessList;
+        //}
         public List<CoreTeam> SaveCoreTeam(ref string message, List<CoreTeam> CoreTeams, string AgencyId, string UserId)
         {
             List<CoreTeam> _CoreTeamList = new List<CoreTeam>();
@@ -3902,65 +3902,65 @@ namespace FingerprintsData
 
         }
 
-        public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles)
-        {
-            AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
-            bool result = false;
-            try
-            {
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
-                command.Connection = Connection;
-                command.Parameters.Clear();
-                DataTable dt = new DataTable();
-                if (Roles != null && Roles.Count > 0)
-                {
+        //public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles)
+        //{
+        //    AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
+        //    bool result = false;
+        //    try
+        //    {
+        //        if (Connection.State == ConnectionState.Open)
+        //            Connection.Close();
+        //        Connection.Open();
+        //        command.Connection = Connection;
+        //        command.Parameters.Clear();
+        //        DataTable dt = new DataTable();
+        //        if (Roles != null && Roles.Count > 0)
+        //        {
 
-                    dt.Columns.AddRange(new DataColumn[3] {
-                    new DataColumn("RoleId", typeof(Guid)),
-                    new DataColumn("PriorityLevel",typeof(int)),
-                      new DataColumn("IsAllowIncome",typeof(bool)),
+        //            dt.Columns.AddRange(new DataColumn[3] {
+        //            new DataColumn("RoleId", typeof(Guid)),
+        //            new DataColumn("PriorityLevel",typeof(int)),
+        //              new DataColumn("IsAllowIncome",typeof(bool)),
 
-                    });
-                    foreach (AcceptanceRole role in Roles)
-                    {
-                        if (role != null)
-                        {
-                            dt.Rows.Add(role.RoleID,role.Priority,role.isAllowIncome);
-                        }
-                    }
-                 
-
-                }
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@result", ""));
-                command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_SaveAcceptanceRole";
-                int isrowaffected = command.ExecuteNonQuery();
-                if (isrowaffected > 0)
-                    result = true;
+        //            });
+        //            foreach (AcceptanceRole role in Roles)
+        //            {
+        //                if (role != null)
+        //                {
+        //                    dt.Rows.Add(role.RoleID,role.Priority,role.isAllowIncome);
+        //                }
+        //            }
 
 
-            }
-            catch (Exception ex)
-            {
+        //        }
+        //        command.Parameters.Add(new SqlParameter("@UserId", UserId));
+        //        command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
+        //        command.Parameters.Add(new SqlParameter("@result", ""));
+        //        command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
+        //        command.Connection = Connection;
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_SaveAcceptanceRole";
+        //        int isrowaffected = command.ExecuteNonQuery();
+        //        if (isrowaffected > 0)
+        //            result = true;
 
-                clsError.WriteException(ex);
 
-            }
-            finally
-            {
-                if (Connection != null)
-                    Connection.Close();
-            }
-            return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-        }
-        
+        //        clsError.WriteException(ex);
+
+        //    }
+        //    finally
+        //    {
+        //        if (Connection != null)
+        //            Connection.Close();
+        //    }
+        //    return result;
+
+        //}
+
 
 
         //public List<SelectListItem> GetFamiliesUnderUserId(string userId, string agencyId,string roleId)
@@ -4009,5 +4009,117 @@ namespace FingerprintsData
         //    }
         //    return usersList;
         //}
+
+        /// <summary>
+        /// method to get the List of  Roles to access the PIR Section.
+        /// </summary>
+        /// <returns></returns>
+        public List<PIRAccessRoles> GetPIRAccessRoles()
+        {
+            List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetPIRAccessRoles";
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        pirAccessrolesList = _dataset.Tables[0].AsEnumerable().OrderBy(x => x.Field<string>("RoleName")).Select(x => new PIRAccessRoles
+                        {
+                            RoleId = x.Field<Guid>("RoleId"),
+                            RoleName = x.Field<String>("RoleName"),
+                            IsAccessPIR = x.Field<bool>("IsAccessPIR")
+                        }).ToList();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return pirAccessrolesList;
+        }
+        /// <summary>
+        /// method to insert the allowed PIR Roles in the database.
+        /// </summary>
+        /// <param name="isRowsAffected"></param>
+        /// <param name="accessRolesList"></param>
+        /// <returns></returns>
+        /// 
+        public List<PIRAccessRoles> InsertPIRAccessRoles(out int isRowsAffected, List<PIRAccessRoles> accessRolesList)
+        {
+            List<PIRAccessRoles> pirAccessrolesList = new List<PIRAccessRoles>();
+
+            isRowsAffected = 0;
+            DataTable pirAccessdt = new DataTable();
+
+            pirAccessdt.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("PIRTeamId", typeof(int)),
+                    new DataColumn("AgencyId",typeof(Guid)),
+                    new DataColumn("RoleId",typeof(Guid)),
+                    new DataColumn("IsShowPIR",typeof(bool)),
+                    new DataColumn("Status",typeof(bool))
+
+                    });
+
+
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                foreach (var item in accessRolesList)
+                {
+                    pirAccessdt.Rows.Add(0, staffDetails.AgencyId, item.RoleId, item.IsAccessPIR, (item.IsAccessPIR) ? true : false);
+                }
+
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@PIRAccessRolesType", pirAccessdt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_InsertPIRAccessRoles";
+                Connection.Open();
+                isRowsAffected = command.ExecuteNonQuery();
+                if (isRowsAffected > 0)
+                {
+                    pirAccessrolesList = this.GetPIRAccessRoles();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return pirAccessrolesList;
+        }
+
     }
 }

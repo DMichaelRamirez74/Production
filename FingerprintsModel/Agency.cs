@@ -48,6 +48,8 @@ namespace FingerprintsModel
         public string TimeZoneID { get; set; }
         public string ProgramStartTime { get; set; }
         public string DocsStorage { get; set; }
+        public Nullable<Boolean> AcceptanceProcess { get; set; }
+     
         public string ActiveProgYear { get; set; }
         public string ProgramEndTime { get; set; }
         public string FSWYearlyVisit { get; set; }
