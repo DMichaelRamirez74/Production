@@ -1878,6 +1878,37 @@ namespace FingerprintsData
             return result;
 
         }
+
+        public bool InsertAcceptReason(Nurse obj,string AgencyId)
+        {
+            bool isInserted = false;
+            try
+            {
+                command = new SqlCommand();
+                command.Parameters.AddWithValue("@ClienTId", obj.ClientID);
+                command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@Reason", obj.AcceptReason);
+                command.Parameters.AddWithValue("@UserId", obj.UserId);
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_ApplicationAcceptReason";
+                if (Connection.State == ConnectionState.Open) Connection.Close();
+                Connection.Open();
+                int RowsAffected = command.ExecuteNonQuery();
+                if (RowsAffected > 0)
+                    isInserted = true;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return isInserted;
+        }
         public string addAcceptInfo(out int pendingcount, Nurse obj, int mode, Guid ID, string agencyid)
         {
             string result = string.Empty;
