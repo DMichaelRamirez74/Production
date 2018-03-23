@@ -70,6 +70,10 @@ namespace FingerprintsModel
         public string A_20B_1 { get; set; }
         public string A_20B_2 { get; set; }
         public string A_20B_3 { get; set; }
+        public string A_21 { get; set; }
+        public string A_22 { get; set; }
+        public string A_22_A { get; set; }
+        public string A_22_B { get; set; }
         public string A_25a1 { get; set; }
         public string A_25a2 { get; set; }
         public string A_25b1 { get; set; }
@@ -99,6 +103,8 @@ namespace FingerprintsModel
         public string A_26k { get; set; }
         public string A_27 { get; set; }
         public string A_27A { get; set; }
+
+
         public string C_1_1 { get; set; }
         public string C_1_2 { get; set; }
         public string C_A_1 { get; set; }
@@ -123,11 +129,33 @@ namespace FingerprintsModel
         public string C_3D_2 { get; set; }
         public string C_4_1 { get; set; }
         public string C_4_2 { get; set; }
+        public string C_5_1 { get; set; }
+        public string C_5_2 { get; set; }
+        public string C_6_1 { get; set; }
+        public string C_6_2 { get; set; }
+        public string C_8_1 { get; set; }
+        public string C_8_2 { get; set; }
 
-        public string A_21 { get; set; }
-        public string A_22 { get; set; }
-        public string A_22_A { get; set; }
-        public string A_22_B { get; set; }
+        public string C_8_A { get; set; }
+        public string C_8_A_1 { get; set; }
+        public string C_9_A { get; set; }
+        public string C_9_B { get; set; }
+        public string C_9_C { get; set; }
+        public string C_9_D { get; set; }
+        public string C_9_E { get; set; }
+        public string C_9_F { get; set; }
+        public string C_10_A { get; set; }
+        public string C_10_B { get; set; }
+        public string C_10_C { get; set; }
+        public string C_10_D { get; set; }
+        public string C_11_1 { get; set; }
+        public string C_11_2 { get; set; }
+        public string C_12_1 { get; set; }
+        public string C_12_2 { get; set; }
+        public string C_13_1 { get; set; }
+        public string C_13_2 { get; set; }
+
+
         public string C_14_A { get; set; }
         public string C_14_B { get; set; }
         public string C_14_C { get; set; }
@@ -139,14 +167,17 @@ namespace FingerprintsModel
         public string C_15_B { get; set; }
         public string C_15_C { get; set; }
         public string C_16 { get; set; }
+
+        public string C_17_1 { get; set; }
+        public string C_17_2 { get; set; }
+        public string C_18 { get; set; }
+        public string C_19 { get; set; }
+        public string C_19_A { get; set; }
+        public string C_19_A_1 { get; set; }
+        public string C_20 { get; set; }
         public string C_21 { get; set; }
 
-        public string C_5_1 { get; set; }
-        public string C_5_2 { get; set; }
-        public string C_6_1 { get; set; }
-        public string C_6_2 { get; set; }
-        public string C_8_1 { get; set; }
-        public string C_8_2 { get; set; }
+       
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
        
