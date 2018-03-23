@@ -67,24 +67,10 @@ namespace Fingerprints.Controllers
                 }
 
 
-                //  obj.MonthOrdersList = new List<SelectListItem>();
-                //if (firstMonth > 0)
-                //{
-                //    for (int i = 1; i <= 12; i++)
-                //    {
-                //        int modulus = (firstMonth % 12) == 0 ? 12 : (firstMonth % 12);
-                //        obj.MonthOrdersList.Add(new SelectListItem
-                //        {
-                //            Text = Enum.GetName(typeof(Month), modulus),
-                //            Value = modulus.ToString()
-                //        });
-                //        firstMonth++;
-                //    }
-                //}
+             
 
                 obj.lstApplication = lstApplication;
-                //obj.listADA = lstADA;
-              //  obj.TotalADA = new ADA();
+         
                 int count = (obj.listADA.Count() > 0) ? obj.listADA.Count() * 100 : 0;
 
                 if (count > 0)
