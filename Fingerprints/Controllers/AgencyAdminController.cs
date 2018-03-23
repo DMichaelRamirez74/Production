@@ -13,6 +13,8 @@ using System.IO;
 using System.Configuration;
 using Fingerprints.CustomClasses;
 using System.Text;
+using System.Reflection;
+
 namespace Fingerprints.Controllers
 {
     public class AgencyAdminController : Controller
@@ -22,6 +24,7 @@ namespace Fingerprints.Controllers
          role=a31b1716-b042-46b7-acc0-95794e378b26(Health/Nurse)
          role=2d9822cd-85a3-4269-9609-9aabb914d792(HR Manager)
          role=94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d(Family Service Worker)
+         roleid=3b49b025-68eb-4059-8931-68a0577e5fa2 (Agency Admin)
          */
         agencyData agencyData = new agencyData();
         Center _center = new Center();
@@ -1803,6 +1806,43 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [HttpGet]
+        public ViewResult PIRAccessRoles()
+        {
+            List<PIRAccessRoles> accessRolesList = new List<PIRAccessRoles>();
+            try
+            {
+                ViewBag.Message = "";
+               accessRolesList=  new agencyData().GetPIRAccessRoles();
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(accessRolesList);
+        }
+        [HttpPost]
+        public ViewResult PIRAccessRoles(List<PIRAccessRoles> PIRAccessRoles)
+        {
+            List<PIRAccessRoles> accessRolesList = new List<FingerprintsModel.PIRAccessRoles>();
+            try
+            {
+                int rowsAffected = 0;
+                accessRolesList = new agencyData().InsertPIRAccessRoles(out rowsAffected, PIRAccessRoles);
+
+                ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Plaese try again";
+               
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(accessRolesList);
+        }
+
+
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
         public ActionResult Demographic(List<Demographic> Demographics)

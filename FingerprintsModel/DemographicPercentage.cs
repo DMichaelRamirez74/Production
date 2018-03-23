@@ -11,112 +11,89 @@ namespace FingerprintsModel
 
         public DemographicPercentage()
         {
-            BlackOrAfrican = "0";
-            AmericanIndian = "0";
-            Other = "0";
-            NativeHawaiian = "0";
-            BiracialOrMulti = "0";
-            Asian = "0";
-            Unspecified = "0";
-            White = "0";
-            StaffBlackOrAfrican = "0";
-            StaffAmericanIndian = "0";
-            StaffOther = "0";
-            StaffNativeHawaiian = "0";
-            StaffBiracialOrMulti = "0";
-            StaffAsian = "0";
+            //BlackOrAfrican = "0";
+            //AmericanIndian = "0";
+            //Other = "0";
+            //NativeHawaiian = "0";
+            //BiracialOrMulti = "0";
+            //Asian = "0";
+            //Unspecified = "0";
+            //White = "0";
+            //StaffBlackOrAfrican = "0";
+            //StaffAmericanIndian = "0";
+            //StaffOther = "0";
+            //StaffNativeHawaiian = "0";
+            //StaffBiracialOrMulti = "0";
+            //StaffAsian = "0";
         }
-        public string TotalParent { get; set; }
-        public string TotalClient { get; set; }
-        public string WorkingParent { get; set; }
-        public string WorkingParentPercent { get; set; }
-        public string Insurance { get; set; }
-        public string InsurancePercent { get; set; }
-        public string JobParent { get; set; }
-        public string JobParentPercent { get; set; }
+        public int TotalParent { get; set; }
+        public int TotalClient { get; set; }
+        public int WorkingParent { get; set; }
+        public decimal WorkingParentPercent { get; set; }
+        public int Insurance { get; set; }
+        public decimal InsurancePercent { get; set; }
+        public int JobParent { get; set; }
+        public decimal JobParentPercent { get; set; }
 
-        public string ClientDoctor { get; set; }
-        public string ClientDoctorPercent { get; set; }
-        public string ClientDental { get; set; }
+        public int ClientDoctor { get; set; }
+        public decimal ClientDoctorPercent { get; set; }
+        public int ClientDental { get; set; }
 
-        public string ClientDentalPercent { get; set; }
-        public string ClientDisability { get; set; }
-        public string ClientDisablilyPercent { get; set; }
-        public string AttendanceIssue { get; set; }
-        public string AttendIssuePercent { get; set; }
-        public string OtherLangSpeakers { get; set; }
-        public string OtherLangSpeakersPercent { get; set; }
-        public string EnglishLang { get; set; }
-        public string AfricanLang { get; set; }
-        public string CaribbeanLang { get; set; }
-        public string EastAsianLang { get; set; }
-        public string EuropeanLang { get; set; }
-        public string MiddleLang { get; set; }
-        public string NativeCenterLang { get; set; }
-        public string NativeNorthLang { get; set; }
-        public string PacificLang { get; set; }
-        public string SpanisLang { get; set; }
-        public string Ethnicity { get; set; }
-        public string NonEthnicity { get; set; }
-        public string BlackOrAfrican { get; set; }
-        public string AmericanIndian { get; set; }
-        public string Other { get; set; }
-        public string NativeHawaiian { get; set; }
-        public string BiracialOrMulti { get; set; }
-        public string Asian { get; set; }
-        public string Unspecified { get; set; }
-        public string White { get; set; }
+        public decimal ClientDentalPercent { get; set; }
+        public int ClientDisability { get; set; }
+        public decimal ClientDisablilyPercent { get; set; }
+        public int AttendanceIssue { get; set; }
+        public decimal AttendIssuePercent { get; set; }
+        public int OtherLangSpeakers { get; set; }
+        public decimal OtherLangSpeakersPercent { get; set; }
+        public int EnglishLang { get; set; }
+        public int AfricanLang { get; set; }
+        public int CaribbeanLang { get; set; }
+        public int EastAsianLang { get; set; }
+        public int EuropeanLang { get; set; }
+        public int MiddleLang { get; set; }
+        public int NativeCenterLang { get; set; }
+        public int NativeNorthLang { get; set; }
+        public int PacificLang { get; set; }
+        public int SpanisLang { get; set; }
+        public int OtherLang { get; set; }
+        public int Ethnicity { get; set; }
+        public int NonEthnicity { get; set; }
+        public int BlackOrAfrican { get; set; }
+        public int AmericanIndian { get; set; }
+        public int Other { get; set; }
+        public int NativeHawaiian { get; set; }
+        public int BiracialOrMulti { get; set; }
+        public int Asian { get; set; }
+        public int Unspecified { get; set; }
+        public int White { get; set; }
 
-        public string StaffBlackOrAfrican { get; set; }
-        public string StaffAmericanIndian { get; set; }
-        public string StaffOther { get; set; }
-        public string StaffNativeHawaiian { get; set; }
-        public string StaffBiracialOrMulti { get; set; }
-        public string StaffAsian { get; set; }
-        public string StaffUnspecified { get; set; }
-        public string StaffWhite { get; set; }
+        public int StaffBlackOrAfrican { get; set; }
+        public int StaffAmericanIndian { get; set; }
+        public int StaffOther { get; set; }
+        public int StaffNativeHawaiian { get; set; }
+        public int StaffBiracialOrMulti { get; set; }
+        public int StaffAsian { get; set; }
+        public int StaffUnspecified { get; set; }
+        public int StaffWhite { get; set; }
 
-        public string FamilyAvgAge { get; set; }
-        public string FSWAvgAge { get; set; }
-        public string TeacherAvgAge { get; set; }
-    }
+        public decimal FamilyAvgAge { get; set; }
+        public decimal FSWAvgAge { get; set; }
+        public decimal TeacherAvgAge { get; set; }
 
-    public class DemoGraphicPercentageAvgAge
-    {
-
-        public string TotalParent { get; set; }
-        public string TotalClient { get; set; }
-        public string WorkingParent { get; set; }
-        public string WorkingParentPercent { get; set; }
-        public string Insurance { get; set; }
-        public string InsurancePercent { get; set; }
-        public string JobParent { get; set; }
-        public string JobParentPercent { get; set; }
-
-        public string ClientDoctor { get; set; }
-        public string ClientDoctorPercent { get; set; }
-        public string ClientDental { get; set; }
-
-        public string ClientDentalPercent { get; set; }
-        public string ClientDisability { get; set; }
-        public string ClientDisablilyPercent { get; set; }
-        public string AttendanceIssue { get; set; }
-        public string AttendIssuePercent { get; set; }
-        public string OtherLangSpeakers { get; set; }
-        public string OtherLangSpeakersPercent { get; set; }
-        public string EnglishLang { get; set; }
-        public string AfricanLang { get; set; }
-        public string CaribbeanLang { get; set; }
-        public string EastAsianLang { get; set; }
-        public string EuropeanLang { get; set; }
-        public string MiddleLang { get; set; }
-        public string NativeCenterLang { get; set; }
-        public string NativeNorthLang { get; set; }
-        public string PacificLang { get; set; }
-        public string SpanisLang { get; set; }
-        public string Ethnicity { get; set; }
-        public string NonEthnicity { get; set; }
-
+        public int StaffEnglishLang { get; set; }
+        public int StaffAfricanLang { get; set; }
+        public int StaffCaribbeanLang { get; set; }
+        public int StaffEastAsianLang { get; set; }
+        public int StaffEuropeanLang { get; set; }
+        public int StaffMiddleLang { get; set; }
+        public int StaffNativeCenterLang { get; set; }
+        public int StaffNativeNorthLang { get; set; }
+        public int StaffPacificLang { get; set; }
+        public int StaffSpanisLang { get; set; }
+        public int StaffOtherLang { get; set; }
 
     }
+
+   
 }

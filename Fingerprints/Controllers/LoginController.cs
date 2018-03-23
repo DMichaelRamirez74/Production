@@ -296,6 +296,8 @@ namespace Fingerprints.Controllers
                     Session["IsCoreTeam"] = false;
                     Session["IsDemographic"] = false;
                     Session["isAcceptance"] = false;
+                    Session["IsShowPIR"] = UserInfo.IsShowPIR;
+                    Session["IsShowSectionB"] = UserInfo.IsShowSectionB;
                     if (UserInfo.AgencyId != null)
                     {
                         Session["AgencyID"] = UserInfo.AgencyId;

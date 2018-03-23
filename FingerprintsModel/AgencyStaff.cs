@@ -218,6 +218,7 @@ namespace FingerprintsModel
  public decimal Age { get; set; }
 
         public int IsPreg { get; set; }
+        public int IsClassStarted { get; set; }
 
         public List<CenterAndClassRoom> CenterAndClassRoom { get; set; }
         public List<CaseNoteDetails> CaseNoteDetails { get; set; }
@@ -325,9 +326,20 @@ namespace FingerprintsModel
         public string RoleName { get; set; }
         public bool IsCoreTean { get; set; }
         public string UserColor { get; set; }
-       
+    }
+
+
+    public class PIRAccessRoles
+    {
+        public Guid RoleId { get; set; }
+        public string RoleName { get; set; }
+        public bool IsAccessPIR { get; set; }
+
 
     }
+
+    
+
     public class AcceptanceProcess
     {
         public string RoleId { get; set; }

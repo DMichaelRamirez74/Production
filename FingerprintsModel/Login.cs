@@ -21,6 +21,10 @@ namespace FingerprintsModel
         public string IPAddress { get; set; }
         public string AccessStart { get; set; }
         public string AccessStop { get; set; }
+
+        public bool IsShowPIR { get; set; }
+
+        public bool IsShowSectionB { get; set; }
         
     }
 }

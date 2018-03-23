@@ -10,6 +10,7 @@ using System.Threading;
 using System.Globalization;
 using FingerprintsData;
 using Fingerprints.Filters;
+using System.Web.Script.Serialization;
 
 namespace Fingerprints.Controllers
 {
@@ -23,7 +24,7 @@ namespace Fingerprints.Controllers
        // string roleid = "2d9822cd-85a3-4269-9609-9aabb914d725";
        // string agencyid = "C40BB313-BAC6-44E3-A746-C34B03979797";
       
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,b65759ba-4813-4906-9a69-e180156e42fc,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,b65759ba-4813-4906-9a69-e180156e42fc,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public ActionResult PIRSummary(string id)
         {
            
@@ -40,6 +41,56 @@ namespace Fingerprints.Controllers
                 //Session["PIRQuestion"] = _PIR.pirQuestion;
 
            
+        }
+		
+		 /// <summary>
+        /// Get the Staff under the PIR Access Roles.
+        /// </summary>
+        /// <returns></returns>
+        public JsonResult GetPIRUsers(int reqPage, int pgSize, int skipRow, string searchText = "")
+        {
+            PIRAccessStaffs pirStaffs = new PIRAccessStaffs();
+
+            try
+            {
+                pirStaffs.RequestedPage = reqPage;
+                pirStaffs.Skip = skipRow;
+                pirStaffs.SearchText = searchText;
+                pirStaffs.Take = pgSize;
+                pirStaffs = new PIRData().GetPIRUsers(pirStaffs);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(pirStaffs, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Ajax JsonResult method to insert the staff's record for allow/disallow the Section B in PIR.
+        /// </summary>
+        /// <param name="pirAccessStaffs"></param>
+        /// <returns></returns>
+        public JsonResult InsertPIRSectionBAccessStaffs(string pirAccessStaffs="")
+        {
+            bool isResult = false;
+            try
+            {
+                PIRAccessStaffs staffAccess = new PIRAccessStaffs();
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                staffAccess = serializer.Deserialize<PIRAccessStaffs>(pirAccessStaffs);
+
+                isResult = new PIRData().InsertPIRSectionBAccessStaffs(staffAccess);
+
+            
+            }
+            catch(Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+            return Json(isResult, JsonRequestBehavior.AllowGet);
         }
        
     }

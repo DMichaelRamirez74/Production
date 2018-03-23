@@ -9,7 +9,8 @@ namespace FingerprintsModel
 {
     public class TeacherModel
     {
-        public String Tdate { get; set; }
+       
+        public string Tdate { get; set; }
         public String ClientID { get; set; }
         public String CName { get; set; }
         public String CDOB { get; set; }
@@ -22,6 +23,11 @@ namespace FingerprintsModel
         public List<TeacherModel> Meallst { get; set; }
 
         public List<FamilyHousehold> EmergencyContactList { get; set; }
+
+        public string AccessDateString { get; set; }
+
+        public string RestrictedDateString { get; set; }
+
         public String CImage { get; set; }
         public string CIFileName { get; set; }
         public string CIFileExtension { get; set; }
@@ -91,6 +97,9 @@ namespace FingerprintsModel
         public string minDes { get; set; }
         public string Programid { get; set; }
         public string Enc_ClientId { get; set; }
+
+       public string Enc_ProgramId { get; set; }
+        public string Enc_HouseholdId { get; set; }
 
         public string Dateofclassstartdate { get; set; }
 

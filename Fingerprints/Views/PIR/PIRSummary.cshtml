@@ -17,20 +17,119 @@
 
 
 @section MainContentHolder{
+<style>
+    .btnwrp_subcal.access_pir {
+        text-align: left;
+    }
 
+    .scroll-thead {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        /*width: 98.3%;*/
+    }
+
+    .scroll-tbody {
+        display: block;
+        /*height: 316px;*/
+        height: auto;
+        overflow: auto;
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+        .scroll-tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+</style>
 
 
    
         <script>
 
+            var requestedPage = 1;
+            var pageSize = 10;
+            var skip = 0;
+            var searchText = '';
+            var pageLoadedFirst = false;
+            var StartIndex = 0;
+            var LastIndex = 0;
+
+
     $(document).ready(function() {
         if(location.hash) {
             $('a[href=' + location.hash + ']').tab('show');
         }
+
         $(document.body).on("click", "a[data-toggle]", function(event) {
             location.hash = this.getAttribute("href");
         });
+
+
+        if ($('#myTab').find('#securityTab').length > 0) {
+            getPIRStaffs();
+
+        }
+
+        $('#btnSearchPIRStaff').on('click', function () {
+
+            drawgrid();
+        });
+
+        $('#btnSubmitPIRStaff').on('click', function () {
+
+            if ($('#filltable').find('.scroll-tbody').find('input[class=pirCheck]:checked').length == 0) {
+                customAlert('Please select the checkbox to display Section B in PIR');
+                return false;
+            }
+
+            var model = {};
+
+            var arr = [];
+
+            $('#filltable').find('.scroll-tbody').find('input[class=pirCheck]').each(function (i, checkbox) {
+
+                arr.push({
+
+                    'UserId': $(checkbox).closest('tr').find('td').eq(0).children('.pirUserId').val(),
+                    'RoleId': $(checkbox).closest('tr').find('td').eq(1).children('.pirRoleId').val(),
+                    'IsShowSectionB': $(checkbox).is(':checked') ? true : false,
+                    'IsShowPIR': true
+                });
+
+            });
+
+            model = {
+                'PIRStaffsList': arr
+            };
+
+            $('#spinner').show();
+
+            $.ajax({
+                url:  HostedDir + "/PIR/InsertPIRSectionBAccessStaffs",
+                datatype: 'json',
+                type: 'post',
+                data: { pirAccessStaffs: JSON.stringify(model) },
+                success: function (data) {
+                    $('#spinner').hide();
+                    if (data) {
+
+                        customAlert('Recore saved successfully');
+                    }
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+                }
+            });
+
+        });
+
     });
+
     $(window).on('popstate', function() {
         var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
         $('a[href=' + anchor + ']').tab('show');
@@ -77,6 +176,181 @@
             }
         });
     }
+
+     //funtion to get the list of staffs under the PIR Accessable Roles//
+    function getPIRStaffs() {
+        requestedPage = (requestedPage == '' || requestedPage == null) ? 1 : requestedPage;
+        pageSize = (pageSize == '' || pageSize == null) ? 10 : pageSize;
+        skip = (pageSize * (requestedPage - 1));
+        searchText = $('#txtSearchPIRStaff').val();
+
+        $('#spinner').show();
+        $.ajax({
+
+            url:HostedDir + "/PIR/GetPIRUsers",
+            datatype: 'json',
+            type: 'post',
+            data: { reqPage: requestedPage, pgSize: pageSize, skipRow: skip, searchText: searchText },
+            success: function (data) {
+                $('#spinner').hide();
+                var appendDiv = '';
+                if (data != null) {
+
+                    $('#totalStaffSpan').text(data.TotalRecord);
+                    getTotalRecord(data.TotalRecord);
+                    if (data.PIRStaffsList != null && data.PIRStaffsList.length > 0) {
+                        $.each(data.PIRStaffsList, function (i, pir) {
+
+                            appendDiv += '<tr>' +
+                                         '<td>' +
+                                         '<input type="hidden" name="PIRAccessStaffs[' + i + '].UserId" class="pirUserId" value=' + pir.UserId + '>' +
+                                         pir.StaffName + '</td>' +
+                                        ' <td style="text-align:center;">' +
+                                               '<input type="hidden" name="PIRAccessStaffs[' + i + '].RoleId" class="pirRoleId" value=' + pir.RoleId + '>' + pir.RoleName + '</td>' +
+                                         '<td style="text-align:center;">';
+                            if (pir.IsShowSectionB) {
+                                appendDiv += ' <input type="checkbox" class="pirCheck" name="PIRAccessStaffs[0].IsShowSectionB" value="true" checked=checked>';
+                            }
+                            else {
+                                appendDiv += ' <input type="checkbox"  class="pirCheck" name="PIRAccessStaffs[0].IsShowSectionB">';
+
+                            }
+
+                            appendDiv += '</td> </tr>';
+
+                        });
+                    }
+                    else {
+                        appendDiv += '<tr><td style="height:91px;text-align:center;padding:30px;font-weight:bold;">Records Not Found</td></tr>';
+                    }
+
+
+                }
+                else {
+                    appendDiv += '<tr><td style="height:91px;text-align:center;padding:30px;font-weight:bold;">Records Not Found</td></tr>';
+
+                }
+                $('#filltable').find('tbody').html(appendDiv);
+
+
+            },
+            error: function (data) {
+                $('#spinner').hide();
+                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+            }
+
+
+        });
+
+    }
+
+    //Functions used for Pagination Start//
+    function fnChangePage(val) {
+        pageLoadedFirst = false;
+        pageSize = $('#ddlpagetodisplay').val();
+        if (val == 'First') {
+            StartIndex = 0;
+            LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+            requestedPage = ((StartIndex / 10) + 1);
+            GoToNextPage(requestedPage, pageSize);
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+            $('#Next').attr('disabled', false);
+            $('#Last').attr('disabled', false);
+            LastIndex = 0;
+        }
+        else if (val == 'Last') {
+            StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+            LastIndex = totalRecords;
+            requestedPage = numOfPages;
+            GoToNextPage(requestedPage, pageSize)
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            $('#Next').attr('disabled', true);
+            $('#Last').attr('disabled', true);
+        }
+        else if (val == 'Next') {
+            LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+            requestedPage = (parseInt(LastIndex / pageSize) + 1);
+            GoToNextPage(requestedPage, pageSize);
+            $('#First').attr('disabled', false);
+            $('#Back').attr('disabled', false);
+            if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+        }
+        else if (val == 'Back') {
+            requestedPage = requestedPage - 1;
+            LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+            GoToNextPage(requestedPage, pageSize)
+            if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                $('#Next').attr('disabled', false);
+                $('#Last').attr('disabled', false);
+            }
+            if (requestedPage == 1) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+            }
+        }
+        else {
+        }
+    }
+
+    function GoToNextPage(requestedPage, pageSize) {
+
+        getPIRStaffs();
+    }
+
+    function getTotalRecord(data) {
+        $('#First').attr('disabled', false);
+        $('#Back').attr('disabled', false);
+        $('#Next').attr('disabled', false);
+        $('#Last').attr('disabled', false);
+        pageSize = $('#ddlpagetodisplay').val();
+        if (data > 0) {
+            totalRecords = parseInt(data);
+            if (totalRecords <= pageSize) {
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+                $('#Next').attr('disabled', true);
+                $('#Last').attr('disabled', true);
+            }
+            numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+            $("#ddlpaging").empty()
+            for (i = 1; i <= numOfPages; i++) {
+                var newOption = "<option value='" + i + "'>" + i + "</option>";
+                $("#ddlpaging").append(newOption);
+            }
+            $("#ddlpaging").val(requestedPage);
+        }
+        else {
+            $('#First').attr('disabled', true);
+            $('#Back').attr('disabled', true);
+            $('#Next').attr('disabled', true);
+            $('#Last').attr('disabled', true);
+        }
+    }
+
+    function drawgrid() {
+        requestedPage = 1;
+        getPIRStaffs();
+        LastIndex = 0;
+        $('#First').attr('disabled', true);
+        $('#Back').attr('disabled', true);
+    }
+
+   //Functions used for Pagination End//
+
         </script>
 
         <input type="hidden" id="profileindex" name="profileindex" />
@@ -103,9 +377,22 @@
 
                             <li class="active"><a href="#sectionG" data-toggle="tab">General Information</a></li>
                             <li><a href="#sectionA" data-toggle="tab">Section A</a></li>
-                            <li><a href="#sectionB" data-toggle="tab">Section B</a></li>
+
+                            @if (Convert.ToBoolean(Session["IsShowSectionB"]) || Session["RoleID"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
+                            {
+
+                                <li><a href="#sectionB" data-toggle="tab">Section B</a></li>
+
+                            }
+                            
                             <li><a href="#sectionC" data-toggle="tab">Section C</a></li>
                             <li><a href="#generate" data-toggle="tab">Refresh PIR</a></li>
+
+                            @if (Session["RoleID"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
+                            {
+                                <li><a href="#security" data-toggle="tab" id="securityTab">Security</a></li>
+
+                            }
                         </ul>
                     </div>
                     <div id="myTabContent" class="tab-content">
@@ -2734,6 +3021,7 @@
 
                         </div>
                     </div>
+
                     <div class="tab-pane fade" id="sectionC">
                         <div class="add-useragform">
 
@@ -4375,6 +4663,86 @@
                     <div class="tab-pane fade" id="generate">
 
                     </div>
+                        <!--Security Tab Section Start-->
+
+                        <div class="tab-pane fade" id="security">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding:0;">
+
+
+                                <div class="btnwrp_subcal access_pir" style="padding-top:5px;">
+
+                                    <div class="table-responsive" style="overflow-x:hidden;overflow-y: auto;">
+
+
+                                        <div class="col-lg-12" style="text-align:center;margin-bottom:13px; ">
+                                            <label style="width:auto;display:inline-block;color: #295b8f; padding-right:5px;">Search by Staff Name</label>
+                                            <input type="text" class="form-control" id="txtSearchPIRStaff" placeholder="Search by Name" style="width:300px; display:inline-block;height: 38px;" />
+                                            <button type="button" class="my-btn" style="width:auto;display:inline-block;" id="btnSearchPIRStaff">Search</button>
+                                            @*<label style="width:auto;display:inline-block;color: #295b8f;float:right;padding-top: 10px;">Total Staffs: <span id="totalStaffSpan" style="color:#333;">00</span></label>*@
+                                        </div>
+
+                                        <div class="col-xs-12 col-lg-12" style="margin-bottom:20px;">
+                                            <label style="width:auto;display:inline-block;color: #295b8f;float:left;padding-top: 10px;">Total Staffs: <span id="totalStaffSpan" style="color:#333;">00</span></label>
+
+                                            <button type="button" class="my-btn" style="float:right;" id="btnSubmitPIRStaff">Submit</button>
+                                            @*<button type="button" class="my-btn">Cancel</button>*@
+
+                                        </div>
+
+                                        <table class="table table_size" id="filltable">
+                                            <thead class="scroll-thead" style="cursor:pointer;">
+                                                <tr>
+                                                    <th>Staff Name</th>
+                                                    <th>Staff Role</th>
+                                                    <th style="width:32%;">Display Section B</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="scroll-tbody"></tbody>
+                                        </table>
+
+                                        <!----Pagination-->
+                                        <div class="row" style="margin-top:30px;">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                                <div class="pages_display">
+                                                    <ul>
+                                                        <li>Display</li>
+                                                        <li>
+                                                            <select id="ddlpagetodisplay" onchange="drawgrid();">
+                                                                <option value="10" selected="selected">10</option>
+                                                                <option value="25">25</option>
+                                                                <option value="50">50</option>
+                                                                <option value="100">100</option>
+                                                            </select>
+                                                        </li>
+                                                        <li>Records Per Page</li>
+                                                    </ul>
+                                                    <div class="clear"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                <div id="divPaging" class="pagination_wrp">
+                                                    <ul id="ulPaging" class="pagination">
+                                                        <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;"></li>
+                                                        <li title="Back"><input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="fnChangePage('Back'); return false;"></li>
+                                                        <li title="Select">
+                                                            <select class="select_cl" id="ddlpaging"></select>
+                                                        </li>
+                                                        <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="fnChangePage('Next'); return false;"></li>
+                                                        <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="fnChangePage('Last'); return false;"></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!--Security Tab Section End-->
+
 
 
                 </div>

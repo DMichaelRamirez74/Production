@@ -19,6 +19,7 @@ namespace FingerprintsData
         SqlCommand command = new SqlCommand();
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
+
         public void GetPIRSummary(DataSet _dataset, PIRModel _PIR)
         {
            if (_dataset != null)
@@ -216,7 +217,8 @@ namespace FingerprintsData
             command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getPIR";
-                DataAdapter = new SqlDataAdapter(command);
+
+            DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
                 GetPIRSummary(_dataset, _PIR);
@@ -279,6 +281,134 @@ namespace FingerprintsData
             
         }
         
+		  /// <summary>
+        /// method to get the Staff under the PIR Access Roles based on Agency.
+        /// </summary>
+        /// <returns></returns>
+        public PIRAccessStaffs GetPIRUsers(PIRAccessStaffs pirStaffs)
+        {
+            PIRAccessStaffs pIRAccessStaffs = new PIRAccessStaffs();
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@Take", pirStaffs.Take));
+                    command.Parameters.Add(new SqlParameter("@Skip", pirStaffs.Skip));
+                    command.Parameters.Add(new SqlParameter("@RequestedPage", pirStaffs.RequestedPage));
+                    command.Parameters.Add(new SqlParameter("@SearchText", pirStaffs.SearchText));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetPIRAccessStaffs";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        pIRAccessStaffs.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
+                        pIRAccessStaffs.PIRStaffsList = _dataset.Tables[0].AsEnumerable().OrderBy(x => x.Field<string>("StaffName"))
+                                  .Select(x => new PIRStaffs
+                                  {
+
+                                      StaffName = x.Field<string>("StaffName"),
+                                      RoleId = x.Field<Guid>("RoleId"),
+                                      UserId = x.Field<Guid>("UserId"),
+                                      RoleName = x.Field<string>("RoleName"),
+                                      IsShowSectionB = x.Field<bool>("IsShowSectionB")
+
+                                  }).ToList();
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return pIRAccessStaffs;
+        }
+
+        /// <summary>
+        /// method to insert the Staff's who are access to Section B in PIR
+        /// </summary>
+        /// <param name="pirStaffs"></param>
+        /// <returns></returns>
+        public bool InsertPIRSectionBAccessStaffs(PIRAccessStaffs pirStaffs)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+               
+                DataTable accessStaffdt = new DataTable();
+
+                accessStaffdt.Columns.AddRange(new DataColumn[6] {
+                    new DataColumn("PIRStaffIndexId",typeof(long)),
+                    new DataColumn("AgencyId",typeof(Guid)),
+                    new DataColumn("UserId",typeof(Guid)),
+                    new DataColumn("RoleId",typeof(Guid)),
+                    new DataColumn("IsShowSectionB",typeof(bool)),
+                    new DataColumn("Status",typeof(bool))
+                });
+
+                if (pirStaffs.PIRStaffsList.Count() > 0)
+                {
+
+                    foreach (var item in pirStaffs.PIRStaffsList)
+                        accessStaffdt.Rows.Add(
+                            0,
+                          pirStaffs.StaffDetails.AgencyId,
+                          item.UserId,
+                          item.RoleId,
+                          item.IsShowSectionB,
+                          (item.IsShowSectionB) ? true : false
+                        );
+
+                }
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyId", pirStaffs.StaffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", pirStaffs.StaffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", pirStaffs.StaffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@PIRAccessStaffsType", accessStaffdt));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_InsertSectionBPIRStaffs";
+                    Connection.Open();
+                    isRowsAffected = (command.ExecuteNonQuery() > 0);
+                    Connection.Close();
+                }
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return isRowsAffected;
+        }
        
     }
 }

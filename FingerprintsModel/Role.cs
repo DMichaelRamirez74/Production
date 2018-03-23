@@ -11,4 +11,13 @@ namespace FingerprintsModel
         public string RoleName { get; set; }
         public bool Defaultrole { get; set; }
     }
+
+     public class AcceptanceRole
+    {
+        public List<Role> RoleList = new List<Role>();
+        public int Priority { get; set; }
+        public Guid RoleID { get; set; }
+        public string RoleName { get; set; }
+        public bool isAllowIncome { get; set; }
+    }
 }
