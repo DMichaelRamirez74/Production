@@ -14,10 +14,9 @@ namespace FingerprintsModel
         //View Client Details
         public string ClientAssigned { get; set; }
         public List<AssignedTo> ClientAssignedTo = new List<AssignedTo>();
-
+       public int InChildCareSubsidy { get; set; }
         public List<WellBabyExamModel> WellBabyExamModelList = new List<WellBabyExamModel>();
         public List<ClassroomChangeReason> _ChangeReasonList = new List<ClassroomChangeReason>();
-        public int InChildCareSubsidy { get; set; }
         public class AssignedTo
         {
             public string Id { get; set; }
