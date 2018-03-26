@@ -537,6 +537,7 @@ namespace Fingerprints.Controllers
 
                     if (message == "1")
                     {
+                        _nurse.InsertAcceptReason(info, Session["AgencyID"].ToString());
                         TempData["message"] = "Applicant accepted successfully. ";
                         return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
                     }
@@ -554,6 +555,7 @@ namespace Fingerprints.Controllers
                 {
                     if (message == "1")
                     {
+                        _nurse.InsertAcceptReason(info, Session["AgencyID"].ToString());
                         TempData["message"] = "Applicant accepted successfully. ";
                         return Redirect("~/Yakkr/YakkrDetails");
                     }
