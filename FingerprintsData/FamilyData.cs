@@ -1124,7 +1124,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsFoster", obj.IsFoster));
                 command.Parameters.Add(new SqlParameter("@Inwalfareagency", obj.Inwalfareagency));
                 command.Parameters.Add(new SqlParameter("@InDualcustody", obj.InDualcustody));
-                command.Parameters.Add(new SqlParameter("@InChildCareSubsidy", obj.InChildCareSubsidy));
+                //command.Parameters.Add(new SqlParameter("@InChildCareSubsidy", obj.InChildCareSubsidy));
                 command.Parameters.Add(new SqlParameter("@ImmunizationFileName", obj.ImmunizationFileName));
                 command.Parameters.Add(new SqlParameter("@ImmunizationFileExtension", obj.ImmunizationFileExtension));
                 command.Parameters.Add(new SqlParameter("@Immunizationfileinbytes", obj.Immunizationfileinbytes));

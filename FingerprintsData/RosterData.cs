@@ -668,6 +668,8 @@ namespace FingerprintsData
                                                IsLateArrival = DBNull.Value.Equals(dr["IsLateArrival"]) ? false : Convert.ToBoolean(dr["IsLateArrival"]),
                                                IsCaseNoteEntered = DBNull.Value.Equals(dr["IsCaseNoteEntered"]) ? false : Convert.ToBoolean(dr["IsCaseNoteEntered"]),
                                                IsHomeBased = Convert.ToInt32(dr["IsHomeBased"]),
+                                               IsClassStarted = DBNull.Value.Equals(dr["IsClassStarted"]) ? 0 : Convert.ToInt32(dr["IsClassStarted"]),
+
                                                IsAppointMentYakkr600601 = DBNull.Value.Equals(dr["IsAppointMentYakkr600601"]) ? 0 : Convert.ToInt32(dr["IsAppointMentYakkr600601"]),
                                                Age = dr["Age"].ToString() == "" ? Convert.ToDecimal(0) : Convert.ToDecimal(dr["Age"].ToString()),
                                                IsPreg = string.IsNullOrEmpty(dr["IsPreg"].ToString()) ? 0 : Convert.ToInt32(dr["IsPreg"].ToString()),
