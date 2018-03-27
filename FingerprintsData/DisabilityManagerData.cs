@@ -334,6 +334,7 @@ namespace FingerprintsData
             Roster _roster = new Roster();
             List<ClassRoom> classList = new List<ClassRoom>();
             List<DisableNotes> disablenotes = new List<DisableNotes>();
+            _roster.disablenotes = new List<DisableNotes>();
             try
             {
                 command.Parameters.Clear();
@@ -349,33 +350,64 @@ namespace FingerprintsData
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        DisableNotes info = null;
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        {
-                            info = new DisableNotes();
+                        //DisableNotes info = null;
+                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        //{
+                        //    info = new DisableNotes();
 
-                            info.Name = dr["Firstname"].ToString();
-                            info.Notes = dr["Notes"].ToString();
-                            info.DisableDocumentName = dr["DisableDocumentName"].ToString();
-                            info.DocumentDescription = dr["DocumentDescription"].ToString();
-                            info.noteid = dr["DisableNotesId"].ToString();
-                            info.Createdon = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
-                            info.DisabilityTypeID = string.IsNullOrEmpty(dr["DisablitiesTypeId"].ToString()) ? "" : dr["DisablitiesTypeId"].ToString();
-                            info.YakkrId = Convert.ToInt16(dr["YakkrId"]);
-                            info.SpecialServiceDisability = dr["ReceivedServicesId"].ToString();
-                            disablenotes.Add(info);
+                        //    info.Name = dr["Firstname"].ToString();
+                        //    info.Notes = dr["Notes"].ToString();
+                        //    info.DisableDocumentName = dr["DisableDocumentName"].ToString();
+                        //    info.DocumentDescription = dr["DocumentDescription"].ToString();
+                        //    info.noteid = dr["DisableNotesId"].ToString();
+                        //    info.Createdon = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
+                        //    info.DisabilityTypeID = string.IsNullOrEmpty(dr["DisablitiesTypeId"].ToString()) ? "" : dr["DisablitiesTypeId"].ToString();
+                        //    info.YakkrId = Convert.ToInt16(dr["YakkrId"]);
+                        //    info.SpecialServiceDisability = dr["ReceivedServicesId"].ToString();
 
-                        }
+                        //    disablenotes.Add(info);
 
-                        _roster.disablenotes = disablenotes;//Changes on 29Dec2016
+                        //}
+
+                        //_roster.disablenotes = disablenotes;//Changes on 29Dec2016
+
+                        _roster.disablenotes = _dataset.Tables[0].AsEnumerable().Select(x => new DisableNotes {
+
+                            Name=x.Field<string>("Firstname"),
+                            Notes=x.Field<string>("Notes"),
+                            DisableDocumentName=x.Field<string>("DisableDocumentName"),
+                            DocumentDescription=x.Field<string>("DocumentDescription"),
+                            noteid=x.Field<long>("DisableNotesId").ToString(),
+                            Createdon=x.Field<string>("DateEntered"),
+                            DisabilityTypeID=x.Field<string>("DisablitiesTypeId"),
+                            YakkrId=Convert.ToInt32(x.Field<string>("YakkrId")),
+                            SpecialServiceDisability=x.Field<string>("ReceivedServicesId"),
+                            PrimaryDisability=x.Field<Int32>("PrimaryDisability")
+                        }).ToList();
 
 
 
                         // disablenotes = new List<DisableNotes>();
                         DisableNotes notes = new DisableNotes();
-
+                        int primaryDisability = 0;
                         string disabilityType = _roster.disablenotes.Select(x => x.DisabilityTypeID).Where(x => !string.IsNullOrEmpty(x)).ToList().FirstOrDefault();
-                        notes.NotesList = _roster.disablenotes.Where(x => x.Notes != string.Empty).Select(x => new DisableNotes
+
+                         primaryDisability = _roster.disablenotes.Select(x => x.PrimaryDisability).Where(x =>x>0).ToList().FirstOrDefault();
+
+                        //notes.NotesList = _roster.disablenotes.Where(x => x.Notes != string.Empty).Select(x => new DisableNotes
+                        //{
+                        //    Notes = x.Notes,
+                        //    noteid = x.noteid,
+                        //    Createdon = x.Createdon,
+                        //    YakkrId = x.YakkrId,
+                        //    SpecialServiceDisability = x.SpecialServiceDisability,
+                        //    DisabilityTypeID = disabilityType,
+                        //    Name = x.Name,
+                        //    PrimaryDisability= primaryDisability
+                        //}).Distinct().ToList();
+
+
+                        notes.NotesList = _roster.disablenotes.Where(x => x.Notes != string.Empty || !string.IsNullOrEmpty(x.DisabilityTypeID)).Select(x => new DisableNotes
                         {
                             Notes = x.Notes,
                             noteid = x.noteid,
@@ -383,10 +415,11 @@ namespace FingerprintsData
                             YakkrId = x.YakkrId,
                             SpecialServiceDisability = x.SpecialServiceDisability,
                             DisabilityTypeID = disabilityType,
-                            Name = x.Name
+                            Name = x.Name,
+                            PrimaryDisability = primaryDisability
                         }).Distinct().ToList();
 
-                       
+
 
                         notes.DocumentList = _roster.disablenotes.Select(x => new DocumentInformation
                         {
@@ -396,7 +429,7 @@ namespace FingerprintsData
                             CreatedOn = x.Createdon
 
 
-                        }).Where(x => x.DisableDocumentName != string.Empty).ToList();
+                        }).Where(x => !string.IsNullOrEmpty(x.DisableDocumentName)).ToList();
 
                         disablenotes = new List<DisableNotes>();
                         disablenotes.Add(notes);
@@ -541,10 +574,12 @@ namespace FingerprintsData
         }
 
         public string SavePendingDisableUseInfo(string Clientid, string ClassroomID, string centerid
-         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "")
+         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "",string primaryDistype="")
         {
             try
             {
+                primaryDistype = (string.IsNullOrEmpty(primaryDistype)) ? "0" : primaryDistype;
+
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
@@ -562,6 +597,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters.Add(new SqlParameter("@DocumentDescription", txtdocdesc));
                 command.Parameters.Add(new SqlParameter("@ReceivedService", recService));
+                command.Parameters.Add(new SqlParameter("@PrimaryDisabilityType", primaryDistype));
                 if (Mode == "QualifyReleased")
                 {
                     Mode = ddlqualifiedreleased;

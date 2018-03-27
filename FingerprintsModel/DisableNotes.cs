@@ -20,7 +20,9 @@ namespace FingerprintsModel
         public List<DocumentInformation> DocumentList { get; set; }
 
         public List<DisableNotes> NotesList { get; set; }
-       
+        public int PrimaryDisability { get; set; }
+
+
     }
 
     public class DocumentInformation

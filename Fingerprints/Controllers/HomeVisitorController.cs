@@ -102,7 +102,7 @@ namespace Fingerprints.Controllers
                 string userid = Session["UserID"].ToString();
                 string agencyid = Session["AgencyID"].ToString();
                 string roleId = Session["RoleId"].ToString();
-                DataSet ds = new HomevisitorData().getclients(userid, agencyid, roleId);
+                DataSet ds = new HomevisitorData().getclients(userid, agencyid,roleId);
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)

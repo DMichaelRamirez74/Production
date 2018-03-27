@@ -782,9 +782,12 @@ namespace Fingerprints.Controllers
 
                 string DISABLETYPEID = "";
                 string result = "";
+                string primaryDisabilityType = "";
+               
                 if (Request.Form["disabilitytype"] != null)
                 {
                     DISABLETYPEID = Request.Form["disabilitytype"].ToString();
+                    primaryDisabilityType = Request.Form["primarydisabilitytype"].ToString();
                 }
                 if (Request.Files.Count > 0)
                 {
@@ -810,12 +813,12 @@ namespace Fingerprints.Controllers
 
                     }
 
-                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc);
+                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc,primaryDisabilityType);
                 }
 
                 else
                 {
-                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc, receivedService);
+                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc, receivedService, primaryDisabilityType);
                 }
 
                 return Json(result);
