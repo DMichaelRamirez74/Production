@@ -13297,15 +13297,15 @@ namespace FingerprintsData
                 }
                 if (ds.Tables[3] != null && ds.Tables[3].Rows.Count > 0)
                 {
-                    per.FamilyAvgAge =  Convert.ToDecimal(ds.Tables[3].Rows[0]["FamilyAvgAge"]);
+                    per.FamilyAvgAge = (DBNull.Value == ds.Tables[3].Rows[0]["FamilyAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[3].Rows[0]["FamilyAvgAge"]);
                 }
                 if (ds.Tables[4] != null && ds.Tables[4].Rows.Count > 0)
                 {
-                    per.TeacherAvgAge =  Convert.ToDecimal(ds.Tables[4].Rows[0]["TeacherAvgAge"]);
+                    per.TeacherAvgAge = (DBNull.Value == ds.Tables[4].Rows[0]["TeacherAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[4].Rows[0]["TeacherAvgAge"]);
                 }
                 if (ds.Tables[5] != null && ds.Tables[5].Rows.Count > 0)
                 {
-                    per.FSWAvgAge =  Convert.ToDecimal(ds.Tables[5].Rows[0]["fswAvgAge"]);
+                    per.FSWAvgAge = (DBNull.Value == ds.Tables[5].Rows[0]["fswAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[5].Rows[0]["fswAvgAge"]);
                 }
                 //if (ds.Tables[6] != null && ds.Tables[6].Rows.Count > 0)
                 //{
