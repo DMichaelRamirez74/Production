@@ -368,7 +368,7 @@ namespace FingerprintsData
 
                             }
                         }
-                        command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
+                      //  command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
                         command.CommandType = CommandType.StoredProcedure;
                         command.ExecuteNonQuery();
                         res = command.Parameters["@result"].Value.ToString();
@@ -1697,7 +1697,7 @@ namespace FingerprintsData
 
                     }
                 }
-                command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
+               // command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.CommandText = "SP_Staff_Personalinfo";
                 command.ExecuteNonQuery();
