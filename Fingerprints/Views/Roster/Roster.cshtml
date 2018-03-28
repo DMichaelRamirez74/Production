@@ -424,10 +424,17 @@
 
             $('#GridRoster > thead > tr > th').click(function () {
                 sortOrder = this.id;
-                if (sortOrder == "thSN")
+                var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
+
+                if (sortOrder == "thSN" || rowLength===0)
                     return false;
-                if (sortOrder == "thRN")
+                if (sortOrder == "thRN" || rowLength===0)
                     return false;
+                if (rowLength === 0)
+                    return false;
+
+
+
                 imgID = $("#" + this.id).find('img').attr('id');
                 $('#GridRoster > thead > tr > th > img').css("visibility", "hidden");
                 direction = $("#" + imgID).siblings('input').val();
@@ -1131,6 +1138,15 @@
 
         }
         function fnChangePage(val) {
+
+
+            var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
+            if (rowLength === 0)
+            {
+
+                return false;
+            }
+
             pageLoadedFirst = false;
             pageSize = $('#ddlpagetodisplay').val();
             if (val == 'First') {
