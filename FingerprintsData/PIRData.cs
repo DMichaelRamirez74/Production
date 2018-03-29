@@ -192,11 +192,51 @@ namespace FingerprintsData
                            _PIR.C_19_A_1 = dr["C19_A_1"].ToString();
                            _PIR.C_20 = dr["C20"].ToString();
                            _PIR.C_21 = dr["C21"].ToString();
-
-                        
-                                            /*   
-                                             
-                                              **/
+                           _PIR.C_27_1 = dr["C27_1"].ToString();
+                           _PIR.C_27_2 = dr["C27_2"].ToString();
+                           _PIR.C_27_A_1 = dr["C27A_AtEnroll_1"].ToString();
+                           _PIR.C_27_A_2 = dr["C27A_AtEnroll_2"].ToString();
+                           _PIR.C_27_B_1 = dr["C27B_AtEnroll_1"].ToString();
+                           _PIR.C_27_B_2 = dr["C27B_AtEnroll_2"].ToString();
+                           _PIR.C_27_C_1 = dr["C27C_AtEnroll_1"].ToString();
+                           _PIR.C_27_C_2 = dr["C27C_AtEnroll_2"].ToString();
+                           _PIR.C_27_D_1 = dr["C27D_AtEnroll_1"].ToString();
+                           _PIR.C_27_D_2 = dr["C27D_AtEnroll_2"].ToString();
+                           _PIR.C_27_E_1 = dr["C27E_AtEnroll_1"].ToString();
+                           _PIR.C_27_E_2 = dr["C27E_AtEnroll_2"].ToString();
+                           _PIR.C_27_F_1 = dr["C27F_AtEnroll_1"].ToString();
+                           _PIR.C_27_F_2 = dr["C27F_AtEnroll_2"].ToString();
+                           _PIR.C_27_G_1 = dr["C27G_AtEnroll_1"].ToString();
+                           _PIR.C_27_G_2 = dr["C27G_AtEnroll_2"].ToString();
+                           _PIR.C_27_H_1 = dr["C27H_AtEnroll_1"].ToString();
+                           _PIR.C_27_H_2 = dr["C27H_AtEnroll_2"].ToString();
+                           _PIR.C_27_I_1 = dr["C27I_AtEnroll_1"].ToString();
+                           _PIR.C_27_I_2 = dr["C27I_AtEnroll_2"].ToString();
+                           _PIR.C_27_J_1 = dr["C27J_AtEnroll_1"].ToString();
+                           _PIR.C_27_J_2 = dr["C27J_AtEnroll_2"].ToString();
+                           _PIR.C_27_K_1 = dr["C27K_AtEnroll_1"].ToString();
+                           _PIR.C_27_K_2 = dr["C27K_AtEnroll_2"].ToString();
+                           _PIR.C_27_L_1 = dr["C27L_AtEnroll_1"].ToString();
+                           _PIR.C_27_L_2 = dr["C27L_AtEnroll_2"].ToString();
+                           _PIR.C_27_M_1 = dr["C27M_AtEnroll_1"].ToString();
+                           _PIR.C_27_M_2 = dr["C27M_AtEnroll_2"].ToString();
+                           _PIR.C_35 = dr["C35"].ToString();
+                           _PIR.C_35_A = dr["C35A"].ToString();
+                           _PIR.C_35_B = dr["C35B"].ToString();
+                           _PIR.C_36_A = dr["C36A"].ToString();
+                           _PIR.C_36_B = dr["C36B"].ToString();
+                           _PIR.C_36_C = dr["C36C"].ToString();
+                           _PIR.C_36_D = dr["C36D"].ToString();
+                           _PIR.C_36_E = dr["C36E"].ToString();
+                           _PIR.C_37_A = dr["C37A"].ToString();
+                           _PIR.C_37_B = dr["C37B"].ToString();
+                           _PIR.C_37_C = dr["C37C"].ToString();
+                           _PIR.C_37_D = dr["C37D"].ToString();
+                           _PIR.C_37_E = dr["C37E"].ToString();
+                           _PIR.C_37_F = dr["C37F"].ToString();
+                           _PIR.C_38_A = dr["C38A"].ToString();
+                           _PIR.C_38_B = dr["C38B"].ToString();
+                           _PIR.C_38_C = dr["C38C"].ToString();
 
                     }
 

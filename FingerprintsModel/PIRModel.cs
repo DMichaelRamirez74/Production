@@ -176,8 +176,51 @@ namespace FingerprintsModel
         public string C_19_A_1 { get; set; }
         public string C_20 { get; set; }
         public string C_21 { get; set; }
-
-       
+        public string C_27_1 { get; set; }
+        public string C_27_2 { get; set; }
+        public string C_27_A_1 { get; set; }
+        public string C_27_A_2 { get; set; }
+        public string C_27_B_1 { get; set; }
+        public string C_27_B_2 { get; set; }
+        public string C_27_C_1 { get; set; }
+        public string C_27_C_2 { get; set; }
+        public string C_27_D_1 { get; set; }
+        public string C_27_D_2 { get; set; }
+        public string C_27_E_1 { get; set; }
+        public string C_27_E_2 { get; set; }
+        public string C_27_F_1 { get; set; }
+        public string C_27_F_2 { get; set; }
+        public string C_27_G_1 { get; set; }
+        public string C_27_G_2 { get; set; }
+        public string C_27_H_1 { get; set; }
+        public string C_27_H_2 { get; set; }
+        public string C_27_I_1 { get; set; }
+        public string C_27_I_2 { get; set; }
+        public string C_27_J_1 { get; set; }
+        public string C_27_J_2 { get; set; }
+        public string C_27_K_1 { get; set; }
+        public string C_27_K_2 { get; set; }
+        public string C_27_L_1 { get; set; }
+        public string C_27_L_2 { get; set; }
+        public string C_27_M_1 { get; set; }
+        public string C_27_M_2 { get; set; }
+        public string C_35 { get; set; }
+        public string C_35_A { get; set; }
+        public string C_35_B { get; set; }
+        public string C_36_A { get; set; }
+        public string C_36_B { get; set; }
+        public string C_36_C { get; set; }
+        public string C_36_D { get; set; }
+        public string C_36_E { get; set; }
+        public string C_37_A { get; set; }
+        public string C_37_B { get; set; }
+        public string C_37_C { get; set; }
+        public string C_37_D { get; set; }
+        public string C_37_E { get; set; }
+        public string C_37_F { get; set; }
+        public string C_38_A { get; set; }
+        public string C_38_B { get; set; }
+        public string C_38_C { get; set; }
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
        
