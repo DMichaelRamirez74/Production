@@ -13192,37 +13192,37 @@ namespace FingerprintsData
                 if (ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
 
-                    per.AfricanLang = Convert.ToInt32(ds.Tables[0].Rows[0]["AfricanLanguages"]);
-                    per.AttendanceIssue = Convert.ToInt32(ds.Tables[0].Rows[0]["ClientAttendanceIssue"]);
-                    per.AttendIssuePercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["AttendIssuePercent"]);
-                    per.CaribbeanLang = Convert.ToInt32(ds.Tables[0].Rows[0]["CaribbeanLanguages"]);
-                    per.ClientDental = Convert.ToInt32(ds.Tables[0].Rows[0]["ClientDental"]);
-                    per.ClientDentalPercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["ClientDentalPercent"]);
-                    per.ClientDisability = Convert.ToInt32(ds.Tables[0].Rows[0]["ClientDisability"]);
-                    per.ClientDisablilyPercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["ClientDisablilyPercent"]);
-                    per.ClientDoctor = Convert.ToInt32(ds.Tables[0].Rows[0]["ClientMedical"]);
-                    per.ClientDoctorPercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["ClientDoctorPercent"]);
-                    per.EastAsianLang = Convert.ToInt32(ds.Tables[0].Rows[0]["EastAsianLanguages"]);
-                    per.EnglishLang = Convert.ToInt32(ds.Tables[0].Rows[0]["EnglishLanguage"]);
-                    per.EuropeanLang = Convert.ToInt32(ds.Tables[0].Rows[0]["EuropeanSlavicLanguages"]);
-                    per.Insurance = Convert.ToInt32(ds.Tables[0].Rows[0]["TotalInsurance"]);
-                    per.InsurancePercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["InsurancePercent"]);
-                    per.JobParent = Convert.ToInt32(ds.Tables[0].Rows[0]["TotalParentJobTraining"]);
-                    per.JobParentPercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["JobParentPercent"]);
-                    per.MiddleLang = Convert.ToInt32(ds.Tables[0].Rows[0]["MiddleEasterLanguages"]);
-                    per.NativeCenterLang = Convert.ToInt32(ds.Tables[0].Rows[0]["NativeCentralLanguages"]);
-                    per.NativeNorthLang = Convert.ToInt32(ds.Tables[0].Rows[0]["NativeNorthLanguages"]);
-                    per.OtherLangSpeakers = Convert.ToInt32(ds.Tables[0].Rows[0]["OtherLanguageSpeakers"]);
-                    per.OtherLangSpeakersPercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["OtherLangSpeakersPercent"]);
-                    per.PacificLang = Convert.ToInt32(ds.Tables[0].Rows[0]["PacificIslandLanguages"]);
-                    per.SpanisLang = Convert.ToInt32(ds.Tables[0].Rows[0]["SpanishLanguages"]);
-                    per.Ethnicity = Convert.ToInt32(ds.Tables[0].Rows[0]["Ethnicity"]);
-                    per.NonEthnicity = Convert.ToInt32(ds.Tables[0].Rows[0]["NonEthnicity"]);
-                    per.TotalClient = Convert.ToInt32(ds.Tables[0].Rows[0]["totalclient"]);
-                    per.TotalParent = Convert.ToInt32(ds.Tables[0].Rows[0]["totalparent"]);
-                    per.WorkingParent = Convert.ToInt32(ds.Tables[0].Rows[0]["TotalWorkingParent"]);
-                    per.WorkingParentPercent = Convert.ToDecimal(ds.Tables[0].Rows[0]["WorkingParentPercent"]);
-                    per.OtherLang = Convert.ToInt32(ds.Tables[0].Rows[0]["ClientOtherLangSpeakers"]);
+                    per.AfricanLang =(DBNull.Value==ds.Tables[0].Rows[0]["AfricanLanguages"])?0: Convert.ToInt32(ds.Tables[0].Rows[0]["AfricanLanguages"]);
+                    per.AttendanceIssue = (DBNull.Value == ds.Tables[0].Rows[0]["ClientAttendanceIssue"])?0:Convert.ToInt32(ds.Tables[0].Rows[0]["ClientAttendanceIssue"]);
+                    per.AttendIssuePercent = (DBNull.Value == ds.Tables[0].Rows[0]["AttendIssuePercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["AttendIssuePercent"]);
+                    per.CaribbeanLang = (DBNull.Value == ds.Tables[0].Rows[0]["CaribbeanLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["CaribbeanLanguages"]);
+                    per.ClientDental = (DBNull.Value == ds.Tables[0].Rows[0]["ClientDental"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["ClientDental"]);
+                    per.ClientDentalPercent = (DBNull.Value == ds.Tables[0].Rows[0]["ClientDentalPercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["ClientDentalPercent"]);
+                    per.ClientDisability = (DBNull.Value == ds.Tables[0].Rows[0]["ClientDisability"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["ClientDisability"]);
+                    per.ClientDisablilyPercent = (DBNull.Value == ds.Tables[0].Rows[0]["ClientDisablilyPercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["ClientDisablilyPercent"]);
+                    per.ClientDoctor = (DBNull.Value == ds.Tables[0].Rows[0]["ClientMedical"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["ClientMedical"]);
+                    per.ClientDoctorPercent = (DBNull.Value == ds.Tables[0].Rows[0]["ClientDoctorPercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["ClientDoctorPercent"]);
+                    per.EastAsianLang = (DBNull.Value == ds.Tables[0].Rows[0]["EastAsianLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["EastAsianLanguages"]);
+                    per.EnglishLang = (DBNull.Value == ds.Tables[0].Rows[0]["EnglishLanguage"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["EnglishLanguage"]);
+                    per.EuropeanLang = (DBNull.Value == ds.Tables[0].Rows[0]["EuropeanSlavicLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["EuropeanSlavicLanguages"]);
+                    per.Insurance = (DBNull.Value == ds.Tables[0].Rows[0]["TotalInsurance"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["TotalInsurance"]);
+                    per.InsurancePercent = (DBNull.Value == ds.Tables[0].Rows[0]["InsurancePercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["InsurancePercent"]);
+                    per.JobParent = (DBNull.Value == ds.Tables[0].Rows[0]["TotalParentJobTraining"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["TotalParentJobTraining"]);
+                    per.JobParentPercent = (DBNull.Value == ds.Tables[0].Rows[0]["JobParentPercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["JobParentPercent"]);
+                    per.MiddleLang = (DBNull.Value == ds.Tables[0].Rows[0]["MiddleEasterLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["MiddleEasterLanguages"]);
+                    per.NativeCenterLang = (DBNull.Value == ds.Tables[0].Rows[0]["NativeCentralLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["NativeCentralLanguages"]);
+                    per.NativeNorthLang = (DBNull.Value == ds.Tables[0].Rows[0]["NativeNorthLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["NativeNorthLanguages"]);
+                    per.OtherLangSpeakers = (DBNull.Value == ds.Tables[0].Rows[0]["OtherLanguageSpeakers"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["OtherLanguageSpeakers"]);
+                    per.OtherLangSpeakersPercent = (DBNull.Value == ds.Tables[0].Rows[0]["OtherLangSpeakersPercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["OtherLangSpeakersPercent"]);
+                    per.PacificLang = (DBNull.Value == ds.Tables[0].Rows[0]["PacificIslandLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["PacificIslandLanguages"]);
+                    per.SpanisLang = (DBNull.Value == ds.Tables[0].Rows[0]["SpanishLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["SpanishLanguages"]);
+                    per.Ethnicity = (DBNull.Value == ds.Tables[0].Rows[0]["Ethnicity"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["Ethnicity"]);
+                    per.NonEthnicity = (DBNull.Value == ds.Tables[0].Rows[0]["NonEthnicity"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["NonEthnicity"]);
+                    per.TotalClient = (DBNull.Value == ds.Tables[0].Rows[0]["totalclient"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["totalclient"]);
+                    per.TotalParent = (DBNull.Value == ds.Tables[0].Rows[0]["totalparent"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["totalparent"]);
+                    per.WorkingParent = (DBNull.Value == ds.Tables[0].Rows[0]["TotalWorkingParent"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["TotalWorkingParent"]);
+                    per.WorkingParentPercent = (DBNull.Value == ds.Tables[0].Rows[0]["WorkingParentPercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["WorkingParentPercent"]);
+                    per.OtherLang = (DBNull.Value == ds.Tables[0].Rows[0]["ClientOtherLangSpeakers"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["ClientOtherLangSpeakers"]);
 
                 }
                 if (ds.Tables[1] != null && ds.Tables[1].Rows.Count > 0)
@@ -13234,23 +13234,23 @@ namespace FingerprintsData
                         switch (dr["racename"].ToString())
                         {
                             case "American Indian or Alaska Native":
-                                per.AmericanIndian = Convert.ToInt32(dr["racecount"]);
+                                per.AmericanIndian =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Asian":
-                                per.Asian = Convert.ToInt32(dr["racecount"]);
+                                per.Asian =  Convert.ToInt32(dr["racecount"]);
                                 break;
 
                             case "Biracial/Multi-racial":
-                                per.BiracialOrMulti = Convert.ToInt32(dr["racecount"]);
+                                per.BiracialOrMulti =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Black or African American":
-                                per.BlackOrAfrican = Convert.ToInt32(dr["racecount"]);
+                                per.BlackOrAfrican =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Native Hawaiian or other Pacific Islander":
                                 per.NativeHawaiian = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Other":
-                                per.Other = Convert.ToInt32(dr["racecount"]);
+                                per.Other =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "White":
                                 per.White = Convert.ToInt32(dr["racecount"]);
@@ -13269,26 +13269,26 @@ namespace FingerprintsData
                         switch (dr["racename"].ToString())
                         {
                             case "American Indian or Alaska Native":
-                                per.StaffAmericanIndian = Convert.ToInt32(dr["racecount"]);
+                                per.StaffAmericanIndian =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Asian":
-                                per.StaffAsian = Convert.ToInt32(dr["racecount"]);
+                                per.StaffAsian =  Convert.ToInt32(dr["racecount"]);
                                 break;
 
                             case "Biracial/Multi-racial":
-                                per.StaffBiracialOrMulti = Convert.ToInt32(dr["racecount"]);
+                                per.StaffBiracialOrMulti =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Black or African American":
-                                per.StaffBlackOrAfrican = Convert.ToInt32(dr["racecount"]);
+                                per.StaffBlackOrAfrican =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Native Hawaiian or other Pacific Islander":
-                                per.StaffNativeHawaiian = Convert.ToInt32(dr["racecount"]);
+                                per.StaffNativeHawaiian =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Other":
-                                per.StaffOther = Convert.ToInt32(dr["racecount"]);
+                                per.StaffOther =  Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "White":
-                                per.StaffWhite = Convert.ToInt32(dr["racecount"]);
+                                per.StaffWhite =  Convert.ToInt32(dr["racecount"]);
                                 break;
 
                         }
@@ -13297,15 +13297,15 @@ namespace FingerprintsData
                 }
                 if (ds.Tables[3] != null && ds.Tables[3].Rows.Count > 0)
                 {
-                    per.FamilyAvgAge = Convert.ToDecimal(ds.Tables[3].Rows[0]["FamilyAvgAge"]);
+                    per.FamilyAvgAge = (DBNull.Value == ds.Tables[3].Rows[0]["FamilyAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[3].Rows[0]["FamilyAvgAge"]);
                 }
                 if (ds.Tables[4] != null && ds.Tables[4].Rows.Count > 0)
                 {
-                    per.TeacherAvgAge = Convert.ToDecimal(ds.Tables[4].Rows[0]["TeacherAvgAge"]);
+                    per.TeacherAvgAge = (DBNull.Value == ds.Tables[4].Rows[0]["TeacherAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[4].Rows[0]["TeacherAvgAge"]);
                 }
                 if (ds.Tables[5] != null && ds.Tables[5].Rows.Count > 0)
                 {
-                    per.FSWAvgAge = Convert.ToDecimal(ds.Tables[5].Rows[0]["fswAvgAge"]);
+                    per.FSWAvgAge = (DBNull.Value == ds.Tables[5].Rows[0]["fswAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[5].Rows[0]["fswAvgAge"]);
                 }
                 //if (ds.Tables[6] != null && ds.Tables[6].Rows.Count > 0)
                 //{

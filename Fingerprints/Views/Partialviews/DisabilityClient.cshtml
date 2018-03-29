@@ -35,6 +35,24 @@
     .child_name:not( :hover ) .tooltiptext {
         visibility: hidden;
     }
+
+    .upl-ch {
+        height: 34px;
+        width: 42px;
+        background: #295b8f;
+        border-radius: 5px;
+        position: relative;
+        float: left;
+        text-align: center;
+        line-height: 35px;
+        color: #fff;
+        font-size: 25px;
+    }
+
+        .upl-ch:hover, .upl-ch:focus {
+            text-decoration: none !important;
+            color: #fff !important;
+        }
 </style>
 
 
@@ -145,8 +163,9 @@
                                                             <input type="file" name="FileUpload1" id="FileUpload1" class="form-control file-upload" />
                                                         </div>
                                                         <div class="col-sm-2">
-                                                            <a href="javascript:void(0);" class="upl">
-                                                                <img src="/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" id="add-atachment-image" onclick="addNewAttachment(this);" style="border-radius:5px;height: 34px;margin-left: -15px;">
+                                                            <a href="javascript:void(0);" class="upl upl-ch">
+                                                                +
+                                                                @*<img src="/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" id="add-atachment-image" onclick="addNewAttachment(this);" style="border-radius:5px;height: 34px;margin-left: -15px;">*@
                                                             </a>
                                                         </div>
                                                     </div>
@@ -183,6 +202,20 @@
 
                                                         </div>
                                                     </div>
+
+
+                                                    <div id="divdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Primary Disability Type</label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <select id="primaryDisabilitySelect" name="primaryDisabilitySelect" class="form-control"></select>
+                                                            <label style="width: 100%;font-size: 15px;color:#333;font-weight:normal;" id="primaryDisabilityLbl"></label>
+                                                        </div>
+                                                        
+                                                    </div>
+
+
                                                     <div class="col-sm-9">
                                                         <div class="col-sm-2">
 
@@ -271,7 +304,7 @@
                 var dts = ''
                 $('#pchechkbox').html('');
                 for (var i = 0; i < data.list.disabilitytype.length; i++) {
-                    dts += '<div class="col-xs-6 col-sm-4" style="width:300px;"><label class="checkbox-inline"><input  type="checkbox" value=' + data.list.disabilitytype[i].Id + ' name="disabilitytype"><span>' + data.list.disabilitytype[i].DisabilityType + '</span></label></div>'
+                    dts += '<div class="col-xs-6 col-sm-4" style="width:300px;"><label class="checkbox-inline"><input  type="checkbox" value=' + data.list.disabilitytype[i].Id + ' name="disabilitytype" onclick="bindPrimaryDisability(this);"><span>' + data.list.disabilitytype[i].DisabilityType + '</span></label></div>'
                 }
                 $('#pchechkbox').html(dts);
             }
@@ -279,6 +312,50 @@
                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
            }
         });
+    }
+
+
+    //method to bind the Primary disability option on selection of disability//
+
+    function bindPrimaryDisability(ele) {
+        var primaryDisabilityDiv = $('#divdPrimaryDisabilityType');
+        var disabilityDiv = $('#divddlDisabilityType');
+        var disLength = $(disabilityDiv).find('input[name=disabilitytype]:checked').length;
+        var selectOption = "";
+        if (disLength > 0) {
+            if (disLength == 1) {
+               
+                var disId = $(disabilityDiv).find('input[name=disabilitytype]:checked')[0].value;
+                var disText = $(disabilityDiv).find('input[name=disabilitytype]:checked')[0].nextSibling.innerHTML
+
+                primaryDisabilityDiv.find('#primaryDisabilityLbl').html(disText).attr('dis-id', disId);
+                primaryDisabilityDiv.find('#primaryDisabilityLbl').show();
+                primaryDisabilityDiv.find('#primaryDisabilitySelect').html('').hide();
+
+                primaryDisabilityDiv.show();
+
+            }
+            else {
+                selectOption += '<option value="0">--Select Primary Disability--</option>';
+
+                $(disabilityDiv).find('input[name=disabilitytype]:checked').each(function (i, dis) {
+
+                    selectOption += '<option value=' + $(dis).attr('value') + '>' + $(dis).siblings('span').html() + '</option>';
+                });
+                primaryDisabilityDiv.find('#primaryDisabilitySelect').html(selectOption).show();
+                primaryDisabilityDiv.show();
+                primaryDisabilityDiv.find('#primaryDisabilityLbl').html('').attr('dis-id', 0);
+                primaryDisabilityDiv.find('#primaryDisabilityLbl').hide();
+            }
+          
+        }
+        else {
+            primaryDisabilityDiv.find('#primaryDisabilitySelect').html('');
+            primaryDisabilityDiv.hide();
+            primaryDisabilityDiv.find('#primaryDisabilityLbl').html('').attr('dis-id', 0);
+            primaryDisabilityDiv.find('#primaryDisabilityLbl').hide();
+
+        }
     }
 
     //method to validate date//
@@ -346,7 +423,8 @@
         }
         else {
             $('#divddlpending').hide();
-            $('#divddlDisabilityType').hide();
+            $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
+
         }
         $.ajax({
             url: HostedDir + "/Home/LoadPendingDisableRoster",
@@ -362,7 +440,7 @@
             secureuri: false,
             async: false,
             success: function (data) {
-              
+
                 BindLoadPendingDisable(data, isYakkr);
                 $('#ModalPending').find('#savechild').attr('isYakkr', isYakkr);
                 $('#ModalPending').find('#cancelForm').attr('isYakkr', isYakkr);
@@ -407,7 +485,7 @@
 
         }
         else {
-           
+
             var heading = $('#hdnTypeOfCountData').val();
             $('#ModalPending').find('#centernameSpan').html(data.list.Rosters[0].CenterName);
             $('#div1').hide();
@@ -532,7 +610,7 @@
         $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
         $('#ClientNameQualified').text($(Aobject).closest("tr").find("td:first").text());
         $('#dvClientNameQualified').hide();
-        $('#divddlDisabilityType').hide();
+        $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
         LoadNotes(_Object);
 
         $('#tblDocumentsList').show();
@@ -605,15 +683,16 @@
         if ($(val).val() == "Qualified") {
             $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
             $('#divddlDisabilityType').show();
+            $('#divdPrimaryDisabilityType').hide();
         }
 
         else if ($(val).val() == "Released") {
             $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
-            $('#divddlDisabilityType').hide();
+            $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
         }
         else {
             $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
-            $('#divddlDisabilityType').hide();
+            $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
         }
 
     }
@@ -683,6 +762,14 @@
             isValid = false;
             return isValid;
         }
+       // else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]').is(':checked').length>1 && $('#primaryDisabilitySelect').is(':visible')==true && $('#primaryDisabilitySelect').val()=='0') {
+        else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]:checked').length > 1  && $('#primaryDisabilitySelect').is(':visible') == true && $('#primaryDisabilitySelect').val() == '0') {
+
+            customAlert("Please select Primary Disability Type.");
+            plainValidation('#primaryDisabilitySelect');
+            isValid = false;
+            return isValid;
+        }
 
             //Qualified Client Validation//
         else if (!$('#specialServiceTbody').find('input[class=dis-radio]').is(':checked') && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified") {
@@ -691,7 +778,13 @@
             return isValid;
         }
 
+        else if ($('#divdPrimaryDisabilityType').find('#primaryDisabilitySelect').is(':visible') && $('#divdPrimaryDisabilityType').find('#primaryDisabilitySelect').val() === '0' && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified") {
 
+            customAlert("Please select Primary Disability Type.");
+            plainValidation('#primaryDisabilitySelect');
+            isValid = false;
+            return isValid;
+        }
         else if (txtAppNotes.val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Released") {
             $('#divChangeStatus').hide();
             return false;
@@ -744,6 +837,17 @@
                 checkedDisType = $('#specialServiceTable').attr('disability-types');
             }
 
+            var primaryDisId=0;
+            var primaryDisDiv=$('#divdPrimaryDisabilityType');
+            if(primaryDisDiv.find('#primaryDisabilityLbl').is(':visible'))
+            {
+                primaryDisId=primaryDisDiv.find('#primaryDisabilityLbl').attr('dis-id');
+            }
+            else if(primaryDisDiv.find('#primaryDisabilitySelect').is(':visible'))
+            {
+                primaryDisId=primaryDisDiv.find('#primaryDisabilitySelect').val();
+            }
+
 
             data.append("txtdocdesc", txtDoc.val().trim());
             data.append("Clientid", $(_Object).attr("clientid"));
@@ -754,6 +858,7 @@
             data.append("Mode", mode);
             data.append("DocumentDate", txtdocumentDate.val().trim());
             data.append("disabilitytype", checkedDisType);
+            data.append("primarydisabilitytype", primaryDisId);
             data.append("ddlqualifiedreleased", $('#ddlqualifiedreleased').val());
             data.append("receivedService", serviceReceived);
             $.ajax({
@@ -896,7 +1001,7 @@
             success: function (data) {
 
                 if (data != null) {
-                   
+
                     BindSelectedDisabilities(data);
                     BindNotesHtml(data);
                     BindDocumentsHtml(data);
@@ -912,9 +1017,19 @@
     function BindSelectedDisabilities(data) {
 
         if (data.list.disablenotes != null) {
-    
+
             var arr = '';
+            var primaryDisId = 0;
+          
             if (data.list.disablenotes.length > 0) {
+
+                //primaryDisId = $.map(data.list.disablenotes[0].NotesList, function (dis, k) {
+                //    return $(dis).PrimaryDisability
+                //});
+
+               primaryDisId = data.list.disablenotes[0].NotesList[0].PrimaryDisability;
+
+                
                 $.each(data.list.disablenotes, function (k, dis) {
                     if (dis.NotesList.length > 0) {
                         arr = jQuery.grep(dis.NotesList, function (n, i) {
@@ -944,7 +1059,7 @@
                     disArray.push(disService);
                 }
 
-             
+
                 var disabilityname = '';
                 if (disabId.indexOf(',') > 0) {
 
@@ -960,6 +1075,8 @@
                     if (disabId.length > 0) {
                         var arr1 = [];
                         var tbodyData = '';
+                        var primarySelect = "";
+                        primarySelect=(disabId.length>1)?'<option value="0">--Select Primary Disability</option>':'';
 
                         $.each(disabId, function (i, dis) {
 
@@ -972,6 +1089,10 @@
                                                          <input type="radio" value="0" dis-id="' + dis + '" name="disabilityRadio' + dis + '" class="dis-radio" checked>&nbsp; No &nbsp;&nbsp;\
                                                      </td>\
                                                  </tr>';
+                                if (disabId.length > 1)
+                                {
+                                    primarySelect += '<option value=' + dis + '>' + disabilityname + '</div>';
+                                }
 
                             }
                         });
@@ -997,9 +1118,18 @@
                         }
 
                         $('#disabilitySelectedDiv').show();
+
+                        var primaryDisabilityDiv = $('#divdPrimaryDisabilityType');
+                        primaryDisabilityDiv.find('#primaryDisabilitySelect').html(primarySelect);
+                        primaryDisabilityDiv.find('#primaryDisabilitySelect').val(primaryDisId).show();
+                        primaryDisabilityDiv.find('#primaryDisabilityLbl').hide();
+                        primaryDisabilityDiv.show();
                     }
                 }
                 else {
+
+                    primarySelect = '';
+
 
                     $('#specialServiceTable').attr('disability-types', disabId);
                     disabilityname = $('input[name="disabilitytype"][value="' + disabId + '"]').siblings('span').text();
@@ -1032,6 +1162,14 @@
                             }
                         }
                         $('#disabilitySelectedDiv').show();
+
+
+                        var primaryDisabilityDiv = $('#divdPrimaryDisabilityType');
+                        primaryDisabilityDiv.find('#primaryDisabilitySelect').html('').hide();
+                        primaryDisabilityDiv.find('#primaryDisabilityLbl').html(disabilityname).attr('dis-id',disabId).show();
+                        primaryDisabilityDiv.show();
+
+
                     }
                 }
 

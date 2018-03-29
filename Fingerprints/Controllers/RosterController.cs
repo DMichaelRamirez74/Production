@@ -108,6 +108,7 @@ namespace Fingerprints.Controllers
             {
                 int filter = 0;
                 int skip = pageSize * (requestedPage - 1);
+                skip = (skip < 0) ? 0 : skip;
                 //int filter = (string.IsNullOrEmpty(filterOption)) ? 0 : Convert.ToInt32(filterOption);
                 int.TryParse(filterOption, out filter);
                 string totalrecord;
