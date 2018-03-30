@@ -3,7 +3,13 @@ $(document).ready(function () {
     var serviceId = $('#FSResources').val();
     var AgencyId = $('#AgencyId').val();
     var mpmlistcount = $('#mpmlistCount').val();
-    if (mpmlistcount == 1) {
+    var orgListCount = $('#organizationListCount').val();
+
+    if (parseInt(mpmlistcount) > 1) {
+        $('#ddFsOrganization').prop('disabled', true);
+    }
+
+    if (parseInt(mpmlistcount) === 1 && parseInt(orgListCount) === 1) {
 
         $.ajax({
             url: "/Roster/FamilyResourcesList",
@@ -13,7 +19,6 @@ $(document).ready(function () {
             success: function (data) {
                 $("#ddFsOrganization").html('');
                 $('#OrganizationId').val('');
-                $("#ddFsOrganization").html(data.va);
                 for (var i = 0; i < data.listOrganization.length; i++) {
                     $('#OrganizationId').val(data.listOrganization[i].Value);
                     $("#ddFsOrganization").html(data.listOrganization[i].Text);
@@ -752,6 +757,19 @@ $('#referralServiceSaveMethod').click(function () {
         }
     }
 
+    if (parseInt($('#organizationListCount').val()) > 1) {
+        if (parseInt($('#ddFsOrganization').val()) == 0) {
+            $('#err_resource').hide();
+            $('#err_resource').text("");
+            $('#answererror').html('Please select service organization');
+            $('#ddFsOrganization').focus();
+            $('#err_organization').css('display', 'inline-block');
+            $('#err_organization').text('Please Select Organization Name');
+            //$('#surveyAnswerError').modal('show');
+            return false;
+        }
+    }
+
     if ($('#datepicker').val() == "") {
         $('#err_resource').hide();
         $('#err_resource').text("");
@@ -856,11 +874,14 @@ $('#FSResources').on('change', function () {
         type: "POST",
         data: { ServiceId: serviceId, AgencyId: AgencyId },
         success: function (data) {
+
+            $("#ddFsOrganization").prop('disabled', false);
             $("#ddFsOrganization").html('');
-            $("#ddFsOrganization").append('<option value=' + 0 + '>' + "Select Organization" + '</option>');
+            $("#ddFsOrganization").append('<option value=' + 0 + '>' + "--Select Organization--" + '</option>');
             for (var i = 0; i < data.listOrganization.length; i++) {
                 $("#ddFsOrganization").append('<option value=' + data.listOrganization[i].Value + '>' + data.listOrganization[i].Text + '</option>');
             }
+            $("#ddFsOrganization").prop('disabled', false);
         }
     });
 })
@@ -869,6 +890,9 @@ $('#FSResources').on('change', function () {
 
 $('#ddFsOrganization').on('change', function () {
     var communityId = (this.value);
+    $('#CommunityId').val(communityId);
+    $('#_CommunityId').val(communityId);
+
     $.ajax({
         url: "/Roster/GetOrganization",
         type: "POST",
@@ -950,7 +974,23 @@ $('#referralLetterPdf').on('click', function () {
         }
     }
 
-    if ($('#datepicker').val() == "") {
+     if (parseInt($('#organizationListCount').val()) > 1) {
+        if (parseInt($('#ddFsOrganization').val()) == 0) {
+            $('#err_resource').hide();
+            $('#err_resource').text("");
+            $('#answererror').html('Please select service organization');
+            $('#ddFsOrganization').focus();
+            $('#err_organization').css('display', 'inline-block');
+            $('#err_organization').text('Please Select Organization Name');
+            // $('#surveyAnswerError').modal('show');
+            return false;
+        }
+        else {
+            $('#err_organization').css('display', 'none');
+        }
+
+    }
+     if ($('#datepicker').val() == "") {
         $('#err_resource').hide();
         $('#err_resource').text("");
         $('#err_organization').hide();
@@ -962,7 +1002,7 @@ $('#referralLetterPdf').on('click', function () {
         // $('#surveyAnswerError').modal('show');
         return false;
     }
-    else if (!isDate($('#datepicker').val().trim())) {
+     if (!isDate($('#datepicker').val().trim())) {
         $('#err_resource').hide();
         $('#err_resource').text("");
         $('#err_organization').hide();

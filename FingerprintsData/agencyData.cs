@@ -4121,5 +4121,114 @@ namespace FingerprintsData
             return pirAccessrolesList;
         }
 
+
+        /// <summary>
+        /// method to get the List of  Roles to decide, who can review the family Income.
+        /// </summary>
+        /// <returns></returns>
+        public List<IncomeReviewRoles> GetIncomeReviewRoles()
+        {
+            List<IncomeReviewRoles> incomeReviewRolesList = new List<IncomeReviewRoles>();
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetIncomeReviewRoles";
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        incomeReviewRolesList = _dataset.Tables[0].AsEnumerable().OrderBy(x => x.Field<string>("RoleName")).Select(x => new IncomeReviewRoles
+                        {
+                            RoleId = x.Field<Guid>("RoleId"),
+                            RoleName = x.Field<String>("RoleName"),
+                            IsReviewIncome = x.Field<bool>("IsReviewIncome")
+                        }).ToList();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return incomeReviewRolesList;
+        }
+
+        /// <summary>
+        /// method to insert the Roles, who can access the Family Income and returns the List<IncomeReviewRoles>
+        /// </summary>
+        /// <param name="rowsAffected"></param>
+        /// <param name="incomeReviewRolesList"></param>
+        /// <returns></returns>
+        public List<IncomeReviewRoles>InsertIncomeReviewRoles(out int isRowsAffected, List<IncomeReviewRoles>incomeReviewRolesList)
+        {
+            List<IncomeReviewRoles> incomeReviewList = new List<IncomeReviewRoles>();
+
+            isRowsAffected = 0;
+            DataTable incomeReivewdt = new DataTable();
+
+            incomeReivewdt.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("IncomeReviewID", typeof(long)),
+                    new DataColumn("AgencyID",typeof(Guid)),
+                    new DataColumn("RoleID",typeof(Guid)),
+                    new DataColumn("IsReviewIncome",typeof(bool)),
+                    new DataColumn("Status",typeof(bool))
+
+                    });
+
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                foreach (var item in incomeReviewRolesList)
+                {
+                    incomeReivewdt.Rows.Add(0, staffDetails.AgencyId, item.RoleId, item.IsReviewIncome, (item.IsReviewIncome) ? true : false);
+                }
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@IncomeReviewRolesType", incomeReivewdt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_InsertIncomeReviewRoles";
+                Connection.Open();
+                isRowsAffected = command.ExecuteNonQuery();
+                if (isRowsAffected > 0)
+                {
+                    incomeReviewList = this.GetIncomeReviewRoles();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return incomeReviewList;
+        }
+
     }
 }

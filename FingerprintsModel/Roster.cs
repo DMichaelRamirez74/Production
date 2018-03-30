@@ -84,6 +84,7 @@ namespace FingerprintsModel
         public long? CategoryID { get; set; }
         public bool? IsChild { get; set; }
         public bool? IsFamily { get; set; }
+        public bool IsClient { get; set; }
         public long? HouseHoldId { get; set; }
         public List<REF> refListData { get; set; }
 

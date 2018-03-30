@@ -65,8 +65,12 @@ namespace FingerprintsModel
        public string MedicalNotes { get; set; }
        public string DentalCenter { get; set; }
        public string DentalNotes { get; set; }
+        public string OtherCenter { get; set; }
+        public string OtherNotes { get; set; }
+
        //Added by akansha on 16Dec2016
        public string CompanynameD { get; set; }
+        public string CompanyNameOt { get; set; }
        //End
 
 

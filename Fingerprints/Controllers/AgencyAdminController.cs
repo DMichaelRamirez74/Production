@@ -1987,10 +1987,48 @@ namespace Fingerprints.Controllers
             }
         }
 
+        [HttpGet]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
 
+        public ViewResult IncomeReviewRoles()
+        {
+            List<IncomeReviewRoles> incomeReviewRolesList = new List<IncomeReviewRoles>();
+            try
+            {
+                ViewBag.Message = "";
+                incomeReviewRolesList = new agencyData().GetIncomeReviewRoles();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(incomeReviewRolesList);
+        }
 
-      
+        /// <summary>
+        /// POST method to insert the Roles who can review the income of the Family.
+        /// </summary>
+        /// <param name="IncomeReviewRoles"></param>
+        /// <returns>List<IncomeReviewRoles></returns>
+        [HttpPost]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public ActionResult IncomeReviewRoles(List<IncomeReviewRoles> IncomeReviewRoles)
+        {
+            List<IncomeReviewRoles> incomeReviewRolesList = new List<IncomeReviewRoles>();
+            try
+            {
+                int rowsAffected = 0;
+                incomeReviewRolesList = new agencyData().InsertIncomeReviewRoles(out rowsAffected, IncomeReviewRoles);
 
+                ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Plaese try again";
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(incomeReviewRolesList);
+        }
 
 
     }

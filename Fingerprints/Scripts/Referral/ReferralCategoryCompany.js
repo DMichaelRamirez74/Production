@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
     var clientId = $('#clientId_').val();
     var arry = null;
+    var flags = 0;
     $("#txtSearch").autocomplete({
 
         source: function (request, response) {
@@ -72,8 +73,9 @@
                             $("#FFReferralSelect").addClass('hidden');
                             $('#FFReferral').html('');
                             $('#FFReferral').html(data[0].Text);
-                            $('#FFReferral').attr('referralId', data[0].value);
+                            $('#FFReferral').attr('referralId', data[0].Value);
                             $('#FFReferral').removeClass('hidden');
+                            $('#errnewspan').css('display','none');
                         }
                     }
 
@@ -104,7 +106,7 @@
 
 
         if ($('#ClientID:checked').val() == undefined && ($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
-            
+
             $('#errshow').css("display", "inline-block");
             $('#errshow').text("Select Family Members");
             $('#errspan').css("display", "inline-block");
@@ -128,7 +130,7 @@
             return false;
         }
             //else if ($('#FFReferral').hasClass('hidden')) {
-        else if ($('#FFReferralSelect').val() == 0) {
+        else if ($('#FFReferralSelect').is(':visible') && $('#FFReferralSelect').val() == 0) {
             $('#errspan').hide();
             $('#errnewspan').css("display", "inline-block");
             $('#errnewspan').text("Select Referral Type");
@@ -162,7 +164,7 @@
         var commId = $('#communityId').val();
         var AgencyId = $('#AgencyId_').val();
 
-        if ($('#FFReferralSelect').hasClass('hidden')) {
+        if ($('#FFReferralSelect').hasClass('hidden') || !$('#FFReferralSelect').is(':visible')) {
 
             ServiceResourceId = $('#FFReferral').attr('referralId');
         }
@@ -201,7 +203,15 @@
 
     $('#btnpdf').on('click', function () {
 
-        if (($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
+      
+        if ($('.CheckClient:checked').length === 0) {
+            $('#errshow').css("display", "inline-block");
+            $('#errshow').text("Select Family Members");
+            return false;
+        }
+
+
+        else if (($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
             $('#errshow').hide();
             $('#errshow').text("");
             $('#errspan').css("display", "inline");
@@ -220,7 +230,7 @@
             return false;
         }
             //else if ($('#FFReferral').hasClass('hidden')) {
-        else if ($('#FFReferralSelect').val() == 0) {
+        else if ($('#FFReferralSelect').is(':visible') && $('#FFReferralSelect').val() == 0) {
             $('#errshow').hide();
             $('#errshow').text("");
             $('#errspan').hide();
@@ -251,6 +261,11 @@
             return false;
         }
 
+
+        else {
+
+       
+
         $('#errshow').hide();
         $('#errshow').text("");
         $('#errnewspan').hide();
@@ -261,7 +276,7 @@
         $('#errspan').text("");
         var CommunityId = $('#communityId').val();
         var referrlId = null;
-        if ($('#FFReferralSelect').hasClass('hidden')) {
+        if ($('#FFReferralSelect').hasClass('hidden')|| !$('#FFReferralSelect').is(':visible') ) {
             referrlId = $('#FFReferral').attr('referralId');
         }
         else {
@@ -274,7 +289,7 @@
         var notes = $('#Description').val().trim();
         var referraldate = $('#datepicker').val();
         window.location.href = "/Roster/CompleteServicePdf?ServiceId=" + referrlId + "&AgencyID=" + AgencyId + "&ClientID=" + clientId + "&CommunityID=" + CommunityId + "&Notes=" + notes + "&referralDate=" + referraldate;
-
+        }
 
 
     });

@@ -338,6 +338,13 @@ namespace FingerprintsModel
 
     }
 
+    public class IncomeReviewRoles
+    {
+        public Guid RoleId { get; set; }
+        public string RoleName { get; set; }
+        public bool IsReviewIncome { get; set; }
+    }
+
     
 
     public class AcceptanceProcess

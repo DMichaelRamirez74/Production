@@ -1247,7 +1247,8 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult FamilyDetails(string id = "0")
         {
-            //int clientid = 0;
+            int clintid = 0;
+           
             if (Request.QueryString["ClientId"] != null)
             {
 
@@ -1259,9 +1260,14 @@ namespace Fingerprints.Controllers
                 ViewBag.ClintName = Request.QueryString["ClientName"].ToString();
             }
 
+            if(id== "undefined")
+            {
+                id = TempData["HouseId"].ToString();
+            }
+            TempData["HouseId"] = id;
             id = EncryptDecrypt.Decrypt64(id);
 
-            FamilyHousehold _familyinfo = familyData.GetData_AllDropdown(id, 0, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            FamilyHousehold _familyinfo = familyData.GetData_AllDropdown(id, 0, Session["AgencyID"].ToString(), Session["UserID"].ToString(),Session["RoleID"].ToString());
             //FamilyHousehold _centerinfo = familyData.GetCenterData(Session["AgencyID"].ToString(), id);
             if (!string.IsNullOrEmpty(Request.QueryString["returned"]) || Convert.ToString(Request.QueryString["returned"]) == "1")
                 _familyinfo.Returned = Request.QueryString["returned"].ToString();
@@ -3223,7 +3229,7 @@ namespace Fingerprints.Controllers
             FamilyHousehold FamilyObject = new FamilyHousehold();
             try
             {
-                familyData.FamilySummary(FamilyObject, id, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                familyData.FamilySummary(FamilyObject, id, Session["AgencyID"].ToString(), Session["UserID"].ToString(),Session["RoleID"].ToString());
                 Session["Docsstorage"] = FamilyObject.docstorage.ToString();
                 if (FamilyObject.Income1 == null)
                     FamilyObject.Income1 = GenerateIncomeList();
@@ -3782,7 +3788,7 @@ namespace Fingerprints.Controllers
             {
                 if (!string.IsNullOrEmpty(Request.QueryString["Parentid"]))
                     FamilyObject.ParentID = Convert.ToInt32(EncryptDecrypt.Decrypt64(Request.QueryString["Parentid"].ToString()));
-                FamilyObject = familyData.GetData_AllDropdown(Convert.ToString(EncryptDecrypt.Decrypt64(id)), FamilyObject.ParentID, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                FamilyObject = familyData.GetData_AllDropdown(Convert.ToString(EncryptDecrypt.Decrypt64(id)), FamilyObject.ParentID, Session["AgencyID"].ToString(), Session["UserID"].ToString(),Session["RoleID"].ToString());
                 if (id != "0")
                     FamilyObject.HouseholdId = Convert.ToInt32(FingerprintsModel.EncryptDecrypt.Decrypt64(id));
 

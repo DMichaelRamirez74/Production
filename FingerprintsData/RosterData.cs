@@ -1087,8 +1087,8 @@ namespace FingerprintsData
                         matchProvider.ServiceId = Convert.ToInt32(dr["ServiceID"]);
                         matchProvider.Services = dr["Services"].ToString();
                         matchProvider.Notes = dr["Notes"].ToString();
-                        matchProvider.OrganizationName = dr["OrganizationName"].ToString();
-                        matchProvider.Address = dr["Address"].ToString();
+                       // matchProvider.OrganizationName = dr["OrganizationName"].ToString();
+                       // matchProvider.Address = dr["Address"].ToString();
                         matchProvider.AgencyId = dr["AgencyId"].ToString();
                         matchProvider.IsFunction = Convert.ToBoolean(dr["IsFunction"]);
                         matchProvider.CommunityId = Convert.ToInt32(dr["CommunityId"]);
@@ -1527,6 +1527,7 @@ namespace FingerprintsData
                         objReferral.ParentRole = Convert.ToInt32(dr["ParentRole"].ToString());
                         objReferral.Step = Step;
                         objReferral.IsFamilyCheckStatus = true;
+                        objReferral.IsClient = Convert.ToBoolean(dr["IsClient"]);
                         objreferralList.Add(objReferral);
                     }
                 }
@@ -1636,6 +1637,7 @@ namespace FingerprintsData
                         objReferral.IsFamily = Convert.ToBoolean(dr["IsFamily"]);
                         objReferral.ParentRole = Convert.ToInt32(dr["ParentRole"].ToString());
                         objReferral.Status = true;
+                        objReferral.IsClient = Convert.ToBoolean(dr["IsClient"]);
                         objreferralList.Add(objReferral);
                     }
 

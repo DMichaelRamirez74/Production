@@ -75,7 +75,7 @@
             $('#txtLname')[0].value = "";
             $('#hdnCommunityID')[0].value = "";
             $('#btnSubmit').enabled = true;
-            $('#txtNotes')[0].value = "";
+          //  $('#txtNotes')[0].value = "";
             // $('#ZipCode')[0].value = "";
            // $('#ZipCode').val('');
             $('#hdnCommunityID').val(0);
@@ -390,7 +390,7 @@
             $('#txtLname').val(data.Lname);
             $('#txtNotes').val(data.Notes);
             $('#DdlCommunityList').val(data.Community);
-            $('#txtCompanyName').val(data.Companyname);
+        
             $('#txtRegion').val(data.Region);
             $('#Address').val(data.Address);
             $('#Phoneno').val(data.Phoneno);
@@ -407,27 +407,45 @@
             //Added by Akansha on 14Dec2016
             if (data.Community == "1")
             {
+                $('#txtCompanyName').val(data.Companyname).show();
+                $('#txtCompanyNameDe,#txtCompanyNameOt').val('').hide();
                 $('#divmedicalCenter').show();
                 $('#divmedicalnotes').show();
                 $('#MedicalCenter').val(data.MedicalCenter);
                 $('#MedicalNotes').val(data.MedicalNotes);
                 $('#divdentalCenter').hide();
                 $('#divdentalnotes').hide();
-
+                $('#divdOtherCenter').hide();
+                $('#divOtherNotes').hide();
             }
             if (data.Community == "2") {
+                $('#txtCompanyNameDe').val(data.Companyname).show();
+                $('#txtCompanyName,#txtCompanyNameOt').val('').hide();
                 $('#divmedicalCenter').hide();
                 $('#divmedicalnotes').hide();
                 $('#divdentalCenter').show();
                 $('#DentalCenter').val(data.DentalCenter);
                 $('#divdentalnotes').show();
                 $('#DentalNotes').val(data.DentalNotes);
+
+                $('#divdOtherCenter').hide();
+                $('#divOtherNotes').hide();
             }
             if (data.Community == "3") {
+
+                $('#txtCompanyNameOt').val(data.Companyname).show();
+                $('#txtCompanyName,#txtCompanyNameDe').val('').hide();
                 $('#divmedicalCenter').hide();
                 $('#divmedicalnotes').hide();
                 $('#divdentalCenter').hide();
                 $('#divdentalnotes').hide();
+
+                $('#divdOtherCenter').show();
+                $('#divOtherNotes').show();
+
+                $('#OtherCenter').val(data.OtherCenter);
+                $('#OtherNotes').val(data.OtherNotes);
+
             }
 
             //End
@@ -760,6 +778,9 @@
             $('#divdentalnotes').hide();
             $('#divmedicalCenter').hide();
             $('#divmedicalnotes').hide();
+
+            $('#divdOtherCenter').hide();
+            $('#divOtherNotes').hide();
         }
         function isValidCommunityInfo() {
 
@@ -785,7 +806,7 @@
             if ($('#DdlCommunityList').val() == "1") {
                 if ($('#txtCompanyName')[0].value.trim() == "") {
                     isValid = false;
-                    customAlert("Please enter medical center.");
+                    customAlert("Please enter organization name.");
                     plainValidation('#txtCompanyName');
                     return isValid;
                 }
@@ -793,11 +814,22 @@
             if ($('#DdlCommunityList').val() == "2") {
                 if ($('#txtCompanyNameDe')[0].value.trim() == "") {
                         isValid = false;
-                        customAlert("Please enter dental center.");
+                        customAlert("Please enter organization name.");
                         plainValidation('#txtCompanyNameDe');
                         return isValid;
                     }
             }
+
+            if ($('#DdlCommunityList').val() == "3") {
+                if ($('#txtCompanyNameOt')[0].value.trim() == "") {
+                    isValid = false;
+                    customAlert("Please enter organization name.");
+                    plainValidation('#txtCompanyNameOt');
+                    return isValid;
+                }
+            }
+
+
 
             //if ($('#txtCompanyName')[0].value.trim() == "") {
             //    isValid = false;
@@ -925,6 +957,9 @@
                 $('#divmedicalnotes').show();
                 $('#divdentalCenter').hide();
                 $('#divdentalnotes').hide();
+
+                $('#divdOtherCenter').hide();
+                $('#divOtherNotes').hide();
             }
             else if (($('#DdlCommunityList').val()) == "2")
             {
@@ -932,13 +967,21 @@
                 $('#divdentalnotes').show();
                 $('#divmedicalCenter').hide();
                 $('#divmedicalnotes').hide();
+                $('#divdOtherCenter').hide();
+                $('#divOtherNotes').hide();
             }
             else {
                 $('#divdentalCenter').hide();
                 $('#divdentalnotes').hide();
                 $('#divmedicalCenter').hide();
                 $('#divmedicalnotes').hide();
+
+                $('#divdOtherCenter').show();
+                $('#divOtherNotes').show();
             }
+
+
+
         }
         //End
 
@@ -947,6 +990,14 @@
 
 }
 @section MainContentHolder{
+
+
+    <style>
+        .ui-timepicker-input{
+            width:85%!important;
+        }
+    </style>
+
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
@@ -1003,9 +1054,9 @@
 
                         <div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalCenter" style="display:none;">
                             <div class="form-group">
-                                <label for="RaceSubCatDesc">Medical Center<sup>*</sup></label>
+                                <label for="RaceSubCatDesc">Organization Name<sup>*</sup></label>
                                 @*@Html.TextBoxFor(m => m.MedicalCenter, new { placeholder = "Medical Center", maxlength = "100", @class = "form-control", tabIndex = "7" })*@
-                                @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Medical Center", id = "txtCompanyName", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                                @Html.TextBoxFor(m => m.Companyname, new { placeholder = "Organization Name", id = "txtCompanyName", maxlength = "50", @class = "form-control", tabIndex = "5" })
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12" id="divmedicalnotes" style="display:none;">
@@ -1021,9 +1072,9 @@
 
                         <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalCenter" style="display:none;">
                             <div class="form-group">
-                                <label for="RaceSubCatDesc">Dental Center<sup>*</sup></label>
+                                <label for="RaceSubCatDesc">Organization Name<sup>*</sup></label>
                                 @*@Html.TextBoxFor(m => m.DentalCenter, new { placeholder = "Dental Center", maxlength = "100", @class = "form-control", tabIndex = "7" })*@
-                                @Html.TextBoxFor(m => m.CompanynameD, new { placeholder = "Dental Center", id = "txtCompanyNameDe", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                                @Html.TextBoxFor(m => m.CompanynameD, new { placeholder = "Organization Name", id = "txtCompanyNameDe", maxlength = "50", @class = "form-control", tabIndex = "5" })
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12" id="divdentalnotes" style="display:none;">
@@ -1035,6 +1086,20 @@
 
 
                         @*End*@
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divdOtherCenter" style="display:none;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Organization Name<sup>*</sup></label>
+                                @*@Html.TextBoxFor(m => m.DentalCenter, new { placeholder = "Dental Center", maxlength = "100", @class = "form-control", tabIndex = "7" })*@
+                                @Html.TextBoxFor(m => m.CompanyNameOt, new { placeholder = "Organization Name", id = "txtCompanyNameOt", maxlength = "50", @class = "form-control", tabIndex = "5" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="divOtherNotes" style="display:none;">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc">Notes</label>
+                                @Html.TextBoxFor(m => m.OtherNotes, new { placeholder = "Notes", maxlength = "100", @class = "form-control", tabIndex = "8" })
+                            </div>
+                        </div>
 
 
 
