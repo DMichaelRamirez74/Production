@@ -22,6 +22,8 @@ namespace FingerprintsModel
             public string Id { get; set; }
             public string Name { get; set; }
         }
+        public bool IsStaffReviewIncome { get; set; }
+
         //Added on 23Dec2016
         public int WorkshopId { get; set; }
         public string WorkshopDate { get; set; }

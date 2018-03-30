@@ -201,8 +201,8 @@
                     <span class="validation1 error" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
                     </span>
 
-                    <div class="col-xs-12 no-padding">
-                        <label class="col-lg-1 no-padding" style="color:#295b8f">Parent:</label>
+                    <div class="col-xs-12 no-padding well" style="padding:10px;margin-bottom:10px;">
+                        <label class="col-lg-2 no-padding" style="color:#295b8f">Parent/Guardian:</label>
                         <span class="col-lg-11 no-padding" style="width:auto;">
                             @foreach (var item in Model.refListData)
                             {
@@ -235,14 +235,30 @@
                             }
                         </span>
                     </div>
-                    <div class="col-xs-12 no-padding">
-                        <label class="col-lg-1 no-padding" style="color:#295b8f">Child:</label>
+                    <div class="col-xs-12 well no-padding well"  style="margin-bottom:10px;padding:10px;">
+                        <label class="col-lg-2 no-padding" style="color:#295b8f">Client:</label>
                         <span class="col-lg-11 no-padding" style="width:auto;">
                             @foreach (var Item in Model.refListData)
                             {
                                 if (Item.IsFamilyCheckStatus == true)
                                 {
-                                    if (Item.IsFamily == false)
+                                    if (Item.IsFamily == false && Item.IsClient==true)
+                                    {
+                                        <span><input type="checkbox" parentname="@Item.ParentName" class="CheckClient" value="@Item.ClientID" id="ClientID" style="margin-left:0;" />@Item.ParentName</span>
+                                    }
+                                }
+                            }
+                        </span>
+                    </div>
+
+                    <div class="col-xs-12 no-padding well"  style="margin-bottom:10px;padding:10px;">
+                        <label class="col-lg-2 no-padding" style="color:#295b8f">Others in Household:</label>
+                        <span class="col-lg-11 no-padding" style="width:auto;">
+                            @foreach (var Item in Model.refListData)
+                            {
+                                if (Item.IsFamilyCheckStatus == true)
+                                {
+                                    if (Item.IsFamily == false && Item.IsClient == false)
                                     {
                                         <span><input type="checkbox" parentname="@Item.ParentName" class="CheckClient" value="@Item.ClientID" id="ClientID" style="margin-left:0;" />@Item.ParentName</span>
                                     }

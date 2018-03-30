@@ -212,7 +212,7 @@
 
         function clearAllGrid() {
             var colspan = $('#GridRoster').find('th').length;
-            var bindRow = '<tr style="width:98.3%;font-weight:bold;">\
+            var bindRow = '<tr style="width:100%;height:auto;font-weight:bold;">\
                                             <td colspan='+ colspan + ' style="padding: 25px;text-align:center;">Search by Center and Classroom<sup style="color:red;">*</sup></td>\
                                         </tr>';
 
@@ -233,10 +233,39 @@
         }
 
         $(document).ready(function () {
+          
+
+            if ('@Session["_RosterCenter"]' != '' || '@Session["_RosterSearchText"]'!='' ) {
 
 
+                requestedPage = '@Session["_RosterRequestedPage"]' != '' ? parseInt('@Session["_RosterRequestedPage"]')>0 ? parseInt('@Session["_RosterRequestedPage"]') : 1:1;
+                searchTextByName = '@Session["_RosterSearchText"]' != '' ? '@Session["_RosterSearchText"]' : '';
+                filterOption = '@Session["_RosterFilter"]' != '' ? parseInt('@Session["_RosterFilter"]') : 0;
 
-           
+
+                $('#Centers').val('@Session["_RosterCenter"]');
+
+                pageSize = '@Session["_RosterPageSize"]' != '' ? parseInt('@Session["_RosterPageSize"]') : 0;
+                $('#ddlpagetodisplay').val(pageSize);
+
+                sortOrder = '@Session["_RosterSortOrder"]';
+                sortDirection = '@Session["_RosterSortDirection"]';
+
+                if ($('#searchByNameDiv').length > 0) {
+                    $('#searchTextName').val(searchTextByName);
+                    //$('#searchbyNamebtn').trigger('click');
+                    drawgrid();
+                }
+                else {
+                    $('#filterSelect').val(filterOption);
+                    GetClassrooms('#Centers', true);
+                }
+
+              
+               
+
+            }
+
 
             $('#CaseNotetags').tagsInput({ width: 'auto', height: '38px', delimiter: [',', ';'] });
 
@@ -280,7 +309,7 @@
                     return false;
                 }
 
-                GetClassrooms(this);
+                GetClassrooms(this, false);
             });
 
             $("#MyModalLateArrival").on("hidden.bs.modal", function () {
@@ -456,7 +485,8 @@
                 }
             });
             $('#ddlpaging').change(function () {
-                getListafterupdation();
+                $('#spinner').show();
+                window.setTimeout(function () { getListafterupdation() }, 10);
             });
 
             $('#seatsDatetimePicker2').change(function () {
@@ -869,7 +899,7 @@
                         ClientId: clientid,
                         Notes: $('#Notes').val(),
                         MeetingId: $('#MeetingId').val(),
-                        IsYakkr600601:true
+                        IsYakkr600601: true
                     },
                     dataType: "json",
                     secureuri: false,
@@ -929,74 +959,188 @@
         }
         function isValidChangestatus() {
             cleanValidation();
-            $('#rblwaitinglist').removeAttr('style');
-            if ($('#ddlreason').val() == "" || $('#ddlreason').val() == null) {
-                isValid = false;
-                customAlert("Reason is required.");
-                plainValidation('#ddlreason');
-                return isValid;
-            }
-            else if ($('#ddlreason').val() == 0 && $('#txtreason').val() == "") {
-                isValid = false;
-                customAlert("Other reason is required.");
-                plainValidation('#txtreason');
-                return isValid;
-            }
-            else if ($('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
-                isValid = false;
-                customAlert("Waiting list is required.");
-                plainValidation('#rblwaitinglist');
-                return isValid;
-            }
+            
+            var TestClass = {
+                "id": 1,
+                "val": 2,
+                "TANF": true
+            };
+            // alert(JSON.s(TestClass))
 
-            else {
+            $.ajax({
+                url: HostedDir + "/AgencyUser/DropClient1",
+                type: "POST",
+                data: '{Test: ' + JSON.stringify(TestClass) + '}',
+                datatype: 'json',
+                ContentType: 'application/json;utf-8',
+                success: function (result) {
+                    //$("#pleaseWaitDialog").modal('hide');
+                    //$('#myModal').modal('show');
+                    //$('#btnConfirm').click(function () {
+                    //    location.href = "/PurchaseOrder/OrderList"
+                    //});
+                },
+                error: function () {
+                    $("#pleaseWaitDialog").modal('show');
+                }
+            });
 
-                BootstrapDialog.confirm("Client status will be changed. Do you want to continue?", function (result) {
-                    if (result) {
-                        if (EnrolledObject != null) {
-                            $.ajax({
-                                url: HostedDir + "/AgencyUser/DropClient",
-                                type: "POST",
-                                data: {
-                                    ClientId: $(EnrolledObject).attr("clientid"),
-                                    HouseholdId: $(EnrolledObject).attr("householdid"),
-                                    Status: $(EnrolledObject).attr("accesskey"),
-                                    StatusText: $('#lblNewStatus').text(),
-                                    Reason: $('#txtreason').val(),
-                                    ddlreason: $('#ddlreason').val(),
-                                    ddlreasontext: $('#ddlreason').find("option:selected").text(),
-                                    IsWaiting: $("input:radio[name='waitinglist']:checked").val()
-                                },
-                                dataType: "json",
-                                secureuri: false,
-                                async: false,
-                                success: function (response) {
-                                    if (response == 0) {
-                                        customAlert("Error occurred please try again.");
-                                    }
-                                    if (response == 1) {
-                                        customAlert("Client status changed successfully.");
-                                        setTimeout(function () {
-                                            //window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
-                                            window.location.href = HostedDir + "/Roster/Roster";
-                                        }, 300);
-                                    }
-                                    if (response == 2) {
-                                        customAlert("Client status already changed.");
-                                        setTimeout(function () {
-                                            window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
-                                        }, 300);
-                                    }
-                                }
-                                , error: function (response) {
-                                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                                }
-                            });
-                        }
-                    }
-                });
-
-            }
+            //$('#rblwaitinglist').removeAttr('style');
+            //if ($('#ddlreason').val() == "" || $('#ddlreason').val() == null) {
+            //    isValid = false;
+            //    customAlert("Reason is required.");
+            //    plainValidation('#ddlreason');
+            //    return isValid;
+            //}
+            //else if ($('#ddlreason').val() == 0 && $('#txtreason').val() == "") {
+            //    isValid = false;
+            //    customAlert("Other reason is required.");
+            //    plainValidation('#txtreason');
+            //    return isValid;
+            //}
+            //else if ($('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
+            //    isValid = false;
+            //    customAlert("Waiting list is required.");
+            //    plainValidation('#rblwaitinglist');
+            //    return isValid;
+            //}
+            //else {
+            //    BootstrapDialog.confirm("Client status will be changed. Do you want to continue?", function (result) {
+            //        if (result) {
+            //            if (EnrolledObject != null) {
+            //                debugger;
+            //                var Transition = {
+            //                    "ImmunizationService": 1
+            //                };
+            //                var NewModel = {
+            //                    "Data":1
+            //                }
+            //                //Transition.TANF = $('#TANF').val();
+            //                //Transition.SSI = $('#SSI').val();
+            //                //Transition.WIC = $('#WIC').val();
+            //                //Transition.SNAP = $('#SNAP').val();
+            //                //Transition.HighSchool = $('#HighSchool').val();
+            //                //Transition.HighSchoolGraduate = $('#HighSchoolGraduate').val();
+            //                //Transition.AssociateDegree = $('#AssociateDegree').val();
+            //                //Transition.AdvancedDegree = $('#AdvancedDegree').val();
+            //                //Transition.ImmunizationService = $('#ddImmunizationType').val();
+            //                //Transition.JobTrainingFinished = $('.JobTrainingFinished:checked').val();
+            //                //Transition.ShoolAchievement = $('.education:checked').val();
+            //                //Transition.MedicalHome = $('.MedicalHome:checked').val();
+            //                //Transition.DentalHome = $('.DentalHome:checked').val();
+            //                //Transition.DentalServices = $('.DentalServices:checked').val();
+            //                //Transition.MedicalServices = $('.MedicalServices:checked').val();
+            //                //Transition.TrnsInsuranceType = $('.InsuranceType:checked').val();
+            //                //Transition.OtherInsuranceTypeDesc = $('#OtherInsuranceType').val();
+            //                //Transition.ClientId = $(EnrolledObject).attr("clientid");
+            //                //Transition.DateOfTransition = $('#transitionDate').val();
+            //             //alert(JSON.stringify(Transition));
+            //                // var da = JSON.stringify(Transition);
+            //                $.ajax({
+            //                    url: HostedDir + "/AgencyUser/DropClient1",
+            //                    type: "POST",
+            //                    data: {
+            //                        objAddPurchaseOrder: objAddPurchaseOrder,
+            //                        llstAddProductPurchaseOrder: llstAddProductPurchaseOrder
+            //                    },
+            //                    datatype: 'json',
+            //                    ContentType: 'application/json;utf-8',
+            //                    success: function (result) {
+            //                        $("#pleaseWaitDialog").modal('hide');
+            //                        $('#myModal').modal('show');
+            //                        $('#btnConfirm').click(function () {
+            //                            location.href = "/PurchaseOrder/OrderList"
+            //                        });
+            //                    },
+            //                    error: function () {
+            //                        $("#pleaseWaitDialog").modal('show');
+            //                    }
+            //                });
+            //             //$.ajax({
+            //             //    url: HostedDir + "/AgencyUser/DropClient1",
+            //             //    type: "POST",
+            //             //    dateType: 'json',
+            //             //    //secureuri: false,
+            //             //    //async: false,
+            //             //    //data: '{Transition: ' + Transition.serialize() +
+            //             //    //        'ClientIddsdsdsdsds:' + "sss" + ',' +
+            //             //    //          '}',
+            //             //    //contentType: "application/json; charset=utf-8",
+            //             //    data:{NewModel:NewModel,
+            //             //        Transition:Transition
+            //             //    },
+            //             //    success: function (response) {
+            //             //        if (response == true) {
+            //             //            location.href = "/Yakkr/YakkrDetails";
+            //             //        }
+            //             //    }
+            //             //});
+            //                //$.ajax({
+            //                //    url: HostedDir + "/AgencyUser/DropClient",
+            //                //    type: "POST",
+            //                //    dateType: 'json',
+            //                //    secureuri: false,
+            //                //    async: false,
+            //                //    data: '{Transition: ' + JSON.stringify(Transition) +
+            //                //        'ClientId:'+ $(EnrolledObject).attr('clientid')+','+
+            //                //        'HouseholdId:'+ $(EnrolledObject).attr('householdid')+','+
+            //                //        'Status: '+$(EnrolledObject).attr('accesskey')+','+
+            //                //        'StatusText:' +$('#lblNewStatus').text()+','+
+            //                //        'Reason:' +$('#txtreason').val()+','+
+            //                //        'ddlreason:' +$('#ddlreason').val()+','+
+            //                //        'ddlreasontext:'+ $('#ddlreason').find('option:selected').text()+','+
+            //                //        'IsWaiting:' + $('input:radio[name="waitinglist"]:checked').val() +
+            //                //          '}',
+            //                //    contentType: "application/json; charset=utf-8",
+            //                //    success: function (response) {
+            //                //        if (response == true) {
+            //                //            location.href = "/Yakkr/YakkrDetails";
+            //                //        }
+            //                //    }
+            //                //});
+            //                //$.ajax({
+            //                //    url: HostedDir + "/AgencyUser/DropClient",
+            //                //    type: "POST",
+            //                //    data: {
+            //                //        ClientId: $(EnrolledObject).attr("clientid"),
+            //                //        HouseholdId: $(EnrolledObject).attr("householdid"),
+            //                //        Status: $(EnrolledObject).attr("accesskey"),
+            //                //        StatusText: $('#lblNewStatus').text(),
+            //                //        Reason: $('#txtreason').val(),
+            //                //        ddlreason: $('#ddlreason').val(),
+            //                //        ddlreasontext: $('#ddlreason').find("option:selected").text(),
+            //                //        IsWaiting: $("input:radio[name='waitinglist']:checked").val(),
+            //                //        Transition: da
+            //                //    },
+            //                //    dataType: "json",
+            //                //   // secureuri: false,
+            //                // //  async: false,
+            //                //    success: function (response) {
+            //                //        if (response == 0) {
+            //                //            customAlert("Error occurred please try again.");
+            //                //        }
+            //                //        if (response == 1) {
+            //                //            customAlert("Client status changed successfully.");
+            //                //            setTimeout(function () {
+            //                //                //window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
+            //                //                window.location.href = HostedDir + "/Roster/Roster";
+            //                //            }, 300);
+            //                //        }
+            //                //        if (response == 2) {
+            //                //            customAlert("Client status already changed.");
+            //                //            setTimeout(function () {
+            //                //                window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
+            //                //            }, 300);
+            //                //        }
+            //                //    }
+            //                //    , error: function (response) {
+            //                //        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+            //                //    }
+            //                //});
+            //            }
+            //        }
+            //    });
+            //}
         }
         function getListafterupdation() {
 
@@ -1037,8 +1181,8 @@
             $("#ddlpaging").val(requestedPage);
         }
         function getList() {
-          
-            $('#spinner').show();
+
+            requestedPage = (requestedPage === 0) ? 1 : requestedPage;
 
             filterOption = ($('#filterSelect').length === 0) ? '0' : $('#filterSelect').val();
             $.ajax({
@@ -1057,6 +1201,9 @@
                 dataType: "json",
                 secureuri: false,
                 async: false,
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
                 success: function (data) {
                     $('#spinner').hide();
                     getData(data);
@@ -1106,6 +1253,8 @@
             } else if (direction == "Desc") {
                 sortDirection = $("#" + imgID).siblings('input').val();
             }
+
+
             getList();
             bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
         }
@@ -1115,12 +1264,16 @@
 
         }
         function drawgrid() {
-            requestedPage = 1;
-            getList();
-            bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
-            LastIndex = 0;
-            $('#First').attr('disabled', true);
-            $('#Back').attr('disabled', true);
+            //  requestedPage = 1;
+            requestedPage = requestedPage;
+            $('#spinner').show();
+            setTimeout(function () {
+                getList();
+                bindGridUser(listAgency, $("#GridRoster").find('tr')[0].cells.length);
+                LastIndex = 0;
+                $('#First').attr('disabled', true);
+                $('#Back').attr('disabled', true);
+            }, 10);
         }
         function cleargrid() {
 
@@ -1134,76 +1287,110 @@
             }
             clearAllGrid();
 
+            var filterLength = $('#filterSelect').length;
+            var filtervalue = 0;
+            var searchText='';
+            if (filterLength > 0)
+            {
+                filtervalue = $('#filterSelect').val();
+            }
+            if($('#searchTextName').length>0)
+            {
+                searchText=$('#searchTextName').val();
+            }
+
+            $.ajax({
+
+                url: '/Roster/ClearRosterSession',
+                type: 'post',
+                datatype: 'json',
+                data: { requestedPage: 1, pageSize: parseInt($('#ddlpagetodisplay').val()), centerId: $('#Centers').val(), classroomId: $('#Classroom').val(), filter: filtervalue, searchText: searchText, sortOrder: sortOrder, sortDirection: sortDirection },
+                success: function (data) {
+                   
+                },
+                error: function (data) {
+
+                }
+
+
+            });
+
             // drawgrid();
 
         }
         function fnChangePage(val) {
-
-
-            var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
+var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
             if (rowLength === 0)
             {
 
                 return false;
             }
 
-            pageLoadedFirst = false;
-            pageSize = $('#ddlpagetodisplay').val();
-            if (val == 'First') {
-                StartIndex = 0;
-                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
-                requestedPage = ((StartIndex / 10) + 1);
-                GoToNextPage(requestedPage, pageSize);
-                $('#First').attr('disabled', true);
-                $('#Back').attr('disabled', true);
-                $('#Next').attr('disabled', false);
-                $('#Last').attr('disabled', false);
-                LastIndex = 0;
-            }
-            else if (val == 'Last') {
-                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
-                LastIndex = totalRecords;
-                requestedPage = numOfPages;
-                GoToNextPage(requestedPage, pageSize)
-                $('#First').attr('disabled', false);
-                $('#Back').attr('disabled', false);
-                $('#Next').attr('disabled', true);
-                $('#Last').attr('disabled', true);
-            }
-            else if (val == 'Next') {
-                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
-                requestedPage = (parseInt(LastIndex / pageSize) + 1);
-                GoToNextPage(requestedPage, pageSize);
-                $('#First').attr('disabled', false);
-                $('#Back').attr('disabled', false);
-                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
-                    $('#Next').attr('disabled', true);
-                    $('#Last').attr('disabled', true);
-                }
-                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
-                    $('#Next').attr('disabled', false);
-                    $('#Last').attr('disabled', false);
-                }
-            }
-            else if (val == 'Back') {
-                requestedPage = requestedPage - 1;
-                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
-                GoToNextPage(requestedPage, pageSize)
-                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
-                    $('#Next').attr('disabled', true);
-                    $('#Last').attr('disabled', true);
-                }
-                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
-                    $('#Next').attr('disabled', false);
-                    $('#Last').attr('disabled', false);
-                }
-                if (requestedPage == 1) {
+
+
+            $('#spinner').show();
+
+            window.setTimeout(function () {
+
+                pageLoadedFirst = false;
+                pageSize = $('#ddlpagetodisplay').val();
+                if (val == 'First') {
+                    StartIndex = 0;
+                    LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                    requestedPage = ((StartIndex / 10) + 1);
+                    GoToNextPage(requestedPage, pageSize);
                     $('#First').attr('disabled', true);
                     $('#Back').attr('disabled', true);
+                    $('#Next').attr('disabled', false);
+                    $('#Last').attr('disabled', false);
+                    LastIndex = 0;
                 }
-            }
-            else {
-            }
+                else if (val == 'Last') {
+                    StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                    LastIndex = totalRecords;
+                    requestedPage = numOfPages;
+                    GoToNextPage(requestedPage, pageSize)
+                    $('#First').attr('disabled', false);
+                    $('#Back').attr('disabled', false);
+                    $('#Next').attr('disabled', true);
+                    $('#Last').attr('disabled', true);
+                }
+                else if (val == 'Next') {
+                    LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                    requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                    GoToNextPage(requestedPage, pageSize);
+                    $('#First').attr('disabled', false);
+                    $('#Back').attr('disabled', false);
+                    if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                        $('#Next').attr('disabled', true);
+                        $('#Last').attr('disabled', true);
+                    }
+                    else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                        $('#Next').attr('disabled', false);
+                        $('#Last').attr('disabled', false);
+                    }
+                }
+                else if (val == 'Back') {
+                    requestedPage = requestedPage - 1;
+                    LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                    GoToNextPage(requestedPage, pageSize)
+                    if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                        $('#Next').attr('disabled', true);
+                        $('#Last').attr('disabled', true);
+                    }
+                    else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                        $('#Next').attr('disabled', false);
+                        $('#Last').attr('disabled', false);
+                    }
+                    if (requestedPage == 1) {
+                        $('#First').attr('disabled', true);
+                        $('#Back').attr('disabled', true);
+                    }
+                }
+                else {
+                }
+
+            }, 10)
         }
         function getTotalRecord(data) {
             $('#First').attr('disabled', false);
@@ -1279,10 +1466,7 @@
                 for (var i = 0; i < data.list.Rosters.length; i++) {
 
                     var tr = "";
-                    tr += "<tr id=" +i+ ">";
-
-
-
+                    tr += "<tr id=" + i + ">";
 
                     tr += '<td height="70" class="child_name"><a style="white-space:nowrap;" EHouseholid="' + data.list.Rosters[i].EHouseholid + '" EClientId="' + data.list.Rosters[i].Eclientid + '" onclick="openAgencyUserFamilySummaryById(this);"  href="#">' + data.list.Rosters[i].Name + '</a>';
                     if (data.list.Rosters[i].IsHomeBased === 0) {
@@ -1300,12 +1484,11 @@
                     else if (data.list.Rosters[i].IsPresent == "3") {
                         tr += "<i style='color:#ff5722;' title='Absent No Show' class='fa fa-times'></i>";
                     }
-                    else if(data.list.Rosters[i].IsPresent=='4')
-                    {
+                    else if (data.list.Rosters[i].IsPresent == '4') {
                         tr += "<i style='color:#ff5722;' title='Present Other' class='fa fa-check'></i>";
 
                     }
-                    else if(data.list.Rosters[i].IsPresent=='0') {
+                    else if (data.list.Rosters[i].IsPresent == '0') {
                         tr += "<i style='color:#ff2222;' title='Not Checked In' class='fa fa-user-times'></i>";//Changes on 3jan2016
                     }
                     else {
@@ -1325,30 +1508,29 @@
 
                     //For Attendance issue//
 
-                        if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'a65bb7c2-e320-42a2-aed4-409a321c08a5') {
+                    if (roleid == '94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d' || roleid == 'a65bb7c2-e320-42a2-aed4-409a321c08a5') {
 
 
-                            if (data.list.Rosters[i].IsAppointMentYakkr600601 !=0)
-                            {
-                                tr += '<td height="70" style="width:13%;"></td>';
-                            }
-                            else if (data.list.Rosters[i].Yakkr600 != 0 && data.list.Rosters[i].Yakkr601 != 0) {
-                                tr += '<td height="70" style="width:13%;"><a href="#"  data-yakkr="600601" data-parent="' + data.list.Rosters[i].Name + '" data-row="' + i + '"  data-clientid="' + data.list.Rosters[i].Eclientid + '" data- onclick="ShowPopup(this);">600  <a href="#"  data-row="' + i + '" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-yakkr="600601" onclick="ShowPopup(this);">601</td>';
-
-                            }
-                            else if (data.list.Rosters[i].Yakkr601 != 0) {
-                                tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">601</td>';
-                            }
-                            else if (data.list.Rosters[i].Yakkr600 != 0) {
-                                tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="600" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '" data- onclick="ShowPopup(this);">600</td>';
-
-                            }
-
-                            else {
-                                tr += '<td height="70" style="width:13%;"><a href="#" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" onclick="ShowPopup(this);"></td>';
-                            }
+                        if (data.list.Rosters[i].IsAppointMentYakkr600601 != 0) {
+                            tr += '<td height="70" style="width:13%;"></td>';
+                        }
+                        else if (data.list.Rosters[i].Yakkr600 != 0 && data.list.Rosters[i].Yakkr601 != 0) {
+                            tr += '<td height="70" style="width:13%;"><a href="#"  data-yakkr="600601" data-parent="' + data.list.Rosters[i].Name + '" data-row="' + i + '"  data-clientid="' + data.list.Rosters[i].Eclientid + '" data- onclick="ShowPopup(this);">600  <a href="#"  data-row="' + i + '" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-yakkr="600601" onclick="ShowPopup(this);">601</td>';
 
                         }
+                        else if (data.list.Rosters[i].Yakkr601 != 0) {
+                            tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="601" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '"  onclick="ShowPopup(this);">601</td>';
+                        }
+                        else if (data.list.Rosters[i].Yakkr600 != 0) {
+                            tr += '<td height="70" style="width:13%;"><a href="#" data-yakkr="600" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" data-row="' + i + '" data- onclick="ShowPopup(this);">600</td>';
+
+                        }
+
+                        else {
+                            tr += '<td height="70" style="width:13%;"><a href="#" data-parent="' + data.list.Rosters[i].Name + '" data-clientid="' + data.list.Rosters[i].Eclientid + '" onclick="ShowPopup(this);"></td>';
+                        }
+
+                    }
 
                     //For Attendance issue//
 
@@ -1381,7 +1563,7 @@
                         //ABT
 
 
-                        if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason == "" && data.list.Rosters[i].IsCaseNoteEntered == false && roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && data.list.Rosters[i].IsHomeBased === 0 && data.list.Rosters[i].IsClassStarted===1) {
+                        if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason == "" && data.list.Rosters[i].IsCaseNoteEntered == false && roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9' && data.list.Rosters[i].IsHomeBased === 0 && data.list.Rosters[i].IsClassStarted === 1) {
                             tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="#" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
                             tr += '" data-islate="' + data.list.Rosters[i].IsLateArrival + '"  data-lateDuration="' + data.list.Rosters[i].LateArrivalDuration + '"  data-lateNotes="' + data.list.Rosters[i].LateArivalNotes + '"  data-house="' + data.list.Rosters[i].EHouseholid + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>  &nbsp';
                         }
@@ -1413,14 +1595,13 @@
                         tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastFPADate + '</td>';
                         tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].LastReferralDate + '</td>';
 
-                        if (roleid === 'a31b1716-b042-46b7-acc0-95794e378b26')
-                        {
+                        if (roleid === 'a31b1716-b042-46b7-acc0-95794e378b26') {
                             tr += '<td height="70" style="width:26%;">';
                             tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
                             tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
                             tr += '</td>';
                         }
-                       
+
                         tr += '</tr>';
 
                     }
@@ -1620,7 +1801,7 @@
             });
 
         }
-        function GetClassrooms(Select) {
+        function GetClassrooms(Select, isTrigger) {
 
             $.ajax({
                 url: HostedDir + "/Roster/Getclassrooms",
@@ -1630,8 +1811,12 @@
                 },
                 dataType: "json",
                 secureuri: false,
-                async: false,
+                async: true,
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
                 success: function (response) {
+
                     if (response.length > 0) {
                         var option = (response.length > 1) ? '<option value="0"></option>' : '';
                         for (var i = 0; i < response.length; i++) {
@@ -1639,14 +1824,37 @@
                         }
                         $('#Classroom').find('option').remove().end().append(option);
                         //$('#Classroom').val(response[0].ClassroomID);
+
+                        if (isTrigger) {
+                            $('#Classroom').val('@Session["_RosterClassroom"]');
+
+                            if ($('#searchByNameDiv').length > 0) {
+                                if ($('#searchTextName').val() != '') {
+                                    $('#searchbyNamebtn').trigger('click');
+                                }
+                                else {
+                                    $("#btnsearch").trigger('click');
+                                }
+                            }
+                            else {
+                                $("#btnsearch").trigger('click');
+                            }
+                            // getList();
+                        }
+
                     }
                     else {
                         $('#Classroom').find('option').remove();
                     }
                 }
                    , error: function (response) {
+                       $('#spinner').hide();
                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                   }
+                   },
+                complete: function () {
+
+                    $('#spinner').hide();
+                }
             });
         }
 
@@ -1768,6 +1976,89 @@
 @section MainContentHolder{
     @*<link href="~/Content/CaseNote/css/bootstrap.min.css" rel="stylesheet" />
     *@
+    <style>
+        /*#page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }*/
+
+        .no-padding {
+            padding: 0;
+        }
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 689px;
+        }
+
+        .error-notify {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            color: red;
+            font-size: 13px;
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
+        .transition-inner .form-control {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            padding: 10px 10px;
+            color: #163b69;
+            text-align: left;
+            font-size: 15px;
+            margin: 0;
+            text-transform: none;
+            width: 100%;
+            float: left;
+            height: 43px;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .err-container, irr-error {
+            width: 100%;
+            float: left;
+            margin: 6px 0;
+        }
+
+        .err-message {
+            display: none;
+            color: red;
+            font-size: 12px;
+            margin: 6px;
+            height: 10px;
+        }
+
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            /*width: calc( 100% - 17px );*/
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 300px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+    </style>
 
     <style>
         #MyModalLateArrival .close {
@@ -2068,7 +2359,9 @@
                     <li>
                         <select id="ddlpagetodisplay" onchange="drawgrid();">
                             <option value="10">10</option>
-                            <option value="25" selected="selected">25</option>
+                            <option value="20" selected="selected">20</option>
+                            <option value="30">30</option>
+                            @*<option value="30">30</option>*@
                             <option value="50">50</option>
                             <option value="100">100</option>
                         </select>

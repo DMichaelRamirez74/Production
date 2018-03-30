@@ -13,6 +13,57 @@
 
         $(document).ready(function () {
 
+          
+            //color Picker query//
+            $(".usercolor").spectrum({
+                allowEmpty: false,
+                //color: "#000",
+                showInput: true,
+                containerClassName: "full-spectrum",
+                showInitial: true,
+                showPalette: true,
+                showSelectionPalette: true,
+                cancelText: "Cancel",
+                chooseText: "Choose",
+                showAlpha: true,
+                maxPaletteSize: 10,
+                preferredFormat: "hex",
+                localStorageKey: "spectrum.demo",
+                //move: function (color) {
+                //    //updateBorders(color);
+                  
+                //    color: '#fff';
+                //},
+                show: function () {
+                },
+                beforeShow: function () {
+                },
+                hide: function (color) {
+                    //updateBorders(color);
+                    return false;
+                },
+                palette: [
+                    ["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)", /*"rgb(153, 153, 153)","rgb(183, 183, 183)",*/
+                    "rgb(204, 204, 204)", "rgb(217, 217, 217)", /*"rgb(239, 239, 239)", "rgb(243, 243, 243)",*/ "rgb(255, 255, 255)"],
+                    ["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)",
+                    "rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"],
+                    ["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)",
+                    "rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)",
+                    "rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)",
+                    "rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)",
+                    "rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)",
+                    "rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)",
+                    "rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)",
+                    "rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)",
+                    /*"rgb(133, 32, 12)", "rgb(153, 0, 0)", "rgb(180, 95, 6)", "rgb(191, 144, 0)", "rgb(56, 118, 29)",
+                    "rgb(19, 79, 92)", "rgb(17, 85, 204)", "rgb(11, 83, 148)", "rgb(53, 28, 117)", "rgb(116, 27, 71)",*/
+                    "rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)",
+                    "rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"]
+                ]
+            });
+
+
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -23,25 +74,37 @@
                 customAlert('@ViewBag.message');
             }
 
-            $('#Testbtn').click(function () {
-                var id = $('#btn_UserColor').val();
 
-            });
 
-            $('input[type=color]').on('input', function () {
 
+            //$('#Testbtn').click(function () {
+            //    var id = $('#btn_UserColor').val();
+
+            //});
+
+            //$('input[type=color]').on('input', function () {
+            $('.usercolor').on('change', function () {
                 var currentvalue = $(this).val();
                 var currentName = $(this).attr('name');
                 var originalValue = $(this).attr('originalvalue');
+                originalValue = (originalValue == "") ? '#000000' : originalValue;
                 var orig = currentvalue;
-                $('input[type=checkbox]:checked').next('input[type=color]').each(function () {
+                var closestTr = $(this).closest('tr');
+                var rowIndex = $(closestTr).index();
+                
+                $('input[type=checkbox]:checked').next('input[type=text]').each(function () {
                     var checkname = $(this).attr('name');
                     if (currentName != checkname) {
                         var checkcolor = $(this).val();
                         var checkName = $(this).attr('name');
                         if (currentvalue == checkcolor) {
-                            $("input[name='" + currentName + "']").val(originalValue);
-                            $("input[name='" + checkName + "']").focus();
+
+                            var spcontainer=$('.sp-container')[rowIndex];
+                            $(spcontainer).find('.sp-thumb-el').removeClass('sp-thumb-active');
+                           // $(spcontainer).find('.sp-thumb-el[title=' + originalValue + ']').addClass('sp-thumb-active');
+                            $(spcontainer).find('.sp-thumb-el[title=' + originalValue + ']').trigger('click');
+                            //$("input[name='" + currentName + "']").val(originalValue);
+                            //$("input[name='" + checkName + "']").focus();
                             customAlert("Color already exists");
                             return false;
                         }
@@ -55,15 +118,17 @@
                 var a = $(this).val();
                 var currentName = $(this).attr('name');
                 if ($(this).prop('checked') == true) {
-                    $(this).next('#btn_change').removeClass('hidden');
-                    var a1 = $(this).next('#btn_change').val();
-                    if (a1 == '#000000') {
-                        customAlert("Please Select a Color");
+                    //$(this).next('#btn_change').removeClass('hidden');
+                    $(this).siblings('.sp-replacer').show();
+                    var a1 = $(this).next('.usercolor').val();
+                    if (a1 == '#000000' || a1=="") {
+                        customAlert("Please Select Color");
                     }
 
                 }
                 else {
-                    $(this).next('#btn_change').addClass('hidden');
+                    //$(this).next('#btn_change').addClass('hidden');
+                    $(this).siblings('.sp-replacer').hide();
 
                 }
 
@@ -72,13 +137,16 @@
 
 
             $('input[type=checkbox]:checked').on('click', function () {
+                $(this).closest("td").css("background-color", "");
                 var a = $(this).val();
                 var currentName = $(this).attr('name');
                 if ($(this).prop('checked') == false) {
-                    $(this).next('#btn_UserColor').addClass('hidden');
+                   // $(this).next('.usercolor').addClass('hidden');
+                    $(this).siblings('.sp-replacer').hide();
                 }
                 else {
-                    $(this).next('#btn_UserColor').removeClass('hidden');
+                  //  $(this).next('.usercolor').removeClass('hidden');
+                    $(this).siblings('.sp-replacer').show();
 
                 }
 
@@ -99,12 +167,17 @@
 
             });
 
+            $('input[type=checkbox]:not(:checked)').each(function () {
+
+                $(this).siblings('.sp-replacer').hide();
+            });
+
         });
 
         function checkform() {
             var setbool = true;
             $('input[type=checkbox]:checked').each(function () {
-                var b1 = $(this).next('input[type=color]').val();
+                var b1 = $(this).next('input[type=text]').val();
                 if (b1 == '#000000') {
                     isValid = false;
                     customAlert("Please Select Another Color");
@@ -119,12 +192,16 @@
 
         function Checkiscoreteam() {
             var isValid = true;
+
+            
+
             $('input[type=checkbox]:checked').each(function () {
-                var b1 = $(this).next('input[type=color]').val();
-                if (b1 == '#000000') {
+                var b1 = $(this).next('input[type=text]').val();
+                $(this).closest("td").css("background-color", "");
+                if (b1 == '#000000' || b1=="" || b1=='#000') {
                     isValid = false;
-                    customAlert("Please Select Another Color");
-                    $(this).find("td").css("border-color", "red");
+                    customAlert("Please select another color");
+                    $(this).closest("td").css("background-color", "pink");
                     return isValid;
 
                 }
@@ -161,6 +238,10 @@
 
 }
 @section MainContentHolder{
+
+<link href="~/Content/css/spectrum.css" rel="stylesheet" />
+<script src="~/Scripts/spectrum.js"></script>
+
     <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
         <div class="row">
             <div class="col-lg-12">
@@ -173,6 +254,9 @@
                 </h2>
             </div>
         </div>
+
+     
+
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                 <d iv class="table-responsive coreteam" id="Coreteam">
@@ -197,11 +281,11 @@
                                                    name="CoreTeams[@i].IsCoreTean" value="true" />
                                             @if (@item.IsCoreTean)
                                             {
-                                                <input type="color" value="@item.UserColor" originalvalue="@item.UserColor" id="btn_UserColor" name="CoreTeams[@i].UserColor" />
+                                                <input type="text" value="@item.UserColor" class="usercolor hidden" originalvalue="@item.UserColor"  name="CoreTeams[@i].UserColor" />
                                             }
                                             else
                                             {
-                                                <input type="color" value="@item.UserColor" originalvalue="@item.UserColor" name="CoreTeams[@i].UserColor" setattribute="CoreTeams[@i].UserColor" class="hidden" id="btn_change" />
+                                                <input type="text" value="@item.UserColor" originalvalue="@item.UserColor" name="CoreTeams[@i].UserColor" setattribute="CoreTeams[@i].UserColor" class="hidden usercolor" />
                                             }
                                         </td>
                                     </tr>

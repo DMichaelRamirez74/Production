@@ -281,8 +281,8 @@
                     </span>
                     <span class="error" id="errshow" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
                     </span>
-                        <div class="col-xs-12 no-padding">
-                            <label class="col-lg-1 no-padding" style="color:#295b8f;">Parent:</label>
+                        <div class="col-xs-12 no-padding well" style="padding:10px;margin-bottom:10px;">
+                            <label class="col-lg-2 no-padding" style="color:#295b8f;">Parent/Guardian:</label>
                             <span class="col-lg-11 no-padding" style="width:auto;">
                                 @foreach (var item in Model.refListData)
                                 {
@@ -295,7 +295,7 @@
                                     }
                                     if (item.Status == true)
                                     {
-                                        if (item.IsFamily == true || item.IsChild == false)
+                                        if ( item.IsFamily == true && item.IsChild == false )
                                         {
                                             <span>
                                                 <input type="checkbox" parentname="@item.ParentName" class="CheckClient" value="@item.ClientID" id="ClientID" style="margin-left:0;" />@item.ParentName
@@ -309,14 +309,32 @@
                                 }
                             </span>
                         </div>
-                        <div class="col-xs-12 no-padding">
-                            <label class="col-lg-1 no-padding" style="color:#295b8f;">Child:</label>
+                        <div class="col-xs-12 no-padding well" style="margin-bottom:10px;padding:10px;">
+                            <label class="col-lg-2 no-padding" style="color:#295b8f;">Client:</label>
                             <span class="col-lg-11 no-padding" style="width:auto;">
                                 @foreach (var Item in Model.refListData)
                                 {
                                     if (Item.Status == true)
                                     {
-                                        if (Item.IsFamily == false && Item.IsChild == true)
+                                        if (Item.IsFamily == false && Item.IsChild == true && Item.IsClient==true)
+                                        {
+                                            <span>
+                                                <input type="checkbox" parentname="@Item.ParentName" class="CheckClient" value="@Item.ClientID" id="ClientID" style="margin-left:0;" />@Item.ParentName
+                                            </span>
+                                        }
+                                    }
+                                }
+                            </span>
+                        </div>
+
+                        <div class="col-xs-12 no-padding well" style="margin-bottom:10px;padding:10px;">
+                            <label class="col-lg-2 no-padding" style="color:#295b8f;">Others in Household:</label>
+                            <span class="col-lg-11 no-padding" style="width:auto;">
+                                @foreach (var Item in Model.refListData)
+                                {
+                                    if (Item.Status == true)
+                                    {
+                                        if (Item.IsFamily == false && Item.IsClient==false)
                                         {
                                             <span>
                                                 <input type="checkbox" parentname="@Item.ParentName" class="CheckClient" value="@Item.ClientID" id="ClientID" style="margin-left:0;" />@Item.ParentName
@@ -339,7 +357,7 @@
                         <span>
                             <input class="form-control ui-autocomplete-input validtest" id="txtSearch" maxlength="30" name="Organization" placeholder="Search Organization" style="width:230px!important;display:inline-block;float:left;" value="" autocomplete="off" type="text">
 
-                            <span class="error" id="errspan" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;">
+                            <span class="error" id="errspan" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;">
                             </span>
                             
                         </span>
@@ -350,11 +368,11 @@
                             <select id="FFReferralSelect" style="width:230px!important;display:inline-block;">
                                 <option value="0">Select Referral Type</option>
                             </select>
-                            <span class="error" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;" id="errnewspan">
+                            <span class="error" style="display:none;width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 26px;font-size: 12px;font-weight: bold;margin-bottom:0;" id="errnewspan">
                                 Please select referral type
                             </span>
 
-                            <label id="FFReferral" style="font-weight: normal" class="addresssection"></label>
+                            <label id="FFReferral" style="font-weight: normal;width:100%;" class="addresssection"></label>
                         </span>
                     </li>
                     <li>

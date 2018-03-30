@@ -1,7 +1,32 @@
 ﻿@model  FingerprintsModel.FamilyHousehold
-<div class="table-responsive" style="height: 114px;margin-bottom:0;">
-    <table class="table table_size" id="gridView" style="width:500px;font-size: 12px;">
-        <thead style="cursor:pointer;">
+    <style>
+         .scroll-thead {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                /*width: calc( 100% - 17px );*/
+            }
+         
+            .scroll-tbody tr td, .scroll-tbody1 tr td {
+                word-break: break-word;
+            }
+
+            .scroll-tbody {
+                display: block;
+                height: 120px;
+                overflow: auto;
+                overflow-x: hidden;
+            }
+
+                .scroll-tbody tr {
+                    display: table;
+                    width: 100%;
+                    table-layout: fixed;
+                }
+    </style>
+<div class="table-responsive" style="margin-bottom:0;">
+    <table class="table table_size" id="gridView" style="width:100%;font-size: 12px;">
+        <thead class="scroll-thead" style="cursor:pointer;">
             <tr style="text-align: center; font-size: 12px;">
                 <th>File Name</th>
                 <th>Description</th>
@@ -9,20 +34,54 @@
                 <th>Download</th>
             </tr>
         </thead>
-        <tbody>
-            @if (@ViewBag.tabName == "Household")
-            {
-                foreach (var row in Model.getList)
+        <tbody class="scroll-tbody">
+            @*@if (@ViewBag.tabName == "Household")
                 {
-                    <tr>
-                        <td>@row.HFileName</td>
-                        <td>@row.DocumentDesc</td>
-                        <td>@row.CreatedOn</td>
-                        <td><a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a></td>
-                    </tr>
+                    foreach (var row in Model.getList)
+                    {
+                        <tr>
+                            <td>@row.HFileName</td>
+                            <td>@row.DocumentDesc</td>
+                            <td>@row.CreatedOn</td>
+                            <td><a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a></td>
+                        </tr>
+                    }
                 }
-            }
-            else if (@ViewBag.tabName == "Child ")
+
+                else if (@ViewBag.tabName == "Child ")
+                {
+                    foreach (var row in Model.getList)
+                    {
+                        <tr>
+                            <td>@row.HFileName</td>
+                            <td>@row.DocumentDesc</td>
+                            <td>@row.CreatedOn</td>
+                            <td><a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a></td>
+                        </tr>
+                    }
+                }
+
+
+                else
+                {
+                    foreach (var row in Model.getList)
+                    {
+
+                        <tr>
+                            <td>@row.HFileName</td>
+                            <td>@row.DocumentDesc</td>
+                            <td>@row.CreatedOn</td>
+                            <td>
+                                @if (@ViewBag.tabName == "Screening")
+                                {
+                                    <a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }*@
+
+            @if (@ViewBag.tabName != "")
             {
                 foreach (var row in Model.getList)
                 {
@@ -30,30 +89,11 @@
                         <td>@row.HFileName</td>
                         <td>@row.DocumentDesc</td>
                         <td>@row.CreatedOn</td>
-                        <td><a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a></td>
+                        <td style="text-align:center;"><a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a></td>
                     </tr>
                 }
             }
 
-
-            else
-            {
-                foreach (var row in Model.getList)
-                {
-                    
-                    <tr>
-                        <td>@row.HFileName</td>
-                        <td>@row.DocumentDesc</td>
-                        <td>@row.CreatedOn</td>
-                        <td>
-                            @if (@ViewBag.tabName == "Screening")
-                            {
-                                <a target="_blank" title="Click here to download" href="~/Agencyuser/getpdfimage1/@row.FamilyHouseholdID,@ViewBag.tabName,@row.AmountNo"><i class="fa fa-download"></i></a>
-                            }
-                        </td>
-                    </tr>
-                }
-            }
         </tbody>
     </table>
 </div>

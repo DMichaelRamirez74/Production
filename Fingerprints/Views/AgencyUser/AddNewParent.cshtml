@@ -8,8 +8,9 @@
        
             
     }
-    ViewBag.Title = "AddNe9wChild";
-    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    ViewBag.Title = "Add/Update Parent";
+    Layout = (Session["RoleId"].ToString() == "a65bb7c2-e320-42a2-aed4-409a321c08a5" || Session["RoleId"].ToString() == "3b49b025-68eb-4059-8931-68a0577e5fa2") ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/AgencyStaffLayout.cshtml";
+
 }
 @section Script{
     
@@ -586,13 +587,13 @@
                 plainValidation('#DdlPDegreeEarned');
                 return isValid;
             }
-         //   if ($('#Span1').text() == "") {
-         //       isValid = false;
-          //      customAlert("Parent Income is required. ");
-          //      $('#Myincomecalculator').modal('show');
-          //      return isValid;
-          //  }
-           
+            if ($('#Span1').length>0 && $('#Span1').text() == "") {
+                isValid = false;
+                customAlert("Parent Income is required. ");
+                $('#Myincomecalculator').modal('show');
+                return isValid;
+            }
+
             if ($('#gridphone > tbody tr').length == 0) {
                 isValid = false;
                 customAlert("Please add contact no. ");
@@ -1412,8 +1413,12 @@
                     <span>Add Contact No</span>
                     <a href="javascript:void(0)" title="Add Contact No" onclick="Addphone();"><i class="fa fa-plus-square"></i></a>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a style="margin-left:3%;" href="javascript:void(0)" data-toggle="modal" data-target="#Myincomecalculator">Calculate Income <i class="fa fa-calculator"></i></a>
+                    @if(Model.IsStaffReviewIncome)
+                    { 
+
+                                       <a style="margin-left:3%;" href="javascript:void(0)" data-toggle="modal" data-target="#Myincomecalculator">Calculate Income <i class="fa fa-calculator"></i></a>
                     <span style="margin-left:6%;" id="Span1"></span>
+                    }
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                     <div class="table-responsive">

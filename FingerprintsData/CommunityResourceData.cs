@@ -37,6 +37,10 @@ namespace FingerprintsData
                 {
                     command.Parameters.AddWithValue("@Companyname", info.CompanynameD);
                 }
+                else if(info.Community=="3")
+                {
+                    command.Parameters.AddWithValue("@Companyname", info.CompanyNameOt);
+                }
                 command.Parameters.AddWithValue("@Region", info.Region);
                 command.Parameters.AddWithValue("@Fname", info.Fname);
                 command.Parameters.AddWithValue("@Lname", info.Lname);
@@ -54,6 +58,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@DentalCenter", info.DentalCenter);
                 command.Parameters.AddWithValue("@DentalNotes", info.DentalNotes);
                 command.Parameters.AddWithValue("@MedicalNotes", info.MedicalNotes);
+                command.Parameters.AddWithValue("@OtherNotes", info.OtherNotes);
                 command.Parameters.AddWithValue("@MedicalCenter", info.MedicalCenter);
 
                 //End
@@ -179,14 +184,20 @@ namespace FingerprintsData
             CommunityResource obj = new CommunityResource();
             try
             {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@CommunityId", CommunityId));
                 command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_communityinfo";
+                Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                Connection.Close();
                 if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     obj.CommunityID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
@@ -477,6 +488,15 @@ namespace FingerprintsData
                     {
                         obj.DentalCenter = string.Empty;
                     }
+
+                    if (!string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["OtherCenter"].ToString()))
+                    {
+                        obj.OtherCenter = _dataset.Tables[0].Rows[0]["OtherCenter"].ToString();
+                    }
+                    else
+                    {
+                        obj.OtherCenter = string.Empty;
+                    }
                     if (!string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["MedicalNotes"].ToString()))
                     {
                         obj.MedicalNotes = _dataset.Tables[0].Rows[0]["MedicalNotes"].ToString();
@@ -492,6 +512,15 @@ namespace FingerprintsData
                     else
                     {
                         obj.DentalNotes = string.Empty;
+                    }
+
+                    if (!string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["OtherNotes"].ToString()))
+                    {
+                        obj.OtherNotes = _dataset.Tables[0].Rows[0]["OtherNotes"].ToString();
+                    }
+                    else
+                    {
+                        obj.OtherNotes = string.Empty;
                     }
                     //End
 

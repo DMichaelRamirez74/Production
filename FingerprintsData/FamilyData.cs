@@ -178,7 +178,7 @@ namespace FingerprintsData
             return result;
 
         }
-        public FamilyHousehold GetData_AllDropdown(string HouseHoldid, int parentid, string agencyid, string userid, int i = 0, FamilyHousehold familyInfo = null)
+        public FamilyHousehold GetData_AllDropdown(string HouseHoldid, int parentid, string agencyid, string userid,string roleID, int i = 0, FamilyHousehold familyInfo = null)
         {
             //  List<AgencyStaff> _agencyStafflist = new List<AgencyStaff>();
             FamilyHousehold Info = new FamilyHousehold();
@@ -199,6 +199,7 @@ namespace FingerprintsData
                         command.Parameters.Add(new SqlParameter("@parentid", parentid));
                         command.Parameters.Add(new SqlParameter("@AgencyId", agencyid));
                         command.Parameters.Add(new SqlParameter("@userid", userid));
+                        command.Parameters.Add(new SqlParameter("@RoleId", roleID));
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
                     }
@@ -820,6 +821,14 @@ namespace FingerprintsData
                         }
                         Info.AvailableWorkshopDetails = _workshopinfo;
                     }
+
+                    //Gets, whether User is allowed to review the family income//
+                    int tableCount = ds.Tables.Count;
+                    if(ds.Tables[tableCount-1]!=null && ds.Tables[tableCount-1].Rows.Count>0)
+                    {
+                        Info.IsStaffReviewIncome = Convert.ToBoolean(ds.Tables[tableCount - 1].Rows[0]["IsReviewIncome"]);
+                    }
+
 
                     //End
 
@@ -8351,20 +8360,27 @@ namespace FingerprintsData
             }
             return "0";
         }
-        public void FamilySummary(FamilyHousehold FamilyObject, string id, string Agencyid, string userid)
+        public void FamilySummary(FamilyHousehold FamilyObject, string id, string Agencyid, string userid,string RoleId)
         {
 
             try
             {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@Householdid", EncryptDecrypt.Decrypt64(id)));
                 command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@UserId", userid));
+                command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getfamilysummarry";
+                Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                Connection.Close();
                 FamilySummaryinfo(FamilyObject, _dataset);
 
             }
@@ -8579,8 +8595,28 @@ namespace FingerprintsData
                     }
                     obj._ChangeReasonList = _reasonList;
                 }
+                //Gets the FSW for this Family//
+                obj.staffList = new List<AgencyStaff>();
+                if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
+                {
+                    obj.staffList = _dataset.Tables[11].AsEnumerable().Select(x => new AgencyStaff
+                    {
+
+                        Username = x.Field<string>("FSWName"),
+                        CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
+                        AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
+                        Gender = x.Field<string>("GenderText"),
 
 
+                    }).ToList();
+                }
+
+                //Gets, whether currently logged in user can review the familyhousehold income//
+
+                if (_dataset.Tables[12] != null && _dataset.Tables[12].Rows.Count > 0)
+                {
+                    obj.IsStaffReviewIncome = Convert.ToBoolean(_dataset.Tables[12].Rows[0]["IsReviewIncome"]);
+                }
             }
         }
         public string SaveFamilySummary(FamilyHousehold info, string Agenyid, string UserId)
