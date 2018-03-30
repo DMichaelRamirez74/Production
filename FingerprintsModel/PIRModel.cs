@@ -221,6 +221,75 @@ namespace FingerprintsModel
         public string C_38_A { get; set; }
         public string C_38_B { get; set; }
         public string C_38_C { get; set; }
+        public string C_39_A { get; set; }
+        public string C_39_B { get; set; }
+        public string C_40_A { get; set; }
+        public string C_40_B { get; set; }
+        public string C_41_1 { get; set; }
+        public string C_41_2 { get; set; }
+        public string C_42_1 { get; set; }
+        public string C_42_2 { get; set; }
+        public string C_43_1 { get; set; }
+        public string C_43_2 { get; set; }
+        public string C_44_1 { get; set; }
+        public string C_44_2 { get; set; }
+        public string C_45_A { get; set; }
+        public string C_45_B { get; set; }
+        public string C_45_C { get; set; }
+        public string C_46_A { get; set; }
+        public string C_46_B { get; set; }
+        public string C_47_A { get; set; }
+        public string C_47_B { get; set; }
+        public string C_47_C { get; set; }
+        public string C_47_D { get; set; }
+        public string C_48 { get; set; }
+        public string C_49_A { get; set; }
+        public string C_49_B { get; set; }
+        public string C_49_C { get; set; }
+        public string C_49_D { get; set; }
+        public string C_50_A_1 { get; set; }
+        public string C_50_A_2 { get; set; }
+        public string C_50_B_1 { get; set; }
+        public string C_50_B_2 { get; set; }
+        public string C_50_C_1 { get; set; }
+        public string C_50_C_2 { get; set; }
+        public string C_50_D_1 { get; set; }
+        public string C_50_D_2 { get; set; }
+        public string C_50_E_1 { get; set; }
+        public string C_50_E_2 { get; set; }
+        public string C_50_F_1 { get; set; }
+        public string C_50_F_2 { get; set; }
+        public string C_50_G_1 { get; set; }
+        public string C_50_G_2 { get; set; }
+        public string C_50_H_1 { get; set; }
+        public string C_50_H_2 { get; set; }
+        public string C_50_I_1 { get; set; }
+        public string C_50_I_2 { get; set; }
+        public string C_50_J_1 { get; set; }
+        public string C_50_J_2 { get; set; }
+        public string C_50_K_1 { get; set; }
+        public string C_50_K_2 { get; set; }
+        public string C_50_L_1 { get; set; }
+        public string C_50_L_2 { get; set; }
+        public string C_50_M_1 { get; set; }
+        public string C_50_M_2 { get; set; }
+        public string C_50_N_1 { get; set; }
+        public string C_50_N_2 { get; set; }
+        public string C_50_O_1 { get; set; }
+        public string C_50_O_2 { get; set; }
+        public string C_50_P_1 { get; set; }
+        public string C_50_P_2 { get; set; }
+        public string C_51_1 { get; set; }
+        public string C_51_2 { get; set; }
+        public string C_52_A { get; set; }
+        public string C_52_B { get; set; }
+        public string C_52_C { get; set; }
+        public string C_52_D { get; set; }
+        public string C_52_E { get; set; }
+        public string C_53 { get; set; }
+        public string C_54 { get; set; }
+
+
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
        
