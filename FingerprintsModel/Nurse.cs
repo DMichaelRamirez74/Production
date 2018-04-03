@@ -11,6 +11,9 @@ namespace FingerprintsModel
 {
     public class Nurse
     {
+        public bool IsAllowIncome { get; set; }
+        public string IsFinalReviwer { get; set; }
+        public FamilyHousehold FamilyHousehold = new FamilyHousehold();
         public string CAge { get; set; }
         public int SingleParent { get; set; }
         public int TwoParent { get; set; }

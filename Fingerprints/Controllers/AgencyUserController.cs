@@ -3926,20 +3926,16 @@ namespace Fingerprints.Controllers
             TempData.Keep();
             return View(info);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-
-        public JsonResult DropClient(string ClientId, string HouseholdId, string status, string Reason, string StatusText, string ddlreason, string ddlreasontext, string IsWaiting)
+       // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [HttpPost]
+        public ActionResult DropClient(Transition Transition)
         {
             try
             {
-                //Check ClientId and HouseholdId IsEncrypted
-                if (ClientId.Replace(" ", "").Length % 4 == 0)
-                {
-                    ClientId = EncryptDecrypt.Decrypt64(ClientId);
-                    HouseholdId = EncryptDecrypt.Decrypt64(HouseholdId);
-                }
-                return Json(familyData.DropClient(ClientId, HouseholdId, status, Reason, StatusText, ddlreason, ddlreasontext, Session["UserID"].ToString(), Session["AgencyID"].ToString(), IsWaiting));
-
+    
+                var id = familyData.DropClient(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Transition);
+                return Json(id);
+               
             }
             catch (Exception Ex)
             {
@@ -3947,9 +3943,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,e4c80fc2-8b64-447a-99b4-95d1510b01e9")] //added  e4c80fc2-8b64-447a-99b4-95d1510b01e9 on 01/02/2018
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,e4c80fc2-8b64-447a-99b4-95d1510b01e9")] //added  e4c80fc2-8b64-447a-99b4-95d1510b01e9 on 01/02/2018
+      
         public JsonResult GetEnrollReason(string Status = "0")
         {
             try

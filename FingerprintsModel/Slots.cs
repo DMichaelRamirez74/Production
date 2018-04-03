@@ -25,4 +25,5 @@ namespace FingerprintsModel
         public List<FamilyHousehold.Programdetail> Programlist { get; set; }
 
     }
+  
 }

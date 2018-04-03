@@ -2777,7 +2777,9 @@
                 if (!$('#MedicalService1').prop("checked") && !$('#MedicalService2').prop("checked")) {
                     SetApplicationStatuschild(0);
                 }
-
+                if ($('#InChildCareSubsidy').prop("checked")==false) {
+                    SetApplicationStatuschild(0);
+                }
                 //  if ($('#ApplicationStatusParent1').val() == 0) {
                 //     $('#ApplicationStatusChild').val(0);
                 //       $('#ApplicationStatusParent2').val(0);
@@ -4512,7 +4514,7 @@
             }
             $('#CDOB').val(data.CDOB);
             $('#DOBverifiedBy').val(data.DOBverifiedBy);
-            if (data.CSSN != "") {
+            if (data!=null && data.CSSN != null && data.CSSN!='') {
                 var res = data.CSSN;
                 len = res.length;
                 max = 11;
@@ -4608,6 +4610,16 @@
             else {
                 $('#InDualcustody1').prop("checked", false);
                 $('#InDualcustody2').prop("checked", false);
+            }
+
+
+            if (data.InChildCareSubsidy == 1)
+                $('#InChildCareSubsidy1').prop("checked", true);
+            else if (data.InChildCareSubsidy == 2)
+                $('#InChildCareSubsidy2').prop("checked", true);
+            else {
+                $('#InChildCareSubsidy1').prop("checked", false);
+                $('#InChildCareSubsidy2').prop("checked", false);
             }
             $('#ImmunizationFileName').val(data.ImmunizationFileName);
             if (data.ImmunizationinPaper)
@@ -10105,6 +10117,7 @@
                         $("input:radio[name='IsFoster']").prop("checked", false);
                         $("input:radio[name='Inwalfareagency']").prop("checked", false);
                         $("input:radio[name='InDualcustody']").prop("checked", false);
+                        $("input:radio[name='InChildCareSubsidy']").prop("checked", false);
                         $('#ImmunizationinPaper').prop("checked", false);
                         $('#CFileName').val("");
                         $('#CFileExtension').val("");
@@ -11996,6 +12009,15 @@
                     $('#BtnMsave').show();
                     isValid = false;
                     customAlert("Is child a dual custody is required. ");
+                    activechildtab();
+                    $('#TabId').val(4);
+                    ShowAllMandatoryFields(Data);
+                    return isValid;
+                }
+                if (Data.InChildCareSubsidy == "0" || Data.InChildCareSubsidy == null || Data.InChildCareSubsidy == "") {
+
+                    isValid = false;
+                    customAlert("Is child in child care subsidy? ");
                     activechildtab();
                     $('#TabId').val(4);
                     ShowAllMandatoryFields(Data);
@@ -16289,7 +16311,28 @@
                                                             </div>
 
 
-
+                                                            <div class="row">
+                                                                <div class="col-sm-12">
+                                                                    <div class="col-sm-6">
+                                                                        <div class="form-group">
+                                                                            <label>Is in child care subsidy? <sup>*</sup></label>
+                                                                            <div class="cont-sz">
+                                                                                <div class="col-xs-6 col-sm-3">
+                                                                                    @Html.RadioButtonFor(m => m.InChildCareSubsidy, 1, new { id = "InChildCareSubsidy1" })
+                                                                                    <span>Yes</span>
+                                                                                </div>
+                                                                                <div class="col-xs-6 col-sm-3">
+                                                                                    @Html.RadioButtonFor(m => m.InChildCareSubsidy, 2, new { id = "InChildCareSubsidy2" })
+                                                                                    <span>No </span>
+                                                                                </div>
+                                                                                <div class="col-xs-6 col-sm-6">
+                                                                                    <span id="InChildCareSubsidy"></span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
 
                                                             <div class="row" style="display: none;  margin: 4px 3px 19px 3px; padding: 6px;" id="Dualcustody">
@@ -21779,7 +21822,15 @@
                                                                                         if (item1.CenterId != "0")
                                                                                         {
                                                                                             <tr>
-                                                                                                @if (item1.SeatsAvailable == "0")
+                                                                                                @*@if (item1.SeatsAvailable == "0")
+                                                                                                {
+                                                                                                    <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
+                                                                                                }*@
+                                                                                                @if (item1.SeatsAvailable == "0" || Convert.ToInt32(item1.SeatsAvailable) <=-1)
                                                                                                 {
                                                                                                     <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
                                                                                                 }
@@ -21787,7 +21838,6 @@
                                                                                                 {
                                                                                                     <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
                                                                                                 }
-
 
 
 
