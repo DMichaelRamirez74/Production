@@ -108,11 +108,11 @@ namespace FingerprintsModel
     public class ServiceReferences
     {
 
-        public string ServicesName { get; set; }
+        public string  ServicesName { get; set; }
 
-        public int ServiceId { get; set; }
+        public int  ServiceId { get; set; }
     }
-    public class ListRoster
+ public class ListRoster
     {
         public string id { get; set; }
         public string ServiceId { get; set; }
@@ -121,8 +121,8 @@ namespace FingerprintsModel
         public string HouseHoldId { get; set; }
         public string ClientId { get; set; }
         public long referralClientId { get; set; }
-        //  public long? ReferralClientId { get; set; }
-        //  public int? Step { get; set; }
+      //  public long? ReferralClientId { get; set; }
+      //  public int? Step { get; set; }
         public string clientName { get; set; }
         public string parentName { get; set; }
         public string ReferralDate { get; set; }
@@ -143,7 +143,7 @@ namespace FingerprintsModel
     public class AttendenceDetailsByDate
     {
         public string id { get; set; }
-
+     
         public string ClientName { get; set; }
         public string ParentName { get; set; }
         public DateTime? AttendenceDate { get; set; }
@@ -161,7 +161,7 @@ namespace FingerprintsModel
         public string SignedOutTime { get; set; }
 
     }
-    public class CaseNoteNew
+	public class CaseNoteNew
     {
         public string ClientId { get; set; }
         public string CenterId { get; set; }

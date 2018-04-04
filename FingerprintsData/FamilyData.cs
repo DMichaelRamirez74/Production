@@ -1133,7 +1133,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsFoster", obj.IsFoster));
                 command.Parameters.Add(new SqlParameter("@Inwalfareagency", obj.Inwalfareagency));
                 command.Parameters.Add(new SqlParameter("@InDualcustody", obj.InDualcustody));
-                //command.Parameters.Add(new SqlParameter("@InChildCareSubsidy", obj.InChildCareSubsidy));
+                command.Parameters.Add(new SqlParameter("@InChildCareSubsidy", obj.InChildCareSubsidy));
                 command.Parameters.Add(new SqlParameter("@ImmunizationFileName", obj.ImmunizationFileName));
                 command.Parameters.Add(new SqlParameter("@ImmunizationFileExtension", obj.ImmunizationFileExtension));
                 command.Parameters.Add(new SqlParameter("@Immunizationfileinbytes", obj.Immunizationfileinbytes));
@@ -7600,6 +7600,9 @@ namespace FingerprintsData
                         clsError.WriteException(ex);
                         obj.CSSN = _dataset.Tables[2].Rows[0]["SSN"].ToString();
                     }
+                    if (_dataset.Tables[2].Rows[0]["ChildCareSubsidy"].ToString() != "")
+                        obj.InChildCareSubsidy = Convert.ToInt32(_dataset.Tables[2].Rows[0]["ChildCareSubsidy"]);
+
                     obj.CProgramType = _dataset.Tables[2].Rows[0]["Programtype"].ToString();
                     obj.CGender = _dataset.Tables[2].Rows[0]["Gender"].ToString();
                     obj.CRace = _dataset.Tables[2].Rows[0]["RaceID"].ToString();
@@ -8480,6 +8483,9 @@ namespace FingerprintsData
                         familyinfo.CGender = _dataset.Tables[2].Rows[i]["gender"].ToString();
                         familyinfo.Imagejson = _dataset.Tables[2].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[2].Rows[i]["ProfilePic"]);
                         familyinfo.Yakkr = _dataset.Tables[2].Rows[i]["yakkr"].ToString();
+                        if (_dataset.Tables[2].Rows[i]["PrimaryInsurance"].ToString() != "")
+                          familyinfo.InsuranceOption = _dataset.Tables[2].Rows[i]["PrimaryInsurance"].ToString();
+
                         familyinfo.ClassRoomName = _dataset.Tables[2].Rows[i]["ClassRoomName"].ToString();
                         familyinfo.ClassRoomId = Convert.ToInt64(_dataset.Tables[2].Rows[i]["ClassRoomId"]);
                         familyinfo.CenterName = _dataset.Tables[2].Rows[i]["CenterName"].ToString();
@@ -9282,6 +9288,7 @@ namespace FingerprintsData
                 //End
                 command.Parameters.Add(new SqlParameter("@screeningquestion", screeningquestion));
                 command.Parameters.Add(new SqlParameter("@screeningallowed", screeningallowed));
+                command.Parameters.Add(new SqlParameter("@InChildCareSubsidy", obj.InChildCareSubsidy));
                 command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
@@ -10086,24 +10093,91 @@ namespace FingerprintsData
             }
             return Info;
         }
-        public string DropClient(string ClientId, string HouseholdId, string status, string Reason, string StatusText, string ddlreason, string ddlreasontext, string userid, string Agencyid, string IsWaiting)
+        public string DropClient(string userid, string Agencyid, Transition Transition)
         {
             try
             {
+                int n, n1;
+                var isClientid = int.TryParse(Transition.EClientID, out n);
+                var ishouseholdid = int.TryParse(Transition.EClientID, out n1);            
+                switch (Transition.TrnsInsuranceType)
+                {
+                    case "C3A1":
+
+                        Transition.MedicaidCHIP_S_C1A1 = 1;
+                        Transition.MedicaidCHIP_E_C1A2 = 1;
+                        break;
+                    case "C3B1":
+                        Transition.StateFunded_S_C1B1 = 1;
+                        Transition.StateFunded_E_C1B2 = 1;
+                        break;
+                    case "C3C1":
+                        Transition.PrivateIns_S_C1C1 = 1;
+                        Transition.PrivateIns_E_C1C2 = 1;
+                        break;
+                    case "C3D1":
+                        Transition.OtherIns_S_C1D1 = 1;
+                        Transition.OtherIns_E_C1D2 = 1;
+                        Transition.Description_S_C1D11 = Transition.OtherInsuranceTypeDesc;
+                        Transition.Description_E_C1D11 = Transition.OtherInsuranceTypeDesc;
+
+                        break;
+                    case "C4":
+                        Transition.NoIns_S_C2 = 1;
+                        Transition.NoIns_E_C2 = 1;
+                        break;
+                }
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
                 command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
-                command.Parameters.Add(new SqlParameter("@HouseholdId", HouseholdId));
-                command.Parameters.Add(new SqlParameter("@status", status));
-                command.Parameters.Add(new SqlParameter("@Reason", Reason));
-                command.Parameters.Add(new SqlParameter("@StatusText", StatusText));
-                command.Parameters.Add(new SqlParameter("@ddlreason", ddlreason));
-                command.Parameters.Add(new SqlParameter("@ddlreasontext", ddlreasontext));
+
+
+                command.Parameters.Add(new SqlParameter("@ClientId",(isClientid)? Transition.EClientID:EncryptDecrypt.Decrypt64( Transition.EClientID)));
+                command.Parameters.Add(new SqlParameter("@HouseholdId",(ishouseholdid)?Transition.HouseholdId: EncryptDecrypt.Decrypt64(Transition.HouseholdId)));
+                command.Parameters.Add(new SqlParameter("@status", Transition.Status));
+                command.Parameters.Add(new SqlParameter("@Reason", Transition.Reason));
+                command.Parameters.Add(new SqlParameter("@StatusText", Transition.StatusText));
+                command.Parameters.Add(new SqlParameter("@ddlreason", Transition.ddlreason));
+                command.Parameters.Add(new SqlParameter("@ddlreasontext", Transition.ddlreasontext));
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@IsWaiting", string.IsNullOrEmpty(IsWaiting) ? false : IsWaiting == "1" ? true : false));
+                command.Parameters.Add(new SqlParameter("@IsWaiting", string.IsNullOrEmpty(Transition.IsWaiting) ? false : Transition.IsWaiting == "1" ? true : false));
+
+                // for addtional questions
+
+
+                command.Parameters.Add(new SqlParameter("@MedicalHome", Transition.MedicalHome));
+                command.Parameters.Add(new SqlParameter("@DentalHome", Transition.DentalHome));
+                command.Parameters.Add(new SqlParameter("@MedicalService", Transition.MedicalServices));
+                command.Parameters.Add(new SqlParameter("@DentalService", Transition.DentalServices));
+
+                command.Parameters.Add(new SqlParameter("@TANF", Transition.TANF));
+                command.Parameters.Add(new SqlParameter("@SSI", Transition.SSI));
+                command.Parameters.Add(new SqlParameter("@WIC", Transition.WIC));
+                command.Parameters.Add(new SqlParameter("@SNAP", Transition.SNAP));
+                command.Parameters.Add(new SqlParameter("@ImmunizationService", Transition.ImmunizationService));
+
+                command.Parameters.Add(new SqlParameter("@ShoolAchievement", Transition.ShoolAchievement));
+                command.Parameters.Add(new SqlParameter("@JobTrainingFinished", Transition.JobTrainingFinished));
+
+                command.Parameters.Add(new SqlParameter("@ActiveRecCode", Transition.TrnsInsuranceType));
+                command.Parameters.Add(new SqlParameter("@MedicaidCHIP_S_C1A1", Transition.MedicaidCHIP_S_C1A1));
+                command.Parameters.Add(new SqlParameter("@MedicaidCHIP_E_C1A2", Transition.MedicaidCHIP_E_C1A2));
+                command.Parameters.Add(new SqlParameter("@StateFunded_S_C1B1", Transition.StateFunded_S_C1B1));
+                command.Parameters.Add(new SqlParameter("@StateFunded_E_C1B2", Transition.StateFunded_E_C1B2));
+                command.Parameters.Add(new SqlParameter("@PrivateIns_S_C1C1", Transition.PrivateIns_S_C1C1));
+                command.Parameters.Add(new SqlParameter("@PrivateIns_E_C1C2", Transition.PrivateIns_E_C1C2));
+                command.Parameters.Add(new SqlParameter("@OtherIns_S_C1D1", Transition.OtherIns_S_C1D1));
+                command.Parameters.Add(new SqlParameter("@OtherIns_E_C1D2", Transition.OtherIns_E_C1D2));
+
+                command.Parameters.Add(new SqlParameter("@Description_S_C1D1", Transition.Description_S_C1D11));
+                command.Parameters.Add(new SqlParameter("@Description_E_C1D1", Transition.Description_S_C1D11));
+                command.Parameters.Add(new SqlParameter("@NoIns_S_C2", Transition.NoIns_S_C2));
+                command.Parameters.Add(new SqlParameter("@NoIns_E_C2", Transition.NoIns_E_C2));
+
+
+
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;

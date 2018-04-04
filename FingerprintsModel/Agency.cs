@@ -56,6 +56,7 @@ namespace FingerprintsModel
         public string Yakkr600 { get; set; }
         public string Yakkr601 { get; set; }
         public string Areabreakdown { get; set; }
+        public string DivisionBreakDown { get; set; }
         public HttpPostedFileBase logo { get; set; }
         public string logoFileName { get; set; }
         public string logoFileExtension { get; set; }
@@ -129,6 +130,10 @@ namespace FingerprintsModel
             public string ReferenceProg { get; set; }
             public string programstartDate { get; set; }
             public string programendDate { get; set; }
+
+            public string LastDateCurrentApplication { get; set; }
+            public string DateFutureApplication { get; set; }
+            public string TransitionDate { get; set; }
             public int WorkingDays { get; set; }
             public string CreatedBy { get; set; }
             public string CreatedDate { get; set; }

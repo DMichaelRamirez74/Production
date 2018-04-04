@@ -37,7 +37,7 @@ namespace FingerprintsModel
 
         public string ClassRoomName { get; set; }
         public long ClassRoomId { get; set; }
-
+       
         public string CenterName { get; set; }
         public long CenterId { get; set; }
         public List<WellBabyExamModel> PhysicalExamDates { get; set; }
@@ -637,6 +637,7 @@ namespace FingerprintsModel
             public string Name { get; set; }
             public string notes { get; set; }
             public string CreatedOn { get; set; }
+          
         }
 
         public class ImmunizationRecord

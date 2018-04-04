@@ -9,6 +9,7 @@ namespace FingerprintsModel
     public class Transition
     {
         public long ClientId { get; set; }
+        public string EClientID { get; set; }
         public long ProgramTypeId { get; set; }
         public string DateOfTransition { get; set; }
 
@@ -16,7 +17,13 @@ namespace FingerprintsModel
         public string DOB { get; set; }
         public string Gender { get; set; }
 
-
+        public string HouseholdId { get; set; }
+        public string Status { get; set; }
+        public string StatusText { get; set; }
+        public string Reason { get; set; }
+        public string ddlreason { get; set; }
+        public string ddlreasontext { get; set; }
+        public string IsWaiting { get; set; }
         public int EnrollmentStatus { get; set; }
         public int InsuranceType { get; set; }
 
@@ -59,13 +66,26 @@ namespace FingerprintsModel
         public string Description_E_C1D11 { get; set; }
         public int NoIns_S_C2 { get; set; }
         public int NoIns_E_C2 { get; set; }
+        public  bool JobTrainingFinished { get; set; }
 
+        public int ShoolAchievement { get; set; }
+        public bool TANF { get; set; }
+        public bool SSI { get; set; }
 
+        public bool WIC { get; set; }
+        public bool SNAP { get; set; }
+        public bool HighSchool { get; set; }
+        public bool HighSchoolGraduate { get; set; }
+        public bool AssociateDegree { get; set; }
+        public bool AdvancedDegree { get; set; }
 
+        public int ImmunizationService { get; set; }
 
+        public bool MedicalHome { get; set; }
 
-
-        public int MedicalServices { get; set; }
+        public bool DentalHome { get; set; }
+        public bool DentalServices { get; set; }
+        public bool MedicalServices { get; set; }
         public int MedicalServiceTypes { get; set; }
         public int DentalCare { get; set; }
 
@@ -102,6 +122,8 @@ namespace FingerprintsModel
         public bool IsEHS { get; set; }
     }
 
+
+ 
     public class SeatAvailability
     {
         public int SloatAvailable { get; set; }
