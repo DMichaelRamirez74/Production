@@ -289,6 +289,16 @@ namespace FingerprintsModel
         public string C_53 { get; set; }
         public string C_54 { get; set; }
 
+        public string B1_1 { get; set; }
+        public string B1_2 { get; set; }
+        public string B1A_1 { get; set; }
+        public string B1A_2 { get; set; }
+        public string B1B_1 { get; set; }
+        public string B1B_2 { get; set; }
+        public string B1B_1_1 { get; set; }
+        public string B1B_1_2 { get; set; }
+
+
 
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
