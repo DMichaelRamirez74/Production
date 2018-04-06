@@ -4230,5 +4230,44 @@ namespace FingerprintsData
             return incomeReviewList;
         }
 
+        /// <summary>
+        /// method to get, Whether Logged in user is allowed to access PIR and Section B
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public bool GetUserAccessPIR(string mode)
+        {
+            bool isAccess = false;
+            try
+            {
+             
+                StaffDetails details = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.Parameters.Add(new SqlParameter("@AgencyID", details.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserID", details.UserId));
+                command.Parameters.Add(new SqlParameter("@mode", Convert.ToInt32(mode)));
+                command.CommandText = "USP_GetIsAccessPIR";
+                command.CommandType = CommandType.StoredProcedure;
+                Connection.Open();
+                isAccess = Convert.ToBoolean(command.ExecuteScalar());
+                Connection.Close();
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally {
+                Connection.Dispose();
+                command.Dispose();
+
+            }
+            return isAccess;
+        }
     }
 }

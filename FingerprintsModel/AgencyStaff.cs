@@ -63,6 +63,8 @@ namespace FingerprintsModel
         public char AgencyStatus { get; set; }
         public Guid SelectedAgencyId { get; set; }
         public string SelectedRoleId { get; set; }
+        public string ServiceYears { get; set; }
+
         [Display(Name = "Login allowed")]
         public bool LoginAllowed { get; set; }
         public List<Agency> agncylist = new List<Agency>();
