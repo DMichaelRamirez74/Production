@@ -52,7 +52,7 @@ namespace FingerprintsData
                     DOB = Convert.ToString(dr["DOB"]),
                     Status = Convert.ToString(dr["Status"]),
                     ProgramType = Convert.ToString(dr["programType"])
-                    //ReasonForAcceptance = Convert.ToString(dr["ReasonForAcceptance"])
+                    ReasonForAcceptance = Convert.ToString(dr["ReasonForAcceptance"])
                 });
             }
             _ReportingM.reporttype = 1;
