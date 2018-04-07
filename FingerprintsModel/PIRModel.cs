@@ -297,9 +297,22 @@ namespace FingerprintsModel
         public string B1B_2 { get; set; }
         public string B1B_1_1 { get; set; }
         public string B1B_1_2 { get; set; }
+        public string B3A_1 { get; set; }
+        public string B3A_2 { get; set; }
+        public string B3B_1 { get; set; }
+        public string B3B_2 { get; set; }
+        public string B3C_1 { get; set; }
+        public string B3C_2 { get; set; }
+        public string B3D_1 { get; set; }
+        public string B3D_2 { get; set; }
+        public string B3E_1 { get; set; }
+        public string B3E_2 { get; set; }
+        public string B3F_1 { get; set; }
+        public string B3F_2 { get; set; }
+        public string B3G_1 { get; set; }
+        public string B3G_2 { get; set; }
 
-
-
+        
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
        

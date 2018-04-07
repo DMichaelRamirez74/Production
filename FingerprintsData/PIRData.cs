@@ -314,6 +314,22 @@ namespace FingerprintsData
                            _PIR.B1B_2 = dr["B1B_2"].ToString();
                            _PIR.B1B_1_1 = dr["B1B_1_1"].ToString();
                            _PIR.B1B_1_2 = dr["B1B_1_2"].ToString();
+
+                           _PIR.B3A_1 = dr["B3A_1"].ToString();
+                           _PIR.B3A_2 = dr["B3A_2"].ToString();
+                           _PIR.B3B_1 = dr["B3B_1"].ToString();
+                           _PIR.B3B_2 = dr["B3B_2"].ToString();
+                           _PIR.B3C_1 = dr["B3C_1"].ToString();
+                           _PIR.B3C_2 = dr["B3C_2"].ToString();
+                           _PIR.B3D_1 = dr["B3D_1"].ToString();
+                           _PIR.B3D_2 = dr["B3D_2"].ToString();
+                           _PIR.B3E_1 = dr["B3E_1"].ToString();
+                           _PIR.B3E_2 = dr["B3E_2"].ToString();
+                           _PIR.B3F_1 = dr["B3F_1"].ToString();
+                           _PIR.B3F_2 = dr["B3F_2"].ToString();
+                           _PIR.B3G_1 = dr["B3G_1"].ToString();
+                           _PIR.B3G_2 = dr["B3G_2"].ToString();
+
                     }
 
                 }
