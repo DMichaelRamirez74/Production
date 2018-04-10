@@ -1056,6 +1056,19 @@
 
 
         }
+        function uncheckdata1() {
+            if ($('#NONE1').prop("checked")) {
+                $('#TANF1').prop("checked", false);
+                $('#SSI1').prop("checked", false);
+                $('#WIC1').prop("checked", false);
+                $('#SNAP1').prop("checked", false);
+            }
+        }
+        function uncheckdataNone1() {
+            if (($('#TANF1').prop("checked")) || ($('#SSI1').prop("checked")) || ($('#WIC1').prop("checked")) || ($('#SNAP1').prop("checked"))) {
+                $('#NONE1').prop("checked", false);
+            }
+        }
         function uncheckdata() {
             if ($('#None').prop("checked")) {
                 $('#TANF').prop("checked", false);
@@ -1581,10 +1594,11 @@
                         if (EnrolledObject != null) {
                             var Transition = {};
                             debugger;
-                            Transition.TANF = $('#TANF').is(':checked');;
-                            Transition.SSI = $('#SSI').is(':checked');
-                            Transition.WIC = $('#WIC').is(':checked');
-                            Transition.SNAP = $('#SNAP').is(':checked');
+                            Transition.TANF = $('#TANF1').is(':checked');;
+                            Transition.SSI = $('#SSI1').is(':checked');
+                            Transition.WIC = $('#WIC1').is(':checked');
+                            Transition.SNAP = $('#SNAP1').is(':checked');
+                            Transition.NONE = $('#NONE1').is(':checked');
                             //Transition.HighSchool = $('#HighSchool').val();
                             //Transition.HighSchoolGraduate = $('#HighSchoolGraduate').val();
                             //Transition.AssociateDegree = $('#AssociateDegree').val();
@@ -1846,8 +1860,11 @@
             $('#divForWithdrawn').hide();
             $('#Divwaitinglist').hide();
             $('#Divreason').hide();
+          
             $('input:radio').prop('checked', false);
-       
+            $('#txtreason').val("");
+            $('input:checkbox').prop('checked', false);
+
             $('.enroll-sec').each(function () {
 
                 $(this).css("background-color", "");
@@ -4609,28 +4626,34 @@
                                                         <div class="transition-radio-btn enroll-sec" id="ServicesId">
 
 
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="TANF" name="TANF" class="services" value="true" />
+                                                                    <input type="checkbox" id="TANF1" name="TANF1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>TANF</span>
                                                                 </label>
                                                             </div>
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="SSI" name="SSI" class="services" value="true" />
+                                                                    <input type="checkbox" id="SSI1" name="SSI1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>SSI</span>
                                                                 </label>
                                                             </div>
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="SNAP" name="SNAP" class="services" value="true" />
+                                                                    <input type="checkbox" id="SNAP1" name="SNAP1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>SNAP</span>
                                                                 </label>
                                                             </div>
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="WIC" name="WIC" class="services" value="true" />
+                                                                    <input type="checkbox" id="WIC1" name="WIC1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>WIC</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    <input type="checkbox" id="NONE1" onchange="uncheckdata1();" name="NONE1" class="services" value="true" />
+                                                                    <span>NONE</span>
                                                                 </label>
                                                             </div>
 
