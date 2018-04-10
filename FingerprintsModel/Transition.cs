@@ -69,7 +69,6 @@ namespace FingerprintsModel
         public  bool JobTrainingFinished { get; set; }
 
         public int ShoolAchievement { get; set; }
-        public bool NONE { get; set; }
         public bool TANF { get; set; }
         public bool SSI { get; set; }
 
