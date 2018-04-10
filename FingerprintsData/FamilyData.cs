@@ -10153,6 +10153,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@DentalService", Transition.DentalServices));
 
                 command.Parameters.Add(new SqlParameter("@TANF", Transition.TANF));
+                command.Parameters.Add(new SqlParameter("@NONE", Transition.NONE));
                 command.Parameters.Add(new SqlParameter("@SSI", Transition.SSI));
                 command.Parameters.Add(new SqlParameter("@WIC", Transition.WIC));
                 command.Parameters.Add(new SqlParameter("@SNAP", Transition.SNAP));
