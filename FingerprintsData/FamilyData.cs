@@ -8612,6 +8612,7 @@ namespace FingerprintsData
                         CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
                         AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
                         Gender = x.Field<string>("GenderText"),
+                        ServiceYears = x.Field<int>("ServiceYears").ToString()
 
 
                     }).ToList();
