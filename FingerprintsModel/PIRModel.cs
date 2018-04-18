@@ -74,6 +74,7 @@ namespace FingerprintsModel
         public string A_22 { get; set; }
         public string A_22_A { get; set; }
         public string A_22_B { get; set; }
+        public string A_24 { get; set; }
         public string A_25a1 { get; set; }
         public string A_25a2 { get; set; }
         public string A_25b1 { get; set; }
@@ -323,6 +324,7 @@ namespace FingerprintsModel
             public string piratenrollmentDesc { get; set; }
             public string pirafterenrollment { get; set; }
             public string pirafterenrollmentDesc { get; set; }
+            public string program { get; set; }
             public List<PIRModel> PIRlst { get; set; }
 
        

@@ -25,19 +25,27 @@ namespace Fingerprints.Controllers
        // string agencyid = "C40BB313-BAC6-44E3-A746-C34B03979797";
       
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,b65759ba-4813-4906-9a69-e180156e42fc,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult PIRSummary(string id)
+        public ActionResult PIRSummary(string id, string Refresh)
         {
            
-            return View(new PIRData().GetPIR(Session["UserID"].ToString(), Session["AgencyID"].ToString(),id));
+            return View(new PIRData().GetPIR(Session["UserID"].ToString(), Session["AgencyID"].ToString(),id, Refresh));
 
         }
+        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,b65759ba-4813-4906-9a69-e180156e42fc,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+      //  public ActionResult RefreshPIR(string id)
+      //  {
+//
+    //        new PIRData().RefreshPIR(Session["UserID"].ToString(), Session["AgencyID"].ToString(), id);
+      //      return View(new PIRData().GetPIR(Session["UserID"].ToString(), Session["AgencyID"].ToString(), id));
+
+      //  }
         [HttpGet]
-        public ActionResult PIRDetails(string id)
+        public ActionResult PIRDetails(string id, string Program)
         {
 
           
                 //if (Session["RoleName"] != null && (Session["RoleName"].ToString().ToUpper().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5")))
-            return View(new PIRData().GetPIRDetails(Session["UserID"].ToString(), Session["AgencyID"].ToString(), id));
+            return View(new PIRData().GetPIRDetails(Session["UserID"].ToString(), Session["AgencyID"].ToString(), id, Program));
                 //Session["PIRQuestion"] = _PIR.pirQuestion;
 
            
