@@ -63,6 +63,8 @@ namespace FingerprintsModel
         public char AgencyStatus { get; set; }
         public Guid SelectedAgencyId { get; set; }
         public string SelectedRoleId { get; set; }
+        public string ServiceYears { get; set; }
+
         [Display(Name = "Login allowed")]
         public bool LoginAllowed { get; set; }
         public List<Agency> agncylist = new List<Agency>();
@@ -219,9 +221,11 @@ namespace FingerprintsModel
 
         public int IsPreg { get; set; }
         public int IsClassStarted { get; set; }
+        public int PrimaryInsurance { get; set; }
 
         public List<CenterAndClassRoom> CenterAndClassRoom { get; set; }
         public List<CaseNoteDetails> CaseNoteDetails { get; set; }
+        public int FamilyHomeless { get; set; }
     }
   public class CenterAndClassRoom
     {

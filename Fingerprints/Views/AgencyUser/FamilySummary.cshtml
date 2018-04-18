@@ -1056,6 +1056,19 @@
 
 
         }
+        function uncheckdata1() {
+            if ($('#NONE1').prop("checked")) {
+                $('#TANF1').prop("checked", false);
+                $('#SSI1').prop("checked", false);
+                $('#WIC1').prop("checked", false);
+                $('#SNAP1').prop("checked", false);
+            }
+        }
+        function uncheckdataNone1() {
+            if (($('#TANF1').prop("checked")) || ($('#SSI1').prop("checked")) || ($('#WIC1').prop("checked")) || ($('#SNAP1').prop("checked"))) {
+                $('#NONE1').prop("checked", false);
+            }
+        }
         function uncheckdata() {
             if ($('#None').prop("checked")) {
                 $('#TANF').prop("checked", false);
@@ -1520,7 +1533,7 @@
                 }
                 else if ($('.MedicalServices').is(':checked') == false) {
                     isValid = false;
-                    customAlert("Number of all children who are up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care is required.");
+                    customAlert("Is the child  up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care is required.");
                     plainValidation('#MedicalServicesID');
                     return isValid;
                 }
@@ -1581,10 +1594,11 @@
                         if (EnrolledObject != null) {
                             var Transition = {};
                             debugger;
-                            Transition.TANF = $('#TANF').is(':checked');;
-                            Transition.SSI = $('#SSI').is(':checked');
-                            Transition.WIC = $('#WIC').is(':checked');
-                            Transition.SNAP = $('#SNAP').is(':checked');
+                            Transition.TANF = $('#TANF1').is(':checked');;
+                            Transition.SSI = $('#SSI1').is(':checked');
+                            Transition.WIC = $('#WIC1').is(':checked');
+                            Transition.SNAP = $('#SNAP1').is(':checked');
+                            Transition.NONE = $('#NONE1').is(':checked');
                             //Transition.HighSchool = $('#HighSchool').val();
                             //Transition.HighSchoolGraduate = $('#HighSchoolGraduate').val();
                             //Transition.AssociateDegree = $('#AssociateDegree').val();
@@ -1846,8 +1860,11 @@
             $('#divForWithdrawn').hide();
             $('#Divwaitinglist').hide();
             $('#Divreason').hide();
+          
             $('input:radio').prop('checked', false);
-       
+            $('#txtreason').val("");
+            $('input:checkbox').prop('checked', false);
+
             $('.enroll-sec').each(function () {
 
                 $(this).css("background-color", "");
@@ -2661,6 +2678,7 @@
 
             .det-cont span {
                 float: right;
+                 color: #164b7b;
             }
 
             .det-cont h4 {
@@ -2791,7 +2809,7 @@
         }
 
         .parent-head-ch p {
-            width: 25%;
+            width: 30%;
             display: inline-block;
             float: left;
             font-size: 14px;
@@ -2818,6 +2836,13 @@
     -webkit-appearance:none;
         background:url(../../images/drop.png) no-repeat 97% scroll #fff!important;
     }
+.hld-img,.hld-img img{width:110px;height:110px;border-radius:100%;background:#e6e6e6;}
+    .det-cont{width:67%;}
+        .household-main-ch{height:248px;}
+        .bade-div{height:40px;}
+        .household-main-ht {
+    height: 188px!important;
+}
     </style>
     <div class="row Zoom">
         <div class="col-lg-12" style="padding:0;">
@@ -2829,12 +2854,22 @@
                         <div class="right-side-container-ch col-xs-12" style="padding-top: 30px;">
 
                             <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
+                                @*<div class="col-xs-12 ersea-detl-title">
+                                    <h2>Family Summary</h2>
+                                    <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                                </div>*@
 
-                                <div class="top-header-title-transportation" style="margin-bottom:15px!important">
-                                    <h1>FAMILY SUMMARY</h1>
+                                <div class="col-lg-12">
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;"><i class="fa fa-group"></i> Family Summary
+                                    
+                                    <span class="view-btn backto_listspan">
+                                        <a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back To Roster</a>
 
+                                    </span>
+                                    </h2>
                                 </div>
-                                <a href="/Roster/Roster" style="padding:18px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;">Back To Roster</a>
+                               
+                              
                             </div>
 
 
@@ -2848,10 +2883,10 @@
                                 </div>
                                 <div class="inforeader-inner inforeader-inner-ch">
                                     <div class="col-md-5 col-lg-5 col-xs-12 col-sm-12">
-                                        <div class="home-in-img">
+                                        <div class="home-in-img household-main-ch" style="height:auto;">
                                             <img src="~/Content/imgs/home-fam.png" alt="home" />
                                             <p>
-                                                @Model.StreetName&nbsp;@Model.Street <br>
+                                                @Model.StreetName&nbsp;@Model.Street<br>
                                                 @Model.City,  &nbsp;  @Model.State  @Model.ZipCode<br />
                                                 @Model.County
                                             </p>
@@ -2865,25 +2900,32 @@
                                     @if (Model.staffList != null && Model.staffList.Count() > 0) {
 
                                     <div class="col-md-7 col-lg-7 col-sm-12 col-xs-12">
-                                        <div class="house-hold" style="padding: 15px 10px;margin:0;">
+                                        <div class="house-hold household-main-ch" style="padding: 15px 10px;margin:0;height:auto;">
                                             <div class="hld-img">
                                                 <img height="110" width="108" src="@Model.staffList[0].AvatarUrl" style="margin-top:2px;" class="zoomify">
                                             </div>
-                                            <div class="det-cont">
-                                                <h4 style="padding-left:10px;">@Model.staffList[0].Username</h4>
-                                                <div class="col-xs-7 col-lg-7">
-                                                    <label><strong>Gender:</strong></label>
+                                            <div class="det-cont" style="width:70%;">
+                                                <h4 style="padding-left:10px;float:left;width:100%;">
+                                                <span style="display:inline-block;float:left;width:58%;color:#164b7b;font-weight:bold;">@Model.staffList[0].Username </span>
+
+                                                    @if (Model.staffList[0].ServiceYears != "0")
+                                                    {
+                                                        <span style="display:inline-block;float:left;color:#009688;font-weight:bold;font-size:14px;">(@Model.staffList[0].ServiceYears Year(s) of Service)</span>
+                                                    }
+                                                </h4>
+                                                <div class="col-xs-7 col-lg-4">
+                                                    <label style="color:#333;"><i class="fa fa-user" style="padding-right:10px;width:20px;"></i><strong>Gender</strong></label>
                                                 </div>
-                                                <div class="col-xs-3 col-lg-3">
-                                                    <label style="text-align:left;color:#333;">@Model.staffList[0].Gender</label>
+                                                <div class="col-xs-3 col-lg-7">
+                                                    <label style="text-align:left;color:#164b7b;font-weight:normal;">@Model.staffList[0].Gender</label>
                                                 </div>
 
 
-                                                <div class="col-xs-7 col-lg-7">
-                                                    <label><strong>Mobile Number:</strong></label>
+                                                <div class="col-xs-7 col-lg-4">
+                                                    <label style="color:#333;display:inline-flex;"><i class="fa fa-phone" style="padding-right:10px;width:20px;"></i><strong>Mobile Number</strong></label>
                                                 </div>
-                                                <div class="col-xs-3 col-lg-3">
-                                                    <label style="text-align:left;color:#333;">@Model.staffList[0].CellNumber</label>
+                                                <div class="col-xs-3 col-lg-7">
+                                                    <label style="text-align:left;color:#164b7b;font-weight:normal;">@Model.staffList[0].CellNumber</label>
                                                 </div>
 
 
@@ -2933,8 +2975,6 @@
                             </div>
 
 
-
-
                             <div class="col-xs-12">
                                 <div class="col-xs-12 no-padding">
                                     <div class="information_titles" style="background:#e67e22;">
@@ -2947,8 +2987,18 @@
                                     {
                                         foreach (var item in Model._Clist)
                                         {
-                                    <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                        <div class="house-hold">
+                                    <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                        <div class="house-hold household-main-ch">
+                                            <div class="bade-div">
+                                                <div class="bade-div-hidden hidden">
+                                                    <p class="house-hold-badge RX-bg"><img src="~/Images/rx.png" style="max-width: 55%;" /></p>
+                                                    <p class="house-hold-badge F-bg">F</p>
+                                                    <p class="house-hold-badge T-bg">T</p>
+                                                    <p class="house-hold-badge A-bg">A</p>
+                                                    <p class="house-hold-badge D-bg">D</p>
+                                                    @*<p class="house-hold-badge E-bg">E</p>*@
+                                                </div>
+                                            </div>
                                             <div class="hld-img">
 
                                                 @if (string.IsNullOrEmpty(item.Imagejson) && item.CGender == "2")
@@ -2976,38 +3026,39 @@
 
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
-                                                <h4>@item.Cfirstname</h4>
+                                              
+                                                <h4 class="household-heading-txt">@item.Cfirstname</h4>
                                                 <ul>
                                                     <li>
-                                                        <p>@item.Gender</p>
+                                                        <p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
                                                         @if (item.CProgramType != null && item.CenterId > 0 && item.ClassRoomId > 0)
                                                                 {
-                                                                <span>
+                                                                <span class="household-right-txt">
                                                                     <a href="#" id="dob@(item.ChildId)" onclick="ChangeDOB(this)" data-programtype="@item.CProgramType" data-childid="@item.ChildId" style="text-decoration:underline">@item.CDOB</a>
                                                                 </span>
                                                                 }
                                                                 else
                                                                 {
-                                                                <span>
+                                                                <span class="household-right-txt">
                                                                     @item.CDOB
                                                                 </span>
                                                                 }
 
                                                     </li>
 
-
-
-
                                                     @if (item.CenterId > 0 && item.ClassRoomId > 0)
                                                             {
-                                                            <li><p>Center</p><span class="overflow-common"><a href="#" title="@item.CenterName" class="add-new-center" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-roomname="@item.ClassRoomName" data-center-name="@item.CenterName">@item.CenterName</a></span></li>
-                                                            <li><p>Classroom</p><span><a href="#" class="add-new-cls" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-attr="@item.ClassRoomId" data-cls-roomname="@item.ClassRoomName">@item.ClassRoomName</a></span></li>
+                                                            <li>
+                                                    <p class="household-left-txt"><i class="fa fa-institution"></i>Center</p><span class="overflow-common household-right-txt">
+                                                                <a href="#" title="@item.CenterName" class="add-new-center" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-roomname="@item.ClassRoomName" data-center-name="@item.CenterName">@item.CenterName</a>
+                                                                </span></li>
+                                                            <li>
+                                                    <p class="household-left-txt"><i class="fa fa-building"></i>Classroom</p>
+                                                                <span class="household-right-txt">
+                                                                    <a href="#" class="add-new-cls" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-attr="@item.ClassRoomId" data-cls-roomname="@item.ClassRoomName">@item.ClassRoomName</a>
+                                                                </span>
+                                                            </li>
                                                             }
-
-
-
-
-
 
                                                 </ul>
                                             </div>
@@ -3164,20 +3215,20 @@
                                 </div>
                                 <div class="inforeader-inner">
                                     <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
-                                        <div class="house-hold">
-                                            <div class="hld-img" style="width:23%;">
-
+                                        <div class="house-hold household-main-ch household-main-ht">
+                                            <div class="hld-img">
                                                 @if (string.IsNullOrEmpty(Model.PImagejson) && Model.PGender == "2")
                                                 {
-                                                <img width="108" height="108" src="~/Content/img/ic_female.png" style="margin-top: 4px;" />
+
+                                                <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
                                                 }
                                                 else if (string.IsNullOrEmpty(Model.PImagejson) && Model.PGender == "1")
                                                 {
-                                                <img width="108" height="108" src="~/Images/adult-image.png" style="margin-top: 4px;" />
+                                                <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
                                                 }
                                                 else if (string.IsNullOrEmpty(Model.PImagejson) && Model.PGender == "3")
                                                 {
-                                                <img width="108" height="108" src="~/Images/adult-image.png" style="margin-top: 4px;" />
+                                                <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
                                                 }
                                                 else if (!string.IsNullOrEmpty(Model.PImagejson))
                                                 {
@@ -3185,34 +3236,35 @@
                                                 }
                                                 else
                                                 {
-                                                <img width="108" height="108" src="~/Content/img/download.jpg" style="margin-top: 4px;" />
+                                                <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
                                                 }
 
 
                                             </div>
-                                            <div class="det-cont" style="width:75%;">
-                                                <h4>@Model.Pfirstname</h4>
+                                            <div class="det-cont" style="min-height: 130px;">
+                                           
+                                                <h4 class="household-heading-txt">@Model.Pfirstname</h4>
                                                 <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
                                                     <li>
-                                                        <p>@Model.GenderParent1</p>
+                                                        <p class="household-left-txt" style="width:31%;"><i class="fa fa-user"></i> @Model.GenderParent1</p>
                                                         @if (@Model.IsPreg != 0)
                                                         {
-                                                        <span>
+                                                        <span class="household-right-txt">
                                                             <a href="#" id="dob@(Model.ParentID)" onclick="ChangeDOB(this)" data-programtype="parent" data-childid="@Model.ParentID" style="text-decoration:underline">@Model.PDOB</a>
                                                         </span>
                                                         }
                                                         else
                                                         {
-                                                        <span>
+                                                        <span class="household-right-txt">
                                                             @Model.PDOB
                                                         </span>
                                                         }
                                                         @*<span>@Model.PDOB</span></li>*@
                                                     <li style="margin-bottom:0;min-height: 64px;">
-                                                        <p>Contact No</p>
+                                                        <p class="household-left-txt" style="width:31%;"><i class="fa fa-phone"></i> Contact</p>
                                                         @foreach (var ph in Model.PPhoneList)
                                                         {
-                                                        <span style="margin-bottom:0px;">
+                                                        <span class="household-right-txt" style="margin-bottom:0px;color:#164b7b;text-decoration:none;">
 
                                                             @ph
 
@@ -3232,7 +3284,11 @@
 
                                             <div class="home-fft" style="margin-top:0;">
 
-
+                                                <div class="bade-div hidden" style="width:auto;display:inline-block;float:left;">
+                                                    @*<p class="house-hold-badge Parent-badge-bg-r">P</p>*@
+                                                    <p class="house-hold-badge Parent-badge-bg-b">P</p>
+                                                    <p class="house-hold-badge Parent-badge-bg-g">P</p>
+                                                </div>
                                                 <div class="btn btn-success btn-hover-none" style="float: right;"><i class="fa fa-pencil" aria-hidden="true"></i>
                                                     <a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())">&nbsp;Edit</a>
                                                 	</div>
@@ -3243,20 +3299,21 @@
                                     @if (Model.ParentID1 != 0)
                                     {
                                     <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
-                                        <div class="house-hold">
-                                            <div class="hld-img" style="width:23%;">
+                                        <div class="house-hold household-main-ht">
+                                            <div class="hld-img">
 
                                                 @if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 2)
-                                                    {
-                                                    <img width="108" height="108" src="~/Content/img/ic_female.png" style="margin-top: 4px;" />
+                                                {
+
+                                                    <img width="108" height="108" src="@Url.Content("~/Images/female-adult.png")" style="margin-top: 4px;" />
+                                                }
+                                                else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 1)
+                                                {
+                                                    <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
                                                     }
-                                                    else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 1)
+                                                    else  if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 3)
                                                     {
-                                                    <img width="108" height="108" src="~/Images/adult-image.png" style="margin-top: 4px;" />
-                                                    }
-                                                    else if (string.IsNullOrEmpty(Model.P1Imagejson) && Model.P1Gender == 3)
-                                                    {
-                                                    <img width="108" height="108" src="~/Images/adult-image.png" style="margin-top: 4px;" />
+                                                    <img width="108" height="108" src="@Url.Content("~/Images/adult-image.png")" style="margin-top: 4px;" />
                                                     }
                                                     else if (!string.IsNullOrEmpty(Model.P1Imagejson))
                                                     {
@@ -3264,34 +3321,34 @@
                                                     }
                                                     else
                                                     {
-                                                    <img width="108" height="108" src="~/Content/img/download.jpg" style="margin-top: 4px;" />
+                                                    <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" style="margin-top: 4px;" />
                                                     }
                                             </div>
-                                            <div class="det-cont" style="width:75%;">
-                                                <h4>@Model.P1firstname</h4>
+                                            <div class="det-cont" style="min-height: 130px;">
+                                                <h4 class="household-heading-txt">@Model.P1firstname</h4>
                                                 <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
                                                     <li>
-                                                        <p>@Model.GenderParent2</p>
+                                                        <p class="household-left-txt"> <i class="fa fa-user"></i>@Model.GenderParent2</p>
                                                         @if (@Model.IsPreg1 != 0)
                                                             {
-                                                            <span>
+                                                            <span class="household-right-txt">
                                                                 <a href="#" id="dob@(Model.ParentID1)" onclick="ChangeDOB(this)" data-programtype="parent" data-childid="@Model.ParentID" style="text-decoration:underline">@Model.P1DOB</a>
                                                             </span>
                                                             }
                                                             else
                                                             {
-                                                            <span>
+                                                            <span class="household-right-txt" style="color:#164b7b;">
                                                                 <a href="#">@Model.P1DOB</a>
                                                             </span>
                                                             }
-                                                        @*<span>@Model.P1DOB</span>*@
+                                                     
 
                                                     </li>
                                                     <li style="margin-bottom:0;min-height: 64px;">
-                                                        <p>Contact No</p>
+                                                        <p class="household-left-txt" style="width:31%;"><i class="fa fa-phone"></i>Contact</p>
                                                         @foreach (var ph in Model.P1PhoneList)
                                                             {
-                                                            <span style="margin-bottom:0px;">
+                                                            <span style="margin-bottom:0px;color:#164b7b;text-decoration:none;" class="household-right-txt">
 
                                                                 @ph
 
@@ -3310,7 +3367,11 @@
 
 
                                             <div class="home-fft" style="margin-top:0;">
-
+                                                <div class="bade-div hidden" style="width:auto;display:inline-block;float:left;">
+                                                    @*<p class="house-hold-badge Parent-badge-bg-r">P</p>*@
+                                                    <p class="house-hold-badge Parent-badge-bg-b">P</p>
+                                                    <p class="house-hold-badge Parent-badge-bg-g">P</p>
+                                                </div>
                                                 <div class="btn btn-success btn-hover-none" style="float:right;">
                                                     <i class="fa fa-pencil" aria-hidden="true"></i>	<a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())">&nbsp;Edit</a>
                                                 </div>
@@ -3335,20 +3396,20 @@
                                         {
                                             foreach (var item in Model._Olist)
                                             {
-                                        <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                            <div class="house-hold">
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                            <div class="house-hold  household-main-ch household-main-ht">
                                                 <div class="hld-img">
                                                     @if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "2")
                                                             {
-                                                            <img  width="108" height="108" src="~/Content/img/ic_female.png" />
+                                                            <img  width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
                                                             }
                                                             else if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "1")
                                                             {
-                                                            <img width="108" height="108" src="~/Content/img/ic_male.png" />
+                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
                                                             }
                                                             else if (string.IsNullOrEmpty(item.HouseHoldImagejson) && item.OGender == "3")
                                                             {
-                                                            <img  width="108" height="108" src="~/Content/img/ic_male_default.png" />
+                                                            <img  width="108" height="108" src="@Url.Content("~/Content/img/ic_male_default.png")" />
                                                             }
                                                             else if (!string.IsNullOrEmpty(item.HouseHoldImagejson))
                                                             {
@@ -3356,13 +3417,16 @@
                                                             }
                                                             else
                                                             {
-                                                            <img width="108" height="108" src="~/Content/img/download.jpg" />
+                                                            <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                             }
                                                 </div>
                                                 <div class="det-cont" style="min-height: 130px;">
-                                                    <h4>@item.Ofirstname</h4>
+                                                    <h4 class="household-heading-txt">@item.Ofirstname</h4>
                                                     <ul>
-                                                        <li><p>@item.Gender</p><span>@item.ODOB</span></li>
+                                                        <li>
+                                                        <p class="household-left-txt">
+                                                            <i class="fa fa-user"></i>@item.Gender
+                                                            </p><span class="household-right-txt">@item.ODOB</span></li>
                                                     </ul>
                                                 </div>
                                                 <div class="home-fft">
@@ -3406,20 +3470,20 @@
                                     {
                                         foreach (var item in Model._Elist)
                                         {
-                                    <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                        <div class="house-hold">
+                                    <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                        <div class="house-hold household-main-ch household-main-ht">
                                             <div class="hld-img">
                                                 @if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "2")
                                                         {
-                                                        <img width="108" height="108" src="~/Content/img/ic_female.png" />
+                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
                                                         }
                                                         else if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "1")
                                                         {
-                                                        <img width="108" height="108" src="~/Content/img/ic_male.png" />
+                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
                                                         }
                                                         else if (string.IsNullOrEmpty(item.EImagejson) && item.EGender == "3")
                                                         {
-                                                        <img width="108" height="108" src="~/Content/img/ic_male_default.png" />
+                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male_default.png")" />
                                                         }
                                                         else if (!string.IsNullOrEmpty(item.EImagejson))
                                                         {
@@ -3427,13 +3491,14 @@
                                                         }
                                                         else
                                                         {
-                                                        <img width="108" height="108" src="~/Content/img/download.jpg" />
+                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                         }
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
-                                                <h4>@item.Efirstname</h4>
-                                                <ul>
-                                                    <li><p>@item.Gender</p><span>@item.EDOB</span></li>
+                                                <h4 class="household-heading-txt">@item.Efirstname</h4>
+                                                <ul style="float:left;width:100%;margin-bottom:0;" class="parent-head-ch">
+                                                    <li><p class="household-left-txt"><i class="fa fa-user"></i>@item.Gender</p>
+                                                    <span class="household-right-txt">@item.EDOB</span></li>
                                                 </ul>
                                             </div>
                                             <div class="home-fft" style="margin: 10px 0 0;">
@@ -3469,16 +3534,16 @@
                                     {
                                         foreach (var item in Model._Rlist)
                                         {
-                                    <div class="col-md-6 col-lg-4 col-sm-12 col-xs-12">
-                                        <div class="house-hold">
+                                    <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                        <div class="house-hold household-main-ch household-main-ht">
                                             <div class="hld-img">
                                                 @if (string.IsNullOrEmpty(item.RImagejson) && item.EGender == "2")
                                                         {
-                                                        <img  width="108" height="108" src="~/Content/img/ic_female.png" />
+                                                        <img  width="108" height="108" src="@Url.Content("~/Content/img/ic_female.png")" />
                                                         }
                                                         else if (string.IsNullOrEmpty(item.RImagejson) && item.EGender == "1")
                                                         {
-                                                        <img width="108" height="108" src="~/Content/img/ic_male.png" />
+                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/ic_male.png")" />
                                                         }
                                                         else if (!string.IsNullOrEmpty(item.RImagejson))
                                                         {
@@ -3486,16 +3551,16 @@
                                                         }
                                                         else
                                                         {
-                                                        <img width="108" height="108" src="~/Content/img/download.jpg" />
+                                                        <img width="108" height="108" src="@Url.Content("~/Content/img/download.jpg")" />
                                                         }
                                             </div>
                                             <div class="det-cont" style="min-height: 130px;">
-                                                <h4>@item.Efirstname</h4>
-                                                <ul>
-                                                    <li><p>@item.Rfirstname</p><span>@item.EDOB</span></li>
-                                                </ul>
+                                                <h4 class="household-heading-txt">@item.Rfirstname @item.Rlastname</h4>
+                                                @*<ul>
+                                                    <li><p class="household-left-txt"> </p><span>@item.EDOB</span></li>
+                                                </ul>*@
                                             </div>
-                                            <div class="home-fft" style="padding:20px;">
+                                            <div class="home-fft">
                                                 <a href="javascript:void(0)" accesskey="@item.RestrictedId" onclick="GetRestricted(this);" style="padding:15px;float: right; color: #fff;background-color:#5cb85c;border-radius: 4px;">View</a>&nbsp;
                                                 <a href="javascript:void(0)" onclick="deleteRestricted(this);" accesskey="@item.RestrictedId" style="padding:15px;float: right;color: #fff;margin-right: 15px;background-color:#e74c3c;border-radius: 4px; ">Delete</a>
 
@@ -4491,7 +4556,7 @@
                                                     <div class="col-lg-5 col-xs-5">
                                                         <div class="enroll-sec">
                                                             <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Number of all children who are up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care?<span class="error-notify">*</span></p>
+                                                                <p style="background: none;border: none;">Is the child  up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care?<span class="error-notify">*</span></p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -4609,28 +4674,34 @@
                                                         <div class="transition-radio-btn enroll-sec" id="ServicesId">
 
 
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="TANF" name="TANF" class="services" value="true" />
+                                                                    <input type="checkbox" id="TANF1" name="TANF1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>TANF</span>
                                                                 </label>
                                                             </div>
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="SSI" name="SSI" class="services" value="true" />
+                                                                    <input type="checkbox" id="SSI1" name="SSI1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>SSI</span>
                                                                 </label>
                                                             </div>
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="SNAP" name="SNAP" class="services" value="true" />
+                                                                    <input type="checkbox" id="SNAP1" name="SNAP1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>SNAP</span>
                                                                 </label>
                                                             </div>
-                                                            <div class="col-xs-6 col-sm-3">
+                                                            <div class="col-xs-6 col-sm-2">
                                                                 <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="WIC" name="WIC" class="services" value="true" />
+                                                                    <input type="checkbox" id="WIC1" name="WIC1" class="services" onchange="uncheckdataNone1();" value="true" />
                                                                     <span>WIC</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="checkbox-inline">
+                                                                    <input type="checkbox" id="NONE1" onchange="uncheckdata1();" name="NONE1" class="services" value="true" />
+                                                                    <span>NONE</span>
                                                                 </label>
                                                             </div>
 
