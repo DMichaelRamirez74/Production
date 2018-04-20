@@ -1664,5 +1664,25 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
+
+
+        [JsonMaxLengthAttribute]
+
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        public JsonResult Checkaddress(int Zipcode, string Address = "", string HouseHoldId = "0")
+        {
+            try
+            {
+                FamilyData familyData = new FamilyData();
+                string Result;
+                var Zipcodelist = familyData.Checkaddress(out Result, Address, HouseHoldId, Zipcode);
+                return Json(new { Zipcodelist, Result });
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occured please try again.");
+            }
+        }
     }
 }
