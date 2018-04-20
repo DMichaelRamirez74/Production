@@ -42,16 +42,19 @@
                     $('#HideHomeBased').hide();
 
                 }
+
                 if ($("#HomeBased").prop("checked")) {
                     while (count >= 0) {
                         $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", true);
-                        $("#ClassStart" + count).hide();
-                        $("#ClassStop" + count).hide();
-                        $("#Double" + count).hide();
-                        $("#Meal" + count).hide();
-                        $("#Operational" + count).hide();
+                        $("#ClassStart_" + count).hide();
+                        $("#ClassStop_" + count).hide();
+                        $("#Double_" + count).hide();
+                        $("#Meal_" + count).hide();
+                        $("#Operational_" + count).hide();
                         count = count - 1;
                     }
+
+                    $('.classSessionDiv').hide();
                 }
             }
             if ('@ViewBag.mode' == 0) {
@@ -275,7 +278,7 @@
 
         function isValidagencyInfo() {
             cleanValidation();
-            if ($('#AgencyName')[0].value.trim() == "") {
+            if ($('#AgencyName').length > 0 && $('#AgencyName')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Please enter agency.");
                 plainValidation('#AgencyName');
@@ -329,12 +332,30 @@
                 plainValidation('#AdminSite');
                 return isValid;
             }
-            //else if ($('#TimeZoneID')[0].value.trim() == "") {
+
+            //else if ($('#AreaID').length > 0 && $('#AreaID').val() == '') {
             //    isValid = false;
-            //    customAlert("Timezone is required.");
-            //    plainValidation('#TimeZoneID');
+            //    customAlert("Area is required.");
+            //    plainValidation('#AreaID');
             //    return isValid;
+
             //}
+
+            //else if ($('#DivisionID').length > 0 && $('#DivisionID').val() == '') {
+            //    isValid = false;
+            //    customAlert("Division is required.");
+            //    plainValidation('#DivisionID');
+            //    return isValid;
+
+            //}
+
+
+            else if ($('#TimeZoneID')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Timezone is required.");
+                plainValidation('#TimeZoneID');
+                return isValid;
+            }
 
 
             if ($('#AdminSite').val() == "0") {
@@ -369,13 +390,15 @@
                             $("[name='Classroom[" + i + "].StopTime']").focus();
                             return false;
                         }
-                        {
-                            if (!$("[name='Classroom[" + i + "].Breakfast']").prop("checked") && !$("[name='Classroom[" + i + "].Lunch']").prop("checked") &&
-                               !$("[name='Classroom[" + i + "].Snack']").prop("checked") && !$("[name='Classroom[" + i + "].Dinner']").prop("checked")
-                                //&& !$("[name='Classroom[" + i + "].Snack2']").prop("checked")
-                                )
 
-                                isValid = false;
+
+                        if (!$("[name='Classroom[" + i + "].Breakfast']").prop("checked") &&
+                            !$("[name='Classroom[" + i + "].Lunch']").prop("checked") &&
+                           !$("[name='Classroom[" + i + "].Snack']").prop("checked") &&
+                            !$("[name='Classroom[" + i + "].Dinner']").prop("checked")
+                            //&& !$("[name='Classroom[" + i + "].Snack2']").prop("checked")
+                            ) {
+                            isValid = false;
                             customAlert("Is this meal served is required.");
                             plainValidation($("[name='Classroom[" + i + "].Breakfast']"));
                             return false;
@@ -395,7 +418,7 @@
 
                                 var breakfast = $('[name="Classroom[' + i + '].BreakfastFromTime').val();
                                 var lunch = $('[name="Classroom[' + i + '].LunchFromTime"]').val();
-                                var snack1 = $('[name="Classroom[' + i + '].SnackFromTime"]').val();
+                                var snack = $('[name="Classroom[' + i + '].SnackFromTime"]').val();
                                 //  var snack2 = $('[name="Classroom[' + i + '].Snack2FromTime"]').val();
                                 var dinner = $('[name="Classroom[' + i + '].DinnerFromTime"]').val();
                                 if ($("[name='Classroom[" + i + "].Breakfast']").prop("checked")) {
@@ -445,7 +468,7 @@
                                 var min = $('[name="Classroom[' + i + '].TimeBetweenMeals"]').val();
                                 var breakfastdate = new Date(m + '/' + d + '/' + y + ' ' + breakfast);
                                 var lunchdate = new Date(m + '/' + d + '/' + y + ' ' + lunch);
-                                var snak1date = new Date(m + '/' + d + '/' + y + ' ' + snack1);
+                                var snak1date = new Date(m + '/' + d + '/' + y + ' ' + snack);
                                 // var snack2date = new Date(m + '/' + d + '/' + y + ' ' + snack2);
                                 var dinnerdate = new Date(m + '/' + d + '/' + y + ' ' + dinner);
                                 if ((Date.parse(stopDate) - Date.parse(breakfastdate)) < 0) {
@@ -1265,49 +1288,40 @@
             var numItems = $('.fundservice').length
             round = numItems;
 
-            var classdiv = '<div id="divclass' + round + '" class="serviceclass"> <div class="col-lg-12"> <h2 class="page-header fundservice">Add Classrooms  <span class="view-btn backto_listspan" id="BackToList">' +
+            var classdiv = '<div id="divclass_' + round + '" class="col-lg-12 col-xs-12 col-md-12 col-sm-12 fundservice"><div class="col-lg-12"> <h3 class="page-header"  style="padding-bottom: 6px;display: inline-block;width: 100%;"><span class="view-btn backto_listspan">' +
 
                                     '<a onclick="DeleteClassSecond(this,' + round + ');" style="cursor:pointer;" class="backto_list">Delete</a>' +
-                                '</span> </h2>  </div>' +
+                                '</span> </h3>  </div>' +
+                                '<div class="adddivspace serviceclass col-xs-12 col-xm-12 col-lg-12">' +
                            ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"><label for="email">Room Name <sup>*</sup> </label>' +
                            ' <input type="text" name="Classroom[' + round + '].RoomName" class="form-control" id="RoomName" placeholder="Room Name" maxlength="50"> </div> </div>' +
-                             '<div class="col-lg-6 col-md-6 col-sm-12">  <div class="form-group">  <label for="email">Class Session <sup>*</sup></label>';
+                             '<div class="col-lg-6 col-md-6 col-sm-12 classSessionDiv">  <div class="form-group">  <label for="email">Class Session <sup>*</sup></label>';
 
             if ($("#HomeBased").prop("checked")) {
-                classdiv = classdiv + '<select disabled="disabled" class="form-control" id="ClassSession' + round + '" name="Classroom[' + round + '].ClassSession" onchange="ShowDivRound(this,' + round + ');"><option value="0">Morning</option>  <option value="1">Afternoon</option>' +
+                classdiv = classdiv + '<select disabled="disabled" class="form-control" id="ClassSession" name="Classroom[' + round + '].ClassSession" onchange="ShowDivRound(this,' + round + ');"><option value="0">Morning</option>  <option value="1">Afternoon</option>' +
                         '<option value="2">Full Day>6 hours</option> <option value="3">Full working day>10 hours</option> <option selected="selected" value="4">Home Based</option> </select><input name="Classroom[' + round + '].ClassSession" type="hidden" value="4">';
             }
             else {
-                classdiv = classdiv + '<select  class="form-control" id="ClassSession' + round + '" name="Classroom[' + round + '].ClassSession" onchange="ShowDivRound(this,' + round + ');"><option value="0">Morning</option>  <option value="1">Afternoon</option>' +
+                classdiv = classdiv + '<select  class="form-control" id="ClassSession" name="Classroom[' + round + '].ClassSession" onchange="ShowDivRound(this,' + round + ');"><option value="0">Morning</option>  <option value="1">Afternoon</option>' +
                         '<option value="2">Full Day>6 hours</option> <option value="3">Full working day>10 hours</option> <option  value="4">Home Based</option> </select>';
             }
 
             classdiv = classdiv + '</div> </div>' +
-            ' <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart">  <div class="form-group" >  <label for="email">Start Time<sup>*</sup></label> ' +
+            ' <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_' + round + '">  <div class="form-group" >  <label for="email">Start Time<sup>*</sup></label> ' +
             '<input type="text" name="Classroom[' + round + '].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50"> </div></div>' +
-               '  <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop"><div class="form-group" >  <label for="email">Stop Time<sup>*</sup></label>' +
+               '  <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_' + round + '"><div class="form-group" >  <label for="email">Stop Time<sup>*</sup></label>' +
                ' <input type="text" name="Classroom[' + round + '].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50"> </div>  </div>' +
-                 ' <div class="col-lg-6 col-md-6 col-sm-12" id="Double' + round + '"><div class="form-group" > <label>Double Session ? </label><div class="cont-sz">' +
+                 ' <div class="col-lg-6 col-md-6 col-sm-12" id="Double_' + round + '"><div class="form-group" > <label>Double Session ? </label><div class="cont-sz">' +
                  '<div class="col-xs-6 col-sm-4">   <label class="checkbox-inline"> ' +
                  '<input id="DoubleSession" type="checkbox" value="true" name="Classroom[' + round + '].DoubleSession" data-val="true" /> <span>Yes</span>' +
                  '</label> </div> </div> </div> </div>' +
-                 '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>' +
+                 '<div class="col-lg-6 col-md-6 col-sm-12 timeBtwMealsDiv" id="timeBtwMealsDiv_'+round+'"><div class="form-group"><label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>' +
 
                            '<select class="form-control" id="TimeBetweenMeals" name="Classroom[' + round + '].TimeBetweenMeals" ><option value="1">10</option>' +
                                         '<option value="2">15</option><option value="3">20</option><option value="4">25</option><option value="5">30</option></select></div></div>' +
-
-                // '<div class="col-lg-6 col-md-6 col-sm-12" id="Meal' + round + '"> <div class="form-group" id="divmeal">   <label>Is this meal served? <sup style="color:red;">*</sup></label>' +
-                // ' <div class="cont-sz"><div class="col-xs-12 col-sm-8"> <label class="checkbox-inline">' +
-                //     ' <input id="Breakfast" type="checkbox" value="true" name="Classroom[' + round + '].Breakfast" data-val="true" />   <span>Breakfast</span>' +
-                //' </label>  </div>' + '  <div class="col-xs-12 col-sm-8"><label class="checkbox-inline"> <input id="Lunch" type="checkbox" value="true" name="Classroom[' + round + '].Lunch" data-val="true" />' +
-                //' <span>Lunch</span> </label></div>' + '  <div class="col-xs-12 col-sm-8"> <label class="checkbox-inline">' +
-                //'<input id="Snack" type="checkbox" value="true" name="Classroom[' + round + '].Snack" data-val="true" />  <span>Snack</span></label> </div>' +
-                // ' <div class="col-xs-12 col-sm-8">  <label class="checkbox-inline">   <input id="Dinner" type="checkbox" value="true" name="Classroom[' + round + '].Dinner" data-val="true" />' +
-                //    '<span>Dinner</span> </label></div></div></div></div>' +
-
               '<div class="col-lg-6 col-md-6 col-sm-12 rmhombased">&nbsp;</div>' +
                 '<div class="clearfix"></div>' +
-                    '<div class="col-lg-6 col-md-6 col-sm-12 " id="Meal ' + round + '"><div class="form-group" id="divmeal"><label>Is this meal served? <sup style="color:red;">*</sup></label><div class="cont-sz">' +
+                    '<div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_' + round + '"><div class="form-group" id="divmeal"><label>Is this meal served? <sup style="color:red;">*</sup></label><div class="cont-sz">' +
 '<div class="col-lg-12 col-md-12 col-sm-12">' +
 '<label class="checkbox-inline"><input id="Breakfast" type="checkbox" value="true" name="Classroom[' + round + '].Breakfast" data-val="true" /><span>Breakfast</span></label><div class="col-sm-6"><input type="text" name="Classroom[' + round + '].BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50"></div></div>' +
  '<div class="col-lg-12 col-md-12 col-sm-12"><label class="checkbox-inline"><input id="Lunch" type="checkbox" value="true" name="Classroom[' + round + '].Lunch" data-val="true" />' +
@@ -1316,16 +1330,12 @@
   '<input id="Snack" type="checkbox" value="true" name="Classroom[' + round + '].Snack" data-val="true" />' +
   ' <span>Snack</span></label><div class="col-sm-6"> <input type="text" name="Classroom[' + round + '].SnackFromTime" class="form-control" id="SnackFromTime" placeholder="From Time" maxlength="50">' +
  ' </div></div>' +
- //   '<div class="col-lg-12 col-md-12 col-sm-12"><label class="checkbox-inline">' +
- // '<input id="Snack2" type="checkbox" value="true" name="Classroom[' + round + '].Snack2" data-val="true" />' +
- // ' <span>Snack2</span></label><div class="col-sm-6"> <input type="text" name="Classroom[' + round + '].Snack2FromTime" class="form-control" id="Snack2FromTime" placeholder="From Time" maxlength="50">' +
- //' </div></div>' +
     '<div class="col-lg-12 col-md-12 col-sm-12">' +
   '<label class="checkbox-inline"><input id="Dinner" type="checkbox" value="true" name="Classroom[' + round + '].Dinner" data-val="true" />' +
    '<span>Dinner</span></label><div class="col-sm-6"><input type="text" name="Classroom[' + round + '].DinnerFromTime" class="form-control" id="DinnerFromTime" placeholder="From Time" maxlength="50">' +
     '</div></div></div></div></div>'
               +
-                    '<div class="col-lg-6 col-md-6 col-sm-12 " id="Operational' + round + '"> <div class="form-group" id="divdays">' +
+                    '<div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_' + round + '"> <div class="form-group" id="divdays">' +
                     ' <label>Class operational days? <sup style="color:red;">*</sup></label> <div class="cont-sz">  <div class="col-xs-6 col-sm-4">' +
                 '  <label class="checkbox-inline">  <input id="Monday" type="checkbox" value="true" name="Classroom[' + round + '].Monday" data-val="true" />' +
                 '  <span>Monday</span>  </label> </div>  <div class="col-xs-6 col-sm-4">  <label class="checkbox-inline">' +
@@ -1341,14 +1351,17 @@
                           '   <span>Saturday</span></label> </div>  <div class="col-xs-6 col-sm-4">' +
                             '  <label class="checkbox-inline">  <input id="Sunday" type="checkbox" value="true" name="Classroom[' + round + '].Sunday" data-val="true" />' +
                              '<span>Sunday</span> </label></div></div></div></div>' +
-                            '<div class="col-lg-6 col-md-6 col-sm-12"><div class="form-group"><label for="email">Number of seats</label>' +
+                            '<div class="col-lg-6 col-md-6 col-sm-12"  id="noOfSeatsDiv_' + round + '"><div class="form-group"><label for="email">Number of seats</label>' +
                  ' <input type="text" onblur="Checknumeric(this);" readonly="readonly" name="Classroom[' + round + '].Noofseats" class="form-control" id="Noofseats" placeholder="Number of Seats" maxlength="50">' +
                    '</div></div>' +
-                    ' <div class="col-lg-6 col-md-6 col-sm-12"> <div class="form-group"> <label for="email">Actual Seats Used</label>' +
+                    ' <div class="col-lg-6 col-md-6 col-sm-12" id="seatsUsedDiv_' + round + '"> <div class="form-group"> <label for="email">Actual Seats Used</label>' +
                 '<input type="text" name="Classroom[' + round + '].ActualSeats" class="form-control" id="ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="true">' +
                 '</div></div>' +
-                '<input id ="ClassroomID' + round + '" type="hidden" name="Classroom[' + round + '].ClassroomID" /></div>';
-            $(classdiv).insertAfter('#addCategoryService');
+                '<input id ="ClassroomID" type="hidden" name="Classroom[' + round + '].ClassroomID" /></div></div>';
+
+            // $(classdiv).insertAfter('#addCategoryService');
+            $('#classAppendDiv').prepend(classdiv);
+
             $("input[id^='StartTime']").each(function () {
                 $(this).timepicker({ 'timeFormat': 'h:i A' });
             });
@@ -1383,28 +1396,42 @@
             $("input[id^='DinnerToTime']").each(function () {
                 $(this).timepicker({ 'timeFormat': 'h:i A' });
             });
-            $("div[id^='divclass'] select").val("");
+
+            //$("div[id^='divclass'] select").val("");
+
             if (!$("#HomeBased").prop("checked")) {
 
                 $("[name='Classroom[" + round + "].ClassSession']").val('');
             }
             if ($("#HomeBased").prop("checked")) {
-                $("#ClassStart" + round).hide();
-                $("#ClassStop" + round).hide();
-                $("#Double" + round).hide();
-                $("#Meal" + round).hide();
-                $("#Operational" + round).hide();
+                $("#ClassStart_" + round).hide();
+                $("#ClassStop_" + round).hide();
+                $("#Double_" + round).hide();
+                $("#Meal_" + round).hide();
+                $("#Operational_" + round).hide();
+                $('.timeBtwMealsDiv').hide();
+                $('.classSessionDiv').hide();
+                $('#noOfSeatsDiv_' + round).hide();
+                $('#seatsUsedDiv_' + round).hide();
             }
             else {
-                $("#ClassStart" + round).show();
-                $("#ClassStop" + round).show();
-                $("#Double" + round).show();
-                $("#Meal" + round).show();
-                $("#Operational" + round).show();
+                $("#ClassStart_" + round).show();
+                $("#ClassStop_" + round).show();
+                $("#Double_" + round).show();
+                $("#Meal_" + round).show();
+                $("#Operational_" + round).show();
+                $('.timeBtwMealsDiv').show();
+                $('.classSessionDiv').show();
+
+                $('#noOfSeatsDiv_' + round).show();
+                $('#seatsUsedDiv_' + round).show();
+
+
             }
             round = round + 1;
             counts = round;
         }
+
         function checkNoOfSeats(value) {
             var isValid = true;
 
@@ -1428,6 +1455,8 @@
                 $('#Double').hide();
                 $('#Meal').hide();
                 $('#Operational').hide();
+                $('#timeBtwMeals_0').hide();
+
             }
             else {
                 $('#ClassStart').show();
@@ -1435,33 +1464,38 @@
                 $('#Double').show();
                 $('#Meal').show();
                 $('#Operational').show();
+                $('#timeBtwMeals_0').show();
             }
         }
 
         function ShowDivRound(value, round) {
             if ($(value).val() == "4") {
-                var ClassStart = 'ClassStart' + round;
+                var ClassStart = 'ClassStart_' + round;
                 $("#" + ClassStart).hide();
-                var ClassStop = 'ClassStop' + round;
+                var ClassStop = 'ClassStop_' + round;
                 $("#" + ClassStop).hide();
-                var Double = 'Double' + round;
+                var Double = 'Double_' + round;
                 $("#" + Double).hide();
-                var Meal = 'Meal' + round;
+                var Meal = 'Meal_' + round;
                 $("#" + Meal).hide();
-                var Operational = 'Operational' + round;
+                var Operational = 'Operational_' + round;
                 $("#" + Operational).hide();
+                var timeBtwMeals = 'timeBtwMealsDiv_' + round;
+                $('#' + timeBtwMeals).hide();
             }
             else {
-                var ClassStart = 'ClassStart' + round;
+                var ClassStart = 'ClassStart_' + round;
                 $("#" + ClassStart).show();
-                var ClassStop = 'ClassStop' + round;
+                var ClassStop = 'ClassStop_' + round;
                 $("#" + ClassStop).show();
-                var Double = 'Double' + round;
+                var Double = 'Double_' + round;
                 $("#" + Double).show();
-                var Meal = 'Meal' + round;
+                var Meal = 'Meal_' + round;
                 $("#" + Meal).show();
-                var Operational = 'Operational' + round;
+                var Operational = 'Operational_' + round;
                 $("#" + Operational).show();
+                var timeBtwMeals = 'timeBtwMealsDiv_' + round;
+                $('#' + timeBtwMeals).show();
             }
         }
         function HideControlView(value, round) {
@@ -1477,6 +1511,8 @@
                 $("#" + Meal).hide();
                 var Operational = 'Operational_' + round;
                 $("#" + Operational).hide();
+                var timeBtMeals = 'timeBtwMealsDiv_' + round;
+                $('#' + timeBtMeals).hide();
 
             }
             else {
@@ -1490,6 +1526,8 @@
                 $("#" + Meal).show();
                 var Operational = 'Operational_' + round;
                 $("#" + Operational).show();
+                var timeBtMeals = 'timeBtwMealsDiv_' + round;
+                $('#'+timeBtMeals).show();
             }
         }
         function updatename() {
@@ -1564,12 +1602,12 @@
             }
         }
         function DeleteClassSecond(value, round) {
-            var divclass = 'divclass' + round;
+            var divclass = 'divclass_' + round;
             $("#" + divclass).remove();
             updatename();
         }
         function DeleteClassView(value, round, ClassroomId) {
-            var divclass = 'divedit_' + round;
+            var divclass = 'divclass_' + round;
             var ActualSeats = 'ActualSeats_' + round;
             if ($("#" + ActualSeats).val() == "0") {
                 BootstrapDialog.confirm('Do you want to delete this Classroom ?', function (result) {
@@ -1612,6 +1650,15 @@
                 $('#Double').hide();
                 $('#Meal').hide();
                 $('#Operational').hide();
+                $('.timeBtwMealsDiv').each(function () {
+
+                    $(this).hide();
+
+                });
+                $('.classSessionDiv').hide();
+
+
+
                 //debugger;
                 $('.rmhombased').hide();
                 //var d = $("div[id^='Meal']").length;
@@ -1633,6 +1680,12 @@
                     $("#Double_" + count).hide();
                     $("#Meal_" + count).hide();
                     $("#Operational_" + count).hide();
+
+                    if ('@ViewBag.mode' == '0') {
+                        $("#noOfSeatsDiv_" + count).hide();
+                        $("#seatsUsedDiv_" + count).hide();
+                    }
+
                     count = count - 1;
                 }
             }
@@ -1643,11 +1696,14 @@
                 $('#Double').show();
                 $('#Meal').show();
                 $('#Operational').show();
+                $('.timeBtwMealsDiv').show();
+                $('.classSessionDiv').show();
+
                 //End
                 // $('#ClassSession').val('');
                 // $("[name='Classroom[0].ClassSession']").val('');
                 // $("[name='Classroom[" + count + "].ClassSession']").val("");
-                $("select[name='Classroom[0].ClassSession']").attr("enabled", true);
+
                 //debugger;
                 $('.rmhombased').show();
                 //var d = $("div[id^='Meal']").length;
@@ -1670,6 +1726,7 @@
                     $("#Double_" + count).show();
                     $("#Meal_" + count).show();
                     $("#Operational_" + count).show();
+                    $("select[name='Classroom[" + count + "].ClassSession']").attr("disabled", false);
                     count = count - 1;
                 }
             }
@@ -1715,6 +1772,24 @@
     </script>
 }
 @section MainContentHolder{
+
+
+    <style>
+        .fundservice {
+            background-color: #fff;
+            float: left;
+            padding: 10px;
+            border: 1px solid #ccc;
+            /* font-family: verdana; */
+            width: 100%;
+            margin: 10px 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .backto_list:focus {
+            color: #fff !important;
+        }
+    </style>
 
     <div class="row">
         <div class="col-lg-12">
@@ -1825,262 +1900,335 @@
                                 @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control" })
                             </div>
                         </div>
+
+
+                        @*@if (Model.IsShowArea)
+                        {
+
+                            List<SelectListItem> areaList = new List<SelectListItem>();
+
+                            if (Model.AreasList.Count() > 0)
+                            {
+                                areaList = Model.AreasList.Select(x => new SelectListItem
+                                {
+                                    Text = x.AreaID.ToString(),
+                                    Value = x.AreaID.ToString()
+
+                                }).ToList();
+                            }
+
+                            <div class="col-lg-6 col-md-6 col-sm-12" id="HideHomeBased">
+                                <div class="form-group">
+                                    <label for="pwd">Area<sup>*</sup></label>
+                                    @Html.DropDownListFor(m => m.AreaID, new SelectList(areaList, "Value", "Text", Model.AreaID.ToString()), "--Select--", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.IsShowDivision)
+                        {
+
+                            List<SelectListItem> divList = new List<SelectListItem>();
+
+                            if (Model.DivisionsList.Count() > 0)
+                            {
+                                divList = Model.DivisionsList.Select(x => new SelectListItem
+                                {
+
+                                    Text = x.DivisionID.ToString(),
+                                    Value = x.DivisionID.ToString()
+                                }).ToList();
+                            }
+
+                            <div class="col-lg-6 col-md-6 col-sm-12 " id="HideHomeBased">
+                                <div class="form-group">
+                                    <label for="pwd">Division<sup>*</sup></label>
+                                    @Html.DropDownListFor(m => m.DivisionID, new SelectList(divList, "Value", "Text", Model.DivisionID.ToString()), "--Select--", new { @class = "form-control" })
+                                </div>
+                            </div>
+
+                        }*@
+
                         <div class="col-lg-6 col-md-6 col-sm-12 " id="HideHomeBased">
                             <div class="form-group">
                                 <label for="pwd">Home Based </label>
                                 @Html.CheckBoxFor(m => m.HomeBased, new { @class = "minimal", onchange = "SetClassroomsession();" })
-
                             </div>
                         </div>
 
+
+
+
+
                         <div id="Hideclassroomdiv">
 
-                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                <div class="form-group">
 
-                                    <div id="plussign">
-                                        <a href="javascript:void(0)" onclick="ShowDiv();">Add Classroom Details<i class="fa fa-plus-square"></i></a>
-                                    </div>
-                                </div>
-                            </div>
+
                             <div id="addCategoryService"> </div>
                             @if (ViewBag.mode == 0)
                             {
-                                <div id="divclass" class="adddivspace serviceclass">
-                                    @*style="display:none;"*@
-                                    <div class="col-lg-12">
-                                        <h2 class="page-header fundservice">
-                                            Add Classrooms
-                                            <span class="view-btn backto_listspan" id="BackToList">
-
-                                                <a onclick="DeleteClass(this);" style="cursor:pointer;" class="backto_list">Delete</a>
-                                            </span>
-                                        </h2>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">Room Name <sup>*</sup> </label>
-                                            <input type="text" name="Classroom[0].RoomName" class="form-control" id="RoomName" placeholder="Room Name" maxlength="50">
-                                            @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().RoomName, new { @class = "form-control", placeholder = "Room Name", id = "RoomName", maxlength = "50", tabIndex = "7" })*@
+                                <div class="col-lg-12 col-xs-12">
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-12" style="padding:0;">
+                                            <h2 class="page-header">
+                                                Classrooms <sup>*</sup>
+                                                <span class="view-btn backto_listspan">
+                                                    @*<a onclick="DeleteClass(this);" style="cursor:pointer;" class="backto_list">Delete</a>*@
+                                                    <a href="javascript:void(0)" class="backto_list" onclick="ShowDiv();">Add Classroom Details</a>
+                                                </span>
+                                            </h2>
                                         </div>
                                     </div>
 
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">Class Session <sup>*</sup></label>
-                                            <select class="form-control" id="ClassSession" name="Classroom[0].ClassSession" onchange="HideControls();">
-                                                <option value="0">Morning</option>
-                                                <option value="1">Afternoon</option>
-                                                <option value="2">Full Day>6 hours</option>
-                                                <option value="3">Full working day>10 hours</option>
-                                                <option value="4">Home Based</option>
-                                            </select>
-                                            <input name="Classroom[0].ClassSession" value="" type="hidden" />
+                                    <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12" id="classAppendDiv">
 
-                                            @*@{
-                                                    List<SelectListItem> classlist = new List<SelectListItem>();
-                                                    classlist.Add(new SelectListItem() { Text = "Morning", Value = "0" });
-                                                    classlist.Add(new SelectListItem() { Text = "Afternoon", Value = "1" });
-                                                    classlist.Add(new SelectListItem() { Text = "Full Day>6 hours", Value = "2" });
-                                                    classlist.Add(new SelectListItem() { Text = "Full working day>10 hours", Value = "3" });
+                                        <div id="divclass_0" class="col-lg-12 col-xs-12 col-md-12 col-sm-12 fundservice">
 
-                                                }
-                                                @Html.DropDownListFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().ClassSession, new SelectList(classlist, "Value", "Text"), new { @class = "form-control", tabIndex = "9" })*@
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart">
-                                        <div class="form-group">
-                                            <label for="email">Start Time<sup>*</sup></label>
-                                            <input type="text" name="Classroom[0].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50">
-                                            @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StartTime, new { placeholder = "Start Time", id = "StartTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop">
-                                        <div class="form-group">
-                                            <label for="email">Stop Time<sup>*</sup></label>
-                                            <input type="text" name="Classroom[0].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50">
-                                            @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12" id="Double">
-                                        <div class="form-group">
-                                            <label>Double Session ? </label>
-                                            <div class="cont-sz">
-                                                <div class="col-xs-6 col-sm-4">
-                                                    <label class="checkbox-inline">
-                                                        <input id="DoubleSession" type="checkbox" value="true" name="Classroom[0].DoubleSession" data-val="true" />
-                                                        @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().DoubleSession)*@@*, new { id = "DoubleSession", Name = "DoubleSession", @class = "minimal", tabIndex = "2", @style = "width:8%;" })*@
-                                                        <span>Yes</span>
-                                                    </label>
-                                                </div>
+                                            <div class="col-lg-12">
+                                                <h3 class="page-header" style="padding-bottom: 6px;display: inline-block;width: 100%;">
+                                                    <span class="view-btn backto_listspan" id="BackToList">
+                                                        <a onclick="DeleteClass(this);" style="cursor:pointer;" class="backto_list">Delete</a>
+                                                    </span>
+                                                </h3>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
-                                        <div class="form-group">
-                                            <label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>
-                                            <select class="form-control" id="TimeBetweenMeals" name="Classroom[0].TimeBetweenMeals">
 
-                                                <option value="1">10</option>
-                                                <option value="2">15</option>
-                                                <option value="3">20</option>
-                                                <option value="4">25</option>
-                                                <option value="5">30</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-
-                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal">
-
-                                    <div class="form-group" id="divmeal">
-
-                                        @*atul*@
-                                        <label>Is this meal served? <sup style="color: red;">*</sup></label>
-
-                                        <div class="cont-sz">
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <label class="checkbox-inline">
-                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[0].Breakfast" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Breakfast, new { id = "Breakfast", name = "Breakfast" })*@
-                                                    @*//, new { id = "Breakfast", Name = "Breakfast", @class = "minimal", tabIndex = "1", @style = "width:5%;" })*@
-                                                    <span>Breakfast</span>
-                                                </label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" name="Classroom[0].BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50">
-                                                    @* <input type="text" name="Classroom[0].BreakfastToTime" class="form-control" id="BreakfastToTime" placeholder="To Time" maxlength="50">*@
+                                            <div class="adddivspace serviceclass col-xs-12 col-xm-12 col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="email">Room Name <sup>*</sup> </label>
+                                                        <input type="text" name="Classroom[0].RoomName" class="form-control" id="RoomName" placeholder="Room Name" maxlength="50">
+                                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().RoomName, new { @class = "form-control", placeholder = "Room Name", id = "RoomName", maxlength = "50", tabIndex = "7" })*@
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <label class="checkbox-inline">
-                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[0].Lunch" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Lunch, new { id = "Lunch", name = "Lunch" })*@
-                                                    @*//, new { id = "Lunch", Name = "Lunch", @class = "minimal", tabIndex = "2" })*@
-                                                    <span>Lunch</span>
-                                                </label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" name="Classroom[0].LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">
-                                                    @*<input type="text" name="Classroom[0].LunchToTime" class="form-control" id="LunchToTime" placeholder="To Time" maxlength="50">*@
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <label class="checkbox-inline">
-                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[0].Snack" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Snack, new { id = "Snack", name = "Snack" })*@
-                                                    @*//new { id = "Snack", Name = "Snack", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
-                                                    <span>Snack1</span>
-                                                </label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" name="Classroom[0].SnackFromTime" class="form-control" id="SnackFromTime" placeholder="From Time" maxlength="50">
-                                                    @* <input type="text" name="Classroom[0].SnackToTime" class="form-control" id="SnackToTime" placeholder="To Time" maxlength="50">*@
-                                                </div>
-                                            </div>
-                                            <!--  <div class="col-lg-12 col-md-12 col-sm-12">
-                                                  <label class="checkbox-inline">
-                                                      <input id="Snack2" type="checkbox" value="true" name="Classroom[0].Snack2" data-val="true" />
-                                                      @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Snack, new { id = "Snack", name = "Snack" })*@
-                                                      @*//new { id = "Snack", Name = "Snack", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
-                                                      <span>Snack2</span>
-                                                  </label>
-                                                  <div class="col-sm-6">
-                                                      <input type="text" name="Classroom[0].Snack2FromTime" class="form-control" id="Snack2FromTime" placeholder="From Time" maxlength="50">
-                                                      @* <input type="text" name="Classroom[0].SnackToTime" class="form-control" id="SnackToTime" placeholder="To Time" maxlength="50">*@
-                                                  </div>
-                                              </div>-->
 
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <label class="checkbox-inline">
-                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[0].Dinner" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Dinner, new { id = "Dinner", name = "Dinner" })*@
-                                                    @*, new { id = "Dinner", Name = "Dinner", @class = "minimal", tabIndex = "4" })*@
-                                                    <span>Dinner</span>
-                                                </label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" name="Classroom[0].DinnerFromTime" class="form-control" id="DinnerFromTime" placeholder="From Time" maxlength="50">
-                                                    @*<input type="text" name="Classroom[0].DinnerToTime" class="form-control" id="DinnerToTime" placeholder="To Time" maxlength="50">*@
+                                                <div class="col-lg-6 col-md-6 col-sm-12 classSessionDiv">
+                                                    <div class="form-group">
+                                                        <label for="email">Class Session <sup>*</sup></label>
+                                                        <select class="form-control" id="ClassSession" name="Classroom[0].ClassSession" onchange="HideControls();">
+                                                            <option value="0">Morning</option>
+                                                            <option value="1">Afternoon</option>
+                                                            <option value="2">Full Day>6 hours</option>
+                                                            <option value="3">Full working day>10 hours</option>
+                                                            <option value="4">Home Based</option>
+                                                        </select>
+                                                        <input name="Classroom[0].ClassSession" value="" type="hidden" />
+
+                                                        @*@{
+                                                                List<SelectListItem> classlist = new List<SelectListItem>();
+                                                                classlist.Add(new SelectListItem() { Text = "Morning", Value = "0" });
+                                                                classlist.Add(new SelectListItem() { Text = "Afternoon", Value = "1" });
+                                                                classlist.Add(new SelectListItem() { Text = "Full Day>6 hours", Value = "2" });
+                                                                classlist.Add(new SelectListItem() { Text = "Full working day>10 hours", Value = "3" });
+
+                                                            }
+                                                            @Html.DropDownListFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().ClassSession, new SelectList(classlist, "Value", "Text"), new { @class = "form-control", tabIndex = "9" })*@
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational">
+                                                <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart">
+                                                    <div class="form-group">
+                                                        <label for="email">Start Time<sup>*</sup></label>
+                                                        <input type="text" name="Classroom[0].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50">
+                                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StartTime, new { placeholder = "Start Time", id = "StartTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop">
+                                                    <div class="form-group">
+                                                        <label for="email">Stop Time<sup>*</sup></label>
+                                                        <input type="text" name="Classroom[0].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50">
+                                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12" id="Double">
+                                                    <div class="form-group">
+                                                        <label>Double Session ? </label>
+                                                        <div class="cont-sz">
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="DoubleSession" type="checkbox" value="true" name="Classroom[0].DoubleSession" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().DoubleSession)*@@*, new { id = "DoubleSession", Name = "DoubleSession", @class = "minimal", tabIndex = "2", @style = "width:8%;" })*@
+                                                                    <span>Yes</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12 timeBtwMealsDiv" id="timeBtwMeals_0">
+                                                    <div class="form-group">
+                                                        <label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>
+                                                        <select class="form-control" id="TimeBetweenMeals" name="Classroom[0].TimeBetweenMeals">
+
+                                                            <option value="1">10</option>
+                                                            <option value="2">15</option>
+                                                            <option value="3">20</option>
+                                                            <option value="4">25</option>
+                                                            <option value="5">30</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="clearfix"></div>
+
+
+                                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal">
+
+                                                    <div class="form-group" id="divmeal">
+
+                                                        @*atul*@
+                                                        <label>Is this meal served? <sup style="color: red;">*</sup></label>
+
+                                                        <div class="cont-sz">
+                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[0].Breakfast" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Breakfast, new { id = "Breakfast", name = "Breakfast" })*@
+                                                                    @*//, new { id = "Breakfast", Name = "Breakfast", @class = "minimal", tabIndex = "1", @style = "width:5%;" })*@
+                                                                    <span>Breakfast</span>
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input type="text" name="Classroom[0].BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50">
+                                                                    @* <input type="text" name="Classroom[0].BreakfastToTime" class="form-control" id="BreakfastToTime" placeholder="To Time" maxlength="50">*@
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[0].Lunch" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Lunch, new { id = "Lunch", name = "Lunch" })*@
+                                                                    @*//, new { id = "Lunch", Name = "Lunch", @class = "minimal", tabIndex = "2" })*@
+                                                                    <span>Lunch</span>
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input type="text" name="Classroom[0].LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">
+                                                                    @*<input type="text" name="Classroom[0].LunchToTime" class="form-control" id="LunchToTime" placeholder="To Time" maxlength="50">*@
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[0].Snack" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Snack, new { id = "Snack", name = "Snack" })*@
+                                                                    @*//new { id = "Snack", Name = "Snack", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
+                                                                    <span>Snack1</span>
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input type="text" name="Classroom[0].SnackFromTime" class="form-control" id="SnackFromTime" placeholder="From Time" maxlength="50">
+                                                                    @* <input type="text" name="Classroom[0].SnackToTime" class="form-control" id="SnackToTime" placeholder="To Time" maxlength="50">*@
+                                                                </div>
+                                                            </div>
+
+                                                            <!--  <div class="col-lg-12 col-md-12 col-sm-12">
+                        <label class="checkbox-inline">
+                            <input id="Snack2" type="checkbox" value="true" name="Classroom[0].Snack2" data-val="true" />
+                            @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Snack, new { id = "Snack", name = "Snack" })*@
+                            @*//new { id = "Snack", Name = "Snack", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
+                            <span>Snack2</span>
+                        </label>
+                        <div class="col-sm-6">
+                            <input type="text" name="Classroom[0].Snack2FromTime" class="form-control" id="Snack2FromTime" placeholder="From Time" maxlength="50">
+                            @* <input type="text" name="Classroom[0].SnackToTime" class="form-control" id="SnackToTime" placeholder="To Time" maxlength="50">*@
+                        </div>
+                    </div>-->
+
+                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[0].Dinner" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Dinner, new { id = "Dinner", name = "Dinner" })*@
+                                                                    @*, new { id = "Dinner", Name = "Dinner", @class = "minimal", tabIndex = "4" })*@
+                                                                    <span>Dinner</span>
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input type="text" name="Classroom[0].DinnerFromTime" class="form-control" id="DinnerFromTime" placeholder="From Time" maxlength="50">
+                                                                    @*<input type="text" name="Classroom[0].DinnerToTime" class="form-control" id="DinnerToTime" placeholder="To Time" maxlength="50">*@
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational">
 
                                     <div class="form-group" id="divdays">
 
-                                        <label>Class operational days? <sup style="color:red;">*</sup></label>
-                                        <div class="cont-sz">
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Monday" type="checkbox" value="true" name="Classroom[0].Monday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Monday, false)*@
-                                                    @*, new { id = "Monday", Name = "Monday", @class = "minimal", tabIndex = "1", @style = "width:5%;" })*@
-                                                    <span>Monday</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Tuesday" type="checkbox" value="true" name="Classroom[0].Tuesday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Tuesday, false)*@
-                                                    @*, new { id = "Tuesday", Name = "Tuesday", @class = "minimal", tabIndex = "2" })*@
-                                                    <span>Tuesday</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Wednesday" type="checkbox" value="true" name="Classroom[0].Wednesday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Wednesday, false)*@
-                                                    @*, new { id = "Wednesday", Name = "Wednesday", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
-                                                    <span>Wednesday</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Thursday" type="checkbox" value="true" name="Classroom[0].Thursday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Thursday, false)*@
-                                                    @*, new { id = "Thursday", Name = "Thursday", @class = "minimal", tabIndex = "4" })*@
-                                                    <span>Thursday</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Friday" type="checkbox" value="true" name="Classroom[0].Friday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Friday, false)*@
-                                                    @*, new { id = "Friday", Name = "Friday", @class = "minimal", tabIndex = "4" })*@
-                                                    <span>Friday</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Saturday" type="checkbox" value="true" name="Classroom[0].Saturday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Saturday, false)*@
-                                                    @*, new { id = "Saturday", Name = "Saturday", @class = "minimal", tabIndex = "4" })*@
-                                                    <span>Saturday</span>
-                                                </label>
-                                            </div>
-                                            <div class="col-xs-6 col-sm-4">
-                                                <label class="checkbox-inline">
-                                                    <input id="Sunday" type="checkbox" value="true" name="Classroom[0].Sunday" data-val="true" />
-                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Sunday, false)*@
-                                                    @*new { id = "Sunday", Name = "Sunday", @class = "minimal", tabIndex = "4" })*@
-                                                    <span>Sunday</span>
-                                                </label>
+                                                        <label>Class operational days? <sup style="color:red;">*</sup></label>
+                                                        <div class="cont-sz">
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Monday" type="checkbox" value="true" name="Classroom[0].Monday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Monday, false)*@
+                                                                    @*, new { id = "Monday", Name = "Monday", @class = "minimal", tabIndex = "1", @style = "width:5%;" })*@
+                                                                    <span>Monday</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Tuesday" type="checkbox" value="true" name="Classroom[0].Tuesday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Tuesday, false)*@
+                                                                    @*, new { id = "Tuesday", Name = "Tuesday", @class = "minimal", tabIndex = "2" })*@
+                                                                    <span>Tuesday</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Wednesday" type="checkbox" value="true" name="Classroom[0].Wednesday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Wednesday, false)*@
+                                                                    @*, new { id = "Wednesday", Name = "Wednesday", @class = "minimal", tabIndex = "3", @style = "width:5%;" })*@
+                                                                    <span>Wednesday</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Thursday" type="checkbox" value="true" name="Classroom[0].Thursday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Thursday, false)*@
+                                                                    @*, new { id = "Thursday", Name = "Thursday", @class = "minimal", tabIndex = "4" })*@
+                                                                    <span>Thursday</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Friday" type="checkbox" value="true" name="Classroom[0].Friday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Friday, false)*@
+                                                                    @*, new { id = "Friday", Name = "Friday", @class = "minimal", tabIndex = "4" })*@
+                                                                    <span>Friday</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Saturday" type="checkbox" value="true" name="Classroom[0].Saturday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Saturday, false)*@
+                                                                    @*, new { id = "Saturday", Name = "Saturday", @class = "minimal", tabIndex = "4" })*@
+                                                                    <span>Saturday</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-4">
+                                                                <label class="checkbox-inline">
+                                                                    <input id="Sunday" type="checkbox" value="true" name="Classroom[0].Sunday" data-val="true" />
+                                                                    @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Sunday, false)*@
+                                                                    @*new { id = "Sunday", Name = "Sunday", @class = "minimal", tabIndex = "4" })*@
+                                                                    <span>Sunday</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
+                                                <div class="col-lg-6 col-md-6 col-sm-12 hodiv" id="noOfSeatsDiv_0">
+                                                    <div class="form-group">
+                                                        <label for="email">Number of seats</label>
+                                                        <input type="text" name="Classroom[0].Noofseats" onblur="Checknumeric(this);" readonly="readonly" classid="0" class="form-control" id="Noofseats" placeholder="Number of Seats" maxlength="50">
+                                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Noofseats, new { placeholder = "Number of seats", id = "Noofseats", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "checkIfNumeric(this);" })*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12 hodiv" id="seatsUsedDiv_0">
+                                                    <div class="form-group">
+                                                        <label for="email">Actual Seats Used</label>
+                                                        <input type="text" name="Classroom[0].ActualSeats" class="form-control" id="ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="true">
+                                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().ActualSeats, new { placeholder = "Actual seats used", id = "ActualSeats", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "checkNoOfSeats(this);" })*@
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <input type="hidden" id="ClassroomID" value="0" name="Classroom[0].ClassroomID">
+                                                </div>
+
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-12 hodiv">
-                                    <div class="form-group">
-                                        <label for="email">Number of seats</label>
-                                        <input type="text" name="Classroom[0].Noofseats" onblur="Checknumeric(this);" readonly="readonly" classid="0" class="form-control" id="Noofseats" placeholder="Number of Seats" maxlength="50">
-                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().Noofseats, new { placeholder = "Number of seats", id = "Noofseats", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "checkIfNumeric(this);" })*@
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-12 hodiv">
-                                    <div class="form-group">
-                                        <label for="email">Actual Seats Used</label>
-                                        <input type="text" name="Classroom[0].ActualSeats" class="form-control" id="ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="true">
-                                        @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().ActualSeats, new { placeholder = "Actual seats used", id = "ActualSeats", maxlength = "50", @class = "form-control", tabIndex = "7", onblur = "checkNoOfSeats(this);" })*@
                                     </div>
                                 </div>
                             }
@@ -2131,6 +2279,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="row">
                         <div id="divedit" class="adddivspace serviceclass">
                             @{
@@ -2139,580 +2288,599 @@
                             }
                             @if (@ViewBag.mode == 1)
                             {
+                                <div class="col-lg-12 col-xs-12">
 
-                                foreach (var item in Model.Classroom)
 
-                                //   foreach (var item in ViewBag.FundSourceData)
-                                {
-                                    <div id="divclass_@i">
-                                        <div class="col-lg-12">
-                                            <h2 class="page-header fundservice">
-                                                Add Classrooms
-                                                <span class="view-btn backto_listspan" id="BackToList">
-
-                                                    <a onclick="DeleteClassView(this,'@i','@item.ClassroomID');" style="cursor:pointer;" class="backto_list">Delete</a>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-12" style="padding:0;">
+                                            <h2 class="page-header">
+                                                Classrooms <sup>*</sup>
+                                                <span class="view-btn backto_listspan">
+                                                    @*<a onclick="DeleteClass(this);" style="cursor:pointer;" class="backto_list">Delete</a>*@
+                                                    <a href="javascript:void(0)" class="backto_list" onclick="ShowDiv();">Add Classroom Details</a>
                                                 </span>
-
                                             </h2>
                                         </div>
-                                        <div class="col-lg-6 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Room Name <sup>*</sup> </label>
-                                                <input type="text" name="Classroom[@i].RoomName" class="form-control" id="RoomName" value="@item.RoomName" placeholder="Room Name" maxlength="50">
-                                                @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().RoomName, new { @class = "form-control", placeholder = "Room Name", id = "RoomName", maxlength = "50", tabIndex = "7" })*@
-                                            </div>
+
                                         </div>
 
-                                        <div class="col-lg-6 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Class Session <sup>*</sup></label>
-                                                <select class="form-control class-session-select" id="ClassSession" value="@item.ClassSession" name="Classroom[@i].ClassSession" onchange="HideControlView(this,'@i');">
 
-                                                    @if (item.ClassSession.ToString() == "0")
-                                                    {
-                                                        <option value="0" selected="selected">Morning</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="0"> Morning </option>
-                                                    }
-                                                    @if (item.ClassSession.ToString() == "1")
-                                                    {
-                                                        <option value="1" selected="selected">Afternoon</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="1">Afternoon</option>
-                                                    }
-                                                    @if (item.ClassSession.ToString() == "2")
-                                                    {
-                                                        <option value="2" selected="selected">Full Day>6 hours</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="2">Full Day>6 hours</option>
-                                                    }
-                                                    @if (item.ClassSession.ToString() == "3")
-                                                    {
-                                                        <option value="3" selected="selected">Full working day>10 hours</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="3">Full working day>10 hours</option>
-                                                    }
-                                                    @if (item.ClassSession.ToString() == "4")
-                                                    {
-                                                        <option value="4" selected="selected">Home Based</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="4">Home Based</option>
-                                                    }
-                                                </select>
+                                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12" id="classAppendDiv">
 
-                                                <input name="Classroom[@i].ClassSession" type="hidden" value='@item.ClassSession'>
-                                            </div>
-                                        </div>
-                                        @if (@item.ClassSession.ToString() != "4")
-                                        {
-                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_@i">
-                                                <div class="form-group">
-                                                    <label for="email">Start Time<sup>*</sup></label>
-                                                    <input type="text" name="Classroom[@i].StartTime" class="form-control" id="StartTime" value="@item.StartTime" placeholder="Start Time" maxlength="50">
-                                                    @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StartTime, new { placeholder = "Start Time", id = "StartTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_@i">
-                                                <div class="form-group">
-                                                    <label for="email">Stop Time<sup>*</sup></label>
-                                                    <input type="text" name="Classroom[@i].StopTime" class="form-control" id="StopTime" value="@item.StopTime" placeholder="Stop Time" maxlength="50">
-                                                    @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-12" id="Double_@i">
-                                                <div class="form-group">
-                                                    <label>Double Session ? </label>
-                                                    <div class="cont-sz">
-                                                        <div class="col-xs-6 col-sm-4">
-                                                            <label class="checkbox-inline">
-                                                                @if (@item.DoubleSession)
-                                                                {
-                                                                    <input id="DoubleSession" checked="checked" type="checkbox" value="@item.DoubleSession" name="Classroom[@i].DoubleSession" data-val="true" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <input id="DoubleSession" type="checkbox" value="true" name="Classroom[@i].DoubleSession" data-val="true" />
-                                                                }
-                                                                <span>Yes</span>
-                                                            </label>
-                                                        </div>
+
+                                            @foreach (var item in Model.Classroom)
+                                            {
+                                                <div id="divclass_@i" class="col-lg-12 col-xs-12 col-md-12 col-sm-12 fundservice">
+                                                    <div class="col-lg-12">
+                                                        <h3 class="page-header" style="padding-bottom: 4px;display: inline-block;width: 100%;">
+                                                            @item.RoomName
+                                                            <span class="view-btn backto_listspan" id="BackToList">
+                                                                <a onclick="DeleteClassView(this,'@i','@item.ClassroomID');" style="cursor:pointer;" class="backto_list">Delete</a>
+                                                            </span>
+                                                        </h3>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>
+                                                    <div class="adddivspace serviceclass col-xs-12 col-xm-12 col-lg-12">
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="form-group">
+                                                                <label for="email">Room Name <sup>*</sup> </label>
+                                                                <input type="text" name="Classroom[@i].RoomName" class="form-control" id="RoomName" value="@item.RoomName" placeholder="Room Name" maxlength="50">
+                                                                @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().RoomName, new { @class = "form-control", placeholder = "Room Name", id = "RoomName", maxlength = "50", tabIndex = "7" })*@
+                                                            </div>
+                                                        </div>
 
-                                                    <select class="form-control" id="TimeBetweenMeals" name="Classroom[@i].TimeBetweenMeals">
-                                                        @if (item.TimeBetweenMeals == 1)
-                                                        {
-                                                            <option value="1" selected>10</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="1">10</option>
-                                                        }
-                                                        @if (item.TimeBetweenMeals == 2)
-                                                        {
-                                                            <option value="2" selected="selected">15</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="2">15</option>
-                                                        }
-                                                        @if (item.TimeBetweenMeals == 3)
-                                                        {
-                                                            <option value="3" selected="selected">20</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="3">20</option>
-                                                        }
-                                                        @if (item.TimeBetweenMeals == 4)
-                                                        {
-                                                            <option value="4" selected="selected">25</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="4">25</option>
-                                                        }
-                                                        @if (item.TimeBetweenMeals == 5)
-                                                        {
-                                                            <option value="5" selected="selected">30</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="5">30</option>
-                                                        }
+                                                        <div class="col-lg-6 col-md-6 col-sm-12 classSessionDiv">
+                                                            <div class="form-group">
+                                                                <label for="email">Class Session <sup>*</sup></label>
+                                                                <select class="form-control class-session-select" id="ClassSession" value="@item.ClassSession" name="Classroom[@i].ClassSession" onchange="HideControlView(this,'@i');">
 
-                                                    </select>
-                                                </div>
-                                            </div>
-                                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                                </div>
-                                                <div class="clearfix"></div>
-
-                                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_@i">
-
-                                                    <div class="form-group" id="divmeal">
-
-                                                        @*atul*@
-                                                        <label>Is this meal served? <sup style="color: red;">*</sup></label>
-
-                                                        <div class="cont-sz">
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Breakfast)
+                                                                    @if (item.ClassSession.ToString() == "0")
                                                                     {
-                                                                        <input id="Breakfast" type="checkbox" checked="checked" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                        <option value="0" selected="selected">Morning</option>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                        <option value="0"> Morning </option>
                                                                     }
+                                                                    @if (item.ClassSession.ToString() == "1")
+                                                                    {
+                                                                        <option value="1" selected="selected">Afternoon</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="1">Afternoon</option>
+                                                                    }
+                                                                    @if (item.ClassSession.ToString() == "2")
+                                                                    {
+                                                                        <option value="2" selected="selected">Full Day>6 hours</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="2">Full Day>6 hours</option>
+                                                                    }
+                                                                    @if (item.ClassSession.ToString() == "3")
+                                                                    {
+                                                                        <option value="3" selected="selected">Full working day>10 hours</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="3">Full working day>10 hours</option>
+                                                                    }
+                                                                    @if (item.ClassSession.ToString() == "4")
+                                                                    {
+                                                                        <option value="4" selected="selected">Home Based</option>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <option value="4">Home Based</option>
+                                                                    }
+                                                                </select>
 
-                                                                    <span>Breakfast</span>
-                                                                </label>
-                                                                <div class="col-sm-6">
-                                                                    <input type="text" name="Classroom[@i].BreakfastFromTime" value="@item.BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50">
-                                                                    @*<input type="text" name="Classroom[@i].BreakfastToTime"   value ="@item.BreakfastToTime"  class="form-control" id="BreakfastToTime" placeholder="To Time" maxlength="50">*@
+                                                                <input name="Classroom[@i].ClassSession" type="hidden" value='@item.ClassSession'>
+                                                            </div>
+                                                        </div>
+                                                        @if (@item.ClassSession.ToString() != "4")
+                                                        {
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_@i">
+                                                                <div class="form-group">
+                                                                    <label for="email">Start Time<sup>*</sup></label>
+                                                                    <input type="text" name="Classroom[@i].StartTime" class="form-control" id="StartTime" value="@item.StartTime" placeholder="Start Time" maxlength="50">
+                                                                    @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StartTime, new { placeholder = "Start Time", id = "StartTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
                                                                 </div>
                                                             </div>
-
-
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Lunch)
-                                                                    {
-                                                                        <input id="Lunch" checked="checked" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
-                                                                    }
-
-                                                                    <span>Lunch</span>
-                                                                </label>
-                                                                <div class="col-sm-6">
-                                                                    <input type="text" name="Classroom[@i].LunchFromTime" value="@item.LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">
-                                                                    @*  <input type="text" name="Classroom[@i].LunchToTime"  value ="@item.LunchToTime"    class="form-control" id="LunchToTime" placeholder="To Time" maxlength="50">*@
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_@i">
+                                                                <div class="form-group">
+                                                                    <label for="email">Stop Time<sup>*</sup></label>
+                                                                    <input type="text" name="Classroom[@i].StopTime" class="form-control" id="StopTime" value="@item.StopTime" placeholder="Stop Time" maxlength="50">
+                                                                    @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Snack)
-                                                                    {
-                                                                        <input id="Snack" checked="checked" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
-                                                                    }
-                                                                    <span>Snack</span>
-                                                                </label>
-                                                                <div class="col-sm-6">
-                                                                    <input type="text" name="Classroom[@i].SnackFromTime" class="form-control" value="@item.SnackFromTime" id="SnackFromTime" placeholder="From Time" maxlength="50">
-                                                                    @*<input type="text" name="Classroom[@i].SnackToTime"  class ="form-control" value ="@item.SnackToTime"   id="SnackToTime" placeholder="To Time" maxlength="50">*@
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="Double_@i">
+                                                                <div class="form-group">
+                                                                    <label>Double Session ? </label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.DoubleSession)
+                                                                                {
+                                                                                    <input id="DoubleSession" checked="checked" type="checkbox" value="@item.DoubleSession" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="DoubleSession" type="checkbox" value="true" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                                }
+                                                                                <span>Yes</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 timeBtwMealsDiv" id="timeBtwMealsDiv_@i">
+                                                                <div class="form-group">
+                                                                    <label for="email">Time Between Meals &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(In Minutes) </label>
 
+                                                                    <select class="form-control" id="TimeBetweenMeals" name="Classroom[@i].TimeBetweenMeals">
+                                                                        @if (item.TimeBetweenMeals == 1)
+                                                                        {
+                                                                            <option value="1" selected>10</option>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <option value="1">10</option>
+                                                                        }
+                                                                        @if (item.TimeBetweenMeals == 2)
+                                                                        {
+                                                                            <option value="2" selected="selected">15</option>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <option value="2">15</option>
+                                                                        }
+                                                                        @if (item.TimeBetweenMeals == 3)
+                                                                        {
+                                                                            <option value="3" selected="selected">20</option>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <option value="3">20</option>
+                                                                        }
+                                                                        @if (item.TimeBetweenMeals == 4)
+                                                                        {
+                                                                            <option value="4" selected="selected">25</option>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <option value="4">25</option>
+                                                                        }
+                                                                        @if (item.TimeBetweenMeals == 5)
+                                                                        {
+                                                                            <option value="5" selected="selected">30</option>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <option value="5">30</option>
+                                                                        }
 
-                                                            </div>
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Dinner)
-                                                                    {
-                                                                        <input id="Dinner" checked="checked" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
-                                                                    }
-                                                                    <span>Dinner</span>
-                                                                </label>
-                                                                <div class="col-sm-6">
-                                                                    <input type="text" name="Classroom[@i].DinnerFromTime" class="form-control" value="@item.DinnerFromTime" id="DinnerFromTime" placeholder="From Time" maxlength="50">
-                                                                    @* <input type="text" name="Classroom[@i].DinnerToTime"  class="form-control"  value ="@item.DinnerToTime"   id="DinnerToTime" placeholder="To Time" maxlength="50">*@
+                                                                    </select>
                                                                 </div>
                                                             </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            </div>
+                                                            <div class="clearfix"></div>
+
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_@i">
+
+                                                                <div class="form-group" id="divmeal">
+
+                                                                    @*atul*@
+                                                                    <label>Is this meal served? <sup style="color: red;">*</sup></label>
+
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Breakfast)
+                                                                                {
+                                                                                    <input id="Breakfast" type="checkbox" checked="checked" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                                }
+
+                                                                                <span>Breakfast</span>
+                                                                            </label>
+                                                                            <div class="col-sm-6">
+                                                                                <input type="text" name="Classroom[@i].BreakfastFromTime" value="@item.BreakfastFromTime" class="form-control" id="BreakfastFromTime" placeholder="From Time" maxlength="50">
+                                                                                @*<input type="text" name="Classroom[@i].BreakfastToTime"   value ="@item.BreakfastToTime"  class="form-control" id="BreakfastToTime" placeholder="To Time" maxlength="50">*@
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Lunch)
+                                                                                {
+                                                                                    <input id="Lunch" checked="checked" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                                }
+
+                                                                                <span>Lunch</span>
+                                                                            </label>
+                                                                            <div class="col-sm-6">
+                                                                                <input type="text" name="Classroom[@i].LunchFromTime" value="@item.LunchFromTime" class="form-control" id="LunchFromTime" placeholder="From Time" maxlength="50">
+                                                                                @*  <input type="text" name="Classroom[@i].LunchToTime"  value ="@item.LunchToTime"    class="form-control" id="LunchToTime" placeholder="To Time" maxlength="50">*@
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Snack)
+                                                                                {
+                                                                                    <input id="Snack" checked="checked" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                                }
+                                                                                <span>Snack</span>
+                                                                            </label>
+                                                                            <div class="col-sm-6">
+                                                                                <input type="text" name="Classroom[@i].SnackFromTime" class="form-control" value="@item.SnackFromTime" id="SnackFromTime" placeholder="From Time" maxlength="50">
+                                                                                @*<input type="text" name="Classroom[@i].SnackToTime"  class ="form-control" value ="@item.SnackToTime"   id="SnackToTime" placeholder="To Time" maxlength="50">*@
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+
+
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Dinner)
+                                                                                {
+                                                                                    <input id="Dinner" checked="checked" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                                }
+                                                                                <span>Dinner</span>
+                                                                            </label>
+                                                                            <div class="col-sm-6">
+                                                                                <input type="text" name="Classroom[@i].DinnerFromTime" class="form-control" value="@item.DinnerFromTime" id="DinnerFromTime" placeholder="From Time" maxlength="50">
+                                                                                @* <input type="text" name="Classroom[@i].DinnerToTime"  class="form-control"  value ="@item.DinnerToTime"   id="DinnerToTime" placeholder="To Time" maxlength="50">*@
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_@i">
+
+                                                                <div class="form-group" id="divdays">
+
+                                                                    <label>Class operational days? <sup style="color:red;">*</sup></label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Monday)
+                                                                                {
+                                                                                    <input id="Monday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                                }
+                                                                                <span>Monday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Tuesday)
+                                                                                {
+                                                                                    <input id="Tuesday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                                }
+                                                                                <span>Tuesday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Wednesday)
+                                                                                {
+                                                                                    <input id="Wednesday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                                }
+                                                                                <span>Wednesday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Thursday)
+                                                                                {
+                                                                                    <input id="Thursday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                                }
+                                                                                <span>Thursday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Friday)
+                                                                                {
+                                                                                    <input id="Friday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                                }
+                                                                                <span>Friday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Saturday)
+                                                                                {
+                                                                                    <input id="Saturday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                                }
+                                                                                <span>Saturday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (item.Sunday)
+                                                                                {
+                                                                                    <input id="Sunday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                                }
+                                                                                <span>Sunday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_@i" style="display:none;">
+                                                                <div class="form-group">
+                                                                    <label for="email">Start Time<sup>*</sup></label>
+                                                                    <input type="text" name="Classroom[@i].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50">
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_@i" style="display:none;">
+                                                                <div class="form-group">
+                                                                    <label for="email">Stop Time<sup>*</sup></label>
+                                                                    <input type="text" name="Classroom[@i].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50">
+                                                                    @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12" id="Double_@i" style="display:none;">
+                                                                <div class="form-group">
+                                                                    <label>Double Session ? </label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.DoubleSession)
+                                                                                {
+                                                                                    <input id="DoubleSession" checked="checked" type="checkbox" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="DoubleSession" type="checkbox" value="true" name="Classroom[@i].DoubleSession" data-val="true" />
+                                                                                }
+                                                                                @*<input id="DoubleSession" type="checkbox" value="@item.DoubleSession" name="Classroom[@i].DoubleSession" data-val="true" />*@
+                                                                                @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().DoubleSession)*@@*, new { id = "DoubleSession", Name = "DoubleSession", @class = "minimal", tabIndex = "2", @style = "width:8%;" })*@
+                                                                                <span>Yes</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_@i" style="display:none;">
+
+                                                                <div class="form-group" id="divmeal">
+
+                                                                    <label>Is this meal served? <sup style="color:red;">*</sup></label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Breakfast)
+                                                                                {
+                                                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
+                                                                                }
+                                                                                <span>Breakfast</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Lunch)
+                                                                                {
+                                                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
+                                                                                }
+                                                                                <span>Lunch</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Snack)
+                                                                                {
+                                                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
+                                                                                }
+                                                                                <span>Snack</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Dinner)
+                                                                                {
+                                                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
+                                                                                }
+                                                                                <span>Dinner</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_@i" style="display:none;">
+
+                                                                <div class="form-group" id="divdays">
+
+                                                                    <label>Class operational days? <sup style="color:red;">*</sup></label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Monday)
+                                                                                {
+                                                                                    <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
+                                                                                }
+                                                                                <span>Monday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Tuesday)
+                                                                                {
+                                                                                    <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
+                                                                                }
+                                                                                <span>Tuesday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Wednesday)
+                                                                                {
+                                                                                    <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
+                                                                                }
+                                                                                <span>Wednesday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Thursday)
+                                                                                {
+                                                                                    <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
+                                                                                }
+                                                                                <span>Thursday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Friday)
+                                                                                {
+                                                                                    <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
+                                                                                }
+                                                                                <span>Friday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (@item.Saturday)
+                                                                                {
+                                                                                    <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
+                                                                                }
+                                                                                <span>Saturday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            <label class="checkbox-inline">
+                                                                                @if (item.Sunday)
+                                                                                {
+                                                                                    <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
+                                                                                }
+                                                                                <span>Sunday</span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="form-group">
+                                                                <label for="email">Number of seats</label>
+                                                                <input type="text" name="Classroom[@i].Noofseats" onblur="Checknumeric(this);" readonly="readonly" classid="@item.ClassroomID" class="form-control" value="@item.Noofseats" id="Noofseats" placeholder="Number of Seats" maxlength="50">
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="form-group">
+                                                                <label for="email">Actual Seats Used</label>
+                                                                <input type="text" name="Classroom[@i].ActualSeats" class="form-control" id="ActualSeats_@i" value="@item.ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="true">
+
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <input type="hidden" value="@item.ClassroomID" name="Classroom[@i].ClassroomID">
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_@i">
-
-                                                    <div class="form-group" id="divdays">
-
-                                                        <label>Class operational days? <sup style="color:red;">*</sup></label>
-                                                        <div class="cont-sz">
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Monday)
-                                                                    {
-                                                                        <input id="Monday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
-                                                                    }
-                                                                    <span>Monday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Tuesday)
-                                                                    {
-                                                                        <input id="Tuesday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
-                                                                    }
-                                                                    <span>Tuesday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Wednesday)
-                                                                    {
-                                                                        <input id="Wednesday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
-                                                                    }
-                                                                    <span>Wednesday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Thursday)
-                                                                    {
-                                                                        <input id="Thursday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
-                                                                    }
-                                                                    <span>Thursday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Friday)
-                                                                    {
-                                                                        <input id="Friday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
-                                                                    }
-                                                                    <span>Friday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Saturday)
-                                                                    {
-                                                                        <input id="Saturday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
-                                                                    }
-                                                                    <span>Saturday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (item.Sunday)
-                                                                    {
-                                                                        <input id="Sunday" checked="checked" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
-                                                                    }
-                                                                    <span>Sunday</span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStart_@i" style="display:none;">
-                                                <div class="form-group">
-                                                    <label for="email">Start Time<sup>*</sup></label>
-                                                    <input type="text" name="Classroom[@i].StartTime" class="form-control" id="StartTime" placeholder="Start Time" maxlength="50">
 
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-12" id="ClassStop_@i" style="display:none;">
-                                                <div class="form-group">
-                                                    <label for="email">Stop Time<sup>*</sup></label>
-                                                    <input type="text" name="Classroom[@i].StopTime" class="form-control" id="StopTime" placeholder="Stop Time" maxlength="50">
-                                                    @*@Html.TextBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().StopTime, new { placeholder = "Stop Time", id = "StopTime", maxlength = "50", @class = "form-control", tabIndex = "7" })*@
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-12" id="Double_@i" style="display:none;">
-                                                <div class="form-group">
-                                                    <label>Double Session ? </label>
-                                                    <div class="cont-sz">
-                                                        <div class="col-xs-6 col-sm-4">
-                                                            <label class="checkbox-inline">
-                                                                @if (@item.DoubleSession)
-                                                                {
-                                                                    <input id="DoubleSession" checked="checked" type="checkbox" name="Classroom[@i].DoubleSession" data-val="true" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <input id="DoubleSession" type="checkbox" value="true" name="Classroom[@i].DoubleSession" data-val="true" />
-                                                                }
-                                                                @*<input id="DoubleSession" type="checkbox" value="@item.DoubleSession" name="Classroom[@i].DoubleSession" data-val="true" />*@
-                                                                @*@Html.CheckBoxFor(m => m.Classroom.Where(x => x.ClassroomID == 0).FirstOrDefault().DoubleSession)*@@*, new { id = "DoubleSession", Name = "DoubleSession", @class = "minimal", tabIndex = "2", @style = "width:8%;" })*@
-                                                                <span>Yes</span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-12 " id="Meal_@i" style="display:none;">
-
-                                                <div class="form-group" id="divmeal">
-
-                                                    <label>Is this meal served? <sup style="color:red;">*</sup></label>
-                                                    <div class="cont-sz">
-                                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                @if (@item.Breakfast)
-                                                                {
-                                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <input id="Breakfast" type="checkbox" value="true" name="Classroom[@i].Breakfast" data-val="true" />
-                                                                }
-                                                                <span>Breakfast</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                @if (@item.Lunch)
-                                                                {
-                                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <input id="Lunch" type="checkbox" value="true" name="Classroom[@i].Lunch" data-val="true" />
-                                                                }
-                                                                <span>Lunch</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                @if (@item.Snack)
-                                                                {
-                                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <input id="Snack" type="checkbox" value="true" name="Classroom[@i].Snack" data-val="true" />
-                                                                }
-                                                                <span>Snack</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                @if (@item.Dinner)
-                                                                {
-                                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <input id="Dinner" type="checkbox" value="true" name="Classroom[@i].Dinner" data-val="true" />
-                                                                }
-                                                                <span>Dinner</span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                                <div class="col-lg-6 col-md-6 col-sm-12 " id="Operational_@i" style="display:none;">
-
-                                                    <div class="form-group" id="divdays">
-
-                                                        <label>Class operational days? <sup style="color:red;">*</sup></label>
-                                                        <div class="cont-sz">
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Monday)
-                                                                    {
-                                                                        <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Monday" type="checkbox" value="true" name="Classroom[@i].Monday" data-val="true" />
-                                                                    }
-                                                                    <span>Monday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Tuesday)
-                                                                    {
-                                                                        <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Tuesday" type="checkbox" value="true" name="Classroom[@i].Tuesday" data-val="true" />
-                                                                    }
-                                                                    <span>Tuesday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Wednesday)
-                                                                    {
-                                                                        <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Wednesday" type="checkbox" value="true" name="Classroom[@i].Wednesday" data-val="true" />
-                                                                    }
-                                                                    <span>Wednesday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Thursday)
-                                                                    {
-                                                                        <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Thursday" type="checkbox" value="true" name="Classroom[@i].Thursday" data-val="true" />
-                                                                    }
-                                                                    <span>Thursday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Friday)
-                                                                    {
-                                                                        <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Friday" type="checkbox" value="true" name="Classroom[@i].Friday" data-val="true" />
-                                                                    }
-                                                                    <span>Friday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (@item.Saturday)
-                                                                    {
-                                                                        <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Saturday" type="checkbox" value="true" name="Classroom[@i].Saturday" data-val="true" />
-                                                                    }
-                                                                    <span>Saturday</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-4">
-                                                                <label class="checkbox-inline">
-                                                                    @if (item.Sunday)
-                                                                    {
-                                                                        <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <input id="Sunday" type="checkbox" value="true" name="Classroom[@i].Sunday" data-val="true" />
-                                                                    }
-                                                                    <span>Sunday</span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                        }
-
-                                        <div class="col-lg-6 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Number of seats</label>
-                                                <input type="text" name="Classroom[@i].Noofseats" onblur="Checknumeric(this);" readonly="readonly" classid="@item.ClassroomID" class=" form-control" value="@item.Noofseats" id="Noofseats" placeholder="Number of Seats" maxlength="50">
-
-                                            </div>
+                                                i++;
+                                            }
                                         </div>
-                                        <div class="col-lg-6 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Actual Seats Used</label>
-                                                <input type="text" name="Classroom[@i].ActualSeats" class="form-control" id="ActualSeats_@i" value="@item.ActualSeats" onblur="checkNoOfSeats(this);" placeholder="Actual Seats Used" maxlength="50" readonly="true">
-
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <input type="hidden" value="@item.ClassroomID" name="Classroom[@i].ClassroomID">
-                                        </div>
-
                                     </div>
-                                    i++;
-                                }
                             }
                         </div>
                     </div>

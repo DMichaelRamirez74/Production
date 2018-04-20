@@ -99,5 +99,14 @@ namespace FingerprintsModel
             public ProgramType ProgramDetails { get; set; }
 
         }
+
+        public List<Divisions> DivisionsList { get; set; }
+        public List<Areas> AreasList { get; set; }
+
+        public bool IsShowArea { get; set; }
+        public bool IsShowDivision { get; set; }
+
+        public long AreaID { get; set; }
+        public long DivisionID { get; set; }
     }
 }
