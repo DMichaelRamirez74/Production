@@ -4595,6 +4595,7 @@ namespace FingerprintsData
                 Connection.Open();
 
                 command.Connection = Connection;
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@ClientId", Transition.ClientId));
                 command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
                 command.Parameters.Add(new SqlParameter("@userid", UserId));
@@ -4609,6 +4610,20 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CenterId", Transition.CenterId));
                 command.Parameters.Add(new SqlParameter("@ClassRoomId", Transition.ClassRoomId));
 
+                command.Parameters.Add(new SqlParameter("@MedicalHome", Transition.MedicalHome));
+                command.Parameters.Add(new SqlParameter("@DentalHome", Transition.DentalHome));
+                command.Parameters.Add(new SqlParameter("@MedicalService", Transition.MedicalServices));
+                command.Parameters.Add(new SqlParameter("@DentalService", Transition.DentalServices));
+
+                command.Parameters.Add(new SqlParameter("@TANF", Transition.TANF));
+                command.Parameters.Add(new SqlParameter("@SSI", Transition.SSI));
+                command.Parameters.Add(new SqlParameter("@WIC", Transition.WIC));
+                command.Parameters.Add(new SqlParameter("@SNAP", Transition.SNAP));
+                command.Parameters.Add(new SqlParameter("@NONE", Transition.NONE));
+                command.Parameters.Add(new SqlParameter("@ImmunizationService", Transition.ImmunizationService));
+
+                command.Parameters.Add(new SqlParameter("@ShoolAchievement", Transition.ShoolAchievement));
+                command.Parameters.Add(new SqlParameter("@JobTrainingFinished", Transition.JobTrainingFinished));
 
                 command.Parameters.Add(new SqlParameter("@ActiveRecCode", Transition.TrnsInsuranceType));
 

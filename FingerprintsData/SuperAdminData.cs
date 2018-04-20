@@ -719,23 +719,66 @@ namespace FingerprintsData
 
             }
         }
-        public string AddSlots(string AgencyId, int Slot, string ProgramYear, int SlotId, string userId)
+        public string AddSlots(string AgencyId, int Slot, string ProgramYear, int SlotId, string userId, out string UEmail,out string UName, out List<string> EmailList )
         {
+            UEmail = ""; UName = "";
+            string email = string.Empty;
+            EmailList = new List<string>();
             try
             {
+              
                 command.Connection = Connection;
+                Connection.Open();
                 command.CommandText = "SP_AddSlots";
+                command.Parameters.Clear();
                 command.Parameters.AddWithValue("@SlotId", SlotId);
                 command.Parameters.AddWithValue("@AgencyId", AgencyId);
 
                 command.Parameters.AddWithValue("@Slot", Slot);
                 command.Parameters.AddWithValue("@ProgramYear", ProgramYear);
-                command.Parameters.AddWithValue("@CreatedBy", userId);
+                command.Parameters.AddWithValue("@CreatedBy", userId); 
                 command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;
+                command.Parameters.AddWithValue("@UEmail", "").Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
-                Connection.Open();
-                command.ExecuteNonQuery();
-                return command.Parameters["@result"].Value.ToString();
+                                         
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                string email1 = "", firstname = "", lastname = "";
+                if(_dataset.Tables[0] !=null && _dataset.Tables[0].Rows.Count>0)
+                {
+
+                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                    {
+                        // lstItems.Add(new SelectListItem { Text = dr["Category"].ToString(), Value = dr["Category"].ToString() });
+
+                        email1 = (dr["EmailAddress"] == DBNull.Value) ? "" : dr["EmailAddress"].ToString();
+                        firstname = (dr["FirstName"] == DBNull.Value) ? "" : dr["FirstName"].ToString();
+                        lastname = (dr["LastName"] == DBNull.Value) ? "" : dr["LastName"].ToString();
+                        string str = " " + email1 + " (" + firstname + " " + lastname + ")";
+                        EmailList.Add(str);
+                    }
+                   
+                }
+                if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in _dataset.Tables[1].Rows)
+                    {
+                        email1 = (dr["EmailAddress"] == DBNull.Value) ? "" : dr["EmailAddress"].ToString();
+                        firstname = (dr["FirstName"] == DBNull.Value) ? "" : dr["FirstName"].ToString();
+                        lastname = (dr["LastName"] == DBNull.Value) ? "" : dr["LastName"].ToString();
+                        UName = (dr["AgencyName"] == DBNull.Value) ? "" : dr["AgencyName"].ToString();
+
+                        string str = " " + email1 +" (" + firstname + " " + lastname + ")"   ;
+                        EmailList.Add(str);
+                    }
+                }
+
+                UEmail = String.Join(",", EmailList.ToArray());
+
+               
+
+                return command.Parameters["@result"].Value.ToString();            
             }
             catch (Exception ex)
             {
@@ -746,7 +789,6 @@ namespace FingerprintsData
             {
                 if (Connection != null)
                     Connection.Close();
-
             }
         }
         public LSlots SlotDetails(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string userid)

@@ -425,6 +425,7 @@ namespace FingerprintsModel
         public string TotalChoice { get; set; }
         public string Option { get; set; }
         public string Notes { get; set; }
+        public string IsReviewed { get; set; }
         public List<UserInfo> UserList { get; set; }
         public List<FamilyHousehold.Programdetail> ProgramsList { get; set; }
 

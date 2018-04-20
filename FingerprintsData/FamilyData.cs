@@ -8612,7 +8612,7 @@ namespace FingerprintsData
                         CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
                         AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
                         Gender = x.Field<string>("GenderText"),
-                        ServiceYears = x.Field<int>("ServiceYears").ToString()
+                      //  ServiceYears = x.Field<int>("ServiceYears").ToString()
 
 
                     }).ToList();
@@ -13419,52 +13419,52 @@ namespace FingerprintsData
                 {
                     per.FSWAvgAge = (DBNull.Value == ds.Tables[5].Rows[0]["fswAvgAge"]) ? 0 : Convert.ToDecimal(ds.Tables[5].Rows[0]["fswAvgAge"]);
                 }
-                //if (ds.Tables[6] != null && ds.Tables[6].Rows.Count > 0)
-                //{
-                //    DataColumnCollection columns = ds.Tables[6].Columns;
+                if (ds.Tables[6] != null && ds.Tables[6].Rows.Count > 0)
+                {
+                    DataColumnCollection columns = ds.Tables[6].Columns;
 
-                //    foreach (DataRow dr in ds.Tables[6].Rows)
-                //    {
-                //        switch (dr["PrimaryLanguageId"].ToString())
-                //        {
-                //            case "1":
-                //                per.StaffEnglishLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "2":
-                //                per.StaffAfricanLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "3":
-                //                per.StaffCaribbeanLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "4":
-                //                per.StaffEastAsianLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "5":
-                //                per.StaffEuropeanLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "6":
-                //                per.StaffMiddleLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "7":
-                //                per.StaffNativeCenterLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "8":
-                //                per.StaffNativeNorthLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "9":
-                //                per.StaffPacificLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "10":
-                //                per.StaffSpanisLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
-                //            case "12":
-                //                per.StaffOtherLang = Convert.ToInt32(dr["SpeakersCount"]);
-                //                break;
+                    foreach (DataRow dr in ds.Tables[6].Rows)
+                    {
+                        switch (dr["PrimaryLanguageId"].ToString())
+                        {
+                            case "1":
+                                per.StaffEnglishLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "2":
+                                per.StaffAfricanLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "3":
+                                per.StaffCaribbeanLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "4":
+                                per.StaffEastAsianLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "5":
+                                per.StaffEuropeanLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "6":
+                                per.StaffMiddleLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "7":
+                                per.StaffNativeCenterLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "8":
+                                per.StaffNativeNorthLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "9":
+                                per.StaffPacificLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "10":
+                                per.StaffSpanisLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
+                            case "12":
+                                per.StaffOtherLang = Convert.ToInt32(dr["SpeakersCount"]);
+                                break;
 
-              //        }
-               //     }
+                        }
+                    }
 
-               // }
+                }
             }
             catch (Exception ex)
             {

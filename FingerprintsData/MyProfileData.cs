@@ -21,6 +21,8 @@ namespace FingerprintsData
         DataSet _dataset = null;
         public void GetProfile(DataSet _dataset, MyProfile _Profile)
         {
+            PrimaryLanguages language = new PrimaryLanguages();
+            _Profile.LangList = new List<PrimaryLanguages>();
             if (_dataset != null)
             {
                 if (_dataset.Tables[0].Rows.Count > 0)
@@ -62,16 +64,31 @@ namespace FingerprintsData
                     }
 
                 }
+
+                if (_dataset.Tables[1].Rows.Count > 0)
+                {
+
+                    foreach (DataRow dr in _dataset.Tables[1].Rows)
+                    {
+                        language = new PrimaryLanguages();
+                        language.LanguageId = Convert.ToInt32(dr["LanguageID"]);
+                        language.LanguageName = Convert.ToString(dr["PrimaryLanguage"]);
+                        language.OtherLanguage = Convert.ToString(dr["OtherLanguage"]);
+                        language.IsSpoken = ((dr["IsSpoken"]) == DBNull.Value) ? false : true;
+                        _Profile.LangList.Add(language);
+                    }
+
+                }
             }
 
 
         }
-        public MyProfile Getprofile(string UserID)
+        public MyProfile Getprofile(string UserID, string AgencyId)
         {
             MyProfile _Profile = new MyProfile();
             try
             {
-
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@UserID", UserID));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -345,6 +362,31 @@ namespace FingerprintsData
 
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_addProfileEMP";
+
+                }
+
+                if (savetype == "4")
+                {
+                    _Profile.hidtab = "#addLanguage";
+                    command.Parameters.Add(new SqlParameter("@UserID", ID));
+                    DataTable dt = new DataTable();
+                    dt.Columns.AddRange(new DataColumn[3] {
+                    new DataColumn("LanguageId", typeof(string)),
+                      new DataColumn("IsSpoken",typeof(bool)),
+                       new DataColumn("OtherLanguage",typeof(string))
+                    });
+                    foreach (PrimaryLanguages lang in _Profile.LangList)
+                    {
+                        if (lang.LanguageId != 0 && lang.IsSpoken)
+                        {
+                            dt.Rows.Add(lang.LanguageId, lang.IsSpoken,lang.OtherLanguage);
+
+                        }
+                    }
+                    command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_AddStaffPrimaryLanguage";
 
                 }
                 command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;

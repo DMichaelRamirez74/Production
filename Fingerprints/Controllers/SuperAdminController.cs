@@ -992,12 +992,18 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public JsonResult AddSlots(string AgencyId, int Slot, string ProgramYear, int SlotId)
         {
+            string UEmail = "", UName="";
+            List<string> EmailList = new List<string>();
             try
             {
+                string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
+                string result = datalayer.AddSlots(AgencyId, Slot, ProgramYear, SlotId, Session["UserID"].ToString(), out UEmail, out UName, out EmailList);
+                if(result=="4")
+                {
+                    SendMail.SendEmailForSlotsPurchase(UEmail, UName, Slot, Server.MapPath("~/MailTemplate"), imagepath, UEmail);
 
-
-                return Json(datalayer.AddSlots(AgencyId, Slot, ProgramYear, SlotId, Session["UserID"].ToString()));
-
+                }
+                return Json(result);
             }
             catch (Exception ex)
             {

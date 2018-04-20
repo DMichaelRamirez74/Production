@@ -212,7 +212,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist)
+        public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages)
         {
             AgencyStaff _staffList = new AgencyStaff();
             try
@@ -241,6 +241,7 @@ namespace Fingerprints.Controllers
 
                 string message = "";
                 ViewBag.mode = 1;
+                agencystaff.LangList = PrimaryLanguages;
                 UpdatependingverificationUser(agencystaff, collection, out message);
                 if (message == "0")
                 {
@@ -568,7 +569,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult editStaff(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist)
+        public ActionResult editStaff(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist,List<PrimaryLanguages> PrimaryLanguages)
         {
             AgencyStaff _staffList = new AgencyStaff();
             try
@@ -595,6 +596,7 @@ namespace Fingerprints.Controllers
                 #region verifying Agency user code here
                 string message = "";
                 ViewBag.mode = 1;
+                agencystaff.LangList = PrimaryLanguages;
                 Updatestaff(agencystaff, collection, out message);
                 if (message == "1")
                 {
@@ -1008,7 +1010,7 @@ namespace Fingerprints.Controllers
             return View(_staffList);
         }
         [HttpPost]
-        public ActionResult staffpersonalinformation(AgencyStaff _staflist, FormCollection collection)
+        public ActionResult staffpersonalinformation(AgencyStaff _staflist, FormCollection collection, List<PrimaryLanguages> PrimaryLanguages)
         {
 
             try
@@ -1022,6 +1024,7 @@ namespace Fingerprints.Controllers
                     _staflist.GettingDegree = collection["DdlGettingDegree"] == null ? null : collection["DdlGettingDegree"].ToString();
                     _staflist.Gender = collection["DdlGender"] == null ? null : collection["DdlGender"].ToString();
                     string AvatarFile, AvatarHfile, AvatarSfile, AvatarTfile;
+                    _staflist.LangList = PrimaryLanguages;
                     #region upload Avatar icons
                     string Uploadpath = "~/" + ConfigurationManager.AppSettings["Avtar"].ToString();
                     if (!Directory.Exists(Server.MapPath(Uploadpath)))
