@@ -460,7 +460,7 @@ namespace FingerprintsData
                 DataAdapter.Fill(_dataset);
                 if (_dataset.Tables[0] != null)
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0)
+                    if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode != "750")
                     {
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
@@ -477,7 +477,21 @@ namespace FingerprintsData
                                 FromUserID = !string.IsNullOrEmpty(dr["FromUserID"].ToString()) ? dr["FromUserID"].ToString() : "",
                                 YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",
                                 CenterId = !string.IsNullOrEmpty(dr["CenterId"].ToString()) ? dr["CenterId"].ToString() : "",
-                                _EncCenterId= !string.IsNullOrEmpty(dr["CenterId"].ToString()) ? EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()) : "",
+                                _EncCenterId = !string.IsNullOrEmpty(dr["CenterId"].ToString()) ? EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()) : "",
+
+                            });
+                        }
+                    }
+                    else if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            listDetail.Add(new YakkrClientDetail
+                            {
+                                YakkrCode = !string.IsNullOrEmpty(dr["YakkrCode"].ToString()) ? dr["YakkrCode"].ToString() : "",
+                                YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",
+                                Slots = !string.IsNullOrEmpty(dr["Slots"].ToString()) ? dr["Slots"].ToString() : "",
+                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToDateTime(dr["Date"]).ToString("MM/dd/yyyy") : "N/A",
 
                             });
                         }

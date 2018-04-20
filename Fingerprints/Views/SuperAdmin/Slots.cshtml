@@ -55,8 +55,9 @@
                                 response($.map(data, function (item) {
                                     $('#AgencyId').val('');
                                     $('#ProgramYear').val('');
+                                    $('#ExistingSlot').val('');
                                     return {
-                                        label: item.agencyName, id: item.agencyId, ActiveProgYear: item.ActiveProgYear
+                                        label: item.agencyName, id: item.agencyId, ActiveProgYear: item.ActiveProgYear, Slots: item.Slots,SlotId:item.SlotId
                                        
                                     };
                                 }))
@@ -67,6 +68,8 @@
                     select: function (event, ui) {
                         $('#AgencyId').val(ui.item.id);
                         $('#ProgramYear').val(ui.item.ActiveProgYear);
+                        $('#ExistingSlot').val(ui.item.Slots);
+                        $('#SlotId').val(ui.item.SlotId);
                      
                     },
                     messages: {
@@ -311,7 +314,7 @@
                 for (var i = 0; i < data.list.Slots.length; i++) {
                     var tr = "";
                     tr += "<tr>";
-                    tr += "<td><a href='#' onclick='GetSlot(this);' agencyid='" + data.list.Slots[i].AgencyId + "' accesskey='" + data.list.Slots[i].SlotId + "'>" + data.list.Slots[i].AgencyName + "</td>";
+                    tr += "<td><a href='#' onclick='GetSlot(this);' email='" + data.list.Slots[i].primaryEmail + "'  agencyid='" + data.list.Slots[i].AgencyId + "' accesskey='" + data.list.Slots[i].SlotId + "'>" + data.list.Slots[i].AgencyName + "</td>";
                     tr += "<td>" + ((typeof (data.list.Slots[i].Slot) != 'undefined') && (data.list.Slots[i].Slot != null) ? data.list.Slots[i].Slot : '') + "</td>";
                     tr += "<td>" + ((typeof (data.list.Slots[i].ProgramYear) != 'undefined') && (data.list.Slots[i].ProgramYear != null) ? data.list.Slots[i].ProgramYear : '') + "</td>";
                     tr += "<td>" + ((typeof (data.list.Slots[i].Createddate) != 'undefined') && (data.list.Slots[i].Createddate != null) ? data.list.Slots[i].Createddate : '') + "</td>";
@@ -358,7 +361,7 @@
             }
           else if ($('#Slot').val().trim() == "") {
                 isValid = false;
-                customAlert("Slots is required.");
+                customAlert("Additional slots is required.");
                 plainValidation('#Slot');
                 return isValid;
           }
@@ -377,7 +380,8 @@
                       AgencyId: $('#AgencyId').val(),
                       Slot: $('#Slot').val(),
                       ProgramYear: $('#ProgramYear').val(),
-                      SlotId: $('#SlotId').val()                
+                      SlotId: $('#SlotId').val(),
+                      UserEmail:   $('#Email').val()
                   },
                   dataType: "json",
                   secureuri: false,
@@ -391,7 +395,9 @@
                           $('#AgencyName').val('');
                           $('#AgencyId').val('');
                           $('#Slot').val('');
+                          $('#ExistingSlot').val('');
                           $('#ProgramYear').val('');
+                          $('#Email').val('');
                           $('#ProgramYear').attr("readonly", false);
                           cleargrid();
                           customAlert("Record added successfully.");
@@ -408,7 +414,9 @@
                           $('#AgencyName').val('');
                           $('#AgencyId').val('');
                           $('#Slot').val('');
+                          $('#ExistingSlot').val('');
                           $('#SlotId').val(0);
+                          $('#Email').val('');
                           $('#ProgramYear').val('');
                           $('#AgencyName').attr("readonly", false);
                           cleargrid();
@@ -444,11 +452,13 @@
         {
             //$('#spinner').show();
             $('#HSlot').text('Edit Slot');   
-            $('#AgencyName').attr("readonly",true);
+            $('#AgencyName').attr("readonly", true);
+
             $('#AgencyId').val($(object).closest('tr').find('td:eq(0)').find('a').attr("agencyid"));
             $('#SlotId').val($(object).closest('tr').find('td:eq(0)').find('a').attr("accesskey"));
+            $('#Email').val($(object).closest('tr').find('td:eq(0)').find('a').attr("email"));
             $('#AgencyName').val($(object).closest('tr').find('td:eq(0)').find('a').text());
-            $('#Slot').val($(object).closest('tr').find('td:eq(1)').text());
+            $('#ExistingSlot').val($(object).closest('tr').find('td:eq(1)').text());
             $('#ProgramYear').val($(object).closest('tr').find('td:eq(2)').text());
             $('#ProgramYear').attr("readonly", true);
             //$('#spinner').hide();
@@ -461,7 +471,9 @@
             $('#AgencyName').val('');
             $('#AgencyId').val('');
             $('#Slot').val('');
+            $('#ExistingSlot').val('');
             $('#SlotId').val(0);
+            $('#Email').val('');
             $('#ProgramYear').val('');
             $('#ProgramYear').attr("readonly", false);
             //$('#spinner').hide();
@@ -529,7 +541,13 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
-                                <label for="email">Slots <sup>*</sup></label>
+                                <label for="email">Existing Slots <sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.ExistingSlot, new { placeholder = "Slots", maxlength = "5", @class = "form-control", tabIndex = "2", @onblur = "return checkNumeric(this);", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="email">Additional Slots <sup>*</sup></label>
                                 @Html.TextBoxFor(m => m.Slot, new { placeholder = "Slots", maxlength = "5", @class = "form-control", tabIndex = "2", @onblur = "return checkNumeric(this);" })
                             </div>
                         </div>

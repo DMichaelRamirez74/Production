@@ -35,6 +35,15 @@
     <script type="text/javascript">
         var isValid = true;
         $(document).ready(function () {
+            $('.lang-req').change(function () {
+                if ($(this).attr('data-langid') == 12 && $(this).is(':checked') == true) {
+                    $('#OtherLanguage12').show();
+                }
+                else if ($(this).attr('data-langid') == 12 && $(this).is(':checked') == false) {
+                    $('#OLang12').val("");
+                    $('#OtherLanguage12').hide();
+                }
+            });
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -424,6 +433,20 @@
                 }
             }
 
+            if ($('.lang-req').is(':checked') == false) {
+                isValid = false;
+                customAlert("Please select anyone Language ");
+                plainValidation('.set_border_processs');
+                return isValid;
+            }
+            if ($('input[name="PrimaryLanguages[10].IsSpoken"]').is(':checked') === true) {
+                if ($('#OLang12').val() == "") {
+                    isValid = false;
+                    $('#OLang12').focus();
+                    customAlert("Please specify other language.");
+                    return isValid;
+                }
+            }
             if ('@Session["Roleid"].ToString()' == "a65bb7c2-e320-42a2-aed4-409a321c08a5") {
                 if ($('#DivAccessType').css('display') != 'none') {
                     if ($('#AccessDays')[0].value.trim() == "-1") {
@@ -742,7 +765,29 @@
     </script>
 }
 @section MainContentHolder{
+<style>
+    .set_border_processs {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+}
+    .icc_colspan_import {
+        width: 48%;
+        float: left;
+        margin-bottom: 12px;
+        padding: 0 1%;
+    }
 
+        .icc_colspan_import input {
+            width: 25%;
+            float: left;
+        }
+
+        .icc_colspan_import label {
+            float: right;
+            width: 75%;
+        }
+</style>
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
@@ -919,22 +964,68 @@
                                             }
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                <div class="row">
-
                                     <div class="col-lg-6 col-md-6 col-sm-12 ">
                                         <div class="form-group file_typimg">
                                             <label for="pwd">General Picture </label>
                                             @Html.TextBoxFor(m => m.Avatar, new { id = "Avatar", Name = "Avatar", type = "file", onchange = "ValidateSingleInput(this)", @class = "form-control", tabIndex = "16" })<div class="img-iconavt">
-                                            <img id="imgAvatar" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarUrl)' style="border-style:none;" alt="" /></div>
+                                                <img id="imgAvatar" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatarUrl)' style="border-style:none;" alt="" />
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <label for="pwd">Languages Spoken<sup>*</sup> </label>
+                                <div class="col-lg-12 col-md-12 col-sm-12 set_border_processs">
+
+
+
+
+                                    @if (Model.LangList != null)
+                                    {
+                                        int i = 0;
+                                        foreach (var item1 in Model.LangList)
+                                        {
+                                            <div class="icc_colspan_import">
+                                                <input type="hidden" name="PrimaryLanguages[@i].LanguageId" value="@item1.LanguageId" />
+                                                <label>@item1.LanguageName</label>
+
+                                                <input type="checkbox" class="lang-req"
+                                                       @if (@item1.IsSpoken) { <text> checked="checked" </text>           }
+                                                       name="PrimaryLanguages[@i].IsSpoken" data-langid="@item1.LanguageId" style="outline: 0;" value="true" />
+
+
+                                                @if (item1.LanguageId == 12 && item1.IsSpoken == true)
+                                                {
+                                                    <div id="OtherLanguage@(item1.LanguageId)" style="margin-top:10px;float:left;">
+                                                        <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color:#295b8f;padding-top:7px;font-weight:bold;">Specify Other Language</label>
+                                                        <input type="text" name="PrimaryLanguages[@i].OtherLanguage" value="@item1.OtherLanguage"  id="OLang@(item1.LanguageId)" class="form-control" />
+
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div id="OtherLanguage@(item1.LanguageId)" style="display:none;margin-top:10px;float:left;">
+                                                        <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color: #295b8f;padding-top:7px;font-weight:bold;">Specify Other Language</label>
+                                                        <input type="text" name="PrimaryLanguages[@i].OtherLanguage" id="OLang@(item1.LanguageId)"  class="form-control" />
+                                                    </div>
+                                                }
+                                            </div>
+                                            i++;
+                                        }
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="row">
+
+                                   
+                                    @*<div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="form-group file_typimg">
                                             <label for="pwd">Happy Avatar </label>
                                             @Html.TextBoxFor(m => m.AvatarH, new { id = "AvatarH", Name = "AvatarH", type = "file", @class = "form-control", onchange = "ValidateSingleInput(this)", tabIndex = "17" })<div class="img-iconavt">
@@ -959,7 +1050,7 @@
                                                 <img id="imgAvatarT" src='@Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.AvatartUrl)' style="border:none;" alt="" />
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>*@
                                 </div>
                             </div>
                         </div>
@@ -967,8 +1058,8 @@
 
                     </div>
 
-                    <div style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;"></div>
 
+                    <div style="width:100%; height:1px; margin:20px 0 0 0; background:#ccc;"></div>
                     <div>
                         <h3 class="sepratetaff">Official Information</h3>
                         <div class="row">

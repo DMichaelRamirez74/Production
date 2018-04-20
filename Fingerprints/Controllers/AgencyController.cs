@@ -1452,6 +1452,23 @@ namespace Fingerprints.Controllers
                  return Json(Ex.Message);
              }
          }
-    }
 
+        public ActionResult AdditionalSlots(string YakkrID = "")
+        {
+
+            TempData["YakkrID"] = YakkrID;
+            AgencyAdditionalSlots res = agencyData.GetAdditionalSlotDetails(Session["AgencyId"].ToString(), Session["UserID"].ToString(), YakkrID);
+
+            return View(res);
+        }
+
+        public JsonResult SaveAdditionalSeats(List<AgencyAdditionalSlots> Seats)
+        {
+
+            var YakkrID = Convert.ToInt32(TempData["YakkrID"]);
+            return Json(agencyData.SaveAdditionalSeats(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Seats, YakkrID));
+
+        }
+    }
+  
 }

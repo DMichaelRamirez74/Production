@@ -5,35 +5,42 @@
         Staff Profile
     }
     ViewBag.Title = "My Profile";
-
-    if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
     {
         Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
     }
-    if (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26"))
+    else
     {
         Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     }
-    if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
+    //if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    //}
+    //if (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
 
 }
 @Scripts.Render("~/bundles/jquery")
@@ -49,7 +56,18 @@
                     // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
                 }
             });
+            $('.lang-req').change(function () {
 
+            
+                if ($(this).attr('data-langid') == 12 && $(this).is(':checked')==true) {
+                    $('#OtherLanguage12').show();
+                }
+                else if ($(this).attr('data-langid') == 12 && $(this).is(':checked') == false) {
+                    $('#OLang12').val("");
+                    $('#OtherLanguage12').hide();
+                }
+
+            });
 
             if ('@TempData["message"]' != '') {
                 customAlert('@TempData["message"]');
@@ -118,7 +136,9 @@
             $('#addHealth').removeClass("in");
             $('#addEmployment').removeClass("active");
             $('#addEmployment').removeClass("in");
-
+            $('#addLanguage').removeClass("active");
+            $('#addLanguage').removeClass("in");
+            
             if ('' != '') {
                 if ('' == '2') {
 
@@ -129,7 +149,8 @@
                     $('#addHealth').removeClass("in");
                     $('#addEmployment').removeClass("in");
                     $('#addEmployment').removeClass("active");
-
+                    $('#addLanguage').removeClass("active");
+                    $('#addLanguage').removeClass("in");
                     $('#myTab li:eq(1) a').tab('show');
 
                 }
@@ -141,7 +162,8 @@
                     $('#addHealth').addClass("in");
                     $('#addEmployment').removeClass("in");
                     $('#addEmployment').removeClass("active");
-
+                    $('#addLanguage').removeClass("active");
+                    $('#addLanguage').removeClass("in");
                     $('#myTab li:eq(2) a').tab('show');
                 }
                 if ('' == '4') {
@@ -152,8 +174,21 @@
                     $('#addHealth').removeClass("in");
                     $('#addEmployment').addClass("in");
                     $('#addEmployment').addClass("active");
-
+                    $('#addLanguage').removeClass("active");
+                    $('#addLanguage').removeClass("in");
                     $('#myTab li:eq(3) a').tab('show');
+                }
+                if ('' == '5') {
+
+                    $('#addEducation').removeClass("in");
+                    $('#addEducation').removeClass("active");
+                    $('#addHealth').removeClass("active");
+                    $('#addHealth').removeClass("in");
+                    $('#addEmployment').removeClass("in");
+                    $('#addEmployment').removeClass("active");
+                    $('#addLanguage').addClass("active");
+                    $('#addLanguage').addClass("in");
+                    $('#myTab li:eq(4) a').tab('show');
                 }
 
             }
@@ -161,6 +196,24 @@
 
                 $('#myTab a:first').tab('show');
 
+            }
+        }
+        function IsValidLanguage()
+        {
+            $('#profileindex').val("4");
+            if($('.lang-req').is(':checked')==false)
+            {
+                customAlert("Please select anyone Language ");
+                return false;
+            }
+            if ($('input[name="LangList[10].IsSpoken"]').is(':checked') === true)
+            {
+                if($('#OLang12').val()=="")
+                {
+                    $('#OLang12').focus();
+                    customAlert("Please specify other language.");
+                    return false;
+                }
             }
         }
         function isValideduInfo(deleteID,object) {
@@ -452,7 +505,17 @@
 }
 @section MainContentHolder{
 
+    <style>
 
+        .icc_colspan_import {
+    width: 48%;
+    float: left;
+    margin-bottom: 12px;
+    padding: 0 1%;
+}
+       .icc_colspan_import input { width: 45%; float: left;}
+       .icc_colspan_import label {float: right;    width: 75%;}
+    </style>
 
     <form method="post" role="form" enctype="multipart/form-data">
         <script>
@@ -492,6 +555,7 @@
                             <li class="active"><a href="#addEducation" data-toggle="tab">Education</a></li>
                             <li><a href="#addHealth" data-toggle="tab">Health</a></li>
                             <li><a href="#addEmployment" data-toggle="tab">Employment Requirements</a></li>
+                            <li><a href="#addLanguage" data-toggle="tab">Languages Spoken</a></li>
                         </ul>
                     </div>
                     <div id="myTabContent" class="tab-content">
@@ -904,6 +968,64 @@
 
                                 </div>
                             </div>
+                        <div class="tab-pane fade" id="addLanguage">
+                            <div class="add-useragform">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                     
+
+                                        @if (Model.LangList != null)
+                                        {
+                                            int i = 0;
+                                            foreach (var item in Model.LangList)
+                                            {
+                                                <div class="icc_colspan_import">
+                                                    <input type="hidden" name="LangList[@i].LanguageId" value="@item.LanguageId" />
+                                                    <label>@item.LanguageName</label>
+
+                                                    <input type="checkbox" class="lang-req"
+                                                           @if (@item.IsSpoken) { <text> checked="checked" </text>         }
+                                                           name="LangList[@i].IsSpoken" data-langid="@item.LanguageId" style="outline: 0;" value="true" />
+
+
+                                                    @if (item.LanguageId == 12 && item.IsSpoken == true)
+                                                    {
+                                                        <div id="OtherLanguage@(item.LanguageId)" style="margin-top:10px;float:left;">
+                                                            <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color:#295b8f;padding-top:7px;font-weight:bold;">Specify Other Language</label>
+                                                            <input type="text" name="LangList[@i].OtherLanguage" value="@item.OtherLanguage"  style="padding: 10px;"  id="OLang@(item.LanguageId)" class="form-control"/>
+                                                            
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div id="OtherLanguage@(item.LanguageId)" style="display:none;margin-top:10px;float:left;">
+                                                            <label style="float: left;width: auto;display: inline-block;padding-right: 10px;padding-left: 42px;color: #295b8f;padding-top:7px;font-weight:bold;">Specify Other Language</label>
+                                                            <input type="text" name="LangList[@i].OtherLanguage" id="OLang@(item.LanguageId)" style="padding: 10px;"  class="form-control"/>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                i++;
+                                            }
+                                        }
+
+                                    </div>
+                                  
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                        <div class="btnwrp_subcal">
+                                            <button type="submit" name="btnsubmit" id="btnsubmit" value="edu" class="my-btn" onclick="return IsValidLanguage(0, this);" tabindex="1">Save</button>
+
+                                            <div class="clear"></div>
+                                        </div>	
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                         </div>
 
 

@@ -595,9 +595,10 @@ namespace Fingerprints.Controllers
             return View(_staffList);
 
         }
+
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult PendingApprovalRequest(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist)
+        public ActionResult PendingApprovalRequest(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages)
         {
             AgencyStaff _staffList = new AgencyStaff();
             try
@@ -726,6 +727,7 @@ namespace Fingerprints.Controllers
                 string StaffID = "", AgencyCode = "";
                 string message = string.Empty;
                 string name = string.Empty;
+                agencystaff.LangList = PrimaryLanguages;
                 if (collection["ddlapprovereject"].ToString() == "0")
                     message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "5", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode);
                 else

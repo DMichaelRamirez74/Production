@@ -1,4 +1,6 @@
-﻿@{
+﻿@model FingerprintsModel.Transition
+
+@{
     ViewBag.Title = "HeadStartTransition";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 
@@ -56,7 +58,14 @@
             float: left;
             margin: 6px 0;
         }
-        .err-message{display:none;color: red;font-size: 12px;margin: 6px;height:10px; }
+
+        .err-message {
+            display: none;
+            color: red;
+            font-size: 12px;
+            margin: 6px;
+            height: 10px;
+        }
     </style>
     <div class="container-fluid">
         <div class="row">
@@ -78,9 +87,6 @@
 
                     <div class="col-xs-12 no-padding">
                         <div class="col-xs-12 no-padding">
-
-
-
                             <div class="col-xs-12 transition-section">
                                 <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
                                     <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
@@ -205,7 +211,7 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-7 col-xs-7" style="padding:0;">
-                                        <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                        <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
                                             <div class="col-xs-12 no-padding">
                                                 <div class="radio radio-info">
                                                     <input type="radio" name="InsType" class="InsuranceType" value="C3A1">
@@ -235,16 +241,16 @@
                                                     <input type="radio" name="InsType" class="InsuranceType" value="C3D1">
                                                     <label>Other Insurance</label>
                                                 </div>
-                                                <div class="transition-inner divInsType" style="position: relative;width: 50%;display: none;">
-                                                    <span class="transition-field-style"></span>
-                                                    <input type="text"  class="form-control" id="OtherInsuranceType" value="">
-                                                    <div class="err-container irr-error">
-                                                        <span class="other-ins-err"></span>
-                                                    </div>
-                                                </div>
+
                                             </div>
                                         </div>
-
+                                        <div class="transition-inner divInsType" style="position: relative;width: 50%;display: none;">
+                                            <span class="transition-field-style"></span>
+                                            <input type="text" class="form-control" id="OtherInsuranceType" value="">
+                                            <div class="err-container irr-error">
+                                                <span class="other-ins-err"></span>
+                                            </div>
+                                        </div>
                                         <div class="err-container col-xs-12  irr-error" style="padding:0;">
                                             <span class="err-message err-message-instype">Insurance type is required</span>
                                         </div>
@@ -256,50 +262,57 @@
                                     <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
                                         <div class="enroll-sec" style="padding-left: 0;">
                                             <div class="transition-content-desc" style="position: relative;">
-                                                <p style="background: none;border: none;">Did child have continual, Ongoing medical services<span class="error-notify">*</span></p>
+                                                <p style="background: none;border: none;">Ongoing source continuous, accessible health care?<span class="error-notify">*</span></p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-7 col-xs-7" style="padding:0;">
-                                        <div class="transition-radio-btn enroll-sec">
+                                        <div class="transition-radio-btn enroll-sec" id="MedicalHomeID">
+
                                             <div class="radio radio-info">
-                                                <input type="radio" name="ms" id="medicalservices" value="1">
+                                                @Html.RadioButtonFor(m => m.MedicalHome, true, new { id = "MedicalHome1", @class = "MedicalHome" })
                                                 <label>Yes</label>
                                             </div>
                                             <div class="radio radio-info">
-                                                <input type="radio" name="ms" id="medicalservices" value="0">
+                                                @Html.RadioButtonFor(m => m.MedicalHome, false, new { id = "MedicalHome2", @class = "MedicalHome" })
                                                 <label>No</label>
                                             </div>
 
-                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                <span class="err-message err-message-ms">Medical services is required</span>
-                                            </div>
 
-                                          
+
+
                                         </div>
 
                                     </div>
                                 </div>
 
-                                @*<div class="col-xs-12 no-padding divMedicalHome" style="margin-bottom: 10px;display:none;">
-                                        <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Medical Home*</p>
-                                                </div>
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care is required.<span class="error-notify">*</span></p>
                                             </div>
                                         </div>
-                                        <div class="col-lg-7 col-xs-7" style="padding:0;">
-                                            <div class="transition-inner" style="position: relative;">
-                                                <select class="form-control" id="ddMedicalHome">
-                                                    <option value="0">--Select--</option>
-                                                    <option value="1">Clinic or Doctor’s Office</option>
-                                                    <option value="2">Indian Health Services</option>
-                                                    <option value="3">Migrant Community Health Services</option>
-                                                </select>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec" id="MedicalServicesID">
+                                            <div class="radio radio-info">
+                                                @Html.RadioButtonFor(m => m.MedicalServices, true, new { id = "MedicalService1", @class = "MedicalServices" })
+                                                <label>Yes</label>
                                             </div>
+                                            <div class="radio radio-info">
+                                                @Html.RadioButtonFor(m => m.MedicalServices, false, new { id = "MedicalService2", @class = "MedicalServices" })
+                                                <label>No</label>
+                                            </div>
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
+                                            </div>
+
+
                                         </div>
-                                    </div>*@
+
+                                    </div>
+                                </div>
 
                                 <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
                                     <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
@@ -310,25 +323,244 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-7 col-xs-7" style="padding:0;">
-                                        <div class="transition-radio-btn enroll-sec">
+                                        <div class="transition-radio-btn enroll-sec" id="DentalHomeID">
                                             <div class="radio radio-info">
-                                                <input type="radio" name="ds" id="isDental" value="1">
+                                                @Html.RadioButtonFor(m => m.DentalHome, true, new { id = "DentalHome1", @class = "DentalHome" })
                                                 <label>Yes</label>
                                             </div>
                                             <div class="radio radio-info">
-                                                <input type="radio" name="ds" id="isDental" value="0">
+                                                @Html.RadioButtonFor(m => m.DentalHome, false, new { id = "DentalHome2", @class = "DentalHome" })
                                                 <label>No</label>
                                             </div>
-
-
-                                            <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                <span class="err-message err-message-ds">Dental services is required</span>
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
                                             </div>
+
 
                                         </div>
 
                                     </div>
                                 </div>
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule?<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec" id="DentalServicesID">
+                                            <div class="radio radio-info">
+                                                @Html.RadioButtonFor(m => m.DentalServices, true, new { id = "DentalServices1", @class = "DentalServices" })
+                                                <label>Yes</label>
+                                            </div>
+                                            <div class="radio radio-info">
+                                                @Html.RadioButtonFor(m => m.DentalServices, false, new { id = "DentalServices2", @class = "DentalServices" })
+                                                <label>No</label>
+                                            </div>
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Is Child up-to-date on all immunizations appropriate for their age?<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-inner" style="position: relative;">
+                                            <select id="ddImmunizationType" style="height:45px !important;" class="form-control  mandatory clsTransitioningType">
+                                                <option value="">--Select--</option>
+                                                <option value="1">Yes</option>
+                                                <option value="2">No</option>
+                                                <option value="3">Child has not received all immunizations appropriate for their age</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Is the family receiving any of the following services?<span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec" id="ServicesId">
+
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="checkbox-inline">
+                                                    @Html.CheckBoxFor(m => m.TANF, new { id = "TANF", Name = "TANF", onchange = "uncheckdataNone();", @class = "services", tabIndex = "16" })
+                                                    <span>TANF</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="checkbox-inline">
+                                                    @Html.CheckBoxFor(m => m.SSI, new { id = "SSI", Name = "SSI", onchange = "uncheckdataNone();", @class = "services", tabIndex = "17" })
+                                                    <span>SSI</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="checkbox-inline">
+                                                    @Html.CheckBoxFor(m => m.SNAP, new { id = "SNAP", Name = "SNAP", onchange = "uncheckdataNone();", @class = "services", tabIndex = "18" })
+                                                    <span>SNAP</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="checkbox-inline">
+                                                    @Html.CheckBoxFor(m => m.WIC, new { id = "WIC", Name = "WIC", onchange = "uncheckdataNone();", @class = "services", tabIndex = "19" })
+                                                    <span>WIC</span>
+                                                </label>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-2">
+                                                <label class="checkbox-inline">
+                                                    @Html.CheckBoxFor(m => m.NONE, new { id = "NONE", Name = "NONE", onchange = "uncheckdata();", @class = "services", tabIndex = "19" })
+                                                    <span>NONE</span>
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5">
+                                        <div class="enroll-sec">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none;">Has any parent/guardian completed the following (education)?</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7">
+                                        <div class="transition-radio-btn enroll-sec margin-enroll" id="EducationID" style="margin-left:0px;">
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="1">
+                                                    <label>Grade Level prior to high school</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="2">
+                                                    <label>GED or High School Graduate</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="3">
+                                                    <label>Associate Degree</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 no-padding">
+                                                <div class="radio radio-info">
+                                                    <input type="radio" name="EduType" class="Education" value="4">
+                                                    <label>Baccalaureate or Advanced Degree</label>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                    
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                    <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                        <div class="enroll-sec" style="padding-left: 0;">
+                                            <div class="transition-content-desc" style="position: relative;">
+                                                <p style="background: none;border: none">Has parent/guardian completed Job Training? <span class="error-notify">*</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                        <div class="transition-radio-btn enroll-sec" id="JobTrainingFinishedID">
+                                            <div class="radio radio-info">
+                                                @Html.RadioButtonFor(m => m.JobTrainingFinished, true, new { id = "JobTrainingFinished1", @class = "JobTrainingFinished" })
+                                                <label>Yes</label>
+                                            </div>
+                                            <div class="radio radio-info">
+                                                @Html.RadioButtonFor(m => m.JobTrainingFinished, false, new { id = "JobTrainingFinished1", @class = "JobTrainingFinished" })
+                                                <label>No</label>
+                                            </div>
+                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                <span class="err-message err-message-ms">Medical services is required</span>
+                                            </div>
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                @*<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+                                        <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                            <div class="enroll-sec" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p style="background: none;border: none;">Insurance Type<span class="error-notify">*</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-7 col-xs-7" style="padding:0;">
+                                            <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="InsType" class="InsuranceType" value="C3A1">
+                                                        <label>Medicare / Chip</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="InsType" class="InsuranceType" value="C3B1">
+                                                        <label>State Insurance</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="InsType" class="InsuranceType" value="C3C1">
+                                                        <label>Private Insurance</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="InsType" class="InsuranceType" value="C4">
+                                                        <label>No Insurance</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-12 no-padding">
+                                                    <div class="radio radio-info">
+                                                        <input type="radio" name="InsType" class="InsuranceType" value="C3D1">
+                                                        <label>Other Insurance</label>
+                                                    </div>
+                                                    <div class="transition-inner divInsType" style="position: relative;width: 50%;display: none;">
+                                                        <span class="transition-field-style"></span>
+                                                        <input type="text" class="form-control" id="OtherInsuranceType" value="">
+                                                        <div class="err-container irr-error">
+                                                            <span class="other-ins-err"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                                <span class="err-message err-message-instype">Insurance type is required</span>
+                                            </div>
+
+                                        </div>
+                                    </div>*@
                             </div>
                             <div class="col-xs-12">
                                 <div class="transition-analysis-btn">
@@ -345,28 +577,46 @@
             </div>
         </div>
     </div>
-<div class="modal fade" id="SeatsAvailability" role="dialog">
-    <div class="modal-dialog">
-        @*Modal content*@
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>Information</h4>
-            </div>
+    <div class="modal fade" id="SeatsAvailability" role="dialog">
+        <div class="modal-dialog">
+            @*Modal content*@
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Information</h4>
+                </div>
 
-            <div class="form-group">
-                <label id="lblSeatsAvailability" style="width:  100%; text-align:  center;padding:  0; margin:  0;font-family: inherit;" class="control-label"></label>
+                <div class="form-group">
+                    <label id="lblSeatsAvailability" style="width:  100%; text-align:  center;padding:  0; margin:  0;font-family: inherit;" class="control-label"></label>
 
-            </div>
-            <div class="modal-footer">
-                <button type="button" onclick="RedirectToDashboard()" class="my-btn1">OK</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="RedirectToDashboard()" class="my-btn1">OK</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <script>
+        function uncheckdata() {
+            if ($('#NONE').prop("checked")) {
+                $('#TANF').prop("checked", false);
+                $('#SSI').prop("checked", false);
+                $('#WIC').prop("checked", false);
+                $('#SNAP').prop("checked", false);
+                //  $('#OGendermale').prop("checked", false);
 
+            }
+        }
+        function uncheckdataNone() {
+
+            if (($('#TANF').prop("checked")) || ($('#SSI').prop("checked")) || ($('#WIC').prop("checked")) || ($('#SNAP').prop("checked"))) {
+                $('#NONE').prop("checked", false);
+
+                //  $('#OGendermale').prop("checked", false);
+
+            }
+        }
 
         function RedirectToDashboard() {
             location.href = '/Roster/Roster';
@@ -451,69 +701,159 @@
         $('#submitTransition').click(function () {
 
             if (ValidateInput()) {
-                //alert('Success...')
-                //var isEHS = $('#IsEHS:checked').val() == "true" ? true : false;
 
-                if ($('#ddTransitioningType').val() == 1 && ($('#spnAvailableCount').text() =="" || $('#spnAvailableCount').text()=="0") ) {
-                    $('.errorAvailableSeat').show();
-                    
-                    return false;
+                   var isValid = true;
+                if ($('#ddTransitioningType').val()=="0" )
+                {
+                    isValid = false;
+                    customAlert("Please select transitiontype.");
+                    plainValidation('#ddTransitioningType');
+                    return isValid;
+
                 }
-              
-                var Transition = {};
-
-                Transition.ClientId = '@ViewBag.ClientId';
-                Transition.DateOfTransition = $('#transitionDate').val();
-
-                Transition.TransitioningType = $('#ddTransitioningType').val();
-
-                Transition.CenterId = $('#Centers').val()
-                Transition.ClassRoomId = $('#Classroom').val()
-
-            
-
-                Transition.TrnsInsuranceType = $('.InsuranceType:checked').val();
-                Transition.OtherInsuranceTypeDesc = $('#OtherInsuranceType').val();
-
-                Transition.MedicalServices = $('#medicalservices:checked').val();
-                Transition.DentalCare = $('#isDental:checked').val();
-
-
-
-
-                $.ajax({
-                    dataType: 'json',
-                    type: 'POST',
-                   url: '/Roster/SaveHeadStartTransition',
-                    data: Transition,
-                    success: function (data) {
-                        if (data == true) {
-                            $("#lblSeatsAvailability").text("Record updated successfully.");
-                            $('#SeatsAvailability').modal('show');
-                        }
-                        else {
-
-                            $("#lblSeatsAvailability").text("Seats not available");
-                            $('#SeatsAvailability').modal('show');
-                        }
+               else if($('#ddTransitioningType').val()=="1")
+                {
+                    if ($('#Centers').val() === "0") {
+                        isValid = false;
+                        customAlert("Please select center.");
+                        plainValidation('#Centers');
+                        return isValid;
 
                     }
-                })
+                    else if ($('#Classroom').val() === "0" || $('#Classroom').val() == null) {
+                        isValid = false;
+                        customAlert("Please select classroom.");
+                        plainValidation('#Classroom');
+                        return isValid;
+
+                    }
+                    else if ($('#ddTransitioningType').val() == 1 && ($('#spnAvailableCount').text() == "" || $('#spnAvailableCount').text() == "0")) {
+                        isValid = false;
+                        $('.errorAvailableSeat').show();
+
+                        return isValid;
+                    }
+                }
+
+              else if ($('.InsuranceType').is(':checked') == false) {
+                        isValid = false;
+                        customAlert("Insurance Type is required.");
+                        plainValidation('#InsuranceTypeID');
+                        return isValid;
+              }
+
+              else  if ($('.MedicalHome').is(':checked') == false) {
+                    isValid = false;
+                    customAlert("Ongoing source continuous, accessible health care is required.");
+                    plainValidation('#MedicalHomeID');
+                    return isValid;
+                }
+                else if ($('.MedicalServices').is(':checked') == false) {
+                    isValid = false;
+                    customAlert("Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care is required.");
+                    plainValidation('#MedicalServicesID');
+                    return isValid;
+                }
+                else if ($('.DentalHome').is(':checked') == false) {
+                    isValid = false;
+                    customAlert(" Child have continual accessible dental care provided by a dentist is required.");
+                    plainValidation('#DentalHomeID');
+                    return isValid;
+                }
+                else if ($('.DentalServices').is(':checked') == false) {
+                    isValid = false;
+                    customAlert("Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule is required.");
+                    plainValidation('#DentalServicesID');
+                    return isValid;
+                }
+                else if ($('#ddImmunizationType').val() == "" || $('#ddImmunizationType').val() == null) {
+                    isValid = false;
+                    customAlert("Child up-to-date on all immunizations appropriate for their age is required.");
+                    plainValidation('#ddImmunizationType');
+                    return isValid;
+                }
+                else if ($('.services').is(':checked') == false) {
+                    isValid = false;
+                    customAlert("Family receiving services is required");
+                    plainValidation('#ServicesId');
+                    return isValid;
+
+                }
+
+                else if ($('.JobTrainingFinished').is(':checked') == false) {
+                    isValid = false;
+                    customAlert("Parent/guardian completed Job Training is required");
+                    plainValidation('#JobTrainingFinishedID');
+                    return isValid;
+                }
+
+
+                if (isValid) {
+
+                    var Transition = {};
+
+                    Transition.TANF = $('#TANF').is(':checked');;
+                    Transition.SSI = $('#SSI').is(':checked');
+                    Transition.WIC = $('#WIC').is(':checked');
+                    Transition.SNAP = $('#SNAP').is(':checked');
+                    Transition.NONE = $('#NONE').is(':checked');
+                    Transition.ImmunizationService = $('#ddImmunizationType').val();
+                    Transition.JobTrainingFinished = $('.JobTrainingFinished:checked').val();
+                    Transition.ShoolAchievement = $('.Education:checked').val();
+                    Transition.MedicalHome = $('.MedicalHome:checked').val();
+                    Transition.DentalHome = $('.DentalHome:checked').val();
+                    Transition.DentalServices = $('.DentalServices:checked').val();
+                    Transition.MedicalServices = $('.MedicalServices:checked').val();
+                    Transition.TrnsInsuranceType = $('.InsuranceType:checked').val();
+                    Transition.OtherInsuranceTypeDesc = $('#OtherInsuranceType').val();
+                    Transition.ClientId = '@ViewBag.ClientId';
+                    Transition.DateOfTransition = $('#transitionDate').val();
+
+                    Transition.TransitioningType = $('#ddTransitioningType').val();
+
+                    Transition.CenterId = $('#Centers').val()
+                    Transition.ClassRoomId = $('#Classroom').val()
+
+
+                    // Transition.MedicalServices = $('#medicalservices:checked').val();
+                    Transition.DentalCare = $('#isDental:checked').val();
+
+
+
+                    $.ajax({
+                        dataType: 'json',
+                        type: 'POST',
+                        url: '/Roster/SaveHeadStartTransition',
+                        data: Transition,
+                        success: function (data) {
+                            if (data == true) {
+                                $("#lblSeatsAvailability").text("Record updated successfully.");
+                                $('#SeatsAvailability').modal('show');
+                            }
+                            else {
+
+                                $("#lblSeatsAvailability").text("Seats not available");
+                                $('#SeatsAvailability').modal('show');
+                            }
+
+                        }
+                    });
+                }
             }
-        })
+        });
             function validatedateChild(inputTextObject) {
-                     
+
                         if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
-                          
+
                             var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
                             var regex = new RegExp(dateformat);
                             if (regex.test($(inputTextObject).val())) {
-                               
+
                                 return true;
                             }
                             else {
-                               
-                               
+
+
                               return false;
                             }
 
@@ -524,115 +864,115 @@
 
             var isValid = true;
             debugger
-           // $('.errorAvailableSeat').hide();
+            $('.errorAvailableSeat').hide();
 
-            $('.mandatory').each(function () {
-                if ($(this).val() == "") {
-                    $(this).closest('div').find('.err-message').show();
-                    if (isValid)
-                        isValid = false;
-                }
-                if ($(this).hasClass('txt-date') && $(this).val()=="") {
-                    $(this).closest('div').find('.err-message').text("Transition date is required.");
-                    $(this).closest('div').find('.err-message').show();
-                    if (isValid)
-                        isValid = false;
-                }
-                if ($(this).hasClass('txt-date') && !validatedateChild(this)) {
-                    $(this).closest('div').find('.err-message').text("Invalid transition date");
-                    $(this).closest('div').find('.err-message').show();
-                    if (isValid)
-                        isValid = false;
-                }
-              
-                if ($('.errorAvailableSeat').is(":visible") == true)
-                {
-                    if (isValid)
-                        isValid = false;
-                }
+            //$('.mandatory').each(function () {
+            //    if ($(this).val() == "") {
+            //        $(this).closest('div').find('.err-message').show();
+            //        if (isValid)
+            //            isValid = false;
+            //    }
+            //    if ($(this).hasClass('txt-date') && $(this).val()=="") {
+            //        $(this).closest('div').find('.err-message').text("Transition date is required.");
+            //        $(this).closest('div').find('.err-message').show();
+            //        if (isValid)
+            //            isValid = false;
+            //    }
+            //    if ($(this).hasClass('txt-date') && !validatedateChild(this)) {
+            //        $(this).closest('div').find('.err-message').text("Invalid transition date");
+            //        $(this).closest('div').find('.err-message').show();
+            //        if (isValid)
+            //            isValid = false;
+            //    }
+
+            //    if ($('.errorAvailableSeat').is(":visible") == true)
+            //    {
+            //        if (isValid)
+            //            isValid = false;
+            //    }
 
 
-                if ($(this).hasClass('txt-date') && $(this).val() != "") {
+            //    if ($(this).hasClass('txt-date') && $(this).val() != "") {
 
-                    var transitionDate = new Date($(this).val());
-                    var todayDate = new Date();
+            //        var transitionDate = new Date($(this).val());
+            //        var todayDate = new Date();
 
-                    if (transitionDate > todayDate) {
-                        $(this).closest('div').find('.err-message').text("Transition date must be less than future date.");
-                        $(this).closest('div').find('.err-message').show();
-                        if (isValid)
-                            isValid = false;
+            //        if (transitionDate > todayDate) {
+            //            $(this).closest('div').find('.err-message').text("Transition date must be less than future date.");
+            //            $(this).closest('div').find('.err-message').show();
+            //            if (isValid)
+            //                isValid = false;
 
-                    }
-                }
+            //        }
+            //    }
 
-                if ($(this).hasClass('clsTransitioningType') && $(this).val() == "0") {
-                    $(this).closest('div').find('.err-message').show();
+            //    if ($(this).hasClass('clsTransitioningType') && $(this).val() == "0") {
+            //        $(this).closest('div').find('.err-message').show();
 
-                    if (isValid)
-                        isValid = false;
-                }
+            //        if (isValid)
+            //            isValid = false;
+            //    }
 
-                if ($(this).hasClass('clsTransitioningType') && $(this).val() == "1") {
+            //    if ($(this).hasClass('clsTransitioningType') && $(this).val() == "1") {
 
-                    if (($('#Centers').val() == "0" || $('#Centers').val() == "")) {
-                        $('#Centers').closest('div').find('.err-message').show();
+            //        if (($('#Centers').val() == "0" || $('#Centers').val() == "")) {
+            //            $('#Centers').closest('div').find('.err-message').show();
 
-                        if (isValid)
-                            isValid = false;
-                    }
+            //            if (isValid)
+            //                isValid = false;
+            //        }
 
-                    if (($('#Classroom').val() == "0" || $('#Classroom').val() == "" || $('#Classroom').val() == null)) {
-                        $('#Classroom').closest('div').find('.err-message').show();
+            //        if (($('#Classroom').val() == "0" || $('#Classroom').val() == "" || $('#Classroom').val() == null)) {
+            //            $('#Classroom').closest('div').find('.err-message').show();
 
-                        if (isValid)
-                            isValid = false;
-                    }
+            //            if (isValid)
+            //                isValid = false;
+            //        }
 
-                }
+            //    }
 
-              
 
-            });
 
-        
-            $('.transition-section').each(function () {
-              
-                //err - message - ehs
-                if ($(this).find('input[name="InsType"]:checked').length == 0) {
-                    $(this).find('.err-message-instype').text("Insurance type is required");
-                    $(this).find('.err-message-instype').show();
-                    if (isValid)
-                        isValid = false;
-                }
-                if ($(this).find('input[name="InsType"]:checked').length > 0) {
-                    $(this).find('.err-message-instype').hide();
-                    if ($(this).find('input[name="InsType"]:checked').val() == "C3D1" && $('#OtherInsuranceType').val() == "") {
-                          
-                           $(this).find('.err-message-instype').text("Other insurance type is required");
-                           $(this).find('.err-message-instype').show();
-                            if (isValid)
-                                isValid = false;                                            
-                    }
-                  
-                }
+            //});
 
-                if ($(this).find('input[name="ms"]:checked').length == 0) {
-                    $(this).find('.err-message-ms').show();
-                    if (isValid)
-                        isValid = false;
-                }
-                if ($(this).find('input[name="ds"]:checked').length == 0) {
-                    $(this).find('.err-message-ds').show();
-                    if (isValid)
-                        isValid = false;
-                }
-            });
+
+            //$('.transition-section').each(function () {
+
+            //    //err - message - ehs
+            //    if ($(this).find('input[name="InsType"]:checked').length == 0) {
+            //        customAlert("Insurance type is required");
+
+            //        if (isValid)
+            //            isValid = false;
+            //    }
+            //    if ($(this).find('input[name="InsType"]:checked').length > 0) {
+            //        $(this).find('.err-message-instype').hide();
+            //        if ($(this).find('input[name="InsType"]:checked').val() == "C3D1" && $('#OtherInsuranceType').val() == "") {
+
+            //               customAlert("Other insurance type is required");
+
+            //                if (isValid)
+            //                    isValid = false;
+            //        }
+
+            //    }
+
+            //    if ($(this).find('input[name="ms"]:checked').length == 0) {
+            //        $(this).find('.err-message-ms').show();
+            //        if (isValid)
+            //            isValid = false;
+            //    }
+            //    if ($(this).find('input[name="ds"]:checked').length == 0) {
+            //        $(this).find('.err-message-ds').show();
+            //        if (isValid)
+            //            isValid = false;
+            //    }
+            //});
 
             //$('.err-message-instype').text("");
             //$('.err-message-instype').hide();
 
-          
+
             return isValid;
         }
 
@@ -640,12 +980,14 @@
         $('body').on("change keyup", ".mandatory", function () {
             if ($(this).closest('div').find('.err-message').is(':visible'))
                 $(this).closest('div').find('.err-message').hide();
+            cleanValidation();
 
         });
 
         $('body').on("change keyup", "#OtherInsuranceType", function () {
             $('.err-message-instype').text("");
             $('.err-message-instype').hide();
+            cleanValidation();
 
         });
         $(document).ready(function () {
@@ -661,9 +1003,9 @@
                     $('.divInsType').show();
                     $('.err-message-instype').text("Please enter the other insurance type");
                     $('.err-message-instype').show();
-                   
+
                 }
-              
+
                 else {
                     $('.err-message-instype').text("");
                     $('.err-message-instype').hide();
@@ -744,6 +1086,8 @@
                 success: function (response) {
                     if (response.length > 0) {
                         var option = "";
+                        option = option + '<option value="' + 0 + '" >' + '--Select classroom--' + '</option>';
+
                         for (var i = 0; i < response.length; i++) {
                             option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
                         }
@@ -772,17 +1116,17 @@
                 secureuri: false,
                 async: false,
                 success: function (data) {
-                   
-                    $('#spnClassName').text($('#Classroom option:selected').text());              
+
+                    $('#spnClassName').text($('#Classroom option:selected').text());
                     $('#ptotalSeats').show();
                     var num = parseInt(data);
 
                     if (data == "" || data == "0" || (num<0)) {
                         $('#spnAvailableCount').text(0);
-                       
+
                         $('.errorAvailableSeat').show();
                     }
-                       
+
                     else
                     {
                         $('#spnAvailableCount').text(data);

@@ -611,7 +611,83 @@ namespace FingerprintsModel
                 return false;
             }
         }
+        public static string SendEmailForSlotsPurchase( string useremail,string UName, int slots, string path, string imagepath,string ToAddress)
+        {
+            try
+            {
+                string ToEmailid = Convert.ToString(ConfigurationManager.AppSettings["FinancialManagerEmailID"]);
 
-      
+                MailMessage Message = new MailMessage(Convert.ToString(ConfigurationManager.AppSettings["FromAddress"]), ToEmailid);
+               
+                    xmlDoc.Load(path + "\\PurchaseSlots.xml");
+                    xmlnode = xmlDoc.GetElementsByTagName("Subject");
+                    subject = xmlnode[0].InnerXml;
+                    xmlnode = xmlDoc.GetElementsByTagName("Footer");
+                    footer = xmlnode[0].InnerXml;
+                    xmlnode = xmlDoc.GetElementsByTagName("Body");
+                    body = xmlnode[0].InnerXml;
+                //string toaddrs=  string.Join(",", ToAddress);
+                Message.Body = body.Replace("$AgencyName$", UName.TrimEnd().TrimStart()).Replace("$slots$", Convert.ToString(slots)).Replace("$ExeEmail$", ToAddress.TrimEnd().TrimStart());
+                    //Message.Body = "Hi Greetings, <br/><br/>You Password has been changed successfully. <br/><br/> Your login credentials <br/><br/> " +
+                    // " Username (Email): " + Emailid + "<br/><br/>Password: " + Password + "<br /><br />Thank You.";
+                
+                //Message.Subject = "Login details for Genesis Earth";
+                Message.Subject = subject;
+                Message.IsBodyHtml = true;
+                SmtpClient Client = new SmtpClient();
+                Client.Host = Convert.ToString(ConfigurationManager.AppSettings["MailServer"]);
+                Client.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
+                NetworkCredential basicCredential = new NetworkCredential(Convert.ToString(ConfigurationManager.AppSettings["MailServerUserName"]), Convert.ToString(ConfigurationManager.AppSettings["MailserverPwd"]));
+                Client.UseDefaultCredentials = true;
+                Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
+                Client.Credentials = basicCredential;
+                Client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                Client.Send(Message);
+                return "If the entered email exist an email has been send to the entered email id.";
+
+            }
+            catch (Exception Ex)
+            {
+                return Ex.Message;
+
+            }
+        }
+        //public static string SendMailForFacilityIssue(string path, AssignFacilityStaff ToAddressDetails, AssignFacilityStaff staffobj)
+        //{
+        //    try
+        //    {
+
+
+        //        MailMessage Message = new MailMessage((ToAddressDetails.StaffEmailaddress), staffobj.ExternalEmailId);
+
+        //        xmlDoc.Load(path + "\\ExternalFacilityTemplate.xml");
+        //        xmlnode = xmlDoc.GetElementsByTagName("Subject");
+        //        subject = xmlnode[0].InnerXml;
+        //        xmlnode = xmlDoc.GetElementsByTagName("Footer");
+        //        footer = xmlnode[0].InnerXml;
+        //        xmlnode = xmlDoc.GetElementsByTagName("Body");
+        //        body = xmlnode[0].InnerXml;
+        //        Message.Body = body.Replace("$userdescrp$", staffobj.UserDescrption.TrimEnd().TrimStart()).Replace("$classroomname$", staffobj.ClassroomName).Replace("$centername$", staffobj.CenterName).Replace("$contactno$", ToAddressDetails.StaffContact).Replace("$emailaddress$", ToAddressDetails.StaffEmailaddress.TrimEnd().TrimStart()).Replace("$Name$", ToAddressDetails.StaffName.TrimEnd().TrimStart()).Replace("$centeraddress$", staffobj.CenterAddress.TrimEnd().TrimStart()).Replace("$RoleName$", ToAddressDetails.RoleName.TrimEnd().TrimStart());          
+        //        Message.Subject = subject;
+        //        Message.IsBodyHtml = true;
+        //        SmtpClient Client = new SmtpClient();
+        //        Client.Host = Convert.ToString(ConfigurationManager.AppSettings["MailServer"]);
+        //        Client.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
+        //        NetworkCredential basicCredential = new NetworkCredential(Convert.ToString(ConfigurationManager.AppSettings["MailServerUserName"]), Convert.ToString(ConfigurationManager.AppSettings["MailserverPwd"]));
+        //        Client.UseDefaultCredentials = true;
+        //        Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
+        //        Client.Credentials = basicCredential;
+        //        Client.DeliveryMethod = SmtpDeliveryMethod.Network;
+        //        Client.Send(Message);
+        //        return "If the entered email exist an email has been send to the entered email id.";
+
+        //    }
+        //    catch (Exception Ex)
+        //    {
+        //        return Ex.Message;
+
+        //    }
+        //}
+
     }
 }

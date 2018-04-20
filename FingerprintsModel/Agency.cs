@@ -22,6 +22,7 @@ namespace FingerprintsModel
         public string address1 { get; set; }
         public string address2 { get; set; }
         public string city { get; set; }
+        public string County { get; set; }
         public string State { get; set; }
         public string zipCode { get; set; }
         public string SpeedZip { get; set; }
@@ -49,7 +50,11 @@ namespace FingerprintsModel
         public string ProgramStartTime { get; set; }
         public string DocsStorage { get; set; }
         public Nullable<Boolean> AcceptanceProcess { get; set; }
-     
+        public List<SelectListItem> ProgramYearList { get; set; }
+        public List<SelectListItem> DivisionsList { get; set; }
+
+       // public List<Divisions> DivisionsFullList { get; set; }
+       // public List<Areas> AreasFullList { get; set; }
         public string ActiveProgYear { get; set; }
         public string ProgramEndTime { get; set; }
         public string FSWYearlyVisit { get; set; }
@@ -62,9 +67,16 @@ namespace FingerprintsModel
         public string logoFileExtension { get; set; }
         public string logourl { get; set; }
         public int Slots { get; set; }
+
+        public int PurchasedSlots { get; set; }
         public int SlotId { get; set; }
         public string LastLogin { get; set; }
         public List<FundSource> FundSourcedata = new List<FundSource>();
+ public bool DivisionReference { get; set; }
+        public bool AreaReference { get; set; }
+      
+
+        public List<ProgramType> ProgramTypeList { get; set; }
         public class FundSource
         {
             public Int32 FundID { get; set; }
@@ -84,6 +96,10 @@ namespace FingerprintsModel
             public string ProgramEndTime { get; set; }
             public int FundStatus { get; set; }
             public List<ProgramType> progtypelist { get; set; }
+
+           public Guid AgencyID { get; set; }
+
+            public bool IsReferredByProgram { get; set; }
 
             ////Fund question
             public string FundQ1 { get; set; }

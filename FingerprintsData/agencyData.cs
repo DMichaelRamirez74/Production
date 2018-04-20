@@ -161,7 +161,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
                // command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
-
+                command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
+         
                 HttpPostedFileBase _file = agencyDetails.logo;
                 string filename = null;
                 string fileextension = null;
@@ -364,11 +365,11 @@ namespace FingerprintsData
                         {
                             if (lang.LanguageId != 0 && lang.IsSpoken)
                             {
-                                dt.Rows.Add(lang.LanguageId, lang.IsSpoken,lang.OtherLanguage);
+                                dt.Rows.Add(lang.LanguageId, lang.IsSpoken, lang.OtherLanguage);
 
                             }
                         }
-                      //  command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
+                        command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
                         command.CommandType = CommandType.StoredProcedure;
                         command.ExecuteNonQuery();
                         res = command.Parameters["@result"].Value.ToString();
@@ -488,6 +489,9 @@ namespace FingerprintsData
                             agency.Yakkr600 = Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"]);
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
+
+                        agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
+                      
                     }
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {
@@ -1685,19 +1689,20 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@Avtrs", obj.AvatarsUrl);
                 command.Parameters.AddWithValue("@AvtrT", obj.AvatartUrl);
                 DataTable dt = new DataTable();
-                dt.Columns.AddRange(new DataColumn[2] {
+                dt.Columns.AddRange(new DataColumn[3] {
                                  new DataColumn("LanguageId", typeof(string)),
-                                 new DataColumn("IsSpoken",typeof(bool))
+                                 new DataColumn("IsSpoken",typeof(bool)),
+                                     new DataColumn("OtherLanguage",typeof(string))
                     });
                 foreach (PrimaryLanguages lang in obj.LangList)
                 {
                     if (lang.LanguageId != 0 && lang.IsSpoken)
                     {
-                        dt.Rows.Add(lang.LanguageId, lang.IsSpoken);
+                        dt.Rows.Add(lang.LanguageId, lang.IsSpoken,lang.OtherLanguage);
 
                     }
                 }
-               // command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
+                command.Parameters.Add(new SqlParameter("@PrimaryLanguage", dt));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.CommandText = "SP_Staff_Personalinfo";
                 command.ExecuteNonQuery();
