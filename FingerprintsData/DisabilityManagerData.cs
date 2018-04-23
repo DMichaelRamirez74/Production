@@ -382,7 +382,7 @@ namespace FingerprintsData
                             DisabilityTypeID=x.Field<string>("DisablitiesTypeId"),
                             YakkrId=Convert.ToInt32(x.Field<string>("YakkrId")),
                             SpecialServiceDisability=x.Field<string>("ReceivedServicesId"),
-                            PrimaryDisability=x.Field<Int32>("PrimaryDisability")
+                            PrimaryDisability=x.Field<int>("PrimaryDisability")
                         }).ToList();
 
 
