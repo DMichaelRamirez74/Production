@@ -114,16 +114,21 @@ namespace Fingerprints.Controllers
                 {
                     //agencyData.emailVerification(Request.QueryString["id"].ToString());
                     _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString());
-                    List<string> staffinfo = agencyData.getEmail(Request.QueryString["id"].ToString());
-                    if (staffinfo[4].ToString() == "True")
+                    List<string> staffinfo = new List<string>();
+                        staffinfo=agencyData.getEmail(Request.QueryString["id"].ToString());
+                    if (staffinfo.Count>0 && staffinfo[4].ToString() == "True")
                     {
                         return Redirect("~/AgencyUser/staffemailverificationnew");
                     }
+                    if (staffinfo.Count > 0)
+                    {
+                        _staffList.EmailAddress = staffinfo[0].ToString();
+                        _staffList.FirstName = staffinfo[1].ToString();
+                        _staffList.LastName = staffinfo[2].ToString();
+                        _staffList.CellNumber = staffinfo[3].ToString();
 
-                    _staffList.EmailAddress = staffinfo[0].ToString();
-                    _staffList.FirstName = staffinfo[1].ToString();
-                    _staffList.LastName = staffinfo[2].ToString();
-                    _staffList.CellNumber = staffinfo[3].ToString();
+                    }
+                  
 
                 }
             }
@@ -992,15 +997,20 @@ namespace Fingerprints.Controllers
                 if (Request.QueryString["id"] != null)
                 {
                     _staffList = agencyData.GetData_AllDropdown();
-                    List<string> staffinfo = agencyData.getEmail(Request.QueryString["id"].ToString());
-                    if (staffinfo[5].ToString() == "1")
+                    List<string> staffinfo = new List<string>();
+                    staffinfo= agencyData.getEmail(Request.QueryString["id"].ToString());
+                    if (staffinfo.Count>0 && staffinfo[5].ToString() == "1")
                     {
                         return Redirect("~/AgencyUser/staffpersonalinfo");
                     }
-                    _staffList.EmailAddress = staffinfo[0].ToString();
-                    _staffList.FirstName = staffinfo[1].ToString();
-                    _staffList.LastName = staffinfo[2].ToString();
-                    _staffList.CellNumber = staffinfo[3].ToString();
+                    if (staffinfo.Count > 0)
+                    {
+                        _staffList.EmailAddress = staffinfo[0].ToString();
+                        _staffList.FirstName = staffinfo[1].ToString();
+                        _staffList.LastName = staffinfo[2].ToString();
+                        _staffList.CellNumber = staffinfo[3].ToString();
+                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -1224,11 +1234,17 @@ namespace Fingerprints.Controllers
                         ViewBag.message = "Please try again.";
                     }
                     _staflist = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString());
-                    List<string> staffinfo = agencyData.getEmail(Request.QueryString["id"].ToString());
-                    _staflist.EmailAddress = staffinfo[0].ToString();
-                    _staflist.FirstName = staffinfo[1].ToString();
-                    _staflist.LastName = staffinfo[2].ToString();
-                    _staflist.CellNumber = staffinfo[3].ToString();
+                    List<string> staffinfo = new List<string>();
+                    staffinfo= agencyData.getEmail(Request.QueryString["id"].ToString());
+
+                    if(staffinfo.Count>0)
+                    {
+                        _staflist.EmailAddress = staffinfo[0].ToString();
+                        _staflist.FirstName = staffinfo[1].ToString();
+                        _staflist.LastName = staffinfo[2].ToString();
+                        _staflist.CellNumber = staffinfo[3].ToString();
+                    }
+                 
                 }
             }
             catch (Exception ex)

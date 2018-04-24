@@ -161,7 +161,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
                // command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
-                command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
+              //  command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
          
                 HttpPostedFileBase _file = agencyDetails.logo;
                 string filename = null;
@@ -490,7 +490,7 @@ namespace FingerprintsData
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
 
-                        agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
+                     //   agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
                       
                     }
                     if (_dataset.Tables[1].Rows.Count > 0)
@@ -1731,6 +1731,7 @@ namespace FingerprintsData
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@id", id));
                 command.CommandText = "SP_get_email";
                 dataReader = command.ExecuteReader();
