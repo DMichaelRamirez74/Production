@@ -1,0 +1,1334 @@
+﻿@model FingerprintsModel.MoveSeats
+
+
+
+@{
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Title{
+    Move Seats
+
+}
+
+
+@section Script{
+
+    <script type="text/javascript">
+
+        var lengthTd = 0;
+
+        var requestedPage = 0;
+        var pageSize = 10;
+        var StartIndex = 0;
+        var LastIndex = 0;
+        var numOfPages = 0;
+        var searchText = '';
+        var skip = 0;
+
+        var totalRecords = 0;
+
+
+
+        function getClassrooms(ele) {
+            if ($(ele).val() == '' || $(ele).val() == '0') {
+                customAlert('Please select center');
+                plainValidation($(ele));
+                return false;
+            }
+
+
+            var selectEle = $(ele).parent('.form-group').siblings('.form-group').find('.select-classroom');
+            var currClass = $(ele).closest('.class-pair').attr('enc2');
+
+            $.ajax({
+                url: '/AgencyAdmin/GetClassroomsByCenter',
+                datatype: 'json',
+                type: 'post',
+                data: { centerId: $(ele).val() },
+                beforeSend: function () { $('#spinner').show(); },
+                success: function (data) {
+                    //   console.log(data);
+                    var appendclass = '';
+                    if (data != null && data.length > 0) {
+                        appendclass += '<option value="0">--Select--</option>';
+                        $.each(data, function (i, cls) {
+
+                            if (currClass != cls.Enc_ClassRoomId) {
+                                appendclass += '<option value=' + cls.Enc_ClassRoomId + '>' + cls.ClassName + '</option>';
+                            }
+                        });
+                        selectEle.html(appendclass);
+                        $('#spinner').hide();
+                    }
+                    else {
+                        selectEle.html('');
+                        customAlert('Error Occured.Please, try again later');
+                    }
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
+
+
+            });
+        }
+
+
+        function removeRonly(ele) {
+
+            if ($(ele).val() == '0') {
+                $(ele).parent('.form-group').siblings('.form-group').children('.moretxtseats').attr('readonly', true);
+
+            }
+            else {
+                $(ele).parent('.form-group').siblings('.form-group').children('.moretxtseats').attr('readonly', false);
+
+            }
+
+            return true;
+        }
+
+        function addMorePair(ele) {
+
+            var agId = $('#agId').val();
+
+            var appendDiv = $(ele).closest('.add-more-div').siblings('.class-pair');
+            var appendText = '';
+            $.ajax({
+
+                url: '/Agency/LoadCenterByAgency',
+                type: 'post',
+                datatype: 'json',
+                beforeSend: function () { $('#spinner').show() },
+                data: { AgncyID: agId },
+                success: function (data) {
+                    debugger;
+                    var appendCenter = '';
+
+
+                    if (data != null && data.length > 0) {
+                        appendCenter += '<select class="form-control select-center" onchange="getClassrooms(this);">';
+                        appendCenter += '<option value="0">--Select Center</option>';
+
+                        $.each(data, function (i, center) {
+
+                            appendCenter += '<option value=' + center.Value + '>' + center.Text + '</option>';
+
+                        });
+                        appendCenter += '</select>';
+                        appendText = '<div class="class-pair_section adddivspace">\
+        <div class="form-group col-sm-12 col-lg-5 col-xs-12">\
+            <label for="exampleInputEmail1">Center</label>'+ appendCenter + '\
+        </div>\
+        <div class="form-group col-sm-12 col-lg-3 col-xs-12">\
+            <label for="inputPassword">Classroom</label>\
+            <select class="form-control select-classroom" onchange="removeRonly(this);"></select>\
+        </div>\
+        <div class="form-group col-sm-12 col-lg-2 col-xs-12">\
+            <label for="inputPassword">Seats</label>\
+            <input type="text" class="form-control moretxtseats" maxlength="3" readonly>\
+        </div>\
+        <div class="form-group col-sm-12 col-lg-2 col-xs-12">\
+            <a href="javascript:void(0);" onclick="removeMore(this);" class="wl-remove"><i class="fa fa-times-circle" aria-hidden="true"></i>&nbsp;Remove</a>\
+        </div>\
+    </div>';
+
+                        $(appendDiv).append(appendText);
+                        $('#spinner').hide();
+
+
+                        resetEvents();
+                    }
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
+
+            });
+
+
+
+
+        }
+
+        function removeMore(ele) {
+            //   $(ele).closest('.class-pair_section').parent('.class-pair').siblings('.add-more-div').find('.text-right').show('slow');
+
+            var clsID = $(ele).parent('.form-group').parent('.class-pair_section').parent('.class-pair').attr('enc2');
+            var CtrID = $(ele).parent('.form-group').parent('.class-pair_section').parent('.class-pair').attr('enc1');
+            var agID = $('#agId').val();
+
+
+
+            checkAvailableSeats(CtrID, clsID, agID, ele, 2);
+
+
+        }
+
+        function addMoveSeats(ele) {
+            debugger;
+            var centerPairDiv = $(ele).parent('.text-center').siblings('.class-pair');
+            var centerPairSection = $(centerPairDiv).find('.class-pair_section');
+            var sourceCenter = $(ele).parent('div').siblings('.class-pair').attr('enc1');
+            var sourceCls = $(ele).parent('div').siblings('.class-pair').attr('enc2');
+
+
+            if (centerPairSection.length > 0) {
+                centerPairSection.find('.select-center,.select-classroom,.moretxtseats').css('background-color', '');
+
+                var isRequired = 0;
+
+                var CenterClassPairList = [];
+
+                $.each(centerPairSection, function (i, pair) {
+
+                    var center = $(pair).find('.select-center');
+                    var classroom = $(pair).find('.select-classroom');
+                    var slotstxt = $(pair).find('.moretxtseats');
+
+                    if ((center.val() == '0' || center.val() == '')) {
+                        customAlert('Please select center');
+                        center.css('background-color', 'pink');
+                        isRequired++;
+                        return false;
+                    }
+
+                    if ((classroom.val() == '0' || classroom.val() == '') && (center.val() != '0')) {
+                        customAlert('Please select classroom');
+                        $(classroom).css('background-color', 'pink');
+                        isRequired++;
+                        return false;
+                    }
+
+                    if (((classroom.val() != '0' || classroom.val() != '') && (center.val() != '0' || center.val() != '')) && (slotstxt.val() == '' || slotstxt.val() == '0')) {
+                        customAlert('Please enter slots');
+                        $(slotstxt).css('background-color', 'pink');
+                        isRequired++;
+                        return false;
+                    }
+
+                    CenterClassPairList.push(
+                        {
+                            'FromCenter': sourceCenter,
+                            'FromClassRoom': sourceCls,
+                            'ToCenter': center.val(),
+                            'ToClassRoom': classroom.val(),
+                            'SeatsMoved': slotstxt.val()
+                        });
+
+
+                });
+
+                if (isRequired > 0) {
+                    return false;
+                }
+
+
+                var centerPair = {
+
+                    'AgencyID': $('#agId').val(),
+                    'CenterClassPairList': CenterClassPairList
+                }
+                console.log(centerPair);
+
+                $.ajax({
+
+                    url: '/AgencyAdmin/AddSeatsDisplacement',
+                    type: 'post',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(centerPair),
+                    beforeSend: function () { $('#spinner').show() },
+                    success: function (data) {
+
+                        if (data != null) {
+                            if (data == '1') {
+                                customAlert('Seats updated successfully');
+
+                                window.setTimeout(function () {
+                                    location.reload(true);
+                                }, 1000);
+                            }
+                            if (data == '2') {
+                                $('#spinner').hide();
+                                customAlert('Entered number should not exceed the remaining seats');
+                                return false;
+                            }
+                        }
+
+                    },
+                    error: function (data) {
+                        $('#spinner').hide();
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+                    }
+
+                });
+
+
+
+            }
+        }
+
+        function resetEvents() {
+            debugger;
+
+            $('.moretxtseats').unbind();
+
+            $(".fold-table tr.view").unbind('click');
+
+            $(".fold-table tr.view").on("click", function () {
+
+
+                if ($(this).hasClass('open') && $(this).next('.fold').hasClass('bg-openclass')) {
+                    var remaining = $(this).children('td:eq(3)').html();
+                    var addMoreDiv = $(this).next('.fold').find('.add-more-div');
+                    var classPairSec = $(this).next('.fold').find('.class-pair>.class-pair_section');
+
+                    addMoreDiv.find('.remaining-span').html(remaining);
+                    addMoreDiv.find('.text-right').show();
+
+                    $(this).next('.fold').find('.class-pair>.class-pair_section:gt(0)').remove();
+                    classPairSec.find('.select-center').val('0');
+                    classPairSec.find('.select-classroom').html('');
+                    classPairSec.find('.moretxtseats').attr('readonly', true).val('');
+
+                }
+
+                $(this).toggleClass("open").next(".fold").toggleClass("open");
+            });
+            $('.moretxtseats').on("cut copy paste", function (e) {
+                e.preventDefault();
+            });
+            $('.moretxtseats').on("input", function () {
+                this.value = this.value.replace(/\D/g, '');
+            });
+            $('.moretxtseats').on('change', function () {
+                debugger;
+                var $this = $(this);
+                $this.css('background-color', '');
+                var targetDiv = $(this).parent('div').parent('.class-pair_section').parent('.class-pair');
+                var CenID = targetDiv.attr('enc1');
+                var ClsID = targetDiv.attr('enc2');
+                if ($(this).val() == null || $this.val() == '') {
+                    return false;
+                }
+                if (parseInt($this.val()) == 0) {
+                    $this.css('background-color', 'pink');
+                    customAlert('Number should be greater than zero');
+                    return false;
+                }
+                checkAvailableSeats(CenID, ClsID, $('#agId').val(), $this, 1);
+            });
+        }
+
+
+
+        function drawGrid(_reqPage, _pageSize) {
+            debugger;
+            var searchItem = $('#searchTextName').val();
+
+            LastIndex = 0;
+            searchItem = (searchItem == null || searchItem == '') ? "" : searchItem;
+            skip = (_pageSize * (_reqPage - 1));
+
+
+
+            $("#table_body").html('');
+
+            $('#spinner').show();
+
+            $("#table_body").load('@Url.Action("GetCenterWithSeats", "AgencyAdmin")', { agencyId: $('#agId').val(), reqPage: _reqPage, skip: skip, take: _pageSize, searchText: searchItem }, function () {
+
+                $('#spinner').hide();
+                resetEvents();
+                $('.span-center-count').text($('#recordhide').val());
+
+                getTotalRecord($('.span-center-count').text(), '#paginationDiv');
+
+            });
+        }
+
+
+        function fnChangePage(val) {
+
+            
+            //if ($('#GridRoster').find('#table_body').find('tr').length == 0 ) {
+            //    return false;
+            //}
+
+            pageLoadedFirst = false;
+            var clas = $('#paginationDiv');
+            pageSize = parseInt(clas.find('#ddlpagetodisplay').val());
+            if (val == 'First') {
+                StartIndex = 0;
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex * requestedPage);
+                if (((StartIndex / 10) + 1)<1)
+                {
+                    return false;
+                }
+
+                requestedPage = ((StartIndex / 10) + 1);
+
+                
+
+                GoToNextPage(requestedPage, pageSize);
+                $(clas).find('#First').attr('disabled', true);
+                $(clas).find('#Back').attr('disabled', true);
+                $(clas).find('#Next').attr('disabled', false);
+                $(clas).find('#Last').attr('disabled', false);
+               
+                LastIndex = 0;
+            }
+            else if (val == 'Last') {
+                StartIndex = parseInt((totalRecords - 1) / pageSize) * pageSize;
+                LastIndex = totalRecords;
+                requestedPage = numOfPages;
+                GoToNextPage(requestedPage, pageSize);
+                $(clas).find('#First').attr('disabled', false);
+                $(clas).find('#Back').attr('disabled', false);
+                $(clas).find('#Next').attr('disabled', true);
+                $(clas).find('#Last').attr('disabled', true);
+               
+            }
+            else if (val == 'Next') {
+                LastIndex = parseInt(pageSize) + parseInt(LastIndex);
+                requestedPage = (parseInt(LastIndex / pageSize) + 1);
+                GoToNextPage(requestedPage, pageSize);
+                $(clas).find('#First').attr('disabled', false);
+                $(clas).find('#Back').attr('disabled', false);
+                if (parseInt(LastIndex) + parseInt(pageSize) >= totalRecords) {
+                    $(clas).find('#Next').attr('disabled', true);
+                    $(clas).find('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $(clas).find('#Next').attr('disabled', false);
+                    $(clas).find('#Last').attr('disabled', false);
+                }
+               
+            }
+            else if (val == 'Back') {
+                requestedPage = requestedPage - 1;
+                LastIndex = parseInt(LastIndex) - parseInt(pageSize);
+                GoToNextPage(requestedPage, pageSize);
+                if (parseInt(LastIndex) + parseInt(pageSize) > totalRecords) {
+                    $(clas).find('#Next').attr('disabled', true);
+                    $(clas).find('#Last').attr('disabled', true);
+                }
+                else if (parseInt(LastIndex) - parseInt(pageSize) < totalRecords) {
+                    $(clas).find('#Next').attr('disabled', false);
+                    $(clas).find('#Last').attr('disabled', false);
+                }
+                if (requestedPage == 1) {
+                    $(clas).find('#First').attr('disabled', true);
+                    $(clas).find('#Back').attr('disabled', true);
+                }
+               
+            }
+            else {
+            }
+        }
+
+
+        function GoToNextPage(requestedPage, pageSize) {
+
+            callDisplayAjaxMethods(requestedPage, pageSize);
+
+        }
+
+        function getListafterupdation(ele) {
+
+            var clsName = $('#paginationDiv');
+            pageSize = $(clsName).find('#ddlpagetodisplay').val();
+            requestedPage = $(ele).val();
+            StartIndex = (pageSize * (requestedPage - 1)) + 1;
+            LastIndex = parseInt(pageSize * requestedPage) - parseInt(pageSize);
+
+            if (requestedPage == 1) {
+                $(clsName).find('#First').attr('disabled', true);
+                $(clsName).find('#Back').attr('disabled', true);
+                $(clsName).find('#Next').attr('disabled', false);
+                $(clsName).find('#Last').attr('disabled', false);
+            }
+            else if (requestedPage == numOfPages) {
+                $(clsName).find('#First').attr('disabled', false);
+                $(clsName).find('#Back').attr('disabled', false);
+                $(clsName).find('#Next').attr('disabled', true);
+                $(clsName).find('#Last').attr('disabled', true);
+            }
+            else {
+                $(clsName).find('#First').attr('disabled', false);
+                $(clsName).find('#Back').attr('disabled', false);
+                $(clsName).find('#Next').attr('disabled', false);
+                $(clsName).find('#Last').attr('disabled', false);
+            }
+
+            callDisplayAjaxMethods(requestedPage, pageSize);
+
+           
+            $(clsName).find("#ddlpaging").val(requestedPage);
+        }
+
+
+        function callDisplayAjaxMethods(_reqPage, _pgSize) {
+
+            drawGrid(_reqPage, _pgSize);
+        }
+
+        function getTotalRecord(data, modal) {
+           
+            var pageSize = 0;
+            var reqPage = 0;
+            //$(modal).find('#First').attr('disabled', false);
+            //$(modal).find('#Back').attr('disabled', false);
+            //$(modal).find('#Next').attr('disabled', false);
+            //$(modal).find('#Last').attr('disabled', false);
+            pageSize = parseInt($(modal).find('#ddlpagetodisplay').val());
+
+            if (data > 0) {
+                totalRecords = parseInt(data);
+                if (totalRecords <= pageSize) {
+                    $(modal).find('#First').attr('disabled', true);
+                    $(modal).find('#Back').attr('disabled', true);
+                    $(modal).find('#Next').attr('disabled', true);
+                    $(modal).find('#Last').attr('disabled', true);
+                }
+                numOfPages = parseInt(totalRecords / pageSize) + ((totalRecords % pageSize == 0) ? 0 : 1);
+                $(modal).find("#ddlpaging").empty();
+                for (i = 1; i <= numOfPages; i++) {
+                    var newOption = "<option value='" + i + "'>" + i + "</option>";
+                    $(modal).find("#ddlpaging").append(newOption);
+                }
+                $(modal).find("#ddlpaging").val(requestedPage);
+            }
+            else {
+                $(modal).find('#First').attr('disabled', true);
+                $(modal).find('#Back').attr('disabled', true);
+                $(modal).find('#Next').attr('disabled', true);
+                $(modal).find('#Last').attr('disabled', true);
+            }
+        }
+
+        $(function () {
+            requestedPage = 1;
+
+            $('#searchbyNamebtn').on('click', function () {
+                requestedPage = 1;
+                pageSize = 10;
+                $("#ddlpagetodisplay").val(pageSize);
+                $('#ddlpaging').find('option').remove();
+                pageSize = parseInt($("#ddlpagetodisplay").val());
+                drawGrid(requestedPage, pageSize);
+
+            });
+            resetEvents();
+            getTotalRecord($('.span-center-count').text(), '#paginationDiv');
+            $('#paginationDiv').find('#First').attr('disabled', true);
+            $('#paginationDiv').find('#Back').attr('disabled', true);
+        });
+
+
+        function changePageRecords(ele)
+        {
+            pageSize = ($(ele).val() == undefined || $(ele).val() == null) ? 10 : parseInt($(ele).val());
+            $('#paginationDiv').find('#First').attr('disabled', true);
+            $('#paginationDiv').find('#Back').attr('disabled', true);
+            $('#paginationDiv').find('#Next').attr('disabled', false);
+            $('#paginationDiv').find('#Last').attr('disabled', false);
+            drawGrid(requestedPage, pageSize);
+        }
+
+
+        function checkAvailableSeats(cId, clsId, agID, seatsEle, mode) {
+          
+            $.ajax({
+                url: '/AgencyAdmin/GetAvailSeatsByClassroom',
+                type: 'post',
+                datatype: 'json',
+                data: { center: cId, clsroom: clsId, agency: agID },
+                success: function (data) {
+
+                    if (mode == 1) {
+                        if (data != null) {
+
+                            var ele = $(seatsEle).parent('div').parent('.class-pair_section').parent('.class-pair').find('.class-pair_section');
+
+                            var dataCount = 0;
+                            $.each(ele, function (j, cls) {
+
+                                var res = $(cls).find('.moretxtseats').val();
+
+                                dataCount += (res == null || res == '') ? 0 : parseInt(res);
+                            });
+
+                            if (dataCount > parseInt(data)) {
+                                customAlert('Entered number should not exceed the remaining seats');
+                                seatsEle.val('');
+
+                                var Count1 = 0;
+                                $.each(ele, function (j, cls) {
+
+                                    var res = $(cls).find('.moretxtseats').val();
+
+                                    Count1 += (res == null || res == '') ? 0 : parseInt(res);
+                                });
+
+
+                                var remainSeats = (parseInt(data) - Count1);
+                                remainSeats = (remainSeats < 10) ? '0' + remainSeats.toString() : remainSeats.toString();
+
+                                $(seatsEle).parent('div').parent('.class-pair_section').parent('.class-pair').siblings('.add-more-div').find('.remaining-span').text(remainSeats);
+
+                                return false;
+                            }
+
+
+
+                            var remainingSeats = (parseInt(data) - dataCount);
+                            remainingSeats = (remainingSeats < 10) ? '0' + remainingSeats.toString() : remainingSeats.toString();
+
+                            $(seatsEle).parent('div').parent('.class-pair_section').parent('.class-pair').siblings('.add-more-div').find('.remaining-span').text(remainingSeats);
+
+                            if (remainingSeats == 0) {
+                                $(seatsEle).parent('div').parent('.class-pair_section').parent('.class-pair').siblings('.add-more-div').children('.text-right').hide('slow');
+                                $(seatsEle).parent('div').parent('.class-pair_section').parent('.class-pair').
+                                    find('.class-pair_section').each(function (k, cks) {
+                                        if ($(cks).find('.form-group').children('.moretxtseats').val() == '') {
+                                            $(cks).remove();
+                                        }
+                                    });
+
+                            }
+                            else {
+                                $(seatsEle).parent('div').parent('.class-pair_section').parent('.class-pair').siblings('.add-more-div').children('.text-right').show('slow');
+                            }
+                        }
+
+                    }
+
+
+                    if (mode == 2) {
+                        if (data != null) {
+                         
+                            var index = $(seatsEle).closest('.class-pair_section').index();
+                            var dataCount1 = 0;
+                            var clsPair = $(seatsEle).closest('.class-pair_section').parent('.class-pair');
+                            clsPair.find('.class-pair_section').each(function (j, cls) {
+                                if (j != index) {
+                                    var res = $(cls).find('.moretxtseats').val();
+                                    dataCount1 += (res == null || res == '') ? 0 : parseInt(res);
+                                }
+
+                            });
+
+                            var remainingSeats = (parseInt(data) - dataCount1);
+                            remainingSeats = (remainingSeats < 10) ? '0' + remainingSeats.toString() : remainingSeats.toString();
+
+                            clsPair.siblings('.add-more-div').find('.remaining-span').text(remainingSeats);
+                            clsPair.siblings('.add-more-div').find('.text-right').show('slow');
+
+                            $(seatsEle).closest('.class-pair_section').remove();
+                        }
+                    }
+
+                },
+                error: function (data) {
+
+                },
+                complete: function (data) {
+
+                }
+            });
+        }
+
+    </script>
+
+}
+
+
+@section MainContentHolder{
+
+  
+    <style>
+        /*transport*/
+        .gr-color {
+            color: #009688;
+        }
+
+        body {
+            font-family: "Verdana" !important;
+        }
+
+        .no-padding {
+            padding: 0;
+        }
+
+        dt {
+            color: #295b8f;
+        }
+        /*dl dd{
+            display:inline-block;
+        }*/
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 600px;
+        }
+
+        .table-hd {
+            line-height: 1.428571;
+            font-size: 14px;
+        }
+
+        thead.table-hd tr th {
+            border: solid 1px #e7e7e7;
+        }
+        /*Center-Transportation-Analysis*/
+        .top-header-title-transportation {
+            background: #f9c751;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+            .top-header-title-transportation h1 {
+                color: #000;
+                font-size: 24px;
+                text-transform: uppercase;
+                padding: 20px 10px;
+                text-align: center;
+                display: block;
+                font-weight: bold;
+                margin: 0;
+            }
+
+        table.fold-table > tbody > tr.view:hover td > p {
+            color: #fff;
+        }
+
+        .transportation-table thead tr {
+            background: #9B58B4 !important;
+            color: #fff;
+            text-align: left;
+        }
+
+            .transportation-table thead tr th {
+                border-bottom: 0 !important;
+                text-align: center;
+                text-transform: capitalize;
+                font-size: 18px;
+                font-weight: normal;
+            }
+
+        .transportation-table-head p a {
+            color: #163b69;
+            text-align: center;
+            font-size: 16px;
+            margin: 0;
+            display: block;
+        }
+        /*transport*/
+
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        select option {
+            background: #164273;
+            color: #fff;
+        }
+
+        body {
+            line-height: 1.42857143 !important;
+        }
+
+        .map-notify {
+            position: absolute;
+            background: #fff;
+            border-radius: 5px;
+            top: 90px;
+            left: 164px;
+            right: 0;
+            width: 330px;
+            padding-bottom: 10px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .map-notify-title {
+            background: #e74c3c;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+            .map-notify-title h2 {
+                margin: 0;
+                font-size: 18px;
+                text-align: center;
+                padding: 10px;
+                color: #fff;
+            }
+
+        .map-notify-cont p, .map-notify-cont1 p {
+            font-size: 14px;
+            color: #16406f;
+            text-align: left;
+            padding: 0 9px;
+            line-height: 22px;
+            margin-top: 12px;
+        }
+
+        .map-notify-cont {
+            width: 40%;
+            float: left;
+            display: inline-block;
+        }
+
+        .map-notify-cont1 {
+            width: 60%;
+            float: left;
+            display: inline-block;
+        }
+
+        .map-arrow-left {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 10px solid white;
+            position: absolute;
+            left: -10px;
+            top: 82px;
+           
+        }
+
+        .icr_bttr {
+            padding: 5px 12px;
+        }
+
+        select {
+            line-height: 50px;
+        }
+
+
+
+        /*Center-Transportation-Analysis*/
+
+        /***************27-9-2017**************/
+        .assign_route {
+            background: #9b59b6 none repeat scroll 0 0 !important;
+        }
+
+        /*******************27/09/2017**************************/
+        .accordionButton {
+            width: 100%;
+            float: left;
+            background: #9b59b6;
+            border-bottom: 1px solid #FFFFFF;
+            cursor: pointer;
+            padding: 12px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+
+            .accordionButton span {
+                color: #FFFFFF;
+                padding-left: 5px;
+                font-weight: bold;
+            }
+
+        .accordionContent {
+            width: 100%;
+            float: left;
+            background: #FFFFFF;
+        }
+
+            .accordionContent p {
+                color: #333333;
+                font-size: 14px;
+                padding-left: 8px;
+            }
+
+        .on {
+            width: 100%;
+            float: left;
+            background: #9b59b6;
+            cursor: pointer;
+        }
+
+            .on span {
+                color: #FFFFFF;
+            }
+
+        .over {
+            width: 100%;
+            float: left;
+            background: #9b59b6;
+            cursor: pointer;
+        }
+
+            .over span {
+                color: #FFFFFF;
+            }
+
+        .plusMinus {
+            font-weight: bold;
+            float: right;
+            padding-right: 4px;
+            content: "+";
+        }
+
+        .icr_bttr {
+            padding: 5px 12px;
+        }
+
+        .icr_table {
+            width: 100%;
+            float: left;
+            color: #163b69;
+        }
+
+        .lower-icr {
+            background-color: #f1f5f8;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            float: left;
+            width: 100%;
+            padding: 15px 0px 3px 12px;
+        }
+
+        .header_icc {
+            background-color: #3498db;
+            color: #fff;
+            float: left;
+            font-size: 18px;
+            font-weight: 900;
+            padding: 10px;
+            text-transform: capitalize;
+            width: 100%;
+        }
+
+        .btn_btn {
+            float: left;
+            margin: 9px -10px;
+            width: 100%;
+        }
+
+            .btn_btn button {
+                float: right;
+            }
+
+        .ecu_topsapc {
+            float: left;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .modal-header.icr_bgm_pop {
+            background-color: #9b59b6;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            color: #fff;
+            text-align: center;
+        }
+
+        #child_popup button.close {
+            color: #fff;
+            opacity: 1;
+        }
+
+        #child_popup .modal-body {
+            background-color: #f7f7f7;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            float: left;
+            width: 100%;
+        }
+
+        #child_popup .icr_table table {
+            background-color: #fff;
+            color: #163b69;
+        }
+
+        .pick_route.icr_bttr select {
+            background: #fff none repeat scroll 0 0;
+            border: 1px solid #e7e7e7;
+            border-radius: 0;
+            box-shadow: none;
+            color: #163b69;
+            float: left;
+            font-size: 15px;
+            height: 43px;
+            margin: 0;
+            padding: 10px;
+            text-align: left;
+            text-transform: none;
+            width: 100%;
+            -moz-appearance: none;
+        }
+      
+        .icr_field img {
+            border-radius: 0px;
+            bottom: 0;
+            left: 0;
+            margin: auto;
+            max-height: 100%;
+            max-width: 100%;
+            position: absolute;
+            right: -269px;
+            top: 26px;
+        }
+
+
+        .tbl-assigned-route td {
+            padding-left: 0;
+            margin-right: 14px !important;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        #hover .dropdown:hover > ul.dropdown-menu,
+        #click .dropdown-toggle:focus + ul.dropdown-menu {
+            display: block;
+        }
+
+
+
+        .fold-class thead tr {
+            background-color: #748696 !important;
+        }
+
+
+        table {
+            width: 100%;
+        }
+
+            table th {
+                text-align: left;
+                border-bottom: 1px solid #ccc;
+            }
+
+            table th, table td {
+                padding: .4em;
+            }
+
+            table.fold-table > tbody > tr.view td, table.fold-table > tbody > tr.view th {
+                cursor: pointer;
+            }
+
+                table.fold-table > tbody > tr.view td:first-child,
+                table.fold-table > tbody > tr.view th:first-child {
+                    position: relative;
+                    padding-left: 20px;
+                }
+
+                    table.fold-table > tbody > tr.view td:first-child:before,
+                    table.fold-table > tbody > tr.view th:first-child:before {
+                        position: absolute;
+                        top: 50%;
+                        left: 5px;
+                        width: 9px;
+                        height: 16px;
+                        margin-top: -8px;
+                        font: 16px fontawesome;
+                        color: #999;
+                        content: "\f0d7";
+                        transition: all .3s ease;
+                    }
+
+
+            table.fold-table > tbody > tr.view.open-class.open td:first-child:before,
+            table.fold-table > tbody > tr.view.open-class.open th:first-child:before {
+                position: absolute;
+                top: 50%;
+                left: 5px;
+                width: 9px;
+                height: 16px;
+                margin-top: -8px;
+                font: 16px fontawesome;
+                color: #fff;
+                content: "\f0d7";
+                transition: all .3s ease;
+            }
+
+            table.fold-table > tbody > tr.view:nth-child(4n-1) {
+                background: #eee;
+            }
+
+            table.fold-table > tbody > tr.view:hover td {
+                color: #fff;
+            }
+
+            table.fold-table > tbody > tr.view:hover {
+                background: #174b7b;
+            }
+
+            table.fold-table > tbody > tr, table.fold-table > tbody > tr > td, table.fold-table > tbody > tr > td > p {
+                color: #337ab7;
+            }
+
+
+                table.fold-table > tbody > tr.view.open, table.fold-table > tbody > tr.view.open > td, table.fold-table > tbody > tr.view.open > td > p {
+                    background: #00adce !important;
+                    color: #fff !important;
+                }
+
+                    table.fold-table > tbody > tr.view.open.open-class, table.fold-table > tbody > tr.view.open.open-class > td, table.fold-table > tbody > tr.view.open.open-class > td > p {
+                        background: #1b4c45 !important;
+                        color: #fff !important;
+                    }
+
+                    table.fold-table > tbody > tr.view.open td:first-child:before, table.fold-table > tbody > tr.view.open th:first-child:before {
+                        transform: rotate(-180deg);
+                        color: #333;
+                    }
+
+                table.fold-table > tbody > tr.fold {
+                    display: none;
+                }
+
+                    table.fold-table > tbody > tr.fold.open {
+                        display: table-row;
+                        background-color: #be7f36;
+                    }
+
+        .fold-class tbody {
+            background-color: #fff !important;
+        }
+      
+
+        .fold-content {
+            padding: .5em;
+        }
+
+            .fold-content h3 {
+                margin-top: 0;
+            }
+
+            .fold-content > table {
+                border: 2px solid #ccc;
+            }
+
+                .fold-content > table > tbody tr:nth-child(even) {
+                    background: #eee;
+                }
+
+        .wl-remove {
+            padding: 27px 0 10px;
+            display: inline-block;
+        }
+
+        .class-pair_section {
+            width: 100%;
+            float: left;
+            background-color: rgb(255, 255, 255);
+            padding: 15px 0;
+            border-radius: 7px;
+            box-shadow: 0 0 3px 1px #ccc;
+        }
+
+        .bg-openclass > td {
+            background-color: #f7cbcb !important;
+        }
+
+        .fld_center {
+            margin: auto;
+            max-width: 710px;
+            width: 100%;
+            display: block;
+        }
+
+        div#searchByNameDiv label {
+            max-width: auto !important;
+            width: auto;
+            float: left;
+            color: #fff;
+            padding: 10px;
+        }
+
+        tr.view.ctr-view td::before {
+            top: 38% !important;
+        }
+
+        @@media only screen and (min-width: 992px) and (max-width: 1200px) {
+            .fld_center input {
+                float: left;
+            }
+        }
+
+        @@media only screen and (min-width: 767px) and (max-width: 991px) {
+            .fld_center {
+                margin: auto;
+                max-width: 100%;
+                width: 100%;
+                display: inline-block;
+                text-align: center;
+            }
+
+                .fld_center > label {
+                    width: 100% !important;
+                }
+
+                .fld_center button {
+                    margin-top: 15px;
+                }
+
+                .fld_center > input {
+                    margin: auto;
+                }
+
+            .res_moto {
+                margin-bottom: 3px;
+            }
+
+            .pagination li select {
+                height: 34px !important;
+            }
+        }
+    </style>
+
+
+
+
+
+
+
+    <div class="container-fluid" style="padding: 0px;">
+
+        <div class="right-side-container-ch">
+
+
+            <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
+
+
+                <div class="col-lg-12">
+                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                        <i class="fa fa-group"></i> Move Seats
+
+                        <span class="view-btn backto_listspan">
+                            <a href="/Home/AgencyAdminDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back To Dashboard</a>
+
+                        </span>
+                    </h2>
+                </div>
+
+
+            </div>
+
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-xs-12 col-lg-12 text-left" style="" id="searchByNameDiv">
+                        <div class="fld_center">
+                            <label>Search by Center/Classroom</label>
+                            <input type="text" placeholder="Search" class="form-control col-lg-6" id="searchTextName" style="width:300px;height:38px;">
+                            <button type="button" id="searchbyNamebtn" class="col-lg-2 my-btn" style="margin-left:20px;background-color:#f9c751;color:#000;    font-weight: 600;border-radius: 4px;">Search</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-12 col-xs-12 col-sm-12 col-md-12">
+
+                    <div class="col-lg-4 col-xs-12 col-md-4" style="float: right;padding: 0;text-align: right;">
+                        <label class="" style="color: #fff;">Total Center(s):&nbsp;<span class="span-center-count">@(Model.TotalRecord < 10 ? "0" + Model.TotalRecord.ToString() : Model.TotalRecord.ToString())</span></label>
+                    </div>
+
+                </div>
+                <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                    <table class="col-md-12 table-striped table-condensed cf table-change transportation-table fold-table" id="GridRoster">
+                        <thead style="cursor:pointer;">
+                            <tr>
+                                <th id="thIN" style="border-right:1px solid #ddd;">Center Name<img id="imgthIN" style="visibility:hidden"> <input type="hidden" id="directionNA" value="Desc"></th>
+
+                                <th id="thCust" style="border-right:1px solid #ddd;">Total Seats<img id="imgthCust" style="visibility:hidden"> <input type="hidden" id="directionUN" value="Desc"></th>
+
+                                <th id="thAN" style="border-right:1px solid #ddd;">Occupied Seats<img id="imgthCN" style="visibility:hidden"><input type="hidden" id="directionCN" value="Desc"></th>
+
+                                <th id="thSN" style="width: 10%;">Open Seats</th>
+
+
+                            </tr>
+                        </thead>
+
+
+                        <tbody id="table_body" class="transportation-table-head transport_table_body">
+
+                            @Html.Partial("~/Views/Partialviews/MoveSeatsPartial.cshtml", Model)
+
+                        </tbody>
+
+                    </table>
+                    <div id="div1" style="text-align:center;display:none;">
+                        <label>No result found.</label>
+                    </div>
+                </div>
+
+
+                <!--Pagination-->
+                <div class="col-xs-12 poppage-slot" style="padding:0px;" id="paginationDiv">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                        <div class="pages_display">
+                            <ul>
+                                <li style="color:#fff;">Display</li>
+                                <li>
+                                    <select id="ddlpagetodisplay" onchange="changePageRecords(this);">
+
+                                        <option value="10" selected="selected">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+
+                                    </select>
+                                </li>
+                                <li style="color:#fff;">Records Per Page</li>
+                            </ul>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <div id="divPaging" class="pagination_wrp">
+                            <ul id="ulPaging" class="pagination">
+                                <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('First'); return false;" center="NzU=" ></li>
+                                <li title="Back"><input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="fnChangePage('Back'); return false;" center="NzU=" ></li>
+                                <li title="Select">
+                                    <select class="select_cl" id="ddlpaging" onchange="getListafterupdation(this)"><option value="1">1</option></select>
+                                </li>
+                                <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="fnChangePage('Next'); return false;" center="NzU=" ></li>
+                                <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="fnChangePage('Last'); return false;" center="NzU=" ></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!--Pagination-->
+            </div>
+
+
+
+
+        </div>
+
+
+    </div>
+
+    @Html.Hidden("agId", Model.AgencyID)
+
+}
+
+
+
+

@@ -1136,7 +1136,8 @@ namespace FingerprintsData
                         command.Connection = Connection;
                         command.CommandText = "Sp_Sel_CenterByAgency";
                         command.CommandType = CommandType.StoredProcedure;
-                        // command.Parameters.AddWithValue("@AgncyId", Guid.Parse(id));
+                        command.Parameters.Clear();
+                        command.Parameters.AddWithValue("@AgencyId", Guid.Parse(id));
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
                     }
@@ -1149,7 +1150,7 @@ namespace FingerprintsData
                         foreach (DataRow dr in ds.Tables[0].Rows)
                         {
                             SelectListItem obj = new SelectListItem();
-                            obj.Value = Convert.ToString(dr["ID"].ToString());
+                            obj.Value = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString());
                             obj.Text = dr["CenterName"].ToString();
                             centerlist.Add(obj);
                         }
@@ -4276,5 +4277,253 @@ namespace FingerprintsData
             }
             return isAccess;
         }
+        /// <summary>
+        /// Gets Seats with classroom and center
+        /// </summary>
+        /// <param name="center"></param>
+        /// <returns></returns>
+        public MoveSeats GetCenterandClassRoomSeats(MoveSeats moveSeats)
+        {
+
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                moveSeats.AgencyID = new Guid(staff.AgencyId.ToString());
+                moveSeats.CenterClassPairList = new List<MoveSeats.CenteClassPair>();
+                moveSeats.AgencyCenterList = new List<SelectListItem>();
+                moveSeats.CenterList = new List<Center>();
+
+                List<ProgramType> programList = new List<ProgramType>();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@SearchTerm", moveSeats.SearchTerm));
+                    command.Parameters.Add(new SqlParameter("@RequestedPage", moveSeats.RequestedPage));
+                    command.Parameters.Add(new SqlParameter("@Take", moveSeats.Take));
+                    command.Parameters.Add(new SqlParameter("@Skip", moveSeats.Skip));
+                    command.CommandText = "USP_GetCenterWithSeats";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        moveSeats.TotalPurchaedSeats = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalSeats"]);
+                    }
+
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+
+                        moveSeats.TotalRecord = Convert.ToInt32(_dataset.Tables[1].Rows[0]["TotalRecord"]);
+
+                        moveSeats.CenterList = _dataset.Tables[1].AsEnumerable()
+                   .GroupBy(dr => new
+                   {
+                       centerID = dr.Field<long>("CenterID"),
+
+                       centerName = dr.Field<string>("CenterName")
+                   }
+                   )
+
+
+
+                   .Select((group, dr) => new Center
+                   {
+                       CenterId = Convert.ToInt32(group.Key.centerID),
+                       Enc_CenterId = EncryptDecrypt.Encrypt64(group.Key.centerID.ToString()),
+                       CenterName = group.Key.centerName,
+                       TotalSeats = group.Sum(ds => ds.Field<int>("TotalSeats")),
+                       OccupiedSeats = group.Sum(ds => ds.Field<int>("OccupiedSeats")),
+                       AvailableSeats = group.Sum(ds => ds.Field<int>("AvailableSeats")),
+                       Classroom = _dataset.Tables[1].AsEnumerable().Where(dr1 => dr1.Field<long>("CenterID") == group.Key.centerID).GroupBy(dr1 => new
+                       {
+                           classRoomID = dr1.Field<long>("ClassRoomID"),
+
+                           classRoomName = dr1.Field<string>("ClassRoomName")
+                       }).
+                       Select((group1, dr1) => new Center.ClassRoom
+                       {
+                           ClassroomID = Convert.ToInt32(group1.Key.classRoomID),
+                           Enc_ClassRoomId = EncryptDecrypt.Encrypt64(group1.Key.classRoomID.ToString()),
+                           ClassName = group1.Key.classRoomName,
+                           TotalSeats = group1.Sum(ds => ds.Field<int>("TotalSeats")),
+                           OccupiedSeats = group1.Sum(ds => ds.Field<int>("OccupiedSeats")),
+                           AvailableSeats = group1.Sum(ds => ds.Field<int>("AvailableSeats"))
+
+
+                           // ProgramTypeList = _dataset.Tables[1].AsEnumerable().Where(dr2 => dr2.Field<long>("ClassRoomID") == group1.Key.classRoomID).
+                           //GroupBy( dr2 =>new { programTypeID = dr2.Field<long>("ProgramTypeID"), programType = dr2.Field<string>("ProgramType") }).
+                           //Select((group2, dr2) => new ProgramType {
+
+                           //    ProgramID=Convert.ToInt32(group2.Key.programTypeID),
+                           //    ProgramTypes = group2.Key.programType,
+                           //    TotalSeats = group2.Sum(ds => ds.Field<int>("TotalSeats")),
+                           //    OccupiedSeats = group2.Sum(ds => ds.Field<int>("OccupiedSeats")),
+                           //    AvailableSeats = group2.Sum(ds => ds.Field<int>("AvailableSeats")),
+
+                           //}).ToList()
+
+
+                       }).ToList(),
+
+                   }).ToList();
+
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return moveSeats;
+        }
+
+        /// <summary>
+        /// method to Get the Seats Count by Center and Classroom
+        /// </summary>
+        /// <param name="centerId"></param>
+        /// <param name="classRoomId"></param>
+        /// <param name="agencyID"></param>
+        /// <returns></returns>
+        public int GetSeatsBy(long centerId, long classRoomId, Guid agencyID, int reqOpen = 0)
+        {
+
+            int seatCount = 0;
+            try
+            {
+
+                if (Connection.State != ConnectionState.Closed)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", agencyID));
+                    command.Parameters.Add(new SqlParameter("@CenterID", centerId));
+                    command.Parameters.Add(new SqlParameter("@ClassRoomID", classRoomId));
+                    command.Parameters.Add(new SqlParameter("@avail", reqOpen));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetSeats_Count";
+                    Connection.Open();
+                    //var result = command.ExecuteScalar();
+                    int.TryParse(command.ExecuteScalar().ToString(), out seatCount);
+                    Connection.Close();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+
+            }
+            return seatCount;
+        }
+
+
+        public string AddMovedSeats(MoveSeats centerpair)
+        {
+
+            string result = "";
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State != ConnectionState.Closed)
+                    Connection.Close();
+
+
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[4] {
+                    new DataColumn("CenterId",typeof(int)),
+                    new DataColumn("ClassId",typeof(int)),
+                    new DataColumn("SeatCount",typeof(int)),
+                    new DataColumn("ProgramType",typeof(string))
+                });
+
+                int movedSeats = 0;
+
+                if (centerpair.CenterClassPairList.Count > 0)
+                {
+                    foreach (var item in centerpair.CenterClassPairList)
+                    {
+                        dt.Rows.Add(
+
+                            Convert.ToInt32(item.ToCenter),
+                            Convert.ToInt32(item.ToClassRoom),
+                            Convert.ToInt32(item.SeatsMoved),
+                            ""
+                            );
+
+                        movedSeats += Convert.ToInt32(item.SeatsMoved);
+                    }
+                }
+
+               int availCount= this.GetSeatsBy(Convert.ToInt64(centerpair.CenterClassPairList[0].FromCenter), Convert.ToInt64(centerpair.CenterClassPairList[0].FromClassRoom), centerpair.AgencyID, 1);
+
+
+                if(movedSeats>availCount)
+                {
+                    return "2";
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", centerpair.AgencyID));
+                    command.Parameters.Add(new SqlParameter("@SeatsMoved", movedSeats));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@FromCenter", Convert.ToInt64(centerpair.CenterClassPairList[0].FromCenter)));
+                    command.Parameters.Add(new SqlParameter("@FromClassroom", Convert.ToInt64(centerpair.CenterClassPairList[0].FromClassRoom)));
+                    command.Parameters.Add(new SqlParameter("@SeatsTable", dt));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_Add_MovedSeats";
+                    Connection.Open();
+                    //DataAdapter = new SqlDataAdapter(command);
+                    //_dataset = new DataSet();
+                    //DataAdapter.Fill(_dataset);
+                    result = command.ExecuteScalar().ToString();
+                    Connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return result;
+        }
+
+
+
+        
     }
 }

@@ -34,5 +34,9 @@ namespace FingerprintsModel
              public string Id { get; set; }
              public string Name { get; set; }
          }
+
+        public long TotalSeats { get; set; }
+        public long OccupiedSeats { get; set; }
+        public long AvailableSeats { get; set; }
     }
 }

@@ -29,6 +29,10 @@ namespace FingerprintsModel
          public string CreatedBy { get; set; }
          public string DateEntered { get; set; }
          public string status { get; set; }
+
+        public long TotalSeats { get; set; }
+        public long OccupiedSeats { get; set; }
+        public long AvailableSeats { get; set; }
          public bool HomeBased { get; set; }
          // public string RoomName { get; set; }
          //public bool DoubleSession { get; set; }
@@ -90,13 +94,18 @@ namespace FingerprintsModel
              public string DinnerToTime { get; set; }
              public string Snack2ToTime { get; set; }
 
-            public int ClosedToday { get; set; }
+            public long TotalSeats { get; set; }
+            public long OccupiedSeats { get; set; }
+            public long AvailableSeats { get; set; }
+            public long ClosedToday { get; set; }
 
             public List<SelectListItem> TimeBetweenMealsList { get; set; }
 
             public List<SelectListItem> ClassSessionList { get; set; }
 
             public ProgramType ProgramDetails { get; set; }
+
+            public List<ProgramType> ProgramTypeList { get; set; }
 
         }
 
