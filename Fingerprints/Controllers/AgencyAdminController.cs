@@ -2033,5 +2033,132 @@ namespace Fingerprints.Controllers
         }
 
 
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public ActionResult MoveSeats()
+        {
+
+
+            MoveSeats moveSeats = new FingerprintsModel.MoveSeats();
+            
+            moveSeats = new agencyData().GetCenterandClassRoomSeats(moveSeats);
+            return View(moveSeats);
+
+        }
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult GetClassroomsByCenter(string centerId = "0")
+        {
+            try
+            {
+                centerId = EncryptDecrypt.Decrypt64(centerId);
+                return Json(new RosterData().Getclassrooms(centerId, Session["AgencyID"].ToString()), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occured please try again.");
+            }
+        }
+
+
+        public JsonResult GetAvailSeatsByClassroom(dynamic center, dynamic clsroom, dynamic agency)
+        {
+
+            try
+            {
+
+                center = Convert.ToInt64(EncryptDecrypt.Decrypt64(center[0]));
+                clsroom = Convert.ToInt64(EncryptDecrypt.Decrypt64(clsroom[0]));
+                agency = new Guid(agency[0]);
+                return Json(new agencyData().GetSeatsBy(center, clsroom, agency, 1), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return Json("Error Occured. Please,try again later.", JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult AddSeatsDisplacement(MoveSeats centerPair)
+        {
+            string result = "";
+
+            try
+            {
+                if (centerPair != null && centerPair.CenterClassPairList != null && centerPair.CenterClassPairList.Count > 0)
+                {
+                    centerPair.CenterClassPairList.ForEach(x =>
+                   {
+
+                       x.FromCenter = EncryptDecrypt.Decrypt64(x.FromCenter);
+                       x.FromClassRoom = EncryptDecrypt.Decrypt64(x.FromClassRoom);
+                       x.ToCenter = EncryptDecrypt.Decrypt64(x.ToCenter);
+                       x.ToClassRoom = EncryptDecrypt.Decrypt64(x.ToClassRoom);
+                   });
+
+                    result = new agencyData().AddMovedSeats(centerPair);
+
+                }
+
+                else
+                {
+                    result = "0";
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+            return Json(result,JsonRequestBehavior.AllowGet);
+        }
+
+       
+
+        public ActionResult GetCenterWithSeats(string agencyId,int reqPage,int skip,int take, string searchText)
+        {
+            MoveSeats seatsDis = new FingerprintsModel.MoveSeats();
+            try
+            {
+                skip= (take * (reqPage - 1));
+
+                seatsDis.AgencyID = new Guid(agencyId);
+                seatsDis.SearchTerm = searchText;
+                seatsDis.RequestedPage = reqPage;
+                seatsDis.Skip = skip;
+                seatsDis.Take = take;
+                seatsDis = new agencyData().GetCenterandClassRoomSeats(seatsDis);
+                seatsDis.AgencyCenterList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), agencyId, Session["RoleID"].ToString(), false);
+                seatsDis.AgencyCenterList.ForEach(x => x.Value =(x.Value=="0")?x.Value: EncryptDecrypt.Encrypt64(x.Value));
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return PartialView("~/Views/Partialviews/MoveSeatsPartial.cshtml", seatsDis);
+        }
+
+
+        public JsonResult AutoCompleteCenter(string searchText,string agencyId)
+        {
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(null);
+
+        }
     }
 }

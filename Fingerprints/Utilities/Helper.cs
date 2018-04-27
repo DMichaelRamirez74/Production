@@ -73,7 +73,7 @@ namespace Fingerprints.Utilities
 
             centerList.Add(new SelectListItem
             {
-                Text = "--Select Center",
+                Text = "--Select Center--",
                 Value = "0"
             });
             centerList.AddRange((from HrCenterInfo hrc in hrCenterList

@@ -1,0 +1,165 @@
+﻿@model FingerprintsModel.MoveSeats
+
+    @if (Model.CenterList != null && Model.CenterList.Count > 0)
+    {
+        foreach (var item in Model.CenterList)
+        {
+
+            <tr class="view ctr-view">
+                <td enc-id="@item.Enc_CenterId">
+                    <p class="center-name" style="text-align: left;">@item.CenterName</p>
+                </td>
+                <td class="pcs">
+
+                    <p class="center-name" style="text-align: center;">@item.TotalSeats</p>
+                </td>
+                <td class="cur">
+
+                    <p class="center-name" style="text-align: center;">@item.OccupiedSeats</p>
+
+                </td>
+                <td>
+                    <p class="center-name" style="text-align: center;">@item.AvailableSeats</p>
+                </td>
+
+            </tr>
+            <tr class="fold">
+                <td colspan="7">
+                    <div class="fold-content">
+                        <table class="fold-table fold-class">
+                            <thead>
+                                <tr>
+                                    <th>Classroom</th>
+                                    <th>Total Seats</th>
+                                    <th>Occupied Seats</th>
+                                    <th>Open Seats</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+                                @if (item.Classroom != null && item.Classroom.Count > 0)
+                                                        {
+                                                            foreach (var item2 in item.Classroom)
+                                                            {
+                                                        <tr class="view open-class">
+                                                            <td enc-id="@item2.Enc_ClassRoomId">@item2.ClassName</td>
+                                                            <td style="text-align:center;">@item2.TotalSeats</td>
+                                                            <td style="text-align:center;">@item2.OccupiedSeats</td>
+                                                            <td style="text-align:center;">@item2.AvailableSeats</td>
+                                                        </tr>
+
+                                                        <tr class="fold bg-openclass">
+                                                            <td colspan="4">
+
+                                                                @if (item2.TotalSeats == 0)
+                                                                        {
+                                                                        <div class="text-center">No seats available</div>
+                                                                }
+                                                                else if(item2.AvailableSeats==0)
+                                                                {
+                                                                    <div class="text-center">No seats available to move</div>
+                                                                }
+
+                                                                else
+                                                                {
+                                                                        <div class="col-xs-12 col-lg-12 fold-content">
+
+                                                                            <div class="form-group add-more-div">
+                                                                                <label class="col-xs-4 col-lg-6 col-sm-12 res_moto gr-color">Remaining Seat(s):&nbsp;&nbsp;<span class="remaining-span"> @(item2.AvailableSeats < 10 ? ("0" + item2.AvailableSeats.ToString()) : item2.AvailableSeats.ToString())</span> </label>
+                                                                                <div class="col-lg-6 col-sm-12 col-xs-12 text-right">
+                                                                                    <a href="javascript:void(0);" onclick="addMorePair(this);" style="cursor:pointer;"><i class="fa fa-plus-circle"></i>   Add Center/Classroom Pair</a>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div class="col-xs-12 col-lg-12 well class-pair" style="background-color:#d3d3f7;" enc1="@item.Enc_CenterId" enc2="@item2.Enc_ClassRoomId">
+
+
+                                                                                <div class="class-pair_section">
+
+
+                                                                                    <div class="form-group col-sm-12 col-lg-5 col-xs-12">
+                                                                                        <label for="exampleInputEmail1">Center</label>
+                                                                                        @{
+
+                                                                                                List<SelectListItem> centersList = new List<SelectListItem>();
+                                                                                                centersList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleId"].ToString());
+
+                                                                                                centersList.ForEach(x => x.Value = (x.Value == "0") ? x.Value : FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value));
+
+
+                                                                                        }
+
+
+                                                                                        @Html.DropDownList("ddlCenters", centersList, new { @class = "form-control select-center", onchange = "getClassrooms(this);" })
+
+                                                                                    </div>
+
+
+
+                                                                                    <div class="form-group col-sm-12 col-lg-3 col-xs-12">
+                                                                                        <label for="inputPassword">Classroom</label>
+                                                                                        <select class="form-control select-classroom" onchange="removeRonly(this);"></select>
+                                                                                    </div>
+
+                                                                                    <div class="form-group col-sm-12 col-lg-2 col-xs-12">
+                                                                                        <label for="inputPassword">Seats</label>
+
+                                                                                        <input type="text" class="form-control moretxtseats" maxlength="3" readonly />
+
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                            </div>
+
+
+                                                                            <div class="form-group text-center">
+
+                                                                                <button type="button" class="btn btn-primary add-seats" onclick="addMoveSeats(this);">Submit</button>
+                                                                            </div>
+
+
+                                                                        </div>
+
+
+                                                                        }
+
+                                                            </td>
+                                                        </tr>
+
+
+
+
+                                                            }
+                                                        }
+
+                                                        else
+                                                        {
+                                                        <tr colspan="4"><td style="text-align:center;">No Classroom available</td></tr>
+                                                        }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+
+                                                                                                }
+
+
+                                                                                               
+                                                                                            }
+
+                                                                                            else
+                                                                                            {
+                                                                                                <tr><td colspan="4" style="padding: 25px;text-align:center;">Records Not Found</td></tr>
+                                                                                            }
+
+@Html.Hidden("recordhide", Model.TotalRecord)
+
+
+
+
+
