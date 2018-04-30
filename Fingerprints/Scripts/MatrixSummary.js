@@ -1,471 +1,638 @@
-﻿@{
-    ViewBag.Title = "MatrixSummary";
-    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+﻿$(document).ready(function () {
+
+    var activeyear = '';
+    GetMatrixSummary();
+    changeHeight();
+   
+    function GetMatrixSummary()
+    {
+        $.ajax({
+            url: "/AgencyUser/GetMatrixReport",
+            datatype: "json",
+            async: false,
+            data:{Year:activeyear},
+            success: function (data) {
+                var charSectiondiv = $('.chart-block-div');
+                var chartAppend_div = '';
+                var groupSectiondiv = $('.group-block');
+                var matrixValueSectiondiv = $('.matrix-value-section');
+                var change_val_div = $('.change-value');
+                var downarrow = '/images/dw-arw.png';
+                var uparrow = '/images/up-arw.png';
+
+                var group_sec_append = '';
+                var mat_sec_append_1 = '';
+                var mat_sec_append_2= '';
+                var mat_sec_append_3 = '';
+                var change_sec_append = '';
+                var FullchartDiv = '';
+                var categoryCount = 0;
+                var assment1ratio = 0;
+                var assment2ratio = 0;
+                var assment3ratio = 0;
+                var count1 = 0;
+                var count2 = 0;
+                var count3 = 0;
+                var groupCount = 0;
+                var as1Value = 0;
+                var as2Value = 0;
+                var as3Value = 0;
+                var cateId = 0;
+                var groupPosCount = 1;
+                var maxMatrixValue = 0;
+
+                var groupId = 0;
+                var imageCount = 1;
+                charSectiondiv.find('.cat-block').addClass('category-div');
+                if (data.obj !== null)
+                {
+                    if (data.obj.length > 0)
+                    {
+                        categoryCount = data.obj.length;
+                       
+                        $.each(data.obj, function (i, element1) {
+                            group_sec_append = '';
+                            mat_sec_append_1 = '';
+                            mat_sec_append_2 = '';
+                            mat_sec_append_3 = '';
+                            change_sec_append = '';
+
+                             assment1ratio = 0;
+                             assment2ratio = 0;
+                             assment3ratio = 0;
+                             count1 = 0;
+                             count2 = 0;
+                             count3 = 0;
+                              as1Value = 0;
+                              as2Value = 0;
+                              as3Value = 0;
+                              groupPosCount = 1;
+                            if (element1 != null)
+                            {
+                                if(element1.length>0)
+                                {
+
+                                    $.each(element1, function (j, element2) {
+                                        maxMatrixValue = element2.MaxMatrixValue;
+                                        cateId = element2.AssessmentCategoryId;
+                                        charSectiondiv.find('.cat-name').html(element2.Category).attr('cat-id', element2.AssessmentCategoryId);
+                                        if (groupId != element2.AssessmentGroupId)
+                                        {
+                                            var isFirst = (i==0)?1:0;
+                                            
+                                            groupCount++;
+                                            groupSectiondiv.find('.group-name').html(element2.AssessmentGroupType).parent('.education-content-desc').attr({ 'group-id': element2.AssessmentGroupId,'isfirst':isFirst});
+                                            groupSectiondiv.find('.tooltiptext').html(element2.AssessmentGroupType);
+                                            if (imageCount > 5)
+                                            {
+                                                imageCount = 1;
+                                            }
+                                            var imgsrc = '/images/3d-color' + imageCount + '.png';
+                                            imageCount++;
+                                            groupSectiondiv.find('.group-image').attr('src', imgsrc);
+                                            //for popup//
+                                            groupSectiondiv.find('.education-content-desc').attr({ 'group-pos': groupPosCount, 'cat-no': i, 'onclick': 'getDescriptionSummary(this);' });
+                                           // $('.education-content-desc').attr('cat-no', i);
+
+                                            $('.survey-3d').attr({ 'group-id': element2.AssessmentGroupId, 'cat-no': i, 'group-pos': groupPosCount, 'isfirst': isFirst, 'onclick': 'getQuestionSummary(this);' });
+
+                                            // $('.survey-3d').attr('group-id', element2.AssessmentGroupId)
+                                           // $('.survey-3d').attr('group-pos', groupPosCount);
+                                            //for popup//
+
+                                            groupPosCount++;
+                                            group_sec_append += groupSectiondiv.html();
+                                            groupId = element2.AssessmentGroupId;
+                                           // change_sec_append += change_val_div.html();
+                                            count1++;
+                                        }
+                                        
+                                        if (element2.TotalRatio == 0)
+                                        {
+                                            matrixValueSectiondiv.find('.mat-value').html('-');
+
+                                        }
+                                        else
+                                        {
+                                            matrixValueSectiondiv.find('.mat-value').html(element2.TotalRatio);
+
+                                        }
+
+                                        if (element2.AssessmentNumber > 0) {
+                                            if (element2.AssessmentNumber == 1) {
+                                                
+                                                assment1ratio +=  element2.TotalRatio;
+                                                mat_sec_append_1 += matrixValueSectiondiv.html();
+                                            }
+                                            if (element2.AssessmentNumber == 2) {
+                                               // count2 ++;
+                                                assment2ratio +=  element2.TotalRatio;
+                                                    mat_sec_append_2 += matrixValueSectiondiv.html();
+                                                }
+                                            if (element2.AssessmentNumber == 3) {
+                                              //  count3 ++;
+                                                assment3ratio +=  element2.TotalRatio;
+                                                    mat_sec_append_3 += matrixValueSectiondiv.html();
+                                                }
+                                        }
+                                        else
+                                        {
+                                            mat_sec_append_1 += matrixValueSectiondiv.html();
+                                            mat_sec_append_2 += matrixValueSectiondiv.html();
+                                            mat_sec_append_3 += matrixValueSectiondiv.html();
+
+                                        }
+                                       
+                                    });
+
+                                    $.each(data.percentageList, function (per, percentelement) {
+
+                                        if (percentelement.AssessmentCategoryId == cateId)
+                                        {
+                                            var appendText = '';
+                                            if (percentelement.ArrowType == null || percentelement.ArrowType == '')
+                                            {
+                                                appendText ='-';
+                                            }
+                                            else
+                                            {
+                                                appendText = percentelement.ChangePercent.toFixed(1) + '% ' + '<span><img src=' + percentelement.ArrowType + '></span>';
+                                            }
+                                        
+                                            change_val_div.find('p').html(appendText).css('color', percentelement.FontColor);
+                                            change_sec_append += change_val_div.html();
+                                        }
+                                    })
+
+                                    var chartbinddiv = charSectiondiv;
+
+                                    //Popup//
+                                    var minus = i - 1;
+                                    chartbinddiv.find('.div-group-summary').removeClass('div-group-' + minus);
+                                    chartbinddiv.find('.div-question-summary').removeClass('div-question-' + minus);
+                                    chartbinddiv.find('.div-group-summary').addClass('div-group-' + i);
+                                    chartbinddiv.find('.div-question-summary').addClass('div-question-' + i);
+                                    //popup//
+
+                                    chartbinddiv.find('.group-section').html(group_sec_append);
+                                    chartbinddiv.find('.as1-matrix-value-block').html(mat_sec_append_1);
+                                    chartbinddiv.find('.as2-matrix-value-block').html(mat_sec_append_2);
+                                    chartbinddiv.find('.as3-matrix-value-block').html(mat_sec_append_3);
+                                    chartbinddiv.find('.chg-per-block').html(change_sec_append);
+                                    if (i > 0)
+                                    {
+                                        chartbinddiv.find('.matrix-header-title,.matrix-header-title2').addClass('hidden').addClass('assessments');
+                                    }
+                                    else
+                                    {
+                                        chartbinddiv.find('.matrix-header-title, .matrix-header-title2').removeClass('hidden').addClass('assessments1');
+                                    }
+                                    var ratio1 = parseFloat(assment1ratio / count1).toFixed(1);
+                                    var ratio2 = parseFloat(assment2ratio / count1).toFixed(1);
+                                    var ratio3 = parseFloat(assment3ratio / count1).toFixed(1);
+                                  
+                                    var bar1percentage = parseFloat((ratio1 / maxMatrixValue) * 100).toFixed(1);
+                                    var bar2percentage = parseFloat((ratio2 / maxMatrixValue) * 100).toFixed(1);
+                                    var bar3percentage = parseFloat((ratio3 / maxMatrixValue) * 100).toFixed(1);
+                                  
+                                    
+                                    
+
+                                    chartbinddiv.find('.bar-label_1').children('p').html(ratio1);
+                                    chartbinddiv.find('.bar-label_2').children('p').html(ratio2);
+                                    chartbinddiv.find('.bar-label_3').children('p').html(ratio3);
+                                  
+                                 
+                                   
+                                    
+                                    if (parseInt(bar1percentage) > 0)
+                                    {
+                                        var label1ht = getLabelHeight2(bar1percentage);
+
+                                       // var label1Font = (parseInt(bar1percentage) < 6) ? '10px' : '14px';
+                                        chartbinddiv.find('.bar_green1').css('height', bar1percentage + '%');
+                                        chartbinddiv.find('.bar_green1').removeClass('hidden');
+                                        chartbinddiv.find('.bar-label_1').css({ 'height': label1ht + '%'});
+
+                                    }
+                                    else
+                                    {
+                                        chartbinddiv.find('.bar-label_1').children('p').html(0);
+                                        chartbinddiv.find('.bar_green1').addClass('hidden');
+                                        chartbinddiv.find('.bar_green1').css('height','0%');
+                                        chartbinddiv.find('.bar-label_1').css('height', '18%');
+                                    }
+
+                                    if (parseInt(bar2percentage) > 0) {
+                                        
+                                        chartbinddiv.find('.bar_green2').css('height', bar2percentage + '%');
+                                        
+                                        chartbinddiv.find('.bar_green2').removeClass('hidden');
+                                        var label2ht = getLabelHeight2(bar2percentage);
+                                      //  var label2Font = (parseInt(bar2percentage) < 6) ? '10px' : '14px';
+                                        chartbinddiv.find('.bar-label_2').css({ 'height': label2ht + '%'});
+
+                                    }
+                                    else {
+                                        chartbinddiv.find('.bar-label_2').children('p').html(0);
+                                        chartbinddiv.find('.bar_green2').addClass('hidden');
+                                        chartbinddiv.find('.bar_green2').css('height', '0%');
+                                        chartbinddiv.find('.bar-label_2').css('height', '18%');
+                                    }
+                                    if (parseInt(bar3percentage) > 0) {
+                                        
+                                        var label3ht = getLabelHeight2(bar3percentage);
+                                       // var label3Font = (parseInt(bar3percentage) < 6) ? '10px' : '14px';
+                                        chartbinddiv.find('.bar_green3').css({ 'height': bar3percentage + '%'});
+                                        chartbinddiv.find('.bar_green3').removeClass('hidden');
+                                        chartbinddiv.find('.bar-label_3').css('height', label3ht + '%');
+
+                                    }
+                                    else {
+                                        chartbinddiv.find('.bar-label_3').children('p').html(0);
+                                        chartbinddiv.find('.bar_green3').addClass('hidden');
+                                        chartbinddiv.find('.bar_green3').css('height', '0%');
+                                        chartbinddiv.find('.bar-label_3').css('height', '18%');
+                                    }
+                                    var bar_minus = i - 1;
+                                   // chartbinddiv.find('.survey-3d-green').removeClass('change-bar-div_' + bar_minus);
+                                    chartbinddiv.find('.survey-3d-green').addClass('change-bar-div_' + i);
+                                    chartbinddiv.find('.category-div').attr('cat-id' , i);
+
+                                    FullchartDiv += chartbinddiv.html();
+                                    chartbinddiv.find('.survey-3d-green').removeClass('change-bar-div_' + i);
+                                }
+                            }
+                           
+                        });
+                        
+
+                        $('.chart-report').html(FullchartDiv);
+                        // $('.block-div').css('margin-top', '30px');
+                        $('.chart-report').find('.bar-label_1').addClass('barlable_as1');
+                        $('.chart-report').find('.bar-label_2').addClass('barlable_as2');
+                        $('.chart-report').find('.bar-label_3').addClass('barlable_as3');
+
+                        charSectiondiv.find('.cat-block').removeClass('category-div');
+                    }
+                }
+
+                if(data.summarylist!=null)
+                {
+                    if(data.summarylist.length>0)
+                    {
+                       
+                        $.each(data.summarylist, function (k, element4) {
+                            var assmentNo = element4.AssessmentNumberMaster;
+                            var percentageFam = element4.PercentFamilyEntered;
+                            var masterRatio = 0;
+                           
+                            $('.as' + assmentNo + '-per').html('(' + percentageFam + '%)');
+                            $('.barlable_as' + assmentNo).each(function () {
+                                masterRatio += parseFloat($(this).children('p').html());
+                            });
+                        
+                            var as1Percentage = parseFloat(masterRatio / categoryCount).toFixed(1);
+                       
+                            //var totalGroupCount = groupCount;
+                            //var converteddenom = (totalGroupCount / categoryCount);
+                            //var convertedratio = (100 / converteddenom);
+
+                            //if (as1Percentage > 0)
+                            if (percentageFam > 0 && as1Percentage>0)
+                            {
+                                // var height1 = (as1Percentage * convertedratio);
+                                var height1 = percentageFam;
+                                if (height1 === 100) {
+                                    $('.mastbar-green' + assmentNo).css('bottom', '-1px');
+                                }
+                                else if (height1 === 0) {
+                                    $('.mastbar-green' + assmentNo).addClass('hidden');
+                                }
+                                else {
+                                    $('.mastbar-green' + assmentNo).removeClass('hidden');
+
+                                }
+                                $('.mastbar-green' + assmentNo).height(height1 + '%');
+                                $('.as' + assmentNo + '-avg').html(as1Percentage + '<sub>Avg</sub>')
+                               
+                            }   
+                            else
+                            {
+                                $('.as' + assmentNo + '-avg').html('0<sub>Avg</sub>');
+                                $('.mastbar-green' + assmentNo).height('0%');
+                                $('.mastbar-green' + assmentNo).addClass('hidden');
+                            }
+                         
+                        });
+                    }
+                }
+
+                activeyear = data.programYear;
+                $('#yearSelect').val(activeyear);
+            }
+        });
+    }
+
+
+
+    //$.ajax({
+    //    url: "/AgencyUser/GetActiveYear",
+    //    datatype: "json",
+    //    async: false,
+    //    success: function (data) {
+    //        var selectedAppend = '';
+    //        if (data.length > 0) {
+    //            $.each(data, function (i, element) {
+
+    //                selectedAppend += '<option value=' + element.Text + '>20' + element.Text + '</option>'
+    //            });
+    //            $('#yearSelect').append(selectedAppend);
+    //            $('#yearSelect').val(activeyear);
+    //        }
+    //    }
+         
+    //});
+
+
+    //function to get the Label Height based on the Chart height//
+    function getLabelHeight(lblHeight) {
+
+        var heightLbl = 0;
+
+        if (lblHeight == 100) {
+
+            heightLbl = 96;
+        }
+        else if (lblHeight >= 90 && lblHeight < 100) {
+            heightLbl = 87;
+
+        }
+        else if (lblHeight >= 80 && lblHeight < 90) {
+            heightLbl = 78;
+        }
+        else if (lblHeight >= 70 && lblHeight < 80) {
+            heightLbl = 69;
+
+        }
+        else if (lblHeight >= 60 && lblHeight < 70) {
+            heightLbl = 60;
+
+        }
+        else if (lblHeight >= 50 && lblHeight < 60) {
+            heightLbl = 51;
+
+        }
+        else if (lblHeight >= 40 && lblHeight < 50) {
+            heightLbl = 42;
+
+        }
+        else if (lblHeight >= 30 && lblHeight < 40) {
+            heightLbl = 34;
+
+        }
+        else if (lblHeight >= 20 && lblHeight < 30) {
+            heightLbl = 25;
+
+        }
+        else if (lblHeight >= 10 && lblHeight < 20) {
+            heightLbl = 18;
+
+        }
+        else if (lblHeight >= 5 && lblHeight < 10) {
+            heightLbl = 18;
+
+        }
+        else {
+            heightLbl = 18;
+
+        }
+
+
+        return heightLbl;
+    }
+
+    function getLabelHeight2(Height2) {
+        var heightArray = {
+            1: 18,
+            2: 18,
+            3: 18,
+            4: 18,
+            5: 18,
+            6: 18,
+            7: 18,
+            8: 18,
+            9: 20,
+            10: 20,
+            11: 21,
+            12: 22,
+            13: 22,
+            14: 24,
+            15: 25,
+            16: 26,
+            17: 26,
+            18: 27,
+            19: 28,
+            20: 30,
+            21: 29,
+            22: 30,
+            23: 31,
+            24: 32,
+            25: 35,
+            26: 34, 27: 35, 28: 35, 29: 36, 30: 37, 31: 37,
+            32: 39,
+            33: 39, 34: 41, 35: 41, 36: 42, 37: 42, 38: 43, 39: 43, 40: 45, 41: 45, 42: 47, 43: 47, 44: 49, 45: 49, 46: 50,
+            47: 50, 48: 52, 49: 52, 50: 53, 51: 53, 52: 55, 53: 55, 54: 57, 55: 57, 56: 58, 57: 58, 58: 60, 59: 60, 60: 61, 61: 61, 62: 63, 63: 63, 64: 65, 65: 65, 66: 66, 67: 66,
+            68: 68, 69: 68, 70: 70, 71: 70, 72: 72, 73: 72, 74: 73, 75: 73, 76: 75, 77: 75, 78: 77, 79: 77, 80: 79, 81: 79, 82: 79, 83: 80, 84: 80, 85: 82,
+            86: 82, 87: 84, 88: 84, 89: 86, 90: 86, 91: 87, 92: 88, 93: 89, 94: 89, 95: 90, 96: 90, 97: 92, 98: 92, 99: 94, 100: 94
+
+        };
+        var roundValue = Math.round(Height2);
+        var heightarr = heightArray[roundValue];
+        return heightarr;
+    }
+
+    function changeHeight() {
+        $('.category-div').each(function () {
+            var selfheight = parseInt($(this).find('.survey-block').css('height'));
+            var textheight = parseInt($(this).find('.survey-text').css('height'));
+            var green_bar = 0;
+            var value = 0;
+            if (selfheight > textheight) {
+                $(this).find('.change-div').css('height', selfheight + 'px');
+                value = $(this).attr('cat-id');
+
+                green_bar = parseInt(selfheight - 40);
+                if (selfheight > 260)
+                {
+
+              
+                $('.change-bar-div_' + value).css('height', green_bar + 'px');
+                }
+            }
+            else {
+                $(this).find('.change-div').css('height', textheight + 'px');
+                value = $(this).attr('cat-id');
+                green_bar = parseInt(textheight - 40);
+                if (textheight > 260)
+                {
+
+              
+                $('.change-bar-div_' + value).css('height', green_bar + 'px');
+                }
+            }
+        });
+    }
+
+
+
+    //On click over the Close icon of the Pop-up//
+    $('body').on('click', '.close-div', function () {
+        $('.popup-display-overlay').css('display', 'none');
+
+    });
+
+
+    $(document).on('change', '#yearSelect', function () {
+        var prevYear = activeyear;
+         activeyear = $(this).val();
+         if (activeyear == 0)
+         {
+             $('#yearSelect').val(prevYear);
+             return false;
+         }
+         GetMatrixSummary();
+         changeHeight();
+    });
+});
+
+
+function getDescriptionSummary(val) {
+
+    //  var activeYear = "16-17";
+    var dropdownYear = $('#yearSelect').val();
+    var expireYear = false;
+    var isFirst = parseInt($(val).attr('isfirst'));
+
+    var groupId = parseInt($(val).attr('group-id'));
+
+    var count = $(val).attr('group-pos');
+    var catno = $(val).attr('cat-no');
+    var pos = parseInt($(val).attr('position'));
+    $('.popup-display-overlay').html('');
+    $('.popup-display-overlay').css('display', 'none');
+    $('.div-group-' + catno).html('');
+    $('.popup-div').css('display', 'none');
+    $('.popup-div1').css('display', 'none');
+    $('.div-question-' + catno).html('');
+    $('.div-question-' + catno).css('display', 'none');
+    $.ajax({
+        url: "/AgencyUser/GetSummaryDescription",
+        datatype: 'json',
+        type: 'post',
+        data: { groupId: groupId },
+        success: function (data) {
+            var bindDiv = "<div class='col-xs-12 text-center' style='padding:10px;font-size:24px; margin:auto;color:#163b69; margin-bottom:10px;'>Assessment Description</div><div class='close-div'><i class='fa fa-times' aria-hidden='true'></i></div>";
+            if (data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var getdiv = "";
+                    getdiv = $('#descText');
+                    $('.matrix-value').html(data[i].MatrixValue);
+                    $('.matrix-value').attr('group-id', groupId);
+                    $('.matrix-value').attr('assessmnet-id', data[i].AssessmentGroupId);
+                    $('.description').html(data[i].Description);
+                    getdiv.find('.tooltipdesctext').html(data[i].Description);
+                    getdiv.removeClass('matrix-value');
+                    getdiv.removeClass('description');
+                    bindDiv += getdiv.html();
+                }
+                $('#popupDiv').html(bindDiv);
+                $('.div-group-' + catno).html('');
+                $('.div-group-' + catno).html($('.desc-view-popup').html());
+                $('.div-group-' + catno).css('display', 'block');
+                $('.popup-div').css('display', 'block');
+
+
+
+                var heightarray = '';
+                var divheight2 = '';
+                if (isFirst === 1) {
+
+                    var divHeight = -16;
+                    heightarray = ['-16px', '50px', '116px', '182px', '248px', '311px', '377px', '443px'];
+                    divheight2 = heightarray[count - 1];
+                    $('.popup-div').css('top', divheight2);
+                }
+                else {
+                    heightarray = ['-135px', '-70px', '-5px', '61px', '126px', '192px', '255px', '321px'];
+                    divheight2 = heightarray[count - 1];
+                    $('.popup-div').css('top', divheight2);
+                }
+
+
+            }
+        }
+    });
+
 }
 
-@section MainContentHolder{
-    
-    <link href="~/Content/css/MatrixSummary.css" rel="stylesheet" />
+function getQuestionSummary(qnVal) {
+    var groupId = parseInt($(qnVal).attr('group-id'));
+    //   var clientId = $('#clientID').val().trim();
+    var count = $(qnVal).attr('group-pos');
+    var catno = $(qnVal).attr('cat-no');
+    var pos = parseInt($(qnVal).attr('position'));
+    var isFirstQn = parseInt($(qnVal).attr('isfirst'));
+    $('.div-question-' + catno).html('');
+    $('.popup-div1').css('display', 'none');
+    $('.popup-div').css('display', 'none');
+    $('.div-group-' + catno).css('display', 'none');
+    $('.div-group-' + catno).html('');
+    $('.popup-display-overlay').html('');
+    $('.popup-display-overlay').css('display', 'none');
+    $.ajax({
+        url: "/AgencyUser/GetSummaryQuestions",
+        datatype: 'json',
+        type: 'post',
+        data: { groupId: groupId },
+        success: function (data) {
 
-        <style>
-            .bar12
-    {
-        float: left;
-        position: relative;
-        bottom: 0;
-        z-index: -90;
-        display: block;
-        height: 100%;
-        margin: 0 40px;
-        bottom: 0;
-        height: 100%;
-        width: 37px;
-        background-color: #8297AA;
-        transform: rotateX(17.7deg) rotateY(-19deg);
-        -webkit-transform: rotateX(16.7deg) rotateY(-19deg);
-        -o-transform: rotateX(17.7deg) rotateY(-19deg);
-        -moz-transform: rotateX(17.7deg) rotateY(-19deg);
-        -ms-transform: rotateX(17.7deg) rotateY(-19deg);
-    }
-
-    /*on-hover Assessment Group Text*/
-
-    .group-tooltip .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 0;
-        position: absolute;
-        z-index: 1;
-        top: 120%;
-        left: 50%;
-        margin-left: -60px;
-        line-height: 25px;
-    }
-
-    .group-tooltip .tooltiptext::after {
-        content: "";
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: transparent transparent black transparent;
-    }
-
-    .group-tooltip:hover .tooltiptext {
-        visibility: visible;
-    }
-
-    /*on-hover Description Text*/
-    .desc-tooltip .tooltipdesctext {
-        visibility: hidden;
-        width: 250px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 0;
-        position: absolute;
-        z-index: 1;
-        top: 90%;
-        left: 33%;
-        margin-left: -60px;
-        line-height: 25px;
-    }
-
-    .desc-tooltip .tooltipdesctext::after {
-        content: "";
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: transparent transparent black transparent;
-    }
-
-    .desc-tooltip:hover .tooltipdesctext {
-        visibility: visible;
-    }
-
-    /*on-hover Question Text*/
-    .qn-tooltip .tooltipqntext {
-        visibility: hidden;
-        width: 250px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px 0;
-        position: absolute;
-        z-index: 1;
-        top: 90%;
-        left: 33%;
-        margin-left: -60px;
-        line-height: 25px;
-    }
-
-    .qn-tooltip .tooltipqntext::after {
-        content: "";
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: transparent transparent black transparent;
-    }
-
-    .qn-tooltip:hover .tooltipqntext {
-        visibility: visible;
-    }
-
-    </style>
-<div class="container-fluid no-padding">
-    <div class="row">
-        <div class="col-xs-12 no-padding">
-            <div class="col-xs-12 no-padding">
-                <div class="top-header-title" style="margin-top: 30px;">
-                    <h1>MATRIX SUMMARY</h1>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 no-padding">
-            <div class="col-xs-12 select-block no-padding">
-                <div class="col-lg-6 col-md-8 col-sm-8 col-xs-12" style="position:relative;">
-                    <select name="" id="yearSelect" class="matrix-select">
-                        <option value="0">--Select the program year--</option>
-                    </select>
-                   
-                </div>
-                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
-                    <select name="" class="matrix-select hidden">
-                        <option value="0">Year 2015</option>
-                        <option value="1">Year 2016</option>
-                        <option value="2" selected>Year 2017</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-xs-12 no-padding">
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 block assment-block-1">
-                    <div class="assment-block ">
-                        <h3>ASSESSMENT 1<span style="color:#f3f6f8;display:inline-block;width:auto;padding-left:8px;" class="as1-per">(93%)</span></h3>
-                        <div class="survey-3d-green survey-3d-green-ht master-bar1">
-                            <div class="bar-margin"></div>
-                            <div class="bar-label2"><p class="avg-p as1-avg">0<sub>Avg</sub></p></div>
-                            <!--new-->
-                            <div class="bar12">
-                                <div class="bar1a"></div>
-                                <div class="bar1b"></div>
-                            </div>
-                            <div class="bar-green hidden mastbar-green1">
-                                <div class="bar-in1">
-                                    <div class="bar-in1a"></div>
-                                    <div class="bar-in1b"></div>
-                                </div>
-                            </div>
-                            <!---new -->
-                        </div>
-
-                       
-
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 block assment-block-2">
-                    <div class="assment-block">
-                        <h3>ASSESSMENT 2<span style="color:#f3f6f8;display:inline-block;width:auto;padding-left:8px;" class="as2-per">(93%)</span></h3>
-                        <div class="survey-3d-green survey-3d-green-ht master-bar2">
-                            <div class="bar-margin"></div>
-                            <div class="bar-label2"><p class="avg-p as2-avg">0<sub>Avg</sub></p></div>
-                            <!---new -->
-                            <div class="bar1">
-                                <div class="bar1a"></div>
-                                <div class="bar1b"></div>
-                            </div>
-                            <div class="bar-green hidden mastbar-green2">
-                                <div class="bar-in1">
-                                    <div class="bar-in1a"></div>
-                                    <div class="bar-in1b"></div>
-                                </div>
-                            </div>
-                            <!--new-->
-                        </div>
-
-                      
-
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 block assment-block-3">
-                    <div class="assment-block">
-                        <h3>ASSESSMENT 3<span style="color:#f3f6f8;display:inline-block;width:auto;padding-left:8px;"  class="as3-per">(93%)</span></h3>
-                        <div class="survey-3d-green survey-3d-green-ht master-bar3">
-                            <div class="bar-margin"></div>
-                            <div class="bar-label2"><p class="avg-p as3-avg">0<sub>Avg</sub></p></div>
-                            <!--new-->
-                            <div class="bar1">
-                                <div class="bar1a"></div>
-                                <div class="bar1b"></div>
-                            </div>
-                            <div class="bar-green hidden mastbar-green3">
-                                <div class="bar-in1">
-                                    <div class="bar-in1a"></div>
-                                    <div class="bar-in1b"></div>
-                                </div>
-                            </div>
-                            <!--new-->
-                        </div>
-                       
-
-                    </div>
-                </div>
-                </div>
-
-            <div class="chart-report block col-xs-12 no-padding">
+            var bindDiv = "<div class='col-xs-12 text-center' style='padding:10px;font-size:24px; margin:auto;color:#163b69; margin-bottom:10px;'>Questions</div><div class='close-div'><i class='fa fa-times' aria-hidden='true'></i></div>";
+            if (data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var getdiv = "";
+                    getdiv = $('#questionText');
+                    var clno = i + 1;
+                    $('.sl-no').html(clno);
+                    $('.question').attr('question-id', data[i].AssessmentQuestionId);
+                    $('.question').html(data[i].AssessmentQuestion);
+                    $('#questionText').find('.tooltipqntext').html(data[i].AssessmentQuestion);
+                    getdiv.removeClass('sl-no question');
+                    bindDiv += getdiv.html();
+                }
+                $('#questionpopupDiv').html(bindDiv);
+                $('.div-question-' + catno).html('');
+                $('.div-question-' + catno).html($('.question-view-popup').html());
+                $('.div-question-' + catno).css('display', 'block');
+                $('.popup-div1').css('display', 'block');
 
 
-           </div>
+                var heightarrayQn = '';
+                var divheightQn = '';
+                if (isFirstQn === 1) {
 
-            </div>
+                    var divHeight = -16;
+                    heightarrayQn = ['-16px', '50px', '116px', '182px', '248px', '311px', '377px', '443px'];
+                    divheightQn = heightarrayQn[count - 1];
+                    $('.popup-div1').css('top', divheightQn);
+                }
+                else {
+                    heightarrayQn = ['-135px', '-70px', '-5px', '61px', '126px', '192px', '255px', '321px'];
+                    divheightQn = heightarrayQn[count - 1];
+                    $('.popup-div1  ').css('top', divheightQn);
+                }
 
-        </div>
-    </div>
-
-   
-
-    <!----------------Chart block-div--------->
-<div class="col-xs-12  chart-block-div hidden">
-
-    <div class="col-xs-12 no-padding cat-block category-div" cat-id="0">
-
-        <div class="div-group-summary popup-display-overlay"></div>
-        <div class="div-question-summary popup-display-overlay"></div>
-
-        <div class="col-lg-4 col-xs-12 z-index-change">
-            <div class="col-xs-12 no-padding">
-                <div class="matrix-header-title">
-                    <h1>MATRIX SURVEY</h1>
-                </div>
-            </div>
-
-            <div class="col-sm-12 no-padding block-div float-div height-auto" style="background: #f1f5f8;border-radius: 5px;float: left;width: 100%;float: left;width: 100%;">
-                <div class="col-lg-2 no-padding survey-text change-div height-auto">
-                        <h2 class="cat-name" cat-id="0" style="text-transform:uppercase;"></h2>
-                    </div>
-                    <div class="col-lg-10 survey-block change-div group-section">
-
-                    </div>
-                </div>
-            </div>
-        <div class="col-lg-6 col-xs-12 no-padding">
-            <div class="col-xs-12 no-padding matrix-header-title2">
-                <div class="col-sm-4 no-padding">
-                    <div class="matrix-header-title1" style="background: none;">
-                        <h1>ASSESSMENT 1</h1>
-                    </div>
-                </div>
-                <div class="col-sm-4 no-padding">
-                    <div class="matrix-header-title1" style="background: none;">
-                        <h1>ASSESSMENT 2</h1>
-                    </div>
-                </div>
-                <div class="col-sm-4 no-padding">
-                    <div class="matrix-header-title1" style="background: none;">
-                        <h1>ASSESSMENT 3</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-12 no-padding block-div height-auto change-div" style="background: #f1f5f8;border-radius: 5px;margin-bottom:20px;float: left; width: 100%;overflow: hidden;">
-                <div class="col-sm-4">
-                    <div class="col-xs-12 no-padding">
-                        <div class="col-sm-4 col-xs-3 no-padding margin-change as1-matrix-value-block">
-
-                        </div>
-                        <div class="col-sm-8 col-xs-4 pad-change">
-                            <div class="bar-label bar-label_1"><p></p></div>
-                            <div class="survey-3d-green">
-                                <div class="bar-margin"></div>
-                                <!--new -->
-                                <div class="bar">
-                                    <div class="bara"></div>
-                                    <div class="barb"></div>
-                                </div>
-                                <div class="bar-green hidden  bar_green1">
-                                    <div class="bar-in1">
-                                        <div class="bar-in1a"></div>
-                                        <div class="bar-in1b"></div>
-                                    </div>
-                                </div>
-                                <!--new-->
-
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="col-xs-12 no-padding">
-                        <div class="col-sm-4 col-xs-3 no-padding margin-change as2-matrix-value-block">
-
-                        </div>
-                        <div class="col-sm-8 col-xs-4 pad-change">
-                            <div class="bar-label bar-label_2"><p></p></div>
-                            <div class="survey-3d-green">
-                                <div class="bar-margin"></div>
-                                <!--new -->
-                                <div class="bar">
-                                    <div class="bara"></div>
-                                    <div class="barb"></div>
-                                </div>
-                                <div class="bar-green hidden bar_green2">
-                                    <div class="bar-in1">
-                                        <div class="bar-in1a"></div>
-                                        <div class="bar-in1b"></div>
-                                    </div>
-                                </div>
-                                <!--new-->
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <div class="col-xs-12 no-padding">
-                        <div class="col-sm-4 col-xs-3 no-padding margin-change as3-matrix-value-block">
-
-                        </div>
-                        <div class="col-sm-8 col-xs-4 pad-change">
-                            <div class="bar-label bar-label_3"><p>0</p></div>
-                            <div class="survey-3d-green">
-                                <div class="bar-margin"></div>
-                             
-                                <!---new-->
-                                <div class="bar">
-                                    <div class="bara"></div>
-                                    <div class="barb"></div>
-                                </div>
-                                <div class="bar-green hidden  bar_green3">
-                                    <div class="bar-in1">
-                                        <div class="bar-in1a"></div>
-                                        <div class="bar-in1b"></div>
-                                    </div>
-                                </div>
-                                <!--new-->
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <div class="col-lg-2 col-xs-12">
-            <div class="col-xs-12 no-padding">
-                <div class="matrix-header-title">
-                    <h1>CHG<span style="padding-left: 10px;"><img src="/images/dw-arw.png"></span><span><img src="/images/tp-arw.png"></span></h1>
-                </div>
-            </div>
-            <div class="col-sm-12 block-div height-auto change-div" style="background: #f1f5f8;border-radius: 5px;padding: 15px;margin-bottom:20px;float:left;width:100%;">
-                <div class="chg-text chg-per-block">
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!----------------Chart block-div--------->
-
-
-    <!---------Group Block-------->
-<div class="group-block hidden">
-    <div class="col-xs-12 no-padding">
-        <div class="col-sm-2 col-xs-2 pad-change">
-            <div class="survey-3d">
-                <img class="group-image" src="/images/3d-color1.png">
-            </div>
-        </div>
-        <div class="col-sm-10 col-xs-10 pad-change">
-            <div class="education-content-desc group-tooltip" style="position: relative;">
-                <p class="group-name" group-id="0"></p>
-                <span class="rt-arw"><img src="/images/rt-aw.png"></span>
-                <span class="tooltiptext"></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!---------Group Block-------->
-<!--------------Matrix value Section----------->
-<div class="matrix-value-section hidden">
-    <div class="education-content-3d-desc">
-        <p style="margin-top: 15px;" class="mat-value"></p>
-    </div>
-</div>
-<!--------------Matrix value Section----------->
-<!------Change---Value--Section----------->
-<div class="change-value hidden">
-    <p style="color:#2ecc71;">10% <span><img src="/images/dw-arw.png"></span></p>
-</div>
-<!------Change---Value--Section----------->
-
-
-     <!--div for Description Popup- Start-->
-<div class="hidden" id="descText">
-    <div class="col-xs-12 no-padding">
-        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-2 pad-change">
-            <div class="education-content-desc2">
-                <p class="matrix-value" id="matrixValue" score-id="0"></p>
-            </div>
-        </div>
-        <div class="col-lg-11 col-md-10 col-sm-9 col-xs-10 pad-change">
-            <div class="education-content-desc desc-tooltip">
-                <p class="description" id="descriptionText"></p>
-                <span class="tooltipdesctext"></span>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="desc-view-popup" style="position: relative;display:none">
-    <div class="col-lg-8 col-xs-12 popup-div">
-        <div class="left-arw">
-            <img src="/images/left-aw.png">
-        </div>
-        <div class="col-xs-12 survey-margin" style="background: #f1f5f8;border-radius: 5px;padding: 12px;border: 1px solid #333;position:relative;" id="popupDiv">
-
-        </div>
-    </div>
-</div>
-
-<!--div for Description Popup- ENd-->
-<!--div for Question Popup- Start-->
-<div class="hidden" id="questionText">
-    <div class="col-xs-12 no-padding">
-        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-2 pad-change">
-            <div class="education-content-desc2">
-                <p class="sl-no" id="serialNo">5</p>
-            </div>
-        </div>
-        <div class="col-lg-11 col-md-10 col-sm-9 col-xs-10 pad-change">
-            <div class="education-content-desc qn-tooltip">
-                <p class="question" id="questionText"></p>
-                <span class="tooltipqntext"></span>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="question-view-popup" style="display:none;">
-    <div class="col-lg-8 col-xs-12 question-popup-div popup-div1">
-        <div class="left-arw"><img src="/images/left-aw.png"></div>
-        <div class="col-xs-12 survey-margin" style="background: #f1f5f8;border-radius: 5px;padding: 12px;border: 1px solid #333;position:relative;" id="questionpopupDiv">
-        </div>
-    </div>
-</div>
-
-<!--div for Question Popup- ENd-->
-<script src="~/Scripts/MatrixSummary.js"></script>
-     }
+            }
+        }
+    });
+}
