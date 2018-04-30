@@ -35,14 +35,14 @@ namespace Fingerprints.Utilities
             return Count;
         }
 
-        public static List<SelectListItem> GetCentersByUserId(string UserId, string AgencyId, string RoleId,bool isReqAdminSite=false)
+        public static List<SelectListItem> GetCentersByUserId(string UserId, string AgencyId, string RoleId, bool isReqAdminSite = false)
         {
             List<SelectListItem> lstCenters = new List<SelectListItem>();
             try
             {
                 DataTable dtCenters = new DataTable();
                 lstCenters.Add(new SelectListItem { Text = "-Select Center-", Value = "0" });
-                new CenterData().GetCentersByUserId(ref dtCenters, UserId, AgencyId, RoleId,isReqAdminSite);
+                new CenterData().GetCentersByUserId(ref dtCenters, UserId, AgencyId, RoleId, isReqAdminSite);
                 if (dtCenters != null)
                 {
                     if (dtCenters.Rows.Count > 0)
@@ -200,20 +200,20 @@ namespace Fingerprints.Utilities
         /// method to get, whether Logged in user having access to PIR and Section B
         /// </summary>
         /// <returns></returns>
-        public static bool GetUserAccessPIR(string mode="1")
+        public static bool GetUserAccessPIR(string mode = "1")
         {
             bool isAccess = false;
             try
             {
                 isAccess = new agencyData().GetUserAccessPIR(mode);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
             return isAccess;
         }
-      
+
 
         //public static List<SelectListItem> GetChildDetails(string AgencyId)
         //{
@@ -407,8 +407,9 @@ namespace Fingerprints.Utilities
             try
             {
                 listYears.Add(new SelectListItem { Text = "Choose", Value = "0" });
-                listYears.AddRange(GetActiveProgramYear(AgencyId));
-                listYears.AddRange(GetCurrentAndFutureYear());
+                //listYears.AddRange(GetActiveProgramYear(AgencyId));
+                //listYears.AddRange(GetCurrentAndFutureYear());
+                listYears.AddRange(GetCurrentandFutureYearsByAgency(AgencyId));
                 listYears = listYears.Distinct().ToList();
             }
             catch (Exception ex)
@@ -417,6 +418,56 @@ namespace Fingerprints.Utilities
                 clsError.WriteException(ex);
             }
             return listYears;
+        }
+
+        public static List<SelectListItem> GetCurrentandFutureYearsByAgency(string agencyId)
+        {
+            List<SelectListItem> futureYears = new List<SelectListItem>();
+            try
+            {
+                futureYears.AddRange(GetActiveProgramYear(agencyId));
+
+                if (futureYears.Count > 0)
+                {
+                    string currentyear = futureYears[0].Text;
+                    string nextText = "";
+                    string nextValue = "";
+                    nextText = (Convert.ToInt32(currentyear.Split('-')[0]) - 1).ToString() + "-" + (Convert.ToInt32(currentyear.Split('-')[0])).ToString();
+                    nextValue = (nextText).ToString().Split('-')[0].Substring(2, 2) + "-" + (nextText).ToString().Split('-')[1].Substring(2, 2);
+
+                    futureYears.Clear();
+                    futureYears.Add(new SelectListItem
+                    {
+                        Text = nextText,
+                        Value = nextValue
+                    });
+
+                    futureYears.Add(new SelectListItem
+                    {
+                        Text = currentyear,
+                        Value = (currentyear).ToString().Split('-')[0].Substring(2, 2) + "-" + (currentyear).ToString().Split('-')[1].Substring(2, 2)
+                    });
+
+                    nextText = (Convert.ToInt32(currentyear.Split('-')[1])).ToString() + "-" + (Convert.ToInt32(currentyear.Split('-')[1]) + 1).ToString();
+                    nextValue = (nextText).ToString().Split('-')[0].Substring(2, 2) + "-" + (nextText).ToString().Split('-')[1].Substring(2, 2);
+                    futureYears.Add(new SelectListItem
+                    {
+                        Text = nextText,
+                        Value = nextValue
+
+                    });
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return futureYears;
+
         }
 
         public static List<SelectListItem> GetActiveProgramYear(string AgencyId)
