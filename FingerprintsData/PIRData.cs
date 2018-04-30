@@ -413,7 +413,8 @@ namespace FingerprintsData
                             center = Convert.ToString(dr["CenterID"]),
                             classroom = Convert.ToString(dr["ClassroomID"]),
                             piratenrollment = Convert.ToString(dr["pirquest"]),
-                            pirafterenrollment = Convert.ToString(dr["pirquest2"])
+                            pirafterenrollment = Convert.ToString(dr["pirquest2"]),
+                            clientStatus = Convert.ToString(dr["Status"])
                            
                         });
                        _PIR.piratenrollmentDesc = Convert.ToString(dr["Description"]);

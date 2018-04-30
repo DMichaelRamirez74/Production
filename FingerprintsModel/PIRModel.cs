@@ -325,6 +325,7 @@ namespace FingerprintsModel
             public string pirafterenrollment { get; set; }
             public string pirafterenrollmentDesc { get; set; }
             public string program { get; set; }
+            public string clientStatus { get; set; }
             public List<PIRModel> PIRlst { get; set; }
 
        

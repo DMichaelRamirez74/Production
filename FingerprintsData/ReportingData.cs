@@ -228,7 +228,7 @@ namespace FingerprintsData
                 });
             }
             _ReportingM.reporttype = 4;
-            _ReportingM.ColumnName = "Etnicity";
+            _ReportingM.ColumnName = "Ethnicity";
             _ReportingM.Reportlst = chList;
             Connection.Close();
             command.Dispose();
