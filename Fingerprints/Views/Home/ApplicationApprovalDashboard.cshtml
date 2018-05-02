@@ -353,6 +353,8 @@
 	function Loadscreening(Object) {
  	$('#Modalclientscreeningmissing').modal('toggle');
 	}
+
+
         function Loadchildmissingscreening(Object) {
 
             Center = Object;
@@ -365,14 +367,17 @@
                 },
                 dataType: "json",
                 secureuri: false,
-                async: false,
+                async: true,
+                beforeSend: function () { $('#spinner').show();},
                 success: function (data) {
+                    $('#spinner').hide();
                     $('#CenterName3').text($(Object).attr("centername") +" (Screening Matrix)");
                     BindClientmissigscreenings(data.Screenings);
                     if ($('#Classroommatrix').val()==null)
                     bindClassroom(data.Classroom);
                 }
                , error: function (data) {
+                   $('#spinner').hide();
                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
                }
             });
@@ -751,8 +756,8 @@
             if ($('#DivclientmissingList > tbody > tr').length > 0)
             {
                 if (Center != null) {
-                    var centerid= $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
-                    window.location.href = HostedDir + "/Nurse/DownloadScreeningMatrixExcel?Centerid=" + $(Center).attr("accesskey") + "&Classroom=" + centerid;
+                    var centerid = $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
+                        window.location.href = HostedDir + "/Nurse/DownloadScreeningMatrixExcel?Centerid=" + $(Center).attr("accesskey") + "&Classroom=" + centerid;
                 }
             }
             else
