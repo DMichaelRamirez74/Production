@@ -338,7 +338,7 @@ namespace Fingerprints.Controllers
                 Scheduler schedule = new FingerprintsModel.Scheduler();
                 schedule.MeetingDate = date;
                 schedule.Enc_ClientId = clientId;
-                schedule.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
+                schedule.ClientId =(clientId=="" ||clientId=="0")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
                 schedule.AgencyId = new Guid(Session["AgencyId"].ToString());
                 schedule.StaffId = new Guid(Session["UserID"].ToString());
                 schedularList = new HomevisitorData().GetHomeVisitAttendanceByFromDate(schedule);

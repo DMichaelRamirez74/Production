@@ -586,6 +586,8 @@ namespace FingerprintsData
 
                 });
 
+                schedulerList = schedulerList.Distinct().ToList();
+
                 table = GetHistoricalEntryTable(schedulerList);
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@AgencyID", agencyId));
