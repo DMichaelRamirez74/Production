@@ -201,6 +201,10 @@
                 $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + 'Wait2');
             if (Option == 3)
                 $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + 'Wait3');
+            if (Option == 4)
+                $('#CenterName').text($(Object).closest("tr").find("td:first a").text() + '-' + 'Future Waiting');
+
+
             $.ajax({
                 url: HostedDir + "/Home/GetclientWaitingList",
                 type: "POST",
@@ -211,11 +215,14 @@
                 },
                 dataType: "json",
                 secureuri: false,
-                async: false,
+                async: true,
+                beforeSend:function(){$('#spinner').show()},
                 success: function (Data) {
+                    $('#spinner').hide();
                     BindClientlist(Data);
                 }
 			   , error: function (Data) {
+			       $('#spinner').hide();
 			       customAlert("Session Ended Log Onto The System Again.");
 			       setTimeout(function () {
 			           window.location.href = HostedDir + '/login/Loginagency';
@@ -290,11 +297,15 @@
                     },
                     dataType: "json",
                     secureuri: false,
-                    async: false,
+                    async: true,
+                    beforeSend:function(){$('#spinner').show() },
                     success: function (Data) {
+                        $('#spinner').hide();
+
                         BindClientlist(Data);
                     }
 				, error: function (Data) {
+				    $('#spinner').hide();
 				    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
 				}
                 });
@@ -2008,6 +2019,12 @@
 @section MainContentHolder{
 
 <link href="~/Content/css/agencystaffdashboard.css" rel="stylesheet" />
+    <style>
+        #gridViewAgency>thead>tr>th{
+
+            white-space:nowrap;
+        }
+    </style>
     
     <div class="row">
 
@@ -2026,11 +2043,12 @@
                             <th>Center Name</th>
                             <th>%Full</th>
                             <th>Open Seats</th>
-                            <th>FSW HV's</th>
+                            <th>HV's</th>
                             <th>Wait1</th>
                             <th>Wait2</th>
                             <th>Wait3</th>
-                            <th>Total Waiting</th>
+                            <th>T-Waiting</th>
+                            <th>F-Waiting</th>
                             <th title="100">Pending</th>
                             <th title="101">Accepted</th>
                             <th title="102">Returned</th>
@@ -2078,6 +2096,18 @@
                                     {
                                         <td style="text-align: right;"><a href="#">0</a></td>
                                     }
+
+                                    @if (center.FutureWaiting != "0")
+                                    {
+                                        <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientlist(this,'@center.CenterId',4);" href="#">@center.FutureWaiting</a></td>
+                                    }
+                                    else
+                                    {
+                                        <td style="text-align: right;"><a href="#" >@center.FutureWaiting</a></td>
+                                    }
+
+
+                                   
                                     @if (center.Routecode100 != "0")
                                     {
                                         <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId');" href="#">@center.Routecode100</a></td>

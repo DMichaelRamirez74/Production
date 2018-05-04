@@ -101,7 +101,8 @@ namespace FingerprintsModel
             public string AcceptApplicant { get; set; }
             public string AcceptReason { get; set; }
         public string RejectDesc { get; set; }
-            public int HealthReview { get; set; }
+        public string AcceptDesc { get; set; }
+        public int HealthReview { get; set; }
             public List<Nurse> getList { get; set; }
             public calculateincome calcualteincome { get; set; }
             public string AmountNo { get; set; }

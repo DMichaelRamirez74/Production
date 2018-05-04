@@ -291,7 +291,7 @@ namespace FingerprintsData
                         {
                             FamilyHousehold.Programdetail obj = new FamilyHousehold.Programdetail();
                             obj.Id = Convert.ToInt32(dr["programtypeid"]);
-                            obj.Name = dr["programtype"].ToString();
+                            obj.Name = dr["programtype"].ToString()+" "+"("+dr["ReferenceName"].ToString()+")";
                             obj.ReferenceId = dr["ReferenceId"].ToString();
                             Programs.Add(obj);
                         }
@@ -1238,6 +1238,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@FileInBytes3", obj.PImageByte));
                     command.Parameters.Add(new SqlParameter("@PQuestion", obj.PQuestion));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherenrolled", obj.Pregnantmotherenrolled));
+                    command.Parameters.Add(new SqlParameter("@IsFutureIntakePreg", obj.IsFutureIntakePregEnrolled));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherprimaryinsurance", obj.Pregnantmotherprimaryinsurance));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherprimaryinsurancenotes", obj.Pregnantmotherprimaryinsurancenotes));
                     command.Parameters.Add(new SqlParameter("@TrimesterEnrolled", obj.TrimesterEnrolled));
@@ -1400,6 +1401,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@PGuardiannotes", obj.PGuardiannotes));
                     command.Parameters.Add(new SqlParameter("@PQuestion", obj.PQuestion));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherenrolled", obj.Pregnantmotherenrolled));
+                    command.Parameters.Add(new SqlParameter("@IsFutureIntakePreg", obj.IsFutureIntakePregEnrolled));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherprimaryinsurance", obj.Pregnantmotherprimaryinsurance));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherprimaryinsurancenotes", obj.Pregnantmotherprimaryinsurancenotes));
                     command.Parameters.Add(new SqlParameter("@TrimesterEnrolled", obj.TrimesterEnrolled));
@@ -1547,6 +1549,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@FileInBytes4", obj.P1ImageByte));
                     command.Parameters.Add(new SqlParameter("@P1Question", obj.P1Question));
                     command.Parameters.Add(new SqlParameter("@PregnantmotherenrolledP1", obj.PregnantmotherenrolledP1));
+                    command.Parameters.Add(new SqlParameter("@IsFutureIntakePreg1", obj.IsFutureIntakePregEnrolled1));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherprimaryinsurance1", obj.Pregnantmotherprimaryinsurance1));
                     command.Parameters.Add(new SqlParameter("@Pregnantmotherprimaryinsurancenotes1", obj.Pregnantmotherprimaryinsurancenotes1));
                     command.Parameters.Add(new SqlParameter("@TrimesterEnrolled1", obj.TrimesterEnrolled1));
@@ -2113,6 +2116,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@IsFutureIntake", (obj.IsFutureApplication)?"1":"0"));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_FamilyDetails_info";//SP_FamilyDetails_info_TempNutritn
@@ -2219,6 +2223,12 @@ namespace FingerprintsData
                         obj.PQuestion = _dataset.Tables[0].Rows[0]["IsPreg"].ToString();
                     if (_dataset.Tables[0].Rows[0]["EnrollforPregnant"].ToString() != "")
                         obj.Pregnantmotherenrolled = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["EnrollforPregnant"]);
+
+                    if (_dataset.Tables[0].Rows[0]["IsFutureIntakePregEnrolled"].ToString() != "")
+                        obj.IsFutureIntakePregEnrolled = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsFutureIntakePregEnrolled"]);
+
+
+
                     if (_dataset.Tables[0].Rows[0]["motherinsurance"].ToString() != "")
                         obj.Pregnantmotherprimaryinsurance = Convert.ToInt32(_dataset.Tables[0].Rows[0]["motherinsurance"]);
                     if (_dataset.Tables[0].Rows[0]["insurancenotemother"].ToString() != "")
@@ -2355,6 +2365,11 @@ namespace FingerprintsData
                         obj.P1Question = _dataset.Tables[0].Rows[1]["IsPreg"].ToString();
                     if (_dataset.Tables[0].Rows[1]["EnrollforPregnant"].ToString() != "")
                         obj.PregnantmotherenrolledP1 = Convert.ToBoolean(_dataset.Tables[0].Rows[1]["EnrollforPregnant"]);
+
+
+                    if (_dataset.Tables[0].Rows[1]["IsFutureIntakePregEnrolled"].ToString() != "")
+                        obj.IsFutureIntakePregEnrolled1 = Convert.ToBoolean(_dataset.Tables[0].Rows[1]["IsFutureIntakePregEnrolled"]);
+
                     if (_dataset.Tables[0].Rows[1]["motherinsurance"].ToString() != "")
                         obj.Pregnantmotherprimaryinsurance1 = Convert.ToInt32(_dataset.Tables[0].Rows[1]["motherinsurance"]);
                     if (_dataset.Tables[0].Rows[1]["insurancenotemother"].ToString() != "")
@@ -2489,6 +2504,8 @@ namespace FingerprintsData
                         _Qualifier.HealthReview = Convert.ToInt32(dr["HealthReview"]);
                         _Qualifier.HealthReviewAllowed = Convert.ToInt32(dr["Healthreviewallowed"]);
                         _Qualifier.HealthReviewPm = dr["HealthReviewPm"].ToString() == "" ? false : Convert.ToBoolean(dr["HealthReviewPm"]);
+                        _Qualifier.IsFutureIntake = string.IsNullOrEmpty(dr["IsFutureIntake"].ToString()) ? false : Convert.ToBoolean(dr["IsFutureIntake"]);
+
                         Qualifier.Add(_Qualifier);
                         _Qualifier = null;
                     }
@@ -2936,7 +2953,7 @@ namespace FingerprintsData
 
             }
         }
-        public List<FamilyHousehold> getHouseholdList(out string totalrecord, out string IncompleteApplication, string sortOrder, string sortDirection, string search, string search1, int skip, int pageSize, string userid, int centerid, int option, int housholdid, bool Applicationstatus)
+        public List<FamilyHousehold> getHouseholdList(out string totalrecord, out string IncompleteApplication, string sortOrder, string sortDirection, string search, string search1, int skip, int pageSize, string userid, int centerid, int option, int housholdid, bool Applicationstatus,int applicationByYear)
         {
             List<FamilyHousehold> _householdlist = new List<FamilyHousehold>();
             try
@@ -2967,6 +2984,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Applicationstatus", Applicationstatus));
                 command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@IncompleteApplication", 0)).Direction = ParameterDirection.Output;
+                command.Parameters.Add(new SqlParameter("@CurrentFutureApplication", applicationByYear));
                 command.Parameters["@IncompleteApplication"].Size = 10;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -2987,6 +3005,7 @@ namespace FingerprintsData
                         addhouseholdRow.CreatedOn = Convert.ToDateTime(familydataTable.Rows[i]["DateEntered"]).ToString("MM/dd/yyyy");
                         addhouseholdRow.Encrypthouseholid = EncryptDecrypt.Encrypt64(familydataTable.Rows[i]["HouseholdID"].ToString());
                         addhouseholdRow.ApplicationStatusChild = familydataTable.Rows[i]["ApplicationStatus"].ToString();
+                        addhouseholdRow.IsFutureApplication = familydataTable.Rows[i]["IsFutureIntake"].ToString()=="1"?true:false;
                         _householdlist.Add(addhouseholdRow);
                     }
                     totalrecord = command.Parameters["@totalRecord"].Value.ToString();
@@ -3065,6 +3084,7 @@ namespace FingerprintsData
                         obj.Cfirstname = _dataset.Tables[0].Rows[0]["Firstname"].ToString();
                         obj.Cmiddlename = _dataset.Tables[0].Rows[0]["Middlename"].ToString();
                         obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
+                        obj.IsFutureApplication = _dataset.Tables[0].Rows[0]["IsFutureIntake"].ToString() == "1" ? true : false;
                         if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
                             obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
                         if (_dataset.Tables[0].Rows[0]["DateOfEnrollment"].ToString() != "")
@@ -3885,770 +3905,770 @@ namespace FingerprintsData
         //        command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
         //        command.Parameters.Add(new SqlParameter("@roleid", roleid));
 
-            //        command.Connection = Connection;
-            //        command.CommandType = CommandType.StoredProcedure;
-            //        command.CommandText = "SP_chidinfo";//SP_chidinfo
-            //        DataAdapter = new SqlDataAdapter(command);
-            //        _dataset = new DataSet();
-            //        DataAdapter.Fill(_dataset);
-            //        if (_dataset != null)
-            //        {
-            //            if (_dataset.Tables[0].Rows.Count > 0)
-            //            {
-            //                obj.ChildId = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
-            //                obj.Cfirstname = _dataset.Tables[0].Rows[0]["Firstname"].ToString();
-            //                obj.Cmiddlename = _dataset.Tables[0].Rows[0]["Middlename"].ToString();
-            //                obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
-            //                if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
-            //                    obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
-            //                obj.DOBverifiedBy = _dataset.Tables[0].Rows[0]["Dobverifiedby"].ToString();
-            //                try
-            //                {
-            //                    obj.CSSN = _dataset.Tables[0].Rows[0]["SSN"].ToString() == "" ? "" : EncryptDecrypt.Decrypt(_dataset.Tables[0].Rows[0]["SSN"].ToString());
-            //                }
-            //                catch (Exception ex)
-            //                {
-            //                    clsError.WriteException(ex);
-            //                    obj.CSSN = _dataset.Tables[0].Rows[0]["SSN"].ToString();
-            //                }
+        //        command.Connection = Connection;
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_chidinfo";//SP_chidinfo
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataset = new DataSet();
+        //        DataAdapter.Fill(_dataset);
+        //        if (_dataset != null)
+        //        {
+        //            if (_dataset.Tables[0].Rows.Count > 0)
+        //            {
+        //                obj.ChildId = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
+        //                obj.Cfirstname = _dataset.Tables[0].Rows[0]["Firstname"].ToString();
+        //                obj.Cmiddlename = _dataset.Tables[0].Rows[0]["Middlename"].ToString();
+        //                obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
+        //                if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
+        //                    obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+        //                obj.DOBverifiedBy = _dataset.Tables[0].Rows[0]["Dobverifiedby"].ToString();
+        //                try
+        //                {
+        //                    obj.CSSN = _dataset.Tables[0].Rows[0]["SSN"].ToString() == "" ? "" : EncryptDecrypt.Decrypt(_dataset.Tables[0].Rows[0]["SSN"].ToString());
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    clsError.WriteException(ex);
+        //                    obj.CSSN = _dataset.Tables[0].Rows[0]["SSN"].ToString();
+        //                }
 
-            //                obj.CProgramType = _dataset.Tables[0].Rows[0]["Programtype"].ToString();
-            //                obj.CGender = _dataset.Tables[0].Rows[0]["Gender"].ToString();
-            //                obj.CRace = _dataset.Tables[0].Rows[0]["RaceID"].ToString();
-            //                obj.CRaceSubCategory = _dataset.Tables[0].Rows[0]["RaceSubCategoryID"].ToString();
-            //                if (_dataset.Tables[0].Rows[0]["ImmunizationServiceType"].ToString() != "")
-            //                    obj.ImmunizationService = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ImmunizationServiceType"]);
-            //                if (_dataset.Tables[0].Rows[0]["MedicalService"].ToString() != "")
-            //                    obj.MedicalService = Convert.ToInt32(_dataset.Tables[0].Rows[0]["MedicalService"]);
-            //                if (_dataset.Tables[0].Rows[0]["Medicalhome"].ToString() != "")
-            //                    obj.Medicalhome = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Medicalhome"]);
-            //                if (_dataset.Tables[0].Rows[0]["ParentDisable"].ToString() != "")
-            //                    obj.CParentdisable = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ParentDisable"]);
-            //                //Added by Santosh For IsIEP IsFSP
-            //                if (_dataset.Tables[0].Rows[0]["IEP"].ToString() != "")
-            //                    obj.IsIEP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IEP"].ToString());
-            //                if (_dataset.Tables[0].Rows[0]["IFSP"].ToString() != "")
-            //                    obj.IsIFSP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IFSP"].ToString());
-            //                if (_dataset.Tables[0].Rows[0]["IsExpired"].ToString() != "")
-            //                    obj.IsExpired = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsExpired"].ToString());
-            //                //
-            //                if (_dataset.Tables[0].Rows[0]["BMIStatus"].ToString() != "")
-            //                    obj.BMIStatus = Convert.ToInt32(_dataset.Tables[0].Rows[0]["BMIStatus"]);
-            //                if (_dataset.Tables[0].Rows[0]["DentalHome"].ToString() != "")
-            //                    obj.CDentalhome = Convert.ToInt32(_dataset.Tables[0].Rows[0]["DentalHome"]);
-            //                if (_dataset.Tables[0].Rows[0]["Ethnicity"].ToString() != "")
-            //                    obj.CEthnicity = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Ethnicity"]);
-            //                obj.CFileName = _dataset.Tables[0].Rows[0]["FileNameul"].ToString();
-            //                obj.CFileExtension = _dataset.Tables[0].Rows[0]["FileExtension"].ToString();
-            //                obj.DobFileName = _dataset.Tables[0].Rows[0]["Dobfilename"].ToString();
-            //                obj.CDoctor = _dataset.Tables[0].Rows[0]["doctorname"].ToString();
-            //                obj.CDentist = _dataset.Tables[0].Rows[0]["dentistname"].ToString();
-            //                if (_dataset.Tables[0].Rows[0]["Doctorvalue"].ToString() != "")
-            //                    obj.Doctor = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Doctorvalue"]);
-            //                if (_dataset.Tables[0].Rows[0]["Dentistvalue"].ToString() != "")
-            //                    obj.Dentist = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Dentistvalue"]);
-            //                if (_dataset.Tables[0].Rows[0]["SchoolDistrict"].ToString() != "")
-            //                    obj.SchoolDistrict = Convert.ToInt32(_dataset.Tables[0].Rows[0]["SchoolDistrict"]);
-            //                if (_dataset.Tables[0].Rows[0]["DobPaper"].ToString() != "")
-            //                    obj.DobverificationinPaper = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["DobPaper"]);
-            //                if (_dataset.Tables[0].Rows[0]["FosterChild"].ToString() != "")
-            //                    obj.IsFoster = Convert.ToInt32(_dataset.Tables[0].Rows[0]["FosterChild"]);
-            //                if (_dataset.Tables[0].Rows[0]["WelfareAgency"].ToString() != "")
-            //                    obj.Inwalfareagency = Convert.ToInt32(_dataset.Tables[0].Rows[0]["WelfareAgency"]);
-            //                if (_dataset.Tables[0].Rows[0]["DualCustodyChild"].ToString() != "")
-            //                    obj.InDualcustody = Convert.ToInt32(_dataset.Tables[0].Rows[0]["DualCustodyChild"]);
-            //                if (_dataset.Tables[0].Rows[0]["PrimaryInsurance"].ToString() != "")
-            //                    obj.InsuranceOption = _dataset.Tables[0].Rows[0]["PrimaryInsurance"].ToString();
-            //                if (_dataset.Tables[0].Rows[0]["InsuranceNotes"].ToString() != "")
-            //                    obj.MedicalNote = _dataset.Tables[0].Rows[0]["InsuranceNotes"].ToString();
-            //                if (_dataset.Tables[0].Rows[0]["ImmunizationinPaper"].ToString() != "")
-            //                    obj.ImmunizationinPaper = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["ImmunizationinPaper"]);
-            //                obj.ImmunizationFileName = _dataset.Tables[0].Rows[0]["ImmunizationFileName"].ToString();
-            //                obj.Raceother = _dataset.Tables[0].Rows[0]["OtherRace"].ToString();
-            //                //ChildTransport
+        //                obj.CProgramType = _dataset.Tables[0].Rows[0]["Programtype"].ToString();
+        //                obj.CGender = _dataset.Tables[0].Rows[0]["Gender"].ToString();
+        //                obj.CRace = _dataset.Tables[0].Rows[0]["RaceID"].ToString();
+        //                obj.CRaceSubCategory = _dataset.Tables[0].Rows[0]["RaceSubCategoryID"].ToString();
+        //                if (_dataset.Tables[0].Rows[0]["ImmunizationServiceType"].ToString() != "")
+        //                    obj.ImmunizationService = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ImmunizationServiceType"]);
+        //                if (_dataset.Tables[0].Rows[0]["MedicalService"].ToString() != "")
+        //                    obj.MedicalService = Convert.ToInt32(_dataset.Tables[0].Rows[0]["MedicalService"]);
+        //                if (_dataset.Tables[0].Rows[0]["Medicalhome"].ToString() != "")
+        //                    obj.Medicalhome = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Medicalhome"]);
+        //                if (_dataset.Tables[0].Rows[0]["ParentDisable"].ToString() != "")
+        //                    obj.CParentdisable = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ParentDisable"]);
+        //                //Added by Santosh For IsIEP IsFSP
+        //                if (_dataset.Tables[0].Rows[0]["IEP"].ToString() != "")
+        //                    obj.IsIEP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IEP"].ToString());
+        //                if (_dataset.Tables[0].Rows[0]["IFSP"].ToString() != "")
+        //                    obj.IsIFSP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IFSP"].ToString());
+        //                if (_dataset.Tables[0].Rows[0]["IsExpired"].ToString() != "")
+        //                    obj.IsExpired = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsExpired"].ToString());
+        //                //
+        //                if (_dataset.Tables[0].Rows[0]["BMIStatus"].ToString() != "")
+        //                    obj.BMIStatus = Convert.ToInt32(_dataset.Tables[0].Rows[0]["BMIStatus"]);
+        //                if (_dataset.Tables[0].Rows[0]["DentalHome"].ToString() != "")
+        //                    obj.CDentalhome = Convert.ToInt32(_dataset.Tables[0].Rows[0]["DentalHome"]);
+        //                if (_dataset.Tables[0].Rows[0]["Ethnicity"].ToString() != "")
+        //                    obj.CEthnicity = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Ethnicity"]);
+        //                obj.CFileName = _dataset.Tables[0].Rows[0]["FileNameul"].ToString();
+        //                obj.CFileExtension = _dataset.Tables[0].Rows[0]["FileExtension"].ToString();
+        //                obj.DobFileName = _dataset.Tables[0].Rows[0]["Dobfilename"].ToString();
+        //                obj.CDoctor = _dataset.Tables[0].Rows[0]["doctorname"].ToString();
+        //                obj.CDentist = _dataset.Tables[0].Rows[0]["dentistname"].ToString();
+        //                if (_dataset.Tables[0].Rows[0]["Doctorvalue"].ToString() != "")
+        //                    obj.Doctor = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Doctorvalue"]);
+        //                if (_dataset.Tables[0].Rows[0]["Dentistvalue"].ToString() != "")
+        //                    obj.Dentist = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Dentistvalue"]);
+        //                if (_dataset.Tables[0].Rows[0]["SchoolDistrict"].ToString() != "")
+        //                    obj.SchoolDistrict = Convert.ToInt32(_dataset.Tables[0].Rows[0]["SchoolDistrict"]);
+        //                if (_dataset.Tables[0].Rows[0]["DobPaper"].ToString() != "")
+        //                    obj.DobverificationinPaper = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["DobPaper"]);
+        //                if (_dataset.Tables[0].Rows[0]["FosterChild"].ToString() != "")
+        //                    obj.IsFoster = Convert.ToInt32(_dataset.Tables[0].Rows[0]["FosterChild"]);
+        //                if (_dataset.Tables[0].Rows[0]["WelfareAgency"].ToString() != "")
+        //                    obj.Inwalfareagency = Convert.ToInt32(_dataset.Tables[0].Rows[0]["WelfareAgency"]);
+        //                if (_dataset.Tables[0].Rows[0]["DualCustodyChild"].ToString() != "")
+        //                    obj.InDualcustody = Convert.ToInt32(_dataset.Tables[0].Rows[0]["DualCustodyChild"]);
+        //                if (_dataset.Tables[0].Rows[0]["PrimaryInsurance"].ToString() != "")
+        //                    obj.InsuranceOption = _dataset.Tables[0].Rows[0]["PrimaryInsurance"].ToString();
+        //                if (_dataset.Tables[0].Rows[0]["InsuranceNotes"].ToString() != "")
+        //                    obj.MedicalNote = _dataset.Tables[0].Rows[0]["InsuranceNotes"].ToString();
+        //                if (_dataset.Tables[0].Rows[0]["ImmunizationinPaper"].ToString() != "")
+        //                    obj.ImmunizationinPaper = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["ImmunizationinPaper"]);
+        //                obj.ImmunizationFileName = _dataset.Tables[0].Rows[0]["ImmunizationFileName"].ToString();
+        //                obj.Raceother = _dataset.Tables[0].Rows[0]["OtherRace"].ToString();
+        //                //ChildTransport
 
-            //                obj.CTransport = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["ChildTransport"].ToString());
+        //                obj.CTransport = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["ChildTransport"].ToString());
 
-            //                if (!string.IsNullOrEmpty((_dataset.Tables[0].Rows[0]["TransportNeeded"]).ToString()))
-            //                {
-            //                    obj.CTransportNeeded = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["TransportNeeded"]);
-            //                }
-            //                else
-            //                {
-            //                    obj.CTransportNeeded = false;
-            //                }
+        //                if (!string.IsNullOrEmpty((_dataset.Tables[0].Rows[0]["TransportNeeded"]).ToString()))
+        //                {
+        //                    obj.CTransportNeeded = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["TransportNeeded"]);
+        //                }
+        //                else
+        //                {
+        //                    obj.CTransportNeeded = false;
+        //                }
 
-            //                //End
-            //                //Ehs Health question
-            //                obj.EhsChildBorn = _dataset.Tables[0].Rows[0]["ChildBorn"].ToString();
-            //                obj.EhsChildBirthWt = _dataset.Tables[0].Rows[0]["ChildBirthWt"].ToString();
-            //                obj.EhsChildLength = _dataset.Tables[0].Rows[0]["ChildLength"].ToString();
-            //                obj.EhsChildProblm = _dataset.Tables[0].Rows[0]["ChildPrblm"].ToString();
-            //                obj.EhsMedication = _dataset.Tables[0].Rows[0]["Medication"].ToString();
-            //                obj.EhsComment = _dataset.Tables[0].Rows[0]["Comment"].ToString();
-            //                obj.EHSmpplan = _dataset.Tables[0].Rows[0]["M_PCarePlan"].ToString();
-            //                obj.EHSmpplancomment = _dataset.Tables[0].Rows[0]["M_PCarePlanComment"].ToString();
-            //                obj.EHSAllergy = _dataset.Tables[0].Rows[0]["EHSAllergy"].ToString();
-            //                obj.EHSEpiPen = Convert.ToInt32(_dataset.Tables[0].Rows[0]["EHSEpiPen"]);
-
-
-
-            //                //HS Health question
-            //                obj.HsChildBorn = _dataset.Tables[0].Rows[0]["ChildBorn"].ToString();
-            //                obj.HsChildBirthWt = _dataset.Tables[0].Rows[0]["ChildBirthWt"].ToString();
-            //                obj.HsChildLength = _dataset.Tables[0].Rows[0]["ChildLength"].ToString();
-            //                obj.HsChildProblm = _dataset.Tables[0].Rows[0]["ChildPrblm"].ToString();
-            //                obj.HsMedication = _dataset.Tables[0].Rows[0]["Medication"].ToString();
-            //                obj.HSmpplan = _dataset.Tables[0].Rows[0]["M_PCarePlan"].ToString();
-            //                obj.HSmpplanComment = _dataset.Tables[0].Rows[0]["M_PCarePlanComment"].ToString();
-            //                obj.HsComment = _dataset.Tables[0].Rows[0]["Comment"].ToString();
-            //                obj.HsChildDentalCare = _dataset.Tables[0].Rows[0]["DentalCare"].ToString();
-            //                obj.HsDentalExam = _dataset.Tables[0].Rows[0]["CurrentDentalexam"].ToString();
-            //                obj.HsRecentDentalExam = _dataset.Tables[0].Rows[0]["RecentDentalExam"].ToString();
-            //                obj.HsChildNeedDentalTreatment = _dataset.Tables[0].Rows[0]["NeedDentalTreatment"].ToString();
-            //                obj.HsChildRecievedDentalTreatment = _dataset.Tables[0].Rows[0]["RecievedDentalTreatment"].ToString();
-            //                obj.ChildProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ChildEverHadProfExam"].ToString();
-
-            //                //Nutrition Question without HS/EHS
-
-            //                //obj.PersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
-            //                //obj.PersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
-            //                //obj.PersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
-            //                //obj.DramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
-            //                //obj.RecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
-            //                //obj.ChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
-            //                //obj.FoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
-            //                //obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //obj.RecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
-            //                //if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
-            //                //    obj.WICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
-            //                //if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
-            //                //    obj.FoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
-            //                //if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
-            //                //    obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
-            //                //obj.FoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
-            //                //obj.childTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
-            //                //obj.ChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
-            //                //obj.spoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
-            //                //obj.feedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
-            //                //obj.childThin = _dataset.Tables[0].Rows[0]["childhealth"].ToString();
-            //                //obj.Takebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
-            //                //obj.chewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
-            //                //obj.ChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
-            //                //obj.ChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
-            //                //obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
-            //                //obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
-            //                //obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
-            //                //obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
-            //                //obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
-            //                //obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
-            //                //obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
-            //                //obj.ChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
-            //                //obj.ChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
-            //                //if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
-            //                //    obj.Breakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
-            //                //if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
-            //                //    obj.Lunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
-            //                //if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
-            //                //    obj.Snack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
-            //                //if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
-            //                //    obj.Dinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
-            //                //if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
-            //                //    obj.NA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
-            //                //obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
-            //                //obj.NauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
-            //                //obj.DiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
-            //                //obj.Constipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
-            //                //obj.DramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
-            //                //obj.RecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
-            //                //obj.RecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
-            //                //obj.SpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
-            //                //obj.FoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
-            //                //obj.NutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
-            //                //obj.ChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
-            //                //obj.SpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
-            //                //obj.SpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
-            //                //obj.BottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
-            //                //obj.EatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
-
-            //                //obj.EHSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
-            //                //obj.EHSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
-            //                //obj.HSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
-            //                //obj.HsMedicationName = _dataset.Tables[0].Rows[0]["HsMedicationName"].ToString();
-            //                //obj.HsDosage = _dataset.Tables[0].Rows[0]["HsDosage"].ToString();
-            //                //obj.HSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
-            //                //obj.HSPreventativeDentalCare = _dataset.Tables[0].Rows[0]["PreventativeDentalCareComment"].ToString();
-            //                //obj.HSProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ProfessionalDentalExamComment"].ToString();
-            //                //obj.HSNeedingDentalTreatment = _dataset.Tables[0].Rows[0]["DiagnosedDentalTreatmentComment"].ToString();
-            //                //obj.HSChildReceivedDentalTreatment = _dataset.Tables[0].Rows[0]["ChildReceivedDentalTreatmentComment"].ToString();
-            //                //obj.NotHealthStaff = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NotHealthStaff"]);
-            //                //
-
-
-            //                //Nutrition question
-            //                //Changes on 19Dec2016
-            //                //if (_dataset.Tables[0].Rows[0]["NutirionProgramID"].ToString() == "1")
-            //                //{
-            //                //    obj.EhsRestrictFood = _dataset.Tables[0].Rows[0]["ChildRestrictFood"].ToString();
-            //                //    obj.EhsChildVitaminSupplment = _dataset.Tables[0].Rows[0]["ChildVitaminSupplement"].ToString();
-            //                //    obj.EhsPersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
-            //                //    obj.EhsPersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
-            //                //    obj.EhsPersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
-            //                //    obj.EhsDramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
-            //                //    obj.EhsRecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
-            //                //    obj.EhsChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
-            //                //    obj.EhsFoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
-            //                //    obj.EhsNutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //    obj.EhsNutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //    obj.EhsRecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
-            //                //    //if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
-            //                //    //    obj.EhsWICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
-            //                //    //if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
-            //                //    //    obj.EhsFoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
-            //                //    //if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
-            //                //    //    obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
-            //                //    obj.EhsFoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
-            //                //    obj.EhschildTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
-            //                //    //obj.EhsChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
-            //                //    obj.Ehsspoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
-            //                //    obj.Ehsfeedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
-            //                //    obj.EhschildThin = Convert.ToInt32(_dataset.Tables[0].Rows[0]["childhealth"].ToString());
-            //                //    obj.EhsTakebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
-            //                //    obj.Ehschewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
-            //                //    obj.EhsChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
-            //                //    obj.EhsChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
-            //                //    obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
-            //                //    obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
-            //                //    obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
-            //                //    obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
-            //                //    obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
-            //                //    obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
-            //                //    obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
-            //                //    obj.EhsChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
-            //                //    obj.EhsChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
-            //                //    if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
-            //                //        obj.EhsBreakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
-            //                //        obj.EhsLunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
-            //                //        obj.EhsSnack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
-            //                //        obj.EhsDinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
-            //                //        obj.EhsNA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
-            //                //    // obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
-            //                //    obj.EhsNauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
-            //                //    obj.EhsDiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
-            //                //    obj.EhsConstipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
-            //                //    obj.EhsDramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
-            //                //    obj.EhsRecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
-            //                //    obj.EhsRecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
-            //                //    obj.EhsSpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
-            //                //    obj.EhsFoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
-            //                //    obj.EhsNutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
-            //                //    obj.EhsChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
-            //                //    obj.EhsSpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
-            //                //    obj.EhsSpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
-            //                //    obj.EhsBottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
-            //                //    obj.EhsEatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
-
-
-            //                //}
-            //                //else if (_dataset.Tables[0].Rows[0]["NutirionProgramID"].ToString() == "2")
-            //                //{
-            //                //    obj.RestrictFood = _dataset.Tables[0].Rows[0]["ChildRestrictFood"].ToString();
-            //                //    obj.ChildVitaminSupplment = _dataset.Tables[0].Rows[0]["ChildVitaminSupplement"].ToString();
-            //                //    obj.PersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
-            //                //    obj.PersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
-            //                //    obj.PersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
-            //                //    obj.DramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
-            //                //    obj.RecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
-            //                //    obj.ChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
-            //                //    obj.FoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
-            //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //    obj.RecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
-            //                //    if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
-            //                //        obj.WICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
-            //                //        obj.FoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
-            //                //        obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
-            //                //    obj.FoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
-            //                //    obj.childTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
-            //                //    obj.ChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
-            //                //    obj.spoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
-            //                //    obj.feedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
-            //                //    obj.childThin = _dataset.Tables[0].Rows[0]["childhealth"].ToString();
-            //                //    obj.Takebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
-            //                //    obj.chewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
-            //                //    obj.ChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
-            //                //    obj.ChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
-            //                //    obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
-            //                //    obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
-            //                //    obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
-            //                //    obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
-            //                //    obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
-            //                //    obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
-            //                //    obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
-            //                //    obj.ChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
-            //                //    obj.ChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
-            //                //    if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
-            //                //        obj.Breakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
-            //                //        obj.Lunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
-            //                //        obj.Snack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
-            //                //        obj.Dinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
-            //                //        obj.NA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
-            //                //    obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
-            //                //    obj.NauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
-            //                //    obj.DiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
-            //                //    obj.Constipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
-            //                //    obj.DramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
-            //                //    obj.RecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
-            //                //    obj.RecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
-            //                //    obj.SpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
-            //                //    obj.FoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
-            //                //    obj.NutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
-            //                //    obj.ChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
-            //                //    obj.SpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
-            //                //    obj.SpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
-            //                //    obj.BottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
-            //                //    obj.EatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
-
-
-            //                //}
-            //                //else
-            //                //{
-
-            //                //    obj.PersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
-            //                //    obj.PersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
-            //                //    obj.PersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
-            //                //    obj.DramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
-            //                //    obj.RecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
-            //                //    obj.ChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
-            //                //    obj.FoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
-            //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
-            //                //    obj.RecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
-            //                //    if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
-            //                //        obj.WICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
-            //                //        obj.FoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
-            //                //        obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
-            //                //    obj.FoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
-            //                //    obj.childTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
-            //                //    obj.ChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
-            //                //    obj.spoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
-            //                //    obj.feedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
-            //                //    obj.childThin = _dataset.Tables[0].Rows[0]["childhealth"].ToString();
-            //                //    obj.Takebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
-            //                //    obj.chewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
-            //                //    obj.ChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
-            //                //    obj.ChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
-            //                //    obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
-            //                //    obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
-            //                //    obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
-            //                //    obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
-            //                //    obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
-            //                //    obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
-            //                //    obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
-            //                //    obj.ChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
-            //                //    obj.ChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
-            //                //    if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
-            //                //        obj.Breakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
-            //                //        obj.Lunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
-            //                //        obj.Snack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
-            //                //        obj.Dinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
-            //                //    if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
-            //                //        obj.NA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
-            //                //    obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
-            //                //    obj.NauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
-            //                //    obj.DiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
-            //                //    obj.Constipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
-            //                //    obj.DramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
-            //                //    obj.RecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
-            //                //    obj.RecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
-            //                //    obj.SpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
-            //                //    obj.FoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
-            //                //    obj.NutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
-            //                //    obj.ChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
-            //                //    obj.SpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
-            //                //    obj.SpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
-            //                //    obj.BottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
-            //                //    obj.EatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
-
-
-            //                //}
-
-
-            //                //End
+        //                //End
+        //                //Ehs Health question
+        //                obj.EhsChildBorn = _dataset.Tables[0].Rows[0]["ChildBorn"].ToString();
+        //                obj.EhsChildBirthWt = _dataset.Tables[0].Rows[0]["ChildBirthWt"].ToString();
+        //                obj.EhsChildLength = _dataset.Tables[0].Rows[0]["ChildLength"].ToString();
+        //                obj.EhsChildProblm = _dataset.Tables[0].Rows[0]["ChildPrblm"].ToString();
+        //                obj.EhsMedication = _dataset.Tables[0].Rows[0]["Medication"].ToString();
+        //                obj.EhsComment = _dataset.Tables[0].Rows[0]["Comment"].ToString();
+        //                obj.EHSmpplan = _dataset.Tables[0].Rows[0]["M_PCarePlan"].ToString();
+        //                obj.EHSmpplancomment = _dataset.Tables[0].Rows[0]["M_PCarePlanComment"].ToString();
+        //                obj.EHSAllergy = _dataset.Tables[0].Rows[0]["EHSAllergy"].ToString();
+        //                obj.EHSEpiPen = Convert.ToInt32(_dataset.Tables[0].Rows[0]["EHSEpiPen"]);
 
 
 
-            //                obj.EHSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
-            //                obj.EHSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
-            //                obj.HSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
-            //                obj.HsMedicationName = _dataset.Tables[0].Rows[0]["HsMedicationName"].ToString();
-            //                obj.HsDosage = _dataset.Tables[0].Rows[0]["HsDosage"].ToString();
-            //                obj.HSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
-            //                obj.HSPreventativeDentalCare = _dataset.Tables[0].Rows[0]["PreventativeDentalCareComment"].ToString();
-            //                obj.HSProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ProfessionalDentalExamComment"].ToString();
-            //                obj.HSNeedingDentalTreatment = _dataset.Tables[0].Rows[0]["DiagnosedDentalTreatmentComment"].ToString();
-            //                obj.HSChildReceivedDentalTreatment = _dataset.Tables[0].Rows[0]["ChildReceivedDentalTreatmentComment"].ToString();
-            //                obj.NotHealthStaff = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NotHealthStaff"]);
-            //                obj.HWInput = _dataset.Tables[0].Rows[0]["HWInput"].ToString();
-            //                obj.AssessmentDate = _dataset.Tables[0].Rows[0]["AssessmentDate"].ToString() != "" ? Convert.ToDateTime(_dataset.Tables[0].Rows[0]["AssessmentDate"]).ToString("MM/dd/yyyy") : "";
-            //                obj.AHeight = _dataset.Tables[0].Rows[0]["BHeight"].ToString();
-            //                obj.AWeight = _dataset.Tables[0].Rows[0]["BWeight"].ToString();
-            //                obj.HeadCircle = _dataset.Tables[0].Rows[0]["HeadCirc"].ToString();
+        //                //HS Health question
+        //                obj.HsChildBorn = _dataset.Tables[0].Rows[0]["ChildBorn"].ToString();
+        //                obj.HsChildBirthWt = _dataset.Tables[0].Rows[0]["ChildBirthWt"].ToString();
+        //                obj.HsChildLength = _dataset.Tables[0].Rows[0]["ChildLength"].ToString();
+        //                obj.HsChildProblm = _dataset.Tables[0].Rows[0]["ChildPrblm"].ToString();
+        //                obj.HsMedication = _dataset.Tables[0].Rows[0]["Medication"].ToString();
+        //                obj.HSmpplan = _dataset.Tables[0].Rows[0]["M_PCarePlan"].ToString();
+        //                obj.HSmpplanComment = _dataset.Tables[0].Rows[0]["M_PCarePlanComment"].ToString();
+        //                obj.HsComment = _dataset.Tables[0].Rows[0]["Comment"].ToString();
+        //                obj.HsChildDentalCare = _dataset.Tables[0].Rows[0]["DentalCare"].ToString();
+        //                obj.HsDentalExam = _dataset.Tables[0].Rows[0]["CurrentDentalexam"].ToString();
+        //                obj.HsRecentDentalExam = _dataset.Tables[0].Rows[0]["RecentDentalExam"].ToString();
+        //                obj.HsChildNeedDentalTreatment = _dataset.Tables[0].Rows[0]["NeedDentalTreatment"].ToString();
+        //                obj.HsChildRecievedDentalTreatment = _dataset.Tables[0].Rows[0]["RecievedDentalTreatment"].ToString();
+        //                obj.ChildProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ChildEverHadProfExam"].ToString();
+
+        //                //Nutrition Question without HS/EHS
+
+        //                //obj.PersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
+        //                //obj.PersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
+        //                //obj.PersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
+        //                //obj.DramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
+        //                //obj.RecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
+        //                //obj.ChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
+        //                //obj.FoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
+        //                //obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //obj.RecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
+        //                //if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
+        //                //    obj.WICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
+        //                //if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
+        //                //    obj.FoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
+        //                //if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
+        //                //    obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
+        //                //obj.FoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
+        //                //obj.childTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
+        //                //obj.ChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
+        //                //obj.spoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
+        //                //obj.feedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
+        //                //obj.childThin = _dataset.Tables[0].Rows[0]["childhealth"].ToString();
+        //                //obj.Takebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
+        //                //obj.chewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
+        //                //obj.ChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
+        //                //obj.ChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
+        //                //obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
+        //                //obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
+        //                //obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
+        //                //obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
+        //                //obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
+        //                //obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
+        //                //obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
+        //                //obj.ChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
+        //                //obj.ChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
+        //                //if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
+        //                //    obj.Breakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
+        //                //if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
+        //                //    obj.Lunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
+        //                //if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
+        //                //    obj.Snack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
+        //                //if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
+        //                //    obj.Dinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
+        //                //if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
+        //                //    obj.NA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
+        //                //obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
+        //                //obj.NauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
+        //                //obj.DiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
+        //                //obj.Constipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
+        //                //obj.DramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
+        //                //obj.RecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
+        //                //obj.RecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
+        //                //obj.SpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
+        //                //obj.FoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
+        //                //obj.NutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
+        //                //obj.ChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
+        //                //obj.SpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
+        //                //obj.SpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
+        //                //obj.BottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
+        //                //obj.EatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
+
+        //                //obj.EHSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
+        //                //obj.EHSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
+        //                //obj.HSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
+        //                //obj.HsMedicationName = _dataset.Tables[0].Rows[0]["HsMedicationName"].ToString();
+        //                //obj.HsDosage = _dataset.Tables[0].Rows[0]["HsDosage"].ToString();
+        //                //obj.HSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
+        //                //obj.HSPreventativeDentalCare = _dataset.Tables[0].Rows[0]["PreventativeDentalCareComment"].ToString();
+        //                //obj.HSProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ProfessionalDentalExamComment"].ToString();
+        //                //obj.HSNeedingDentalTreatment = _dataset.Tables[0].Rows[0]["DiagnosedDentalTreatmentComment"].ToString();
+        //                //obj.HSChildReceivedDentalTreatment = _dataset.Tables[0].Rows[0]["ChildReceivedDentalTreatmentComment"].ToString();
+        //                //obj.NotHealthStaff = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NotHealthStaff"]);
+        //                //
+
+
+        //                //Nutrition question
+        //                //Changes on 19Dec2016
+        //                //if (_dataset.Tables[0].Rows[0]["NutirionProgramID"].ToString() == "1")
+        //                //{
+        //                //    obj.EhsRestrictFood = _dataset.Tables[0].Rows[0]["ChildRestrictFood"].ToString();
+        //                //    obj.EhsChildVitaminSupplment = _dataset.Tables[0].Rows[0]["ChildVitaminSupplement"].ToString();
+        //                //    obj.EhsPersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
+        //                //    obj.EhsPersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
+        //                //    obj.EhsPersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
+        //                //    obj.EhsDramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
+        //                //    obj.EhsRecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
+        //                //    obj.EhsChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
+        //                //    obj.EhsFoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
+        //                //    obj.EhsNutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //    obj.EhsNutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //    obj.EhsRecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
+        //                //    //if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
+        //                //    //    obj.EhsWICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
+        //                //    //if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
+        //                //    //    obj.EhsFoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
+        //                //    //if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
+        //                //    //    obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
+        //                //    obj.EhsFoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
+        //                //    obj.EhschildTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
+        //                //    //obj.EhsChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
+        //                //    obj.Ehsspoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
+        //                //    obj.Ehsfeedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
+        //                //    obj.EhschildThin = Convert.ToInt32(_dataset.Tables[0].Rows[0]["childhealth"].ToString());
+        //                //    obj.EhsTakebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
+        //                //    obj.Ehschewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
+        //                //    obj.EhsChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
+        //                //    obj.EhsChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
+        //                //    obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
+        //                //    obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
+        //                //    obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
+        //                //    obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
+        //                //    obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
+        //                //    obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
+        //                //    obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
+        //                //    obj.EhsChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
+        //                //    obj.EhsChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
+        //                //    if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
+        //                //        obj.EhsBreakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
+        //                //        obj.EhsLunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
+        //                //        obj.EhsSnack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
+        //                //        obj.EhsDinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
+        //                //        obj.EhsNA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
+        //                //    // obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
+        //                //    obj.EhsNauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
+        //                //    obj.EhsDiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
+        //                //    obj.EhsConstipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
+        //                //    obj.EhsDramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
+        //                //    obj.EhsRecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
+        //                //    obj.EhsRecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
+        //                //    obj.EhsSpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
+        //                //    obj.EhsFoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
+        //                //    obj.EhsNutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
+        //                //    obj.EhsChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
+        //                //    obj.EhsSpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
+        //                //    obj.EhsSpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
+        //                //    obj.EhsBottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
+        //                //    obj.EhsEatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
+
+
+        //                //}
+        //                //else if (_dataset.Tables[0].Rows[0]["NutirionProgramID"].ToString() == "2")
+        //                //{
+        //                //    obj.RestrictFood = _dataset.Tables[0].Rows[0]["ChildRestrictFood"].ToString();
+        //                //    obj.ChildVitaminSupplment = _dataset.Tables[0].Rows[0]["ChildVitaminSupplement"].ToString();
+        //                //    obj.PersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
+        //                //    obj.PersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
+        //                //    obj.PersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
+        //                //    obj.DramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
+        //                //    obj.RecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
+        //                //    obj.ChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
+        //                //    obj.FoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
+        //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //    obj.RecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
+        //                //    if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
+        //                //        obj.WICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
+        //                //        obj.FoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
+        //                //        obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
+        //                //    obj.FoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
+        //                //    obj.childTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
+        //                //    obj.ChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
+        //                //    obj.spoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
+        //                //    obj.feedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
+        //                //    obj.childThin = _dataset.Tables[0].Rows[0]["childhealth"].ToString();
+        //                //    obj.Takebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
+        //                //    obj.chewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
+        //                //    obj.ChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
+        //                //    obj.ChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
+        //                //    obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
+        //                //    obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
+        //                //    obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
+        //                //    obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
+        //                //    obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
+        //                //    obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
+        //                //    obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
+        //                //    obj.ChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
+        //                //    obj.ChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
+        //                //    if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
+        //                //        obj.Breakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
+        //                //        obj.Lunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
+        //                //        obj.Snack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
+        //                //        obj.Dinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
+        //                //        obj.NA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
+        //                //    obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
+        //                //    obj.NauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
+        //                //    obj.DiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
+        //                //    obj.Constipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
+        //                //    obj.DramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
+        //                //    obj.RecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
+        //                //    obj.RecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
+        //                //    obj.SpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
+        //                //    obj.FoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
+        //                //    obj.NutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
+        //                //    obj.ChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
+        //                //    obj.SpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
+        //                //    obj.SpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
+        //                //    obj.BottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
+        //                //    obj.EatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
+
+
+        //                //}
+        //                //else
+        //                //{
+
+        //                //    obj.PersistentNausea = _dataset.Tables[0].Rows[0]["CurrentNausea"].ToString();
+        //                //    obj.PersistentDiarrhea = _dataset.Tables[0].Rows[0]["Currentdiarrhea"].ToString();
+        //                //    obj.PersistentConstipation = _dataset.Tables[0].Rows[0]["CurrentConstipation"].ToString();
+        //                //    obj.DramaticWeight = _dataset.Tables[0].Rows[0]["weightchange"].ToString();
+        //                //    obj.RecentSurgery = _dataset.Tables[0].Rows[0]["Recentsurgery"].ToString();
+        //                //    obj.ChildSpecialDiet = _dataset.Tables[0].Rows[0]["specialdiet"].ToString();
+        //                //    obj.FoodAllergies = _dataset.Tables[0].Rows[0]["foodallergies"].ToString();
+        //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //    obj.NutritionalConcern = _dataset.Tables[0].Rows[0]["nutritionalconcerns"].ToString();
+        //                //    obj.RecentHospitalization = _dataset.Tables[0].Rows[0]["Recenthospitalization"].ToString();
+        //                //    if (_dataset.Tables[0].Rows[0]["WICNutrition"].ToString() != "")
+        //                //        obj.WICNutrition = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WICNutrition"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["FoodStamps"].ToString() != "")
+        //                //        obj.FoodStamps = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["FoodStamps"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["NoNutritionProg"].ToString() != "")
+        //                //        obj.NoNutritionProg = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NoNutritionProg"]);
+        //                //    obj.FoodPantory = _dataset.Tables[0].Rows[0]["foodpantry"].ToString();
+        //                //    obj.childTrouble = _dataset.Tables[0].Rows[0]["troublechewing"].ToString();
+        //                //    obj.ChildFormula = _dataset.Tables[0].Rows[0]["ChildFormula"].ToString();
+        //                //    obj.spoon = _dataset.Tables[0].Rows[0]["childusespoon"].ToString();
+        //                //    obj.feedingtube = _dataset.Tables[0].Rows[0]["childusefeedingtube"].ToString();
+        //                //    obj.childThin = _dataset.Tables[0].Rows[0]["childhealth"].ToString();
+        //                //    obj.Takebottle = _dataset.Tables[0].Rows[0]["childtakebottle"].ToString();
+        //                //    obj.chewanything = _dataset.Tables[0].Rows[0]["Childeatchew"].ToString();
+        //                //    obj.ChangeinAppetite = _dataset.Tables[0].Rows[0]["childappetite"].ToString();
+        //                //    obj.ChildHungry = _dataset.Tables[0].Rows[0]["childhungry"].ToString();
+        //                //    obj.ChildFeed = _dataset.Tables[0].Rows[0]["ChildFeed"].ToString();
+        //                //    obj.ChildFeedCereal = _dataset.Tables[0].Rows[0]["childcereal"].ToString();
+        //                //    obj.ChildFeedMarshfood = _dataset.Tables[0].Rows[0]["childmashedfoods"].ToString();
+        //                //    obj.ChildFeedChopedfood = _dataset.Tables[0].Rows[0]["childchoppedfoods"].ToString();
+        //                //    obj.ChildFingerFood = _dataset.Tables[0].Rows[0]["childfingerfoods"].ToString();
+        //                //    obj.ChildFingerFEDFood = _dataset.Tables[0].Rows[0]["childfedfingerfoods"].ToString();
+        //                //    obj.ChildFruitJuice = _dataset.Tables[0].Rows[0]["childfruitjiuce"].ToString();
+        //                //    obj.ChildFruitJuicevitaminc = _dataset.Tables[0].Rows[0]["childfedVitamin"].ToString();
+        //                //    obj.ChildWater = _dataset.Tables[0].Rows[0]["childdrinkwater"].ToString();
+        //                //    if (_dataset.Tables[0].Rows[0]["Breakfast"].ToString() != "")
+        //                //        obj.Breakfast = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Breakfast"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["lunch"].ToString() != "")
+        //                //        obj.Lunch = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["lunch"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["Snack"].ToString() != "")
+        //                //        obj.Snack = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Snack"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["Dinner"].ToString() != "")
+        //                //        obj.Dinner = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Dinner"]);
+        //                //    if (_dataset.Tables[0].Rows[0]["NA"].ToString() != "")
+        //                //        obj.NA = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NA"]);
+        //                //    obj.ChildReferalCriteria = _dataset.Tables[0].Rows[0]["CriteriaforReferral"].ToString();
+        //                //    obj.NauseaorVomitingcomment = _dataset.Tables[0].Rows[0]["NauseaorVomitingcomment"].ToString();
+        //                //    obj.DiarrheaComment = _dataset.Tables[0].Rows[0]["DiarrheaComment"].ToString();
+        //                //    obj.Constipationcomment = _dataset.Tables[0].Rows[0]["Constipationcomment"].ToString();
+        //                //    obj.DramaticWeightchangecomment = _dataset.Tables[0].Rows[0]["DramaticWeightchangecomment"].ToString();
+        //                //    obj.RecentSurgerycomment = _dataset.Tables[0].Rows[0]["RecentSurgerycomment"].ToString();
+        //                //    obj.RecentHospitalizationComment = _dataset.Tables[0].Rows[0]["RecentHospitalizationComment"].ToString();
+        //                //    obj.SpecialDietComment = _dataset.Tables[0].Rows[0]["SpecialDietComment"].ToString();
+        //                //    obj.FoodAllergiesComment = _dataset.Tables[0].Rows[0]["FoodAllergiesComment"].ToString();
+        //                //    obj.NutritionAlconcernsComment = _dataset.Tables[0].Rows[0]["NutritionAlconcernsComment"].ToString();
+        //                //    obj.ChewingorSwallowingcomment = _dataset.Tables[0].Rows[0]["ChewingorSwallowingcomment"].ToString();
+        //                //    obj.SpoonorForkComment = _dataset.Tables[0].Rows[0]["SpoonorForkComment"].ToString();
+        //                //    obj.SpecialFeedingComment = _dataset.Tables[0].Rows[0]["SpecialFeedingComment"].ToString();
+        //                //    obj.BottleComment = _dataset.Tables[0].Rows[0]["BottleComment"].ToString();
+        //                //    obj.EatOrChewComment = _dataset.Tables[0].Rows[0]["EatOrChewComment"].ToString();
+
+
+        //                //}
+
+
+        //                //End
 
 
 
-            //            }
-            //            //if (_dataset.Tables[1].Rows.Count > 0)
-            //            //{
-            //            //    List<FamilyHousehold.ImmunizationRecord> ImmunizationRecords = new List<FamilyHousehold.ImmunizationRecord>();
-            //            //    FamilyHousehold.ImmunizationRecord obj1;
-            //            //    foreach (DataRow dr in _dataset.Tables[1].Rows)
-            //            //    {
-            //            //        obj1 = new FamilyHousehold.ImmunizationRecord();
-            //            //        obj1.ImmunizationId = Convert.ToInt32(dr["Immunization_ID"]);
-            //            //        obj1.ImmunizationmasterId = Convert.ToInt32(dr["Immunizationmasterid"]);
-            //            //        obj1.Dose = dr["Dose"].ToString();
-            //            //        if (dr["Dose1"].ToString() != "")
-            //            //            obj1.Dose1 = Convert.ToDateTime(dr["Dose1"]).ToString("MM/dd/yyyy");
-            //            //        else
-            //            //            obj1.Dose1 = dr["Dose1"].ToString();
-            //            //        if (dr["Dose2"].ToString() != "")
-            //            //            obj1.Dose2 = Convert.ToDateTime(dr["Dose2"]).ToString("MM/dd/yyyy");
-            //            //        else
-            //            //            obj1.Dose2 = dr["Dose2"].ToString();
-            //            //        if (dr["Dose3"].ToString() != "")
-            //            //            obj1.Dose3 = Convert.ToDateTime(dr["Dose3"]).ToString("MM/dd/yyyy");
-            //            //        else
-            //            //            obj1.Dose3 = dr["Dose3"].ToString();
-            //            //        if (dr["Dose4"].ToString() != "")
-            //            //            obj1.Dose4 = Convert.ToDateTime(dr["Dose4"]).ToString("MM/dd/yyyy");
-            //            //        else
-            //            //            obj1.Dose4 = dr["Dose4"].ToString();
-            //            //        if (dr["Dose5"].ToString() != "")
-            //            //            obj1.Dose5 = Convert.ToDateTime(dr["Dose5"]).ToString("MM/dd/yyyy");
-            //            //        else
-            //            //            obj1.Dose5 = dr["Dose5"].ToString();
-            //            //        if (dr["Exempt1"].ToString() != "")
-            //            //            obj1.Exempt1 = Convert.ToBoolean(dr["Exempt1"]);
-            //            //        if (dr["Exempt2"].ToString() != "")
-            //            //            obj1.Exempt2 = Convert.ToBoolean(dr["Exempt2"]);
-            //            //        if (dr["Exempt3"].ToString() != "")
-            //            //            obj1.Exempt3 = Convert.ToBoolean(dr["Exempt3"]);
-            //            //        if (dr["Exempt4"].ToString() != "")
-            //            //            obj1.Exempt4 = Convert.ToBoolean(dr["Exempt4"]);
-            //            //        if (dr["Exempt5"].ToString() != "")
-            //            //            obj1.Exempt5 = Convert.ToBoolean(dr["Exempt5"]);
-            //            //        if (dr["Preemptive1"].ToString() != "")
-            //            //            obj1.Preempt1 = Convert.ToBoolean(dr["Preemptive1"]);
-            //            //        if (dr["Preemptive2"].ToString() != "")
-            //            //            obj1.Preempt2 = Convert.ToBoolean(dr["Preemptive2"]);
-            //            //        if (dr["Preemptive3"].ToString() != "")
-            //            //            obj1.Preempt3 = Convert.ToBoolean(dr["Preemptive3"]);
-            //            //        if (dr["Preemptive4"].ToString() != "")
-            //            //            obj1.Preempt4 = Convert.ToBoolean(dr["Preemptive4"]);
-            //            //        if (dr["Preemptive5"].ToString() != "")
-            //            //            obj1.Preempt5 = Convert.ToBoolean(dr["Preemptive5"]);
-            //            //        ImmunizationRecords.Add(obj1);
-            //            //        obj1 = null;
-            //            //    }
-            //            //    obj.ImmunizationRecords = ImmunizationRecords;
-            //            //}
-            //            if (_dataset.Tables[2].Rows.Count > 0)
-            //            {
-            //                List<FamilyHousehold.Programdetail> ProgramdetailRecords = new List<FamilyHousehold.Programdetail>();
-            //                FamilyHousehold.Programdetail obj1;
-            //                foreach (DataRow dr in _dataset.Tables[2].Rows)
-            //                {
-            //                    obj1 = new FamilyHousehold.Programdetail();
-            //                    obj1.Id = Convert.ToInt32(dr["programid"]);
-            //                    obj1.ReferenceId = dr["ReferenceId"].ToString();
-            //                    ProgramdetailRecords.Add(obj1);
-            //                }
-            //                obj.AvailableProgram = ProgramdetailRecords;
-            //            }
-            //            //if (_dataset.Tables[3].Rows.Count > 0)
-            //            //{
-            //            //    Screening _Screening = new Screening();
-            //            //    foreach (DataRow dr in _dataset.Tables[3].Rows)
-            //            //    {
-            //            //        _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
-            //            //        _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
-            //            //        _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
-            //            //        _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
-            //            //        _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
-            //            //        _Screening.F006bpResults = dr["F006bpResults"].ToString();
-            //            //        _Screening.F007hgDate = dr["F007hgDate"].ToString();
-            //            //        _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
-            //            //        _Screening.F009hgResults = dr["F009hgResults"].ToString();
-            //            //        _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
-            //            //        _Screening.F011hgComments = dr["F011hgComments"].ToString();
-            //            //        _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
-            //            //        _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
-            //            //        _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
-            //            //        _Screening.F015leadDate = dr["F015leadDate"].ToString();
-            //            //        _Screening.F016leadResults = dr["F016leadResults"].ToString();
-            //            //        _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
-            //            //        _Screening.F018leadComments = dr["F018leadComments"].ToString();
-            //            //        _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
-            //            //        _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
-            //            //        _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
-            //            //        _Screening.v022date = dr["v022date"].ToString();
-            //            //        _Screening.v023results = dr["v023results"].ToString();
-            //            //        _Screening.v024comments = dr["v024comments"].ToString();
-            //            //        _Screening.v025dateR1 = dr["v025dateR1"].ToString();
-            //            //        _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
-            //            //        _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
-            //            //        _Screening.v028dateR2 = dr["v028dateR2"].ToString();
-            //            //        _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
-            //            //        _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
-            //            //        _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
-            //            //        _Screening.v032Treatment = dr["v032Treatment"].ToString();
-            //            //        _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
-            //            //        _Screening.v034Completedate = dr["v034Completedate"].ToString();
-            //            //        _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
-            //            //        _Screening.h036Date = dr["h036Date"].ToString();
-            //            //        _Screening.h037Results = dr["h037Results"].ToString();
-            //            //        _Screening.h038Comments = dr["h038Comments"].ToString();
-            //            //        _Screening.h039DateR1 = dr["h039DateR1"].ToString();
-            //            //        _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
-            //            //        _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
-            //            //        _Screening.h042DateR2 = dr["h042DateR2"].ToString();
-            //            //        _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
-            //            //        _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
-            //            //        _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
-            //            //        _Screening.h046Treatment = dr["h046Treatment"].ToString();
-            //            //        _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
-            //            //        _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
-            //            //        _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
-            //            //        _Screening.d050evDate = dr["d050evDate"].ToString();
-            //            //        _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
-            //            //        _Screening.d052evResults = dr["d052evResults"].ToString();
-            //            //        _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
-            //            //        _Screening.d054evDate2 = dr["d054evDate2"].ToString();
-            //            //        _Screening.d055evResults2 = dr["d055evResults2"].ToString();
-            //            //        _Screening.d056evReferral = dr["d056evReferral"].ToString();
-            //            //        _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
-            //            //        _Screening.d058evComments = dr["d058evComments"].ToString();
-            //            //        _Screening.d059evTool = dr["d059evTool"].ToString();
-            //            //        _Screening.E060denDate = dr["E060denDate"].ToString();
-            //            //        _Screening.E061denResults = dr["E061denResults"].ToString();
-            //            //        _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
-            //            //        _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
-            //            //        _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
-            //            //        _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
-            //            //        _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
-            //            //        _Screening.s067Date = dr["s067Date"].ToString();
-            //            //        _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
-            //            //        _Screening.s069Details = dr["s069Details"].ToString();
-            //            //        _Screening.s070Results = dr["s070Results"].ToString();
-            //            //        _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
-            //            //        _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
-            //            //        _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
-            //            //        _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
-            //            //        _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
-            //            //        _Screening.s076DCDate = dr["s076DCDate"].ToString();
-            //            //        _Screening.s077NameDC = dr["s077NameDC"].ToString();
-            //            //        _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
-            //            //        _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
-            //            //        _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
-            //            //        _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
-            //            //    }
-            //            //    //Screening changes
-            //            //if (_dataset.Tables[5].Rows.Count > 0)
-            //            //{
-            //            //    _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
-            //            //    _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
-            //            //    _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
-            //            //    _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
-            //            //    _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
-            //            //    _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
-            //            //    _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
-            //            //    _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
-            //            //    _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
-            //            //    _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
-            //            //    _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
-            //            //    _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
-            //            //    _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
-            //            //    _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
-            //            //    _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
-            //            //    _Screening.Consolidated = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"].ToString());
+        //                obj.EHSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
+        //                obj.EHSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
+        //                obj.HSBabyOrMotherProblems = _dataset.Tables[0].Rows[0]["BabyMotherProblemComment"].ToString();
+        //                obj.HsMedicationName = _dataset.Tables[0].Rows[0]["HsMedicationName"].ToString();
+        //                obj.HsDosage = _dataset.Tables[0].Rows[0]["HsDosage"].ToString();
+        //                obj.HSChildMedication = _dataset.Tables[0].Rows[0]["MedicationComment"].ToString();
+        //                obj.HSPreventativeDentalCare = _dataset.Tables[0].Rows[0]["PreventativeDentalCareComment"].ToString();
+        //                obj.HSProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ProfessionalDentalExamComment"].ToString();
+        //                obj.HSNeedingDentalTreatment = _dataset.Tables[0].Rows[0]["DiagnosedDentalTreatmentComment"].ToString();
+        //                obj.HSChildReceivedDentalTreatment = _dataset.Tables[0].Rows[0]["ChildReceivedDentalTreatmentComment"].ToString();
+        //                obj.NotHealthStaff = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NotHealthStaff"]);
+        //                obj.HWInput = _dataset.Tables[0].Rows[0]["HWInput"].ToString();
+        //                obj.AssessmentDate = _dataset.Tables[0].Rows[0]["AssessmentDate"].ToString() != "" ? Convert.ToDateTime(_dataset.Tables[0].Rows[0]["AssessmentDate"]).ToString("MM/dd/yyyy") : "";
+        //                obj.AHeight = _dataset.Tables[0].Rows[0]["BHeight"].ToString();
+        //                obj.AWeight = _dataset.Tables[0].Rows[0]["BWeight"].ToString();
+        //                obj.HeadCircle = _dataset.Tables[0].Rows[0]["HeadCirc"].ToString();
 
-            //            //    //Get screening scan document
-            //            //    _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
-            //            //    _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
-            //            //    string Url = Guid.NewGuid().ToString();
-            //            //    if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
-            //            //    {
-            //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
-            //            //        file.Close();
-            //            //        _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //    }
-            //            //    Url = "";
-            //            //    _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
-            //            //    _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
-            //            //    Url = Guid.NewGuid().ToString();
-            //            //    if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
-            //            //    {
-            //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
-            //            //        file.Close();
-            //            //        _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //    }
-            //            //    Url = "";
-            //            //    _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
-            //            //    _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
-            //            //    Url = Guid.NewGuid().ToString();
-            //            //    if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
-            //            //    {
-            //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
-            //            //        file.Close();
-            //            //        _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
+        //            }
+        //            //if (_dataset.Tables[1].Rows.Count > 0)
+        //            //{
+        //            //    List<FamilyHousehold.ImmunizationRecord> ImmunizationRecords = new List<FamilyHousehold.ImmunizationRecord>();
+        //            //    FamilyHousehold.ImmunizationRecord obj1;
+        //            //    foreach (DataRow dr in _dataset.Tables[1].Rows)
+        //            //    {
+        //            //        obj1 = new FamilyHousehold.ImmunizationRecord();
+        //            //        obj1.ImmunizationId = Convert.ToInt32(dr["Immunization_ID"]);
+        //            //        obj1.ImmunizationmasterId = Convert.ToInt32(dr["Immunizationmasterid"]);
+        //            //        obj1.Dose = dr["Dose"].ToString();
+        //            //        if (dr["Dose1"].ToString() != "")
+        //            //            obj1.Dose1 = Convert.ToDateTime(dr["Dose1"]).ToString("MM/dd/yyyy");
+        //            //        else
+        //            //            obj1.Dose1 = dr["Dose1"].ToString();
+        //            //        if (dr["Dose2"].ToString() != "")
+        //            //            obj1.Dose2 = Convert.ToDateTime(dr["Dose2"]).ToString("MM/dd/yyyy");
+        //            //        else
+        //            //            obj1.Dose2 = dr["Dose2"].ToString();
+        //            //        if (dr["Dose3"].ToString() != "")
+        //            //            obj1.Dose3 = Convert.ToDateTime(dr["Dose3"]).ToString("MM/dd/yyyy");
+        //            //        else
+        //            //            obj1.Dose3 = dr["Dose3"].ToString();
+        //            //        if (dr["Dose4"].ToString() != "")
+        //            //            obj1.Dose4 = Convert.ToDateTime(dr["Dose4"]).ToString("MM/dd/yyyy");
+        //            //        else
+        //            //            obj1.Dose4 = dr["Dose4"].ToString();
+        //            //        if (dr["Dose5"].ToString() != "")
+        //            //            obj1.Dose5 = Convert.ToDateTime(dr["Dose5"]).ToString("MM/dd/yyyy");
+        //            //        else
+        //            //            obj1.Dose5 = dr["Dose5"].ToString();
+        //            //        if (dr["Exempt1"].ToString() != "")
+        //            //            obj1.Exempt1 = Convert.ToBoolean(dr["Exempt1"]);
+        //            //        if (dr["Exempt2"].ToString() != "")
+        //            //            obj1.Exempt2 = Convert.ToBoolean(dr["Exempt2"]);
+        //            //        if (dr["Exempt3"].ToString() != "")
+        //            //            obj1.Exempt3 = Convert.ToBoolean(dr["Exempt3"]);
+        //            //        if (dr["Exempt4"].ToString() != "")
+        //            //            obj1.Exempt4 = Convert.ToBoolean(dr["Exempt4"]);
+        //            //        if (dr["Exempt5"].ToString() != "")
+        //            //            obj1.Exempt5 = Convert.ToBoolean(dr["Exempt5"]);
+        //            //        if (dr["Preemptive1"].ToString() != "")
+        //            //            obj1.Preempt1 = Convert.ToBoolean(dr["Preemptive1"]);
+        //            //        if (dr["Preemptive2"].ToString() != "")
+        //            //            obj1.Preempt2 = Convert.ToBoolean(dr["Preemptive2"]);
+        //            //        if (dr["Preemptive3"].ToString() != "")
+        //            //            obj1.Preempt3 = Convert.ToBoolean(dr["Preemptive3"]);
+        //            //        if (dr["Preemptive4"].ToString() != "")
+        //            //            obj1.Preempt4 = Convert.ToBoolean(dr["Preemptive4"]);
+        //            //        if (dr["Preemptive5"].ToString() != "")
+        //            //            obj1.Preempt5 = Convert.ToBoolean(dr["Preemptive5"]);
+        //            //        ImmunizationRecords.Add(obj1);
+        //            //        obj1 = null;
+        //            //    }
+        //            //    obj.ImmunizationRecords = ImmunizationRecords;
+        //            //}
+        //            if (_dataset.Tables[2].Rows.Count > 0)
+        //            {
+        //                List<FamilyHousehold.Programdetail> ProgramdetailRecords = new List<FamilyHousehold.Programdetail>();
+        //                FamilyHousehold.Programdetail obj1;
+        //                foreach (DataRow dr in _dataset.Tables[2].Rows)
+        //                {
+        //                    obj1 = new FamilyHousehold.Programdetail();
+        //                    obj1.Id = Convert.ToInt32(dr["programid"]);
+        //                    obj1.ReferenceId = dr["ReferenceId"].ToString();
+        //                    ProgramdetailRecords.Add(obj1);
+        //                }
+        //                obj.AvailableProgram = ProgramdetailRecords;
+        //            }
+        //            //if (_dataset.Tables[3].Rows.Count > 0)
+        //            //{
+        //            //    Screening _Screening = new Screening();
+        //            //    foreach (DataRow dr in _dataset.Tables[3].Rows)
+        //            //    {
+        //            //        _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
+        //            //        _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
+        //            //        _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
+        //            //        _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
+        //            //        _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
+        //            //        _Screening.F006bpResults = dr["F006bpResults"].ToString();
+        //            //        _Screening.F007hgDate = dr["F007hgDate"].ToString();
+        //            //        _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
+        //            //        _Screening.F009hgResults = dr["F009hgResults"].ToString();
+        //            //        _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
+        //            //        _Screening.F011hgComments = dr["F011hgComments"].ToString();
+        //            //        _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
+        //            //        _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
+        //            //        _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
+        //            //        _Screening.F015leadDate = dr["F015leadDate"].ToString();
+        //            //        _Screening.F016leadResults = dr["F016leadResults"].ToString();
+        //            //        _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
+        //            //        _Screening.F018leadComments = dr["F018leadComments"].ToString();
+        //            //        _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
+        //            //        _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
+        //            //        _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
+        //            //        _Screening.v022date = dr["v022date"].ToString();
+        //            //        _Screening.v023results = dr["v023results"].ToString();
+        //            //        _Screening.v024comments = dr["v024comments"].ToString();
+        //            //        _Screening.v025dateR1 = dr["v025dateR1"].ToString();
+        //            //        _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
+        //            //        _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
+        //            //        _Screening.v028dateR2 = dr["v028dateR2"].ToString();
+        //            //        _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
+        //            //        _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
+        //            //        _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
+        //            //        _Screening.v032Treatment = dr["v032Treatment"].ToString();
+        //            //        _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
+        //            //        _Screening.v034Completedate = dr["v034Completedate"].ToString();
+        //            //        _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
+        //            //        _Screening.h036Date = dr["h036Date"].ToString();
+        //            //        _Screening.h037Results = dr["h037Results"].ToString();
+        //            //        _Screening.h038Comments = dr["h038Comments"].ToString();
+        //            //        _Screening.h039DateR1 = dr["h039DateR1"].ToString();
+        //            //        _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
+        //            //        _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
+        //            //        _Screening.h042DateR2 = dr["h042DateR2"].ToString();
+        //            //        _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
+        //            //        _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
+        //            //        _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
+        //            //        _Screening.h046Treatment = dr["h046Treatment"].ToString();
+        //            //        _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
+        //            //        _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
+        //            //        _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
+        //            //        _Screening.d050evDate = dr["d050evDate"].ToString();
+        //            //        _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
+        //            //        _Screening.d052evResults = dr["d052evResults"].ToString();
+        //            //        _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
+        //            //        _Screening.d054evDate2 = dr["d054evDate2"].ToString();
+        //            //        _Screening.d055evResults2 = dr["d055evResults2"].ToString();
+        //            //        _Screening.d056evReferral = dr["d056evReferral"].ToString();
+        //            //        _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
+        //            //        _Screening.d058evComments = dr["d058evComments"].ToString();
+        //            //        _Screening.d059evTool = dr["d059evTool"].ToString();
+        //            //        _Screening.E060denDate = dr["E060denDate"].ToString();
+        //            //        _Screening.E061denResults = dr["E061denResults"].ToString();
+        //            //        _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
+        //            //        _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
+        //            //        _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
+        //            //        _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
+        //            //        _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
+        //            //        _Screening.s067Date = dr["s067Date"].ToString();
+        //            //        _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
+        //            //        _Screening.s069Details = dr["s069Details"].ToString();
+        //            //        _Screening.s070Results = dr["s070Results"].ToString();
+        //            //        _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
+        //            //        _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
+        //            //        _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
+        //            //        _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
+        //            //        _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
+        //            //        _Screening.s076DCDate = dr["s076DCDate"].ToString();
+        //            //        _Screening.s077NameDC = dr["s077NameDC"].ToString();
+        //            //        _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
+        //            //        _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
+        //            //        _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
+        //            //        _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
+        //            //    }
+        //            //    //Screening changes
+        //            //if (_dataset.Tables[5].Rows.Count > 0)
+        //            //{
+        //            //    _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
+        //            //    _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
+        //            //    _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
+        //            //    _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
+        //            //    _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
+        //            //    _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
+        //            //    _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
+        //            //    _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
+        //            //    _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
+        //            //    _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
+        //            //    _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
+        //            //    _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
+        //            //    _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
+        //            //    _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
+        //            //    _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
+        //            //    _Screening.Consolidated = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"].ToString());
 
-            //            //    }
-            //            //    Url = "";
-            //            //    _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
-            //            //    _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
-            //            //    Url = Guid.NewGuid().ToString();
-            //            //    if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
-            //            //    {
-            //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
-            //            //        file.Close();
-            //            //        _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
+        //            //    //Get screening scan document
+        //            //    _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
+        //            //    _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
+        //            //    string Url = Guid.NewGuid().ToString();
+        //            //    if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
+        //            //    {
+        //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
+        //            //        file.Close();
+        //            //        _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //    }
-            //            //    Url = "";
-            //            //    _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
-            //            //    _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
-            //            //    Url = Guid.NewGuid().ToString();
-            //            //    if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
-            //            //    {
-            //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
-            //            //        file.Close();
-            //            //        _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
+        //            //    }
+        //            //    Url = "";
+        //            //    _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
+        //            //    _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
+        //            //    Url = Guid.NewGuid().ToString();
+        //            //    if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
+        //            //    {
+        //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
+        //            //        file.Close();
+        //            //        _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //    }
-            //            //    Url = "";
-            //            //    _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
-            //            //    _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
+        //            //    }
+        //            //    Url = "";
+        //            //    _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
+        //            //    _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
+        //            //    Url = Guid.NewGuid().ToString();
+        //            //    if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
+        //            //    {
+        //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
+        //            //        file.Close();
+        //            //        _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //    Url = Guid.NewGuid().ToString();
-            //            //    if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
-            //            //    {
-            //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
-            //            //        file.Close();
-            //            //        _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
+        //            //    }
+        //            //    Url = "";
+        //            //    _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
+        //            //    _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
+        //            //    Url = Guid.NewGuid().ToString();
+        //            //    if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
+        //            //    {
+        //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
+        //            //        file.Close();
+        //            //        _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //    }
-            //            //    //END
-            //            //}
-            //            //obj._Screening = _Screening;
-            //            //}
+        //            //    }
+        //            //    Url = "";
+        //            //    _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
+        //            //    _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
+        //            //    Url = Guid.NewGuid().ToString();
+        //            //    if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
+        //            //    {
+        //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
+        //            //        file.Close();
+        //            //        _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //if (_dataset.Tables[4].Rows.Count > 0)
-            //            //{
-            //            //    List<FamilyHousehold.Childhealthnutrition> _childhealthnutrition = new List<FamilyHousehold.Childhealthnutrition>();
-            //            //    FamilyHousehold.Childhealthnutrition info = null;
-            //            //    foreach (DataRow dr in _dataset.Tables[4].Rows)
-            //            //    {
-            //            //        info = new FamilyHousehold.Childhealthnutrition();
-            //            //        info.Id = dr["ID"].ToString();
-            //            //        info.MasterId = dr["ChildRecieveTreatment"].ToString();
-            //            //        info.Description = dr["Description"].ToString();
-            //            //        info.Questionid = dr["Questionid"].ToString();
-            //            //        info.Programid = dr["Programid"].ToString();
-            //            //        _childhealthnutrition.Add(info);
-            //            //    }
-            //            //    obj._Childhealthnutrition = _childhealthnutrition;
-            //            //}
+        //            //    }
+        //            //    Url = "";
+        //            //    _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
+        //            //    _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
 
-            //            //if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
-            //            //{
-            //            //    List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
-            //            //    FamilyHousehold.Childcustomscreening info = null;
-            //            //    foreach (DataRow dr in _dataset.Tables[6].Rows)
-            //            //    {
-            //            //        info = new FamilyHousehold.Childcustomscreening();
-            //            //        info.QuestionID = dr["QuestionID"].ToString();
-            //            //        info.Screeningid = dr["Screeningid"].ToString();
-            //            //        info.Value = dr["Value"].ToString();
-            //            //        info.QuestionAcronym = dr["QuestionAcronym"].ToString();
-            //            //        info.optionid = dr["optionid"].ToString();
-            //            //        info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
-            //            //        string Url = Guid.NewGuid().ToString();
-            //            //        if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
-            //            //        {
-            //            //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-            //            //            file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
-            //            //            file.Close();
-            //            //            info.pdfpath = "/TempAttachment/" + Url + ".pdf";
-            //            //        }
-            //            //        else
-            //            //        {
-            //            //            info.pdfpath = "";
-            //            //            info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
-            //            //        }
-            //            //        _Childcustomscreenings.Add(info);
-            //            //    }
-            //            //    obj._childscreenings = _Childcustomscreenings;
-            //            //}
+        //            //    Url = Guid.NewGuid().ToString();
+        //            //    if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
+        //            //    {
+        //            //        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //        file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
+        //            //        file.Close();
+        //            //        _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
 
-            //            //if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
-            //            //{
-            //            //    List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
-            //            //    CustomScreeningAllowed info = null;
-            //            //    foreach (DataRow dr in _dataset.Tables[7].Rows)
-            //            //    {
-            //            //        info = new CustomScreeningAllowed();
-            //            //        info.ScreeningAllowed = dr["Screeningallowed"].ToString();
-            //            //        info.Screeningid = dr["Screeningid"].ToString();
-            //            //        info.ScreeningName = dr["screeningname"].ToString();
-            //            //        _CustomScreeningAllowed.Add(info);
-            //            //    }
-            //            //    obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
-            //            //}
+        //            //    }
+        //            //    //END
+        //            //}
+        //            //obj._Screening = _Screening;
+        //            //}
 
-            //            DataAdapter.Dispose();
-            //            command.Dispose();
-            //            _dataset.Dispose();
+        //            //if (_dataset.Tables[4].Rows.Count > 0)
+        //            //{
+        //            //    List<FamilyHousehold.Childhealthnutrition> _childhealthnutrition = new List<FamilyHousehold.Childhealthnutrition>();
+        //            //    FamilyHousehold.Childhealthnutrition info = null;
+        //            //    foreach (DataRow dr in _dataset.Tables[4].Rows)
+        //            //    {
+        //            //        info = new FamilyHousehold.Childhealthnutrition();
+        //            //        info.Id = dr["ID"].ToString();
+        //            //        info.MasterId = dr["ChildRecieveTreatment"].ToString();
+        //            //        info.Description = dr["Description"].ToString();
+        //            //        info.Questionid = dr["Questionid"].ToString();
+        //            //        info.Programid = dr["Programid"].ToString();
+        //            //        _childhealthnutrition.Add(info);
+        //            //    }
+        //            //    obj._Childhealthnutrition = _childhealthnutrition;
+        //            //}
 
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        clsError.WriteException(ex);
-            //        return obj;
-            //    }
-            //    finally
-            //    {
-            //        DataAdapter.Dispose();
-            //        command.Dispose();
-            //        _dataset.Dispose();
-            //    }
-            //    return obj;
-            //}
+        //            //if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+        //            //{
+        //            //    List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
+        //            //    FamilyHousehold.Childcustomscreening info = null;
+        //            //    foreach (DataRow dr in _dataset.Tables[6].Rows)
+        //            //    {
+        //            //        info = new FamilyHousehold.Childcustomscreening();
+        //            //        info.QuestionID = dr["QuestionID"].ToString();
+        //            //        info.Screeningid = dr["Screeningid"].ToString();
+        //            //        info.Value = dr["Value"].ToString();
+        //            //        info.QuestionAcronym = dr["QuestionAcronym"].ToString();
+        //            //        info.optionid = dr["optionid"].ToString();
+        //            //        info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
+        //            //        string Url = Guid.NewGuid().ToString();
+        //            //        if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
+        //            //        {
+        //            //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+        //            //            file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
+        //            //            file.Close();
+        //            //            info.pdfpath = "/TempAttachment/" + Url + ".pdf";
+        //            //        }
+        //            //        else
+        //            //        {
+        //            //            info.pdfpath = "";
+        //            //            info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
+        //            //        }
+        //            //        _Childcustomscreenings.Add(info);
+        //            //    }
+        //            //    obj._childscreenings = _Childcustomscreenings;
+        //            //}
+
+        //            //if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
+        //            //{
+        //            //    List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
+        //            //    CustomScreeningAllowed info = null;
+        //            //    foreach (DataRow dr in _dataset.Tables[7].Rows)
+        //            //    {
+        //            //        info = new CustomScreeningAllowed();
+        //            //        info.ScreeningAllowed = dr["Screeningallowed"].ToString();
+        //            //        info.Screeningid = dr["Screeningid"].ToString();
+        //            //        info.ScreeningName = dr["screeningname"].ToString();
+        //            //        _CustomScreeningAllowed.Add(info);
+        //            //    }
+        //            //    obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
+        //            //}
+
+        //            DataAdapter.Dispose();
+        //            command.Dispose();
+        //            _dataset.Dispose();
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //        return obj;
+        //    }
+        //    finally
+        //    {
+        //        DataAdapter.Dispose();
+        //        command.Dispose();
+        //        _dataset.Dispose();
+        //    }
+        //    return obj;
+        //}
 
         public FamilyHousehold Getchild1(string ChildId, string HouseHoldId, string agencyid, string serverpath, string roleid)
         {
@@ -6182,7 +6202,7 @@ namespace FingerprintsData
             }
             return _racelist;
         }
-        public string AddClientAjax(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, string mode, bool Enrollpregnantmother, string Roleid)
+        public string AddClientAjax(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, string mode, bool Enrollpregnantmother, string Roleid,string futureIntake="")
         {
             try
             {
@@ -6209,6 +6229,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@Roleid", Roleid);
                 command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;
                 command.Parameters["@result"].Size = 10;
+                command.Parameters.AddWithValue("@IsFutureIntake", futureIntake);
                 command.CommandType = CommandType.StoredProcedure;
                 Connection.Open();
 
@@ -6933,6 +6954,7 @@ namespace FingerprintsData
                             info.option1 = dr["1"].ToString();
                             info.option2 = dr["2"].ToString();
                             info.option3 = dr["3"].ToString();
+                            info.FutureWaiting = dr["4"].ToString();
                             info.Routecode100 = dr["100"].ToString();
                             info.Routecode101 = dr["101"].ToString();
                             info.Routecode102 = dr["102"].ToString();
@@ -8612,7 +8634,7 @@ namespace FingerprintsData
                         CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
                         AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
                         Gender = x.Field<string>("GenderText"),
-                      //  ServiceYears = x.Field<int>("ServiceYears").ToString()
+                        ServiceYears = x.Field<int>("ServiceYears").ToString()
 
 
                     }).ToList();
@@ -13479,5 +13501,131 @@ namespace FingerprintsData
         }
 
 
+        public Agency.ProgramType GetProgramByProgramID(long programID,int mode=0)
+        {
+            Agency.ProgramType program = new Agency.ProgramType();
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@ProgramID", programID));
+                command.Parameters.Add(new SqlParameter("@mode", mode));
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetProgramByProgrmaID";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+
+                if(_dataset!=null)
+                {
+                    if(_dataset.Tables[0].Rows.Count>0)
+                    {
+                        foreach(DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            program.ProgramID = Convert.ToInt32(dr["programTypeID"]);
+                            program.ProgramTypes = dr["ProgramType"].ToString();
+                            program.LastDateCurrentApplication = dr["LastDateCurrentApplication"].ToString();
+                            program.DateFutureApplication = dr["DateFutureApplication"].ToString();
+                            program.TransitionDate = dr["TransitionDate"].ToString();
+                            program.AllowCurrentApplication = Convert.ToBoolean(dr["AllowCurrentApplication"]);
+                            program.AllowFutureApplication = Convert.ToBoolean(dr["AllowFutureApplication"]);
+                            program.FutureProgramYear = dr["NextProgramYear"].ToString();
+                        }
+                    }
+            
+                }
+                
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return program;
+        }
+        public FamilyHousehold GetFutureApplication()
+        {
+            FamilyHousehold family = new FamilyHousehold();
+            try
+            {
+               
+                Agency.ProgramType progType = new Agency.ProgramType();
+
+                progType= this.GetProgramByProgramID(0, 1);
+
+                if(progType.AllowFutureApplication && progType.AllowCurrentApplication)
+                {
+                    family.AllowFutureApplication = true;
+                    family.FutureProgramYear = progType.FutureProgramYear;
+                }
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return family;
+        }
+        public List<ClassRoom> GetClassRoomWithSeats(long centerId,List<ClassRoom>clasroom)
+        {
+
+          
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("CenterID", centerId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetClassroomWithSeats";
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        clasroom = _dataset.Tables[0].AsEnumerable().Select(x => new ClassRoom
+                        {
+
+                            ClassName = x.Field<string>("ClassroomName"),
+                            ClassroomID = Convert.ToInt32(x.Field<long>("ClassroomId")),
+                            Enc_ClassRoomId = EncryptDecrypt.Encrypt64(x.Field<long>("ClassroomId").ToString()),
+                            ActualSeats = x.Field<int>("ActualSeats")
+                        }).ToList();
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return clasroom;
+        }
     }
 }

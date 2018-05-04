@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,11 @@ namespace FingerprintsModel
         }
         public class Users
         {
+            //public Users()
+            //{
+            //    this.Clientlist = new List<RosterNew.User>();
+            //    this.UserList = new List<RosterNew.User>();
+            //}
             public List<User> Clientlist { get; set; }
             public List<User> UserList { get; set; }
         }
@@ -31,10 +37,19 @@ namespace FingerprintsModel
             public string ProgramId { get; set; }
             public string ClientIds { get; set; }
             public string StaffIds { get; set; }
+
+            [Display(Name ="Date")]
             public string CaseNoteDate { get; set; }
+
+            [Display(Name ="Title")]
             public string CaseNotetitle { get; set; }
+
+            [Display(Name ="Tags")]
             public string CaseNotetags { get; set; }
+            [Display(Name = "Note")]
             public string Note { get; set; }
+
+            [Display(Name = "Secure Note Level?")]
             public bool CaseNoteSecurity { get; set; }
             public string Classroomid { get; set; }
             public bool IsLateArrival { get; set; }

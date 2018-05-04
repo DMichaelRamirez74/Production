@@ -10,6 +10,13 @@
 }
 @section Script{
     <style>
+
+        .futurequalifier
+        {
+                color: green;
+        }
+
+
         .billing-inner-label label, .billing-inner-label span {
             color: #333;
             font-weight: normal !important;
@@ -173,6 +180,57 @@
 
 
         $(document).ready(function () {
+
+
+
+            $('#btnClosefuture').on('click', function () {
+
+                if (!$(this).parent('.modal-footer').siblings('.modal-body').find('input[name=allowFutureRadio]').is(":checked")) {
+                    customAlert("Please select Yes or No for next program year intake")
+                    return false;
+                }
+
+                var assignValue = $(this).parent('.modal-footer').siblings('.modal-body').find('input[name=allowFutureRadio]:checked').val();
+                assignValue = (assignValue == '1') ? 'True' : 'False';
+                $("#customChecklist").find('#IsFutureApplication').val(assignValue);
+
+                $("#futureApplicationModal").modal('hide');
+
+
+
+
+            });
+
+
+            $('#btnClosefuturePreg').on('click', function () {
+
+                if (!$(this).parent('.modal-footer').siblings('.modal-body').find('input[name=allowFutureRadioPreg]').is(":checked")) {
+                    customAlert("Please select Yes or No for next program year intake")
+                    return false;
+                }
+
+                var assignValue = $(this).parent('.modal-footer').siblings('.modal-body').find('input[name=allowFutureRadioPreg]:checked').val();
+                var accesskey = $(this).attr('enc');
+                assignValue = (assignValue == '1') ? 'True' : 'False';
+
+                if (accesskey == 'Pregnantmotherenrolled') {
+
+                    $('#' + accesskey + '').siblings('#IsFutureIntakePregEnrolled').val(assignValue);
+                }
+
+                if (accesskey == 'PregnantmotherenrolledP1') {
+
+                    $('#' + accesskey + '').siblings('#IsFutureIntakePregEnrolled1').val(assignValue);
+                }
+
+
+                $("#futureApplicationModalPreg").modal('hide');
+
+
+
+
+            });
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -774,6 +832,7 @@
                 $('#div2').hide();
             //rohit
             $('#customChecklist input[type=checkbox]').change(function () {
+                debugger;
                 var exist1 = false;
                 var exist2 = false;
                 var programtype = null;
@@ -937,6 +996,40 @@
                             $('#_childprogrefid').val("2");
                     }
                 });
+
+                if (!(exist1 == true && exist2 == true) && $(this).is(':checked')) {
+
+                    $.ajax({
+
+                        url: '/AgencyUser/GetProgramDatesByProgram',
+                        datatype: 'json',
+                        type: 'post',
+                        data: { programID: $(this).val() },
+                        success: function (data) {
+                            console.log(data);
+
+                            if (data.AllowFutureApplication && data.AllowCurrentApplication) {
+
+                                $("#futureApplicationModal").find('#futureSpanYear').text(data.FutureProgramYear);
+                                $("#futureApplicationModal").find('input[type=radio]').prop('checked', false);
+                                $("#futureApplicationModal").modal({
+                                    show: true,
+                                    backdrop: 'static'
+                                });
+                                //  $("#futureApplicationModal").modal('show');
+                            }
+
+                        },
+                        error: function (data) {
+
+                        },
+                        complete: function (data) {
+
+                        }
+                    });
+                }
+
+
             });
             $("#ParentSSN1").blur(function () {
                 if (Parent1ssn != null) {
@@ -3759,6 +3852,10 @@
                 $(this).prop("checked", false);
                 $('#Screening1').hide();
             });
+
+            var isfuture = (data.IsFutureApplication) ? "True" : "False";
+            $('#customChecklist').find('#IsFutureApplication').val(isfuture);
+
             if (data.AvailableProgram != null && data.AvailableProgram.length > 0) {
                 for (var i = 0; i < data.AvailableProgram.length; i++) {
                     if (data.AvailableProgram[i].ReferenceId == 1) {
@@ -3775,6 +3872,9 @@
                             $(this).prop("checked", true);
                     });
                 }
+
+                $('#cutomCheckList').find('#IsFutureApplication').val(data.IsFutureApplication);
+
             }
 
 
@@ -8739,15 +8839,78 @@
             else
                 $('#divParentrelatioship').hide();
         }
+
+        function getIsAllowFuturePreg(ele) {
+            $.ajax({
+
+                url: '/AgencyUser/GetAllowFutureForPM',
+                datatype: 'json',
+                type: 'post',
+                beforSend: function () { $('#spinner').show() },
+                success: function (data) {
+                    $('#spinner').hide();
+
+                    if (data != null) {
+                        if (data.AllowFutureApplication) {
+
+                            $('#futureApplicationModalPreg').find('#futureSpanYear').text(data.FutureProgramYear);
+                            $("#futureApplicationModalPreg").find('input[type=radio]').prop('checked', false);
+                            $('#futureApplicationModalPreg').find('#btnClosefuturePreg').attr('enc', ele);
+                            $("#futureApplicationModalPreg").modal({
+                                show: true,
+                                backdrop: 'static'
+                            });
+                        }
+                        else {
+                            if (ele == 'PregnantmotherenrolledP1') {
+
+                                $('#' + ele + '').siblings('#IsFutureIntakePregEnrolled1').val('False');
+                            }
+
+                            if (ele == 'PregnantmotherenrolledP') {
+
+                                $('#' + ele + '').siblings('#IsFutureIntakePregEnrolled').val('False');
+                            }
+                        }
+
+
+
+
+
+                    }
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+
+
+
+
+
+
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+                },
+                complete: function (data) {
+
+                }
+
+
+
+            });
+        }
+
         function Pregnantmotherenrolled1() {
             if ('@Model.ExistPmprogram' > 0) {
                 if ($('#Pregnantmotherenrolled').prop("checked")) {
+                    getIsAllowFuturePreg('Pregnantmotherenrolled');
                     $("#Div3").show();
                 }
                 else {
 
                     BootstrapDialog.confirm('All qualifier data for this guardian will be lost. Do you want to continue?', function (result) {
                         if (result) {
+                            $('#Pregnantmotherenrolled').siblings('#IsFutureIntakePregEnrolled').val('False');
+
                             $.ajax({
                                 url: HostedDir + "/Agencyuser/Deletepmmother",
                                 type: "POST",
@@ -8790,9 +8953,15 @@
                 }
             }
         }
+
+
+
+
         function Pregnantmotherenrolled2() {
             if ('@Model.ExistPmprogram' > 0) {
                 if ($('#PregnantmotherenrolledP1').prop("checked")) {
+
+                    getIsAllowFuturePreg('PregnantmotherenrolledP1');
                     $("#Divp3").show();
                 }
                 else {
@@ -9446,14 +9615,14 @@
                 if (centrerselected == 0) {
                     customAlert("Please select center. ");
                 }
-                else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
-                    customAlert("Health/Nurse staff is required.");
-                    plainValidation('#ddlnurse');
-                }
+                    //else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
+                    //    customAlert("Health/Nurse staff is required.");
+                    //    plainValidation('#ddlnurse');
+                    //}
                 else {
 
 
-                    BootstrapDialog.confirm('Are you sure want to send this client for approval?', function (result) {
+                    BootstrapDialog.confirm('Click OK to move client to acceptance process', function (result) {
                         if (result) {
                             $.ajax({
                                 url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
@@ -11049,11 +11218,13 @@
                 secureuri: false,
                 async: false,
                 success: function (response) {
+                 
                     if (response != null) {
                         Data = response;
                     }
                 }
            , error: function (response) {
+              
                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
            }
             });
@@ -12132,7 +12303,7 @@
 
                 }
                 else {
-                    BootstrapDialog.confirm('Are you sure want to send this client to the waiting list?', function (result) {
+                    BootstrapDialog.confirm('You are about to move the client to Waiting List. Click OK to proceed.', function (result) {
                         if (result) {
                             var waitinglist = [];
                             var _waitinglist = [];
@@ -14024,13 +14195,15 @@
                                                                     <label>Enroll for Pregnant Mother program? </label>
                                                                     <div class="col-sm-6">
                                                                         @Html.CheckBoxFor(m => m.Pregnantmotherenrolled, new { @class = "minimal", onchange = "Pregnantmotherenrolled1();", @style = "width: auto;" })
+
+                                                                        @Html.HiddenFor(m => m.IsFutureIntakePregEnrolled, new { @class = "hidden" })
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div class="clearfix"></div>
                                                         </div>
                                                         <div class="row" style="display: none;  margin: 4px 3px 19px 3px; padding: 6px;" id="Div3">
-                                                            <fieldset style="border: 1px solid #295b8f; ">
+                                                            <fieldset style="border: 1px solid #295b8f;">
                                                                 <legend class="legend1">Pregnant Mother Program Questionnaire</legend>
                                                                 <div class="col-md-12">
                                                                     @*<div class="col-lg-6 col-md-6 col-sm-12">
@@ -14841,6 +15014,8 @@
                                                                     <label>Enroll for Pregnant Mother program? </label>
                                                                     <div class="col-sm-6">
                                                                         @Html.CheckBoxFor(m => m.PregnantmotherenrolledP1, new { @class = "minimal", onchange = "Pregnantmotherenrolled2();", @style = "width:auto;" })
+
+                                                                        @Html.HiddenFor(m => m.IsFutureIntakePregEnrolled1, new { @class = "hidden" })
 
                                                                     </div>
                                                                 </div>
@@ -15921,6 +16096,11 @@
 
 
                                                                                 }
+
+                                                                                @Html.HiddenFor(m => m.IsFutureApplication, new { @class = "hidden" })
+
+
+
 
                                                                             }
 
@@ -21496,7 +21676,7 @@
                                                 {
                                                     foreach (var item in Model.QualifierRecords)
                                                     {
-                                                        <tr>
+                                                        <tr @if (item.IsFutureIntake) {<text>class="futurequalifier"</text> }>
                                                             <td>@item.Name</td>
                                                             <td>@item.Programtype</td>
 
@@ -21573,28 +21753,28 @@
                                                                 <td><a style="text-decoration: underline; color: #337ab7;" href="javascript:void(0)">Complete</a></td>
                                                             }
                                                             <td>
-                                                                @if (item.HealthReviewAllowed > 0)
-                                                                {
-                                                                    if (item.ClientType == "-1")
+                                                                @*@if (item.HealthReviewAllowed > 0)
                                                                     {
-                                                                        if (item.HealthReview == 0)
+                                                                        if (item.ClientType == "-1")
                                                                         {
-                                                                            <a class="Healthhover" title="Send application for health review" accesskey="@item.clientid" programid="@item.Programid" onclick="HealthreviewPopup(this);" href="javascript:void(0)"> <img src="~/Content/img/health-icon-red.png" />  </a>
+                                                                            if (item.HealthReview == 0)
+                                                                            {
+                                                                                <a class="Healthhover" title="Send application for health review" accesskey="@item.clientid" programid="@item.Programid" onclick="HealthreviewPopup(this);" href="javascript:void(0)"> <img src="~/Content/img/health-icon-red.png" />  </a>
+                                                                            }
+                                                                            else if (item.HealthReview == 1)
+                                                                            {
+                                                                                <a title="Pending Review" href="javascript:void(0)"><img src="~/Content/img/health-icon-red.png" /></a>
+                                                                            }
+                                                                            else if (item.HealthReview == 2)
+                                                                            {
+                                                                                <a title="Health Verified" href="javascript:void(0)"><img src="~/Content/img/health-icon-green.png" /></a>
+                                                                            }
                                                                         }
-                                                                        else if (item.HealthReview == 1)
+                                                                        else
                                                                         {
-                                                                            <a title="Pending Review" href="javascript:void(0)"><img src="~/Content/img/health-icon-red.png" /></a>
+                                                                            <a style="margin-left:8%;" href="javascript:void(0)"></a>
                                                                         }
-                                                                        else if (item.HealthReview == 2)
-                                                                        {
-                                                                            <a title="Health Verified" href="javascript:void(0)"><img src="~/Content/img/health-icon-green.png" /></a>
-                                                                        }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <a style="margin-left:8%;" href="javascript:void(0)"></a>
-                                                                    }
-                                                                }
+                                                                    }*@
                                                                 &nbsp;&nbsp;
                                                                 @if (!item.Iswaiting && !item.IsAccepted)
                                                                 {
@@ -21642,19 +21822,21 @@
                                                                     if (item.ApplicationStatus == 1)
                                                                     {
 
-                                                                        if (!item.Iswaiting && !item.IsAccepted)
+                                                                        if (!item.Iswaiting && !item.IsAccepted &&!item.IsFutureIntake )
                                                                         {
                                                                             <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " onclick="AcceptProcess(this);" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
-                                                                            <a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                            @*<a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                                <a style="text-decoration:underline;" href="javascript:void(0)">Acceptance Hirarchy  <i class="fa fa-arrow-up"></i></a>*@
+
                                                                         }
                                                                     }
                                                                     else
                                                                     {
 
-                                                                        if (!item.Iswaiting && !item.IsAccepted)
+                                                                        if (!item.Iswaiting && !item.IsAccepted &&!item.IsFutureIntake)
                                                                         {
                                                                             <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
                                                                         }
@@ -21666,13 +21848,14 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                    if (!item.Iswaiting && !item.IsAccepted)
+                                                                    if (!item.Iswaiting && !item.IsAccepted && !item.IsFutureIntake)
                                                                     {
                                                                         <a style="text-decoration:underline;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
                                                                     }
                                                                     else
                                                                     {
                                                                         <a style="color: #AAAFB4; text-decoration: none; cursor: default;" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
+                                                                        @*<a style="text-decoration:underline;" href="javascript:void(0)">Acceptance Hirarchy  <i class="fa fa-arrow-up"></i></a>*@
 
                                                                     }
                                                                 }
@@ -21823,14 +22006,14 @@
                                                                                         {
                                                                                             <tr>
                                                                                                 @*@if (item1.SeatsAvailable == "0")
-                                                                                                {
-                                                                                                    <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
-                                                                                                }
-                                                                                                else
-                                                                                                {
-                                                                                                    <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
-                                                                                                }*@
-                                                                                                @if (item1.SeatsAvailable == "0" || Convert.ToInt32(item1.SeatsAvailable) <=-1)
+                                                                                                    {
+                                                                                                        <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
+                                                                                                    }
+                                                                                                    else
+                                                                                                    {
+                                                                                                        <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
+                                                                                                    }*@
+                                                                                                @if (item1.SeatsAvailable == "0" || Convert.ToInt32(item1.SeatsAvailable) <= -1)
                                                                                                 {
                                                                                                     <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
                                                                                                 }
@@ -23325,4 +23508,56 @@
         </style>
 
     </form>
+
+
+    <!-- Modal -->
+    <div id="futureApplicationModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Future Intake Application</h4>
+                </div>
+                <div class="modal-body">
+                    <label>
+                        Accept Application for Next Program Year (<span id="futureSpanYear"></span>)? <sup style="color:red;">*</sup>
+
+
+                    </label>
+                    <input type="radio" name="allowFutureRadio" value="1" /> Yes &nbsp;&nbsp;
+                    <input type="radio" name="allowFutureRadio" value="0" />  No
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="btnClosefuture">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="futureApplicationModalPreg" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Future Intake Application</h4>
+                </div>
+                <div class="modal-body">
+                    <label>
+                        Accept Application for Next Program Year (<span id="futureSpanYear"></span>)? <sup style="color:red;">*</sup>
+
+
+                    </label>
+                    <input type="radio" name="allowFutureRadioPreg" value="1" /> Yes &nbsp;&nbsp;
+                    <input type="radio" name="allowFutureRadioPreg" value="0" />  No
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="btnClosefuturePreg">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 }

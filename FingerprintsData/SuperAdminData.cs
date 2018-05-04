@@ -226,8 +226,8 @@ namespace FingerprintsData
         {
             string res = "";
             _Immulist = new List<Immunization>();
-          //  try
-           // {
+            try
+            {
                 using (SqlConnection Connection = connection.returnConnection())
                 {
                     using (SqlCommand command = new SqlCommand())
@@ -337,11 +337,11 @@ namespace FingerprintsData
                         res = command.Parameters["@RETURNRESULT"].Value.ToString();
                     }
                 }
-          //  }
-        //    catch (SqlException ex)
-         //   {
-         //       clsError.WriteException(ex);
-         //   }
+            }
+            catch (SqlException ex)
+            {
+                clsError.WriteException(ex);
+            }
             return res;
         }
 

@@ -2229,7 +2229,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [JsonMaxLengthAttribute]
-        public JsonResult listhousehold(string sortOrder, string sortDirection, string search, string search1, int pageSize, string clear, bool Applicationstatus, int requestedPage = 1)
+        public JsonResult listhousehold(string sortOrder, string sortDirection, string search, string search1, int pageSize, string clear, bool Applicationstatus, int requestedPage = 1,int programYearApplication=0)
         {
             try
             {
@@ -2259,7 +2259,7 @@ namespace Fingerprints.Controllers
                         }
                     }
                 }
-                var list = familyData.getHouseholdList(out totalrecord, out IncompleteApplication, sortOrder, sortDirection, search.TrimEnd().TrimStart(), search1.TrimEnd().TrimStart(), skip, pageSize, Convert.ToString(Session["UserID"]), centerid, option, householdid, Applicationstatus);
+                var list = familyData.getHouseholdList(out totalrecord, out IncompleteApplication, sortOrder, sortDirection, search.TrimEnd().TrimStart(), search1.TrimEnd().TrimStart(), skip, pageSize, Convert.ToString(Session["UserID"]), centerid, option, householdid, Applicationstatus,programYearApplication);
 
                 return Json(new { list, totalrecord, IncompleteApplication });
             }
@@ -2795,15 +2795,18 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public ActionResult AddClientDetails()
         {
-            return View(new FamilyHousehold());
+
+            
+
+            return View(familyData.GetFutureApplication());
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult AddClientDetailsAjax(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, bool Enrollpregnantmother)
+        public JsonResult AddClientDetailsAjax(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, bool Enrollpregnantmother,string futureIntake="")
         {
             FamilyData obj = new FamilyData();
             try
             {
-                string result = obj.AddClientAjax(HouseholdId, Street, StreetName, ZipCode, City, State, County, Pfirstname, Plastname, Cfirstname, Clastname, CDOB, CGender, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0", Enrollpregnantmother, Session["Roleid"].ToString());
+                string result = obj.AddClientAjax(HouseholdId, Street, StreetName, ZipCode, City, State, County, Pfirstname, Plastname, Cfirstname, Clastname, CDOB, CGender, Session["UserID"].ToString(), Session["AgencyID"].ToString(), "0", Enrollpregnantmother, Session["Roleid"].ToString(),futureIntake);
                 return Json(EncryptDecrypt.Encrypt64(result));
             }
             catch (Exception Ex)
@@ -3969,7 +3972,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(familyData.GetEnrollReason(Status, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(new FamilyData().GetEnrollReason(Status, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
             }
             catch (Exception Ex)
             {
@@ -6255,5 +6258,32 @@ namespace Fingerprints.Controllers
    
     
     
+        public JsonResult GetProgramDatesByProgram(long programID)
+        {
+            //DataSet dateset = new DataSet();
+            //JavaScriptSerializer serializer = new JavaScriptSerializer();
+            string serial = "";
+
+            Agency.ProgramType programType = new Agency.ProgramType();
+            programType =  new FamilyData().GetProgramByProgramID(programID);
+            // serial = serializer.Serialize(dateset.Tables[0]);
+            return Json(programType, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public JsonResult GetAllowFutureForPM()
+        {
+            FamilyHousehold family = new FamilyHousehold();
+            try
+            {
+                family = familyData.GetFutureApplication();
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(family, JsonRequestBehavior.AllowGet);
+        }
     }
 }

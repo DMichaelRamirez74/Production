@@ -242,6 +242,22 @@
                 return isValid;
             }
 
+            else if ($('#AreaID').length > 0 && $('#AreaID').val() == '') {
+                isValid = false;
+                customAlert("Area is required.");
+                plainValidation('#AreaID');
+                return isValid;
+
+            }
+
+            else if ($('#DivisionID').length > 0 && $('#DivisionID').val() == '') {
+                isValid = false;
+                customAlert("Division is required.");
+                plainValidation('#DivisionID');
+                return isValid;
+
+            }
+
 
             if ($('#AdminSite').val() == "0") {
                 var numItems = $('.fundservice').length - 1;
@@ -1376,6 +1392,7 @@
             }
         }
         function updatename() {
+            debugger;
             var length = $("div[id^='divclass']").length;
             for (var i = 0; i < length; i++) {
                 $('#RoomName')[i].name = "Classroom[" + i + "].RoomName";
@@ -1435,6 +1452,7 @@
 
         }
         function DeleteClass(value) {
+            debugger;
             //$("div[id^='divclass']")
             //$('#divclass').remove();
             if ($("div[id^='divclass']").length > 1) {
@@ -1710,6 +1728,53 @@
                                 @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control" })
                             </div>
                         </div>
+
+                        @if (Model.IsShowArea)
+                        {
+
+                            List<SelectListItem> areaList = new List<SelectListItem>();
+
+                            if (Model.AreasList.Count() > 0)
+                            {
+                                areaList = Model.AreasList.Select(x => new SelectListItem
+                                {
+                                    Text = x.AreaID.ToString(),
+                                    Value = x.AreaID.ToString()
+
+                                }).ToList();
+                            }
+
+                            <div class="col-lg-6 col-md-6 col-sm-12" id="HideHomeBased">
+                                <div class="form-group">
+                                    <label for="pwd">Area<sup>*</sup></label>
+                                    @Html.DropDownListFor(m => m.AreaID, new SelectList(areaList, "Value", "Text", Model.AreaID.ToString()), "--Select--", new { @class = "form-control" })
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.IsShowDivision)
+                        {
+
+                            List<SelectListItem> divList = new List<SelectListItem>();
+
+                            if (Model.DivisionsList.Count() > 0)
+                            {
+                                divList = Model.DivisionsList.Select(x => new SelectListItem
+                                {
+
+                                    Text = x.DivisionID.ToString(),
+                                    Value = x.DivisionID.ToString()
+                                }).ToList();
+                            }
+
+                            <div class="col-lg-6 col-md-6 col-sm-12 " id="HideHomeBased">
+                                <div class="form-group">
+                                    <label for="pwd">Division<sup>*</sup></label>
+                                    @Html.DropDownListFor(m => m.DivisionID, new SelectList(divList, "Value", "Text", Model.DivisionID.ToString()), "--Select--", new { @class = "form-control" })
+                                </div>
+                            </div>
+
+                        }
 
 
                         <div class="col-lg-6 col-md-6 col-sm-12 " id="HideHomeBased">

@@ -76,6 +76,8 @@ namespace FingerprintsModel
         public string Gender { get; set; }
         public string Yakkr { get; set; }
         public string EncryptedName { get; set; }
+
+        [Display(Name ="Married?")]
         public string Married { get; set; }
         public string Returned { get; set; }
         public int RequestAllowed { get; set; }
@@ -92,14 +94,27 @@ namespace FingerprintsModel
         public string StaffId { get; set; }
         public string YakkrId { get; set; }
         public Int32 StreetID { get; set; }
+
+        [Display(Name ="Address")]
         public string Street { get; set; }
         public string County { get; set; }
+
+        [Display(Name = "Apartment No., Lot No. ")]
         public string StreetName { get; set; }
         public string Apartmentno { get; set; }
+
+        [Display(Name ="Zip Code")]
         public string ZipCode { get; set; }
+
+        [Display(Name ="City")]
         public string City { get; set; }
+
+        [Display(Name ="State")]
         public string State { get; set; }
+        [Display(Name ="County")]
         public string Country { get; set; }
+
+
         public bool AdresssverificationinPaper { get; set; }
         public byte[] HImageByte { get; set; }
         public string HFileName { get; set; }
@@ -109,13 +124,19 @@ namespace FingerprintsModel
         public string nationality { get; set; }
         public string PrimaryLanguauge { get; set; }
         public Int32 FamilyHouseholdID { get; set; }
+
+        [Display(Name ="Family Type")]
         public int FamilyType { get; set; }
         public bool TANF { get; set; }
         public bool SSI { get; set; }
         public bool NONE { get; set; }
         public bool WIC { get; set; }
         public bool SNAP { get; set; }
+
+        [Display(Name = "Is family Homeless at this time?")]
         public int HomeType { get; set; }
+
+        [Display(Name ="Rent Type")]
         public int RentType { get; set; }
         public string RentTypetext { get; set; }
         public int Interpretor { get; set; }
@@ -133,11 +154,19 @@ namespace FingerprintsModel
         public string CreatedOn { get; set; }
         public int SchoolDistrict { get; set; }
         public string OtherLanguageDetail { get; set; }
+
+        [Display(Name = "Parent Relationship")]
         public int ParentRelatioship { get; set; }
+
+        [Display(Name = "Other Relationship")]
         public string ParentRelatioshipOther { get; set; }
         public string Povertypercentage { get; set; }
         public int docstorage { get; set; }
         public int Phonecount { get; set; }
+
+        [Display(Name = "Does family have any address?")]
+        public int FamilyHasAddress { get; set; }
+
         public DataTable customscreening { get; set; }
         //Parent Details 1
         public Int32 Parent { get; set; }
@@ -364,6 +393,8 @@ namespace FingerprintsModel
         public int EnrolledChild { get; set; }
         public int IsPreg { get; set; }
         public bool Pregnantmotherenrolled { get; set; }
+
+        public bool IsFutureIntakePregEnrolled { get; set; }
         public int Pregnantmotherprimaryinsurance { get; set; }
         public string Pregnantmotherprimaryinsurancenotes { get; set; }
         public int totalhousehold { get; set; }
@@ -383,11 +414,17 @@ namespace FingerprintsModel
         public int EnrolledChild1 { get; set; }
         public int IsPreg1 { get; set; }
         public bool PregnantmotherenrolledP1 { get; set; }
+
+        public bool IsFutureIntakePregEnrolled1 { get; set; }
         public int Pregnantmotherprimaryinsurance1 { get; set; }
         public string Pregnantmotherprimaryinsurancenotes1 { get; set; }
         public List<calculateincome> Income1 { get; set; }
         public List<calculateincome1> Income2 { get; set; }
         public List<Programdetail> AvailableProgram { get; set; }
+
+        public bool AllowFutureApplication { get; set; }
+        public bool IsFutureApplication { get; set; }
+        public string FutureProgramYear { get; set; }
         public List<Programdetail> SelectedProgram { get; set; }
         public PostedProgram PostedPostedPrograms { get; set; }
         public List<SelectPoints.CustomQuestion> CustomQues = new List<SelectPoints.CustomQuestion>();
@@ -631,6 +668,8 @@ namespace FingerprintsModel
             public int HealthReview { get; set; }
             public int HealthReviewAllowed { get; set; }
             public bool HealthReviewPm { get; set; }
+
+            public bool IsFutureIntake { get; set; }
         }
         public class Applicationnotes
         {
