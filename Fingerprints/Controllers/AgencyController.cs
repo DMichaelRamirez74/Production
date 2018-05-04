@@ -51,6 +51,31 @@ namespace Fingerprints.Controllers
                     ViewBag.RefList = _staff.refList;
                     TempData["RefList"] = ViewBag.RefList;
                     Session["LeftMenu"] = "SuperAdmin";
+                    agencyDetail.ProgramTypeList = new List<Agency.ProgramType>();
+                    agencyDetail.FundSourcedata = new List<Agency.FundSource>();
+                    agencyDetail.ProgramYearList = new List<SelectListItem>();
+                    agencyDetail._FundedEnrollment = new Agency.FundedEnrollment();
+                    agencyDetail.DivisionsList = new List<SelectListItem>();
+                    agencyDetail.DivisionsFullList = new List<Divisions>();
+                    agencyDetail.AreasFullList = new List<Areas>();
+                    agencyDetail.Areabreakdown = "";
+                    agencyDetail.DivisionBreakDown = "";
+                    agencyDetail.nationality = _staff.nationList.Where(x => x.Name.Replace(" ", "").ToLower().Trim() == "unitedstates").Select(x => x.NationId).FirstOrDefault();
+                    int currentYear = DateTime.Now.Year;
+                    agencyDetail.ProgramYearList.Add(new SelectListItem
+                    {
+
+                        Text = (currentYear - 1).ToString().Substring(2, 2) + "-" + currentYear.ToString().Substring(2, 2),
+                        Value = (currentYear - 1).ToString().Substring(2, 2) + "-" + currentYear.ToString().Substring(2, 2)
+                    });
+
+                    agencyDetail.ProgramYearList.Add(new SelectListItem
+                    {
+
+                        Text = (currentYear).ToString().Substring(2, 2) + "-" + (currentYear + 1).ToString().Substring(2, 2),
+                        Value = (currentYear).ToString().Substring(2, 2) + "-" + (currentYear + 1).ToString().Substring(2, 2)
+                    });
+
                 }
                 else
                 {
@@ -59,6 +84,21 @@ namespace Fingerprints.Controllers
                     agencyDetail = agencyData.editAgency(id);
                     ViewBag.FundSourceData = agencyDetail.FundSourcedata;
                     TempData["FundSourceData"] = agencyDetail.FundSourcedata;
+
+                    if(agencyDetail.ProgramTypeList.Count==0)
+                    {
+                        agencyDetail.ProgramTypeList.Add(new Agency.ProgramType
+                        {
+                            DivisionID = "1",
+                            programstartDate="",
+                            programendDate="",
+                            DateFutureApplication="",
+                            LastDateCurrentApplication="",
+                            TransitionDate="",
+                       
+                        });
+                    }
+
                     agencyDetail.TimeZonelist = _staff.TimeZonelist;
                     TempData["Timezonelist"] = _staff.TimeZonelist;
                     ViewBag.RefList = _staff.refList;
@@ -114,7 +154,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult addAgency(Agency agencyinfo, FormCollection collection, List<FingerprintsModel.Agency.FundSource> FundSourcedata)
+        public ActionResult addAgency(Agency agencyinfo, FormCollection collection)
         {
             try
             {
@@ -124,8 +164,9 @@ namespace Fingerprints.Controllers
                     ViewBag.mode = 0;
                     string RandomPassword = GenerateRandomPassword.GenerateRandomCode(10);
                     agencyinfo.agencyId = "00000000-0000-0000-0000-000000000000";
+                    agencyinfo._FundedEnrollment = new Agency.FundedEnrollment();
                     string Agency_Code = "";
-                    string message = agencyData.addeditAgency(agencyinfo, 0, RandomPassword, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, FundSourcedata);
+                    string message = agencyData.addeditAgency(agencyinfo, 0, RandomPassword, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, agencyinfo.FundSourcedata);
                     if (message == "1")
                     {
                         string agency = agencyinfo.agencyName;
@@ -147,7 +188,7 @@ namespace Fingerprints.Controllers
                 else
                 {
                     string Agency_Code = "";
-                    string message = agencyData.addeditAgency(agencyinfo, 1, string.Empty, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, FundSourcedata);
+                    string message = agencyData.addeditAgency(agencyinfo, 1, string.Empty, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, agencyinfo.FundSourcedata);
                     ViewBag.mode = 1;
                     if (message == "1")
                     {
@@ -1047,9 +1088,12 @@ namespace Fingerprints.Controllers
                 ViewBag.message = Ex.Message;
 
             }
-            AgencyStaff _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(),1, agencystaff.AgencyStaffId);
+            AgencyStaff _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, agencystaff.AgencyStaffId);
             return View(_staffList);
         }
+
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public JsonResult LoadCenterByAgency(string AgncyID)
         {
 
@@ -1214,10 +1258,11 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult AgencyProfile(Agency agencyinfo, FormCollection collection, List<FingerprintsModel.Agency.FundSource> FundSourcedata)
+        public ActionResult AgencyProfile(Agency agencyinfo, FormCollection collection)
         {
             try
             {
+
                 agencyinfo.AccessDays = collection["DdlAccessType"].ToString() == "-1" ? null : collection["DdlAccessType"].ToString();
                 if (agencyinfo.agencyId == null)
                 {
@@ -1228,7 +1273,7 @@ namespace Fingerprints.Controllers
                     string RandomPassword = GenerateRandomPassword.GenerateRandomCode(10);
                     agencyinfo.agencyId = "00000000-0000-0000-0000-000000000000";
                     string Agency_Code = "";
-                    string message = agencyData.addeditAgency(agencyinfo, 0, RandomPassword, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, FundSourcedata);
+                    string message = agencyData.addeditAgency(agencyinfo, 0, RandomPassword, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, agencyinfo.FundSourcedata);
                     if (message == "1")
                     {
                         string agency = agencyinfo.agencyName;
@@ -1250,7 +1295,7 @@ namespace Fingerprints.Controllers
                 else
                 {
                     string Agency_Code = "";
-                    string message = agencyData.addeditAgency(agencyinfo, 1, string.Empty, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, FundSourcedata);
+                    string message = agencyData.addeditAgency(agencyinfo, 1, string.Empty, Guid.Parse(Convert.ToString(Session["UserID"])), out Agency_Code, agencyinfo.FundSourcedata);
                     ViewBag.mode = 1;
                     if (message == "1")
                     {
@@ -1469,6 +1514,151 @@ namespace Fingerprints.Controllers
             return Json(agencyData.SaveAdditionalSeats(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Seats, YakkrID));
 
         }
+
+
+        //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        //public JsonResult GetFamiliesUnderUser(string userId, string roleId)
+        //{
+        //    List<SelectListItem> familyList = new List<SelectListItem>();
+        //    try
+        //    {
+        //        string agencyId = Session["AgencyId"].ToString();
+        //        familyList = new agencyData().GetFamiliesUnderUserId(userId, agencyId, roleId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+
+        //    return Json(familyList, JsonRequestBehavior.AllowGet);
+        //}
+
+
+
+        /// <summary>
+        /// Gets the Area breakdowns list from the table.
+        /// </summary>
+        /// <returns></returns>
+        /// 
+        [HttpPost]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        public JsonResult GetAreas(string agencyId)
+        {
+            List<Areas> _areabreakDownList = new List<Areas>();
+
+            if (!string.IsNullOrEmpty(agencyId))
+            {
+                _areabreakDownList.Add(new Areas
+                {
+                    AgencyID = new Guid(agencyId)
+                });
+
+                _areabreakDownList = new agencyData().GetAreas(_areabreakDownList);
+            }
+
+
+            return Json(_areabreakDownList, JsonRequestBehavior.AllowGet);
+        }
+
+
+        /// <summary>
+        /// POST method to insert the Broken Areas to the Table
+        /// </summary>
+        /// <returns></returns>
+
+        [HttpPost]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+
+        public JsonResult AddAreas(List<Areas> areasList)
+        {
+            bool isResult = false;
+            isResult = new agencyData().AddAreas(areasList);
+            return Json(new { isResult }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
+        /// <summary>
+        /// Gets the Division break down list from the table.
+        /// </summary>
+        /// <returns></returns>
+        /// 
+        [HttpPost]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        public JsonResult GetDivisions(string agencyId)
+        {
+
+
+            List<Divisions> _divisionbreakDownList = new List<Divisions>();
+
+            if(!string.IsNullOrEmpty(agencyId))
+            {
+                _divisionbreakDownList.Add(new Divisions
+                {
+                    AgencyID = new Guid(agencyId)
+                });
+
+
+                _divisionbreakDownList = new agencyData().GetDivisons(_divisionbreakDownList);
+            }
+            
+            return Json(_divisionbreakDownList, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        /// <summary>
+        /// POST method to insert the Broken Divisions to the Table
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        public JsonResult AddDivisions(List<Divisions> divisionsList)
+        {
+            bool isResult = false;
+            divisionsList = new agencyData().AddDivisions(out isResult, divisionsList);
+            return Json(new { isResult, divisionsList }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        /// <summary>
+        /// POST method to get the City,County and State by zipcode
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
+        
+        public JsonResult GetAddressByZipCode(int Zipcode)
+        {
+            List<Zipcodes> Zipcodelist = new List<Zipcodes>();
+            try
+            {
+                Zipcodelist = new BillingData().Checkaddress(Zipcode);
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+            }
+            return Json(new { Zipcodelist }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        /// <summary>
+        /// Http Post method to Add the Funds 
+        /// </summary>
+        /// <param name="fundSource"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult AddFunds(Agency.FundSource fundSource)
+        {
+            bool isResult = false;
+
+           isResult= new agencyData().AddFunds(fundSource);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+       
+
     }
   
 }

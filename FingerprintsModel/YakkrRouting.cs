@@ -18,6 +18,9 @@ namespace FingerprintsModel
         public Int64? HouseHoldId { get; set; }
         public string Email { get; set; }
         public Guid? Imageid { get; set; }
+
+
+        public string MonitorId { get; set; }
         public string Message { get; set; }
     }
 }

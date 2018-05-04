@@ -53,8 +53,8 @@ namespace FingerprintsModel
         public List<SelectListItem> ProgramYearList { get; set; }
         public List<SelectListItem> DivisionsList { get; set; }
 
-       // public List<Divisions> DivisionsFullList { get; set; }
-       // public List<Areas> AreasFullList { get; set; }
+        public List<Divisions> DivisionsFullList { get; set; }
+        public List<Areas> AreasFullList { get; set; }
         public string ActiveProgYear { get; set; }
         public string ProgramEndTime { get; set; }
         public string FSWYearlyVisit { get; set; }
@@ -71,12 +71,15 @@ namespace FingerprintsModel
         public int PurchasedSlots { get; set; }
         public int SlotId { get; set; }
         public string LastLogin { get; set; }
-        public List<FundSource> FundSourcedata = new List<FundSource>();
- public bool DivisionReference { get; set; }
+
+        //public List<FundSource> FundSourcedata = new List<FundSource>();
+
+        public bool DivisionReference { get; set; }
         public bool AreaReference { get; set; }
-      
+        public List<FundSource> FundSourcedata { get; set; }
 
         public List<ProgramType> ProgramTypeList { get; set; }
+      
         public class FundSource
         {
             public Int32 FundID { get; set; }
@@ -125,8 +128,11 @@ namespace FingerprintsModel
 
         public class ProgramType
         {
+
+            public bool AllowCurrentApplication { get; set; }
+            public bool AllowFutureApplication { get; set; }
             public Int32 ProgramID { get; set; }
-            public Int32 FundID { get; set; }
+            public string FundID { get; set; }
             public string OldFund { get; set; }
             public string AgencyId { get; set; }
             public string ProgramTypes { get; set; }
@@ -135,6 +141,7 @@ namespace FingerprintsModel
             public string Slots { get; set; }
             public string GranteeNumber { get; set; }
             public string Area { get; set; }
+            public string DivisionID { get; set; }
             public string StartTime { get; set; }
             public string StopTime { get; set; }
             public bool HealthReview { get; set; }
@@ -146,7 +153,7 @@ namespace FingerprintsModel
             public string ReferenceProg { get; set; }
             public string programstartDate { get; set; }
             public string programendDate { get; set; }
-
+            public string ProgramTypeAssociation { get;set;}
             public string LastDateCurrentApplication { get; set; }
             public string DateFutureApplication { get; set; }
             public string TransitionDate { get; set; }
@@ -160,6 +167,33 @@ namespace FingerprintsModel
                 public string Id { get; set; }
                 public string Name { get; set; }
             }
+
+            public string FutureProgramYear { get; set; }
+        }
+
+
+        public FundedEnrollment _FundedEnrollment { get; set; }
+        public class FundedEnrollment
+        {
+            public long FundIndexID { get; set; }
+            public Guid? AgencyID { get; set; }
+            public string FundQ1 { get; set; }
+            public string FundQ2 { get; set; }
+            public string FundQ3 { get; set; }
+            public string FundQ4 { get; set; }
+            public string FundQ5 { get; set; }
+            public string FundQ6 { get; set; }
+            public string FundQ7 { get; set; }
+            public string FundQ8 { get; set; }
+            public string FundQ9 { get; set; }
+            public string FundQ10 { get; set; }
+            public string FundQ11 { get; set; }
+            public string FundQ12 { get; set; }
+            public string FundQ13 { get; set; }
+            public string FundQ14 { get; set; }
+            public string FundQ15 { get; set; }
+            public string FundQ16 { get; set; }
+           
         }
 
     }

@@ -117,6 +117,8 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@tblphone", dt));
 
                 }
+                command.Parameters.AddWithValue("@AreaID", info.AreaID);
+                command.Parameters.AddWithValue("@DivisionID", info.DivisionID);
                 command.Parameters.AddWithValue("@mode", info.mode);
                 command.Parameters.AddWithValue("@CenterId", info.CenterId);
                 command.Parameters.AddWithValue("@AgencyId", info.AgencyId);
@@ -190,6 +192,9 @@ namespace FingerprintsData
         {
 
             Center _centre = new Center();
+
+            _centre.DivisionsList = new List<Divisions>();
+            _centre.AreasList = new List<Areas>();
             try
             {
                 if (!string.IsNullOrEmpty(agencyid))
@@ -239,9 +244,10 @@ namespace FingerprintsData
                         _centre.Zip = _dataset.Tables[1].Rows[0]["Zip"].ToString();
                         _centre.State = _dataset.Tables[1].Rows[0]["State"].ToString();
                         _centre.HomeBased = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["HomeBased"]);
-
                         _centre.AgencyName = _dataset.Tables[1].Rows[0]["AgencyName"].ToString();
                         _centre.AgencyId = _dataset.Tables[1].Rows[0]["AgencyId"].ToString();
+                        _centre.AreaID = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["AreaID"].ToString()) ? 0 : (long)_dataset.Tables[1].Rows[0]["AreaID"];
+                        _centre.DivisionID = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["DivisionID"].ToString()) ? 0 : (long)_dataset.Tables[1].Rows[0]["DivisionID"];
 
                     }
                     // if (_dataset.Tables[2].Rows.Count > 0)
@@ -379,6 +385,33 @@ namespace FingerprintsData
 
                     }
 
+                   
+
+                    if (_dataset.Tables[3].Rows.Count > 0)
+                    {
+                        _centre.AreasList = _dataset.Tables[3].AsEnumerable().Select(x => new Areas
+                        {
+                            AreaIndexID = x.Field<long>("AreaIndexID"),
+                            AreaID = x.Field<long>("AreaID"),
+                            Description = x.Field<string>("Description")
+                        }).ToList();
+                    }
+
+                    if (_dataset.Tables[4].Rows.Count > 0) 
+                    {
+                        _centre.DivisionsList = _dataset.Tables[4].AsEnumerable().Select(x => new Divisions
+                        {
+                            DivisionIndexID = x.Field<long>("DivisionIndexID"),
+                            DivisionID = x.Field<long>("DivisionID"),
+                            Description = x.Field<string>("Description")
+                        }).ToList();
+                    }
+
+                    if (_dataset.Tables[5].Rows.Count > 0)
+                    {
+                        _centre.IsShowArea = Convert.ToBoolean(_dataset.Tables[5].Rows[0]["IsShowArea"]);
+                        _centre.IsShowDivision = Convert.ToBoolean(_dataset.Tables[5].Rows[0]["IsShowDivision"]);
+                    }
                 }
                 return _centre;
             }
@@ -915,7 +948,7 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId,bool isreqAdminSite=false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId,bool isreqAdminSite=false,bool isCenterBasedOnly=false)
         {
             dtCenters = new DataTable();
             try
@@ -924,6 +957,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", UserID));
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
                 command.Parameters.Add(new SqlParameter("@ReqAdminSite", isreqAdminSite));
+                command.Parameters.Add(new SqlParameter("@ReqCenterBasedOnly", isCenterBasedOnly));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetCentersByuserId";

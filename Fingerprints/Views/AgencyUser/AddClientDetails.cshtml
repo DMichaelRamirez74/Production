@@ -105,7 +105,22 @@
             }
         }
 
-      
+
+        else {
+            if($('#allowFutureApplication').length > 0)
+            {
+                if(!$('#allowFutureApplication').find('input[name=IsFutureApplication]').is(':checked'))
+                {
+                    isValid = false;
+                    customAlert("Please select Yes or No for accept application for next program year.");
+                   // plainValidation('#County');
+                    return isValid;
+                }
+            }
+        }
+
+
+
         return isValid;
     }
     function validatedate(inputTextObject) {
@@ -180,8 +195,7 @@
                 CheckAddress(1);
             return ret;
         }
-        else
-        {
+        else {
             $('#City').find('option').remove();
             $('#State').val('');
             $('#County').val('');
@@ -226,8 +240,7 @@
         else
             Zipcode = $('#ZipCode').val();
 
-        if (value == 0 && $('#State').val().trim()!="")
-        {
+        if (value == 0 && $('#State').val().trim() != "") {
             $.ajax({
                 url: HostedDir + "/Agencyuser/Checkaddress",
                 type: "POST",
@@ -255,14 +268,13 @@
                     }
                 }
                     , error: function (response) {
-                           customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                     }
             });
 
 
         }
-        else
-        {
+        else {
             if ($('#ZipCode').val().trim() != "") {
 
                 $.ajax({
@@ -345,7 +357,8 @@
                     Clastname: $('#Clastname')[0].value,
                     CDOB: $('#CDOB')[0].value,
                     CGender: $('input[type="radio"]:checked').val(),
-                    Enrollpregnantmother: $('#Ischild').prop("checked")
+                    Enrollpregnantmother: $('#Ischild').prop("checked"),
+                    futureIntake: $('#allowFutureApplication').length>0 ?$('#allowFutureApplication').find('input[name=IsFutureApplication]:checked').val():"0"
                 },
                 dataType: "json",
                 secureuri: false,
@@ -375,8 +388,7 @@
         }
     }
 
-    function Showhidechild(object)
-    {
+    function Showhidechild(object) {
         if ($(object).prop("checked")) {
             $('#showhidechild').hide();
             $('#Cfirstname').val('');
@@ -385,9 +397,19 @@
             $('#CGenderfemale').prop("checked", false);
             $('#CGendermale').prop("checked", false);
             $('#CGenderother').prop("checked", false);
-        
+
+
+            if ($('#allowFutureApplication').length > 0) {
+                $('#allowFutureApplication').show();
+            }
+
+
         }
         else {
+
+            if ($('#allowFutureApplication').length > 0) {
+                $('#allowFutureApplication').hide();
+            }
             $('#showhidechild').show();
         }
     }
@@ -461,13 +483,35 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Expected Mother Enrollment Only? </label>
+                                            <div class="cont-sz">
+                                                <input type="checkbox" onchange="Showhidechild(this);" class="minimal" name="Pregnantmotherenrolled" id="Ischild" tabindex="9" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @if(Model.AllowFutureApplication)
+                                    {
+
+                                        <div class="col-sm-6" id="allowFutureApplication" style="display:none;">
                                             <div class="form-group">
-                                                <label>Expected Mother Enrollment Only? </label>
+                                                <label>Accept Application for Next Program Year (@Model.FutureProgramYear)? <sup>*</sup></label>
                                                 <div class="cont-sz">
-                                                    <input type="checkbox" onchange="Showhidechild(this);" class="minimal" name="Pregnantmotherenrolled" id="Ischild" tabindex="9" />
+                                                    <div class="col-xs-6 col-sm-3">
+                                                        @Html.RadioButtonFor(m => m.IsFutureApplication, "1", new { id = "yesFutureapp", tabIndex = "14" })
+                                                        <span>Yes</span>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-4">
+                                                        @Html.RadioButtonFor(m => m.IsFutureApplication, "0", new { id = "noFutureapp", tabIndex = "15" })
+                                                        <span>No </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                    </div>
+                                        </div>
+
+                                    }
+
                                     <div class="col-sm-6">
                                         <div class="form-group">
 

@@ -146,6 +146,7 @@ namespace FingerprintsModel
         public string option1 { get; set; }
         public string option2 { get; set; }
         public string option3 { get; set; }
+        public string FutureWaiting { get; set; }
         public string Routecode100 { get; set; }
         public string Routecode101 { get; set; }
         public string Routecode102 { get; set; }

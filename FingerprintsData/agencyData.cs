@@ -66,6 +66,7 @@ namespace FingerprintsData
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
+
                 commandAK.Connection = Connection;
                 if (mode == 0)
                 {
@@ -93,7 +94,10 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.Transaction = tranSaction;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "Sp_addeditagency_withfunds";//Sp_addeditagency_withfunds   Sp_addeditagency
+                 command.CommandText = "Sp_addeditagency_withfunds";//Sp_addeditagency_withfunds   Sp_addeditagency
+
+               
+
                 command.Parameters.Add(new SqlParameter("@agencyId", agencyDetails.agencyId));
                 command.Parameters.Add(new SqlParameter("@Transport", agencyDetails.Transportation));//Changes
                 command.Parameters.Add(new SqlParameter("@agencyCode", agencyCode));
@@ -122,6 +126,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@address2", string.Empty));
                 command.Parameters.Add(new SqlParameter("@city", agencyDetails.city));
                 command.Parameters.Add(new SqlParameter("@State", agencyDetails.State));
+                command.Parameters.Add(new SqlParameter("@County", agencyDetails.County));
                 command.Parameters.Add(new SqlParameter("@zipCode", agencyDetails.zipCode));
                 if (!string.IsNullOrEmpty(agencyDetails.phone1))
                     command.Parameters.Add(new SqlParameter("@phone1", agencyDetails.phone1));
@@ -158,11 +163,12 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ProgramEndTime", agencyDetails.ProgramEndTime));
                 command.Parameters.Add(new SqlParameter("@FSWYearlyVisit", agencyDetails.FSWYearlyVisit));
                 command.Parameters.Add(new SqlParameter("@Areabreakdown", agencyDetails.Areabreakdown));
+                command.Parameters.Add(new SqlParameter("@DivisionBreakDown", agencyDetails.DivisionBreakDown));
                 command.Parameters.Add(new SqlParameter("@Yakkr600Days", agencyDetails.Yakkr600));
-               // command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
+                command.Parameters.Add(new SqlParameter("@AcceptanceProcess", agencyDetails.AcceptanceProcess));
                 command.Parameters.Add(new SqlParameter("@AttendanceIssuePercentage", agencyDetails.Yakkr601));
-              //  command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
-         
+                command.Parameters.Add(new SqlParameter("@PurchasedSlots", agencyDetails.PurchasedSlots));
+
                 HttpPostedFileBase _file = agencyDetails.logo;
                 string filename = null;
                 string fileextension = null;
@@ -223,47 +229,74 @@ namespace FingerprintsData
                     });
 
                     DataTable dt1 = new DataTable();
-                    dt1.Columns.AddRange(new DataColumn[14] {
+                    dt1.Columns.AddRange(new DataColumn[18] {
                         new DataColumn("ProgramType", typeof(string)),
                         new DataColumn("Description",typeof(string)),
                         new DataColumn("PIRReport",typeof(bool)),
                         new DataColumn("Slots",typeof(string)),
                         new DataColumn("ReferenceProg",typeof(string)),
-                         new DataColumn("Area",typeof(string)),
+                         new DataColumn("DivisionID",typeof(string)),
                          new DataColumn("MinAge",typeof(string)),
                         new DataColumn("MaxAge",typeof(string)),
                         new DataColumn("programstartDate",typeof(string)),
                         new DataColumn("programendDate",typeof(string)),
                         new DataColumn("ProgramID",typeof(Int32)),
-                         new DataColumn("FundID",typeof(Int32)),
+                         new DataColumn("FundID",typeof(string)),
                           new DataColumn("OldFund",typeof(string)),
-                          new DataColumn("HealthReview",typeof(bool))
-
+                          new DataColumn("HealthReview",typeof(bool)),
+                          new DataColumn("LastDateCurrentApplication",typeof(string)),
+                          new DataColumn("DateFutureApplication",typeof(string)),
+                          new DataColumn("TransitionDate",typeof(string)),
+                           new DataColumn("ProgramTypeAssociation",typeof(string))
                         });
 
-                    foreach (Agency.FundSource fund in FundSource)
+                    foreach (Agency.FundSource fund in agencyDetails.FundSourcedata)
                     {
                         if (fund.Acronym != null && fund.Description != null)
                         {
-                            dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype, (fund.ProgramYear).Replace("-", ""), fund.grantNo,
+                            dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype, (string.IsNullOrEmpty(fund.ProgramYear)) ? "" : (fund.ProgramYear).Replace("-", ""), fund.grantNo,
                                 fund.nameGranteeDelegate, fund.FundStatus, fund.FundID, fund.OldFund,
                                 fund.FundQ1, fund.FundQ2, fund.FundQ3, fund.FundQ4, fund.FundQ5, fund.FundQ6, fund.FundQ7,
                                 fund.FundQ8, fund.FundQ9, fund.FundQ10, fund.FundQ11, fund.FundQ12, fund.FundQ13, fund.FundQ14
                                 , fund.FundQ15, fund.FundQ16
                                 );
                         }
-
-                        foreach (Agency.ProgramType prog in fund.progtypelist)
-                        {
-                            if (prog.ProgramTypes != null && prog.Description != null)
-                            {
-                                dt1.Rows.Add(prog.ProgramTypes, prog.Description, prog.PIRReport, prog.Slots, prog.ReferenceProg, prog.Area, prog.MinAge, prog.MaxAge, prog.programstartDate, prog.programendDate, prog.ProgramID, fund.FundID, fund.OldFund, prog.HealthReview);//changes
-                            }
-                        }
-
                     }
+
+                    foreach (Agency.ProgramType prog in agencyDetails.ProgramTypeList)
+                    {
+                        if (prog.ProgramTypes != null && prog.Description != null)
+                        {
+                            dt1.Rows.Add(prog.ProgramTypes, prog.Description, prog.PIRReport,
+                                prog.Slots, prog.ReferenceProg, prog.DivisionID, prog.MinAge, prog.MaxAge,
+                                prog.programstartDate, prog.programendDate, prog.ProgramID,
+                                prog.FundID, prog.OldFund, prog.HealthReview, prog.LastDateCurrentApplication, prog.DateFutureApplication, prog.TransitionDate, prog.ProgramTypeAssociation);//changes
+
+                        }
+                    }
+
+
                     command.Parameters.Add(new SqlParameter("@tblfund", dt));
                     command.Parameters.Add(new SqlParameter("@tblprog", dt1));
+
+                    command.Parameters.Add(new SqlParameter("@FundQ1", agencyDetails._FundedEnrollment.FundQ1));
+                    command.Parameters.Add(new SqlParameter("@FundQ2", agencyDetails._FundedEnrollment.FundQ2));
+                    command.Parameters.Add(new SqlParameter("@FundQ3", agencyDetails._FundedEnrollment.FundQ3));
+                    command.Parameters.Add(new SqlParameter("@FundQ4", agencyDetails._FundedEnrollment.FundQ4));
+                    command.Parameters.Add(new SqlParameter("@FundQ5", agencyDetails._FundedEnrollment.FundQ5));
+                    command.Parameters.Add(new SqlParameter("@FundQ6", agencyDetails._FundedEnrollment.FundQ6));
+                    command.Parameters.Add(new SqlParameter("@FundQ7", agencyDetails._FundedEnrollment.FundQ7));
+                    command.Parameters.Add(new SqlParameter("@FundQ8", agencyDetails._FundedEnrollment.FundQ8));
+                    command.Parameters.Add(new SqlParameter("@FundQ9", agencyDetails._FundedEnrollment.FundQ9));
+                    command.Parameters.Add(new SqlParameter("@FundQ10", agencyDetails._FundedEnrollment.FundQ10));
+                    command.Parameters.Add(new SqlParameter("@FundQ11", agencyDetails._FundedEnrollment.FundQ11));
+                    command.Parameters.Add(new SqlParameter("@FundQ12", agencyDetails._FundedEnrollment.FundQ12));
+                    command.Parameters.Add(new SqlParameter("@FundQ13", agencyDetails._FundedEnrollment.FundQ13));
+                    command.Parameters.Add(new SqlParameter("@FundQ14", agencyDetails._FundedEnrollment.FundQ14));
+                    command.Parameters.Add(new SqlParameter("@FundQ15", agencyDetails._FundedEnrollment.FundQ15));
+                    command.Parameters.Add(new SqlParameter("@FundQ16", agencyDetails._FundedEnrollment.FundQ16));
+
+
                 }
                 command.ExecuteNonQuery();
                 tranSaction.Commit();
@@ -284,6 +317,8 @@ namespace FingerprintsData
                 command.Dispose();
             }
         }
+
+
         public string Add_Edit_AgencyStaffInfo(AgencyStaff obj, string mode, string agencyId, string RoleId, out string ID, out string AgencyCode)
         {
             string res = "";
@@ -391,12 +426,18 @@ namespace FingerprintsData
         public Agency editAgency(string id)
         {
             Agency agency = new Agency();
+            agency._FundedEnrollment = new Agency.FundedEnrollment();
+            agency.FundSourcedata = new List<Agency.FundSource>();
+            agency.ProgramTypeList = new List<Agency.ProgramType>();
+            agency.DivisionsList = new List<SelectListItem>();
+            agency.ProgramYearList = new List<SelectListItem>();
             try
             {
                 command.Parameters.Add(new SqlParameter("@id", id));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getagencyinfo";
+             
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -426,11 +467,15 @@ namespace FingerprintsData
                         agency.agencyCode = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyCode"]);
                         agency.agencyId = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyId"]);
                         agency.agencyName = Convert.ToString(_dataset.Tables[0].Rows[0]["agencyName"]);
-                      //  agency.AcceptanceProcess = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WaterFallOrLinear"]);
+                        agency.AcceptanceProcess = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["WaterFallOrLinear"].ToString()) ? false : Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WaterFallOrLinear"]);
                         if (!string.IsNullOrEmpty((_dataset.Tables[0].Rows[0]["city"]).ToString()))
                             agency.city = (_dataset.Tables[0].Rows[0]["city"]).ToString();
                         else
                             agency.city = string.Empty;
+
+                        agency.State = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["State"].ToString()) ? "" : _dataset.Tables[0].Rows[0]["State"].ToString();
+                        agency.County = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["County"].ToString()) ? "" : _dataset.Tables[0].Rows[0]["County"].ToString();
+
                         if (!string.IsNullOrEmpty((_dataset.Tables[0].Rows[0]["fax"]).ToString()))
                             agency.fax = (_dataset.Tables[0].Rows[0]["fax"]).ToString();
                         else
@@ -485,108 +530,221 @@ namespace FingerprintsData
                             agency.DocsStorage = string.Empty;
                         agency.FSWYearlyVisit = _dataset.Tables[0].Rows[0]["FSWYearlyVisit"].ToString();
                         agency.Areabreakdown = _dataset.Tables[0].Rows[0]["Areabreakdown"].ToString();
+                        agency.DivisionBreakDown = _dataset.Tables[0].Rows[0]["DivisionBreakDown"].ToString();
+                        agency.AreaReference = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["AreaReference"]);
+                        agency.DivisionReference = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["DivisionReference"]);
+
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"])))
                             agency.Yakkr600 = Convert.ToString(_dataset.Tables[0].Rows[0]["Yakkr600Days"]);
                         if (!string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"])))
                             agency.Yakkr601 = Convert.ToString(_dataset.Tables[0].Rows[0]["AttendanceIssuePercentage"]);
 
-                     //   agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
-                      
+                        agency.PurchasedSlots = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PurchasedSlots"]);
+
                     }
+
+                    //if (_dataset.Tables[1].Rows.Count > 0)
+                    //{
+                    //    List<FingerprintsModel.Agency.FundSource> listprog = new List<FingerprintsModel.Agency.FundSource>();
+                    //  DataTable dv = _dataset.Tables[1].DefaultView.ToTable(true, "FundID");
+                    //    FingerprintsModel.Agency.FundSource obj = null;
+                    //    List<FingerprintsModel.Agency.ProgramType> listfundprog = null;
+                    //    for (int i = 0; i < dv.Rows.Count; i++)
+                    //    {
+                    //        DataRow[] drs = _dataset.Tables[1].Select("FundID=" + dv.Rows[i]["FundID"].ToString());
+                    //        obj = new FingerprintsModel.Agency.FundSource();
+                    //        obj.FundID = Convert.ToInt32(drs[0]["FundID"].ToString());
+                    //        obj.OldFund = "O";
+                    //        obj.Acronym = drs[0]["Acronym"].ToString();
+                    //        obj.Amount = Convert.ToInt32(drs[0]["Amount"].ToString());
+                    //        DateTime dt = new DateTime();
+                    //        DateTime.TryParse(drs[0]["Date"].ToString(), out dt);
+                    //        obj.Date = dt.ToString("MM/dd/yyyy");
+                    //        obj.Duration = drs[0]["Duration"].ToString();
+                    //        obj.fundingtype = drs[0]["FundingType"].ToString();
+                    //        obj.grantNo = drs[0]["GranteeNo"].ToString();
+                    //        obj.nameGranteeDelegate = drs[0]["Grantee"].ToString();
+                    //        obj.ProgramYear = drs[0]["ProgramYear"].ToString();
+                    //        obj.ServiceQty = drs[0]["ServiceQty"].ToString();
+                    //        obj.Description = drs[0]["FundDescription"].ToString();
+                    //        obj.FundStatus = Convert.ToInt32(drs[0]["FundStatus"].ToString());
+                    //        //Add fund Question
+                    //        obj.FundQ1 = drs[0]["FundQ1"].ToString();
+                    //        obj.FundQ2 = drs[0]["FundQ2"].ToString();
+                    //        obj.FundQ3 = drs[0]["FundQ3"].ToString();
+                    //        obj.FundQ4 = drs[0]["FundQ4"].ToString();
+                    //        obj.FundQ5 = drs[0]["FundQ5"].ToString();
+                    //        obj.FundQ6 = drs[0]["FundQ6"].ToString();
+                    //        obj.FundQ7 = drs[0]["FundQ7"].ToString();
+                    //        obj.FundQ8 = drs[0]["FundQ8"].ToString();
+                    //        obj.FundQ9 = drs[0]["FundQ9"].ToString();
+                    //        obj.FundQ10 = drs[0]["FundQ10"].ToString();
+                    //        obj.FundQ11 = drs[0]["FundQ11"].ToString();
+                    //        obj.FundQ12 = drs[0]["FundQ12"].ToString();
+                    //        obj.FundQ13 = drs[0]["FundQ13"].ToString();
+                    //        obj.FundQ14 = drs[0]["FundQ14"].ToString();
+                    //        obj.FundQ15 = drs[0]["FundQ15"].ToString();
+                    //        obj.FundQ16 = drs[0]["FundQ16"].ToString();
+                    //        ///
+                    //        listfundprog = new List<FingerprintsModel.Agency.ProgramType>();
+                    //        FingerprintsModel.Agency.ProgramType objprog;
+                    //        foreach (DataRow dr in drs)
+                    //        {
+                    //            objprog = new FingerprintsModel.Agency.ProgramType();
+                    //            objprog.ProgramID = Convert.ToInt32(dr["ProgramTypeID"].ToString());
+                    //            objprog.FundID = Convert.ToInt32(dr["FundID"].ToString());
+                    //            objprog.ProgramTypes = dr["ProgramType"].ToString();
+                    //            objprog.Description = dr["ProgDesc"].ToString();
+                    //            if (!DBNull.Value.Equals((dr["PIRReport"]))) //Changes
+                    //            {
+                    //                objprog.PIRReport = Convert.ToBoolean(dr["PIRReport"].ToString());
+                    //            }
+                    //            else
+                    //            {
+                    //                objprog.PIRReport = false;// Convert.ToInt32(string.Empty);
+                    //            }
+                    //            objprog.Slots = dr["Slots"].ToString();
+                    //            objprog.ReferenceProg = dr["ReferenceProg"].ToString();
+                    //            objprog.Area = dr["AreaID"].ToString();
+                    //            objprog.MinAge = Convert.ToInt32(dr["MinAge"].ToString());
+                    //            objprog.MaxAge = Convert.ToInt32(dr["MaxAge"].ToString());
+                    //            objprog.HealthReview = Convert.ToBoolean(dr["HealthReview"].ToString());
+                    //            if (!DBNull.Value.Equals((dr["ProgStatus"]))) //Changes
+                    //            {
+                    //                objprog.ProgStatus = Convert.ToInt32(dr["ProgStatus"].ToString());
+                    //            }
+                    //            else
+                    //            {
+                    //                objprog.ProgStatus = 1;// Convert.ToInt32(string.Empty);
+                    //            }
+                    //            DateTime dt1 = new DateTime();
+                    //            DateTime.TryParse(dr["programstartDate"].ToString(), out dt1);
+                    //            objprog.programstartDate = dt1.ToString("MM/dd/yyyy");
+                    //            DateTime dt2 = new DateTime();
+                    //            DateTime.TryParse(dr["programendDate"].ToString(), out dt2);
+                    //            objprog.programendDate = dt2.ToString("MM/dd/yyyy");
+                    //            listfundprog.Add(objprog);
+                    //        }
+                    //        obj.progtypelist = listfundprog;
+                    //        agency.FundSourcedata.Add(obj);
+                    //    }
+                    //}
+
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {
-                        List<FingerprintsModel.Agency.FundSource> listprog = new List<FingerprintsModel.Agency.FundSource>();
-                        DataTable dv = _dataset.Tables[1].DefaultView.ToTable(true, "FundID");
-                        FingerprintsModel.Agency.FundSource obj = null;
-                        List<FingerprintsModel.Agency.ProgramType> listfundprog = null;
-                        for (int i = 0; i < dv.Rows.Count; i++)
+
+                        agency.FundSourcedata = _dataset.Tables[1].AsEnumerable().Select(x => new Agency.FundSource
                         {
-                            DataRow[] drs = _dataset.Tables[1].Select("FundID=" + dv.Rows[i]["FundID"].ToString());
-                            obj = new FingerprintsModel.Agency.FundSource();
-                            obj.FundID = Convert.ToInt32(drs[0]["FundID"].ToString());
-                            obj.OldFund = "O";
-                            obj.Acronym = drs[0]["Acronym"].ToString();
-                            obj.Amount = Convert.ToInt32(drs[0]["Amount"].ToString());
-                            DateTime dt = new DateTime();
-                            DateTime.TryParse(drs[0]["Date"].ToString(), out dt);
-                            obj.Date = dt.ToString("MM/dd/yyyy");
-                            obj.Duration = drs[0]["Duration"].ToString();
-                            obj.fundingtype = drs[0]["FundingType"].ToString();
-                            obj.grantNo = drs[0]["GranteeNo"].ToString();
-                            obj.nameGranteeDelegate = drs[0]["Grantee"].ToString();
-                            obj.ProgramYear = drs[0]["ProgramYear"].ToString();
-                            obj.ServiceQty = drs[0]["ServiceQty"].ToString();
-                            obj.Description = drs[0]["FundDescription"].ToString();
-                            obj.FundStatus = Convert.ToInt32(drs[0]["FundStatus"].ToString());
 
-
-                            //Add fund Question
-                            obj.FundQ1 = drs[0]["FundQ1"].ToString();
-                            obj.FundQ2 = drs[0]["FundQ2"].ToString();
-                            obj.FundQ3 = drs[0]["FundQ3"].ToString();
-                            obj.FundQ4 = drs[0]["FundQ4"].ToString();
-                            obj.FundQ5 = drs[0]["FundQ5"].ToString();
-                            obj.FundQ6 = drs[0]["FundQ6"].ToString();
-                            obj.FundQ7 = drs[0]["FundQ7"].ToString();
-                            obj.FundQ8 = drs[0]["FundQ8"].ToString();
-                            obj.FundQ9 = drs[0]["FundQ9"].ToString();
-                            obj.FundQ10 = drs[0]["FundQ10"].ToString();
-                            obj.FundQ11 = drs[0]["FundQ11"].ToString();
-                            obj.FundQ12 = drs[0]["FundQ12"].ToString();
-                            obj.FundQ13 = drs[0]["FundQ13"].ToString();
-                            obj.FundQ14 = drs[0]["FundQ14"].ToString();
-                            obj.FundQ15 = drs[0]["FundQ15"].ToString();
-                            obj.FundQ16 = drs[0]["FundQ16"].ToString();
-                            ///
-
-
-
-
-                            listfundprog = new List<FingerprintsModel.Agency.ProgramType>();
-                            FingerprintsModel.Agency.ProgramType objprog;
-                            foreach (DataRow dr in drs)
-                            {
-                                objprog = new FingerprintsModel.Agency.ProgramType();
-                                objprog.ProgramID = Convert.ToInt32(dr["ProgramTypeID"].ToString());
-                                objprog.FundID = Convert.ToInt32(dr["FundID"].ToString());
-                                objprog.ProgramTypes = dr["ProgramType"].ToString();
-                                objprog.Description = dr["ProgDesc"].ToString();
-                                if (!DBNull.Value.Equals((dr["PIRReport"]))) //Changes
-                                {
-                                    objprog.PIRReport = Convert.ToBoolean(dr["PIRReport"].ToString());
-                                }
-                                else
-                                {
-                                    objprog.PIRReport = false;// Convert.ToInt32(string.Empty);
-                                }
-                                objprog.Slots = dr["Slots"].ToString();
-                                objprog.ReferenceProg = dr["ReferenceProg"].ToString();
-                                objprog.Area = dr["AreaID"].ToString();
-                                objprog.MinAge = Convert.ToInt32(dr["MinAge"].ToString());
-                                objprog.MaxAge = Convert.ToInt32(dr["MaxAge"].ToString());
-
-                                objprog.HealthReview = Convert.ToBoolean(dr["HealthReview"].ToString());
-
-                                if (!DBNull.Value.Equals((dr["ProgStatus"]))) //Changes
-                                {
-                                    objprog.ProgStatus = Convert.ToInt32(dr["ProgStatus"].ToString());
-                                }
-                                else
-                                {
-                                    objprog.ProgStatus = 1;// Convert.ToInt32(string.Empty);
-                                }
-                                DateTime dt1 = new DateTime();
-                                DateTime.TryParse(dr["programstartDate"].ToString(), out dt1);
-                                objprog.programstartDate = dt1.ToString("MM/dd/yyyy");
-                                DateTime dt2 = new DateTime();
-                                DateTime.TryParse(dr["programendDate"].ToString(), out dt2);
-                                objprog.programendDate = dt2.ToString("MM/dd/yyyy");
-                                listfundprog.Add(objprog);
-                            }
-                            obj.progtypelist = listfundprog;
-                            agency.FundSourcedata.Add(obj);
-                        }
+                            FundID = (int)x.Field<long>("FundID"),
+                            OldFund = "0",
+                            Acronym = x.Field<string>("Acronym"),
+                            Description = x.Field<string>("FundDescription"),
+                            Amount = x.Field<int>("Amount"),
+                            Date = x.Field<string>("Date"),
+                            FundStatus = x.Field<int>("FundStatus"),
+                            Duration = x.Field<int>("Duration").ToString(),
+                            ServiceQty = x.Field<int>("ServiceQty").ToString(),
+                            fundingtype = x.Field<int>("FundingType").ToString(),
+                            ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear").Substring(0, 2) + "-" + x.Field<string>("ProgramYear").Substring(2, 2),
+                            nameGranteeDelegate = x.Field<string>("Grantee"),
+                            grantNo = x.Field<string>("GranteeNo"),
+                            IsReferredByProgram = Convert.ToBoolean(x.Field<int>("IsReferredByProgram"))
+                        }).ToList();
                     }
+
+
+                    if (_dataset.Tables[2].Rows.Count > 0)
+                    {
+                        agency._FundedEnrollment = _dataset.Tables[2].AsEnumerable().Select(x => new Agency.FundedEnrollment
+                        {
+                            FundIndexID = x.Field<long>("FundIndexID"),
+                            FundQ1 = (x.Field<int>("FundQ1") == 0) ? "" : x.Field<int>("FundQ1").ToString(),
+                            FundQ2 = (x.Field<int>("FundQ2") == 0) ? "" : x.Field<int>("FundQ2").ToString(),
+                            FundQ3 = (x.Field<int>("FundQ3") == 0) ? "" : x.Field<int>("FundQ3").ToString(),
+                            FundQ4 = (x.Field<int>("FundQ4") == 0) ? "" : x.Field<int>("FundQ4").ToString(),
+                            FundQ5 = (x.Field<int>("FundQ5") == 0) ? "" : x.Field<int>("FundQ5").ToString(),
+                            FundQ6 = (x.Field<int>("FundQ6") == 0) ? "" : x.Field<int>("FundQ6").ToString(),
+                            FundQ7 = (x.Field<int>("FundQ7") == 0) ? "" : x.Field<int>("FundQ7").ToString(),
+                            FundQ8 = (x.Field<int>("FundQ8") == 0) ? "" : x.Field<int>("FundQ8").ToString(),
+                            FundQ9 = (x.Field<int>("FundQ9") == 0) ? "" : x.Field<int>("FundQ9").ToString(),
+                            FundQ10 = (x.Field<int>("FundQ10") == 0) ? "" : x.Field<int>("FundQ10").ToString(),
+                            FundQ11 = (x.Field<int>("FundQ11") == 0) ? "" : x.Field<int>("FundQ11").ToString(),
+                            FundQ12 = (x.Field<int>("FundQ12") == 0) ? "" : x.Field<int>("FundQ12").ToString(),
+                            FundQ13 = (x.Field<int>("FundQ13") == 0) ? "" : x.Field<int>("FundQ13").ToString(),
+                            FundQ14 = (x.Field<int>("FundQ14") == 0) ? "" : x.Field<int>("FundQ14").ToString(),
+                            FundQ15 = (x.Field<int>("FundQ15") == 0) ? "" : x.Field<int>("FundQ15").ToString(),
+                            FundQ16 = (x.Field<int>("FundQ16") == 0) ? "" : x.Field<int>("FundQ16").ToString(),
+                            AgencyID = x.Field<Guid>("AgencyID")
+
+                        }).ToList()[0];
+                    }
+
+                    if (_dataset.Tables[3].Rows.Count > 0)
+                    {
+                        agency.ProgramTypeList = _dataset.Tables[3].AsEnumerable().Select(x => new Agency.ProgramType
+                        {
+
+                            ProgramID = Convert.ToInt32(x.Field<long>("ProgramTypeID")),
+                            FundID = x.Field<string>("FundID"),
+                            ProgramTypes = x.Field<string>("ProgramType"),
+                            Description = x.Field<string>("ProgDesc"),
+                            PIRReport = x.Field<bool>("PIRReport"),
+                            Slots = string.IsNullOrEmpty(x.Field<int?>("Slots").ToString()) ? "" : x.Field<int>("Slots").ToString(),
+                            ReferenceProg = string.IsNullOrEmpty(x.Field<int?>("ReferenceProg").ToString()) ? "" : x.Field<int?>("ReferenceProg").ToString(),
+                            DivisionID = string.IsNullOrEmpty(x.Field<long?>("DivisionID").ToString()) ? "1" : x.Field<long>("DivisionID").ToString(),
+                            //Area = x.Field<string>("AreaID"),
+                            MinAge = string.IsNullOrEmpty(x.Field<int?>("MinAge").ToString()) ? 0 : x.Field<int>("MinAge"),
+                            MaxAge = string.IsNullOrEmpty(x.Field<int?>("MaxAge").ToString()) ? 0 : x.Field<int>("MaxAge"),
+                            HealthReview = x.Field<bool>("HealthReview"),
+                            ProgStatus = string.IsNullOrEmpty(x.Field<int?>("ProgStatus").ToString()) ? 1 : x.Field<int>("ProgStatus"),
+                            programstartDate = string.IsNullOrEmpty(x.Field<string>("ProgramStartDate")) ? "" : x.Field<string>("ProgramStartDate"),
+                            programendDate = string.IsNullOrEmpty(x.Field<string>("ProgramEndDate")) ? "" : x.Field<string>("ProgramEndDate"),
+                            LastDateCurrentApplication = string.IsNullOrEmpty(x.Field<string>("LastDateCurrentApplication")) ? "" : x.Field<string>("LastDateCurrentApplication"),
+                            DateFutureApplication = string.IsNullOrEmpty(x.Field<string>("DateFutureApplication")) ? "" : x.Field<string>("DateFutureApplication"),
+                            TransitionDate = string.IsNullOrEmpty(x.Field<string>("TransitionDate")) ? "" : x.Field<string>("TransitionDate"),
+                            ProgramTypeAssociation = string.IsNullOrEmpty(x.Field<long?>("ProgramTypeAssociation").ToString()) ? "" : x.Field<long>("ProgramTypeAssociation").ToString()
+
+                        }).ToList();
+
+
+                    }
+                    if (_dataset.Tables[4] != null && _dataset.Tables[4].Rows.Count > 0)
+                    {
+                        agency.DivisionsList = _dataset.Tables[4].AsEnumerable().Select(x => new SelectListItem
+                        {
+                            Text = x.Field<long>("DivisionID").ToString(),
+                            Value = x.Field<long>("DivisionID").ToString()
+
+                        }).ToList();
+                    }
+
+                }
+
+
+                if (agency.ActiveProgYear != "")
+                {
+
+                    string nextYear = agency.ActiveProgYear.Split('-')[1] + "-" + (Convert.ToInt32(agency.ActiveProgYear.Split('-')[1]) + 1).ToString();
+
+                    agency.ProgramYearList.Add(new SelectListItem
+                    {
+                        Text = "--Select--",
+                        Value = "0"
+                    });
+
+                    agency.ProgramYearList.Add(new SelectListItem
+                    {
+                        Text = agency.ActiveProgYear,
+                        Value = agency.ActiveProgYear
+                    });
+
+                    agency.ProgramYearList.Add(new SelectListItem
+                    {
+                        Text = nextYear,
+                        Value = nextYear
+                    });
+
                 }
                 DataAdapter.Dispose();
                 command.Dispose();
@@ -744,6 +902,7 @@ namespace FingerprintsData
                         Agency obj = new Agency();
                         obj.agencyId = Convert.ToString(dr["agencyId"].ToString());
                         obj.agencyName = dr["agencyName"].ToString();
+                        obj.ActiveProgYear = string.IsNullOrEmpty(dr["ActiveProgramYear"].ToString()) ? "" : dr["ActiveProgramYear"].ToString();
                         listAgency.Add(obj);
                     }
                     //listAgency.Insert(0, new Agency() { agencyId = "0", agencyName = "Select" });
@@ -2759,7 +2918,7 @@ namespace FingerprintsData
                         _progadd.MaxAge = Convert.ToInt32(row["MaxAge"]);
                         _progadd.programstartDate = row["programstartDate"].ToString();
                         _progadd.programendDate = row["programendDate"].ToString();
-                        _progadd.FundID = Convert.ToInt32(row["FundId"]);
+                        _progadd.FundID = Convert.ToString(row["FundId"]);
                         _progadd.Area = row["AreaID"].ToString();
                         _progType.Add(_progadd);
                     }
@@ -4238,6 +4397,243 @@ namespace FingerprintsData
         }
 
         /// <summary>
+        /// method to insert the Areas
+        /// </summary>
+        /// <param name="areaBreakDownList"></param>
+        /// <returns></returns>
+        public bool AddAreas(List<Areas> areaBreakDownList)
+        {
+
+            bool isRowAffected = false;
+            try
+            {
+                DataTable areaDt = new DataTable();
+                areaDt.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("AreaIndexID", typeof(long)),
+                    new DataColumn("AreaID", typeof(long)),
+                    new DataColumn("Description",typeof(string)),
+                     new DataColumn("AgencyId",typeof(Guid)),
+                    new DataColumn("Status",typeof(bool))
+                    });
+
+
+                foreach (var item in areaBreakDownList)
+                {
+                    areaDt.Rows.Add(item.AreaIndexID, item.AreaID, item.Description, item.AgencyID, item.Status);
+                }
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", areaBreakDownList[0].StaffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", areaBreakDownList[0].StaffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", areaBreakDownList[0].StaffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@AreasType", areaDt));
+                    command.CommandText = "USP_Add_Areas";
+                    Connection.Open();
+                    isRowAffected = (command.ExecuteNonQuery() > 0);
+                    Connection.Close();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return isRowAffected;
+        }
+
+        /// <summary>
+        /// method to get the Area Break down list
+        /// </summary>
+        /// <param name="areaBreakDownList"></param>
+        /// <returns></returns>
+        public List<Areas> GetAreas(List<Areas> areaBreakDownList)
+        {
+            try
+            {
+                StaffDetails details = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", areaBreakDownList[0].AgencyID));
+                    command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", details.UserId));
+                    command.CommandText = "USP_Get_Areas";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    Connection.Close();
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+
+                    if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        areaBreakDownList = _dataset.Tables[0].AsEnumerable().Select(x => new Areas
+                        {
+                            AreaIndexID = x.Field<long>("AreaIndexID"),
+                            AreaID = x.Field<long>("AreaID"),
+                            Description = x.Field<string>("Description"),
+                            IsAreaReferred = Convert.ToBoolean(x.Field<int>("IsAreaReferred"))
+                        }).ToList();
+                    }
+                    else
+                    {
+                        areaBreakDownList.Clear();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                areaBreakDownList.Clear();
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+                _dataset.Dispose();
+
+            }
+            return areaBreakDownList;
+        }
+
+        /// <summary>
+        /// method to get the Divison break down list
+        /// </summary>
+        /// <param name="dvisionBreakDownList"></param>
+        /// <returns></returns>
+        public List<Divisions> GetDivisons(List<Divisions> dvisionBreakDownList)
+        {
+            try
+            {
+                StaffDetails details = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", dvisionBreakDownList[0].AgencyID));
+                    command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", details.UserId));
+                    command.CommandText = "USP_Get_Divisions";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    Connection.Close();
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+
+                    if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        dvisionBreakDownList = _dataset.Tables[0].AsEnumerable().Select(x => new Divisions
+                        {
+                            DivisionIndexID = x.Field<long>("DivisionIndexID"),
+                            DivisionID = x.Field<long>("DivisionID"),
+                            Description = x.Field<string>("Description"),
+                            IsDivisionReferred = Convert.ToBoolean(x.Field<int>("IsDivisionReferred"))
+                        }).ToList();
+                    }
+                    else
+                    {
+                        dvisionBreakDownList.Clear();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                dvisionBreakDownList.Clear();
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+                _dataset.Dispose();
+            }
+            return dvisionBreakDownList;
+        }
+
+
+        /// <summary>
+        /// method to insert the Divisions
+        /// </summary>
+        /// <param name="divisionsBreakDownList"></param>
+        /// <returns></returns>
+        public List<Divisions> AddDivisions(out bool isRowAffected, List<Divisions> divisionsBreakDownList)
+        {
+
+            isRowAffected = false;
+            try
+            {
+                DataTable divdt = new DataTable();
+                divdt.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("DivisionIndexID", typeof(long)),
+                    new DataColumn("DivisionID", typeof(long)),
+                    new DataColumn("Description",typeof(string)),
+                     new DataColumn("AgencyId",typeof(Guid)),
+                    new DataColumn("Status",typeof(bool))
+                    });
+
+
+                foreach (var item in divisionsBreakDownList)
+                {
+                    divdt.Rows.Add(item.DivisionIndexID, item.DivisionID, item.Description, item.AgencyID, item.Status);
+                }
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", divisionsBreakDownList[0].StaffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", divisionsBreakDownList[0].StaffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", divisionsBreakDownList[0].StaffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@DivisionsType", divdt));
+                    command.CommandText = "USP_Add_Divisions";
+                    Connection.Open();
+                    isRowAffected = (command.ExecuteNonQuery() > 0);
+                    Connection.Close();
+
+                    divisionsBreakDownList = this.GetDivisons(divisionsBreakDownList);
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return divisionsBreakDownList;
+        }
+
+        /// <summary>
         /// method to get, Whether Logged in user is allowed to access PIR and Section B
         /// </summary>
         /// <param name="mode"></param>
@@ -4277,6 +4673,99 @@ namespace FingerprintsData
             }
             return isAccess;
         }
+
+        /// <summary>
+        /// method to insert the Fund types based on the AgencyId
+        /// </summary>
+        /// <param name="fund"></param>
+        /// <returns></returns>
+        public bool AddFunds(Agency.FundSource fund)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[29] {
+                    new DataColumn("Acronym ", typeof(string)),
+                    new DataColumn("Description",typeof(string)),
+                    new DataColumn("Amount",typeof(string)),
+                    new DataColumn("Date",typeof(string)),
+                    new DataColumn("Duration",typeof(string)),
+                       new DataColumn("ServiceQty ",typeof(string)),
+                          new DataColumn("FundingType",typeof(string)),
+                             new DataColumn("ProgramYear",typeof(string)),
+                             new DataColumn("GranteeNo",typeof(string)),
+                             new DataColumn("Grantee",typeof(string)),
+                                new DataColumn("Status",typeof(string)),
+                                 new DataColumn("FundID",typeof(Int32)),
+                             new DataColumn("OldFund",typeof(string)),
+                             new DataColumn("FundQ1",typeof(string)),
+                             new DataColumn("FundQ2",typeof(string)),
+                             new DataColumn("FundQ3",typeof(string)),
+                             new DataColumn("FundQ4",typeof(string)),
+                             new DataColumn("FundQ5",typeof(string)),
+                             new DataColumn("FundQ6",typeof(string)),
+                             new DataColumn("FundQ7",typeof(string)),
+                             new DataColumn("FundQ8",typeof(string)),
+                             new DataColumn("FundQ9",typeof(string)),
+                             new DataColumn("FundQ10",typeof(string)),
+                             new DataColumn("FundQ11",typeof(string)),
+                             new DataColumn("FundQ12",typeof(string)),
+                             new DataColumn("FundQ13",typeof(string)),
+                             new DataColumn("FundQ14",typeof(string)),
+                             new DataColumn("FundQ15",typeof(string)),
+                             new DataColumn("FundQ16",typeof(string))
+                    });
+
+
+
+                if (fund.Acronym != null && fund.Description != null)
+                {
+                    dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype, (string.IsNullOrEmpty(fund.ProgramYear)) ? "" : (fund.ProgramYear).Replace("-", ""), fund.grantNo,
+                        fund.nameGranteeDelegate, fund.FundStatus, fund.FundID, fund.OldFund,
+                        fund.FundQ1, fund.FundQ2, fund.FundQ3, fund.FundQ4, fund.FundQ5, fund.FundQ6, fund.FundQ7,
+                        fund.FundQ8, fund.FundQ9, fund.FundQ10, fund.FundQ11, fund.FundQ12, fund.FundQ13, fund.FundQ14
+                        , fund.FundQ15, fund.FundQ16
+                        );
+                }
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+
+
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@AgencyId", fund.AgencyID));
+                    command.Parameters.Add(new SqlParameter("@LoginAgencyId", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@tblfund", dt));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_AddFund";
+                    Connection.Open();
+                    isRowsAffected = (command.ExecuteNonQuery() > 0);
+                    Connection.Close();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                command.Dispose();
+                Connection.Dispose();
+            }
+            return isRowsAffected;
+        }
+
         /// <summary>
         /// Gets Seats with classroom and center
         /// </summary>

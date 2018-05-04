@@ -93,7 +93,9 @@ namespace FingerprintsModel
         public string TrnsInsuranceType { get; set; }
 
         public int CenterId { get; set; }
-
+        public string Enc_CenterID { get; set; }
+        public string Enc_ClassroomID { get; set; }
+        public string ClassStartDate { get; set; }
         public int ClassRoomId { get; set; }
 
         public string OtherInsuranceTypeDesc { get; set; }
@@ -102,6 +104,11 @@ namespace FingerprintsModel
         public string ChildInsuranceType { get; set; }
 
         public int TransitioningType { get; set; }
+
+
+        public RosterNew.CaseNote CaseNoteDetails { get; set; }
+
+        public List<RosterNew.Attachment> CaseNoteAttachments { get; set; }
     }
 
     public class TransitionDetails {
