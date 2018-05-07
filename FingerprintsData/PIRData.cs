@@ -94,7 +94,7 @@ namespace FingerprintsData
                          _PIR.A_22 = dr["A22"].ToString();
                          _PIR.A_22_A = dr["A22A"].ToString();
                          _PIR.A_22_B = dr["A22B"].ToString();
-
+                         _PIR.A_24 = dr["A24"].ToString();
 
                          _PIR.A_25a1 = dr["A25a1"].ToString();
                          _PIR.A_25a2 = dr["A25a2"].ToString();
@@ -305,6 +305,31 @@ namespace FingerprintsData
                            _PIR.C_52_E = dr["C52E"].ToString();
                            _PIR.C_53 = dr["C53"].ToString();
                            _PIR.C_54 = dr["C54"].ToString();
+
+                           _PIR.B1_1 = dr["B1_1"].ToString();
+                           _PIR.B1_2 = dr["B1_2"].ToString();
+                           _PIR.B1A_1 = dr["B1A_1"].ToString();
+                           _PIR.B1A_2 = dr["B1A_2"].ToString();
+                           _PIR.B1B_1 = dr["B1B_1"].ToString();
+                           _PIR.B1B_2 = dr["B1B_2"].ToString();
+                           _PIR.B1B_1_1 = dr["B1B_1_1"].ToString();
+                           _PIR.B1B_1_2 = dr["B1B_1_2"].ToString();
+
+                           _PIR.B3A_1 = dr["B3A_1"].ToString();
+                           _PIR.B3A_2 = dr["B3A_2"].ToString();
+                           _PIR.B3B_1 = dr["B3B_1"].ToString();
+                           _PIR.B3B_2 = dr["B3B_2"].ToString();
+                           _PIR.B3C_1 = dr["B3C_1"].ToString();
+                           _PIR.B3C_2 = dr["B3C_2"].ToString();
+                           _PIR.B3D_1 = dr["B3D_1"].ToString();
+                           _PIR.B3D_2 = dr["B3D_2"].ToString();
+                           _PIR.B3E_1 = dr["B3E_1"].ToString();
+                           _PIR.B3E_2 = dr["B3E_2"].ToString();
+                           _PIR.B3F_1 = dr["B3F_1"].ToString();
+                           _PIR.B3F_2 = dr["B3F_2"].ToString();
+                           _PIR.B3G_1 = dr["B3G_1"].ToString();
+                           _PIR.B3G_2 = dr["B3G_2"].ToString();
+
                     }
 
                 }
@@ -312,11 +337,29 @@ namespace FingerprintsData
 
 
         }
-        public PIRModel GetPIR(string UserID,string AgencyID,string Program)
+        public PIRModel GetPIR(string UserID,string AgencyID,string Program, string Refresh)
         {
             PIRModel _PIR = new PIRModel();
             
             if (Program == null) Program = "HS";
+            _PIR.program = Program;
+            if (Refresh == "1")
+            {
+                
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
+                command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                command.Parameters.Add(new SqlParameter("@ProgramType", Program));
+
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GENERATE_PIR";
+
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+            }
+            command.Parameters.Clear();
             command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
             command.Parameters.Add(new SqlParameter("@UserID",UserID));
            command.Parameters.Add(new SqlParameter("@ProgramType", Program));
@@ -331,6 +374,26 @@ namespace FingerprintsData
                 GetPIRSummary(_dataset, _PIR);
                 return _PIR;
           
+        }
+        public void RefreshPIR(string UserID, string AgencyID, string Program)
+        {
+           // PIRModel _PIR = new PIRModel();
+
+            command.Parameters.Clear();
+            command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
+            command.Parameters.Add(new SqlParameter("@UserID", UserID));
+            command.Parameters.Add(new SqlParameter("@ProgramType", Program));
+
+            command.Connection = Connection;
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "SP_GENERATE_PIR";
+
+            DataAdapter = new SqlDataAdapter(command);
+            _dataset = new DataSet();
+            DataAdapter.Fill(_dataset);
+           // GetPIR(UserID, AgencyID, Program);
+           // return _PIR;
+
         }
         public void GetPIRSummaryDetails(DataSet _dataset, PIRModel _PIR, string PIRQuestion)
         {
@@ -350,7 +413,8 @@ namespace FingerprintsData
                             center = Convert.ToString(dr["CenterID"]),
                             classroom = Convert.ToString(dr["ClassroomID"]),
                             piratenrollment = Convert.ToString(dr["pirquest"]),
-                            pirafterenrollment = Convert.ToString(dr["pirquest2"])
+                            pirafterenrollment = Convert.ToString(dr["pirquest2"]),
+                            clientStatus = Convert.ToString(dr["Status"])
                            
                         });
                        _PIR.piratenrollmentDesc = Convert.ToString(dr["Description"]);
@@ -367,7 +431,7 @@ namespace FingerprintsData
 
 
 
-        public PIRModel GetPIRDetails(string UserID, string AgencyID, string pirquestion)
+        public PIRModel GetPIRDetails(string UserID, string AgencyID, string pirquestion, string Program)
         {
 
             PIRModel _PIR = new PIRModel();
@@ -375,7 +439,7 @@ namespace FingerprintsData
           
           
             command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
-            command.Parameters.Add(new SqlParameter("@ProgramType", "HS"));
+            command.Parameters.Add(new SqlParameter("@ProgramType", Program));
             command.Parameters.Add(new SqlParameter("@Quest_ID", pirquestion));
             command.Connection = Connection;
             command.CommandType = CommandType.StoredProcedure;

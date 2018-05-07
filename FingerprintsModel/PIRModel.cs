@@ -74,6 +74,7 @@ namespace FingerprintsModel
         public string A_22 { get; set; }
         public string A_22_A { get; set; }
         public string A_22_B { get; set; }
+        public string A_24 { get; set; }
         public string A_25a1 { get; set; }
         public string A_25a2 { get; set; }
         public string A_25b1 { get; set; }
@@ -289,7 +290,30 @@ namespace FingerprintsModel
         public string C_53 { get; set; }
         public string C_54 { get; set; }
 
+        public string B1_1 { get; set; }
+        public string B1_2 { get; set; }
+        public string B1A_1 { get; set; }
+        public string B1A_2 { get; set; }
+        public string B1B_1 { get; set; }
+        public string B1B_2 { get; set; }
+        public string B1B_1_1 { get; set; }
+        public string B1B_1_2 { get; set; }
+        public string B3A_1 { get; set; }
+        public string B3A_2 { get; set; }
+        public string B3B_1 { get; set; }
+        public string B3B_2 { get; set; }
+        public string B3C_1 { get; set; }
+        public string B3C_2 { get; set; }
+        public string B3D_1 { get; set; }
+        public string B3D_2 { get; set; }
+        public string B3E_1 { get; set; }
+        public string B3E_2 { get; set; }
+        public string B3F_1 { get; set; }
+        public string B3F_2 { get; set; }
+        public string B3G_1 { get; set; }
+        public string B3G_2 { get; set; }
 
+        
         public string pirQuestion { get; set; }
         public string clientName { get; set; }
        
@@ -300,6 +324,8 @@ namespace FingerprintsModel
             public string piratenrollmentDesc { get; set; }
             public string pirafterenrollment { get; set; }
             public string pirafterenrollmentDesc { get; set; }
+            public string program { get; set; }
+            public string clientStatus { get; set; }
             public List<PIRModel> PIRlst { get; set; }
 
        

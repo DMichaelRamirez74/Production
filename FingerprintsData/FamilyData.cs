@@ -10118,8 +10118,8 @@ namespace FingerprintsData
         }
         public string DropClient(string userid, string Agencyid, Transition Transition)
         {
-            try
-            {
+           // try
+            //{
                 int n, n1;
                 var isClientid = int.TryParse(Transition.EClientID, out n);
                 var ishouseholdid = int.TryParse(Transition.EClientID, out n1);            
@@ -10209,18 +10209,18 @@ namespace FingerprintsData
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.ExecuteNonQuery();
                 return command.Parameters["@result"].Value.ToString();
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-                return "";
-            }
-            finally
-            {
+           // }
+           // catch (Exception ex)
+           // {
+            //    clsError.WriteException(ex);
+           //     return "";
+          //  }
+          //  finally
+           // {
                 if (Connection != null)
                     Connection.Close();
 
-            }
+           // }
 
         }
         public List<FingerprintsModel.FamilyHousehold.EnrollmentChangeReason> GetEnrollReason(string Status, string UserId, string Agencyid)
