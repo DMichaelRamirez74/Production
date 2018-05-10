@@ -1,0 +1,269 @@
+﻿@model FingerprintsModel.CenterTrasportationAnalysis
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section maincontentholder{
+    <link href="~/Content/Transportation/transportationanalysis.css" rel="stylesheet" />
+    <style>
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        select option {
+            background: #164273;
+        }
+
+          .scroll-thead th{border: 1px solid #f1f5f8;}
+            .scroll-thead {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                width: calc( 100% - 17px );
+            }
+          
+            .scroll-tbody tr td, .scroll-tbody1 tr td {
+                word-break: break-word;
+            }
+
+            .scroll-tbody {
+                display: block;
+                height: 250px;
+                overflow: auto;
+                overflow-x: hidden;
+            }
+
+                .scroll-tbody tr {
+                    display: table;
+                    width: 100%;
+                    table-layout: fixed;
+                }
+
+            .scroll-tbody1 {
+                display: block;
+            }
+
+                .scroll-tbody1 tr {
+                    display: table;
+                    width: 100%;
+                    table-layout: fixed;
+                  
+                }
+
+    </style>
+    <div class="container-fluid">
+        <div class="row">
+
+
+            <!-------HTML PAGE-->
+
+            <div class="right-side-container-ch">
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header">
+                        <div class="col-xs-12 no-padding">
+                            <div class="top-header-title-transportation">
+                                <h1>Center Transportation Analysis</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 no-padding">
+                    <div id="no-more-tables-transporation" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                        <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                            <table class="col-md-12 table-striped table-condensed cf table-change transportation-table">
+                                <thead class="table-hd">
+                                    <tr>
+                                        <th style="text-align: left!important;" class="analysis-wt">Center Name</th>
+                                        <th class="analysis-wt1">Riders</th>
+                                        <th class="analysis-wt1">Pick Up</th>
+                                        <th class="analysis-wt1">Drop Off</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="transportation-table-head transport_table_body">
+                                    @if (Model.TransportationAnalysisList.Count() > 0)
+                                    {
+                                        foreach (var item in Model.TransportationAnalysisList)
+                                        {
+                                            <tr style="height: 10px;"></tr>
+                                            <tr>
+                                                <td data-title="Center Name" enc_id="@item.Enc_CenterId">
+                                                    <p class="center-name" style="text-align: left;color:#337ab7;">@item.CenterName</p>
+                                                </td>
+
+                                                <td data-title="Riders">
+                                                    @if (item.Riders > 0)
+                                                    {
+                                                        <p style="color:#337ab7;"><a href="javascript:void(0);" rid_count="@item.Riders" onclick="ridersCountClick(this);" class="riders_count" style="color:#337ab7;text-decoration:underline;">@item.Riders</a></p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p style="color:#337ab7;"><a href="javascript:void(0);" rid_count="@item.Riders" class="riders_count" style="color:#337ab7;text-decoration:none;cursor:default;">@item.Riders</a></p>
+
+
+                                                    }
+                                                </td>
+                                                <td data-title="Pick Up">
+                                                    @if (item.PickUp > 0)
+                                                    {
+                                                        <p style="color:#337ab7;"><a href="javascript:void(0);" pic_count="@item.PickUp" onclick="pickupCountClick(this);" class="pickup_count" style="color:#337ab7;text-decoration:underline;">@item.PickUp</a></p>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <p style="color:#337ab7;"><a href="javascript:void(0);" pic_count="@item.PickUp" class="pickup_count" style="color:#337ab7;text-decoration:none;cursor:default;">@item.PickUp</a></p>
+
+                                                    }
+                                                </td>
+                                                <td data-title="Drop Off">
+                                                    @if(item.DropOff>0)
+                                                    {
+                                                    <p style="color:#337ab7;"><a href="javascript:void(0);" dro_count="@item.DropOff" onclick="dropOffClick(this);" class="dropoff_count" style="color:#337ab7;text-decoration:underline;">@item.DropOff</a></p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p style="color:#337ab7;"><a href="javascript:void(0);" dro_count="@item.DropOff" class="dropoff_count" style="color:#337ab7;text-decoration:none;cursor:default;">@item.DropOff</a></p>
+
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+
+                                        <tr style="height: 10px;"></tr>
+                                        <tr>
+                                            <td data-title="Center Name">
+                                                <p style="text-align: left;color:#337ab7;"><strong>Total</strong></p>
+                                            </td>
+                                            <td data-title="Riders">
+                                                <p style="color:#337ab7;"><strong>@Model.AnalysisTotal.RidersTotal</strong></p>
+                                            </td>
+                                            <td data-title="Pick Up">
+                                                <p style="color:#337ab7;"><strong>@Model.AnalysisTotal.PickUpTotal</strong></p>
+                                            </td>
+                                            <td data-title="Drop Off">
+                                                <p style="color:#337ab7;"><strong>@Model.AnalysisTotal.DropOffTotal</strong></p>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4">
+                                                <p style="text-decoration:underline;cursor:pointer;">No data found</p>
+                                            </td>
+                                        </tr>
+
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="riders_transportationDiv" class="col-xs-12 no-padding" style="display:none;">
+                        <div class="col-xs-12 analysis-detl-title" style="position: relative;">
+                            <h2 id="rider_centerName">Center A Rider</h2>
+                            <div class="analysis_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                            <div class="analysis-bt-al">
+                                <div class="analysis-btn">
+                                    <a href="javascript:void(0);" class="back_button">Back</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="no-more-tables-transporation1" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                                <table class="col-md-12 table-striped table-condensed cf table-change transportation-table1">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th>Children Name</th>
+                                            <th>Address</th>
+                                            <th>Phone No</th>
+                                            <th>Pick Up</th>
+                                            <th>Drop Off</th>
+                                            <th>Disability</th>
+                                            <th>Allergy</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody class="transportation-table-head1 riders_table_body scroll-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="pickUp_transportationDiv" class="col-xs-12 no-padding" style="display:none">
+                        <div class="col-xs-12 analysis-detl-title" style="position: relative;">
+                            <h2 id="pickup_centerName">Center A Pickup</h2>
+                            <div class="analysis_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                            <div class="analysis-bt-al">
+                                <div class="analysis-btn">
+                                    <a href="javascript:void(0);" class="back_button">Back</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="no-more-tables-transporation1" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                                <table class="col-md-12 table-striped table-condensed cf table-change transportation-table1">
+                                    <thead class="table-hd scroll-thead">
+                                        <tr>
+                                            <th>Route Name</th>
+                                            <th>Bus Driver</th>
+                                            <th>Bus Monitor</th>
+                                            <th>No of Stops</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="transportation-table-head1 pickupTableBody scroll-tbody">
+                                       
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="dropoff_transportationDiv" class="col-xs-12 no-padding" style="display:none">
+
+                        <div class="col-xs-12 analysis-detl-title" style="position: relative;">
+                            <h2 id="dropoff_centerName">Center A Dropoff</h2>
+                            <div class="analysis_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                            <div class="analysis-bt-al">
+                                <div class="analysis-btn">
+                                    <a href="javascript:void(0);" class="back_button">Back</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="no-more-tables-transporation1" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                            <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
+                                <table class="col-md-12 table-striped table-condensed cf table-change transportation-table1">
+                                    <thead class="table-hd  scroll-thead">
+                                        <tr>
+                                            <th>Route Name</th>
+                                            <th>Bus Driver</th>
+                                            <th>Bus Monitor</th>
+                                            <th style="text-transform: none;">No of Stops</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="transportation-table-head1 dropoffTableBody scroll-tbody">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!----HTML PAGE END-->
+        </div>
+    </div>
+
+
+
+    <script src="~/Scripts/transportanalysis.js"></script>
+}
+

@@ -1,0 +1,711 @@
+﻿@model FingerprintsModel.AssignRouteChildren
+
+@{
+    ViewBag.Title = "Assign Route";
+    //Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+<link href="~/Content/bootstrap-3.3.6-dist/css/bootstrap.css" rel="stylesheet" />
+
+<link href="~/Content/Transportation/transportationanalysis.css" rel="stylesheet" />
+<style>
+
+    /*error message*/
+        .error-msg {
+            position: fixed;
+            z-index: 99;
+            right: 0;
+            top: 19px;
+        }
+
+    #page-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #route-select,#CenterId option {
+        background: #164273;
+    }
+
+    body {
+        line-height: 1.42857143 !important;
+    }
+
+    .map-notify {
+        position: absolute;
+        background: #fff;
+        border-radius: 5px; /* overflow: hidden; */
+        top: 90px;
+        left: 164px;
+        right: 0;
+        width: 330px;
+        padding-bottom: 10px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .map-notify-title {
+        background: #e74c3c;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+        .map-notify-title h2 {
+            margin: 0;
+            font-size: 18px;
+            text-align: center;
+            padding: 10px;
+            color: #fff;
+        }
+
+    .map-notify-cont p, .map-notify-cont1 p {
+        font-size: 14px;
+        color: #16406f;
+        text-align: left;
+        padding: 0 9px;
+        line-height: 22px;
+        margin-top: 12px; /* margin-bottom: 5px; */
+    }
+
+    .map-notify-cont {
+        width: 40%;
+        float: left;
+        display: inline-block;
+    }
+
+    .map-notify-cont1 {
+        width: 60%;
+        float: left;
+        display: inline-block;
+    }
+
+    .map-arrow-left {
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 10px solid white;
+        position: absolute;
+        left: -10px;
+        top: 82px;
+        /* box-shadow: 0 0 10px rgba(0,0,0,0.2); */
+    }
+
+    .icr_bttr {
+        padding: 5px 12px;
+    }
+
+    select {
+        line-height: 50px;
+    }
+
+
+
+    /*Center-Transportation-Analysis*/
+
+    /***************27-9-2017**************/
+    .assign_route {
+        background: #9b59b6 none repeat scroll 0 0 !important;
+    }
+
+    /*******************27/09/2017**************************/
+    .accordionButton {
+        width: 100%;
+        float: left;
+        background: #9b59b6;
+        border-bottom: 1px solid #FFFFFF;
+        cursor: pointer;
+        padding: 12px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+    }
+
+        .accordionButton span {
+            color: #FFFFFF;
+            padding-left: 5px;
+            font-weight: bold;
+        }
+
+    .accordionContent {
+        width: 100%;
+        float: left;
+        background: #FFFFFF;
+    }
+
+        .accordionContent p {
+            color: #333333;
+            font-size: 14px;
+            padding-left: 8px;
+        }
+
+    .on {
+        width: 100%;
+        float: left;
+        background: #9b59b6;
+        cursor: pointer;
+    }
+
+        .on span {
+            color: #FFFFFF;
+        }
+
+    .over {
+        width: 100%;
+        float: left;
+        background: #9b59b6;
+        cursor: pointer;
+    }
+
+        .over span {
+            color: #FFFFFF;
+        }
+
+    .plusMinus {
+        font-weight: bold;
+        float: right;
+        padding-right: 4px;
+        content: "+";
+    }
+
+    .icr_bttr {
+        padding: 5px 12px;
+    }
+
+    .icr_table {
+        width: 100%;
+        float: left;
+        color: #163b69;
+    }
+
+    .lower-icr {
+        background-color: #f1f5f8;
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+        float: left;
+        width: 100%;
+        padding: 15px 0px 3px 12px;
+    }
+
+    .header_icc {
+        background-color: #3498db;
+        color: #fff;
+        float: left;
+        font-size: 18px;
+        font-weight: 900;
+        padding: 10px;
+        text-transform: capitalize;
+        width: 100%;
+    }
+
+    .btn_btn {
+        float: left;
+        margin: 9px -10px;
+        width: 100%;
+    }
+
+        .btn_btn button {
+            float: right;
+        }
+
+    .ecu_topsapc {
+        float: left;
+        margin: 20px 0;
+        width: 100%;
+    }
+
+    .modal-header.icr_bgm_pop {
+        background-color: #9b59b6;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        color: #fff;
+        text-align: center;
+    }
+
+    #child_popup button.close {
+        color: #fff;
+        opacity: 1;
+    }
+
+    #child_popup .modal-body {
+        background-color: #f7f7f7;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+        float: left;
+        width: 100%;
+    }
+
+    #child_popup .icr_table table {
+        background-color: #fff;
+        color: #163b69;
+    }
+
+    .pick_route.icr_bttr select {
+        background: #fff none repeat scroll 0 0;
+        border: 1px solid #e7e7e7;
+        border-radius: 0;
+        box-shadow: none;
+        color: #163b69;
+        float: left;
+        font-size: 15px;
+        height: 43px;
+        margin: 0;
+        padding: 10px;
+        text-align: left;
+        text-transform: none;
+        width: 100%;
+        -moz-appearance: none;
+    }
+    /* .icr_field { */
+    /* position: absolute; */
+    /* right: 14px; */
+    /* top: 12px; */
+    /* } */
+    .icr_field img {
+        border-radius: 0px;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        max-height: 100%;
+        max-width: 100%;
+        position: absolute;
+        right: -269px;
+        top: 26px;
+    }
+
+    #hover .dropdown:hover > ul.dropdown-menu,
+    #click .dropdown-toggle:focus + ul.dropdown-menu {
+        display: block;
+    }
+
+    .map-notify1 {
+        float: left;
+        width: 300px;
+    }
+</style>
+<script>
+
+</script>
+<div class="container-fluid">
+    <div class="row">
+        <div class="right-side-container-ch">
+
+            <div class="col-xs-12 no-padding">
+                <div class="top-header">
+                    <div class="col-xs-12 no-padding">
+                        <div class="top-header-title-transportation">
+                            <h1>Assign Route</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @Html.Hidden("selectText", Model.SelectValue)
+            <div class="col-xs-12 no-padding">
+                <div class="col-xs-12 no-padding">
+                    <div class="col-xs-12 text-center serch-assign-block" style="position: relative;">
+                        <span style="color:#fff;font-size:20px;left:10px;">Route</span>
+                        <select name="" class="assign-select" id="route-select">
+
+                            <option value="0">All</option>
+                            <option value="1">Pick up</option>
+                            <option value="2">Drop off</option>
+                        </select>
+                        <span style="color:#fff;font-size:20px;left:10px;">Center</span>
+                        @Html.DropDownListFor(M => M.CenterId, Fingerprints.Utilities.Helper.GetCenterBasedCentersByAgencyID(Session["UserID"].ToString(), Session["AgencyId"].ToString(), Session["RoleID"].ToString()), new { @class = "assign-select" })
+                        @*<select name="" class="assign-select" id="center-select">
+
+                                <option value="0">ALL</option>
+                                @if (Model.CenterList.Count() > 0)
+                                {
+                                    foreach (var item in Model.CenterList)
+                                    {
+                                        <option value=@item.Enc_CenterId>@item.CenterName</option>
+
+                                    }
+                                }
+
+                            </select>*@
+
+                        <div class="assign-search-btn">
+                            <a href="javascript:void(0);" id="searchRoute">Search</a>
+                        </div>
+                        <div class="analysis-bt-al" style="top:0px;">
+                            <div class="analysis-btn">
+                                <a href="/Transportation/Dashboard" style="padding: 11px 9px;">Back</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="route-analysis-map">
+                            @*<img src="/images/map-assign.jpg" id="map_image" style="width:100%">*@
+                            <div class="map_image">
+                                <div id="googleMap" style="width:100%; height:100%;"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--------------pop up  -->
+<div class="map-notify hidden">
+    <div class="no-padding" style="position: relative;">
+        <div class="map-arrow-left"></div>
+        <div class="no-padding">
+            <div class="map-notify-title">
+                <h2 id="clientName"></h2>
+            </div>
+        </div>
+        <div class="no-padding">
+            <div class="map-notify-cont">
+                <p style="font-weight:bold;padding-right:5px;">Address</p>
+            </div>
+            <div class="map-notify-cont1">
+                <p id="clientAddress"></p>
+            </div>
+        </div>
+
+        <div class="no-padding">
+            <div class="map-notify-cont">
+                <p style="font-weight:bold;padding-right:5px;">City</p>
+            </div>
+            <div class="map-notify-cont1">
+                <p id="clientCity"></p>
+            </div>
+        </div>
+        <div class="no-padding">
+            <div class="map-notify-cont">
+                <p style="font-weight:bold;padding-right:5px;">State</p>
+            </div>
+            <div class="map-notify-cont1">
+                <p id="clientState"></p>
+            </div>
+        </div>
+        <div class="no-padding">
+            <div class="map-notify-cont">
+                <p style="font-weight:bold;padding-right:5px;">Zip code</p>
+            </div>
+            <div class="map-notify-cont1">
+                <p id="clientZipCode"></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Confirmation</h4>
+            </div>
+            <div class="modal-body">
+                <p>Route Assigned Successfully</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+  <!---success/error Window-->
+<div class="error-msg">
+    <ul class="i-am-new">
+        <li id="noty_topRight_layout_container" style="overflow: hidden; display:none; background: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAoCAYAAAAPOoFWAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAPZJREFUeNq81tsOgjAMANB2ov7/7ypaN7IlIwi9rGuT8QSc9EIDAsAznxvY4pXPKr05RUE5MEVB+TyWfCEl9LZApYopCmo9C4FKSMtYoI8Bwv79aQJU4l6hXXCZrQbokJEksxHo9KMOgc6w1atHXM8K9DVC7FQnJ0i8iK3QooGgbnyKgMDygBWyYFZoqx4qS27KqLZJjA1D0jK6QJcYEQEiWv9PGkTsbqxQ8oT+ZtZB6AkdsJnQDnMoHXHLGKOgDYuCWmYhEERCI5gaamW0bnHdA3k2ltlIN+2qKRyCND0bhqSYCyTB3CAOc4WusBEIpkeBuPgJMAAX8Hs1NfqHRgAAAABJRU5ErkJggg==&quot;) repeat-x scroll left top #a94442;  color: rgb(255, 255, 255); width: 270px;float:right; cursor: pointer; ">
+            <div id="noty_237439575065076060" class="noty_bar">
+                <div style="font-size: 13px; line-height: 30px; text-align: left; padding-left:10px; width: auto; position: relative; font-weight: bold;" class="noty_message">
+                    <span class="noty_text">.</span>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+<!---success/error window---->
+<input type="hidden" id="inputHidden" value="@Model.TestString" />
+<input type="hidden" id="hdnPickupRoute" value="@Model.PickUpRotes" />
+<input type="hidden" id="hdnDropRoute" value="@Model.DropRotes" />
+
+
+<script src="~/Content/Scripts/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script>
+    //error function  Start//
+    function customAlert(MessageText) {
+
+        if (MessageText.indexOf("added") != -1 || MessageText.indexOf("updated") != -1 || MessageText.indexOf("successfully") != -1 || MessageText.indexOf("Invatation") != -1) {
+            $("#noty_topRight_layout_container").css("background-color", "green");
+        }
+        else {
+            $("#noty_topRight_layout_container").css("background-color", "#a94442");
+        }
+        $("#noty_topRight_layout_container")[0].children[0].children[0].children[0].innerHTML = MessageText;
+        $("#noty_topRight_layout_container").slideToggle();
+        setTimeout(function () { $("#noty_topRight_layout_container").slideToggle(); }, 4000);
+    }
+    function customAlertSuccess(MessageText) {
+        $("#noty_topRight_layout_container").css("background-color", "green");
+        $("#noty_topRight_layout_container")[0].children[0].children[0].children[0].innerHTML = MessageText;
+        $("#noty_topRight_layout_container").slideToggle();
+        setTimeout(function () { $("#noty_topRight_layout_container").slideToggle(); }, 4000);
+    }
+    function customAlertforlongtime(MessageText) {
+
+        if (MessageText.indexOf("added") != -1 || MessageText.indexOf("updated") != -1 || MessageText.indexOf("successfully") != -1) {
+            $("#noty_topRight_layout_container").css("background-color", "green");
+        }
+        else {
+            $("#noty_topRight_layout_container").css("background-color", "#a94442");
+        }
+        $("#noty_topRight_layout_container")[0].children[0].children[0].children[0].innerHTML = MessageText;
+        $("#noty_topRight_layout_container").slideToggle();
+        setTimeout(function () { $("#noty_topRight_layout_container").slideToggle(); }, 6000);
+    }
+    function plainValidation(id) {
+
+        $(id).focus();
+        $(id).css("background-color", "pink");
+    }
+    function cleanValidation() {
+
+        $('input,textarea,select').each(function () {
+
+            $(this).css("background-color", "");
+        });
+    }
+
+    //Error Function End//
+
+
+
+
+    if ($('#selectText').val() < 3) {
+        $('#route-select').val($('#selectText').val());
+
+    }
+    var infowindow = "";
+    var mapData = JSON.parse($('#inputHidden').val());
+    var pickup = $('#hdnPickupRoute').val();
+    var drop = $('#hdnDropRoute').val();
+    //var pickup = "<option value='0'>Pickup Route</option><option value='1'>Pickup Route1</option><option value='2'>Pickup Route2</option>";
+    //var drop = "<option value='0'>Drop Route</option><option value='1'>Drop Route1</option><option value='2'>Drop Route2</option>";
+    $(function () {
+        var win = $(window).height();
+        $(".route-analysis-map").css({
+            height: win
+        });
+
+    });
+    function LoadMap() {
+       
+        var lat = 0;
+        var long = 0;
+        var map = "";
+        if (mapData[0] != undefined) {
+            map = new google.maps.Map(document.getElementById('googleMap'), {
+                zoom: 10,
+                center: new google.maps.LatLng(mapData[0].Latitude, mapData[0].Longitude),
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+        }
+        else {
+            map = new google.maps.Map(document.getElementById('googleMap'), {
+                zoom: 10,
+                // center: new google.maps.LatLng(mapData[0].Latitude, mapData[0].Longitude),
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+        }
+
+
+
+        infowindow = new google.maps.InfoWindow();
+
+        var marker, i;
+
+        $.each(mapData, function (k, data2) {
+
+            if (data2.Latitude != 0) {
+
+                lat = (lat == 0) ? data2.Latitude : lat;
+                long = (long == 0) ? data2.Longitude : long;
+
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(data2.Latitude, data2.Longitude),
+                    title: data2.ChildrenName,
+                    map: map,
+                    icon: data2.PinSmall,
+                    lat: data2.Latitude,
+                    long: data2.Longitude
+                });
+
+                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                    return function () {
+                        var Template = '<div class="map-notify1" style="border: 1px solid #9b59b6;border-radius:6.5px;">\
+                                    <div class="col-xs-12 no-padding" style="position: relative;">\
+                                        <div class="col-xs-12 no-padding">\
+                                            <div class="map-notify-title assign_route">\
+                                                <h2>##clientName##</h2>\
+                                               <input type="hidden" class="client-id" value="##CLIENTID##"/>\
+                                              <input type="hidden" class="route-type" value="##ROUTETYPE##"/>\
+                                            </div>\
+                                        </div>\
+                                        <div class="col-xs-12 no-padding">\
+                                            <div class="map-notify-cont">\
+                                                <p>Address</p>\
+                                            </div>\
+                                            <div class="map-notify-cont1">\
+                                                <p>##clientAddress##,##clientCity##,##clientState## ##clientZipCode##</p>\
+                                            </div>\
+                                        </div>\
+                                        <div class="col-xs-12 no-padding">\
+                                            <div class="pick_route icr_bttr" style="position: relative;">\
+                                                <select class="ddl-route">##OPTIONS##</select>\
+                                            </div>\
+                                        </div>\
+                                        <div class="col-xs-12 no-padding" style="    text-align: center;">\
+                                            <div class="map-notify-cont icr_bttr ">\
+                                                <button class="btn btn-success btn-assign-route" style="margin-left: 45px;">Assign Route</button>\
+                                            </div>\
+                                            <div class="map-notify-cont1 icr_bttr ">\
+                                                <button class="btn btn-danger btn-close-route">Cancel</button>\
+                                            </div>\
+                                        </div>\
+                                    </div>\
+                                </div>';
+                      
+                        if (data2.PickUpStatus == 1 || data2.PickUpStatus == 0) {
+
+                            var optionTemp1 = $.parseHTML(pickup);
+                            var jsonString1 = '';
+                            if (optionTemp1.length > 0) {
+                                $.each(optionTemp1, function (k, option1) {
+
+                                    if (option1.value == data2.RouteId) {
+                                        option1.selected = true;
+                                        
+                                        jsonString1 += '<option value=' + option1.value + ' selected>' + option1.outerText + '</option>';
+                                    }
+                                    else {
+                                        jsonString1 += '<option value=' + option1.value + '>' + option1.outerText + '</option>';
+
+                                    }
+                                });
+                            }
+
+                            Template = Template.replace("##OPTIONS##", jsonString1);
+                            Template = Template.replace("##ROUTETYPE##", 1);
+                        }
+                        else if (data2.DropStatus == 1 || data2.DropStatus == 0) {
+                           
+                            var optionTemp = $.parseHTML(drop);
+                            var jsonString = '';
+                            if (optionTemp.length > 0) {
+                                $.each(optionTemp, function (o, option) {
+
+                                    if (option.value == data2.RouteId) {
+                                        option.selected = true;
+
+                                        jsonString += '<option value=' + option.value + ' selected>' + option.outerText + '</option>';
+                                    }
+                                    else
+                                    {
+                                        jsonString += '<option value=' + option.value + '>' + option.outerText + '</option>';
+
+                                    }
+                                });
+                            }
+                            Template = Template.replace("##OPTIONS##", jsonString);
+                            Template = Template.replace("##ROUTETYPE##", 2);
+                        }
+                       
+                        Template = Template.replace("##CLIENTID##", data2.ClientId);
+                        Template = Template.replace("##clientName##", data2.ChildrenName);
+                        Template = Template.replace("##clientAddress##", data2.Address);
+                        Template = Template.replace("##clientCity##", data2.City);
+                        Template = Template.replace("##clientState##", data2.State);
+                        Template = Template.replace("##clientZipCode##", data2.ZipCode);
+                        //mapClient.find('#clientName').html(data2.ChildrenName);
+                        //mapClient.find('#clientAddress').html(data2.Address);
+                        //mapClient.find('#clientCity').html(data2.City);
+                        //mapClient.find('#clientState').html(data2.State);
+                        //mapClient.find('#clientZipCode').html(data2.ZipCode);
+                        //infowindow.setContent(data2.ChildrenName + ' <br>' + data2.Address + ' <br>' + data2.City + ' <br>' + data2.State + ' <br>' + data2.ZipCode);
+                        infowindow.setContent(Template);
+                        infowindow.open(map, marker);
+                        map.setCenter(new google.maps.LatLng($(this).attr('lat'), $(this).attr('long')));
+                        map.panTo(this.getPosition());
+                        // map.setZoom(15);
+                    }
+                })(marker, i));
+
+                google.maps.event.addListener(infowindow, 'closeclick', function () {
+                    map.panTo(this.getPosition());
+                    // map.setZoom(10);
+                });
+            }
+
+
+        });
+
+        map.setCenter(new google.maps.LatLng(lat, long));
+        //  map.setCenter(new google.maps.LatLng(conVlat, convLong));
+    }
+
+    $('body').on('click', '.btn-assign-route', function () {
+        cleanValidation();
+      var RouteId=  $('.ddl-route').val();
+    
+      if (RouteId == '0')
+      {
+          customAlert('Please Select Route');
+          plainValidation('.ddl-route');
+          return false;
+      }
+      else {
+    
+        $.ajax({
+            dataType: 'json',
+            type: "POST",
+            async: false,
+            url: "/Transportation/SaveAssignedRoute",
+            data: { 'ClientId': $('.client-id').val(), 'RouteId': $('.ddl-route').val(), 'RouteType': $('.route-type').val() },
+            success: function (data) {
+                if (data) {
+                    // customAlert("Route Assigned Successfully");
+                    infowindow.close();
+                    $('#myModal').modal('show');
+                }
+            },
+            error: function (data) {
+            }
+        });
+      }
+    });
+    $('body').on('click', '.btn-close-route', function () {
+        infowindow.close();
+    });
+    $('#searchRoute').on('click', function () {
+        var dropDownValue = parseInt($('#route-select').val());
+        var CenterId = $('#CenterId').val();
+        location.href = '/Transportation/AssignRoute/?id=' + dropDownValue + '&Center=' + CenterId + '';
+
+    });
+</script>
+<script src="http://maps.google.com/maps/api/js?key=AIzaSyCgueWMY-8D3Lw91hgk3yHmidmdoKEtiVU&callback=LoadMap" type="text/javascript"></script>
+@*<script src="~/Scripts/assignroute.js"></script>*@
+
+
+
