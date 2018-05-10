@@ -9434,7 +9434,7 @@
 
 
         }
-        function SetPoverty(item) {
+        function SetPoverty(item,mode) {
             value = item;
             $.ajax({
                 url: HostedDir + "/Agencyuser/SavePovertyCalculation",
@@ -9504,6 +9504,18 @@
                     }
                     $('#percage1').blur();
                     $('#percage2').blur();
+                    if (mode == 1)
+                    {
+                        $('#percage1').prop('disabled', false);
+                        $('#povertybtnSave').show();
+                    }
+                    else {
+                        $('#percage1').prop('disabled', true);
+
+                        $('#povertybtnSave').hide();
+                    }
+
+
                     if ($('#Childincome').val() != "")
                         CalculatePoverty();
 
@@ -9528,7 +9540,8 @@
 
         }
         var selectionobject = null;
-        function getselectionpoint(value) {
+
+        function getselectionpoint(value,mode) {
             selectionobject = value;
             $.ajax({
                 url: HostedDir + "/Agencyuser/getselectionpoints",
@@ -9545,6 +9558,14 @@
 
                     bindselectiontablePoint(response, $(value).attr("clientype"));
 
+                    if(mode==1)
+                    {
+                        $('#btnSaveSelectionPoint').show();
+
+                    }
+                    else {
+                        $('#btnSaveSelectionPoint').hide();
+                    }
                 }
                     , error: function (response) {
                         customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
@@ -11214,17 +11235,18 @@
                     Householid: $('#HouseholdId').val(),
                     Clientid: $(Acceptwaitingobject).attr("accesskey")
                 },
+                beforeSend:function(){$('#spinner').show()},
                 dataType: "json",
                 secureuri: false,
                 async: false,
                 success: function (response) {
-                 
+                    $('#spinner').hide();
                     if (response != null) {
                         Data = response;
                     }
                 }
            , error: function (response) {
-              
+               $('#spinner').hide();
                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
            }
             });
@@ -11282,6 +11304,9 @@
                             customAlert("Guaridan Income is required. ");
                         }
                         else {
+
+                        
+
                             $(value).text('Complete');
                             $(value).attr("style", "color:#337ab7;text-decoration:underline;");
                         }
@@ -21686,11 +21711,11 @@
                                                                 {
                                                                     if (!item.Iswaiting && !item.IsAccepted)
                                                                     {
-                                                                        <td style="text-align:right;"><a style="color:orange;" href="javascript:void(0)" accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align:right;"><a style="color:orange;" href="javascript:void(0)" accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this,1);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <td style="text-align:right;"><a style="color:#AAAFB4;text-decoration:none;cursor:default;" href="javascript:void(0)">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align:right;"><a style="color:#3e4c5a;" href="javascript:void(0)" data-toggle="modal"  onclick="SetPoverty(this,0);"  data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                 }
                                                                 else
@@ -21698,11 +21723,11 @@
 
                                                                     if (!item.Iswaiting && !item.IsAccepted)
                                                                     {
-                                                                        <td style="text-align:right;"><a href="javascript:void(0)" accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align:right;"><a href="javascript:void(0)" accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this,1);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <td style="text-align: right; "><a style="color: #AAAFB4; text-decoration: none; cursor: default; " href="javascript:void(0)">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align: right; "><a style="color: #3e4c5a; " href="javascript:void(0)" data-toggle="modal"  onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                 }
                                                             }
@@ -21710,12 +21735,12 @@
                                                             {
                                                                 if (!item.Iswaiting && !item.IsAccepted)
                                                                 {
-                                                                    <td style="text-align:right;"><a href="javascript:void(0)" accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this);" data-target="#MyQualifier"> % <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align:right;"><a href="javascript:void(0)" accesskey="@item.clientid" data-toggle="modal" onclick="SetPoverty(this,1);" data-target="#MyQualifier"> % <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
                                                                 else
                                                                 {
 
-                                                                    <td style="text-align: right;"><a style="color: #AAAFB4; text-decoration: none; cursor: default; " href="javascript:void(0)">0 % <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align: right;"><a style="color: #3e4c5a;" href="javascript:void(0)"  data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">0 % <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
 
 
@@ -21726,22 +21751,22 @@
                                                             {
                                                                 if (!item.Iswaiting && !item.IsAccepted)
                                                                 {
-                                                                    <td style="text-align:right;"> <a href="javascript:void(0)" data-toggle="modal" onclick="getselectionpoint(this);" accesskey="@item.Programid" clientdid="@item.clientid" clientype="@item.ClientType" data-target="#Myselectionpoint">@item.Selectionpoint <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align:right;"> <a href="javascript:void(0)" data-toggle="modal" onclick="getselectionpoint(this,1);" accesskey="@item.Programid" clientdid="@item.clientid" clientype="@item.ClientType" data-target="#Myselectionpoint">@item.Selectionpoint <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <td style="text-align:right;"> <a style="color:#AAAFB4;text-decoration:none;cursor:default;" href="javascript:void(0)">@item.Selectionpoint <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align:right;"> <a style="color:#3e4c5a;" href="javascript:void(0)" data-toggle="modal" onclick="getselectionpoint(this,0);" accesskey="@item.Programid" clientdid="@item.clientid" clientype="@item.ClientType" data-target="#Myselectionpoint">@item.Selectionpoint <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
                                                             }
                                                             else
                                                             {
                                                                 if (!item.Iswaiting && !item.IsAccepted)
                                                                 {
-                                                                    <td style="text-align:right;"> <a href="javascript:void(0)" data-toggle="modal" onclick="getselectionpoint(this);" accesskey="@item.Programid" clientdid="@item.clientid" clientype="@item.ClientType" data-target="#Myselectionpoint">0 <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align:right;"> <a href="javascript:void(0)" data-toggle="modal" onclick="getselectionpoint(this,1);" accesskey="@item.Programid" clientdid="@item.clientid" clientype="@item.ClientType" data-target="#Myselectionpoint">0 <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <td style="text-align:right;"> <a style="color:#AAAFB4;text-decoration:none;cursor:default;" href="javascript:void(0)">0 <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align:right;"> <a style="color:#3e4c5a;text-decoration:none;cursor:default;" href="javascript:void(0)">0 <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
                                                             }
                                                             @if (item.ApplicationStatus == 0 || string.IsNullOrEmpty(item.Selectionpoint) || item.Selectionpoint == "0")
@@ -21794,7 +21819,7 @@
                                                                     {
                                                                         if (!item.Iswaiting && !item.IsAccepted)
                                                                         {
-                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" href="javascript:void(0)">Waiting List <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" href="javascript:void(0)"  >Waiting List <i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
@@ -21962,7 +21987,7 @@
                                                 </div>
                                                 <div class="col-md-12">
                                                     <div class="btnwrp_subcal">
-                                                        <button onclick="Showpoverty();" class="my-btn" type="button">Save</button>
+                                                        <button onclick="Showpoverty();" class="my-btn" id="povertybtnSave" type="button">Save</button>
                                                         <button class="my-btn" data-dismiss="modal" type="button">Exit</button>
                                                     </div>
                                                 </div>
@@ -22237,7 +22262,7 @@
                                                 </div>
                                                 <div class="col-md-12">
                                                     <div class="btnwrp_subcal">
-                                                        <button data-dismiss="modal" onclick="Saveselectionpoint();" class="my-btn" type="button">Save</button>
+                                                        <button data-dismiss="modal" onclick="Saveselectionpoint();" id="btnSaveSelectionPoint" class="my-btn" type="button">Save</button>
                                                         <button class="my-btn" data-dismiss="modal" type="button">Exit</button>
                                                     </div>
                                                 </div>

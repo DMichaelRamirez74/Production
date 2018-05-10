@@ -31,7 +31,17 @@
         var _Object = null;
         var AcceptObject = null;
         var Acceptwaitingobject = null;
+
+        var reloadPage = false;
+
         $(document).ready(function () {
+            $("#ModalWaitingList,#ModalWaitingListAll").on("hide.bs.modal", function () {
+
+                if (reloadPage) {
+                    $('#spinner').show();
+                    window.location.reload();
+                }
+            });
 
             $('#HVtxtclassstartdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#HVmeetingdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
@@ -240,7 +250,9 @@
                 for (var i = 0; i < Data.length; i++) {
                     tbody = tbody + '<tr><td><input ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" type="Checkbox" onchange="ChangeCheckBox(this,$(this));"  /></td><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
 					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
-				   '<a href="#" onclick="ShowHealthstaff(this);" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td></tr>';
+				   '<a href="#" onclick="ShowHealthstaff(this);" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td>' +
+                    '<td><a href="#" onclick="removeFromWaiting(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>' +
+                   '</tr>';
                 }
                 if (_programtype == 0) {
                     if (Data[0].UserList != null && Data[0].UserList.length > 0) {
@@ -1208,7 +1220,9 @@
                 for (var i = 0; i < Data.length; i++) {
                     tbody = tbody + '<tr><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
 					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Choice + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
-				   '<a href="#" onclick="ShowHealthstaffall(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td></tr>';
+				   '<a href="#" onclick="ShowHealthstaffall(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td>' +
+                   '<td><a href="#" onclick="removeFromWaiting(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>' +
+                   '</tr>';
                 }
                 if (_programtype1 == 0) {
                     if (Data[0].UserList != null && Data[0].UserList.length > 0) {
@@ -1246,6 +1260,69 @@
                 $('#div4').show();
             }
         }
+
+        function removeFromWaiting(ele) {
+
+
+
+            BootstrapDialog.confirm('You are about to remove the client from waiting list.Click OK to proceed.', function (result) {
+                if (result) {
+
+                    var op = $(ele).attr('option');
+                    var ecid = $(ele).attr('clientid');
+                    var hId = $(ele).attr('householdid');
+                    var PId = $(ele).attr('programid');
+                    var cIdd = $(ele).attr('centerid');
+
+                    var clientAccepted = {
+                        'ClientId': ecid,
+                        'HouseholdId': hId,
+                        'CenterId': cIdd,
+                        'ProgramType': PId,
+                        'Choice': op,
+                    };
+                    console.log(clientAccepted);
+
+                    $.ajax({
+
+                        url: '/AgencyUser/DeleteFromWaiting',
+                        type: 'Post',
+                        datatype: 'json',
+                        //  dataType: 'application/json; charset=utf-8',
+                        beforeSend: function () { $('#spinner').show() },
+                        data: clientAccepted,
+                        success: function (data) {
+
+                            $("#spinner").hide();
+                            if (data) {
+                                reloadPage = true;
+
+                                $(ele).parent('td').parent('tr').remove();
+
+                                customAlert("Record removed successfully.");
+                            }
+                            else {
+
+                                reloadPage = false;
+                                customAlert('Error Occured.Please, try again later.')
+                            }
+
+                        },
+                        error: function (data) {
+                            $('#spinner').hide();
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        },
+                        complete: function (data) {
+
+                        }
+                    });
+                }
+            });
+
+
+
+        }
+
         function GetUserListAll() {
             $('#Acceptancedivall').hide();
             if (_centerid != null) {
@@ -2301,6 +2378,7 @@
                                                             <th>Gender</th>
                                                             <th>DOB</th>
                                                             <th>Acceptance</th>
+                                                            <th>Remove</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -2317,7 +2395,7 @@
                                                 <legend class="legend1"></legend>
                                                 <div class="col-sm-10">
                                                     <div class="col-sm-2">
-                                                        <label style="width: 100%;">Client Name</label>
+                                                        <label style="width: 100%;font-weight: bold;">Client Name: </label>
                                                     </div>
                                                     <div id="dvClientName" style="width:82%" class="col-sm-5">
 
@@ -2717,6 +2795,7 @@
                                                             <th>Gender</th>
                                                             <th>DOB</th>
                                                             <th>Acceptance</th>
+                                                            <th>Remove</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>

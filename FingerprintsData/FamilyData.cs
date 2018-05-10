@@ -13627,5 +13627,55 @@ namespace FingerprintsData
             }
             return clasroom;
         }
+
+        /// <summary>
+        /// Removes from Waitinglist and returns back to incomplete stage.
+        /// </summary>
+        /// <param name="clientAccepted"></param>
+        /// <returns></returns>
+        public bool DeleteFromWaiting(ClientAcceptList clientAccepted)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection=connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", clientAccepted.ClientId));
+                    command.Parameters.Add(new SqlParameter("@HouseholdID", clientAccepted.HouseholdId));
+                    command.Parameters.Add(new SqlParameter("@CenterID", clientAccepted.CenterId));
+                    command.Parameters.Add(new SqlParameter("@ProgramID", clientAccepted.ProgramType));
+                    command.Parameters.Add(new SqlParameter("@Option", clientAccepted.Choice));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_DeleteFromWaitingList";
+                    Connection.Open();
+                    isRowsAffected = (Convert.ToInt32(command.ExecuteNonQuery()) > 0);
+
+                }
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return isRowsAffected;
+        }
+
     }
 }

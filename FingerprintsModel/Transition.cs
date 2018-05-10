@@ -108,7 +108,11 @@ namespace FingerprintsModel
 
         public RosterNew.CaseNote CaseNoteDetails { get; set; }
 
+
+        public RosterNew.Users Users { get; set; }
         public List<RosterNew.Attachment> CaseNoteAttachments { get; set; }
+
+        public List<FamilyHousehold.EnrollmentChangeReason> EnrollmentChangeReason { get; set; }
     }
 
     public class TransitionDetails {
