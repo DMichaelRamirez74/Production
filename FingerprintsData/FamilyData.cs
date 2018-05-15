@@ -6876,6 +6876,40 @@ namespace FingerprintsData
             return "0";
         }
 
+
+        public string SaveHirarchyAcceptanceprocess(string Clientid, string Usernurseid, string householdid, string centerid, string agencyid, string userid, string Programid)
+        {
+
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveHirarchyAcceptProcess";
+                command.Connection = Connection;
+                command.Parameters.Add(new SqlParameter("@Clientid", Clientid));
+                command.Parameters.Add(new SqlParameter("@householdid", householdid));
+                command.Parameters.Add(new SqlParameter("@centerid", centerid));
+                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                command.Parameters.Add(new SqlParameter("@userid", userid));
+                command.Parameters.Add(new SqlParameter("@Programid", Programid));
+                command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters["@result"].Direction = ParameterDirection.Output;
+                command.ExecuteNonQuery();
+                return command.Parameters["@result"].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                command.Dispose();
+            }
+            return "0";
+        }
+
         // changes by shambhu 4 march
         public string SaveMultipleAcceptanceprocess(List<string> ClientList, string Usernurseid, string householdid, string centerid, string agencyid, string userid, string Programid)
         {
@@ -6888,7 +6922,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_saveMultipleacceptanceprocess";
                 command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@Usernurseid", Usernurseid));
+                //  command.Parameters.Add(new SqlParameter("@Usernurseid", Usernurseid));
                 command.Parameters.Add(new SqlParameter("@householdid", householdid));
                 command.Parameters.Add(new SqlParameter("@centerid", centerid));
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
@@ -7538,6 +7572,10 @@ namespace FingerprintsData
                         obj.P1Question = _dataset.Tables[0].Rows[1]["IsPreg"].ToString();
                     if (_dataset.Tables[0].Rows[1]["EnrollforPregnant"].ToString() != "")
                         obj.PregnantmotherenrolledP1 = Convert.ToBoolean(_dataset.Tables[0].Rows[1]["EnrollforPregnant"]);
+
+                    
+
+
                     if (_dataset.Tables[0].Rows[1]["motherinsurance"].ToString() != "")
                         obj.Pregnantmotherprimaryinsurance1 = Convert.ToInt32(_dataset.Tables[0].Rows[1]["motherinsurance"]);
                     if (_dataset.Tables[0].Rows[1]["insurancenotemother"].ToString() != "")
@@ -8044,7 +8082,7 @@ namespace FingerprintsData
                             ClientList.Add(info);
                         }
                     }
-                    if (_dataset.Tables[1].Rows.Count > 0)
+                    if (_dataset.Tables[1].Rows.Count > 0  && ClientList.Count>0)
                     {
                         UserInfo obj = null;
                         foreach (DataRow dr in _dataset.Tables[1].Rows)
@@ -8056,7 +8094,7 @@ namespace FingerprintsData
                         }
                         ClientList.FirstOrDefault().UserList = _userlist;
                     }
-                    if (_dataset.Tables[2].Rows.Count > 0)
+                    if (_dataset.Tables[2].Rows.Count > 0 && ClientList.Count > 0)
                     {
                         FamilyHousehold.Programdetail obj = null;
                         foreach (DataRow dr in _dataset.Tables[2].Rows)
@@ -8109,19 +8147,21 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             ClientWaitingList info = new ClientWaitingList();
-                            info.Id = dr["YakkrId"].ToString();
+                            //info.Id = dr["YakkrId"].ToString();
                             info.ClientId = dr["Clientid"].ToString();
                             info.HouseholdId = dr["Householdid"].ToString();
                             info.HouseholdIdencrypted = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString());
                             info.Programid = dr["Programid"].ToString();
                             info.CenterId = dr["centerid"].ToString();
                             info.Name = dr["name"].ToString();
-                            info.DateOnList = dr["dateentered"].ToString() != "" ? Convert.ToDateTime(dr["dateentered"]).ToString("MM/dd/yyyy") : "";
+                            info.DateOnList = (DBNull.Value == dr["dateentered"]) ? "--" : Convert.ToDateTime(dr["dateentered"]).ToString("MM/dd/yyyy");
+                            //info.DateOnList = Convert.ToDateTime("04/05/2018").ToString("MM/dd/yyyy");
                             info.DOB = dr["dob"].ToString() != "" ? Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy") : "";
                             info.Gender = dr["gender"].ToString();
                             info.ProgramType = dr["programtype"].ToString();
                             info.SelectionPoints = dr["Selectionpoint"].ToString();
                             info.Notes = dr["notes"].ToString();
+                            info.IsReviewed= dr["IsReviewed"].ToString();
                             ClientList.Add(info);
                         }
                     }
@@ -8326,7 +8366,7 @@ namespace FingerprintsData
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
-                command.Parameters.Add(new SqlParameter("@Id", Id));
+                // command.Parameters.Add(new SqlParameter("@Id", Id));
                 command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
                 command.Parameters.Add(new SqlParameter("@HouseholdId", HouseholdId));
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
@@ -13498,6 +13538,114 @@ namespace FingerprintsData
                 command.Dispose();
             }
             return per;
+        }
+
+        public List<AcceptanceProcessStatus> GetAcceptanceStatus(string Clientid, string agencyid)
+        {
+            List<AcceptanceProcessStatus> acceptList = new List<AcceptanceProcessStatus>();
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Clientid", Clientid));
+                // command.Parameters.Add(new SqlParameter("@HouseHoldId", HouseHoldId));
+                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GetAcceptanceStatusByClientid";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < _dataset.Tables[0].Rows.Count; i++)
+                    {
+                        AcceptanceProcessStatus accept = new AcceptanceProcessStatus();
+                        accept.AcceptanceStartDate = _dataset.Tables[0].Rows[i]["CreatedDate"].ToString() != "" ? Convert.ToDateTime(_dataset.Tables[0].Rows[i]["CreatedDate"]).ToString("MM/dd/yyyy") : "";
+                        accept.IsAccepted = Convert.ToString(_dataset.Tables[0].Rows[i]["IsAccepted"]);
+                        accept.Reason = Convert.ToString(_dataset.Tables[0].Rows[i]["Reason"]);
+                        accept.RoleName = Convert.ToString(_dataset.Tables[0].Rows[i]["RoleName"]);
+                        accept.IsReviewAgain = Convert.ToString(_dataset.Tables[0].Rows[i]["reviewagain"]);
+
+                        int level = Convert.ToInt32(_dataset.Tables[0].Rows[i]["PriorityLevel"]);
+                        if (level == 1)
+                            accept.PriorityLevel = ("Final Reviewer");
+                        else
+                            accept.PriorityLevel = Convert.ToString(level - 1);
+                        accept.RoleId = Convert.ToString(_dataset.Tables[0].Rows[i]["id"]);
+                        //Application notes list
+                        if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                        {
+
+                            var notes = _dataset.Tables[1].AsEnumerable().Where(x => (x["RoleID"]).ToString() == accept.RoleId).ToList();
+                            ApplicationStatusnotes _Applicationnotes = new ApplicationStatusnotes();
+
+                            foreach (DataRow dr in notes)
+                            {
+                                _Applicationnotes = new ApplicationStatusnotes();
+                                _Applicationnotes.Name = dr["name"].ToString();
+                                _Applicationnotes.CreatedOn = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
+                                _Applicationnotes.AppStatus = Convert.ToString(dr["IsRejected"].ToString());
+
+                                _Applicationnotes.notes = dr["Notes"].ToString();
+                                accept.AppNotes.Add(_Applicationnotes);
+                            }
+
+                        }
+
+                        acceptList.Add(accept);
+                    }
+
+
+                    return acceptList;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                _dataset.Dispose();
+                DataAdapter.Dispose();
+                command.Dispose();
+
+            }
+            return acceptList;
+        }
+
+        public bool SaveReviewAgainDetails(string ClientId, string Roleid, string AgencyID, string Userid)
+        {
+            bool isupdated = true;
+
+            try
+            {
+                command.Parameters.Clear();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
+                command.Parameters.Add(new SqlParameter("@Roleid", Roleid));
+                command.Parameters.Add(new SqlParameter("@CreatedBy", Userid));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveReviewAgainDetails";
+                int Affected = command.ExecuteNonQuery();
+                if (Affected > 0)
+                    isupdated = true;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return isupdated;
         }
 
 

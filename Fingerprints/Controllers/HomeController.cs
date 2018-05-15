@@ -23,6 +23,8 @@ using iTextSharp.tool.xml.pipeline.end;
 using System.Text;
 using System.Dynamic;
 using System.Web.Script.Serialization;
+using Fingerprints.ViewModel;
+using Newtonsoft.Json.Linq;
 
 namespace Fingerprints.Controllers
 {

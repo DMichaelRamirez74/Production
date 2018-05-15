@@ -392,7 +392,7 @@ namespace FingerprintsData
             }
             return Info;
         }
-        public Nurse EditFamilyInfo(string id, int yakkrid, string Agencyid, string userid)
+        public Nurse EditFamilyInfo(string id, int yakkrid, string Agencyid, string userid,string RoleID)
         {
             Nurse obj = new Nurse();
             //obj.income1 = new FamilyHousehold.calculateincome();
@@ -400,6 +400,7 @@ namespace FingerprintsData
             try
             {
                 command.Parameters.Add(new SqlParameter("@client", id));
+                command.Parameters.Add(new SqlParameter("@RoleID", RoleID));
                 command.Parameters.Add(new SqlParameter("@yakkrid", yakkrid));
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
@@ -409,7 +410,7 @@ namespace FingerprintsData
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
-                GetallHouseholdinfo(obj, _dataset);
+                obj= GetallHouseholdinfo(obj, _dataset);
                 DataAdapter.Dispose();
                 command.Dispose();
                 return obj;
@@ -425,9 +426,8 @@ namespace FingerprintsData
                 command.Dispose();
             }
         }
-        public void GetallHouseholdinfo(Nurse obj, DataSet _dataset)
+        public Nurse GetallHouseholdinfo(Nurse obj, DataSet _dataset)
         {
-
             if (_dataset != null && _dataset.Tables.Count > 0)
             {
                 if (_dataset.Tables[0].Rows.Count > 0)
@@ -543,12 +543,12 @@ namespace FingerprintsData
                     obj.PImagejson = _dataset.Tables[0].Rows[0]["PProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["PProfilePic"]);
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {
-                        List<Nurse.calculateincome> IncomeList = new List<Nurse.calculateincome>();
+                        List<FamilyHousehold.calculateincome> IncomeList = new List<FamilyHousehold.calculateincome>();
 
-                        DataRow[] dr = _dataset.Tables[1].Select("ParentId=" + Convert.ToInt32(_dataset.Tables[1].Rows[0]["ParentId"]));
+                        DataRow[] dr = _dataset.Tables[1].Select("ParentId=" + Convert.ToInt32(_dataset.Tables[0].Rows[0]["ParentId"]));
                         foreach (DataRow dr1 in dr)
                         {
-                            Nurse.calculateincome _income = new Nurse.calculateincome();
+                            FamilyHousehold.calculateincome _income = new FamilyHousehold.calculateincome();
                             _income.newincomeid = Convert.ToInt32(dr1["IncomeId"]);
 
                             if (dr1["Income"].ToString() != "")
@@ -618,7 +618,7 @@ namespace FingerprintsData
 
                             IncomeList.Add(_income);
                         }
-                        obj.Income1 = IncomeList;
+                        obj.FamilyHousehold.Income1 = IncomeList;
                     }
                 }
 
@@ -666,12 +666,12 @@ namespace FingerprintsData
                         obj.HealthReview = Convert.ToInt32(_dataset.Tables[0].Rows[1]["HealthReview"]);
                     if (_dataset.Tables[1].Rows.Count > 0)
                     {
-                        List<Nurse.calculateincome1> IncomeList = new List<Nurse.calculateincome1>();
+                        List<FamilyHousehold.calculateincome1> IncomeList = new List<FamilyHousehold.calculateincome1>();
 
                         DataRow[] dr = _dataset.Tables[1].Select("ParentId=" + Convert.ToInt32(_dataset.Tables[0].Rows[1]["ParentId"]));
                         foreach (DataRow dr1 in dr)
                         {
-                            Nurse.calculateincome1 _income = new Nurse.calculateincome1();
+                            FamilyHousehold.calculateincome1 _income = new FamilyHousehold.calculateincome1();
                             _income.IncomeID = Convert.ToInt32(dr1["IncomeId"]);
                             if (dr1["Income"].ToString() != "")
                                 _income.Income = Convert.ToInt32(dr1["Income"]);
@@ -740,7 +740,7 @@ namespace FingerprintsData
 
                             IncomeList.Add(_income);
                         }
-                        obj.Income2 = IncomeList;
+                        obj.FamilyHousehold.Income2 = IncomeList;
 
                     }
                 }
@@ -1150,7 +1150,7 @@ namespace FingerprintsData
                     if (_dataset.Tables[5].Rows[0]["RecievedDentalTreatment"].ToString() != "")
                         obj.HsChildRecievedDentalTreatment = Convert.ToString(_dataset.Tables[5].Rows[0]["RecievedDentalTreatment"]);
                     if (_dataset.Tables[5].Rows[0]["ChildEverHadProfExam"].ToString() != "")
-                        obj.ChildProfessionalDentalExam = _dataset.Tables[5].Rows[0]["ChildEverHadProfExam"].ToString();
+                        obj.ChildProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ChildEverHadProfExam"].ToString();
 
                     //HS Nutrition Questions
                     obj.RestrictFood = _dataset.Tables[5].Rows[0]["ChildRestrictFood"].ToString();
@@ -1222,10 +1222,10 @@ namespace FingerprintsData
                 {
                     Screening _Screening = new Screening();
                     //Screening Parent Approval
-                    if (_dataset.Tables[8].Rows.Count > 0)
+                    if (_dataset.Tables[9].Rows.Count > 0)
                     {
-                        if (_dataset.Tables[8].Rows[0]["ID"].ToString() != "")
-                            _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[8].Rows[0]["ID"]);
+                        if (_dataset.Tables[9].Rows[0]["ID"].ToString() != "")
+                            _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[9].Rows[0]["ID"]);
                         //if (_dataset.Tables[9].Rows[0]["IsAccepted"].ToString() != "")
                         //    obj.AcceptApplicant = Convert.ToString(_dataset.Tables[8].Rows[0]["IsAccepted"]);
                     }
@@ -1236,20 +1236,20 @@ namespace FingerprintsData
                 //}
 
 
-                if (_dataset.Tables[7].Rows.Count > 0)
+                if (_dataset.Tables[8].Rows.Count > 0)
                 {
-                    if (_dataset.Tables[7].Rows[0]["Notes"].ToString() != "")
-                        obj.RejectDesc = Convert.ToString(_dataset.Tables[7].Rows[0]["Notes"]);
-                    if (_dataset.Tables[7].Rows[0]["IsAccepted"].ToString() != "")
-                        obj.AcceptApplicant = Convert.ToString(_dataset.Tables[7].Rows[0]["IsAccepted"]);
+                    if (_dataset.Tables[8].Rows[0]["Notes"].ToString() != "")
+                        obj.RejectDesc = Convert.ToString(_dataset.Tables[8].Rows[0]["Notes"]);
+                    if (_dataset.Tables[8].Rows[0]["IsAccepted"].ToString() != "")
+                        obj.AcceptApplicant = Convert.ToString(_dataset.Tables[8].Rows[0]["IsAccepted"]);
                 }
-                if (_dataset.Tables[9].Rows.Count > 0)
+                if (_dataset.Tables[10].Rows.Count > 0)
                 {
 
 
                     List<Nurse.Childhealthnutrition> _childhealthnutrition = new List<Nurse.Childhealthnutrition>();
                     Nurse.Childhealthnutrition info = null;
-                    foreach (DataRow dr in _dataset.Tables[9].Rows)
+                    foreach (DataRow dr in _dataset.Tables[10].Rows)
                     {
                         info = new Nurse.Childhealthnutrition();
                         info.Id = dr["ID"].ToString();
@@ -1261,11 +1261,11 @@ namespace FingerprintsData
                     }
                     obj._Childhealthnutrition = _childhealthnutrition;
                 }
-                if (_dataset.Tables[10] != null && _dataset.Tables[10].Rows.Count > 0)
+                if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
                 {
                     List<Nurse.PMproblemandservices> _PMproblemandservicesList = new List<Nurse.PMproblemandservices>();
                     Nurse.PMproblemandservices info = null;
-                    foreach (DataRow dr in _dataset.Tables[10].Rows)
+                    foreach (DataRow dr in _dataset.Tables[11].Rows)
                     {
                         info = new Nurse.PMproblemandservices();
                         info.Id = dr["ID"].ToString();
@@ -1276,11 +1276,11 @@ namespace FingerprintsData
                     }
                     obj._PMproblem = _PMproblemandservicesList;
                 }
-                if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
+                if (_dataset.Tables[12] != null && _dataset.Tables[12].Rows.Count > 0)
                 {
                     List<Nurse.PMproblemandservices> _PMproblemandservicesList = new List<Nurse.PMproblemandservices>();
                     Nurse.PMproblemandservices info = null;
-                    foreach (DataRow dr in _dataset.Tables[11].Rows)
+                    foreach (DataRow dr in _dataset.Tables[12].Rows)
                     {
                         info = new Nurse.PMproblemandservices();
                         info.Id = dr["ID"].ToString();
@@ -1295,14 +1295,20 @@ namespace FingerprintsData
                 {
                     obj.customscreening = _dataset.Tables[15];
                 }
+                if ( _dataset.Tables[18]!=null && _dataset.Tables[18].Rows.Count > 0)
+                {
+                    if (_dataset.Tables[18].Rows[0]["isallowincome"].ToString() != "")
+                        obj.IsAllowIncome = Convert.ToBoolean(_dataset.Tables[18].Rows[0]["isallowincome"]);
+                    if (_dataset.Tables[18].Rows[0]["IsFinalReviwer"].ToString() != "")
+                        obj.IsFinalReviwer = Convert.ToString(_dataset.Tables[18].Rows[0]["IsFinalReviwer"]);
 
-               
-
-
+                }
             }
-          
+            return obj;
+
 
         }
+
         public List<Nurse.Parentphone1> PhoneDetails(string householdid, string Parentid, string Agencyid)
         {
             List<Nurse.Parentphone1> _Parentphone1phone = new List<Nurse.Parentphone1>();
@@ -1443,7 +1449,7 @@ namespace FingerprintsData
             return result;
 
         }
-        public string addHealthInfo(Nurse obj, int mode, Guid ID, string agencyid, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization)
+        public string addHealthInfo(Nurse obj, int mode, Guid ID, string agencyid, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization,string RoleID)
         {
             string result = string.Empty;
             try
@@ -1782,9 +1788,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileName", _screen.ScreeningAcceptFileName));
                 command.Parameters.Add(new SqlParameter("@ScreeningAcceptImageByte", _screen.ScreeningAcceptImageByte));
                 DataTable dt6 = new DataTable();
-                dt6.Columns.AddRange(new DataColumn[3] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("QuestionID",typeof(Int32)),
+                dt6.Columns.AddRange(new DataColumn[3] { 
+                    new DataColumn("ScreeningID",typeof(Int32)), 
+                    new DataColumn("QuestionID",typeof(Int32)), 
                     new DataColumn("Value",typeof(string)),
                     });
 
@@ -1811,24 +1817,24 @@ namespace FingerprintsData
                     }
                 }
                 DataTable dt5 = new DataTable();
-                dt5.Columns.AddRange(new DataColumn[18] {
+                dt5.Columns.AddRange(new DataColumn[18] { 
                     new DataColumn("Immunizationmasterid", typeof(Int32)),
                     new DataColumn("ImmunizationId", typeof(Int32)),
-                    new DataColumn("Dose",typeof(string)),
-                    new DataColumn("Dose1",typeof(string)),
-                    new DataColumn("Preempt1",typeof(bool)),
+                    new DataColumn("Dose",typeof(string)), 
+                    new DataColumn("Dose1",typeof(string)), 
+                    new DataColumn("Preempt1",typeof(bool)), 
                     new DataColumn("Exempt1",typeof(bool)),
-                    new DataColumn("Dose2",typeof(string)),
-                    new DataColumn("Preempt2",typeof(bool)),
+                    new DataColumn("Dose2",typeof(string)), 
+                    new DataColumn("Preempt2",typeof(bool)), 
                     new DataColumn("Exempt2",typeof(bool)),
-                    new DataColumn("Dose3",typeof(string)),
-                    new DataColumn("Preempt3",typeof(bool)),
+                    new DataColumn("Dose3",typeof(string)), 
+                    new DataColumn("Preempt3",typeof(bool)), 
                     new DataColumn("Exempt3",typeof(bool)),
-                     new DataColumn("Dose4",typeof(string)),
-                    new DataColumn("Preempt4",typeof(bool)),
+                     new DataColumn("Dose4",typeof(string)), 
+                    new DataColumn("Preempt4",typeof(bool)), 
                     new DataColumn("Exempt4",typeof(bool)),
-                     new DataColumn("Dose5",typeof(string)),
-                    new DataColumn("Preempt5",typeof(bool)),
+                     new DataColumn("Dose5",typeof(string)), 
+                    new DataColumn("Preempt5",typeof(bool)), 
                     new DataColumn("Exempt5",typeof(bool)),
 
                     });
@@ -1852,6 +1858,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@bWeight", obj.AWeight));
                 command.Parameters.Add(new SqlParameter("@HeadCircle", obj.HeadCircle));
                 command.Parameters.Add(new SqlParameter("@Yakkrid", obj.Yakkrid));
+                command.Parameters.Add(new SqlParameter("@RoleID", RoleID));
                 //End
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_addHealthQuestions";
@@ -1879,7 +1886,7 @@ namespace FingerprintsData
 
         }
 
-        public bool InsertAcceptReason(Nurse obj,string AgencyId)
+        public bool InsertAcceptReason(Nurse obj,string AgencyId,string RoleID)
         {
             bool isInserted = false;
             try
@@ -1888,6 +1895,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@ClienTId", obj.ClientID);
                 command.Parameters.AddWithValue("@AgencyId", AgencyId);
                 command.Parameters.AddWithValue("@Reason", obj.AcceptReason);
+                command.Parameters.AddWithValue("@RoleId", RoleID);
                 command.Parameters.AddWithValue("@UserId", obj.UserId);
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -1909,12 +1917,13 @@ namespace FingerprintsData
             }
             return isInserted;
         }
-        public string addAcceptInfo(out int pendingcount, Nurse obj, int mode, Guid ID, string agencyid)
+        public string addAcceptInfo(out int pendingcount, Nurse obj, int mode, Guid ID, string agencyid,string RoleID)
         {
             string result = string.Empty;
             pendingcount = 0;
-           // try
-           // {
+            try
+            {
+                string center = EncryptDecrypt.Decrypt64(obj.CenterID);
                 string HouseholdId = string.Empty;
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
@@ -1926,8 +1935,11 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CenterID", EncryptDecrypt.Decrypt64(obj.CenterID)));
                 command.Parameters.Add(new SqlParameter("@AcceptApplicant", obj.AcceptApplicant));
                 command.Parameters.Add(new SqlParameter("@RejectDesc", obj.RejectDesc));
+                command.Parameters.Add(new SqlParameter("@AcceptDesc", obj.AcceptDesc));
                 command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                command.Parameters.Add(new SqlParameter("@RoleId", RoleID));
+                command.Parameters.Add(new SqlParameter("@Reason", obj.AcceptReason));
+                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));               
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@pendingcount", 0)).Direction = ParameterDirection.Output;
@@ -1938,18 +1950,18 @@ namespace FingerprintsData
                 result = command.Parameters["@result"].Value.ToString();
                 pendingcount = Convert.ToInt32(command.Parameters["@pendingcount"].Value);
 
-          
-           // }
-          //  catch (Exception ex)
-          //  {
-           //     clsError.WriteException(ex);
 
-           // }
-         //   finally
-         //   {
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
                 Connection.Close();
                 command.Dispose();
-          //  }
+            }
             return result;
 
         }
@@ -2077,7 +2089,7 @@ namespace FingerprintsData
             }
             return Applicationnotes;
         }
-        public Nurse getHsChild(string ChildId, string Agencyid, string userid, string serverpath)
+        public Nurse getHsChild(string ChildId, string Agencyid, string userid,string serverpath)
         {
             Nurse obj = new Nurse();
             List<FingerprintsModel.Nurse> _list = new List<FingerprintsModel.Nurse>();
@@ -2428,7 +2440,7 @@ namespace FingerprintsData
             }
             return obj;
         }
-        public List<Roster> ClientLists(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string userid, string agencyid, string Roleid)
+        public List<Roster> ClientLists(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string userid, string agencyid,string Roleid)
         {
 
             List<Roster> RosterList = new List<Roster>();
@@ -2490,7 +2502,7 @@ namespace FingerprintsData
             return RosterList;
 
         }
-        public List<SelectListItem> GetScreening(string clientid, string programid, string agencyid, string Userid, string roleid)
+        public List<SelectListItem> GetScreening(string clientid, string programid, string agencyid, string Userid,string roleid)
         {
             List<SelectListItem> _screening = new List<SelectListItem>();
             try
@@ -2561,12 +2573,14 @@ namespace FingerprintsData
         }
         public DataSet GetScreeningsbyid(string clientid, string screeningid, string agencyid, string Userid, string programid, string roleid)
         {
-
+            
             try
             {
                 command.Connection = Connection;
+
+                command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@screeningid", screeningid));
-                command.Parameters.Add(new SqlParameter("@clientid", EncryptDecrypt.Decrypt64(clientid)));
+                command.Parameters.Add(new SqlParameter("@clientid",EncryptDecrypt.Decrypt64(clientid)));
                 command.Parameters.Add(new SqlParameter("@UserId", Userid));
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@programid", programid));
@@ -2590,7 +2604,7 @@ namespace FingerprintsData
             }
             return _dataset;
         }
-        public DataSet savecustomscreening(ref string message, Screening _screen, FormCollection _Collections, string ScreeningDate, string Status, string agencyid, string Userid, HttpPostedFileBase ScreeningDocument, string Programid, string roleid)
+        public DataSet savecustomscreening(ref string message, Screening _screen, FormCollection _Collections, string ScreeningDate, string Status, string agencyid, string Userid, HttpPostedFileBase ScreeningDocument,string Programid,string roleid)
         {
             try
             {
@@ -2599,26 +2613,26 @@ namespace FingerprintsData
                     Connection.Close();
                 Connection.Open();
                 command.Connection = Connection;
-
+                
                 #region screening
                 DataTable dt1 = new DataTable();
-                dt1.Columns.AddRange(new DataColumn[4] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("QuestionID",typeof(Int32)),
+                dt1.Columns.AddRange(new DataColumn[4] { 
+                    new DataColumn("ScreeningID",typeof(Int32)), 
+                    new DataColumn("QuestionID",typeof(Int32)), 
                     new DataColumn("Value",typeof(string)),
-                    new DataColumn("OptionID",typeof(Int32)),
+                    new DataColumn("OptionID",typeof(Int32)), 
                     });
                 #endregion
 
                 //Fetching data for fixed screening
                 //physical screening
-                if (_screen.Screeningid == 1)
+                if(_screen.Screeningid==1)
                 {
                     int questionid = 0;
-                    foreach (var s in _screen.GetType().GetProperties().Where(s => s.Name.Substring(0, 1) == "F"))
+                    foreach (var s in _screen.GetType().GetProperties().Where(s => s.Name.Substring(0,1) == "F"))
                     {
                         questionid = Convert.ToInt32(s.Name.Substring(1, 3));
-                        dt1.Rows.Add(_screen.Screeningid, questionid, s.GetValue(_screen), 0);
+                        dt1.Rows.Add(_screen.Screeningid, questionid, s.GetValue(_screen),0);
                     }
                     ScreeningDate = _screen.F001physicalDate;
 
@@ -2629,7 +2643,7 @@ namespace FingerprintsData
                     foreach (var s in _screen.GetType().GetProperties().Where(s => s.Name.Substring(0, 1) == "v"))
                     {
                         questionid = Convert.ToInt32(s.Name.Substring(1, 3));
-                        dt1.Rows.Add(_screen.Screeningid, questionid, s.GetValue(_screen), DBNull.Value);
+                        dt1.Rows.Add(_screen.Screeningid, questionid, s.GetValue(_screen),DBNull.Value);
                     }
                     ScreeningDate = _screen.v022date;
                 }
@@ -2673,9 +2687,9 @@ namespace FingerprintsData
                     }
                     ScreeningDate = _screen.s067Date;
                 }
-                if (_screen.Screeningid > 6)
+                if (_screen.Screeningid >6)
                 {
-                    if (_Collections != null)
+                    if(_Collections !=null)
                     {
                         foreach (var key in _Collections.AllKeys)
                         {
@@ -2684,8 +2698,8 @@ namespace FingerprintsData
                             if (key.ToString() != "screeningdate" && key.ToString() != "Status")
                             {
                                 if (key.ToString().Contains("o") || key.ToString().Contains("k"))
-                                    questionid = key.ToString().Split('k', 'k')[2];
-                                if (key.ToString().Contains("o"))
+                                questionid = key.ToString().Split('k', 'k')[2];
+                                if(key.ToString().Contains("o"))
                                 {
                                     optionid = key.ToString().Split('o', 'o')[1];
                                     questionid = key.ToString().Split('k', 'k')[2];
@@ -2695,7 +2709,7 @@ namespace FingerprintsData
                                     optionid = _Collections[key].ToString().Split('o', 'o')[1];
                                     questionid = _Collections[key].ToString().Split('k', 'k')[2];
                                 }
-                                if (string.IsNullOrEmpty(optionid))
+                                if(string.IsNullOrEmpty(optionid))
                                     dt1.Rows.Add(_screen.Screeningid, questionid, _Collections[key].ToString(), DBNull.Value);
                                 else
                                     dt1.Rows.Add(_screen.Screeningid, questionid, DBNull.Value, optionid);
@@ -2706,14 +2720,14 @@ namespace FingerprintsData
                                 ScreeningDate = _Collections[key].ToString();
                         }
 
-
+                       
                     }
                 }
                 //End
                 string filename = null;
                 string fileextension = null;
                 byte[] filedata = null;
-                if (ScreeningDocument != null)
+                if(ScreeningDocument!=null)
                 {
                     filename = ScreeningDocument.FileName;
                     fileextension = Path.GetExtension(ScreeningDocument.FileName);
@@ -2741,7 +2755,7 @@ namespace FingerprintsData
                 DataAdapter.Dispose();
                 command.Dispose();
                 message = command.Parameters["@result"].Value.ToString();
-
+            
 
             }
             catch (Exception ex)
@@ -2751,28 +2765,28 @@ namespace FingerprintsData
             }
             finally
             {
-                if (Connection != null)
-                    Connection.Close();
+                if(Connection!=null)
+                Connection.Close();
                 command.Dispose();
             }
             return _dataset;
 
         }
         //Changes on 30Dec2016
-        public Roster Getchildscreeningroster(string centerid, string Classroom, string userid, string agencyid, string RoleId)
+        public Roster Getchildscreeningroster(string centerid, string Classroom, string userid, string agencyid,string RoleId)
         {
             List<Roster> RosterList = new List<Roster>();
             Roster _roster = new Roster();
             List<ClassRoom> classList = new List<ClassRoom>();
             try
             {
-                int center = 0;
-                if (int.TryParse(centerid, out center))
+                int center=0;
+                if(int.TryParse(centerid,out center))
                 {
                 }
                 else
                 {
-                    center = Convert.ToInt32(EncryptDecrypt.Decrypt64(centerid));
+                    center=Convert.ToInt32( EncryptDecrypt.Decrypt64(centerid));
                 }
                 command.Parameters.Add(new SqlParameter("@Classroom", Classroom));
                 command.Parameters.Add(new SqlParameter("@Center", center));
@@ -2866,7 +2880,7 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             info = new Nurse.NurseScreening();
-                            info.Screeningid = dr["screeningid"].ToString() != "" ? EncryptDecrypt.Encrypt64(dr["screeningid"].ToString()) : "";
+                            info.Screeningid = dr["screeningid"].ToString()!=""?EncryptDecrypt.Encrypt64(dr["screeningid"].ToString()):"";
                             info.Screeningname = dr["ScreeningName"].ToString();
                             info.Missingcount = dr["missingscreening"].ToString();
                             List.Add(info);
@@ -2886,7 +2900,7 @@ namespace FingerprintsData
             return List;
 
         }
-        public ScreeningMatrix Getallchildmissingscreening(string centerid, string ClassRoom, string userid, string agencyid)
+        public ScreeningMatrix Getallchildmissingscreening(string centerid,string ClassRoom , string userid, string agencyid)
         {
             List<List<string>> List = new List<List<string>>();
             ScreeningMatrix ScreeningMatrix = new ScreeningMatrix();
@@ -2895,8 +2909,8 @@ namespace FingerprintsData
             try
             {
                 command.Parameters.Add(new SqlParameter("@Center", centerid));
-                if (!string.IsNullOrEmpty(ClassRoom))
-                    command.Parameters.Add(new SqlParameter("@ClassRoom", ClassRoom));
+                if (!string.IsNullOrEmpty(ClassRoom) )
+                command.Parameters.Add(new SqlParameter("@ClassRoom", ClassRoom));
                 else
                     command.Parameters.Add(new SqlParameter("@ClassRoom", DBNull.Value));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
@@ -2912,12 +2926,12 @@ namespace FingerprintsData
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
                         List<string> column = new List<string>();
-                        foreach (DataColumn dc in _dataset.Tables[0].Columns)
+                        foreach(DataColumn dc in _dataset.Tables[0].Columns)
                         {
                             column.Add(dc.ColumnName);
                         }
                         List.Add(column);
-                        for (int i = 0; i < _dataset.Tables[0].Rows.Count; i++)
+                        for(int i=0;i<_dataset.Tables[0].Rows.Count;i++)
                         {
                             List<string> row = new List<string>();
                             for (int j = 0; j < _dataset.Tables[0].Columns.Count; j++)
@@ -2934,10 +2948,10 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[1].Rows)
                         {
 
-                            Class = new ClassRoom();
-                            Class.ClassroomID = Convert.ToInt32(dr["ClassroomID"]);
-                            Class.ClassName = dr["ClassroomName"].ToString();
-                            Classlist.Add(Class);
+                         Class= new ClassRoom();
+                         Class.ClassroomID = Convert.ToInt32(dr["ClassroomID"]);
+                         Class.ClassName = dr["ClassroomName"].ToString();
+                         Classlist.Add(Class);
                         }
                         ScreeningMatrix.Classroom = Classlist;
                     }
@@ -2970,22 +2984,22 @@ namespace FingerprintsData
             return ScreeningMatrix;
 
         }
-        public DataSet GetmultiScreening(string ScreeningId, string centerid, string agencyid, string Userid, string RoleId)
+        public DataSet GetmultiScreening(string ScreeningId,string centerid ,string agencyid, string Userid,string RoleId)
         {
             try
             {
-
+                
                 command.Connection = Connection;
                 string[] screenings = null;
                 StringBuilder _stringnew = new StringBuilder();
-                if (!string.IsNullOrEmpty(ScreeningId))
+                if(!string.IsNullOrEmpty(ScreeningId))
                 {
-                    screenings = ScreeningId.Split(',');
-                    foreach (string str in screenings)
-                    {
-                        _stringnew.Append(EncryptDecrypt.Decrypt64(str) + ",");
-                    }
-                    ScreeningId = _stringnew.ToString().Substring(0, _stringnew.Length - 1);
+                   screenings=  ScreeningId.Split(',');
+                   foreach (string str in screenings)
+                   {
+                       _stringnew.Append(EncryptDecrypt.Decrypt64(str) + ",");
+                   }
+                   ScreeningId = _stringnew.ToString().Substring(0, _stringnew.Length - 1);
                 }
                 command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
                 command.Parameters.Add(new SqlParameter("@centerid", centerid));
@@ -3012,7 +3026,7 @@ namespace FingerprintsData
             return _dataset;
 
         }
-        public List<Nurse.clients> Loadallclientscreening(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid, string Roleid)
+        public List<Nurse.clients> Loadallclientscreening(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid,string Roleid)
         {
             List<Nurse.clients> List = new List<Nurse.clients>();
             try
@@ -3042,7 +3056,7 @@ namespace FingerprintsData
                             info.clientid = dr["ClientID"].ToString();
                             info.Screeningid = dr["screeningid"].ToString();
                             info.name = dr["ClientName"].ToString();
-                            if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null)
+                            if (_dataset.Tables.Count >1 &&  _dataset.Tables[1] !=null)
                             {
                                 Nurse.ScreeningStatus ScreeningStatus = null;
                                 foreach (DataRow statusrows in _dataset.Tables[1].Rows)
@@ -3077,11 +3091,11 @@ namespace FingerprintsData
         }
         public string Saveclientscreening(List<Nurse.clients> ClientScreenings, string userid, string agencyid)
         {
-
+           
             try
             {
                 DataTable dt = new DataTable();
-                dt.Columns.AddRange(new DataColumn[8] {
+                dt.Columns.AddRange(new DataColumn[8] { 
                     new DataColumn("Screeningid", typeof(int)),
                     new DataColumn("classid",typeof(int)),
                     new DataColumn("centerid",typeof(int) ),
@@ -3090,12 +3104,12 @@ namespace FingerprintsData
                     new DataColumn("Status",typeof(int)),
                     new DataColumn("Notes",typeof(string)),
                     new DataColumn("Exception",typeof(string))
-
-
+                  
+                  
                 });
                 foreach (Nurse.clients clients in ClientScreenings)
                 {
-                    dt.Rows.Add(clients.Screeningid, DBNull.Value, DBNull.Value, clients.clientid, clients.ScreeningDate, clients.Status, clients.Notes, DBNull.Value);
+                    dt.Rows.Add(clients.Screeningid,DBNull.Value, DBNull.Value ,clients.clientid,clients.ScreeningDate,clients.Status,clients.Notes,DBNull.Value);
                 }
                 command.Parameters.Add(new SqlParameter("@clientmissing", dt));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
@@ -3119,7 +3133,7 @@ namespace FingerprintsData
                 if (Connection != null)
                     Connection.Close();
             }
-
+           
 
         }
         public string Savemultiscreening(List<Nurse.clients> multiscreenings, string userid, string agencyid)
@@ -3128,7 +3142,7 @@ namespace FingerprintsData
             try
             {
                 DataTable dt = new DataTable();
-                dt.Columns.AddRange(new DataColumn[7] {
+                dt.Columns.AddRange(new DataColumn[7] { 
                     new DataColumn("Screeningid", typeof(int)),
                     new DataColumn("classid",typeof(int)),
                     new DataColumn("centerid",typeof(int) ),
@@ -3140,7 +3154,7 @@ namespace FingerprintsData
                 });
                 foreach (Nurse.clients clients in multiscreenings)
                 {
-                    dt.Rows.Add(clients.Screeningid, clients.classid, clients.centerid, DBNull.Value, clients.ScreeningDate, clients.Status, DBNull.Value);
+                    dt.Rows.Add(clients.Screeningid, clients.classid,clients.centerid,DBNull.Value ,clients.ScreeningDate, clients.Status,DBNull.Value );
                 }
                 command.Parameters.Add(new SqlParameter("@MissingScreening", dt));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
@@ -3185,20 +3199,20 @@ namespace FingerprintsData
                 DataAdapter.Fill(_dataset);
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
-
-                    Roster info = null;
-                    foreach (DataRow dr in _dataset.Tables[0].Rows)
-                    {
-                        info = new Roster();
-                        info.Eclientid = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString());
-                        info.Name = dr["ClientName"].ToString();
-                        info.ProgramId = dr["ReferenceProg"].ToString();
-                        info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
-                        info.Gender = dr["gender"].ToString();
-                        info.Screeningid = dr["screeningid"].ToString();
-                        RosterList.Add(info);
-                    }
-
+                    
+                        Roster info = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            info = new Roster();
+                            info.Eclientid = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString());
+                            info.Name = dr["ClientName"].ToString();
+                            info.ProgramId = dr["ReferenceProg"].ToString();
+                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.Gender = dr["gender"].ToString();
+                            info.Screeningid = dr["screeningid"].ToString();
+                            RosterList.Add(info);
+                        }
+                    
                 }
             }
             catch (Exception ex)
@@ -3213,7 +3227,7 @@ namespace FingerprintsData
             return RosterList;
 
         }
-        public List<Roster> Loadclients(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid, string Roleid)
+        public List<Roster> Loadclients(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid,string Roleid)
         {
             List<Roster> RosterList = new List<Roster>();
             try
@@ -3238,7 +3252,7 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             info = new Roster();
-                            info.Eclientid = dr["ClientID"].ToString();
+                            info.Eclientid =dr["ClientID"].ToString();
                             info.Name = dr["ClientName"].ToString();
                             info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
                             info.Gender = dr["gender"].ToString();
@@ -3266,7 +3280,7 @@ namespace FingerprintsData
             try
             {
                 DataTable dt = new DataTable();
-                dt.Columns.AddRange(new DataColumn[8] {
+                dt.Columns.AddRange(new DataColumn[8] { 
                     new DataColumn("Screeningid", typeof(int)),
                     new DataColumn("classid",typeof(int)),
                     new DataColumn("centerid",typeof(int) ),
@@ -3275,11 +3289,11 @@ namespace FingerprintsData
                     new DataColumn("Status",typeof(int)),
                     new DataColumn("Notes",typeof(string)),
                     new DataColumn("Exception",typeof(string)),
-
+                  
                 });
                 foreach (Nurse.clients clients in ClientScreenings)
                 {
-                    dt.Rows.Add(clients.Screeningid, DBNull.Value, DBNull.Value, clients.clientid, clients.ScreeningDate, clients.Status, DBNull.Value, clients.Exception);
+                    dt.Rows.Add(clients.Screeningid, DBNull.Value, DBNull.Value,clients.clientid, clients.ScreeningDate, clients.Status, DBNull.Value, clients.Exception);
                 }
                 command.Parameters.Add(new SqlParameter("@clientmissing", dt));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
@@ -3306,7 +3320,7 @@ namespace FingerprintsData
 
 
         }
-        public List<Roster> Loadsavedmissingclient(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid, string Roleid)
+        public List<Roster> Loadsavedmissingclient(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid,string Roleid)
         {
             List<Roster> RosterList = new List<Roster>();
             try
@@ -3498,7 +3512,7 @@ namespace FingerprintsData
             return CaseNoteList;
 
         }
-        public List<Roster> GetReScreeningList(string centerid, string userid, string agencyid, string Roleid)
+        public List<Roster> GetReScreeningList(string centerid, string userid, string agencyid,string Roleid)
         {
             List<Roster> RosterList = new List<Roster>();
             try
@@ -3601,168 +3615,9 @@ namespace FingerprintsData
         }
 
 
-        public Nurse getselectionpoints(string Programid, string agencyid, string clientid, string householdid)
-        {
-            Nurse _household = new Nurse();
-            SelectPoints _selectionpoints = new SelectPoints();
-            _household._Selectionpoints = _selectionpoints;
-          /**  try
-            {
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-                Connection.Open();
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_getselectionpoints";
-                command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@Programid", Programid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@clientid", clientid));
-                command.Parameters.Add(new SqlParameter("@householdid", householdid));
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                if (_dataset != null)
-                {
-                    if (_dataset.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        {
-                            _selectionpoints.SingleParent = Convert.ToInt32(dr["SingleParent"]);
-                            _selectionpoints.TwoParent = Convert.ToInt32(dr["Twoparent"]);
-                            _selectionpoints.English = Convert.ToInt32(dr["PrimaryLangEnglish"]);
-                            _selectionpoints.Other = Convert.ToInt32(dr["PrimaryLangOther"]);
-                            _selectionpoints.HomelessYes = Convert.ToInt32(dr["HomelessYes"]);
-                            _selectionpoints.HomelessNo = Convert.ToInt32(dr["HomelessNo"]);
-                            _selectionpoints.TANF = Convert.ToInt32(dr["TANF"]);
-                            _selectionpoints.SSI = Convert.ToInt32(dr["SSI"]);
-                            _selectionpoints.SNAP = Convert.ToInt32(dr["SNAP"]);
-                            _selectionpoints.WIC = Convert.ToInt32(dr["WIC"]);
-                            _selectionpoints.None = Convert.ToInt32(dr["NONE"]);
-                            _selectionpoints.Teenager = Convert.ToInt32(dr["G1Teenager"]);
-                            _selectionpoints.Age20 = Convert.ToInt32(dr["G1Age20"]);
-                            _selectionpoints.Age30over = Convert.ToInt32(dr["G1Age30over"]);
-                            _selectionpoints.MilitaryStatusNone = Convert.ToInt32(dr["G1MilitaryStatusNone"]);
-                            _selectionpoints.MilitaryStatusActive = Convert.ToInt32(dr["G1MilitaryStatusActive"]);
-                            _selectionpoints.MilitaryStatusVeteran = Convert.ToInt32(dr["G1MilitaryStatusVeteran"]);
-                            _selectionpoints.CurrentlyWorkYes = Convert.ToInt32(dr["G1CurrentlyWorkYes"]);
-                            _selectionpoints.CurrentlyWorkNo = Convert.ToInt32(dr["G1CurrentlyWorkNo"]);
-                            _selectionpoints.JobTrainingyes = Convert.ToInt32(dr["G1JobTrainingyes"]);
-                            _selectionpoints.JobTrainingno = Convert.ToInt32(dr["G1JobTrainingno"]);
-                            _selectionpoints.G2Teenager = Convert.ToInt32(dr["G2Teenager"]);
-                            _selectionpoints.G2Age20 = Convert.ToInt32(dr["G2Age20"]);
-                            _selectionpoints.G2Age30over = Convert.ToInt32(dr["G2Age30over"]);
-                            _selectionpoints.G2MilitaryStatusNone = Convert.ToInt32(dr["G2MilitaryStatusNone"]);
-                            _selectionpoints.G2MilitaryStatusActive = Convert.ToInt32(dr["G2MilitaryStatusActive"]);
-                            _selectionpoints.G2MilitaryStatusVeteran = Convert.ToInt32(dr["G2MilitaryStatusVeteran"]);
-                            _selectionpoints.G2CurrentlyWorkYes = Convert.ToInt32(dr["G2CurrentlyWorkYes"]);
-                            _selectionpoints.G2CurrentlyWorkNo = Convert.ToInt32(dr["G2CurrentlyWorkNo"]);
-                            _selectionpoints.G2JobTrainingyes = Convert.ToInt32(dr["G2JobTrainingyes"]);
-                            _selectionpoints.G2JobTrainingno = Convert.ToInt32(dr["G2JobTrainingno"]);
-                            _selectionpoints.MedicalHomeYes = Convert.ToInt32(dr["MedicalHomeYes"]);
-                            _selectionpoints.MedicalHomeNo = Convert.ToInt32(dr["MedicalHomeNo"]);
-                            _selectionpoints.DentalHomeYes = Convert.ToInt32(dr["DentalHomeYes"]);
-                            _selectionpoints.DentalHomeNo = Convert.ToInt32(dr["DentalHomeNo"]);
-                            _selectionpoints.InsuranceYes = Convert.ToInt32(dr["InsuranceYes"]);
-                            _selectionpoints.InsuranceNo = Convert.ToInt32(dr["InsuranceNo"]);
-                            //_selectionpoints.SuspecteddocumentofdisabiltyYes = Convert.ToInt32(dr["SuspecteddocsYes"]);
-                            //_selectionpoints.SuspecteddocumentofdisabiltyNo = Convert.ToInt32(dr["SuspecteddocsNo"]);
-
-                            _selectionpoints.SuspecteddisabiltyNo = dr["SuspecteddocsNo"] != DBNull.Value ? Convert.ToInt32(dr["SuspecteddocsNo"]) : 0;
-                            _selectionpoints.SuspecteddisabiltyYes = dr["SuspecteddocsYes"] != DBNull.Value ? Convert.ToInt32(dr["SuspecteddocsYes"]) : 0;
-                            _selectionpoints.DocumentofdisabiltyNo = dr["DisabilitydocNo"] != DBNull.Value ? Convert.ToInt32(dr["DisabilitydocNo"]) : 0;
-                            _selectionpoints.DocumentofdisabiltyYes = dr["DisabilitydocYes"] != DBNull.Value ? Convert.ToInt32(dr["DisabilitydocYes"]) : 0;
-
-                            _selectionpoints.ChildWlfareYes = Convert.ToInt32(dr["ChildWlfareYes"]);
-                            _selectionpoints.ChildWlfareNo = Convert.ToInt32(dr["ChildWlfareNo"]);
-                            _selectionpoints.FosterChildYes = Convert.ToInt32(dr["FosterChildYes"]);
-                            _selectionpoints.FosterChildNo = Convert.ToInt32(dr["FosterChildNo"]);
-                            _selectionpoints.DualCustYes = Convert.ToInt32(dr["DualCustYes"]);
-                            _selectionpoints.DualCustNo = Convert.ToInt32(dr["DualCustNo"]);
-                            _selectionpoints.PMInsuranceYes = Convert.ToInt32(dr["PMInsuranceYes"]);
-                            _selectionpoints.PMInsuranceNo = Convert.ToInt32(dr["PMInsuranceNo"]);
-                            _selectionpoints.PMMedicalHomeYes = Convert.ToInt32(dr["PMMedicalHomeYes"]);
-                            _selectionpoints.PMMedicalHomeNo = Convert.ToInt32(dr["PMMedicalHomeNo"]);
-                            _selectionpoints.Trimester1 = Convert.ToInt32(dr["Trimester1"]);
-                            _selectionpoints.Trimester2 = Convert.ToInt32(dr["Trimester2"]);
-                            _selectionpoints.Trimester3 = Convert.ToInt32(dr["Trimester3"]);
-                            _selectionpoints.Age3Months = Convert.ToInt32(dr["ChildAge3months"]);
-                            _selectionpoints.Age6Months = Convert.ToInt32(dr["ChildAge6months"]);
-                            _selectionpoints.Age1yr = Convert.ToInt32(dr["ChildAge1yr"]);
-                            _selectionpoints.Age2yr = Convert.ToInt32(dr["ChildAge2yr"]);
-                            _selectionpoints.Age3yr = Convert.ToInt32(dr["ChildAge3yr"]);
-                            _selectionpoints.Age4yr = Convert.ToInt32(dr["ChildAge4yr"]);
-                            _selectionpoints.Age5yr = Convert.ToInt32(dr["ChildAge5yr"]);
-                            _selectionpoints.Age6yr = Convert.ToInt32(dr["ChildAge6yr"]);
-                            _selectionpoints.Age6yrorgreater = Convert.ToInt32(dr["ChildAge6yrorgreater"]);
-                            _selectionpoints.poverty0to25 = Convert.ToInt32(dr["Poverty0to25"]);
-                            _selectionpoints.poverty26to50 = Convert.ToInt32(dr["Poverty26to50"]);
-                            _selectionpoints.poverty51to75 = Convert.ToInt32(dr["Poverty51to75"]);
-                            _selectionpoints.poverty76to100 = Convert.ToInt32(dr["Poverty76to100"]);
-                            _selectionpoints.poverty100to130 = Convert.ToInt32(dr["Poverty100to130"]);
-                            _selectionpoints.povertygreater130 = Convert.ToInt32(dr["Povertygreater130"]);
-                            _selectionpoints.Ageless10weeks = Convert.ToInt32(dr["ChildAgeLess10weeks"]);
-                            _selectionpoints.Agegreater10weeks = Convert.ToInt32(dr["ChildAgeGreater10weeks"]);
-                        }
-                    }
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in _dataset.Tables[1].Rows)
-                        {
-                            _household.IsFoster = Convert.ToInt32(dr["FosterChild"]);
-                            _household.Inwalfareagency = Convert.ToInt32(dr["WelfareAgency"]);
-                            _household.InDualcustody = Convert.ToInt32(dr["DualCustodyChild"]);
-                            _household.CParentdisable = Convert.ToInt32(dr["ParentDisable"]);
-                            _household.Medicalhome = Convert.ToInt32(dr["Medicalhome"]);
-                            _household.CDentalhome = Convert.ToInt32(dr["DentalHome"]);
-                            _household.InsuranceOption = dr["PrimaryInsurance"].ToString();
-                            _household.Pregnantmotherprimaryinsurance = Convert.ToInt32(dr["PrimaryInsurancepm"]);
-                            _household.TrimesterEnrolled = Convert.ToInt32(dr["TrimesterEnrolled"]);
-                            _household.CDOB = dr["Dob"].ToString() != "" ? Convert.ToDateTime(dr["Dob"]).ToString("MM/dd/yyyy") : "";
-                            _household.Povertypercentage = dr["povertypercentage"].ToString();
-                            if (dr["IEP"] != DBNull.Value)
-                                _household.IsIEP = Convert.ToBoolean(dr["IEP"].ToString());
-                            if (dr["IFSP"] != DBNull.Value)
-                                _household.IsIFSP = Convert.ToBoolean(dr["IFSP"].ToString());
-                            if (dr["IsExpired"] != DBNull.Value)
-                                _household.IsExpired = Convert.ToBoolean(dr["IsExpired"].ToString());
 
 
-                        }
-                    }
-                    if (_dataset.Tables[2].Rows.Count > 0)
-                    {
-
-                        List<SelectPoints.CustomQuestion> CustomQues = new List<SelectPoints.CustomQuestion>();
-                        SelectPoints.CustomQuestion _customquestion = null;
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
-                        {
-                            _customquestion = new SelectPoints.CustomQuestion();
-                            _customquestion.CQID = Convert.ToInt32(dr["customquestionid"]);
-                            _customquestion.Question = dr["Question"].ToString();
-                            _customquestion.QuesYes = dr["QuesYes"].ToString();
-                            _customquestion.QuesNo = dr["QuesNo"].ToString();
-                            _customquestion.point = dr["point"].ToString();
-                            _customquestion.totalcustompoint = dr["totalcustompoint"].ToString();
-                            CustomQues.Add(_customquestion);
-                        }
-                        _household.CustomQues = CustomQues;
-                    }
-
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            finally
-            {
-                command.D**/
-            return _household;
-        }
-
-
+       
 
 
 

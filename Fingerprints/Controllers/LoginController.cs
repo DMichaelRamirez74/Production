@@ -169,7 +169,7 @@ namespace Fingerprints.Controllers
         {
             return View();
         }
-        
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,a31b1716-b042-46b7-acc0-95794e378b26,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult changePasswordAjax(string currentPassword, string newPassword)
         {
             try
@@ -310,6 +310,10 @@ namespace Fingerprints.Controllers
                         if (isDemographic)
                         {
                             Session["IsDemographic"] = true;
+                        }
+                        if (isAcceptance)
+                        {
+                            Session["isAcceptance"] = true;
                         }
                         if (RoleList != null)
                         {

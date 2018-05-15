@@ -3366,47 +3366,47 @@ namespace FingerprintsData
             return _DemographicList;
         }
 
-        //public List<AcceptanceRole> GetAcceptanceProcess(string AgencyId)
-        //{
-        //    List<AcceptanceRole> _AcceptanceProcessList = new List<AcceptanceRole>();
-        //    try
-        //    {
-        //        command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
-              
-        //        command.Connection = Connection;
-        //        command.CommandType = CommandType.StoredProcedure;
-        //        command.CommandText = "SP_GetAcceptanceProcess";
-        //        DataAdapter = new SqlDataAdapter(command);
-        //        _dataset = new DataSet();
-        //        DataAdapter.Fill(_dataset);
-        //        if (_dataset.Tables[0] != null)
-        //        {
-        //            if (_dataset.Tables[0].Rows.Count > 0)
-        //            {
-        //                AcceptanceRole obj = null;
-        //                foreach (DataRow dr in _dataset.Tables[0].Rows)
-        //                {
-        //                    obj = new AcceptanceRole();
-        //                    obj.RoleID =new Guid( dr["Roleid"].ToString());
-        //                  obj.isAllowIncome = Convert.ToBoolean(dr["isAllowIncome"]);
-        //                    obj.Priority = Convert.ToInt32(dr["PriorityLevel"]);
-                          
-        //                    _AcceptanceProcessList.Add(obj);
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        clsError.WriteException(ex);
-        //    }
-        //    finally
-        //    {
-        //        if (Connection != null)
-        //            Connection.Close();
-        //    }
-        //    return _AcceptanceProcessList;
-        //}
+        public List<AcceptanceRole> GetAcceptanceProcess(string AgencyId)
+        {
+            List<AcceptanceRole> _AcceptanceProcessList = new List<AcceptanceRole>();
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GetAcceptanceProcess";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        AcceptanceRole obj = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            obj = new AcceptanceRole();
+                            obj.RoleID = new Guid(dr["Roleid"].ToString());
+                            obj.isAllowIncome = Convert.ToBoolean(dr["isAllowIncome"]);
+                            obj.Priority = Convert.ToInt32(dr["PriorityLevel"]);
+
+                            _AcceptanceProcessList.Add(obj);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return _AcceptanceProcessList;
+        }
         public List<CoreTeam> SaveCoreTeam(ref string message, List<CoreTeam> CoreTeams, string AgencyId, string UserId)
         {
             List<CoreTeam> _CoreTeamList = new List<CoreTeam>();
@@ -4068,64 +4068,71 @@ namespace FingerprintsData
 
         }
 
-        //public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles)
-        //{
-        //    AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
-        //    bool result = false;
-        //    try
-        //    {
-        //        if (Connection.State == ConnectionState.Open)
-        //            Connection.Close();
-        //        Connection.Open();
-        //        command.Connection = Connection;
-        //        command.Parameters.Clear();
-        //        DataTable dt = new DataTable();
-        //        if (Roles != null && Roles.Count > 0)
-        //        {
+        public bool SaveAcceptancePrirorityRoles(string AgencyId, string UserId, List<AcceptanceRole> Roles)
+        {
+            AgencyAdditionalSlots slots = new AgencyAdditionalSlots();
+            bool result = false;
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                DataTable dt = new DataTable();
+                if (Roles != null && Roles.Count > 0)
+                {
 
-        //            dt.Columns.AddRange(new DataColumn[3] {
-        //            new DataColumn("RoleId", typeof(Guid)),
-        //            new DataColumn("PriorityLevel",typeof(int)),
-        //              new DataColumn("IsAllowIncome",typeof(bool)),
-
-        //            });
-        //            foreach (AcceptanceRole role in Roles)
-        //            {
-        //                if (role != null)
-        //                {
-        //                    dt.Rows.Add(role.RoleID,role.Priority,role.isAllowIncome);
-        //                }
-        //            }
+                    dt.Columns.AddRange(new DataColumn[4] {
+                    new DataColumn("RoleId", typeof(Guid)),
+                    new DataColumn("PriorityLevel",typeof(int)),
+                      new DataColumn("IsAllowIncome",typeof(bool)),
+                        new DataColumn("IsAccessAllCenter", typeof(bool))
+                    });
 
 
-        //        }
-        //        command.Parameters.Add(new SqlParameter("@UserId", UserId));
-        //        command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
-        //        command.Parameters.Add(new SqlParameter("@result", ""));
-        //        command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
-        //        command.Connection = Connection;
-        //        command.CommandType = CommandType.StoredProcedure;
-        //        command.CommandText = "SP_SaveAcceptanceRole";
-        //        int isrowaffected = command.ExecuteNonQuery();
-        //        if (isrowaffected > 0)
-        //            result = true;
+                    foreach (AcceptanceRole role in Roles)
+                    {
+                        if (role != null)
+                        {
+                            if (((role.RoleID).ToString() == "a65bb7c2-e320-42a2-aed4-409a321c08a5") || ((role.RoleID).ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367") || ((role.RoleID).ToString() == "b65759ba-4813-4906-9a69-e180156e42fc") || ((role.RoleID).ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") ||
+                            ((role.RoleID).ToString() == "2af7205e-87b4-4ca7-8ca8-95827c08564c") || ((role.RoleID).ToString() == "4b77aab6-eed1-4ac3-b498-f3e80cf129c0"))
+                                dt.Rows.Add(role.RoleID, role.Priority, role.isAllowIncome, true);
+                            else
+                                dt.Rows.Add(role.RoleID, role.Priority, role.isAllowIncome, false);
+
+                        }
+                    }
 
 
-        //    }
-        //    catch (Exception ex)
-        //    {
+                }
+                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@result", ""));
+                command.Parameters.Add(new SqlParameter("@AcceptanceProcesss", dt));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveAcceptanceRole";
+                int isrowaffected = command.ExecuteNonQuery();
+                if (isrowaffected > 0)
+                    result = true;
 
-        //        clsError.WriteException(ex);
 
-        //    }
-        //    finally
-        //    {
-        //        if (Connection != null)
-        //            Connection.Close();
-        //    }
-        //    return result;
+            }
+            catch (Exception ex)
+            {
 
-        //}
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return result;
+
+        }
 
 
 

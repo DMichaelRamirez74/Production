@@ -382,6 +382,56 @@
 
                             </tbody>
                         }
+                        else if (int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                        {
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                    <th></th>
+                                     <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                  </tr>
+                            </thead>
+                            foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                            {
+                                if (Session["RoleID"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe")
+                                {
+                                <tr>
+                                    <td class="ClientName">
+                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                        <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+
+                                        <a href="~/Home/FacilityWorks/?YakkrID=@detail.YakkrID">Select</a>
+                                    </td>
+                                 
+                                    <td>@detail.CenterName</td>
+                                    <td>@detail.FromUser</td>
+                                    <td>@detail.Date</td>
+                                </tr>
+                            }
+                            else
+                            {
+                               
+
+                                <tr>
+                                    <td class="ClientName">
+                                        <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                        <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                        <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                        <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+
+                                        <a href="~/Home/FacilityStaffWorks/?YakkrID=@detail.YakkrID">Select</a>
+                                    </td>
+                                  
+                                    <td>@detail.CenterName</td>
+                                    <td>@detail.FromUser</td>
+                                    <td>@detail.Date</td>
+                                </tr>
+                                 }
+                             }
+                         }
                         else
                         {
                             <thead style="cursor:pointer;">
@@ -397,10 +447,14 @@
 
                             <tbody>
                                 @if (Model.Count() > 0)
-                                {
-                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
-                                    {
-                                        if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+                                            {
+        foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+        {
+            if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+            {
+                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                        }
+                                        else if (ViewBag.YakkrCode == "100")
                                         {
                                             <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
                                         }
@@ -465,6 +519,28 @@
                                                     <span class="ClientId" style="display:none;">@detail.ClientId</span>
                                                     <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
                                                     <a href="javascript:void(0);" id="disabilitySelect">Select</a>
+                                                </td>
+                                                <td>@detail.ClientName</td>
+                                                <td>@detail.DOB</td>
+                                                <td>@detail.CenterName</td>
+                                                <td>@detail.FromUser</td>
+                                                <td>@detail.Date</td>
+                                            </tr>
+                                        }
+                                        else if (Session["RoleID"].ToString()== "825f6940-9973-42d2-b821-5b6c7c937bfe" && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >=250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                                        {
+                                            
+                                        }
+                                        else if (Session["RoleID"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611" && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                                        {
+                                            <tr>
+                                                <td class="ClientName">
+                                                    <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                                    <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                                    <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                                    <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+
+                                                    <a href="~/Home/FacilityStaffWorks/?YakkrID=@detail.YakkrID">Select</a>
                                                 </td>
                                                 <td>@detail.ClientName</td>
                                                 <td>@detail.DOB</td>
