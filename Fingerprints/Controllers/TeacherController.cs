@@ -952,7 +952,7 @@ namespace Fingerprints.Controllers
 
                         _imgname = Guid.NewGuid().ToString();
                         _imgname = "Damage_" + _imgname + _ext;
-                        var _comPath = Server.MapPath("/Content/ImageDamage/") + _imgname + _ext;
+                        var _comPath = Server.MapPath("/Content/ImageDamage/") + _imgname ;
                         _imgpath = "/Content/ImageDamage/" + _imgname;
                         var path = _comPath;
 
@@ -1100,6 +1100,7 @@ namespace Fingerprints.Controllers
                 var jsonSerialiser = new JavaScriptSerializer();
                 jsonSerialiser.MaxJsonLength = Int32.MaxValue;
                 model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);
+                model.ChildInfoString = jsonSerialiser.Serialize(model.Itemlst);
             }
             catch(Exception ex)
             {

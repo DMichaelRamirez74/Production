@@ -1,0 +1,664 @@
+﻿@model FingerprintsModel.AcceptanceRole
+@{
+    ViewBag.Title = "ParentMatrixAnalysis";
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+<style>
+
+</style>
+@section Script{
+    <script type="text/javascript">
+        var centercount = 0;
+        $(document).ready(function () {
+            getList();
+
+            $("#NumOfRoles").keydown(function (e) {
+                if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    (e.keyCode >= 35 && e.keyCode <= 40)) {
+                    return;
+                }
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+        });
+      
+        function RedirectToDashboard() {
+
+            location.href = '/Home/AgencyAdminDashboard';
+        }
+        function ValidateInputs()
+        {
+            if ($('#NumOfRoles').val() == "" || $('#NumOfRoles').val() == null)
+            {
+                customAlert("Enter No of roles.");
+                return false;
+            }
+            var count = $('#NumOfRoles').val();
+            if (count>=10) {
+                customAlert("Number of role involved not greater than 10.");
+                $('#NumOfRoles').val("");
+                return false;
+            }
+            $('#DivForRoles1').empty();
+           
+            $('.FinalLevel').val('');
+         
+            for (var i = 1; i <= count; i++)
+            {
+                var divhtmlcontent = $('#appendRole').html(); 
+                divhtmlcontent = divhtmlcontent.replace('replace_level', (parseInt(i) + 1));
+                divhtmlcontent = divhtmlcontent.replace(/checkbox12/g, 'checkbox' + (parseInt(i) + 1));
+                divhtmlcontent = divhtmlcontent.replace('check-class', 'check'+(parseInt(i) + 1));
+                divhtmlcontent = divhtmlcontent.replace('Levels', 'Reviewer Level ' + i);
+                divhtmlcontent = divhtmlcontent.replace('level', 'levelClass');
+                divhtmlcontent = divhtmlcontent.replace('checked', '');
+
+                $('#DivForRoles1').append(divhtmlcontent);
+            }
+        }
+
+        function btnSaveRoleList()
+        {
+           
+            var isValid = true;
+         
+            if ($('.FinalLevel').val() == null || $('.FinalLevel').val() == "") {
+
+                customAlert("Final Review is requierd.");
+                isValid = false;
+                return isValid;
+            }
+            else if (($('.levelClass').val() == "" || $('.levelClass').val() == ""))
+            {
+                customAlert("Please select role for all reviewer level.");
+                isValid = false;
+                return isValid;
+            }
+            else if (($('.levelClass').val() != ""))
+            {
+
+                $('.levelClass').each(function () {           
+                    if ($(this).val() == null || $(this).val() == "") {
+                            customAlert("Please select role for all reviewer level.");
+                            isValid = false;
+                            return isValid;
+                        }        
+                });
+                var i = -1, j = 0;
+                $('.val-level').each(function () {
+                    var comp = $(this).val();
+                    j = 0;
+                    $('.val-level').each(function () {
+                        if ($(this).val() == comp && i >= j) {
+                            customAlert("Can't Assign Same Role For Different Level.");
+                            isValid = false;
+                            return isValid;
+                        }
+                        j++;
+                    });
+                    i++;
+                });
+            }
+             if (isValid)
+            {
+                var listRoles = [];
+                var role = {};
+                role.Priority = $('.FinalLevel').attr('data-level');
+                role.RoleId = $('.FinalLevel').val();
+                if ($('.check1').is(':checked') == true)
+                    role.isAllowIncome = true;
+                else
+                    role.isAllowIncome = false;
+
+                listRoles.push(role);
+                $('.levelClass').each(function () {
+                    role = {};
+                    if ($(this).val() != "" && $(this).val() != null) {
+                        role.Priority = $(this).attr('data-level');
+                        var ch = '.check' + $(this).attr('data-level');
+                        if ($(ch).is(':checked') == true)
+                            role.isAllowIncome = true;
+                        else
+                            role.isAllowIncome = false;
+
+                        role.RoleId = $(this).val();
+                        listRoles.push(role);
+                    }
+                });
+      
+
+                    $.ajax({
+                        url: HostedDir + "/AgencyAdmin/SaveAcceptancePrirorityRoles",
+                        type: "POST",
+                        dateType: 'json',
+                        secureuri: false,
+                        async: false,
+                        data: '{Roles: ' + JSON.stringify(listRoles) + '}',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (response) {
+
+                            $('#btnSubmit').css('background', '#90ca93');
+                            $('#btnSubmit').css('cursor', 'default');
+                            $('#btnload').css('background', '#90ca93');
+                            $('#btnload').css('cursor', 'default');
+                            $('#btnSubmit').prop('disabled', true);
+                            $('#btnload').prop('disabled', true);
+                            customAlert("Roles added successfully");
+                            // location.href = "/Home/AgencyAdminDashboard";
+
+                        }
+                    });           
+            }    
+        }
+        function getList()
+        {
+
+            $.ajax({
+                url: HostedDir + "/AgencyAdmin/GetAcceptanceRole",
+                type: "POST",
+                dateType: 'json',
+                secureuri: false,
+                async: false,              
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    if (response != null && response.length > 0) {
+                        console.log(response);
+                        var rolecount = response.length;
+                       
+                        $('#DivForRoles1').empty();                   
+                        $('#NumOfRoles').val(parseInt(rolecount)-1);
+
+                        $('#btnSubmit').css('background', '#90ca93');
+                        $('#btnSubmit').css('cursor', 'default');
+                        $('#btnload').css('background', '#90ca93');
+                        $('#btnload').css('cursor', 'default');
+                       $('#btnSubmit').prop('disabled', true);
+                       $('#btnload').prop('disabled', true);
+
+                        $('.FinalLevel').val(response[0].RoleID);
+
+                        for (var i = 1; i < rolecount; i++) {
+                            var divhtmlcontent = $('#appendRole').html();
+                        
+                            divhtmlcontent = divhtmlcontent.replace('replace_level', (parseInt(i)+1 ));
+                            divhtmlcontent = divhtmlcontent.replace('Levels', 'Reviewer Level ' + (parseInt(i)));
+                            divhtmlcontent = divhtmlcontent.replace('level', 'levelClass');
+                            divhtmlcontent = divhtmlcontent.replace(/checkbox12/g, 'checkbox' + (parseInt(i)+1 ));
+                            var chec = 'check' + (parseInt(i)+1);
+                            if (response[i].isAllowIncome == false) {
+                                divhtmlcontent = divhtmlcontent.replace( 'checked' ,'');
+
+                            }
+                            divhtmlcontent = divhtmlcontent.replace('check-class', chec);
+                            divhtmlcontent = divhtmlcontent.replace('sel-level', 'level' + (parseInt(i) + 1));
+                            $('#DivForRoles1').append(divhtmlcontent);
+                            var value = response[i].RoleID;
+                            var id = '.level' + (parseInt(i) + 1);
+                            $(id).val(value);
+                          
+                        }
+
+                    }
+                }
+            });
+        }
+
+       
+    </script>
+  
+}
+@section MainContentHolder{
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+   
+    <style>
+        .weekly-div-radio-btn .radio.radio-info {
+            margin-top: 0;
+            width: auto;
+            display: inline-block;
+            float: none;
+            margin-right: 30px !important;
+        }
+
+        .weekly-div-radio-btn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .weekly-div-radio-btn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            color: #f9c751;
+            font-size: 18px;
+        }
+
+            .weekly-div-radio-btn .radio label:before {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: 16px;
+                height: 16px;
+                left: 0;
+                margin-left: -20px;
+                border: 1px solid #cccccc;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transition: border 0.15s ease-in-out;
+                -o-transition: border 0.15s ease-in-out;
+                transition: border 0.15s ease-in-out;
+                top: 4px;
+            }
+
+            .weekly-div-radio-btn .radio label::after {
+                display: inline-block;
+                position: absolute;
+                content: "";
+                width: 8px;
+                height: 8px;
+                left: 4px;
+                top: 8px;
+                margin-left: -20px;
+                border-radius: 50%;
+                background-color: transparent;
+                -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+                transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            }
+
+        .weekly-div-radio-btn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #f9c751;
+            color: #f9c751;
+        }
+
+        .weekly-div-radio-btn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #f9c751;
+            color: #f9c751;
+        }
+
+        .weekly-div-radio-btn {
+            margin-top: 0px;
+            margin-bottom: 0px;
+            text-align: left;
+        }
+
+            .weekly-div-radio-btn .radio-info input[type="radio"]:checked + label {
+                color: #f9c751;
+            }
+
+
+        .fa-radio input[type=radio], .chk-box-ch .fa-checkbox input[type='checkbox'] {
+            display: none !important;
+        }
+
+        .fa-checkbox input[type="checkbox"] + label:before {
+            content: "\f096";
+            position: relative;
+            top: 0px;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        .fa-checkbox1 input[type="checkbox"] + label:before {
+            color: #153a69;
+        }
+
+        .fa-checkbox input[type='checkbox'] + label:before, .chk-box-ch .fa-radio input[type='radio'] + label:before {
+            display: inline-block;
+            font-family: FontAwesome;
+            font-size: 21px;
+            font-style: normal;
+            font-weight: normal;
+            line-height: 32px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding-right: 8px;
+            width: 20px;
+            position: relative;
+            top: 3px;
+        }
+
+        .fa-checkbox input[type="checkbox"]:checked + label:before {
+            color: #3FC593;
+            content: "\f14a";
+            position: relative;
+            top: 0px;
+        }
+
+        .slot-heading h2 {
+            color: #fff;
+            width: auto !important;
+            text-align: right;
+            float: right;
+            font-weight: bold;
+            margin: 0;
+            margin-top: 30px;
+            background: #27ae60;
+            color: #fff;
+            font-size: 15px;
+            padding: 9px !important;
+            margin-bottom: 12px;
+            border-radius: 5px;
+        }
+
+            .slot-heading h2 span {
+                color: #fff;
+            }
+
+        .slot-content {
+            margin-top: 10px;
+        }
+
+        .centerlabel {
+             color: #f9c751;
+            position: relative;
+            width: 150px;
+            display: inline-block;
+            float: left;
+        }
+
+            .centerlabel h3 {
+                color: #f9c751;
+                font-size: 16px;
+                text-align: left;
+                font-weight: bold;
+                margin: 0;
+                padding: 0;
+                padding-top: 3px;
+            }
+
+        .centerlabel-content {
+            position: relative;
+            display: inline-block;
+            float: left;
+            width: 80%;
+        }
+
+        .textbox-center {
+            width: auto;
+            display: inline-block;
+            float: left;
+            margin-right: 10px;
+        }
+
+        .info-heading h2 {
+            color: #e74c3c;
+            font-size: 18px;
+            text-transform: uppercase;
+            padding: 20px 10px !important;
+            text-align: center;
+            display: block;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .transition-section {
+            border-radius: 10px;
+            background: #f1f5f8;
+            padding: 20px 20px !important;
+            width: 90%;
+            margin: 20px 1%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding-top: 0 !important;
+            display: none;
+        }
+
+        .form-control {
+            border-radius: 0 !important;
+        }
+
+        .text-label {
+            color: #f9c751;
+            font-size: 14px;
+            text-align: left;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 3px;
+        }
+
+        fieldset {
+            padding: .35em .625em .75em !important;
+            margin: 0 2px !important;
+            border: 1px solid #c0c0c0 !important;
+        }
+
+        legend {
+            padding: 0 !important;
+            border: 0 !important;
+            text-align: left !important;
+            margin-bottom: 18px !important;
+            font-size: 16px !important;
+            padding-left: 5px !important;
+            font-weight: bold;
+            display: inline-block;
+            width: auto;
+            color: #295b8f;
+        }
+
+        .transition-analysis-btn {
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+            .transition-analysis-btn button {
+                font-size: 14px;
+                text-transform: capitalize;
+                text-align: center;
+                display: inline-block;
+                background: #27ae60;
+                color: #fff;
+                margin: 0;
+                border-radius: 4px;
+                padding: 10px 15px;
+                margin: auto;
+                font-weight: bold;
+                line-height: 20px;
+                margin-right: 10px;
+            }
+
+        .slot-scroll {
+            max-height: 100px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+            .slot-scroll label {
+                font-size: 15px !important;
+            }
+
+        .ersea_ovr {
+            text-align: center;
+            width: 275px;
+            margin: auto;
+        }
+
+        .ersea-detl-title h3 {
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .slot-heading {
+            width: 88%;
+        }
+        .tran_btn {
+    margin-top: 10px;
+}
+        
+.tran_system #DivForRoles {
+    border-radius: 10px;
+    background: #f1f5f8;
+    padding: 20px 20px!important;
+    width: 90%;
+    margin: 20px 1%;
+    float: left;
+}
+    .icc_partsys {
+    width: 100%;
+    float: left;
+    margin-bottom: 15px;
+}
+    .icc_partsys label {
+    /*float: left;
+    width: 24%;*/
+    text-align: center;
+    color: #153a69;
+    padding-top: 9px;
+    margin-right: 15px;
+        width: auto;
+    display: inline-block;
+    float: none;
+}
+    .icc_partsys select {
+        width: 280px;
+    float: none;display:inline-block;
+}
+    .trans_sys .transition-analysis-btn a {
+    padding: 7px 12px;
+}
+    .trans_sys {
+    width: 100%;
+    float: left;
+    margin-bottom: 10px;
+}
+    .trans_sys label {
+    width: 35%;
+    float: left;padding-top: 7px;
+}
+    .trans_sys input {
+    width: 15%;
+    float: left;
+    margin-right: 15px;
+    border-radius: 4px !important;
+}
+    .inn_sys {
+    width: 100%;
+    max-width: 534px;
+    margin: 15px auto;
+}
+        .trans_sys .transition-analysis-btn {
+        margin: 0px;
+        }
+        .tran_system #DivForRoles h3 {
+    text-align: center;
+    color: #e74c3c;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding-bottom: 15px;
+}
+            .fa-checkbox input[type="checkbox"]:checked + label:before {top: 3px;}
+    .fa-checkbox input[type="checkbox"] + label:before {color: #163a68;}
+    .lable-txt{color:#fff!important;text-align:center!important;font-size:14px!important;width: 100%!important;padding-top: 0px!important;margin: 0px!important;}
+    </style>
+
+
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12 no-padding tran_system" style="margin-bottom: 30px;">
+                <div class="col-xs-12 no-padding">
+                    <div class="top-header-title" style="margin-top: 30px;">
+                        @*<h1>ADDITIONAL SLOTS</h1>*@
+                        <div class="col-xs-12 ersea-detl-title">
+                            <h3>Acceptance Process Role</h3>
+                            <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                        </div>
+                    </div>
+                </div>
+               
+                
+                <div class="col-xs-12">
+                    <div class="inn_sys">
+                    <div class="trans_sys">
+                        <label class="text-label">Number of Roles Involved:</label>
+                        <input type="text" style="margin-bottom: 5px;" id="NumOfRoles"  class="form-control">
+                        <div class="transition-analysis-btn">
+                            <button id="btnload" style="padding: 8px 15px;border:none;"  onclick="return ValidateInputs()">Load</button>
+                        </div>
+                    </div>
+                        </div>
+                   
+
+                </div>
+               
+                <div id="DivForRoles" >           
+                    <div class="col-xs-12 col-lg-12 col-md-12">
+                        <div class="icc_partsys">
+                            <div class="col-xs-12" style="background:#163b69;padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;border-top: 0;">
+                                <div class="col-xs-8" style="border-right:1px solid #fff;padding: 10px;">
+                                    <label class="lable-txt">Select roles for each level</label>
+                                </div>
+                                <div class="col-xs-4" style="padding:10px;">
+                                    <label class="lable-txt">Review Income</label>
+                                </div>
+                            </div>
+                            <div id="DivForRoles1"></div>
+                            <div class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
+                                <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
+                                    <label class="text-label" style="padding-left:16px;">Final Reviewer</label>
+                                    @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control FinalLevel sel-level val-level", tabIndex = "14", @data_level = "1" })
+                                </div>
+                                <div class="col-xs-4" style="padding: 10px;">
+                                    <div class="col-xs-12 chk-box-ch">
+                                        <div class="fa-checkbox">
+                                            <input type="checkbox" id="checkbox1" name="checkbox-type" value="Mark Late Arrival" style="display:none;" class="check1" checked>
+                                            <label for="checkbox1" style="color:black;font-size:14px;text-align:center;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                      
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="transition-analysis-btn" style="text-align: center;">
+                            <button id="btnSubmit" style="cursor:pointer;border:none;" onclick="return btnSaveRoleList()">Submit</button>
+                            <button onclick="RedirectToDashboard();" style="background:#e74c3c;cursor:pointer;border:none;">Exit</button>
+                        </div>
+                    </div>
+                   </div>
+                
+                @*<div class="col-xs-12">
+                    <div class="transition-analysis-btn">
+                        <a style="cursor:pointer;" onclick="return ValidateInputs()">Load</a>                   
+                    </div>
+                </div>*@
+            </div>
+
+
+        </div>
+    </div>
+
+<div style="display:none;">
+    <div id="appendRole">
+        <div class="col-xs-12" style="padding:0;float:left;width:100%;padding:0px 0;border:1px solid #ddd;">
+            <div class="col-xs-8" style="border-right:1px solid #ddd;padding: 10px;text-align: center;">
+                <label class="text-label ">Levels</label>
+                @Html.DropDownListFor(m => m.RoleID, new SelectList(Model.RoleList, "RoleId", "RoleName", Model.RoleID), "--Select Role--", new { @class = "form-control validate level sel-level val-level", tabIndex = "14", @data_level = "replace_level" })
+            </div>
+            <div class="col-xs-4" style="padding: 10px;">
+                <div class="col-xs-12 chk-box-ch">
+                    <div class="fa-checkbox">
+                        <input type="checkbox" id="checkbox12" name="checkbox-type" style="display:none;" class="check-class"  checked/>
+                        <label for="checkbox12" style="color:black;font-size:14px;text-align:center;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!--Draw Signature Modal-->
+
+
+
+
+}

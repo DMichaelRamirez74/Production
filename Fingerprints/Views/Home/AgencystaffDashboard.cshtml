@@ -35,6 +35,9 @@
         var reloadPage = false;
 
         $(document).ready(function () {
+
+
+
             $("#ModalWaitingList,#ModalWaitingListAll").on("hide.bs.modal", function () {
 
                 if (reloadPage) {
@@ -42,6 +45,23 @@
                     window.location.reload();
                 }
             });
+
+            $("#ModalWaitingList").on("hidden.bs.modal", function () {
+             
+                $('#dvClientName').html("");
+            });
+
+
+
+
+
+            $("#ModalClientPendingList").on("hidden.bs.modal", function () {
+                $('#DivPendingStatusTrack').hide();
+            });
+            $("#Modalrejected").on("hidden.bs.modal", function () {
+                $('#DivRejectedStatusTrack').hide();
+            });
+
 
             $('#HVtxtclassstartdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
             $('#HVmeetingdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
@@ -70,7 +90,7 @@
             $('.js-gauge--1').kumaGauge({
                 fill: '0-#fa4133:0-#fdbe37:50-#1cb42f:100',
                 showNeedle: true,
-                radius : 140,
+                radius: 140,
                 gaugeBackground: '#1E4147',
                 gaugeWidth: 10,
                 showNeedle: true,
@@ -92,7 +112,6 @@
             //    value: Math.floor((Math.random() * 99) + 1),
             //    //fill: '#F34A53',
             //    fill: '0-#fa4133:0-#fdbe37:50-#1cb42f:100',
-
             //    gaugeBackground: '#1E4147',
             //    gaugeWidth: 10,
             //    showNeedle: true,
@@ -226,7 +245,7 @@
                 dataType: "json",
                 secureuri: false,
                 async: true,
-                beforeSend:function(){$('#spinner').show()},
+                beforeSend: function () { $('#spinner').show() },
                 success: function (Data) {
                     $('#spinner').hide();
                     BindClientlist(Data);
@@ -292,7 +311,59 @@
         }
         function ShowHealthstaff(Aobject) {
             _Object = Aobject;
-            $('#Acceptancediv').show();
+            var clientname = $(Aobject).closest("tr").find("td:eq(1)").text();
+
+            BootstrapDialog.confirm('Click OK to move ' + clientname + ' to acceptance process', function (result) {
+                if (result) {
+
+                    $.ajax({
+                        url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
+                        type: "POST",
+                        data: {
+                            Clientid: $(_Object).attr("clientid"),
+                            Usernurseid: $('#ddlnurse').val(),
+                            householdid: $(_Object).attr("householdid"),
+                            centerid: $(_Object).attr("centerid"),
+                            Programid: $(_Object).attr("programid"),
+
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        traditional: true,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Record saved successfully.");
+                                $('#Acceptancediv').hide();
+                                $('#ddlnurse').val('');
+                                $(_Object).closest('tr').remove();
+                                if ($('#DivWaitingListPopup > tbody tr').length < 1) {
+                                    $('#div1').show();
+                                }
+                                if ($(WaitObject).text() != "" && $(WaitObject).text() != "0") {
+                                    $(WaitObject).text(parseInt($(WaitObject).text()) - 1);
+                                    $(WaitObject).closest('tr').find('td a').eq(5).text(parseInt($(WaitObject).closest('tr').find('td a').eq(5).text()) + 1);
+                                    $(WaitObject).closest('tr').find('td a').eq(4).text(parseInt($(WaitObject).closest('tr').find('td a').eq(4).text()) - 1);
+                                }
+                                if ($(WaitObject).text() == "0") {
+                                    $(WaitObject).attr("href", "#");
+                                }
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 800);
+                            }
+                            if (response == 2) {
+                                customAlert("No available slots. Please contact your administrator for assistance.");
+                            }
+                        }
+              , error: function (response) {
+                  customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+              }
+                    });
+
+                }
+            });
+            $('#Acceptancediv').hide();
             $('#Acceptancediv').focus();
         }
 
@@ -310,7 +381,7 @@
                     dataType: "json",
                     secureuri: false,
                     async: true,
-                    beforeSend:function(){$('#spinner').show() },
+                    beforeSend: function () { $('#spinner').show() },
                     success: function (Data) {
                         $('#spinner').hide();
 
@@ -352,7 +423,7 @@
         function SaveWaiting() {
             //debugger
             var count = 0;
-            var clientarray =[];
+            var clientarray = [];
             cleanValidation();
             isValid = true;
 
@@ -372,16 +443,17 @@
                 return isValid;
             }
 
-            else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
-                isValid = false;
-                customAlert("Assign to is required. ");
-                plainValidation('#ddlnurse');
-                return isValid;
-            }
+                //else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
+                //    isValid = false;
+                //    customAlert("Assign to is required. ");
+                //    plainValidation('#ddlnurse');
+                //    return isValid;
+                //}
 
             else {
                 if (_Object != null && _centerid != null) {
-                    BootstrapDialog.confirm('Are you sure want to send this client for approval?', function (result) {
+
+                    BootstrapDialog.confirm('Click OK to move clients to acceptance process', function (result) {
                         if (result) {
 
 
@@ -402,7 +474,7 @@
                                 dataType: "json",
                                 secureuri: false,
                                 async: false,
-                                traditional : true,
+                                traditional: true,
                                 success: function (response) {
                                     if (response == 1) {
                                         customAlert("Record saved successfully.");
@@ -478,7 +550,13 @@
                 var option = "";
                 $('#DivPendingclientlist > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
-                    tbody = tbody + '<tr><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+                    tbody = tbody + '<tr><td>' + Data[i].Name + '</td>';
+                    if (Data[i].IsReviewed != 0)
+                        tbody = tbody + ' <td><a href="#DivPendingStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="1"  style="text-decoration:underline;">Reviewed</a></td>';
+                    else
+                        tbody = tbody + ' <td>Not Reviewed</td>';
+
+                    tbody = tbody + '  <td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
 					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
 				   '<a href="#" onclick="DeleteClient(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td></tr>';
                 }
@@ -493,7 +571,228 @@
                 $('#div2').show();
             }
         }
+        function AcceptanceStatus(Object) {
+
+            //  $('#ASClientName').text("Acceptance Status for "+$(Object).closest("tr").find("td:first a").text());
+            $('#DivPendingStatusTrack').find('.lblClient').text("Acceptance Status for " + $(Object).closest("tr").find("td:first ").text());
+            $('#DivAcceptedListStatusTrack').find('.lblClient').text("Acceptance Status for " + $(Object).closest("tr").find("td:first a").text());
+
+            $('#DivRejectedStatusTrack').find('.lblClient').text("Rejected Status for " + $(Object).closest("tr").find("td:first ").text());
+
+
+            $.ajax({
+                url: HostedDir + "/AgencyUser/GetAcceptanceStatus",
+                type: "POST",
+                data: {
+                    Clientid: $(Object).attr('ClientId'),
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (response) {
+
+                    console.log(response);
+                    BindAcceptanceStatus(response, $(Object).attr('ClientId'), $(Object).attr('PopupFrom'));
+
+
+
+                }
+          , error: function (response) {
+              customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+          }
+            });
+
+        }
+        function BindAcceptanceStatus(Data, clientid, popuptype) {
+
+            $('#PendingWaiting').hide();
+
+            $('#AcceptanceDivAppend').html("");
+            $('#AcceptedListDivAppend').html("");
+            $('#RejectedDivAppend').html("");
+            if (Data != null && Data.length > 0) {
+
+                var DivContent = "", tabContent = "", tabRow = "";;
+
+                for (var i = 1; i < Data.length; i++) {
+                    DivContent = "", tabContent = "", tabRow = "";;
+                    DivContent = $('#GetAppendDiv').html();
+                    DivContent = DivContent.replace('#collapse13', "#collapse" + (i + 1))
+                    DivContent = DivContent.replace('collapse13', "collapse" + (i + 1))
+                    DivContent = DivContent.replace('HeadingRoleName', Data[i].RoleName);
+                    DivContent = DivContent.replace('CurrentStatus', Data[i].IsAccepted);
+                    DivContent = DivContent.replace('ReviewerLevel', Data[i].PriorityLevel);
+                    var Hstatus = '';
+
+                    if (Data[i].IsAccepted == 'Accepted') {
+                        Hstatus = ' <span style="background: #4CAF50;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+                    }
+                    else if (Data[i].IsAccepted == 'Rejected') {
+                        Hstatus = ' <span style="background: #e04412;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+                    }
+                    else if ((Data[i].IsAccepted == 'Pending')) {
+                        Hstatus = ' <span style="background: #dca709;padding: 3px 10px;margin-left: 10px;">' + Data[i].IsAccepted + '</span>';
+
+                    }
+                    DivContent = DivContent.replace('HeadingStatus', Hstatus);
+                    DivContent = DivContent.replace('RequestDate', Data[i].AcceptanceStartDate);
+                    DivContent = DivContent.replace('UserReason', Data[i].Reason);
+                    DivContent = DivContent.replace('ReviewId', 'ReviewId' + (i + 1));
+                    if (Data[i].IsAccepted == "Rejected" && Data[i].IsReviewAgain != 1 && popuptype === "1")
+                        DivContent = DivContent.replace('ReviewAgain', '<a href="#" onclick="ReviewAgainClient(this)" data-id="' + (i + 1) + '" data-ClientId="' + clientid + '" data-RoleId="' + Data[i].RoleId + '" >Click here to Review Again</a>');
+                    else if (Data[i].IsReviewAgain == 1 && popuptype === "1")
+                        DivContent = DivContent.replace('ReviewAgain', '<span style="color:#a52677;"> Requested to review again</span>');
+
+                    else
+                        DivContent = DivContent.replace('ReviewAgain', '--');
+
+                    if (Data[i].AppNotes != null && Data[i].AppNotes.length > 0) {
+                        var tr = "<tbody>";
+                        for (var j = 0; j < Data[i].AppNotes.length; j++) {
+
+                            tr += "<tr>";
+                            tr += '<td>' + Data[i].AppNotes[j].notes + '</td>';
+                            tr += '<td>' + Data[i].AppNotes[j].Name + '</td>';
+                            tr += '<td>' + Data[i].AppNotes[j].CreatedOn + '</td>';
+                            tr += '<td>' + Data[i].AppNotes[j].AppStatus + '</td>';
+                            tr += "</tr>";
+                        }
+                        DivContent = DivContent.replace("<tbody>", tr);
+                    }
+                    else {
+                        var tr = "";
+                        tr += "<tbody><tr>";
+                        tr += "<td colspan='4' style=' text-align: center; color: #db4437;'>No record found</td>";
+                        tr += "</tr>";
+                        DivContent = DivContent.replace("<tbody>", tr);
+                    }
+                    switch (popuptype) {
+                        case "1":
+                            $('#AcceptanceDivAppend').append(DivContent);
+                            break;
+                        case "2":
+                            $('#AcceptedListDivAppend').append(DivContent);
+                            break;
+                        case "3":
+                            $('#RejectedDivAppend').append(DivContent);
+                            break;
+
+                    }
+                }
+
+
+                DivContent = "", tabContent = "", tabRow = "";;
+
+                DivContent = $('#GetAppendDiv').html();
+                DivContent = DivContent.replace('#collapse13', "#collapse" + (1))
+                DivContent = DivContent.replace('collapse13', "collapse" + (1))
+                DivContent = DivContent.replace('HeadingRoleName', Data[0].RoleName);
+                DivContent = DivContent.replace('CurrentStatus', Data[0].IsAccepted);
+                DivContent = DivContent.replace('ReviewerLevel', Data[0].PriorityLevel);
+                // DivContent = DivContent.replace('HeadingStatus', Data[0].IsAccepted);
+                if (Data[0].IsAccepted == 'Accepted') {
+                    Hstatus = ' <span style="background: #4CAF50;padding: 3px 10px;margin-left: 10px;">' + Data[0].IsAccepted + '</span>';
+
+                }
+                else if (Data[0].IsAccepted == 'Rejected') {
+                    Hstatus = ' <span style="background: #e04412;padding: 3px 10px;margin-left: 10px;">' + Data[0].IsAccepted + '</span>';
+
+                }
+                else if ((Data[0].IsAccepted == 'Pending')) {
+                    Hstatus = ' <span style="background: #dca709;padding: 3px 10px;margin-left: 10px;">' + Data[0].IsAccepted + '</span>';
+
+                }
+                DivContent = DivContent.replace('HeadingStatus', Hstatus);
+                DivContent = DivContent.replace('RequestDate', Data[0].AcceptanceStartDate);
+                DivContent = DivContent.replace('UserReason', Data[0].Reason);
+                DivContent = DivContent.replace('ReviewId', 'ReviewId' + (1));
+                if (Data[0].IsAccepted == "Rejected" && Data[0].IsReviewAgain != 1 && popuptype === "1")
+                    DivContent = DivContent.replace('ReviewAgain', '<a href="#" onclick="ReviewAgainClient(this)" data-id="' + (1) + '" data-ClientId="' + clientid + '" data-RoleId="' + Data[0].RoleId + '" >Click here to Review Again</a>');
+                else if (Data[0].IsReviewAgain == 1 && popuptype === "1")
+                    DivContent = DivContent.replace('ReviewAgain', '<span style="color:#a52677;"> Requested to review again</span>');
+
+                else
+                    DivContent = DivContent.replace('ReviewAgain', '--');
+
+                if (Data[0].AppNotes != null && Data[0].AppNotes.length > 0) {
+                    var tr = "<tbody>";
+                    for (var j = 0; j < Data[0].AppNotes.length; j++) {
+
+                        tr += "<tr>";
+                        tr += '<td>' + Data[0].AppNotes[j].notes + '</td>';
+                        tr += '<td>' + Data[0].AppNotes[j].Name + '</td>';
+                        tr += '<td>' + Data[0].AppNotes[j].CreatedOn + '</td>';
+                        tr += '<td>' + Data[0].AppNotes[j].AppStatus + '</td>';
+                        tr += "</tr>";
+                    }
+                    DivContent = DivContent.replace("<tbody>", tr);
+                }
+                else {
+                    var tr = "";
+                    tr += "<tbody><tr>";
+                    tr += "<td colspan='4' style=' text-align: center; color: #db4437;'>No record found</td>";
+                    tr += "</tr>";
+                    DivContent = DivContent.replace("<tbody>", tr);
+                }
+                switch (popuptype) {
+                    case "1":
+                        $('#AcceptanceDivAppend').append(DivContent);
+                        $('#DivPendingStatusTrack').show();
+                        break;
+                    case "2":
+                        $('#AcceptedListDivAppend').append(DivContent);
+                        $('#DivAcceptedListStatusTrack').show();
+                        $('#AcceptancedivClient').hide();
+                        break;
+                    case "3":
+                        $('#RejectedDivAppend').append(DivContent);
+                        $('#DivRejectedStatusTrack').show();
+                        break;
+
+                }
+
+
+            }
+            else {
+
+            }
+        }
+        function ReviewAgainClient(arg) {
+
+            var spanid = '#ReviewId' + $(arg).attr('data-id');
+            BootstrapDialog.confirm("Do you want to send review again request?", function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/AgencyUser/SaveReviewAgainDetails",
+                        type: "POST",
+                        data: {
+                            Clientid: $(arg).attr('data-ClientId'),
+                            RoleId: $(arg).attr('data-RoleId')
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+
+                            $(spanid).text("Requested to review again");
+                            $(spanid).css('color', '#a52677');
+                        }
+    , error: function (response) {
+        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+    }
+                    });
+                }
+
+            });
+
+        }
+
         function DeleteClient(Object) {
+            $('#DivPendingStatusTrack').hide();
+            $('#DivRejectedStatusTrack').hide();
+
             $('#PendingWaiting').show();
             $('#centerall').prop("checked", false);
             $('#PendingWaiting').focus();
@@ -506,7 +805,6 @@
         }
         //Changes
         function SaveAcceptedInfo() {
-
             cleanValidation();
             isValid = true;
             if ($('#ddlclassroom').val() == "" || $('#ddlclassroom').val() == null) {
@@ -547,6 +845,7 @@
                             if (response == 1) {
                                 customAlert("Record saved successfully.");
                                 $('#AcceptancedivClient').hide();
+                                $('#DivAcceptedListStatusTrack').hide();
                                 $('#ddlProgramtype').val('');
                                 $('#ddlclassroom').val('');
                                 $(_Object).closest('tr').remove();
@@ -707,7 +1006,7 @@
                                     $(AcceptObject).attr("href", "#");
                                 }
 
-                                    window.location.reload();
+                                window.location.reload();
 
                             }
                             else if (response.result == 2) {
@@ -735,7 +1034,7 @@
         }
         // }
         function showdiv(Aobject, BMIStatus, Disability) {
-           // alert($(Aobject).attr('transport'));
+            // alert($(Aobject).attr('transport'));
             _Object = Aobject;
             var Transport = null;
             var FoodAllergies = null;
@@ -745,11 +1044,12 @@
             $('#childFoodAllergy').text('');
 
             $('#AcceptancedivClient').show();
+            $('#DivAcceptedListStatusTrack').hide();
             $('#AcceptancedivClient').focus();
             $('#ddlclassroom').focus();
             $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
             Transport = $(_Object).attr("Transport")
-           // alert(Transport);
+            // alert(Transport);
             FoodAllergies = $(_Object).attr("FoodAllergies")
             //var text = "Teacher will be notified for Classroom Assignment.";
             //if ($(Aobject).attr('transport'))
@@ -904,6 +1204,7 @@
         }
         function CancelAccepted() {
             $('#AcceptancedivClient').hide();
+            $('#DivAcceptedListStatusTrack').hide();
         }
         function HVCancelAccepted() {
             $('#title').val('');
@@ -911,7 +1212,7 @@
             $('#HVddlclassroom')[0].selectedIndex = -1;
             $('#HVmeetingdate').val('');
             $('#HVtxtclassstartdate').val('');
-            $('name=["HVchkincome"]').each(function(i){
+            $('name=["HVchkincome"]').each(function (i) {
                 $('name=["HVchkincome"]')[0].checked = false;
 
             });
@@ -922,6 +1223,7 @@
             $('#HVmeetingdate')[0].selectedIndex = -1;
             $('#txtclassstartdate')[0].selectedIndex = -1;
             $('#HVAcceptancedivClient').hide();
+            $('#DivAcceptedListStatusTrack').hide();
         }
         function loadclientinfo(Object, Centerid, Option) {
 
@@ -929,6 +1231,7 @@
             _centerid = Centerid;
             _option = Option;
             $('#AcceptancedivClient').hide();
+            $('#DivAcceptedListStatusTrack').hide();
             $('#ddlProgramtype').val('');
             $('#ddlclassroom').val('');
             $('#ddlchildwt').val('');
@@ -948,6 +1251,8 @@
                 secureuri: false,
                 async: false,
                 success: function (data) {
+                    console.clear();
+                    console.log(data);
                     BindClientAcceptlist(data);
                 }
 			   , error: function (data) {
@@ -969,7 +1274,9 @@
                     var tr = "";
                     tr += "<tr>";
 
-                    tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
+                    tr += '<td><a href="#DivAcceptedListStatusTrack" onclick="AcceptanceStatus(this);" Id="' + data[i].Id + '"  ClientId="' + data[i].ClientId + '" HouseHoldId="' + data[i].HouseholdId + '" ProgramID="' + data[i].Programid + '"  CenterID="' + data[i].CenterId + '"  PopupFrom="2"  style="text-decoration:underline;">' + data[i].Name + '</a></td>';
+
+                    // tr += "<td>" + ((typeof (data[i].Name) != 'undefined') && (data[i].Name != null) ? data[i].Name : '') + "</td>";
 
                     tr += "<td>" + ((typeof (data[i].DateOnList) != 'undefined') && (data[i].DateOnList != null) ? data[i].DateOnList : '') + " </span></td>";
                     tr += "<td>" + ((typeof (data[i].Gender) != 'undefined') && (data[i].Gender != null) ? data[i].Gender : '') + " </span></td>";
@@ -1058,6 +1365,7 @@
             _centerid = Centerid;
             _option = Option;
             $('#HVAcceptancedivClient').hide();
+            $('#DivAcceptedListStatusTrack').hide();
             $('#ddlProgramtype').val('');
             //$('#ddlclassroom').val('');
             $('#ddlchildwt').val('');
@@ -1376,9 +1684,60 @@
             _option1 = 0;
             _Object = Aobject;
             _option1 = $(_Object).attr("option");
-            $('#Acceptancedivall').show();
-            $('#Acceptancedivall').focus();
-            $('#ClientNameAll').text($(Aobject).closest("tr").find("td:first").text());
+            //   $('#Acceptancedivall').show();
+            //   $('#Acceptancedivall').focus();
+            var clientname = $(Aobject).closest("tr").find("td:first").text();
+
+            BootstrapDialog.confirm('Click OK to move ' + clientname + ' to acceptance process', function (result) {
+                if (result) {
+
+                    $.ajax({
+                        url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
+                        type: "POST",
+                        data: {
+                            Clientid: $(_Object).attr("clientid"),
+                            Usernurseid: $('#ddlnurse').val(),
+                            householdid: $(_Object).attr("householdid"),
+                            centerid: $(_Object).attr("centerid"),
+                            Programid: $(_Object).attr("programid"),
+
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        traditional: true,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Record saved successfully.");
+                                $('#Acceptancediv').hide();
+                                $('#ddlnurse').val('');
+                                $(_Object).closest('tr').remove();
+                                if ($('#DivWaitingListPopup > tbody tr').length < 1) {
+                                    $('#div1').show();
+                                }
+                                if ($(WaitObject).text() != "" && $(WaitObject).text() != "0") {
+                                    $(WaitObject).text(parseInt($(WaitObject).text()) - 1);
+                                    $(WaitObject).closest('tr').find('td a').eq(5).text(parseInt($(WaitObject).closest('tr').find('td a').eq(5).text()) + 1);
+                                    $(WaitObject).closest('tr').find('td a').eq(4).text(parseInt($(WaitObject).closest('tr').find('td a').eq(4).text()) - 1);
+                                }
+                                if ($(WaitObject).text() == "0") {
+                                    $(WaitObject).attr("href", "#");
+                                }
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 800);
+                            }
+                            if (response == 2) {
+                                customAlert("No available slots. Please contact your administrator for assistance.");
+                            }
+                        }
+              , error: function (response) {
+                  customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+              }
+                    });
+
+                }
+            });
         }
         function CancelWaitingAll() {
             $('#Acceptancedivall').hide();
@@ -1485,8 +1844,8 @@
                 $('#DivRejectedList > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
                     //tbody = tbody + '<tr><td><a style="text-decoration: underline;" href="' + HostedDir + '/AgencyUser/FamilyDetails?id=' + Data[i].HouseholdIdencrypted + '&returned=1">'+Data[i].Name+'</a></td><td>' + Data[i].DateOnList +
-                    tbody = tbody + '<tr><td><a  style="cursor: pointer;text-decoration: underline;" onclick="DeleteRejectedRecord(this);" Yakkrid="' + Data[i].Id + '" ClientId="' + Data[i].ClientId + '" HouseholdId="' + Data[i].HouseholdId + '"  HouseholdIdencrypted="' + Data[i].HouseholdIdencrypted + '" style="text-decoration: underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList +
-					  '</td><td>' + Data[i].Notes + '</td></tr>';
+                    tbody = tbody + '<tr><td><a href="#DivRejectedStatusTrack" class="scroll-click" onclick="AcceptanceStatus(this);" Id="' + Data[i].Id + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  PopupFrom="3"  style="text-decoration:underline;">' + Data[i].Name + '</a></td><td>' + Data[i].DateOnList +
+					  '</td><td>' + Data[i].Notes + '</td><td><a href="#" style="cursor:pointer;text-decoration: underline;" aria-hidden="true" onclick="DeleteRejectedRecord(this);" Yakkrid="' + Data[i].Id + '" ClientId="' + Data[i].ClientId + '" HouseholdId="' + Data[i].HouseholdId + '"  HouseholdIdencrypted="' + Data[i].HouseholdIdencrypted + '">Remove</a></td></tr>';
                 }
                 $('#DivRejectedList > tbody').append(tbody);
                 if (!$('#Modalrejected').hasClass('in'))
@@ -1501,40 +1860,43 @@
 
         function DeleteRejectedRecord(object) {
 
+            BootstrapDialog.confirm("Click OK to remove client from the list.", function (result) {
+                if (result) {
+                    $.ajax({
+                        url: HostedDir + "/Home/DeleteRejectedRecord",
+                        type: "POST",
+                        data: {
+                            Id: $(object).attr("Yakkrid"),
+                            ClientId: $(object).attr("ClientId"),
+                            HouseholdId: $(object).attr("HouseholdId")
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (response == 1) {
+                                customAlert("Record removed successfully.");
+                                setTimeout(function () {
+                                    //window.location.href = HostedDir + '/AgencyUser/FamilyDetails/' + $(object).attr("HouseholdIdencrypted");
+                                    window.location.href = HostedDir + '/Home/AgencystaffDashboard/';
+                                }, 800);
+                            }
+                            else if (response == 2) {
+                                customAlert("Record not exists or already removed from client returned list.");
+                                setTimeout(function () {
+                                    window.location.href = HostedDir + '/AgencyUser/FamilyDetails/' + $(object).attr("HouseholdIdencrypted");
+                                }, 800);
+                            }
+                        }
+                   , error: function (response) {
+                       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                   }
+                    });
 
-            $.ajax({
-                url: HostedDir + "/Home/DeleteRejectedRecord",
-                type: "POST",
-                data: {
-                    Id: $(object).attr("Yakkrid"),
-                    ClientId: $(object).attr("ClientId"),
-                    HouseholdId: $(object).attr("HouseholdId")
-                },
-                dataType: "json",
-                secureuri: false,
-                async: false,
-                success: function (response) {
-                    if (response == 1) {
-                        customAlert("Record removed successfully.");
-                        setTimeout(function () {
-                            window.location.href = HostedDir + '/AgencyUser/FamilyDetails/' + $(object).attr("HouseholdIdencrypted");
-                        }, 800);
-                    }
-                    else if (response == 2) {
-                        customAlert("Record not exists or already removed from client returned list.");
-                        setTimeout(function () {
-                            window.location.href = HostedDir + '/AgencyUser/FamilyDetails/' + $(object).attr("HouseholdIdencrypted");
-                        }, 800);
-                    }
+
                 }
-		   , error: function (response) {
-		       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-		   }
             });
-
-
         }
-
 
         function Getallcenter(value) {
             var mode = 0;
@@ -1712,8 +2074,7 @@
                 async: false,
                 success: function (response) {
                     console.log(response);
-                    if (response != null)
-                    {
+                    if (response != null) {
                         var gaugeChart2 = AmCharts.makeChart("chartdivYearly", {
                             "theme": "light",
                             "type": "gauge",
@@ -2077,10 +2438,11 @@
         // shambhu changes
         function ChangeCheckBox(Aobject, t) {
             _Object = Aobject;
+
             if (t.is(':checked')) {
                 var data = $(Aobject).closest("tr").find("td:nth-child(2)").text();
 
-                $('#dvClientName').append('<span  id=' + $(Aobject).attr("clientid") + ' class="SpnSelectedClient">' + data + '</span>');
+                $('#dvClientName').append('<span style="margin-bottom:0px;"  id=' + $(Aobject).attr("clientid") + ' class="SpnSelectedClient">' + data + '</span>');
 
                 $('#Acceptancediv').show();
                 $('#Acceptancediv').focus();
@@ -2091,18 +2453,20 @@
                 $('#' + $(Aobject).attr("clientid") + '').remove();
             }
         }
+
+
     </script>
 }
+
 @section MainContentHolder{
 
-<link href="~/Content/css/agencystaffdashboard.css" rel="stylesheet" />
+    <link href="~/Content/css/agencystaffdashboard.css" rel="stylesheet" />
     <style>
-        #gridViewAgency>thead>tr>th{
-
-            white-space:nowrap;
+        #gridViewAgency > thead > tr > th {
+            white-space: nowrap;
         }
     </style>
-    
+
     <div class="row">
 
         @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
@@ -2165,6 +2529,7 @@
                                     {
                                         <td style="text-align: right;"><a href="#">@center.option3</a></td>
                                     }
+
                                     @if (center.TotalWaitingList != "0")
                                     {
                                         <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientlistAll(this,'@center.CenterId');" href="#">@center.TotalWaitingList</a></td>
@@ -2180,11 +2545,11 @@
                                     }
                                     else
                                     {
-                                        <td style="text-align: right;"><a href="#" >@center.FutureWaiting</a></td>
+                                        <td style="text-align: right;"><a href="#">@center.FutureWaiting</a></td>
                                     }
 
 
-                                   
+
                                     @if (center.Routecode100 != "0")
                                     {
                                         <td style="text-align: right;"><a style="text-decoration:underline;" onclick="loadclientPendinglist(this,'@center.CenterId');" href="#">@center.Routecode100</a></td>
@@ -2229,103 +2594,103 @@
     </div>
     <div class="row" id="Hideattchart" style="display: none;">
 
-      
-            <div class="import-const" style="border: 1px solid #cfcfcf;">
-               
-                <div class="col-sm-12" style="position:relative;">
-                    <div id="chartdivDaily">
 
-                    </div>
-                    <div class="dailySummarydetails">
-                        <div class='dailySummary-data' id="todayReport">
-                            <div class="col-sm-12 amcharts-chart-div-label">
-                                <h2>Today's Attendance Percentage</h2>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label ">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present </p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label totdays">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
-                            </div>
-                           
+        <div class="import-const" style="border: 1px solid #cfcfcf;">
+
+            <div class="col-sm-12" style="position:relative;">
+                <div id="chartdivDaily">
+
+                </div>
+                <div class="dailySummarydetails">
+                    <div class='dailySummary-data' id="todayReport">
+                        <div class="col-sm-12 amcharts-chart-div-label">
+                            <h2>Today's Attendance Percentage</h2>
                         </div>
+                        <div class="col-sm-12 amcharts-chart-div-label ">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present </p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                        </div>
+                        <div class="col-sm-12 amcharts-chart-div-label totdays">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
-            <div class="import-const" style="border: 1px solid #cfcfcf;">
-               
-                <div class="col-sm-12">
-                    <div id="chartdivWeekly"></div>
-                    <div class="dailySummarydetails">
-                        <div class='dailySummary-data' id="weeklyReport">
-                            <div class="col-sm-12 amcharts-chart-div-label">
-                                <h2>This Week's Attendance Percentage </h2>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label ">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label totdays">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
-                            </div>
-                           
+
+        </div>
+        <div class="import-const" style="border: 1px solid #cfcfcf;">
+
+            <div class="col-sm-12">
+                <div id="chartdivWeekly"></div>
+                <div class="dailySummarydetails">
+                    <div class='dailySummary-data' id="weeklyReport">
+                        <div class="col-sm-12 amcharts-chart-div-label">
+                            <h2>This Week's Attendance Percentage </h2>
                         </div>
+                        <div class="col-sm-12 amcharts-chart-div-label ">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                        </div>
+                        <div class="col-sm-12 amcharts-chart-div-label totdays">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
-     
 
-            <div class="import-const" style="border: 1px solid #cfcfcf;">
-               
-                <div class="col-sm-12">
-                    <div id="chartdivMonthly"></div>
-                    <div class="dailySummarydetails">
-                        <div class='dailySummary-data' id="monthlyReport">
-                            <div class="col-sm-12 amcharts-chart-div-label">
-                                <h2>This Month's Attendance Percentage</h2>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label ">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label totdays">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
-                            </div>
-                           
+        </div>
+
+
+        <div class="import-const" style="border: 1px solid #cfcfcf;">
+
+            <div class="col-sm-12">
+                <div id="chartdivMonthly"></div>
+                <div class="dailySummarydetails">
+                    <div class='dailySummary-data' id="monthlyReport">
+                        <div class="col-sm-12 amcharts-chart-div-label">
+                            <h2>This Month's Attendance Percentage</h2>
                         </div>
+                        <div class="col-sm-12 amcharts-chart-div-label ">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                        </div>
+                        <div class="col-sm-12 amcharts-chart-div-label totdays">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
-            <div class="import-const" style="border: 1px solid #cfcfcf;">
-               
-                <div class="col-sm-12">
-                    <div id="chartdivYearly"></div>
-                    <div class="dailySummarydetails">
-                        <div class='dailySummary-data' id="yearlyReport">
-                            <div class="col-sm-12 amcharts-chart-div-label">
-                                <h2>This Year's Attendance Percentage</h2>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label ">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
-                            </div>
-                            <div class="col-sm-12 amcharts-chart-div-label totdays">
-                                <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
-                                <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
-                            </div>
-                          
+
+        </div>
+        <div class="import-const" style="border: 1px solid #cfcfcf;">
+
+            <div class="col-sm-12">
+                <div id="chartdivYearly"></div>
+                <div class="dailySummarydetails">
+                    <div class='dailySummary-data' id="yearlyReport">
+                        <div class="col-sm-12 amcharts-chart-div-label">
+                            <h2>This Year's Attendance Percentage</h2>
                         </div>
+                        <div class="col-sm-12 amcharts-chart-div-label ">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Present</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totalstud" style="text-align:right;"> 230 </p></div>
+                        </div>
+                        <div class="col-sm-12 amcharts-chart-div-label totdays">
+                            <div class="col-xs-6" style="padding:0;"> <p>Number of Total</p></div>
+                            <div class="col-xs-6" style="padding:0;"><p class="totaldays" style="text-align:right;">238 </p></div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
+
+        </div>
 
 
 
@@ -2391,9 +2756,9 @@
                                     </div>
                                     <div class="col-sm-12" id="Acceptancediv" style="display: none;">
                                         <div class="col-sm-12">
-                                            <fieldset style="border: 1px solid #295b8f;">
+                                            <fieldset>
                                                 <legend class="legend1"></legend>
-                                                <div class="col-sm-10">
+                                                <div class="col-sm-12" style="border: 1px solid #295b8f;margin-bottom: 10px;padding: 10px;">
                                                     <div class="col-sm-2">
                                                         <label style="width: 100%;font-weight: bold;">Client Name: </label>
                                                     </div>
@@ -2401,19 +2766,20 @@
 
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-9">
-                                                    <div class="col-sm-2">
-                                                        <label style="width: 100%;">Assign To <sup>*</sup></label>
+                                                <div class="col-sm-12">
+                                                    <div style="display:none;">
+                                                        <div class="col-sm-2">
+                                                            <label style="width: 100%;">Assign To <sup>*</sup></label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <select id="ddlnurse" style="width: 100%;" class="form-control"></select>
+                                                        </div>
                                                     </div>
-                                                    <div class="col-sm-5">
-                                                        <select id="ddlnurse" style="width: 100%;" class="form-control"></select>
-                                                    </div>
-                                                    <div class="col-sm-2">
-                                                        <button type="button" class="my-btn" onclick="return SaveWaiting();">Save</button>
-                                                    </div>
-                                                    <div class="col-sm-2">
+                                                    <div class="col-xs-12" style="text-align:center">
+                                                        <button type="button" style="background: #4caf50!important;" class="my-btn" onclick="return SaveWaiting();">Save</button>
                                                         <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
                                                     </div>
+
                                                 </div>
                                             </fieldset>
                                         </div>
@@ -2449,6 +2815,7 @@
                                         <thead style="cursor: pointer;">
                                             <tr>
                                                 <th>Name</th>
+                                                <th>Review Status</th>
                                                 <th>Selection Points</th>
                                                 <th>Date on List</th>
                                                 <th>Program Type</th>
@@ -2467,7 +2834,7 @@
 
                         </div>
                         <div class="col-sm-12" id="PendingWaiting" style="display: none;">
-                            <fieldset style="border: 1px solid #295b8f; margin-bottom: 1%;">
+                            <fieldset style="border: 1px solid #295b8f; margin-bottom: 1%;background:#fff;">
                                 <legend class="legend1"></legend>
 
                                 <div class="row qualifierdiv">
@@ -2531,23 +2898,24 @@
                                                                             {
                                                                                 <tr>
                                                                                     <td>
-                                                                                        @item.Name
-                                                                                    <input name="Accept" onchange="Clearselect(this);" value="@item.CenterId" type="checkbox" />
-                                                                                </td>
-                                                                                <td>@item.Address</td>
-                                                                                <td>@item.Zip</td>
-                                                                                <td>@item.SeatsAvailable</td>
-                                                                                <td>
-                                                                                    <select>
-                                                                                        <option value="1">1</option>
-                                                                                        <option value="2">2</option>
-                                                                                        <option value="3">3</option>
-                                                                                    </select>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <input type="text" style="width: 100% !important;" maxlength="60" class="form-control" />
-                                                                                </td>
-                                                                            </tr>
+                                                                                        <input name="Accept" onchange="Clearselect(this);" value="@item.CenterId" type="checkbox" />
+                                                                                        <span style="width:78%;display:inline-block;">@item.Name</span>
+
+                                                                                    </td>
+                                                                                    <td>@item.Address</td>
+                                                                                    <td>@item.Zip</td>
+                                                                                    <td>@item.SeatsAvailable</td>
+                                                                                    <td>
+                                                                                        <select>
+                                                                                            <option value="1">1</option>
+                                                                                            <option value="2">2</option>
+                                                                                            <option value="3">3</option>
+                                                                                        </select>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <input type="text" style="width: 100% !important;" maxlength="60" class="form-control" />
+                                                                                    </td>
+                                                                                </tr>
                                                                             }
 
                                                                         }
@@ -2565,17 +2933,70 @@
 
                                 <div class="col-md-12">
                                     <div class="btnwrp_subcal">
-                                        <button onclick="SaveWaitinglist();" class="my-btn" type="button">Save</button>
+                                        <button onclick="SaveWaitinglist();" style="background: #4caf50!important;" class="my-btn" type="button">Save</button>
                                         <button class="my-btn" onclick="CloseWaitinglistdiv();" type="button">Close</button>
                                     </div>
                                 </div>
 
                             </fieldset>
                         </div>
+                        <div class="col-xs-12" id="DivPendingStatusTrack" style="display:none;">
+                            <h2 class="panel-sec-title lblClient"></h2>
+                            <div class="col-xs-12 panel-sec">
+                                <div class="panel-group" id="accordion">
+                                    <div id="AcceptanceDivAppend">
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GetAppendDiv" style="display:none;">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="padding:0;">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse13" style="display:block;padding: 10px 15px;">Role Name: HeadingRoleName<span style="float:right;margin: 0;font-weight:bold">Status: HeadingStatus</span></a>
+                </h4>
+            </div>
+            <div id="collapse13" class="panel-collapse collapse ">
+                <div class="panel-body" style="line-height:22px;">
+                    <div class="col-xs-12 collapse-label" style="padding:0;">
+                        <p>Request Date : <span>RequestDate</span></p>
+                        <p>Status : <span>CurrentStatus</span></p>
+                        <p>Reviewer Level : <span>ReviewerLevel</span></p>
+                        @*<p>Note  : <span>UserReason</span></p>*@
+                        <p>Request for Review Again  : <span id="ReviewId">ReviewAgain</span></p>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="table table_size" style="background: #fff;">
+                                <thead style="cursor: pointer;">
+                                    <tr>
+                                        <th>Application Notes</th>
+                                        <th>Entered By</th>
+                                        <th>Entered On</th>
+                                        <th>Application Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+    </div>
+    <div id="DivAppendTable" style="display:none;">
+
+
     </div>
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="ModalAcceptanceList" role="dialog">
@@ -2618,7 +3039,7 @@
                                     </div>
                                     <div class="col-sm-12" id="AcceptancedivClient" style="display: none;">
                                         <div class="col-sm-12">
-                                            <fieldset style="border: 1px solid #295b8f;">
+                                            <fieldset style="border: 1px solid #295b8f;background:#fff;">
                                                 <legend class="legend1"></legend>
                                                 <div class="col-sm-9">
                                                     <div class="col-sm-4">
@@ -2648,27 +3069,27 @@
                                                     <div class="col-sm-4">
                                                         <label style="width: 100%;">Reason for Acceptance <sup>*</sup></label>
                                                     </div>
-                                                    
+
                                                     <div class="col-sm-2">
-                                                       
+
                                                         <input id="chkincome" type="radio" name="chkincome" value="1" style="width: 14%; margin-top: -8%;" class="form-control radio">
                                                         <label>Income</label>
-                                                      
+
                                                     </div>
                                                     <div class="col-sm-2">
-                                                       
+
                                                         <input id="chkincome" type="radio" name="chkincome" value="2" style="width: 14%; margin-top: -8%;" class="form-control radio">
                                                         <label>Homeless</label>
-                                                       
+
                                                     </div>
                                                     <div class="col-sm-2">
-                                                       
+
                                                         <input id="chkincome" type="radio" name="chkincome" value="3" style="width: 14%; margin-top: -8%;" class="form-control radio">
                                                         <label>Foster</label>
-                                                      
+
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="col-sm-9" style="display:none;">
                                                     <div class="col-sm-4">
                                                         <label style="width: 100%;"></label>
@@ -2679,7 +3100,7 @@
                                                         <label>TANF</label>
 
                                                     </div>
-                                                    
+
                                                     <div class="col-sm-2">
 
                                                         <input id="chkincome" name="chkincome" type="radio" value="6" style="width: 14%; margin-top: -8%;" class="form-control radio">@*chkTanf*@
@@ -2687,7 +3108,7 @@
 
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div class="col-sm-9" id="ChildTrans" style="display: none;">
 
 
@@ -2698,7 +3119,7 @@
 
 
                                                 <div class="col-sm-9" id="BMI" style="display: none;">
-                                                   
+
                                                     <label style="margin-left: 2%; font-size: 15px; color: #295b8f;" id="ddlchildwt"></label>
                                                     <input type="hidden" id="ddlchildwtId" name="ddlchildwtId" />
 
@@ -2727,7 +3148,7 @@
 
                                                 <div class="col-sm-9">
                                                     <div class="col-sm-2">
-                                                        <button type="button" class="my-btn" style="margin-top: 20%; margin-bottom: 20%;" onclick="return SaveAcceptedInfo();">
+                                                        <button type="button" class="my-btn" style="margin-top: 20%; margin-bottom: 20%;background: #4caf50!important;" onclick="return SaveAcceptedInfo();">
                                                             Save
                                                         </button>
                                                     </div>
@@ -2740,6 +3161,18 @@
 
                                             </fieldset>
                                         </div>
+
+                                    </div>
+                                    <div class="col-xs-12" id="DivAcceptedListStatusTrack" style="display:none;">
+                                        <h2 class="panel-sec-title lblClient"></h2>
+                                        <div class="col-xs-12 panel-sec">
+                                            <div class="panel-group" id="accordion">
+                                                <div id="AcceptedListDivAppend">
+
+
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2749,6 +3182,7 @@
             </div>
         </div>
     </div>
+
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="ModalWaitingListAll" role="dialog">
             <div class="modal-dialog income-popup width-auto">
@@ -2826,7 +3260,7 @@
                                                         <select id="ddlnurseAll" style="width: 100%;" class="form-control"></select>
                                                     </div>
                                                     <div class="col-sm-2">
-                                                        <button type="button" class="my-btn" onclick="return SaveWaitingall();">Save</button>
+                                                        <button type="button" class="my-btn" style="background: #4caf50!important;" onclick="return SaveWaitingall();">Save</button>
                                                     </div>
                                                     <div class="col-sm-2">
                                                         <button type="button" class="my-btn" onclick="CancelWaitingAll();">Cancel</button>
@@ -2870,6 +3304,7 @@
                                                             <th width="23%">Name</th>
                                                             <th width="10%">Date on List</th>
                                                             <th>Notes</th>
+                                                            <th width="10%"></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody></tbody>
@@ -2880,7 +3315,17 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-xs-12" id="DivRejectedStatusTrack" style="display:none;">
+                                        <h2 class="panel-sec-title lblClient"></h2>
+                                        <div class="col-xs-12 panel-sec">
+                                            <div class="panel-group" id="accordion">
+                                                <div id="RejectedDivAppend">
 
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2889,6 +3334,72 @@
             </div>
         </div>
     </div>
+
+    @*<div class="modal fade" id="AcceptanceProcessStatus" role="dialog">
+            <div class="modal-dialog" style="width:80%;">
+                @*Modal conten
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="ASClientName" class="text-center">Acceptance status for  <span class="extra-title muted"></span></h3>
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                            <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Collapsible Group 1</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse1" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Collapsible Group 2</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse2" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Collapsible Group 3</a>
+                                    </h4>
+                                </div>
+                                <div id="collapse3" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                        sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" class="my-btn1">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="HVAcceptanceList" role="dialog">
             <div class="modal-dialog income-popup width-auto">
@@ -3006,12 +3517,12 @@
 
                                                     </div>
                                                 </div>
-                                               
+
                                                 <div class="col-sm-9">
                                                     <div class="col-sm-4">
                                                         <label style="width: 100%;">Main Reason for Acceptance <sup>*</sup></label>
                                                     </div>
-                                                   
+
                                                     <div class="col-sm-2">
                                                         <input type="radio" name="HVchkincome" tabindex="8" value="1" style="width: 13px; margin-top: 3%; height: 13px;" class="form-control radio">
                                                         <label>Income</label>

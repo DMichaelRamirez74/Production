@@ -34,7 +34,7 @@ namespace Fingerprints.Controllers
         {
             return View();
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+      //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult ViewCenterDetails(string id)
         {
             try
@@ -54,12 +54,13 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+       // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult ChildDetails(string id = "0")
         {
             try
             {
                 id = FingerprintsModel.EncryptDecrypt.Decrypt64(id);
+            
                 int yakkrid = 0;
                 if (!string.IsNullOrEmpty(Request.QueryString["Type"]) || Convert.ToString(Request.QueryString["Type"]) != "0")
                 {
@@ -84,7 +85,7 @@ namespace Fingerprints.Controllers
                 else
                 {
                     Nurse obj = new Nurse();
-                    obj = _nurse.EditFamilyInfo(id, yakkrid, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                    obj = _nurse.EditFamilyInfo(id, yakkrid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString());
                     Session["Docsstorage"] = obj.docstorage.ToString();
                     ViewBag.AvailableProg = obj.AvailableProgram;
                     TempData["AvailableProgram"] = ViewBag.AvailableProg;
@@ -104,10 +105,17 @@ namespace Fingerprints.Controllers
                     obj.AvailableChildVitamin = _familyinfo.AvailableChildVitamin;
                     obj.AvailableService = _familyinfo.AvailableService;
                     obj.AvailablePrblms = _familyinfo.AvailablePrblms;
-                    if (obj.Income1 == null)
-                        obj.Income1 = GenerateIncomeList();
-                    if (obj.Income2 == null)
-                        obj.Income2 = GenerateIncomeList1();
+                    // empty the response from other users
+                    obj.AcceptApplicant = "";
+                    obj.AcceptDesc = "";
+                    obj.RejectDesc = "";
+                    if (obj.FamilyHousehold.Income1 == null)
+                        obj.FamilyHousehold.Income1 = GenerateIncomeList();
+                    if (obj.FamilyHousehold.Income2 == null)
+                        obj.FamilyHousehold.Income2 = GenerateIncomeList1();
+                    // obj.FamilyHousehold.Income1 = obj.Income1;
+                    // = _familyinfo.Income1;
+                    obj.Income2 = _familyinfo.Income2;
                     Session["HouseholdID"] = id;
                     ViewBag.mode = 1;
                     ViewBag.PMConditions = _familyinfo.PMCondtnList;
@@ -161,6 +169,7 @@ namespace Fingerprints.Controllers
                     }
                     return View(obj);
                 }
+              
                 return View(_familyinfo);
 
             }
@@ -170,7 +179,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+       // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [HttpPost]
         public ActionResult ChildDetails(Nurse info, Nurse.PostedPMProblems PostedPostedPrblms, Nurse.PostedPMService PostedPostedService,
             Nurse.PostedProgram PostedPostedPrograms, Nurse.PostedDisease PostedPostedDisease,
@@ -179,6 +188,7 @@ namespace Fingerprints.Controllers
           Nurse.PostedChildDrink PostedPostedChildDrink, string Command, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization)
         {
             Nurse _familyinfo = new Nurse();
+        
             _familyinfo = info;
             _familyinfo.AvailableProgram = (List<Nurse.Programdetail>)TempData["AvailableProgram"];
             //Changes
@@ -482,9 +492,9 @@ namespace Fingerprints.Controllers
                 if (!string.IsNullOrEmpty(Request.QueryString["Type"]) || Convert.ToString(Request.QueryString["Type"]) != "0")
                     info.Yakkrid = Convert.ToInt32(FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["Type"].ToString()));
                 if (info.HealthQuesId == 0 || info.NutritionQuesId == 0)
-                    message = _nurse.addHealthInfo(info, 0, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), _screen, Imminization);
+                    message = _nurse.addHealthInfo(info, 0, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), _screen, Imminization, (Session["RoleID"].ToString()));
                 else
-                    message = _nurse.addHealthInfo(info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), _screen, Imminization);
+                    message = _nurse.addHealthInfo(info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), _screen, Imminization, (Session["RoleID"].ToString()));
                 _familyinfo = info;
                 if (message == "1")
                 {
@@ -524,11 +534,11 @@ namespace Fingerprints.Controllers
                     {
                         info.ClientID = info.ChildId;
                     }
-                    message = _nurse.addAcceptInfo(out pendingcount, info, 0, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()));
+                    message = _nurse.addAcceptInfo(out pendingcount, info, 0, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), (Session["RoleID"].ToString()));
                 }
                 else
                 {
-                    message = _nurse.addAcceptInfo(out pendingcount, info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()));
+                    message = _nurse.addAcceptInfo(out pendingcount, info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), (Session["RoleID"].ToString()));
                 }
                 _familyinfo = info;
 
@@ -537,7 +547,7 @@ namespace Fingerprints.Controllers
 
                     if (message == "1")
                     {
-                        _nurse.InsertAcceptReason(info, Session["AgencyID"].ToString());
+                        //_nurse.InsertAcceptReason(info, Session["AgencyID"].ToString(), Session["RoleId"].ToString());
                         TempData["message"] = "Applicant accepted successfully. ";
                         return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
                     }
@@ -549,13 +559,19 @@ namespace Fingerprints.Controllers
                     if (message == "3")
                     {
                         return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
+                    }
+                    if(message=="4")
+                    {
+                        TempData["message"] = "Application already reviewed by other user.";
+                        return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
+
                     }
                 }
                 else
                 {
                     if (message == "1")
                     {
-                        _nurse.InsertAcceptReason(info, Session["AgencyID"].ToString());
+                        //_nurse.InsertAcceptReason(info, Session["AgencyID"].ToString(), Session["RoleId"].ToString());
                         TempData["message"] = "Applicant accepted successfully. ";
                         return Redirect("~/Yakkr/YakkrDetails");
                     }
@@ -566,6 +582,11 @@ namespace Fingerprints.Controllers
                     }
                     if (message == "3")
                     {
+                        return Redirect("~/Yakkr/YakkrDetails");
+                    }
+                    if (message == "4")
+                    {
+                        TempData["message"] = "Application already reviewed by other user.";
                         return Redirect("~/Yakkr/YakkrDetails");
                     }
 
@@ -629,7 +650,7 @@ namespace Fingerprints.Controllers
             TempData.Keep();
             return View(_familyinfo);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+       // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult ScreeningIntake()
         {
             return View();
@@ -648,21 +669,21 @@ namespace Fingerprints.Controllers
             //}
             return PartialView(list);
         }
-        private List<Nurse.calculateincome> GenerateIncomeList()
+        private List<FamilyHousehold.calculateincome> GenerateIncomeList()
         {
-            List<Nurse.calculateincome> IncomeList = new List<Nurse.calculateincome>();
-            IncomeList.Add(new Nurse.calculateincome());
+            List<FamilyHousehold.calculateincome> IncomeList = new List<FamilyHousehold.calculateincome>();
+            IncomeList.Add(new FamilyHousehold.calculateincome());
             return IncomeList;
 
         }
-        private List<Nurse.calculateincome1> GenerateIncomeList1()
+        private List<FamilyHousehold.calculateincome1> GenerateIncomeList1()
         {
-            List<Nurse.calculateincome1> IncomeList = new List<Nurse.calculateincome1>();
-            IncomeList.Add(new Nurse.calculateincome1());
+            List<FamilyHousehold.calculateincome1> IncomeList = new List<FamilyHousehold.calculateincome1>();
+            IncomeList.Add(new FamilyHousehold.calculateincome1());
             return IncomeList;
 
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+       // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [JsonMaxLengthAttribute]
         public JsonResult listParentPhoneDetails1(string HouseHoldId = "0", string ParentID = "0")
         {
@@ -679,7 +700,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+      //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [JsonMaxLengthAttribute]
         public JsonResult listParentPhoneDetails2(string HouseHoldId = "0", string ParentID = "0")
         {
@@ -696,7 +717,7 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+       // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [JsonMaxLengthAttribute]
         public JsonResult SaveNotes(string HouseHoldId = "0", string Notes = "", string mode = "")
         {
@@ -712,7 +733,9 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+
+      //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [JsonMaxLengthAttribute]
         public JsonResult GetHschild(string Childid = "0")
         {
@@ -728,14 +751,14 @@ namespace Fingerprints.Controllers
             }
 
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult ClientList()
         {
 
             return View();
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult ClientLists(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
             try
@@ -751,12 +774,12 @@ namespace Fingerprints.Controllers
                 return Json("");
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+      //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult ScreeningClient(string id)
         {
             try
             {
-
+               
                 if (!string.IsNullOrEmpty(Request.QueryString["name"]))
                     ViewBag.Name = Convert.ToString(Request.QueryString["name"]);
                 if (!string.IsNullOrEmpty(Request.QueryString["clientid"]))
@@ -766,12 +789,12 @@ namespace Fingerprints.Controllers
                 if (!string.IsNullOrEmpty(Request.QueryString["Programid"]))
                     ViewBag.Programid = Convert.ToString(Request.QueryString["Programid"]);
                 if (!string.IsNullOrEmpty(Request.QueryString["dashboard"]))
-                    ViewBag.dashboard = Convert.ToString(Request.QueryString["dashboard"]);
-
+                    ViewBag.dashboard = Convert.ToString( Request.QueryString["dashboard"]);
+              
                 if (!string.IsNullOrEmpty(Request.QueryString["Screeningid"]) && Convert.ToString(Request.QueryString["Screeningid"]) == "0")
                 {
-                    List<SelectListItem> _list = _nurse.GetScreening(Convert.ToString(Request.QueryString["clientid"]), Convert.ToString(Request.QueryString["Programid"]), Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
-                    if (_list != null && _list.Count < 1)
+                    List<SelectListItem> _list = _nurse.GetScreening(Convert.ToString(Request.QueryString["clientid"] ),  Convert.ToString(Request.QueryString["Programid"]), Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
+                    if(_list!=null && _list.Count <1)
                         ViewBag.message = "No Screening found.";
                     ViewBag.screening = _list;
                     TempData["Screen"] = _list;
@@ -811,7 +834,7 @@ namespace Fingerprints.Controllers
                     DataSet _data = _nurse.GetScreeningsbyid(Convert.ToString(Request.QueryString["clientid"]), Convert.ToString(Request.QueryString["Screeningid"]), Session["AgencyID"].ToString(), Session["UserID"].ToString(), Convert.ToString(Request.QueryString["Programid"]), Session["Roleid"].ToString());
                     if (_data != null)
                     {
-                        if (_data.Tables.Count > 0 && _data.Tables[0].Rows.Count > 0)
+                        if (_data.Tables.Count > 0 && _data.Tables[0].Rows.Count>0)
                         {
                             ViewBag.screenings = _data.Tables[0];
                             ViewBag.uploaddocument = Convert.ToBoolean(_data.Tables[0].Rows[0]["DocumentUpload"]);
@@ -819,8 +842,8 @@ namespace Fingerprints.Controllers
                         if (_data.Tables.Count > 1 && _data.Tables[1].Rows.Count > 0)
                         {
                             ViewBag.screeningsdata = _data.Tables[1];
-                            ViewBag.screeningdate = _data.Tables[1].Rows[0]["screeningdate"].ToString() != "" ? Convert.ToDateTime(_data.Tables[1].Rows[0]["screeningdate"]).ToString("MM/dd/yyyy") : "";
-
+                            ViewBag.screeningdate =  _data.Tables[1].Rows[0]["screeningdate"].ToString()!=""? Convert.ToDateTime(_data.Tables[1].Rows[0]["screeningdate"]).ToString("MM/dd/yyyy"):"" ;
+                          
                         }
                         if (_data.Tables.Count > 2 && _data.Tables[2].Rows.Count > 0)
                         {
@@ -870,7 +893,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult GetScreeningTemplate(string Screeningid, string ClientId)
         {
             try
@@ -885,8 +908,8 @@ namespace Fingerprints.Controllers
             }
         }
         [HttpPost]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public ActionResult ScreeningClient(Screening _screen, FormCollection _Collections, string screeningdate, HttpPostedFileBase ScreeningDocument, string Status)
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        public ActionResult ScreeningClient(Screening _screen, FormCollection _Collections,string screeningdate,HttpPostedFileBase ScreeningDocument, string Status)
         {
             try
             {
@@ -904,43 +927,43 @@ namespace Fingerprints.Controllers
                     ViewBag.Programid = Convert.ToString(Request.QueryString["Programid"]);
                 if (!string.IsNullOrEmpty(Request.QueryString["clientid"]) && !string.IsNullOrEmpty(Request.QueryString["Screeningid"]) && Convert.ToString(Request.QueryString["Screeningid"]) != "0")
                 {
-                    _screen.ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(Request.QueryString["clientid"]));
+                    _screen.ClientID = Convert.ToInt32( EncryptDecrypt.Decrypt64(Request.QueryString["clientid"]));
                     _screen.Screeningid = Convert.ToInt32(Request.QueryString["Screeningid"]);
                     ViewBag.selectedid = Convert.ToString(Request.QueryString["Screeningid"]);
-                    string message = "";
-                    DataSet _data = _nurse.savecustomscreening(ref message, _screen, _Collections, screeningdate, Status, Session["AgencyID"].ToString(), Session["UserID"].ToString(), ScreeningDocument, Convert.ToString(Request.QueryString["Programid"]), Session["Roleid"].ToString());
-                    if (_data != null)
-                    {
-                        if (_data.Tables.Count > 0 && _data.Tables[0].Rows.Count > 0)
-                        {
-                            ViewBag.screenings = _data.Tables[0];
-                            ViewBag.uploaddocument = Convert.ToBoolean(_data.Tables[0].Rows[0]["DocumentUpload"]);
-                        }
-                        if (_data.Tables.Count > 1 && _data.Tables[1].Rows.Count > 0)
-                        {
-                            ViewBag.screeningsdata = _data.Tables[1];
-                            ViewBag.screeningdate = _data.Tables[1].Rows[0]["screeningdate"].ToString() != "" ? Convert.ToDateTime(_data.Tables[1].Rows[0]["screeningdate"]).ToString("MM/dd/yyyy") : "";
+                     string  message= "";
+                     DataSet _data = _nurse.savecustomscreening(ref message, _screen, _Collections, screeningdate, Status, Session["AgencyID"].ToString(), Session["UserID"].ToString(), ScreeningDocument, Convert.ToString(Request.QueryString["Programid"]), Session["Roleid"].ToString());
+                  if (_data != null)
+                  {
+                      if (_data.Tables.Count > 0 && _data.Tables[0].Rows.Count > 0)
+                      {
+                          ViewBag.screenings = _data.Tables[0];
+                          ViewBag.uploaddocument = Convert.ToBoolean(_data.Tables[0].Rows[0]["DocumentUpload"]);
+                      }
+                      if (_data.Tables.Count > 1 && _data.Tables[1].Rows.Count > 0)
+                      {
+                          ViewBag.screeningsdata = _data.Tables[1];
+                          ViewBag.screeningdate = _data.Tables[1].Rows[0]["screeningdate"].ToString() != "" ? Convert.ToDateTime(_data.Tables[1].Rows[0]["screeningdate"]).ToString("MM/dd/yyyy") : "";
+                        
+                      }
+                     
+                  }
+                  if(message=="1")
+                  {
+                      ViewBag.message = "Record saved successfully.";
 
-                        }
+                  }
+                  else  if (message == "2")
+                  {
+                      TempData["message"] = "Screening not exist or deactivated.";
+                      return Redirect("/Nurse/ScreeningClient?clientid=" + Convert.ToString(Request.QueryString["clientid"]) + "&Screeningid=0&name=" + Convert.ToString(Request.QueryString["name"]) + "&Dob=" + Convert.ToString(Request.QueryString["Dob"]) + "&Programid=" + Convert.ToString(Request.QueryString["Programid"]) + "&dashboard=" + Convert.ToString(Request.QueryString["dashboard"]));
 
-                    }
-                    if (message == "1")
-                    {
-                        ViewBag.message = "Record saved successfully.";
+                  }
+                  else
+                  {
 
-                    }
-                    else if (message == "2")
-                    {
-                        TempData["message"] = "Screening not exist or deactivated.";
-                        return Redirect("/Nurse/ScreeningClient?clientid=" + Convert.ToString(Request.QueryString["clientid"]) + "&Screeningid=0&name=" + Convert.ToString(Request.QueryString["name"]) + "&Dob=" + Convert.ToString(Request.QueryString["Dob"]) + "&Programid=" + Convert.ToString(Request.QueryString["Programid"]) + "&dashboard=" + Convert.ToString(Request.QueryString["dashboard"]));
-
-                    }
-                    else
-                    {
-
-                        ViewBag.message = "Error occured please try again later.";
-                    }
-                    ViewBag.screeningid = _screen.Screeningid.ToString();
+                      ViewBag.message = "Error occured please try again later.";
+                  }
+                  ViewBag.screeningid = _screen.Screeningid.ToString();
                 }
                 ViewBag.screening = TempData["Screen"];
                 TempData.Keep();
@@ -953,7 +976,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Loadallenrolled(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -968,54 +991,54 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+    //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Loadallcenterscreening(string Centerid = "0")
-        {
-            try
-            {
-                return Json(_nurse.Getchildscreeningcenter(Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
-            }
-        }
+       {
+           try
+           {
+               return Json(_nurse.Getchildscreeningcenter(Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+           }
+           catch (Exception Ex)
+           {
+               clsError.WriteException(Ex);
+               return Json("Error occured please try again.");
+           }
+       }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public JsonResult Loadchildmissingscreening(string ClassRoom, string Centerid = "0")
-        {
-            try
-            {
-                return Json(_nurse.Getallchildmissingscreening(Centerid, ClassRoom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
-            }
-        }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public ActionResult Multientryscreening(string id)
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        public JsonResult Loadchildmissingscreening(string ClassRoom,string Centerid = "0" )
+       {
+           try
+           {
+               return Json(_nurse.Getallchildmissingscreening(Centerid,ClassRoom ,Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+           }
+           catch (Exception Ex)
+           {
+               clsError.WriteException(Ex);
+               return Json("Error occured please try again.");
+           }
+       }
+    //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        public ActionResult  Multientryscreening(string id)
         {
 
             try
             {
                 string screeningid = "";
                 string clientid = "";
-                DataTable mscreenings = null;
+                DataTable mscreenings=null;
                 DataTable ScreeningStatus = null;
                 if (!string.IsNullOrEmpty(Request.QueryString["screeningids"]))
                     screeningid = Convert.ToString(Request.QueryString["screeningids"]);
                 if (!string.IsNullOrEmpty(Request.QueryString["centerid"]))
                     clientid = Convert.ToString(Request.QueryString["centerid"]);
                 if (!string.IsNullOrEmpty(Request.QueryString["centername"]))
-                    ViewBag.centername = Convert.ToString(Request.QueryString["centername"]);
+                  ViewBag.centername = Convert.ToString(Request.QueryString["centername"]);
                 DataSet Ds = _nurse.GetmultiScreening(screeningid, clientid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
-                if (Ds != null)
+                if(Ds!=null)
                 {
-                    if (Ds.Tables.Count > 0)
-                        mscreenings = Ds.Tables[0];
+                    if(Ds.Tables.Count >0  )
+                     mscreenings = Ds.Tables[0];
                     if (Ds.Tables.Count > 1)
                         ScreeningStatus = Ds.Tables[1];
                 }
@@ -1036,12 +1059,12 @@ namespace Fingerprints.Controllers
 
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public JsonResult Loadallclientscreening(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
+    //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        public JsonResult Loadallclientscreening(string Classroomid = "0", string Centerid = "0", string Screeningid="0")
         {
             try
             {
-                return Json(_nurse.Loadallclientscreening(Classroomid, Centerid, Screeningid, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString()));
+                return Json(_nurse.Loadallclientscreening(Classroomid,Centerid,Screeningid, Session["UserID"].ToString(), Session["AgencyID"].ToString(),Session["Roleid"].ToString()));
             }
             catch (Exception Ex)
             {
@@ -1050,7 +1073,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+    //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Saveclientscreening(List<Nurse.clients> ClientScreenings)
         {
             try
@@ -1063,7 +1086,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+   //     [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Savemultiscreening(List<Nurse.clients> multiscreenings)
         {
             try
@@ -1077,8 +1100,8 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public JsonResult Loadmissingclient(string Screeningid, string Centerid)
+   //     [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        public JsonResult Loadmissingclient(string Screeningid , string Centerid)
         {
             try
             {
@@ -1091,7 +1114,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Loadclients(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
             try
@@ -1105,7 +1128,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+      //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Saveclientclassscreening(List<Nurse.clients> ClientScreenings)
         {
             try
@@ -1119,7 +1142,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Loadsavedmissingclient(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
             try
@@ -1133,7 +1156,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+    //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult Loaddeclinedscreening(string Centerid = "0")
         {
             try
@@ -1148,7 +1171,7 @@ namespace Fingerprints.Controllers
         }
         //added on 30Dec2016
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult LoadallenrolledCleargrid(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1168,7 +1191,7 @@ namespace Fingerprints.Controllers
         }
         //End
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+      //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult LoadGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1182,7 +1205,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult ViewGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1196,7 +1219,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult LoadRescreening(string Centerid = "0")
         {
             try
@@ -1210,7 +1233,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+     //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult LoadWithdrawn(string Centerid = "0")
         {
             try
@@ -1223,22 +1246,22 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public ActionResult DownloadScreeningMatrixExcel(string Centerid, string Classroom = "")
+    //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        public ActionResult DownloadScreeningMatrixExcel(string Centerid,string Classroom ="")
         {
             try
             {
-                Export export = new Export();
-                Response.Clear();
-                Response.Buffer = true;
-                Response.Charset = "";
-                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                Response.AddHeader("content-disposition", "attachment;filename=Screening Status Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
-                MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(Centerid, Classroom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
-                ms.WriteTo(Response.OutputStream);
-                Response.Flush();
-                Response.End();
-                return View();
+                 Export export = new Export();
+                 Response.Clear();
+                 Response.Buffer = true;
+                 Response.Charset = "";
+                 Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                 Response.AddHeader("content-disposition", "attachment;filename=Screening Status Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
+                 MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(Centerid, Classroom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                 ms.WriteTo(Response.OutputStream);
+                 Response.Flush();
+                 Response.End();
+                return  View();
             }
             catch (Exception Ex)
             {
@@ -1246,6 +1269,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-      
+
+        
     }
 }
