@@ -10,6 +10,8 @@ using FingerprintsModel;
 using System.Web.Mvc;
 using System.IO;
 using System.Web;
+using ClosedXML;
+using ClosedXML.Excel;
 
 namespace FingerprintsData
 {
@@ -435,8 +437,8 @@ namespace FingerprintsData
         {
 
             PIRModel _PIR = new PIRModel();
-           
-          
+
+            _PIR.program = Program;
           
             command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
             command.Parameters.Add(new SqlParameter("@ProgramType", Program));
@@ -579,6 +581,65 @@ namespace FingerprintsData
                 command.Dispose();
             }
             return isRowsAffected;
+        }
+
+        public PIRModel ExportData(string question, string AgencyID, string programtype)
+        {
+            command.Parameters.Clear();
+            command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
+            command.Parameters.Add(new SqlParameter("@ProgramType", programtype));
+            command.Parameters.Add(new SqlParameter("@Quest_ID", question));
+            command.Connection = Connection;
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "[PIR_Reporting]";
+            SqlDataAdapter DataAdapter1 = null;
+            DataAdapter1 = new SqlDataAdapter(command);
+            DataSet _dataset1 = null;
+            _dataset1 = new DataSet();
+            DataAdapter1.Fill(_dataset1);
+            string FileName = "attachment; filename = PIRExportReport.xlsx";
+            
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(_dataset1);
+                wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                wb.Style.Font.Bold = true;
+
+                System.Web.HttpContext.Current.Response.Clear();
+                System.Web.HttpContext.Current.Response.Buffer = true;
+                // System.Web.HttpContext.Current.Response.Charset = "";
+                System.Web.HttpContext.Current.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                System.Web.HttpContext.Current.Response.AddHeader("content-disposition", FileName);
+
+                using (MemoryStream MyMemoryStream = new MemoryStream())
+                {
+                    wb.SaveAs(MyMemoryStream);
+                    MyMemoryStream.WriteTo(System.Web.HttpContext.Current.Response.OutputStream);
+                    System.Web.HttpContext.Current.Response.Flush();
+                    System.Web.HttpContext.Current.Response.End();
+                }
+            }
+            PIRModel _PIRM = new PIRModel();
+            return _PIRM;
+
+        }
+
+        private void releaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch
+            {
+                obj = null;
+            }
+            finally
+            {
+                GC.Collect();
+            }
         }
        
     }

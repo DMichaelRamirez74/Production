@@ -227,12 +227,12 @@ $(document).ready(function () {
             }
 
         }
-        var checkvalueTodate1 = $('#assessment1Todate').val();
-        var checkvalueTodate2 = $('#assessment2Todate').val();
-        var checkvalueTodate3 = $('#assessment3Todate').val();
-        var checkvalueFromdate1 = $('#assessment1Fromdate').val();
-        var checkvalueFromdate2 = $('#assessment2Fromdate').val();
-        var checkvalueFromdate3 = $('#assessment3Fromdate').val();
+        var checkvalueTodate1 = new Date($('#assessment1Todate').val());
+        var checkvalueTodate2 = new Date($('#assessment2Todate').val());
+        var checkvalueTodate3 = new Date($('#assessment3Todate').val());
+        var checkvalueFromdate1 = new Date($('#assessment1Fromdate').val());
+        var checkvalueFromdate2 = new Date($('#assessment2Fromdate').val());
+        var checkvalueFromdate3 = new Date($('#assessment3Fromdate').val());
 
         var GetDate = new Date();
         var month = GetDate.getMonth() + 1;
@@ -261,29 +261,33 @@ $(document).ready(function () {
                 plainValidation('#assessment1Fromdate');
                 return false;
             }
-            else if (checkvalueTodate1 < checkvalueFromdate1) {
+            else if (checkvalueTodate1 > checkvalueFromdate1) {
                 cleanValidation();
-                customAlert("Assessment To Date is Greater Than  From Date");
+                customAlert("Assessment To Date is Greater Than From Date");
                 plainValidation('#assessment1Todate');
                 return false;
             }
 
             else if (checkvalueTodate1 > checkvalueFromdate2) {
                 cleanValidation();
-                customAlert("Assessment 2 FromDate is Greater Than From Assessment 1 ToDate");
+                customAlert("Assessment 2 From Date is Greater Than From Assessment 1 To Date");
                 plainValidation('#assessment2Fromdate');
                 return false;
             }
 
-            else if (checkvalueFromdate2 > checkvalueTodate2) {
+            else if (checkvalueFromdate2 < checkvalueTodate2) {
                 cleanValidation();
-                customAlert("Assessment 2 ToDate is Greater Than Assessment 2 FromDate");
+                customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
                 plainValidation('#assessment2Todate');
                 return false;
             }
         }
 
         if ($("input:radio[name='assesmentradio']:checked").val() == 3) {
+           
+            var date1 = new Date(checkvalueTodate1);
+           
+            var date2 = new Date(checkvalueFromdate2);
             if (checkvalueFromdate1 < CurrentDate) {
                 cleanValidation();
                 customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
@@ -292,33 +296,35 @@ $(document).ready(function () {
             }
             else if (checkvalueTodate1 < checkvalueFromdate1) {
                 cleanValidation();
-                customAlert("Assessment To Date is Greater Than  From Date");
+                customAlert("Assessment To Date is Less Than From Date");
                 plainValidation('#assessment1Todate');
                 return false;
             }
 
             else if (checkvalueTodate1 > checkvalueFromdate2) {
+                
+               
                 cleanValidation();
-                customAlert("Assessment 2 FromDate is Greater Than From Assessment 1 ToDate");
+                customAlert("Assessment 2 FromDate5555 is Less Than From Assessment 1 ToDate");
                 plainValidation('#assessment2Fromdate');
                 return false;
             }
 
             else if (checkvalueFromdate2 > checkvalueTodate2) {
                 cleanValidation();
-                customAlert("Assessment 2 ToDate is Greater Than Assessment 2 FromDate");
+                customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
                 plainValidation('#assessment2Todate');
                 return false;
             }
             else if (checkvalueTodate2 > checkvalueFromdate3) {
                 cleanValidation();
-                customAlert("Assessment 3  FromDate is Greater Than From Assessment 2 ToDate");
+                customAlert("Assessment 3 From Date is Less Than Assessment 2 To Date");
                 plainValidation('#assessment3Fromdate');
                 return false;
             }
             else if (checkvalueFromdate3 > checkvalueTodate3) {
                 cleanValidation();
-                customAlert("Assessment 3 FromDate is Greater Than ToDate");
+                customAlert("Assessment 3 From Date is Greater Than To Date");
                 plainValidation('#assessment3Todate');
                 return false;
             }

@@ -100,6 +100,37 @@ namespace Fingerprints.Controllers
             }
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public ActionResult ExportData(string question, string programtype)
+        {
+            try
+            {
+                return View(new PIRData().ExportData(question, Session["AgencyID"].ToString(), programtype));
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return null;
+            }
+
+        }
+
+        private void releaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch
+            {
+                obj = null;
+            }
+            finally
+            {
+                GC.Collect();
+            }
+        }
        
     }
 }
