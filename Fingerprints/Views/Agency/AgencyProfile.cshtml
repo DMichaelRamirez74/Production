@@ -1779,27 +1779,92 @@
         }
 
         function checkZipCode(inputTextObject) {
-            var ret = true;
-            var Zipcode = $(inputTextObject).val();
-            var len = Zipcode.length;
-            if ((isNaN(inputTextObject.value)) && (len < 5)) {
-                $(inputTextObject).val('');
-                customAlert("Zip code must be numeric. ");
-                var ret = false;
-            }
-            else if (len < 5) {
-                $(inputTextObject).val('');
-                customAlert("Zip code length must be 5 digit. ");
-                var ret = false;
-            }
-            else if (isNaN(inputTextObject.value)) {
-                $(inputTextObject).val('');
-                customAlert("Zip code must be numeric. ");
-                var ret = false;
-            }
-            return ret;
-        }
 
+            if ($(inputTextObject).val().trim() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();
+                var len = Zipcode.length;
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddress(1);
+                return ret;
+            }
+            else {
+                $('#City').find('option').remove();
+                $('#State').val('');
+                $('#County').val('');
+
+
+            }
+        }
+        function CheckAddress(value) {
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $('#zipCode').val();
+
+            if ($('#zipCode').val().trim() != "") {
+
+                $.ajax({
+                    url: HostedDir + "/Agency/GetAddressByZipCode",
+                    type: "POST",
+                    data: {
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+
+                        if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                            var option = "";
+                            for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                            }
+                            $('#city').find('option').remove().end().append(option);
+                            $('#city').val('');
+                            $('#State').val(response.Zipcodelist[0].State);
+                            $('#County').val(response.Zipcodelist[0].County);
+                            $('#zipCode').val(response.Zipcodelist[0].Zipcode);
+                        }
+                        else {
+                            $('#city').find('option').remove().end();
+                            $('#city').val('');
+                            $('#State').val('');
+                            $('#ZipCode').val('');
+                            $('#County').val('');
+                            customAlert("Could not find zipcode details.");
+
+                        }
+
+
+                    }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                });
+            }
+
+
+
+
+
+        }
 
         function ShowDiv() {
             var round = 0;
@@ -3655,7 +3720,9 @@
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="pwd">Zip Code <sup>*</sup> </label>
+
                                 @Html.TextBoxFor(m => m.zipCode, new { placeholder = "Zip Code", id = "zipCode", maxlength = "5", tabIndex = "7", onblur = "checkZipCode(this);", @class = "form-control" })
+
 
                             </div>
                         </div>
