@@ -102,7 +102,7 @@ namespace FingerprintsData
         {
             List<DissabilityManagerDashboard> centerList = new List<DissabilityManagerDashboard>();
             List<HrCenterInfo> centerList1 = new List<HrCenterInfo>();
-            // var ista = EncryptDecrypt.Decrypt64("NzQ=");
+
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
@@ -190,8 +190,8 @@ namespace FingerprintsData
                             info.FSW = dr["fswname"].ToString();
                             info.Teacher = dr["teacher"].ToString();//DBNull.Value.Equals(dr["ChildTransport"])
                             info.IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]);//.ToString() //Added on 30Dec2016
-                                                                                                                         //  info.Dayscount = dr["dayscount"].ToString();
-                                                                                                                         //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
+                            //  info.Dayscount = dr["dayscount"].ToString();
+                          //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
                             info.District = Convert.ToString(dr["District"]);
                             RosterList.Add(info);
 
@@ -229,7 +229,7 @@ namespace FingerprintsData
 
         }
 
-        public Roster GetPendingDisableRoster(string centerid, string Classroom, string userid, string agencyid, string RoleId, string Mode, string sortOrder, string sortDirection, string clientId)
+        public Roster GetPendingDisableRoster(string centerid, string Classroom, string userid, string agencyid, string RoleId, string Mode, string sortOrder, string sortDirection,string clientId)
         {
             List<Roster> RosterList = new List<Roster>();
             Roster _roster = new Roster();
@@ -244,7 +244,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
                 command.Parameters.Add(new SqlParameter("@Mode", Mode));
                 command.Parameters.Add(new SqlParameter("@sortDirection", sortDirection));
-                command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientId)); 
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_DisableRosterList";
@@ -371,43 +371,20 @@ namespace FingerprintsData
 
                         //_roster.disablenotes = disablenotes;//Changes on 29Dec2016
 
-                        //_roster.disablenotes = _dataset.Tables[0].AsEnumerable().Select(x => new DisableNotes {
+                        _roster.disablenotes = _dataset.Tables[0].AsEnumerable().Select(x => new DisableNotes {
 
-                        //    Name=x.Field<string>("Firstname"),
-                        //    Notes=x.Field<string>("Notes"),
-                        //    DisableDocumentName=x.Field<string>("DisableDocumentName"),
-                        //    DocumentDescription=x.Field<string>("DocumentDescription"),
-                        //    noteid=x.Field<string>("DisableNotesId"),
-                        //    Createdon=x.Field<string>("DateEntered"),
-                        //    DisabilityTypeID=x.Field<string>("DisablitiesTypeId"),
-                        //    YakkrId=Convert.ToInt32(x.Field<string>("YakkrId")),
-                        //    SpecialServiceDisability=x.Field<string>("ReceivedServicesId"),
-                        //    PrimaryDisability=x.Field<int>("PrimaryDisability")
-                        //}).ToList();
-                        _roster.disablenotes = new List<DisableNotes>();
-                        if (_dataset.Tables[0] != null)
-                        {
-                            if (_dataset.Tables[0].Rows.Count > 0)
-                            {
-                                _roster.disablenotes = (from DataRow dr5 in _dataset.Tables[0].Rows
-                                                        select new DisableNotes
-                                                        {
-                                                            Name = Convert.ToString(dr5["Firstname"]),
-                                                            Notes = Convert.ToString(dr5["Notes"]),
-                                                            DisableDocumentName = Convert.ToString(dr5["DisableDocumentName"]),
-                                                            DocumentDescription = Convert.ToString(dr5["DocumentDescription"]),
-                                                            noteid = Convert.ToString(dr5["DisableNotesId"]),
-                                                            Createdon = Convert.ToString(dr5["DateEntered"]),
-                                                            DisabilityTypeID = Convert.ToString(dr5["DisablitiesTypeId"]),
-                                                            YakkrId = Convert.ToInt32(dr5["YakkrId"]),
-                                                            SpecialServiceDisability = Convert.ToString(dr5["ReceivedServicesId"]),
-                                                            PrimaryDisability = Convert.ToString(dr5["PrimaryDisability"],
+                            Name=x.Field<string>("Firstname"),
+                            Notes=x.Field<string>("Notes"),
+                            DisableDocumentName=x.Field<string>("DisableDocumentName"),
+                            DocumentDescription=x.Field<string>("DocumentDescription"),
+                            noteid=x.Field<long>("DisableNotesId").ToString(),
+                            Createdon=x.Field<string>("DateEntered"),
+                            DisabilityTypeID=x.Field<string>("DisablitiesTypeId"),
+                            YakkrId=Convert.ToInt32(x.Field<string>("YakkrId")),
+                            SpecialServiceDisability=x.Field<string>("ReceivedServicesId"),
+                            PrimaryDisability=x.Field<int>("PrimaryDisability")
+                        }).ToList();
 
-
-                                                           }).ToList();
-
-                            }
-                        }
 
 
                         // disablenotes = new List<DisableNotes>();
@@ -415,7 +392,7 @@ namespace FingerprintsData
                         int primaryDisability = 0;
                         string disabilityType = _roster.disablenotes.Select(x => x.DisabilityTypeID).Where(x => !string.IsNullOrEmpty(x)).ToList().FirstOrDefault();
 
-                        primaryDisability = _roster.disablenotes.Select(x => x.PrimaryDisability).Where(x => x > 0).ToList().FirstOrDefault();
+                         primaryDisability = _roster.disablenotes.Select(x => x.PrimaryDisability).Where(x =>x>0).ToList().FirstOrDefault();
 
                         //notes.NotesList = _roster.disablenotes.Where(x => x.Notes != string.Empty).Select(x => new DisableNotes
                         //{
@@ -597,7 +574,7 @@ namespace FingerprintsData
         }
 
         public string SavePendingDisableUseInfo(string Clientid, string ClassroomID, string centerid
-         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "", string primaryDistype = "")
+         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "",string primaryDistype="")
         {
             try
             {
