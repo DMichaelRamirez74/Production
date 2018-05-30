@@ -177,6 +177,16 @@ namespace FingerprintsModel
         public string C_19_A_1 { get; set; }
         public string C_20 { get; set; }
         public string C_21 { get; set; }
+        public string C_25 { get; set; }
+        public string C_25_A { get; set; }
+        public string C_25_A_1 { get; set; }
+        public string C_25_A_2 { get; set; }
+        public string C_25_B { get; set; }
+        public string C_26 { get; set; }
+        public string C_26_A { get; set; }
+        public string C_26_A_1 { get; set; }
+        public string C_26_A_2 { get; set; }
+        public string C_26_B { get; set; }
         public string C_27_1 { get; set; }
         public string C_27_2 { get; set; }
         public string C_27_A_1 { get; set; }

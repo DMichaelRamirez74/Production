@@ -194,6 +194,8 @@ namespace FingerprintsData
                            _PIR.C_19_A_1 = dr["C19_A_1"].ToString();
                            _PIR.C_20 = dr["C20"].ToString();
                            _PIR.C_21 = dr["C21"].ToString();
+                           _PIR.C_25 = dr["C25"].ToString();
+                           _PIR.C_26 = dr["C26"].ToString();
                            _PIR.C_27_1 = dr["C27_1"].ToString();
                            _PIR.C_27_2 = dr["C27_2"].ToString();
                            _PIR.C_27_A_1 = dr["C27A_AtEnroll_1"].ToString();

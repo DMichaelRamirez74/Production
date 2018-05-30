@@ -401,7 +401,7 @@ namespace FingerprintsData
                                                             DisabilityTypeID = Convert.ToString(dr5["DisablitiesTypeId"]),
                                                             YakkrId = Convert.ToInt32(dr5["YakkrId"]),
                                                             SpecialServiceDisability = Convert.ToString(dr5["ReceivedServicesId"]),
-                                                            PrimaryDisability = Convert.ToString(dr5["PrimaryDisability"],
+                                                            PrimaryDisability = int.Parse(Convert.ToString(dr5["PrimaryDisability"])),
 
 
                                                            }).ToList();
