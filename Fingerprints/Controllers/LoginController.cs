@@ -300,10 +300,15 @@ namespace Fingerprints.Controllers
                     Session["IsShowSectionB"] = UserInfo.IsShowSectionB;
                     if (UserInfo.AgencyId != null)
                     {
-                        Session["AgencyID"] = UserInfo.AgencyId;
+                       Session["AgencyID"] = UserInfo.AgencyId;
                         isCoreTeam = new LoginData().IsDevelopmentTeam(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
                         isDemographic= new LoginData().IsDemographic(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                        if(isCoreTeam)
+                        isAcceptance = new LoginData().IsAcceptance(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
+                        List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+                        AccessList = new LoginData().GetAccessPageByUserId(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
+
+                        Session["AccessList"] = AccessList;
+                        if (isCoreTeam)
                         {
                             Session["IsCoreTeam"] = true;
                         }

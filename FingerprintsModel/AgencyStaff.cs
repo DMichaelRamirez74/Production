@@ -138,6 +138,7 @@ namespace FingerprintsModel
     public class HrCenterInfo
     {
         public string CenterId { get; set; }
+        public string Enc_CenterID { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public string Zip { get; set; }
@@ -218,7 +219,15 @@ namespace FingerprintsModel
         public List<SelectListItem> AbsenceReasonList { get; set; }
         public List<SelectListItem> AbsenceTypeList { get; set; }
 
- public decimal Age { get; set; }
+        public bool IsScreeningFollowUpReq { get; set; }
+
+        public bool IsScreeningFollowUpComplete { get; set; }
+
+        public int ReferenceProg { get; set; }
+
+        public bool IsFutureWithdrawal { get; set; }
+
+        public decimal Age { get; set; }
 
         public int IsPreg { get; set; }
         public int IsClassStarted { get; set; }
@@ -227,6 +236,11 @@ namespace FingerprintsModel
         public List<CenterAndClassRoom> CenterAndClassRoom { get; set; }
         public List<CaseNoteDetails> CaseNoteDetails { get; set; }
         public int FamilyHomeless { get; set; }
+
+        public bool IsShowTransition { get; set; }
+        public string TransitionColor{get;set;}
+
+        public int TransitionType { get; set; }
     }
   public class CenterAndClassRoom
     {

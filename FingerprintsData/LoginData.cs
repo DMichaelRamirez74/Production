@@ -368,6 +368,107 @@ namespace FingerprintsData
             }
             return isRowAffected;
         }
+
+        public List<Tuple<string, string>> GetAccessPageByUserId(Guid userId, Guid? AgencyId, Guid RoleId)
+        {
+           
+            List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                Connection.Open();
+                Command.Connection = Connection;
+                Command.CommandType = CommandType.StoredProcedure;
+                Command.Parameters.Clear();
+                Command.Parameters.Add(new SqlParameter("@AgencyId", (AgencyId)));
+                Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
+                Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
+
+                Command.CommandText = "SP_GetAccessPageByUserId";
+                DataAdapter = new SqlDataAdapter(Command);
+                UserDataTable = new DataTable();
+                DataAdapter.Fill(UserDataTable);
+               if(UserDataTable!=null && UserDataTable.Rows.Count>0)
+                {
+                    
+                    foreach (DataRow dr in UserDataTable.Rows )
+                    {
+
+                        AccessList.Add(new Tuple<string, string>(dr["LayoutName"].ToString(), dr["URL"].ToString()));
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+              
+            }
+            finally
+            {
+                Connection.Close();
+                Command.Dispose();
+                Command.Dispose();
+            }
+            return AccessList;
+        }
+
+        public bool IsAcceptance(Guid userId, Guid? AgencyId, Guid RoleId)
+        {
+            bool isRowAffected = false;
+           
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                Connection.Open();
+                Command.Connection = Connection;
+                Command.CommandType = CommandType.StoredProcedure;
+                Command.Parameters.Clear();
+                Command.Parameters.Add(new SqlParameter("@AgencyId", (AgencyId)));
+                Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
+                Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
+               
+                Command.CommandText = "USP_CheckAcceptanceProcess";
+                var obj = Command.ExecuteScalar();
+               
+                if (string.IsNullOrEmpty(obj.ToString()))
+                {
+                    isRowAffected = false;
+                }
+                else
+                {
+
+                    if (Convert.ToBoolean(obj))
+                    {
+                        isRowAffected = true;
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                //  return ex.Message;
+            }
+            finally
+            {
+                Connection.Close();
+                Command.Dispose();
+                Command.Dispose();
+            }
+            return isRowAffected;
+        }
+
         //Changes on 4jan2017
         public string CheckPassword(string Email, string Password)
         {

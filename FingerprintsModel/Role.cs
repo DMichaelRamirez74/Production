@@ -7,12 +7,38 @@ namespace FingerprintsModel
 {
     public class Role
     {
-        public string RoleId { get; set; }        
+
+        public Role()
+        {
+            this.UserList = new List<UserDetails>();
+        }
+     
+        public string RoleId { get; set; }
+        public bool IsAllow { get; set; }
         public string RoleName { get; set; }
         public bool Defaultrole { get; set; }
+        public string ColorCode { get; set; }
+        public bool ToView { get; set; }
+        public bool ToFollowUp { get; set; }
+        public bool ToEnter { get; set; }
+        public List<UserDetails> UserList { get; set; }
     }
 
-     public class AcceptanceRole
+    public class UserDetails
+    {
+        public bool ToView { get; set; }
+        public bool ToFollowUp { get; set; }
+        public bool ToEnter { get; set; }
+
+        public string ColorCode { get; set; }
+        public string UserId { get; set; }
+        public string StaffName { get; set; }
+        public bool IsAllow { get; set; }
+        public string RoleId { get; set; }
+
+    }
+
+    public class AcceptanceRole
     {
         public List<Role> RoleList = new List<Role>();
         public int Priority { get; set; }

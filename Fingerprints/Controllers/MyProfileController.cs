@@ -89,7 +89,11 @@ namespace Fingerprints.Controllers
                 if(!string.IsNullOrEmpty(id))
                 {
                     Session["Roleid"] = id;
-                    
+
+                   List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+                        AccessList = new LoginData().GetAccessPageByUserId(new Guid(Session["UserId"].ToString()), new Guid(Session["AgencyID"].ToString()), new Guid(Session["RoleId"].ToString()));
+
+
                     if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") && Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
                         newLocation = "~/Home/AgencyAdminDashboard";
                     else if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") && Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
