@@ -5020,6 +5020,293 @@ namespace FingerprintsData
 
 
 
-        
+        //public AccessStaffs GetStaffsByRole(string roleId)
+        //{
+        //    AccessStaffs staffs = new AccessStaffs();
+        //    try
+        //    {
+
+        //        StaffDetails details = StaffDetails.GetInstance();
+
+        //        if (Connection.State != ConnectionState.Closed)
+        //            Connection.Close();
+
+        //                using (Connection)
+        //        {
+        //            command.Connection = Connection;
+        //            command.Parameters.Clear();
+        //            command.Parameters.Add(new SqlParameter("@AgencyID", details.AgencyId));
+        //            command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
+        //            command.Parameters.Add(new SqlParameter("@UserID", details.UserId));
+        //            command.Parameters.Add(new SqlParameter("@TargetRole", roleId));
+        //            command.CommandType = CommandType.StoredProcedure;
+        //            command.CommandText = "USP_GetStaffByRole";
+        //            Connection.Open();
+        //            DataAdapter = new SqlDataAdapter(command);
+        //            _dataset = new DataSet();
+        //            DataAdapter.Fill(_dataset);
+        //            Connection.Close();
+        //        }
+
+        //                if(_dataset!=null)
+        //        {
+
+        //        }
+               
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+        //    return staffs;
+        //}
+
+
+        // public TransitionWithdrawal GetTransitionWithDrawalClients(int mode=0,long centerID=0,long classroomId=0,string clientID="0")
+        public AccessRoles SP_AccessRole(int type,string Agencyid)
+        {
+            AccessRoles AccessRoles = new AccessRoles();
+            try
+            {               
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", Agencyid));
+                    command.Parameters.Add(new SqlParameter("@type", type));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_GetAllRoles";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    GetAllAccessRoles(AccessRoles, _dataset,type);                    
+                    Connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return AccessRoles;
+        }
+
+        public void GetAllAccessRoles(AccessRoles AccessRoles, DataSet _dataset,int type)
+        {
+
+            if (_dataset.Tables[0].Rows.Count > 0)
+            {
+                AccessRoles.TitleList = (from DataRow dr5 in _dataset.Tables[0].Rows
+
+                                         select new AccessRoles
+                                         {
+                                             TitleId = Convert.ToInt32(dr5["MasterId"].ToString()),
+                                             TitleDescription = dr5["Description"].ToString(),
+                                             ColorCode = dr5["ColorCode"].ToString().Trim()
+                                         }).ToList();
+            }
+            Role role = null;
+            if(_dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+            {
+                AccessRoles.RoleList = new List<Role>();
+                foreach (DataRow dr in _dataset.Tables[1].Rows)
+                {
+                    role = new Role();
+                    role.RoleId = dr["RoleId"].ToString();
+                    role.RoleName = dr["RoleName"].ToString();
+                    role.UserList = new List<UserDetails>();
+                    if (_dataset.Tables[2].Rows.Count > 0)
+                    {
+                        role.UserList = (from DataRow dr5 in _dataset.Tables[2].Rows
+                                         where role.RoleId==dr5["RoleId"].ToString() && dr5["UserId"].ToString()!=""
+                                         select new UserDetails
+                                                       {
+                                                           UserId = dr5["UserId"].ToString(),
+                                                           StaffName = dr5["StaffName"].ToString(),
+                                                           IsAllow = Convert.ToBoolean(dr5["IsChecked"]),
+                                                           ToView = Convert.ToBoolean(dr5["ToView"]),
+                                                           ToEnter = Convert.ToBoolean(dr5["ToEnter"]),
+                                                           ToFollowUp = Convert.ToBoolean(dr5["ToFollow"])
+                                         }).ToList();
+                        if(role.UserList.Count>0)
+                        {
+                            role.IsAllow = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                            where role.RoleId == dr1["RoleId"].ToString() && Convert.ToInt32(dr1["IsChecked"]) > 0
+                                            select (true)).Any();
+
+                            if (type == 1) // for developmental team color code
+                            {
+                                role.ColorCode = (from DataRow dr1 in _dataset.Tables[2].AsEnumerable()
+                                                  where role.RoleId == dr1["RoleId"].ToString() && Convert.ToInt32(dr1["IsChecked"]) > 0
+                                                  select (dr1["ColorCode"].ToString())).FirstOrDefault();
+
+                            }
+                            if (type == 6) // for screening
+                            {
+                                role.ToView = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                               where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToView"]) == true
+                                               select (true)).Any();
+                                role.ToEnter = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                                where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToEnter"]) == true
+                                                select (true)).Any();
+
+                                role.ToFollowUp = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                                   where role.RoleId == dr1["RoleId"].ToString() && Convert.ToBoolean(dr1["ToFollow"]) == true
+                                                   select (true)).Any();
+                            }
+                            AccessRoles.RoleList.Add(role);
+                        }
+                      
+                    }
+                     
+                }
+            }
+        }
+        public AccessRoles SaveAccessRoles(List<Role> RoleList,string AgencyId,string UserId,int type)
+        {
+            AccessRoles AccessRoles = new AccessRoles();
+            try
+            {
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                    command.Parameters.AddWithValue("@Userid", UserId);
+                    command.Parameters.AddWithValue("@type", type);
+
+                    if(RoleList!=null&& RoleList.Count>0)
+                    {
+                  
+                        DataTable dt = new DataTable();
+                        dt.Columns.AddRange(new DataColumn[7]
+                        {
+                            new DataColumn("UserID",typeof(string)),
+                            new DataColumn("RoleID",typeof(string)),
+                            new DataColumn("ColorCode",typeof(string)),
+                              new DataColumn("MasterId",typeof(int)),
+                             new DataColumn("ToView",typeof(bool)),
+                             new DataColumn("ToEnter",typeof(bool)),
+                              new DataColumn("ToFollowup",typeof(bool)),
+                           
+                             
+                        });
+                        
+                        foreach(Role role in RoleList)
+                        {
+                            if (role.IsAllow || role.ToView || role.ToFollowUp || role.ToEnter)
+
+                            {
+                                if (role.UserList.Count==0)
+                                {
+                                    dt.Rows.Add(role.RoleId, null, role.ColorCode, type,role.ToView,role.ToEnter,role.ToFollowUp);
+
+                                }
+                                else
+                                {                              
+                                foreach (UserDetails user in role.UserList)
+                                {
+                                    if (user.IsAllow || user.ToView ||user.ToFollowUp || user.ToEnter)
+                                        dt.Rows.Add( role.RoleId, user.UserId, role.ColorCode, type,user.ToView,user.ToEnter,user.ToFollowUp);
+                                }
+
+                                }
+                            }
+                          
+                        }
+                        command.Parameters.AddWithValue("@AccessRoles", dt);
+                    }
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_SaveAccessRoles";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    GetAllAccessRoles(AccessRoles, _dataset,type);
+
+                    Connection.Close();
+
+                }
+            }
+
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return AccessRoles;
+
+        }
+
+        public AccessRoles SaveAccessRolesForScreening(List<Role> RoleList, string AgencyId, string UserId, int type)
+        {
+            AccessRoles AccessRoles = new AccessRoles();
+            try
+            {
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                    command.Parameters.AddWithValue("@Userid", UserId);
+                    command.Parameters.AddWithValue("@type", type);
+
+                    if (RoleList != null && RoleList.Count > 0)
+                    {
+
+                        DataTable dt = new DataTable();
+                        dt.Columns.AddRange(new DataColumn[6]
+                        {
+                            new DataColumn("UserID",typeof(string)),
+                            new DataColumn("RoleID",typeof(string)),
+                            new DataColumn("ToView",typeof(bool)),
+                             new DataColumn("ToEnter",typeof(bool)),
+                              new DataColumn("ToFollowup",typeof(bool)),
+                             new DataColumn("MasterId",typeof(int)),
+                        });
+
+                        foreach (Role role in RoleList)
+                        {
+                            if (role.IsAllow)
+                            {
+                                if (role.UserList.Count == 0)
+                                {
+                                    dt.Rows.Add(role.RoleId, null, role.ColorCode, type);
+                                   
+                                }
+                                else
+                                {
+                                    foreach (UserDetails user in role.UserList)
+                                    {
+                                        if (user.IsAllow)
+                                            dt.Rows.Add(role.RoleId, user.UserId,user.ToView,user.ToEnter,user.ToFollowUp, type);
+                                    }
+                                }
+                            }
+
+                        }
+                        command.Parameters.AddWithValue("@AccessRolesForScreening", dt);
+                    }
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_SaveAccessRoles";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    GetAllAccessRoles(AccessRoles, _dataset, type);
+                    Connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return AccessRoles;
+
+        }
+
     }
 }

@@ -162,7 +162,7 @@
                 }
 
             }
-          
+
 
 
         });
@@ -557,7 +557,7 @@
             var url = HostedDir + '/AgencyAdmin/AcceptanceRole';
             window.location.href = url;
             //$('#spinner').hide();
-        } 
+        }
         function AgencyAdminSlots() {
             $('#spinner').show();
             var url = HostedDir + '/AgencyAdmin/Slots';
@@ -609,6 +609,10 @@
     @RenderSection(name: "Script", required: false)
 </head>
 <body>
+    @{
+        List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+        AccessList = (List<Tuple<string, string>>)Session["AccessList"];
+    }
     <div class="header-top">
         <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 logo-place">
@@ -832,10 +836,11 @@
                                     <li> <a id="viewDevelopmental" onclick="AgencyAdminAcceptance();" href="#"><i class="fa fa-pie-chart"></i> Acceptance Process Roles</a> </li>
                                     <li> <a id="viewDevelopmental" onclick="AgencyAdminPIRRoles();" href="#"><i class="fa fa-pie-chart"></i> PIR Access Roles</a> </li>
                                     <li> <a id="viewDevelopmental" onclick="agencyAdminIncomeReviewRoles();" href="#"><i class="fa fa-pie-chart"></i> Income Review Roles</a> </li>
-                                </ul>
+                                    <li> <a id="viewDevelopmental"  href="@Url.Action("AccessRoles","AgencyAdmin")"><i class="fa fa-pie-chart"></i>Access Roles</a> </li>
+                                 </ul>
                             </li>
                             <li><a id="liFSWClass" onclick="SuperAdminClassroom();" href="#"><i class="fa fa-users"></i> FSW & HV Classroom Assignment</a></li>
-                           
+                            
                         }
                         else
                         {
@@ -865,7 +870,7 @@
 
                                 </ul>
                             </li>
-                           
+
                             <li style="display: none;"><a id="liFSWClass" onclick="SuperAdminClassroom();" href="#"><i class="fa fa-users"></i> FSW & HV Classroom Assignment</a></li>
                             <li style="display: none;">
                                 <a id="Yakkr" onclick="YakkrYakkr();" href="#">
@@ -875,19 +880,19 @@
 
                         }
                         <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-                        @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
+                        @if (AccessList != null && AccessList.Count > 0)
                         {
-                            <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
+                            <li>
+                                <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                <ul id="ul4" class="nav nav-second-level collapse">
+                                    @foreach (var item in AccessList)
+                                    {
+                                        <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                    }
+                                </ul>
+                            </li>
                         }
-                        @if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }
-                        @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                        {
-                            <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Client File Review</a></li>
-                        }
-                     
+
 
                         <li id="li8" class="">
                             <a href="#"><i class="fa fa-user-plus" style="padding-right: 5px;"></i>Matrix System <span class="fa arrow"></span></a>

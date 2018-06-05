@@ -2095,6 +2095,48 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public ActionResult AccessRoles()
+        {
+            AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
+            try
+            {
+               
+                accessRoles = new agencyData().SP_AccessRole(7,Session["AgencyID"].ToString());
+                accessRoles.TitleId = 7;
+                ViewBag.Titleid = 7;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(accessRoles);
+        }
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [HttpPost]
+        public ActionResult AccessRoles(List<Role> Role,int TitleId,string Command)
+        {
+            AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
+            try
+            {
+              
+                    accessRoles = new agencyData().SaveAccessRoles(Role, Session["AgencyID"].ToString(), Session["UserID"].ToString(), TitleId);
+
+                
+                accessRoles.TitleId = TitleId;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            ViewBag.Titleid = TitleId;
+            return View(accessRoles);
+        }
+
+
+
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult MoveSeats()
         {
 
@@ -2221,5 +2263,46 @@ namespace Fingerprints.Controllers
             return Json(null);
 
         }
+
+        public ActionResult GetStaffsByRole(string roleID)
+        {
+
+            AccessStaffs access = new AccessStaffs();
+            try
+            {
+              //  access = new agencyData().GetStaffsByRole(roleID);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(access);
+
+
+        }
+   
+
+        [HttpPost]
+        public PartialViewResult AccessRoleList(int type)
+        {
+
+            AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
+            try
+            {
+               accessRoles = new agencyData().SP_AccessRole(type, Session["AgencyID"].ToString());
+                accessRoles.TitleId = type;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            if(type==6)
+                return PartialView("~/Views/Partialviews/ScreeningAccessRoles.cshtml", accessRoles);
+            else
+            return PartialView("~/Views/Partialviews/AccessRolesListPartial.cshtml", accessRoles);
+        }
+
+
     }
 }

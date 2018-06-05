@@ -5,6 +5,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+
+
     @*<meta name="viewport" content="width=device-width" />*@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=11">
@@ -58,9 +61,12 @@
         <script src="~/Content/Scripts/js/script.js"></script>
         <script src="~/Content/Scripts/js/bootstrap.js"></script>*@
 
-    
+
     <link href="~/Content/defaultTheme.css" rel="stylesheet" media="screen" />
     <script src="~/Scripts/sketch.js"></script>
+
+    @RenderSection(name: "Style", required: false)
+
     <style>
         .ui-autocomplete {
             position: absolute;
@@ -93,7 +99,7 @@
             background-clip: padding-box;
             *border-right-width: 2px;
             *border-bottom-width: 2px;
-             z-index: 99999;
+            z-index: 99999;
         }
 
         .ui-menu-item > a.ui-corner-all {
@@ -170,11 +176,11 @@
         }
     </style>
     <script type="text/javascript">
-        if (' @Session["Roleid"].ToString()' == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
+        @*if (' @Session["Roleid"].ToString()' == "82b862e6-1a0f-46d2-aad4-34f89f72369a") {
             $(document).on("click", ".open-myModalPresent", function () {
 
             })
-        }
+        }*@
         $(document).ready(function () {
 
 
@@ -207,7 +213,7 @@
                 try {
                     $("#SearchFamily").autocomplete({
                         search: function (event, ui) {
-                        
+
                             if ($("#SearchFamily").val().trim().length > 0 && $("#SearchFamily").val().length > 2) {
                                 $('#Search').hide();
                                 $('#Searchloader').show();
@@ -318,7 +324,8 @@
                                     }))
                                 }
 
-                            })
+                            });
+
                         },
                         select: function (event, ui) {
                             window.location.href = HostedDir + '/AgencyUser/editStaff/' + ui.item.id;
@@ -378,7 +385,7 @@
         }
         function GotoRosterRoster() {
             $('#spinner').show();
-          //  var url = HostedDir + '/Roster/Roster';
+            //  var url = HostedDir + '/Roster/Roster';
             var url = HostedDir + '/Roster/RedirectToRoster';
 
             window.location.href = url;
@@ -429,10 +436,8 @@
         }
 
         function showPIRSummary() {
-          
             $('#spinner').show();
             var url = HostedDir + '/PIR/PIRSummary';
-           
             window.location.href = url;
         }
 
@@ -521,6 +526,13 @@
     @RenderSection(name: "Script", required: false)
 </head>
 <body>
+    @{
+        List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
+        AccessList=(List<Tuple<string, string>>)Session["AccessList"];
+    }
+
+
+
     <div class="header-top">
         <nav class="navbar navbar-inverse navbar-fixed-top header_ge" role="navigation">
             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 logo-place">
@@ -594,6 +606,11 @@
                         <!-- Facilities Manager-->
                         <a class="navbar-brand" href="~/Home/AgencyFacilitiesManagerDashboard"><img class="img-responsive logo-side-image" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
                     }
+                    else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
+                    {
+                        <!-- Facilities Worker-->
+                        <a class="navbar-brand" href="~/Home/AgencyFacilitiesManagerDashboard"><img class="img-responsive logo-side-image" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
+                    }
                     else
                     {
                         <a class="navbar-brand" href="~/Home/Agencyuserdashboard"><img class="img-responsive logo-side-image" src="~/content/img/ge_logo_banner_left2.png" style="max-width:250px" /></a>
@@ -618,7 +635,7 @@
                                 {
 
                                     int isRoster = 0;
-                                    isRoster = (ViewBag.Title == "Roster")?1:0;
+                                    isRoster = (ViewBag.Title == "Roster") ? 1 : 0;
 
                                     @*Family service worker and  Homevisitor search*@
                                     <div class="search-box">
@@ -686,10 +703,7 @@
                             <li><a id="Appointmentli" href="~/AgencyUser/FSWAppointment"><i class="fa fa-android fa-fw"></i>Appointment <span id="hmAptct">(@Session["Appointment"])</span></a></li>
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
                             <li><a id="GroupCaseNotesli" href="~/AgencyUser/GroupCaseNotes"><i class="fa fa-android fa-newspaper-o"></i> Group Case Notes</a></li>
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
-                            {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
+
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
                             <li>
                                 <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance">
@@ -712,32 +726,30 @@
                                 </a>
 
                             </li>
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                   
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
 
 
-                           
-
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
                             @if (Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc")
                             {
                                 <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
 
                             }
-                        </ul>
+                            @if (AccessList != null && AccessList.Count > 0)
+                            {
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+
+                            </ul>
                     </div>
                 </div>
+
             }
             else if (Session["Roleid"].ToString() == "4b77aab6-eed1-4ac3-b498-f3e80cf129c0")
             {
@@ -752,11 +764,19 @@
                                 <li> <a id="lireport" href="~/ERSEA/CenterAnalysis"><i class="fa fa-university fa-fw"></i>&nbsp;Center Analysis</a> </li>
                                 <li> <a id="lireport" href="~/ERSEA/WorkshopAnalysis"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Workshop Analysis</a> </li>
                                 <li> <a id="lireport" href="~/Home/DaysOff"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Center Closure</a> </li>*@
-
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
+
                         </ul>
                     </div>
                 </div>
@@ -799,10 +819,7 @@
                             <li> <a id="lireport" href="~/Roster/ObservationNote"><i class="fa fa-dashboard fa-fw"></i>Group Observation Notes</a> </li>
                             @*<li> <a id="lireport" href="~/Teacher/DomainObservationResults"><i class="fa fa-dashboard fa-fw"></i>Group Observation Notes</a> </li>*@
 
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
-                            {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
+
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
                             <li>
                                 <a id="lireport" href="~/EducationMaterial/EducationMaterialMaintenance">
@@ -830,22 +847,17 @@
 
                                 </a>
                             </li>
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-
-                            { 
-
-                            <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-
-                            }
-
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
                         </ul>
                     </div>
@@ -877,25 +889,10 @@
                                 </ul>
                             </li>
 
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
+                            <li> <a id="lireport" href="~/Nurse/FacilityWorksStatus"><i class="fa fa-dashboard fa-fw"></i>Facility Work Status</a> </li>
 
 
 
-
-                            {
-                            <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-
-                           
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
                             <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a></li>
                             @* <li> <a id="lireport" href="~/ERSEA/WorkshopAnalysis"><i class="fa fa-dashboard fa-fw"></i>Workshop Analysis</a> </li>*@
                             <li><a id="li9" href="~/Home/ParentContactInformation"><i class="fa fa-bolt"></i> Parent Contact Information</a> </li>
@@ -930,13 +927,20 @@
 
                                 </ul>
                             </li>
-
-
-
-
-
                             <li> <a id="lireport" href="~/Home/VolunteerBudget"><i class="fa fa-dashboard fa-fw" aria-hidden="true"></i>Inkind Budget</a> </li>
-                        </ul>
+                            @if (AccessList != null && AccessList.Count > 0)
+                            {
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                         </ul>
                     </div>
                 </div>
             }
@@ -974,25 +978,19 @@
                                     </div>
                                 </a>
                             </li>
-
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
 
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
                         </ul>
                     </div>
                 </div>
@@ -1032,23 +1030,17 @@
                                 </a>
                             </li>
 
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
-
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
                         </ul>
                     </div>
@@ -1092,25 +1084,19 @@
                                     </div>
                                 </a>
                             </li>
-
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
 
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
                         </ul>
                     </div>
                 </div>
@@ -1131,23 +1117,17 @@
                             <li><a id="li7" href="~/AgencyUser/staffReport"><i class="fa fa-bar-chart-o fa-fw"></i> Staff Report</a></li>
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
 
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
-
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                              @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
 
                         </ul>
@@ -1162,28 +1142,45 @@
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
                             <li> <a id="li1" href="~/Home/AgencyFacilitiesManagerDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-
-
-                             @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
+                              <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
 
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
+
+                        </ul>
+                    </div>
+                </div>
+            }
+            else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
+            {
+                <!-- Facilities Worker-->
+                <div class="navbar-default sidebar" role="navigation">
+                    <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
+                        <ul id="side-menu" class="nav in">
+                            <li> <a id="li1" href="~/Home/FacilityWorkerDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
-
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                              @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
+                              <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
 
                         </ul>
                     </div>
@@ -1227,28 +1224,17 @@
 
                                 </a>
                             </li>
-
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
-
-
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-
-                               
-
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                            @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
 
                         </ul>
@@ -1263,26 +1249,22 @@
                         <ul id="side-menu" class="nav in">
 
                             <li> <a id="li1" href="~/Home/DisabilityStaffDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
+                            
+                            @if (AccessList != null && AccessList.Count > 0)
+                            {
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
 
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
-                            {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
 
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-
-                              @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
 
                         </ul>
                     </div>
@@ -1300,23 +1282,23 @@
                             <li> <a id="li1" href="~/Home/Dashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
                             <li> <a id="lireport" href="~/Home/CenterClosure"><i class="fa fa-dashboard fa-fw"></i>Center Closure</a> </li>
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-                             @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
+
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
                             <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
                             <li> <a id="lireport" href="~/Home/VolunteerBudget"><i class="fa fa-dashboard fa-fw"></i>Inkind Budget</a> </li>
-
+                            @if (AccessList != null && AccessList.Count > 0)
+                            {
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -1333,7 +1315,19 @@
                             <li> <a id="lireport" href="~/Billing/BillingReview"><i class="fa fa-dashboard fa-fw"></i>Billing Review</a> </li>
                             <li> <a id="lireport" href="~/Billing/GenerateInvoice"><i class="fa fa-dashboard fa-fw"></i>Generate Invoice</a> </li>
                             <li> <a id="lireport" href="~/Billing/AccountReceivableListing"><i class="fa fa-dashboard fa-fw"></i>Accounts Recievable Listing</a> </li>
-                        </ul>
+                            @if (AccessList != null && AccessList.Count > 0)
+                            {
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                          </ul>
                     </div>
                 </div>
             }
@@ -1352,24 +1346,23 @@
                             <li> <a id="lireport" href="~/ERSEA/CenterAnalysis"><i class="fa fa-university fa-fw"></i>&nbsp;Center Analysis</a> </li>
                             <li> <a id="lireport" href="~/ERSEA/WorkshopAnalysis"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Workshop Analysis</a> </li>
 
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
-                            {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
-                            }
 
-
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
+                            <li> <a id="lireport" href="~/Home/DaysOff"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Center Closure</a> </li>
+                            <li> <a id="lireport" href="~/Inkind/PublicAssetEntry"><i class="fa fa-dashboard fa-fw"></i>Public Asset Entry</a> </li>
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-                             <li> <a id="lireport" href="~/Home/DaysOff"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Center Closure</a> </li>
-                           <li> <a id="lireport" href="~/Inkind/PublicAssetEntry"><i class="fa fa-dashboard fa-fw"></i>Public Asset Entry</a> </li>
                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-                        
+
                         </ul>
                     </div>
                 </div>
@@ -1384,22 +1377,19 @@
                             <li><a id="Rosterli" onclick="GotoRosterRoster();" href="#"><i class="fa fa-table fa-fw"></i> Roster</a></li>
                             <li> <a id="li1" href="~/Transportation/CreateRoute"><i class="fa fa-road fa-fw"></i> Create Route</a> </li>
                             <li> <a id="li1" href="~/Transportation/AssignRoute"><i class="fa fa fa-map fa-fw"></i> Assign Route</a> </li>
-
-
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
-
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-                             <li><a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
+                            <li><a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
                         </ul>
                     </div>
                 </div>
@@ -1411,28 +1401,21 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            @*<li> <a id="li1" href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>*@
                             <li><a id="li1" href="~/BusMonitor/Dashboard"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-
-                            @if (Fingerprints.Utilities.Helper.GetUserAccessPIR())
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="Rosterli" onclick="showPIRSummary();" href="#"><i class="fa fa-table fa-fw"></i>PIR</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
                             
-                            
-                             @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
-                            {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
-                            }
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-                             @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
+                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
                             @if (Session["Roleid"].ToString().ToUpper() == "2AF7205E-87B4-4CA7-8CA8-95827C08564C")
                             {
                                 <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
@@ -1449,35 +1432,24 @@
                 <div class="navbar-default sidebar" role="navigation">
                     <div class="sidebar-nav navbar-collapse" aria-expanded="false" style="height: 1px;">
                         <ul id="side-menu" class="nav in">
-                            @*<li> <a id="li1" href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>*@
                             <li><a id="li1" href="~/Home/Dashboard"><i class="fa fa-dashboard fa-fw"></i>Dashboard</a> </li>
                             <li> <a id="lireport" href="~/Home/CenterClosure"><i class="fa fa-dashboard fa-fw"></i>Center Closure</a> </li>
-                            <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
-                            @if (Convert.ToBoolean(Session["IsDemographic"].ToString()))
+                            @if (AccessList != null && AccessList.Count > 0)
                             {
-                                <li><a id="IsDemographic" href="~/AgencyUser/DemographicPercentage"><i class="fa fa-android fa-fw"></i>Demographic Review</a></li>
+                                <li>
+                                    <a id="li9" href="#"><i class="fa fa-table fa-fw"></i> My Menu <span class="fa arrow"></span></a>
+                                    <ul id="ul4" class="nav nav-second-level collapse">
+                                        @foreach (var item in AccessList)
+                                        {
+                                            <li><a id="IsDemographic" href="@item.Item2"><i class="fa fa-android fa-fw"></i>@item.Item1</a></li>
+                                        }
+                                    </ul>
+                                </li>
                             }
-                               
-                                 @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                                {
-                                    <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                                }
-                                @if (Session["Roleid"].ToString().ToUpper() == "2AF7205E-87B4-4CA7-8CA8-95827C08564C")
-                                {
-                                    <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
-                                    <li> <a id="lireport" href="~/AgencyUser/MatrixSummary"><i class="fa fa-dashboard fa-fw"></i>Matrix Summary</a> </li>
-                                }
+                            
+                            
+                             <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
 
-                           
-                            @*@if (Convert.ToBoolean(Session["IsAcceptance"].ToString()))
-                            {
-                                <li><a id="IsAcceptance" href="~/AgencyUser/AcceptanceProcess"><i class="fa fa-android fa-fw"></i>Acceptance Process</a></li>
-                            }*@
-			    
-                             @if (Convert.ToBoolean(Session["IsCoreTeam"].ToString()))
-                            {
-                                <li><a id="clientFileReview" href="~/AgencyUser/ClientFileReview"><i class="fa fa-android fa-fw"></i>Child & Family Review</a></li>
-                            }
                             @if (Session["Roleid"].ToString().ToUpper() == "2AF7205E-87B4-4CA7-8CA8-95827C08564C")
                             {
                                 <li> <a id="lireport" href="~/AgencyUser/CFRReport"><i class="fa fa-dashboard fa-fw"></i>CFR Report</a> </li>
@@ -1485,11 +1457,12 @@
                             }
 
 
+
+
                         </ul>
                     </div>
                 </div>
             }
-
 
 
 
@@ -1590,7 +1563,7 @@
             // $('.arrow').css({ '-webkit-transform': 'rotate(180deg)', 'transform': 'rotate(180deg)' });
 
             var footerHeight = $('.footer-one').height();
-              var bodyHeight = $('body').height();
+            var bodyHeight = $('body').height();
             var windowHeight = window.height;
             var logoimageHeight = $('.logo-side-image').height();
             var sidemenu = $('#side-menu');

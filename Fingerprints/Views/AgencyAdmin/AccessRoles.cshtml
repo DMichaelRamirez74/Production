@@ -1,0 +1,1149 @@
+﻿@model FingerprintsModel.AccessRoles
+
+@{
+
+    @section Title{
+        Access Roles
+    }
+
+    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+
+
+
+@section MainContentHolder{
+
+    <link href="~/Content/css/spectrum.css" rel="stylesheet" />
+    <script src="~/Scripts/spectrum.js"></script>
+
+
+    <style type="text/css">
+                /*table-color*/
+                tr.view.open {
+                    border-style: solid;
+                    border-color: #e2e2e2 !important;
+                    border-width: 1px 1px 0 1px;
+                    margin-top: 2px;
+                }
+
+                    tr.view.open td {
+                        border-top: 0;
+                    }
+
+                tr.input_smtmarg.active {
+                    border-style: solid;
+                    border-color: #e2e2e2;
+                    border-width: 1px 1px 1px 1px;
+                }
+                    /*
+        tr.input_smtmarg.active td {
+            border-top: 1px solid #f5f5f5;
+        }
+                  tr.view.open {
+                      box-shadow: 0 0 7px 1px #ccc;
+                  }
+
+                  tr.input_smtmarg.active {
+            box-shadow: 0px 3px 8px 1px #ccc;
+        }*/
+                    tr.input_smtmarg.active td {
+                    }
+
+
+
+
+
+
+
+
+
+                .icefu_form {
+                    background-color: #fff;
+                }
+
+                .btn-submit-edu:hover {
+                    background-color: #2d5079;
+                    text-decoration: none;
+                    color: #fff;
+                }
+
+                .btn-submit-edu {
+                    background-color: #163e6d;
+                    float: right;
+                    color: #fff;
+                    padding: 7px 12px;
+                    border: 0;
+                }
+
+
+                tr.view.open .deve-td:last-child:after {
+                    transform: rotate(-180deg);
+                    color: #333;
+                }
+
+                .icefu_form {
+                    width: 100%;
+                    float: left;
+                    margin-top: 15px;
+                    overflow-y: scroll;
+                }
+
+                .table-headfix tbody tr {
+                    display: table;
+                    table-layout: fixed;
+                    width: 100%;
+                    cursor: pointer;
+                }
+
+                .deve-td:after {
+                    /* position: absolute; */
+                    top: 49%;
+                    /* margin-left: 81px; */
+                    float: right;
+                    width: 10px;
+                    height: 16px;
+                    margin-top: 8px;
+                    font: 18px fontawesome;
+                    color: #999;
+                    content: "\f0d7";
+                    transition: all .3s ease;
+                    margin-right: 32px;
+                    cursor: pointer;
+                }
+
+                div#settab .item span.active a {
+                    box-shadow: 0 0 7px 2px #fff;
+                    height: 56px;
+                    margin-top: 8px;
+                }
+
+                #page-wrapper {
+                    padding: 0;
+                }
+
+                .educenter_setting {
+                    width: 100%;
+                    float: left;
+                    background-color: #0a417b;
+                    padding: 70px 30px 30px;
+                }
+
+                .settab_pills {
+                    width: 100%;
+                    float: left;
+                    text-align: center;
+                }
+
+                #settab {
+                    border: 0;
+                    max-width: 100%;
+                    margin: auto;
+                    text-align: center;
+                    display: inline-block;
+                }
+
+                    #settab .item span a {
+                        border: 2px solid transparent;
+                        margin-right: 4px;
+                        color: #fff !important;
+                    }
+
+                .setting_ic_header {
+                    width: 100%;
+                    float: left;
+                    background-color: #1abc9c;
+                    color: #fff;
+                    text-align: center;
+                    text-transform: uppercase;
+                    font-family: Verdana;
+                    border-radius: 7px;
+                    margin-bottom: 15px;
+                }
+
+                    .setting_ic_header h3 {
+                        margin: 0;
+                        font-weight: 600;
+                        font-size: 20px;
+                        padding: 18px 0;
+                    }
+
+                #settab .item span a {
+                    color: #fff !important;
+                    font-size: 16px !important;
+                    font-weight: 600;
+                    border-radius: 0;
+                    letter-spacing: 0.5px;
+                }
+
+                .ic_forsub a:hover {
+                    background-color: #2d5079;
+                    text-decoration: none;
+                    color: #fff;
+                }
+
+                table#settab_edu tr td:nth-child(2) {
+                    text-align: center;
+                }
+
+                table#settab_edu tr td:first-child {
+                    color: #163b69;
+                }
+
+                .icefu_form {
+                    width: 100%;
+                    float: left;
+                    margin-top: 15px;
+                }
+
+                table#settab_edu {
+                    background-color: #fff;
+                    width: 100%;
+                    float: left;
+                }
+
+                    table#settab_edu thead th {
+                        background-color: #34495e;
+                        color: #fff;
+                        text-align: left !important;
+                    }
+
+                    table#settab_edu tr th:first-child {
+                        width: 70%;
+                    }
+
+                tr.input_smtmarg {
+                    display: none !important;
+                }
+
+                    tr.input_smtmarg.active {
+                        display: table-row !important;
+                    }
+
+                #settab .item > span.active > a:focus, #settab .item > span > a:hover, #settab .item > span.active > a {
+                    border: 2px solid #fff !important;
+                }
+
+                /*#settab .item span.devel_ic a {
+                    background-color: #3498db !important;
+                }
+
+                #settab .item span.demogr_ic a {
+                    background-color: #e74c3c !important;
+                }
+
+                #settab .item span.income_ic a {
+                    background-color: #2ecc71 !important;
+                }
+
+                #settab .item span.access_ic a {
+                    background-color: #9a59b5 !important;
+                }
+
+                #settab .item span.variance_ic a {
+                    background-color: #f39c12 !important;
+                }*/
+                div#settab .item span a {
+                    color: #fff !important;
+                    letter-spacing: 0.5px;
+                }
+
+                #settab .item {
+                    border: 0;
+                    padding-right: 5px;
+                }
+
+                input.edu_next[type="checkbox"]::before {
+                    content: "";
+                    position: absolute;
+                    width: 15px;
+                    height: 15px;
+                    background-color: #fff;
+                    border: 1px solid #174472;
+                    left: 0px;
+                }
+
+                input.edu_next[type="checkbox"] {
+                    position: relative;
+                    outline: none;
+                    margin-right: 10px;
+                }
+
+                input.edu_color {
+                    margin-left: 15px;
+                }
+
+                .sub_table_icc tr {
+                    background-color: rgba(22,59,105,0.1);
+                }
+
+                .sub_table_icc {
+                    width: 100%;
+                    max-height: 250px;
+                    overflow-y: scroll;
+                    float: left;
+                    background-color: rgba(22,59,105,0.1);
+                }
+
+                    .sub_table_icc table {
+                        margin-bottom: 0px;
+                    }
+
+                        .sub_table_icc table thead th label {
+                            width: auto;
+                            color: #333;
+                            padding-left: 5px;
+                        }
+
+                        .sub_table_icc table thead th {
+                            background-color: transparent !important;
+                        }
+
+                input.edu_next[type="checkbox"]:checked::after {
+                    content: "\2713";
+                    position: absolute;
+                    color: #174472;
+                    font-size: 15px;
+                    font-weight: 600;
+                    border-color: #174472;
+                    top: -3px;
+                    left: 1px;
+                }
+
+                #settab .item span a {
+                    font-size: 32px;
+                    color: rgba(255,255,255,0.4) !important;
+                    transition: all 0.6s ease 0s;
+                    margin: 10px;
+                    text-align: center;
+                    line-height: 17px;
+                }
+
+                #settab item span a:hover {
+                    color: #fff !important;
+                    transition: all 0.4s ease 0s;
+                }
+
+                .ic_forsub {
+                    width: 100%;
+                    float: left;
+                    text-align: center;
+                }
+
+                    .ic_forsub a {
+                        float: right;
+                    }
+
+                    .ic_forsub h3 {
+                        width: auto;
+                        float: none;
+                        display: inline-block;
+                        margin: 0;
+                    }
+
+                .ictab_content {
+                    width: 100%;
+                    float: left;
+                    background-color: #fff;
+                    border-radius: 7px;
+                    padding: 10px;
+                }
+
+                .ictab_content {
+                    width: 100%;
+                    float: left;
+                    background-color: #f1f5f8;
+                    border-radius: 7px;
+                    padding: 10px;
+                    margin-top: 20px;
+                    margin-bottom: 15px;
+                }
+
+                .ic_forsub a {
+                    background-color: #163e6d;
+                    float: right;
+                    color: #fff;
+                    padding: 16px;
+                }
+                /* Table -Fixed */
+                .table-headfix thead {
+                    cursor: pointer;
+                    table-layout: fixed;
+                    width: calc(100% - 0px);
+                    display: table;
+                }
+
+                .table-headfix tbody {
+                    height: 235px;
+                    overflow-y: scroll;
+                    width: calc(100% - 0px);
+                    float: left;
+                    display: table-column;
+                }
+
+                    .table-headfix tbody tr {
+                        display: table;
+                        table-layout: fixed;
+                        width: 100%;
+                    }
+
+                @@media only screen and (min-width: 320px) and (max-width: 767px) {
+                    #settab span {
+                        width: 100%;
+                        float: left;
+                        margin-bottom: 5px;
+                    }
+
+                    #settab {
+                        border: 0;
+                        text-align: center;
+                        width: 100%;
+                        float: left;
+                    }
+                }
+
+                @@media only screen and (min-width: 768px) and (max-width: 991px) {
+                    #settab span a {
+                        color: #fff !important;
+                        font-size: 12px;
+                        font-weight: 100;
+                        border-radius: 0;
+                        padding: 6px;
+                        letter-spacing: 0;
+                    }
+                }
+
+                /* fixed table */
+                .table-headfix thead {
+                    cursor: pointer;
+                    table-layout: fixed;
+                    width: calc(100% - 0px);
+                    display: table;
+                }
+
+                .table-headfix tbody {
+                    height: auto;
+                    max-height: 500px;
+                    width: calc(100% - 0px);
+                    float: left;
+                    display: table-column;
+                }
+
+                    .table-headfix tbody tr {
+                        display: table;
+                        table-layout: fixed;
+                        width: 100%;
+                        cursor: pointer;
+                    }
+                /*fixed table*/
+                /*tab silder*/
+                .MultiCarousel {
+                    float: left;
+                    overflow: hidden;
+                    padding: 0;
+                    width: 100%;
+                    position: relative;
+                }
+
+                    .MultiCarousel .MultiCarousel-inner {
+                        transition: 1s ease all;
+                        float: left;
+                    }
+
+                        .MultiCarousel .MultiCarousel-inner .item {
+                            float: left;
+                        }
+
+                .mss_car .leftLst, .mss_car .rightLst {
+                    cursor: pointer;
+                    position: absolute;
+                    border-radius: 50%;
+                    top: 72px;
+                    color: #fff;
+                    background-color: transparent !important;
+                    font-size: 30px;
+                }
+
+                .mss_car .leftLst {
+                    left: -24px;
+                }
+
+                .mss_car .rightLst {
+                    right: -24px;
+                }
+
+                #settab .item span a {
+                    float: left;
+                    width: 100%;
+                    text-decoration: none;
+                    height: 52px;
+                    padding: 10px 0;
+                }
+
+                .mss_car {
+                    position: relative;
+                    width: 100%;
+                    max-width: 850px;
+                    margin: auto;
+                    float: none;
+                    display: block;
+                }
+
+                .fun-modal-popup {
+                    width: 100%;
+                    float: left;
+                    margin: 20px 0;
+                    text-align: right;
+                }
+
+                    .fun-modal-popup a {
+                        color: #fff;
+                        background-color: #16a086;
+                        padding: 8px 15px;
+                        border-radius: 4px;
+                        text-decoration: none;
+                        font-weight: 600;
+                    }
+
+
+
+                .fk-carousel {
+                    float: none;
+                    margin: auto;
+                    width: 100%;
+                    padding: 0 60px;
+                }
+
+
+
+
+                .MultiCarousel .leftLst.over, .MultiCarousel .rightLst.over {
+                    pointer-events: none;
+                    background: #ccc;
+                }
+
+                /**/
+                .carousel-control {
+                    width: 4%;
+                }
+
+                    .carousel-control.left, .carousel-control.right {
+                        margin-left: 15px;
+                        background-image: none;
+                    }
+
+                @@media (max-width: 767px) {
+                    .carousel-inner .active.left {
+                        left: -100%;
+                    }
+
+                    .carousel-inner .next {
+                        left: 100%;
+                    }
+
+                    .carousel-inner .prev {
+                        left: -100%;
+                    }
+
+                    .active > div {
+                        display: none;
+                    }
+
+                        .active > div:first-child {
+                            display: block;
+                        }
+                }
+
+                @@media (min-width: 767px) and (max-width: 992px ) {
+                    .carousel-inner .active.left {
+                        left: -50%;
+                    }
+
+                    .carousel-inner .next {
+                        left: 50%;
+                    }
+
+                    .carousel-inner .prev {
+                        left: -50%;
+                    }
+
+                    .active > div {
+                        display: none;
+                    }
+
+                        .active > div:first-child {
+                            display: block;
+                        }
+
+                            .active > div:first-child + div {
+                                display: block;
+                            }
+                }
+
+                @@media (min-width: 992px ) {
+                    .carousel-inner .active.left {
+                        left: -16.7%;
+                    }
+
+                    .carousel-inner .next {
+                        left: 16.7%;
+                    }
+
+                    .carousel-inner .prev {
+                        left: -16.7%;
+                    }
+                }
+
+                .ersea-detl-title h3 {
+                    text-align: center;
+                    font-weight: bold;
+                    color: #fff;
+                    margin-top: 0;
+                }
+
+                .ersea_ovr img {
+                    margin: auto;
+                }
+    </style>
+
+    <div class="container-fuild">
+        <div class="row" style="margin:0px;">
+            <div class="educenter_setting">
+
+                <div class="col-xs-12 ersea-detl-title">
+                    <h3>Access Roles</h3>
+                    <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                </div>
+
+                <div class="mss_car">
+                    <div class="MultiCarousel" data-items="1,3,5,6" data-slide="1" id="MultiCarousel1" data-interval="1000">
+                        <div class="MultiCarousel-inner" style="transform: translateX(-168px); width: 2184px;">
+                            <div class="settab_pills">
+                                <div class="nav nav-tabs" id="settab">
+
+                                    @if (Model != null && Model.TitleList != null && Model.TitleList.Count > 0)
+                                    {
+                                        int i = 0;
+                                        foreach (var item in Model.TitleList)
+                                        {
+                                            if (i == 0)
+                                            {
+                                                <div class="item"><span class="active title@(item.TitleId) cls-title" data-title="@item.TitleDescription" onclick="accessRole.GetAccessRoleList(@item.TitleId,this)"><a style="background-color:@item.ColorCode.Trim()" data-toggle="tab" href="#">@item.TitleDescription</a></span></div>
+
+                                            }
+                                            else
+                                            {
+                                                <div class="item"><span class="cls-title title@(item.TitleId)" data-title="@item.TitleDescription" onclick="accessRole.GetAccessRoleList(@item.TitleId,this)"><a style="background-color:@item.ColorCode.Trim()" data-toggle="tab" href="#">@item.TitleDescription</a></span></div>
+
+                                            }
+                                            i++;
+
+                                        }
+
+                                    }
+
+                                    @*<div class="item"><span class="demogr_ic"><a data-toggle="tab" href="#development">Demographic</a></span></div>
+
+                                        <div class="item"><span class="access_ic"><a data-toggle="tab" href="#development">PIR Access</a></span></div>
+                                        <div class="item"><span class="income_ic"><a data-toggle="tab" href="#development">Income Review</a></span></div>
+
+                                        <div class="item"><span class="variance_ic"><a data-toggle="tab" href="#development">Income Review</a></span></div>
+
+                                        <div class="item" style="width: 168px;"><span class="variance_ic"><a data-toggle="tab" href="#variance" aria-expanded="true">Variance Classroom</a></span></div>
+
+                                        <div class="item" style="width: 168px;"><span class="devel_ic"><a data-toggle="tab" href="#development">Development Team</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="devel_ic"><a data-toggle="tab" href="#development">Development Team</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="devel_ic"><a data-toggle="tab" href="#development">Development Team</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="devel_ic"><a data-toggle="tab" href="#development">Development Team</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="demogr_ic"><a data-toggle="tab" href="#demographic" aria-expanded="true">Demographic</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="income_ic"><a data-toggle="tab" href="#income_review">Income Review</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="access_ic"><a data-toggle="tab" href="#access">PIR Access</a></span></div>
+                                        <div class="item" style="width: 168px;"><span class="variance_ic"><a data-toggle="tab" href="#variance">Variance Classroom</a></span></div>*@
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <a class="leftLst"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+                    <a class="rightLst"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+                </div>
+
+                @*<!-- settab pills-->*@
+
+              
+                @if (Model.TitleId == 6)
+                {
+                    @Html.Partial("~/Views/Partialviews/ScreeningAccessRoles.cshtml", Model)
+                }
+                else
+                {
+                    @Html.Partial("~/Views/Partialviews/AccessRolesListPartial.cshtml", Model)
+                }
+            </div>
+
+        </div>
+    </div>
+
+
+}
+@section Script{
+
+
+
+    <script type="text/javascript">
+
+        var TitleId=1;
+        $(document).ready(function () {
+            var itemsMainDiv = ('.MultiCarousel');
+            var itemsDiv = ('.MultiCarousel-inner');
+            var itemWidth = "";
+
+
+            $(".fold-table tr.view").on("click", function () {
+                $(this).toggleClass("open").next(".fold").toggleClass("open");
+
+                if($(this).hasClass('open'))
+                {
+                    $(this).next('.input_smtmarg ').addClass('active');
+                    $(this).next('.input_smtmarg ').slideDown("slow");
+                }
+                else {
+                    $(this).next('.input_smtmarg ').removeClass('active');
+                    $(this).next('.input_smtmarg ').slideUp("slow");
+                }
+            });
+            // tab slider
+            $('#right-coursael').on('click', function () {
+
+                $('.carousel[data-type="multi"] .item').each(function () {
+                    var next = $(this).next();
+                    if (!next.length) {
+                        next = $(this).siblings(':first');
+                    }
+                    next.children(':first-child').clone().appendTo($(this));
+
+                    for (var i = 0; i < 4; i++) {
+                        next = next.next();
+                        if (!next.length) {
+                            next = $(this).siblings(':first');
+                        }
+
+                        next.children(':first-child').clone().appendTo($(this));
+                    }
+                });
+
+
+
+            });
+            $('.carousel').carousel({
+                interval: false
+            });
+            $('.leftLst, .rightLst').click(function () {
+                var condition = $(this).hasClass("leftLst");
+                if (condition)
+                    click(0, this);
+                else
+                    click(1, this)
+            });
+            ResCarouselSize();
+            $(window).resize(function () {
+                ResCarouselSize();
+            });
+            function ResCarouselSize() {
+                var incno = 0;
+                var dataItems = ("data-items");
+                var itemClass = ('.item');
+                var id = 0;
+                var btnParentSb = '';
+                var itemsSplit = '';
+                var sampwidth = $(itemsMainDiv).width();
+                var bodyWidth = $('body').width();
+                $(itemsDiv).each(function () {
+                    id = id + 1;
+                    var itemNumbers = $(this).find(itemClass).length;
+                    btnParentSb = $(this).parent().attr(dataItems);
+                    itemsSplit = btnParentSb.split(',');
+                    $(this).parent().attr("id", "MultiCarousel" + id);
+
+
+                    if (bodyWidth >= 1200) {
+                        incno = itemsSplit[3];
+                        itemWidth = sampwidth / incno;
+                    }
+                    else if (bodyWidth >= 992) {
+                        incno = itemsSplit[2];
+                        itemWidth = sampwidth / incno;
+                    }
+                    else if (bodyWidth >= 768) {
+                        incno = itemsSplit[1];
+                        itemWidth = sampwidth / incno;
+                    }
+                    else {
+                        incno = itemsSplit[0];
+                        itemWidth = sampwidth / incno;
+                    }
+                    $(this).css({ 'transform': 'translateX(0px)', 'width': itemWidth * itemNumbers });
+
+                    $(this).find(itemClass).each(function () {
+                        $(this).outerWidth(itemWidth);
+                    });
+
+                    $(".leftLst").addClass("over");
+                    $(".rightLst").removeClass("over");
+
+                });
+            }
+
+
+            //this function used to move the items
+            function ResCarousel(e, el, s) {
+                var leftBtn = ('.leftLst');
+                var rightBtn = ('.rightLst');
+                var translateXval = '';
+                var divStyle = $(el + ' ' + itemsDiv).css('transform');
+                var values = divStyle.match(/-?[\d\.]+/g);
+                var xds = Math.abs(values[4]);
+                if (e == 0) {
+                    translateXval = parseInt(xds) - parseInt(itemWidth * s);
+                    $(el + ' ' + rightBtn).removeClass("over");
+
+                    if (translateXval <= itemWidth / 2) {
+                        translateXval = 0;
+                        $(el + ' ' + leftBtn).addClass("over");
+                    }
+                }
+                else if (e == 1) {
+                    var itemsCondition = $(el).find(itemsDiv).width() - $(el).width();
+                    translateXval = parseInt(xds) + parseInt(itemWidth * s);
+                    $(el + ' ' + leftBtn).removeClass("over");
+
+                    if (translateXval >= itemsCondition - itemWidth / 2) {
+                        translateXval = itemsCondition;
+                        $(el + ' ' + rightBtn).addClass("over");
+                    }
+                }
+                $(el + ' ' + itemsDiv).css('transform', 'translateX(' + -translateXval + 'px)');
+            }
+
+            //It is used to get some elements from btn
+            function click(ell, ee) {
+                // var Parent = "#" + $(ee).parent().attr("id");
+                var Parent = "#" + $(ee).siblings('.MultiCarousel').attr("id");
+
+                //var slide = $(Parent).attr("data-slide");
+                var slide = $(ee).siblings('.MultiCarousel').attr("data-slide");
+                ResCarousel(ell, Parent, slide);
+            }
+
+
+
+
+
+            //this function define the size of the items
+
+        });
+        function setUserColorSpectrum()
+        {
+
+            $('.usercolor').spectrum('destroy');
+            $(".usercolor").spectrum({
+                allowEmpty: false,
+                //color: "#000",
+                showInput: true,
+                containerClassName: "full-spectrum",
+                showInitial: true,
+                showPalette: true,
+                showSelectionPalette: true,
+                cancelText: "Cancel",
+                chooseText: "Choose",
+                showAlpha: true,
+                maxPaletteSize: 10,
+                preferredFormat: "hex",
+                localStorageKey: "spectrum.demo",
+                //move: function (color) {
+                //    //updateBorders(color);
+
+                //    color: '#fff';
+                //},
+                show: function () {
+                },
+                beforeShow: function () {
+                },
+                hide: function (color) {
+                    //updateBorders(color);
+                    return false;
+                },
+                palette: [
+                    ["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)", /*"rgb(153, 153, 153)","rgb(183, 183, 183)",*/
+                    "rgb(204, 204, 204)", "rgb(217, 217, 217)", /*"rgb(239, 239, 239)", "rgb(243, 243, 243)",*/ "rgb(255, 255, 255)"],
+                    ["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)",
+                    "rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"],
+                    ["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)",
+                    "rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)",
+                    "rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)",
+                    "rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)",
+                    "rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)",
+                    "rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)",
+                    "rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)",
+                    "rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)",
+                    /*"rgb(133, 32, 12)", "rgb(153, 0, 0)", "rgb(180, 95, 6)", "rgb(191, 144, 0)", "rgb(56, 118, 29)",
+                    "rgb(19, 79, 92)", "rgb(17, 85, 204)", "rgb(11, 83, 148)", "rgb(53, 28, 117)", "rgb(116, 27, 71)",*/
+                    "rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)",
+                    "rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"]
+                ]
+            });
+
+            $('.dev-role-check').not(':checked').siblings('.sp-replacer').hide()
+        }
+
+
+        $(document).ready(function () {
+
+            setUserColorSpectrum();
+            accessRole.SetTitleActive();
+            //color Picker query//
+
+            $('input').keypress(function () {
+                if ($(this).val() == 'MM/DD/YYYY') {
+                    $(this).val('');
+                    // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                }
+            });
+            if ('@ViewBag.message' != '') {
+                customAlert('@ViewBag.message');
+            }
+            $('.usercolor').on('change', function () {
+
+                var currentvalue = $(this).val();
+                var currentName = $(this).attr('name');
+                var originalValue = $(this).attr('originalvalue');
+                originalValue = (originalValue == "") ? '#000000' : originalValue;
+                var orig = currentvalue;
+                var closestTr = $(this).closest('tr');
+                var rowIndex = $(closestTr).index();
+
+                $('input[type=checkbox]:checked').next('input[type=text]').each(function () {
+                    debugger;
+                    var checkname = $(this).attr('name');
+                    if (currentName != checkname) {
+                        var checkcolor = $(this).val();
+                        var checkName = $(this).attr('name');
+                        if (currentvalue == checkcolor) {
+
+                            var spcontainer = $('.sp-container')[rowIndex];
+                            $(spcontainer).find('.sp-thumb-el').removeClass('sp-thumb-active');
+                            $(spcontainer).find('.sp-thumb-el[title=' + originalValue + ']').trigger('click');
+                            customAlert("Color already exists");
+                            return false;
+                        }
+                    }
+                });
+
+            });
+            $('input[type=checkbox]').on('click', function () {
+                debugger;
+                var a = $(this).val();
+                var currentName = $(this).attr('name');
+                if ($(this).prop('checked') == true) {
+
+                    $(this).siblings('.sp-replacer').show();
+                    var a1 = $(this).next('.usercolor').val();
+                    if (a1 == '#000000' || a1 == "") {
+                        customAlert("Please Select Color");
+                    }
+                }
+                else {
+                    $(this).siblings('.sp-replacer').hide();
+                }
+            });
+            function newBackgroundColor(color) {
+                document.bgColor = color;
+                var a = $("input[type=color]").val();
+                a.value = color;
+            }
+
+            var values = {};
+            $('td input').each(function () {
+                values[$(this).attr('name')] = $(this).val();
+
+            });
+
+            $('input[type=checkbox]:not(:checked)').each(function () {
+
+                $(this).siblings('.sp-replacer').hide();
+            });
+
+        });
+
+
+        var accessRole = {
+
+            GetAccessRoleList: function (accessType,arg) {
+
+                $('.active').removeClass('active');
+
+                $(arg).addClass('active');
+               
+                $.ajax({
+                    url: '/AgencyAdmin/AccessRoleList',
+                    data: { type: accessType },
+                    type: "POST",
+                    success: function (result) {
+                        debugger;
+                        $("#partialDiv").html("");
+                        $("#partialDiv").html(result);
+                        var title = $(arg).attr('data-title');
+                       
+                        $("#partialDiv").find('#title').text(title);
+                        $("#partialDiv").find('#TitleId').val(accessType);
+                        $('.settab_pills .active').removeClass('active');
+                        var title = '.title' + accessType;
+                        $(title).addClass('active');
+                        TitleId = accessType;
+                        if (TitleId == 1)
+                        {
+                            setUserColorSpectrum();
+                        }
+
+                    }
+
+                });
+
+            },
+            SetTitleActive: function () {
+                if ('@ViewBag.Titleid' != '') {
+                    debugger;
+                    $('#partialDiv').find('.active').removeClass('active');
+                    $('#partialDiv').find('.showactive').addClass('active');
+                    $('.settab_pills .active').removeClass('active');
+                    var tid = '@ViewBag.Titleid';
+                    var title = '.title' + tid;
+                    $('.settab_pills').find(title).addClass('active');
+                    $("#partialDiv").find('#title').text($(title).text());
+                    $("#partialDiv").find('#TitleId').val(tid);
+
+                }
+                else {
+                    $('.title1').addClass('active');
+                }
+            },
+            SetColor:function(color,arg)
+            {
+                $(arg).css('background-color',color);
+            }, 
+            CheckAll:function(arg,value)
+            {
+
+                if ($(arg).is(":checked"))
+                {
+                    $('.user' + value).prop('checked', true);
+                }
+                else
+                {
+                    $('.user' + value).prop('checked', false);
+                }
+            },
+            CarouselOpen:function(arg)
+            {
+
+                var val=$(arg).next('tr');
+                if($(arg).next('.input_smtmarg').hasClass('active'))
+                {
+                    //if($(arg).find(".edu_next").is(":checked")==false)
+                    //{
+
+                        $(arg).next('.input_smtmarg').removeClass('active');
+                        $(arg).next('.input_smtmarg').slideUp("slow");
+                    //}
+
+                }
+                else
+                {
+                        $(arg).next('.input_smtmarg').addClass('active');
+                        $(arg).next('.input_smtmarg').slideDown("slow");
+                }
+
+            },
+            SelectToView:function(arg,row)
+            {
+                if( $(arg).is(":checked"))
+                {
+                    $(arg).closest('tr').find('.rolecheck' + row).prop('checked', true);
+                }
+            },
+
+            ChooseColor:function(arg)
+            {
+
+
+                if( $(arg).is(":checked") && TitleId==1)
+                {
+
+                    //show color palette
+                    var a = $(arg).val();
+                    var currentName = $(arg).attr('name');
+                    if ($(arg).prop('checked') == true) {
+
+                        $(arg).siblings('.sp-replacer').show();
+                        var a1 = $(arg).next('.usercolor').val();
+                        if (a1 == '#000000' || a1 == "") {
+                            customAlert("Please Select Color");
+                        }
+
+                    }
+                    else {
+                        $(arg).siblings('.sp-replacer').hide();
+
+                    }
+
+                    $(arg).closest("td").css("background-color", "");
+                    var a = $(arg).val();
+                    var currentName = $(arg).attr('name');
+                    if ($(arg).prop('checked') == false) {
+
+                        $(arg).siblings('.sp-replacer').hide();
+                    }
+                    else {
+
+                        $(arg).siblings('.sp-replacer').show();
+
+                    }
+
+
+                }
+            },
+            IsValidInputs:function()
+            {
+                var roleCount=$('.view').length;
+                var  isValid=true;
+                for(var i=0;i<roleCount;i++)
+                {
+                    var role=".role"+i;
+                    var user=".user"+i;
+
+                    if($(role).is(":checked") && (user).length>0 && ! $(user).is(":checked"))
+                    {
+                        $(role).closest('tr').next('.input_smtmarg').addClass('active');
+                        $(role).closest('tr').next('.input_smtmarg').find('tr').css({
+                            'background': '#ff00003d'
+                       });
+                        customAlert("Kindly select users under selected roles.");
+                        isValid=false;
+                    }
+                    if(!$(role).is(":checked") && (user).length>0 && $(user).is(":checked"))
+                    {
+                        $(role).closest('tr').css({
+                            'background': '#ff00003d'
+                        });
+                        customAlert("Kindly select role under user.");
+                        isValid=false;
+                    }
+                }
+                return isValid;
+            }
+        };
+    </script>
+
+
+}
