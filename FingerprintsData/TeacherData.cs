@@ -1283,7 +1283,8 @@ namespace FingerprintsData
                         UserID = objMonitoring.UserID,
                         ToSataffId = objMonitoring.ToSataffId,
                         RouteCode = objMonitoring.RouteCode,
-                        Imageid = objMonitoring.ImageId
+                        Imageid = objMonitoring.ImageId,
+                        
                     }, "Delete");
                 }
             }
@@ -1631,25 +1632,33 @@ namespace FingerprintsData
         public bool InsertWorkOrderDetail(Monitoring objMonitoring)
         {
             bool isInserted = false;
+            string result="";
             try
             {
                 command = new SqlCommand();
-                command.Parameters.Add(new SqlParameter("@AgencyID", objMonitoring.AgencyID));
-                command.Parameters.Add(new SqlParameter("@ImageId", objMonitoring.ImageId));
-                if (objMonitoring.CenterId != null)
-                    command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
-                command.Parameters.Add(new SqlParameter("@UserId", objMonitoring.UserID));
-                command.Parameters.Add(new SqlParameter("@Description", objMonitoring.Description));
-                command.Parameters.Add(new SqlParameter("@ImageOfDamage", objMonitoring.ImageOfDamage));
-                command.Parameters.Add(new SqlParameter("@MonitorId", objMonitoring.Id));
-                command.Parameters.Add(new SqlParameter("@ToStaffId", objMonitoring.ToSataffId));
+                command.Parameters.AddWithValue("@AgencyID", objMonitoring.AgencyID);
+                command.Parameters.AddWithValue("@ImageId", objMonitoring.ImageId);
+                if (objMonitoring.CenterId != 0)
+                    command.Parameters.AddWithValue("@CenterId", objMonitoring.CenterId);
+                command.Parameters.AddWithValue("@UserId", objMonitoring.UserID);
+                command.Parameters.AddWithValue("@Description", objMonitoring.Description);
+                command.Parameters.AddWithValue("@ImageOfDamage", objMonitoring.ImageOfDamage);
+                command.Parameters.AddWithValue("@MonitorId", objMonitoring.Id);
+                command.Parameters.AddWithValue("@ToStaffId", objMonitoring.ToSataffId);
+                command.Parameters.AddWithValue("@RouteCode", objMonitoring.RouteCode);
+                command.Parameters.AddWithValue("@MonitorUniqueId", string.Empty);
+
+
+                command.Parameters["@MonitorUniqueId"].Direction = ParameterDirection.Output;
+
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_WorkOrder";
                 if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();
-                int RowsAffected = (int)command.ExecuteNonQuery();
-                if (RowsAffected > 0)
+                Connection.Open();          
+                string RowsAffected = Convert.ToString(command.ExecuteScalar());
+               
+                if (RowsAffected!="")
                 {
                     isInserted = InsertYakkrRouting(new YakkrRouting
                     {
@@ -1658,7 +1667,9 @@ namespace FingerprintsData
                         ClassRoomId = objMonitoring.ClassRoomId,
                         UserID = objMonitoring.UserID,
                         ToSataffId = objMonitoring.ToSataffId,
-                        RouteCode = objMonitoring.RouteCode
+                        RouteCode = objMonitoring.RouteCode,
+                         MonitorId = RowsAffected
+
                     }, "TeacherRole");
                 }
 
@@ -1695,6 +1706,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ClientId", objMonitoring.ClientId));
                 command.Parameters.Add(new SqlParameter("@Command", Command));
                 command.Parameters.Add(new SqlParameter("@Message", objMonitoring.Message));
+                command.Parameters.Add(new SqlParameter("@MonitorId", objMonitoring.MonitorId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_InsertYakkrRouting";

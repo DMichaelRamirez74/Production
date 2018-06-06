@@ -1294,6 +1294,20 @@ namespace Fingerprints.Controllers
             }
         }
 
-        
+        public ActionResult FacilityWorksStatus()
+        {
+            FacilitesModel model = new FacilitesModel();
+            StaffDetails details = StaffDetails.GetInstance();
+            try
+            {
+
+                model = new FacilitiesData().GetFacilitiesModelDashboard(details, true);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(model);
+        }
     }
 }

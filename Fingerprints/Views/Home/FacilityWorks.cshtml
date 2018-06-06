@@ -1,0 +1,816 @@
+﻿@model FingerprintsModel.AssignFacilityStaff
+@{
+    @section Title{
+        FacilityWorks
+    }
+    ViewBag.Title = "FacilityWorks";
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+    {
+        Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
+}
+@section Script{
+
+    <script type="text/javascript">
+        $('.Zoom img').zoomify();
+        $(document).ready(function () {
+            $('.Zoom img').zoomify();
+
+            $("#CmpyContactNo").mask("(999) 999-9999");
+            @*$("#loadimage").load("@Model.DURL");*@
+            $('input[type=radio][name=InternExtern]').change(function () {
+                if ($(this).val() == 'true') {
+                    $('.divForInternal').show();
+                    $('.divForExternal').hide();
+                    $('.extern-text').val("");
+                }
+                else if ($(this).val() == 'false') {
+                    $('.divForExternal').show();
+                    $('.divForInternal').hide();
+                }
+            });
+
+
+
+            try {
+                $("#CmpyName").autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/Home/AutoCompleteExternalFacility",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term},
+                            success: function (data) {
+                                console.clear();
+                                console.log(data);
+                                response($.map(data, function (item) {
+                                    $('#CmpyName').val('');
+                                    $('#CmpyAddress').val('');
+                                    $('#CmpyEmailId').val('');
+                                    $('#CmpyContactName').val('');
+                                    $('#CmpyContactNo').val('');
+                                    return {
+                                        label: item.ExternCompanyName, ExternCompanyName: item.ExternCompanyName, ExternalAddress: item.ExternalAddress, ExternalEmailId: item.ExternalEmailId,
+                                        ExternalContactName: item.ExternalContactName, ExternalContactNo: item.ExternalContactNo
+
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $('#CmpyName').val(ui.item.ExternCompanyName);
+                        $('#CmpyAddress').val(ui.item.ExternalAddress);
+                        $('#CmpyEmailId').val(ui.item.ExternalEmailId);
+                        $('#CmpyContactName').val(ui.item.ExternalContactName);
+                        $('#CmpyContactNo').val(ui.item.ExternalContactNo);
+
+
+                    },
+                    messages: {
+                        noResults: "No Result Found", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+        });
+
+        function RedirectToDashboard()
+        {
+            location.href = "/Home/AgencyFacilitiesManagerDashboard";
+        }
+        function ShowContactInfo() {
+            // if ($(this).val() != null )//&& $(this).val() != "")
+            {
+                $('#divContact').show();
+            }
+
+        }
+
+        function ShowCenterAddress() {
+            $('#ShowCenterAddress').modal('show');
+
+        }
+        function ValidateInputs() {
+
+            if ($('#stafflist').val() == null) {
+                customAlert("Please select Facility Worker.")
+                return false;
+            }
+            else {
+                AssignWork = {};
+                AssignWork.IsInternal = $('.inter-extern:checked').val();
+                AssignWork.Request = $('.WorkOrder:checked').val();
+                AssignWork.InternalAssignTo = $('#stafflist').val();
+                AssignWork.ExternCompanyName = $('#CmpyName').val();
+                AssignWork.ExternalAddress = $('#CmpyAddress').val();
+                AssignWork.ExternalEmailId = $('#CmpyEmailId').val();
+                AssignWork.ExternalContactNo = $('#CmpyContactNo').val();
+                AssignWork.ExternalContactName = $('#CmpyContactName').val();
+       
+                $.ajax({
+                    url: HostedDir + "/Home/SaveFacilityWorks",
+                    type: "POST",
+                    dateType: 'json',
+                    data: AssignWork,
+                    success: function (response) {
+                        location.href = "/Yakkr/YakkrDetails";
+                    }
+                });
+            }
+
+        }
+
+
+
+    </script>
+
+}
+
+
+
+
+@section MainContentHolder{
+   <style>
+    .zoomify.zoomed {
+        position: relative !important;
+        z-index: 999999 !important;
+    }
+
+    .import_facility {
+        width: 100%;
+        float: left;
+        text-align: center;
+    }
+div#facility_scroll {
+    width: 100%;
+    float: left;
+    margin-top: 30px;
+     background-color: rgba(4, 24, 46, 0.5);
+    border-radius: 7px;
+        margin-bottom: 20px;
+}
+
+
+    .icc_fac {
+        background-color: #fff;
+        padding: 6px 12px;
+    }
+    /*.import_legend    {color: #fff; background: #121213 url(/Content/imgs/child1.png) no-repeat;}*/
+
+    #facility_scroll legend {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 0px;
+        width: 100%;
+        position: absolute;
+        top: -14px;
+        border: 1px solid #e66770;
+        border-radius: 4px;
+        padding: 5px 5px 5px 10px;
+        background-color: #e66760;
+        line-height: 30px;
+        margin: auto;
+        color: #fff;
+    }
+
+    .transition-radio-btn .radio.radio-info {
+        float: left;
+        margin-top: 10px;
+        width: auto;
+        margin-right: 30px;
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+
+    .transition-radio-btn .radio input[type="radio"] {
+        opacity: 0;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"]:checked + label {
+        color: #fff;
+    }
+
+    .transition-radio-btn .radio label {
+        display: inline-block;
+        vertical-align: middle;
+        position: relative;
+        padding-left: 5px;
+        color: #fff;
+        font-size: 15px;
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"]:checked + label::before {
+        border-color: #fff;
+        color: #fff;
+    }
+
+
+    .transition-radio-btn .radio label::before {
+        content: "";
+        display: inline-block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 0;
+        margin-left: -20px;
+        border: 1px solid #163b69;
+        border-radius: 50%;
+        background-color: transparent;
+        -webkit-transition: border 0.15s ease-in-out;
+        -o-transition: border 0.15s ease-in-out;
+        transition: border 0.15s ease-in-out;
+        top: 2px;
+    }
+
+    .transition-radio-btn .radio label::before {
+        content: "";
+        display: inline-block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 0;
+        margin-left: -20px;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        background-color: transparent;
+        -webkit-transition: border 0.15s ease-in-out;
+        -o-transition: border 0.15s ease-in-out;
+        transition: border 0.15s ease-in-out;
+        top: 2px;
+    }
+
+    .transition-radio-btn .radio input[type="radio"]:checked + label::after {
+        -webkit-transform: scale(1, 1);
+        -ms-transform: scale(1, 1);
+        -o-transform: scale(1, 1);
+        transform: scale(1, 1);
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"]:checked + label::after {
+        background-color: #fff;
+        color: #fff;
+    }
+
+    .transition-radio-btn .radio-info input[type="radio"] + label::after {
+        background-color: #fff;
+        color: #fff;
+    }
+
+    .transition-radio-btn .radio label::after {
+        display: inline-block;
+        position: absolute;
+        content: " ";
+        width: 8px;
+        height: 8px;
+        left: 4px;
+        top: 6px;
+        margin-left: -20px;
+        border-radius: 50%;
+        background-color: transparent;
+        -webkit-transform: scale(0, 0);
+        -ms-transform: scale(0, 0);
+        -o-transform: scale(0, 0);
+        transform: scale(0, 0);
+        -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    }
+
+    .import_legend legend {
+        width: auto !important;
+    }
+
+    .import_legend {
+       
+        color: #fff;
+    }
+
+    #facility_scroll fieldset {
+        margin: 0;
+        min-width: 0;
+        padding: 50px 0 10px;
+        position: relative;
+        border-radius: 4px;
+    }
+
+    .inkind_color {
+        color: #fff;
+        font-weight: 300;
+    }
+    .icc_kindfac.Zoom {
+    padding: 0px 8px;
+}
+    .icc_kindfac {
+        margin-bottom: 8px !important;
+        display: inline-block;
+        font-family: Verdana;
+    }
+
+    .header_key h2 {
+        margin: 0;
+    }
+
+    .header_key {
+        width: 100%;
+        float: left;
+        background-color: #16a086;
+        color: #fff;
+        padding: 15px;
+        border-radius: 7px;
+        margin-top: 34px;
+    }
+
+    .import_facility button:first-child {
+        margin-right: 18px;
+    }
+
+    .import_facility button {
+        border-radius: 0px;
+    }
+
+    .fact_wrapper {
+        width: 100%;
+        float: left;
+        padding: 0 20px;
+        background-color: #17497a;
+    }
+
+    .icc_input input {
+        border: 0;
+        width: 100%;
+        height: 28px;
+        color: #333;
+        outline: none;
+        font-size: 15px;
+    }
+
+    .icc_img img {
+        width: 100%;
+        border: 1px solid #fff;
+        float: left;
+        height: 200px;
+        max-height: 100%;
+    }
+
+    .icc_kindfac .radio-info {
+        width: 100% !important;
+        float: left !important;
+        margin: 0 0 15px !important;
+    }
+
+    .radio.radio-info label {
+        margin-left: 10px;
+        font-weight: 600;
+    }
+
+    .icc_textarea textarea {
+        height: 80px;
+        color: #333;
+        width: 100%;
+        border: 0;
+        padding: 10px 12px;
+        outline: none;
+    }
+
+    #page-wrapper {
+        padding: 30px 15px 0;
+    }
+
+    .addfun {
+        text-align: right;
+    }
+
+        .addfun a i {
+            color: #333;
+            padding: 0 0 0 4px;
+        }
+
+        .addfun a {
+            color: #fff;
+            background-color: #f9c751;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+    .import_facility button {
+        border: 1px solid #fff;
+        text-transform: uppercase;
+    }
+
+    .icc_dedworker {
+        width: 100%;
+        float: left;
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 15px;
+        color: #333;
+    }
+
+        .icc_dedworker label {
+            width: 40%;
+            float: left;
+        }
+
+        .icc_dedworker label {
+            color: #1b5c96;
+        }
+
+        .icc_dedworker input {
+            width: 60%;
+            float: left;
+        }
+        .icc_input input, .icc_input input:focus {
+    border: 0 !important;
+    box-shadow: none;
+    outline: none;
+}
+       .radio.radio-info.sublab label {
+           margin-left: 0;
+       }
+        div#facility_scroll {
+    width: 100%;
+    float: left;
+    margin-top: 30px;
+    background-color: rgba(4, 24, 46, 0.5);
+    border-radius: 7px;
+    margin-bottom: 20px;
+}
+        .page-wrapper-change {
+            background-image: url('../../Images/body-bg.jpg') !important;
+            background: url('../../Images/body-bg.jpg') center no-repeat #000 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+</style>
+<div class="container-fuild" style="padding: 0;">
+    <div class="row">
+        <div class="fact_wrapper">
+
+            <div class="header_key">
+                <h2>Work Order Details</h2>
+            </div>
+
+
+            <div class="col-lg-12 col-xs-12 inkind-entry-div import_legend" id="facility_scroll">
+                <form id="inkind-info-form">
+                    <fieldset>
+                        <legend>Work order for @Model.yakkrdescription</legend>
+
+                        <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Yakkr Code</label>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label">@Model.YakkrCode</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Staff</label>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label">@Model.StaffName  (@Model.RoleName)</label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">User Description</label>
+                                <div class="col-lg-8 ">
+                                    <label class="col-form-label">@Model.UserDescrption</label>
+                                </div>
+                            </div>
+                        
+
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Assign To?</label>
+                                <div class="col-lg-8">
+                                    <div class="transition-radio-btn enroll-sec" style="padding-left: 8px;" id="AssignToWhom">
+
+                                        <div class="radio radio-info sublab">
+                                            <input type="radio" name="InternExtern" class="inter-extern" value="true">
+                                            <label>Internal</label>
+                                        </div>
+                                        <div class="radio radio-info sublab">
+                                            <input type="radio" name="InternExtern" classImages of Affected="inter-extern" value="false">
+                                            <label>
+                                                External
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 no-padding divForInternal icc_kindfac" style="margin-bottom: 10px;display:none;">
+
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Assign Staff</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        @*<span class="route-field-style"><img src="/images/analysis-select.png"></span>*@
+                                        @Html.DropDownListFor(m => m.Userid, Model.StaffList, "-- Select Staff --", new { id = "stafflist", Name = "stafflist", @class = "form-control", tabIndex = "9", @onchange = "ShowContactInfo()" })
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="divForExternal" style="margin-bottom: 10px;display:none;">
+                            
+
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Company Name </label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <input type="text" id="CmpyName"  placeholder="Company Name" value="@Model.ExternCompanyName" class="form-control extern-text" />
+
+                                    </div>
+                                </div>
+                               
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Contact Name </label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <input type="text" id="CmpyContactName"  placeholder="Company Contact" value="@Model.ExternalContactName" class="form-control extern-text" />
+
+                                    </div>
+                                </div>
+                           
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Contact Number </label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <input type="text" id="CmpyContactNo"  placeholder="Contact Number " value="@Model.ExternalContactNo" class="form-control extern-text" />
+
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Company EmailId </label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <input type="text" id="CmpyEmailId"  placeholder="Email Address" value="@Model.ExternalEmailId" class="form-control extern-text" />
+
+                                    </div>
+                                </div>
+                               
+                          
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Address</label>
+                                    <div class="col-lg-8 icc_fac icc_textarea">
+                                        <textarea id="CmpyAddress" class="form-control extern-text"   placeholder="Company Address">@Model.ExternalAddress</textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Request Purpose</label>
+                                    <div class="col-lg-8">
+                                        <div class="transition-radio-btn enroll-sec" style="padding-left: 8px;" id="AssignToWhom">
+
+                                            <div class="radio radio-info sublab">
+                                                <input type="radio" name="WorkOrder" class="WorkOrder" value="true">
+                                                <label>Request for Quotation</label>
+                                            </div>
+                                            <div class="radio radio-info sublab">
+                                                <input type="radio" name="WorkOrder" class="WorkOrder" value="false">
+                                                <label>
+                                                    Request for Work Order
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+
+
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Center</label>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label"><a onclick="ShowCenterAddress()" style="text-decoration:underline;cursor:pointer;color:#fff" class="center-addr-route">@Model.CenterName</a></label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Classroom</label>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label">@Model.ClassroomName</label>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Date of Request</label>
+                                <div class="col-lg-8">
+                                    <label class="col-form-label">@Model.RequestedDate</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group row icc_kindfac Zoom">
+                                @*<label class="col-lg-12 inkind_color">Images of Affected Area</label>
+                                <div class="col-lg-12 icc_img">
+
+                                    <img src="~/Content/img/NoImagesAvailable.jpg" class="zoomify" />
+
+                                </div>*@
+                                 <div class="form-group row icc_kindfac Zoom">
+    <label class="col-lg-4 inkind_color">Affected Area</label>
+
+
+    @if (Model.DURL == "")
+    {
+        <img style="width:66%;" src="~/Content/img/NoImagesAvailable.jpg" class="zoomify" />
+    }
+    else
+    {
+        <img style="width:66%;" id="loadimage" src="@Model.DURL" class="zoomify" />
+
+    }
+                            </div>
+                            </div>
+                           
+
+
+                          
+                        </div>
+
+                        <div class="form-group import_facility">
+                            <button class="btn btn-success" type="button"  onclick="ValidateInputs()">Submit</button>
+                            <button class="btn btn-danger" onclick="RedirectToDashboard()" type="button">Cancel</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    @*<div class="container-fluid">
+        <div class="right-side-container-ch">
+            <div class="col-xs-12">
+                <div class="header_key" style="text-align:center">
+                    <h2>Assign Work Order</h2>
+                </div>
+
+
+                <div class="col-lg-12 col-xs-12 inkind-entry-div" id="facility_scroll">
+
+                    <fieldset>
+                        <legend style="text-align:center">Work order for  @Model.yakkrdescription</legend>
+
+                        <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Yakkrcode</label>
+                                <div class="col-lg-8 icc_fac">
+                                    <label class="col-form-label">@Model.YakkrCode</label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Staff</label>
+                                <div class="col-lg-8 icc_fac">
+                                    <label class="col-form-label">@Model.StaffName   (@Model.RoleName)</label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Assign To?</label>
+                                <div class="col-lg-8">
+                                    <div class="transition-radio-btn enroll-sec" style="padding-left: 8px;" id="AssignToWhom">
+
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InternExtern" class="inter-extern" value="true">
+                                            <label>Internal</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InternExtern" class="inter-extern" value="false">
+                                            <label>
+                                                External
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>            
+                            <div class="col-xs-12 no-padding divForInternal icc_kindfac" style="margin-bottom: 10px;display:none;">
+
+                                <div class="form-group row ">
+                                    <label class="col-lg-4 inkind_color">Assign  Staff</label>
+                                    <div class="col-lg-8 no-padding">
+                                        <div class="route-inner icc_router" style="position: relative;width:80%;border-radius:5px!important">
+                                            <span class="route-field-style"><img src="/images/analysis-select.png"></span>
+                                            @Html.DropDownListFor(m => m.Userid, Model.StaffList, "-- Select Staff --", new { id = "stafflist", Name = "stafflist", @class = "form-control", tabIndex = "9", @onchange = "ShowContactInfo()" })
+                                        </div>
+
+                                    </div>
+                                </div>
+                 
+
+                            </div>
+                           <div class="divForExternal" style="margin-bottom: 10px;display:none;">
+
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Company Name</label>
+                                    <div class="col-lg-8 no-padding">
+                                        <input type="text" id="CmpyName" value="@Model.ExternCompanyName" class="form-control extern-text" />
+
+                                    </div>
+                                </div>
+                               <div class="form-group row icc_kindfac">
+                                   <label class="col-lg-4 inkind_color">Company Contact Name</label>
+                                   <div class="col-lg-8 no-padding">
+                                       <input type="text" id="CmpyContactName" value="@Model.ExternalContactName" class="form-control extern-text" />
+                                 </div>
+                               </div> 
+                               <div class="form-group row icc_kindfac">
+                                   <label class="col-lg-4 inkind_color">Contact No</label>
+                                   <div class="col-lg-8 no-padding">
+                                       <input type="text" id="CmpyContactNo" value="@Model.ExternalContactNo" class="form-control extern-text" />
+                                   </div>
+                               </div> 
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Email Id</label>
+                                    <div class="col-lg-8 no-padding">
+                                        <input type="text" id="CmpyEmailId" value="@Model.ExternalEmailId" class="form-control extern-text" />
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Address</label>
+                                    <div class="col-lg-8 no-padding">
+                                        <textarea id="CmpyAddress" style="width:80%!important" value="@Model.ExternalAddress" class="form-control extern-text"></textarea>
+                                    </div>
+                                </div>                             
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12" style="padding: 0px;">
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">User Description</label>
+                                <div class="col-lg-8 icc_fac">
+                                    <label class="col-form-label">@Model.UserDescrption</label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Center</label>
+                                <div class="col-lg-8 icc_fac">
+                                    <label class="col-form-label"><a onclick="ShowCenterAddress()" style="text-decoration:underline;cursor:pointer;color:#333333" class="center-addr-route">@Model.CenterName</a></label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-4 inkind_color">Classroom</label>
+                                <div class="col-lg-8 icc_fac">
+                                    <label class="col-form-label" >@Model.ClassroomName</label>
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac bgm-img Zoom">
+                                <label class="col-lg-4 inkind_color">Affected Area</label>
+                         
+                                @if (Model.DURL == "")
+                              {
+                              <img style="width:66%;" src="~/Content/img/NoImagesAvailable.jpg" class="zoomify" />
+                                }
+                                else
+                                {
+                            <img style="width:66%;"  id="loadimage" src = "@Model.DURL"  class="zoomify"/>
+                          
+                            }
+
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-group import_facility">
+                            <a  class="btn btn-success" style="cursor: pointer;width: 10%;font-weight: 600;margin-right: 10px;" onclick="ValidateInputs()">Submit</a>
+                            <a href="/Home/AgencyFacilitiesManagerDashboard" class="btn btn-danger"  style="cursor: pointer;width: 10%;font-weight: 600;margin-left: 10px;background:#e74c3c;">Exit</a>
+                 
+                        </div>
+                    </fieldset>
+
+                </div>
+            </div>
+            </div>
+        </div>*@
+
+
+
+
+            <div class="modal fade" id="ShowCenterAddress" role="dialog">
+    <div class="modal-dialog">
+        @*Modal content*@
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4><label id="InformedLateArrivalClient" text="Center Address" /> Center Address</h4>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" style="margin-left:75px!important" for="current_password">Address: </label>
+                <p class="control-label" style="width:275px!important;margin-left:0px!important   ; text-align: left;
+    font-size: 14px;
+    display: inline;" id="lblArrivalTime" for="current_password">@Model.CenterAddress</p>
+</div>
+<div class="modal-footer">
+    <button type="button" data-dismiss="modal" class="my-btn1">Close</button>
+</div>
+</div>
+</div>
+</div>
+}
