@@ -1,0 +1,1658 @@
+﻿@model FingerprintsModel.FacilitesModel
+
+@{
+    ViewBag.Title = "FacilityWorksStatus";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Script{
+ <script type="text/javascript">
+        var orderid;
+        function GetWorkOrderDetail(yakkrid,arg ,type) {
+            orderid  = $(arg).attr('data-workorderid');
+
+            $('.import-agara').show();
+
+            $.ajax({
+                url: HostedDir + "/Home/GetWorkOrderDetail",
+                type: "POST",
+                data: {
+                    Yakkrid: yakkrid,
+                    OrderId: orderid,
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    console.log(Data);
+
+                    BindWorkOrderDetails(Data,type);
+
+                }
+, error: function (Data) {
+    customAlert("Session Ended Log Onto The System Again.");
+    setTimeout(function () {
+        window.location.href = HostedDir + '/login/Loginagency';
+    }, 2000);
+}
+            });
+
+        }
+
+
+        function BindWorkOrderDetails(data, type)
+        {
+            debugger;
+            var parent = "";
+            if(type==2)
+            {
+                parent = $('.AssignToMeBind');
+
+            }
+            else if(type==3)
+            {
+                parent = $('.ExternalBind');
+            }
+            else if (type == 4) {
+                parent = $('.InternalBind');
+            }
+            else if (type == 5) {
+                parent = $('.TempBind');
+              //  BindTableData(data, parent);
+            }
+            else if (type == 6) {
+                parent = $('.CompleteBind');
+
+            }
+            $('.workparts').html("");
+            BindWorkList(data, parent);
+            $('.spnHeading').text("Details for " + orderid)
+            $(parent).find('.spnDescription').text(data.UserDescription);
+            $(parent).find('.spnCenterName').text(data.CenterName);
+            $(parent).find('.spnStaff').text(data.StaffName);
+            $(parent).find('.spnFixedType').text(data.IsTemporaryFix);
+        //    $(parent).find('.spnAssignTo').text(data.AssignedTo);
+            $(parent).find('.spnDate').text(data.RequestedDate);
+
+
+
+        }
+
+        function BindWorkList(Data,parent)
+        {
+            debugger;
+
+            if (Data.workOrderList != null && Data.workOrderList.length > 0) {
+
+                for (var j = 0; j < Data.workOrderList.length; j++) {
+                    DivContent = "", tabContent = "", tabRow = "";;
+                    DivContent = $('#GetAppendDiv').html();
+                    DivContent = DivContent.replace('SectionTitle', "Fix Number " + (j + 1))
+                    DivContent = DivContent.replace('#collapse13', "#collapse" + (j + 1))
+                    DivContent = DivContent.replace('collapse13', "collapse" + (j + 1))
+                    DivContent = DivContent.replace('StaffWorked', Data.workOrderList[j].StaffName);
+                    DivContent = DivContent.replace('CurrentStatus', Data.workOrderList[j].IsTemporaryFix);
+
+                      if (Data.workOrderList[j].ImageCount == 0)
+                        DivContent = DivContent.replace('ImageCount', '<a href="#" >' + Data.workOrderList[j].ImageCount + '</a>');
+                      else
+                        DivContent = DivContent.replace('ImageCount', '<a href="#" style="text-decoration:underline;" onclick="LoadCarouselImages(' + Data.workOrderList[j].WorkId + ')">' + Data.workOrderList[j].ImageCount + '</a>');
+
+                    DivContent = DivContent.replace('Notes123', Data.workOrderList[j].Notes);
+                    DivContent = DivContent.replace('DateGiven', Data.workOrderList[j].RequestedDate);
+
+                    var tr = "<tbody>";
+                    if (Data.workOrderList[j].PartDetails != null && Data.workOrderList[j].PartDetails.length > 0) {
+
+                        for (var i = 0; i < Data.workOrderList[j].PartDetails.length; i++) {
+
+                            tr += "<tr>";
+                            tr += '<td>' + (j + 1) + '</td>';
+                            tr += '<td>' + Data.workOrderList[j].PartDetails[i].PartNumber + '</td>';
+                            tr += '<td>' + Data.workOrderList[j].PartDetails[i].PartDescription + '</td>';
+                            tr += '<td>' + Data.workOrderList[j].PartDetails[i].Quantity + '</td>';
+                            tr += '<td>' + Data.workOrderList[j].PartDetails[i].UnitCost + '</td>';
+                            tr += '<td>' + Data.workOrderList[j].PartDetails[i].TotalCost + '</td>';
+                            tr += "</tr>";
+                        }
+                        DivContent = DivContent.replace("<tbody>", tr);
+                    }
+                    else {
+
+                        tr += "<tr>";
+                        tr += "<td colspan='6' style=' text-align: center; color: #db4437;'>No record found</td>";
+                        tr += "</tr>";
+                        DivContent = DivContent.replace("<tbody>", tr);
+                    }
+                    $(parent).find('.workparts').append(DivContent);
+                }
+
+
+
+            }
+            else {
+
+            }
+
+        }
+        function BindTableData(Data, parent)
+        {
+
+
+
+            debugger;
+            $(parent).find('.tbody-tempnotes').html("");
+            $(parent).find('.tbody-parts').html("");
+            var tr = "";
+            var tr1 = "";
+            if (Data.PartDetails != null && Data.PartDetails.length > 0) {
+
+                for (var j = 0; j < Data.PartDetails.length; j++) {
+
+                    tr += "<tr>";
+                    tr += '<td>' + (j+1) + '</td>';
+                    tr += '<td>' + Data.PartDetails[j].PartNumber + '</td>';
+                    tr += '<td>' + Data.PartDetails[j].PartDescription + '</td>';
+                    tr += '<td>' + Data.PartDetails[j].Quantity + '</td>';
+
+                    tr += '<td>' + Data.PartDetails[j].UnitCost + '</td>';
+                    tr += '<td>' + Data.PartDetails[j].TotalCost + '</td>';
+                    tr += "</tr>";
+                }
+            }
+            else {
+
+                tr += "<tr>";
+                tr += "<td colspan='6' style=' text-align: center; color: #db4437;'>No record found</td>";
+                tr += "</tr>";
+
+            }
+
+            if (Data.TemporaryFixList != null && Data.TemporaryFixList.length > 0) {
+
+                for (var j = 0; j < Data.TemporaryFixList.length; j++) {
+
+                    tr1 += "<tr>";
+
+                    tr1 += '<td>' + Data.TemporaryFixList[j].Notes + '</td>';
+                    tr1 += '<td>' + Data.TemporaryFixList[j].CreatedDate + '</td>';
+                    tr1 += '<td>' + Data.TemporaryFixList[j].NotesEnteredBy + '</td>';
+                    tr1 += "</tr>";
+                }
+            }
+            else {
+
+                tr1 += "<tr>";
+                tr1 += "<td colspan='3' style=' text-align: center; color: #db4437;'>No record found</td>";
+                tr1 += "</tr>";
+
+            }
+            $(parent).find('.tbody-parts').append(tr);
+            $(parent).find('.tbody-tempnotes').append(tr1);
+        }
+
+
+        function AutoComplete(type)
+        {
+            var parent = "";
+            if (type == 1) {
+                parent = $('#AssignTo');
+            }
+            else {
+                parent = $('#ReAssignTo');
+            }
+            var cmpyname = $(parent).find('.CmpyName');
+            try {
+                $(cmpyname).autocomplete({
+                    minLength: 1,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: HostedDir + "/Home/AutoCompleteExternalFacility",
+                            type: "POST",
+                            dataType: "json",
+                            data: { term: request.term },
+                            success: function (data) {
+                                console.clear();
+                                console.log(data);
+                                response($.map(data, function (item) {
+                                   // $('.CmpyName').val('');
+                                    $('.CmpyAddress').val('');
+                                    $('.CmpyEmailId').val('');
+                                    $('.CmpyContactName').val('');
+                                    $('.CmpyContactNo').val('');
+                                    return {
+                                        label: item.ExternCompanyName, ExternCompanyName: item.ExternCompanyName, ExternalAddress: item.ExternalAddress, ExternalEmailId: item.ExternalEmailId,
+                                        ExternalContactName: item.ExternalContactName, ExternalContactNo: item.ExternalContactNo
+
+                                    };
+                                }))
+                            }
+
+                        })
+                    },
+                    select: function (event, ui) {
+                        $(parent).find('.CmpyName').val(ui.item.ExternCompanyName);
+                        $(parent).find('.CmpyAddress').val(ui.item.ExternalAddress);
+                        $(parent).find('.CmpyEmailId').val(ui.item.ExternalEmailId);
+                        $(parent).find('.CmpyContactName').val(ui.item.ExternalContactName);
+                        $(parent).find('.CmpyContactNo').val(ui.item.ExternalContactNo);
+
+
+                    },
+                    messages: {
+                        noResults: "No Result Found", results: ""
+                    }
+                })
+
+            }
+            catch (err) {
+            }
+        }
+
+        $(document).ready(function () {
+        
+
+
+            $(".CmpyContactNo").mask("(999) 999-9999");
+            @*$("#loadimage").load("@Model.DURL");*@
+            $('input[type=radio][name=InternExtern]').change(function () {
+                if ($(this).val() == 'true') {
+                    $('.divForInternal').show();
+                    $('.divForExternal').hide();
+                    $('.extern-text').val("");
+                }
+                else if ($(this).val() == 'false') {
+                    $('.divForExternal').show();
+                    $('.divForInternal').hide();
+                }
+            });
+          
+
+
+            $("#ModalExternalList").on("hidden.bs.modal", function () {
+              
+                $('.import-agara').hide();
+
+            });
+            $("#ModalInternalList").on("hidden.bs.modal", function () {
+               
+                $('.import-agara').hide();
+            });
+            $("#ModalTempList").on("hidden.bs.modal", function () {
+             
+                $('.import-agara').hide();
+
+            });
+            $("#ModalCompleteList").on("hidden.bs.modal", function () {
+           
+                $('.import-agara').hide();
+
+            });
+    
+            $("#ModalWaitingList").on("hidden.bs.modal", function () {
+             
+                $('.import-agara').hide();
+
+            });
+        });
+
+
+
+
+        function CancelUpdateTime() {
+            $('#UpdateTime').hide();
+        }
+        function CancelAssignTo() {
+
+            $('#AssignTo').hide();
+            $('#ReAssignTo').hide();
+            $('.inter-extern').prop('checked', false);
+        }
+        function ValidateAssignToInputs(type) {
+
+            var parent = "";
+            if (type == 1)
+            {
+                parent = $('#AssignTo');
+            }
+            else
+            {
+                parent = $('#ReAssignTo');
+            }
+            if (null!= null)
+            {
+                customAlert("Please select Assign to")
+                return false;
+            }
+            else if ($(parent).find('.inter-extern:checked').val() == true)
+            {
+                //if ($('#stafflist').val() == null) {
+                //    customAlert("Please select Facility Worker.")
+                //    return false;
+                //}
+            }
+
+            else {
+                debugger;
+                AssignWork = {};
+                AssignWork.IsInternal = $(parent).find('.inter-extern:checked').val();
+                AssignWork.Request = $(parent).find('.WorkOrder:checked').val();
+                AssignWork.InternalAssignTo = $(parent).find('.stafflist').val();
+                AssignWork.ExternCompanyName = $(parent).find('.CmpyName').val();
+                AssignWork.ExternalAddress = $(parent).find('.CmpyAddress').val();
+                AssignWork.ExternalEmailId = $(parent).find('.CmpyEmailId').val();
+                AssignWork.ExternalContactNo = $(parent).find('.CmpyContactNo').val();
+                AssignWork.ExternalContactName = $(parent).find('.CmpyContactName').val();
+                AssignWork.YakkrId = yakkrid;
+                AssignWork.workorderSequence = workordernumber;
+                $.ajax({
+                    url: HostedDir + "/Home/SaveFacilityWorks",
+                    type: "POST",
+                    dateType: 'json',
+                    data: AssignWork,
+                    success: function (response) {
+                        if(response==true)
+                        location.href = "/Home/AgencyFacilitiesManagerDashboard";
+                    }
+                });
+            }
+        }
+
+        function LoadWorkOrderList(arg,type)
+        {
+            $.ajax({
+                url: HostedDir + "/Home/GetWorkOrderStatusList",
+                type: "POST",
+                data: {
+                    Centerid: $(arg).attr('data-centerid'),
+                    Type: type,
+                    IsCenterManager:true,
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    switch(type)
+                    {
+                        case 1:
+                            BindClientlist(Data);
+                            break;
+                        case 2:
+                            BindExternallist(Data);
+                            break;
+                        case 3:
+                            BindInternallist(Data);
+                            break;
+                        case 4:
+                            BindTempFix(Data);
+                            break;
+                        case 5:
+                            BindCompletedFix(Data);
+                            break;
+                        
+                    }
+
+                }
+, error: function (Data) {
+    customAlert("Session Ended Log Onto The System Again.");
+    setTimeout(function () {
+        window.location.href = HostedDir + '/login/Loginagency';
+    }, 2000);
+}
+            });
+        }
+ 
+
+        function BindClientlist(Data) {
+            console.log(Data);
+            if (Data != null && Data.length > 0) {
+                $('#div1').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivWaitingListPopup > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr>';
+                    tbody = tbody + '<td>' + Data[i].YakkrCode + ' - ' + Data[i].yakkrdescription + '</td><td>' + Data[i].UserDescription + '</td><td>' + Data[i].StaffName + '</td><td>' + Data[i].RequestedDate + '</td>';
+                    tbody = tbody + '</tr>';
+                }
+
+                $('#DivWaitingListPopup > tbody').append(tbody);
+                if (!$('#ModalWaitingList').hasClass('in'))
+                    $('#ModalWaitingList').modal('toggle');
+            }
+            else {
+                $('#DivWaitingListPopup > tbody > tr').remove();
+                $('#div1').show();
+            }
+        }
+        function BindExternallist(Data) {
+            console.log(Data);
+            if (Data != null && Data.length > 0) {
+                $('#div2').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivModalExternalList > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td style="text-decoration: underline;cursor:pointer;" data-workorderid=' + Data[i].workorderSequence + ' onclick="GetWorkOrderDetail(' + Data[i].YakkrId + ',this,3)">' + Data[i].workorderSequence + '</td>';
+                    tbody = tbody + '<td>' + Data[i].YakkrCode + ' & ' + Data[i].yakkrdescription + '</td>';
+                    tbody = tbody + '<td class="set-cap"><div class="imr_setlab"><p><span>Address:  </span>' + Data[i].ExternalAddress + '</p><p><p><span>EmailId:  </span>' + Data[i].ExternalEmailId + '</p><p><span>Phone:  </span>' + Data[i].ExternalContactNo + '</p></div><a href="#" style="text-decoration: underline;">' + Data[i].ExternCompanyName + '</a></td><td>' + Data[i].RequestedDate + '</td>';
+                    if (Data[i].EstimatedDate == "--")
+                    {
+                        tbody = tbody + ' <td>-- </td>';
+
+                    }
+                    else
+                    {
+                        tbody = tbody + ' <td>' + Data[i].EstimatedDate + ' - ' + Data[i].EstimatedTime + ' </td>';
+                    }
+
+                    tbody = tbody + '</tr>';
+
+                    //tbody = tbody + ' <td> <a href="#" data-FacilityId="' + Data[i].FacilityId + '" data-yakkrid="' + Data[i].YakkrId + '" data-yakkrdescrp="' + Data[i].yakkrdescription + '" data-yakkr="' + Data[i].YakkrCode + '"   onclick="ShowStatus(this);"  style="text-decoration:underline;">Update Status</a> </td>';
+                    }
+
+                $('#DivModalExternalList > tbody').append(tbody);
+                if (!$('#ModalExternalList').hasClass('in'))
+                    $('#ModalExternalList').modal('toggle');
+            }
+            else {
+                $('#DivModalExternalList > tbody > tr').remove();
+                $('#div2').show();
+            }
+        }
+
+        function LoadCarouselImages(workid)
+        {
+            $.ajax({
+                url: HostedDir + "/Home/LoadCarouselImages",
+                type: "POST",
+                data: {
+                    workid: workid
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (Data) {
+                    $('.carousel-inner').html("");
+                    $('#CarouselTitle').text("Images for " + orderid);
+                    for(var i=0 ;i<Data.length;i++)
+                    {
+                        var div = "";
+                        if(i==0)
+                         div='<div class="item active"> <img class="roundimage ZoomImage" src="data:image/jpg;base64,'+Data[i]+'" /> </div>';
+                        else
+                            div = '<div class="item"> <img class="roundimage ZoomImage" src="data:image/jpg;base64,' + Data[i] + '" /> </div>';
+
+                        $('.carousel-inner').append(div);
+                    }
+
+                    $('#ModalCarousel').modal('show');
+
+                }
+, error: function (Data) {
+    customAlert("Session Ended Log Onto The System Again.");
+    setTimeout(function () {
+        window.location.href = HostedDir + '/login/Loginagency';
+    }, 2000);
+}
+            });
+
+        }
+        function BindInternallist(Data) {
+            console.log(Data);
+            if (Data != null && Data.length > 0) {
+                $('#div2').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivModalInternalList > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td style="text-decoration: underline;cursor:pointer;" data-workorderid=' + Data[i].workorderSequence + ' onclick="GetWorkOrderDetail(' + Data[i].YakkrId + ',this,4)">' + Data[i].workorderSequence + '</td>';
+                    tbody = tbody + '<td>' + Data[i].YakkrCode + ' & ' + Data[i].yakkrdescription + '</td>';
+
+                    tbody = tbody + '<td>' + Data[i].StaffName1  + '</td><td>' + Data[i].RequestedDate + '</td><td>' + Data[i].StaffName + '</td><td>' + Data[i].WorkOrderDate + '</td></tr> ';
+                    }
+                $('#DivModalInternalList > tbody').append(tbody);
+                if (!$('#ModalInternalList').hasClass('in'))
+                    $('#ModalInternalList').modal('toggle');
+            }
+            else {
+                $('#DivModalInternalList > tbody > tr').remove();
+                $('#div2').show();
+            }
+        }
+        function BindCompletedFix(Data) {
+            console.log(Data);
+            if (Data != null && Data.length > 0) {
+                $('#div5').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivModalCompleteList > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td style="text-decoration: underline;cursor:pointer;" data-workorderid=' + Data[i].workorderSequence + ' onclick="GetWorkOrderDetail(' + Data[i].YakkrId + ',this,6)">' + Data[i].workorderSequence + '</td>';
+                   tbody = tbody + '<td>' + Data[i].YakkrCode + ' & ' + Data[i].yakkrdescription + '</td>';
+                    tbody = tbody + '<td>' + Data[i].StaffName + '</td> ';
+                    tbody = tbody + '<td>' + Data[i].RequestedDate + '</td> ';
+
+                    tbody = tbody + '</tr>';
+                }
+                $('#DivModalCompleteList > tbody').append(tbody);
+                if (!$('#ModalCompleteList').hasClass('in'))
+                    $('#ModalCompleteList').modal('toggle');
+            }
+            else {
+                $('#ModalCompleteList > tbody > tr').remove();
+                $('#div5').show();
+            }
+        }
+        function BindTempFix(Data) {
+            console.log(Data);
+            if (Data != null && Data.length > 0) {
+                $('#div4').hide();
+                var tbody = "";
+                var option = "";
+                $('#DivModalTempList > tbody > tr').remove();
+                for (var i = 0; i < Data.length; i++) {
+                    tbody = tbody + '<tr><td style="text-decoration: underline;cursor:pointer;" data-workorderid=' + Data[i].workorderSequence + ' onclick="GetWorkOrderDetail(' + Data[i].YakkrId + ',this,5)">' + Data[i].workorderSequence + '</td>';
+                    tbody = tbody + '<td>' + Data[i].YakkrCode + ' & ' + Data[i].yakkrdescription + '</td>';
+                    tbody = tbody + '<td>' + Data[i].StaffName + '</td> ';
+                    tbody = tbody + '<td>' + Data[i].RequestedDate + '</td> ';
+                    tbody = tbody + '</tr>';
+                }
+                $('#DivModalTempList > tbody').append(tbody);
+                if (!$('#ModalTempList').hasClass('in'))
+                    $('#ModalTempList').modal('toggle');
+            }
+            else {
+                $('#ModalTempList > tbody > tr').remove();
+                $('#div4').show();
+            }
+        }
+        var yakkrid;
+        var workordernumber;
+  
+        var facilityid;
+   
+        // Accordian
+        var acc = document.getElementsByClassName("accordion");
+        var i;
+
+        for (i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
+        }
+        //End Accordian
+
+
+
+</script>
+
+  
+
+
+}
+
+@section MainContentHolder{
+<style>
+         .collape-setups p span.party-tablet {
+             width: 23%;
+             float: left;
+         }
+
+         .collape-setups p {
+             width: 100%;
+             float: left;
+         }
+
+         span.ip-agency::after {
+             content: "+";
+             position: absolute;
+             right: 32px;
+             font-size: 19px;
+         }
+
+
+         a.collapsed span.ip-agency::after {
+             content: "-" !important;
+             position: absolute;
+             right: 32px;
+         }
+
+         .agency-markup-setup .panel {
+             padding: 0;
+         }
+
+         .agency-markup-setup .panel-heading {
+             background-color: #f9c751;
+         }
+
+         .agency-markup-setup .panel-body {
+             background-color: #e6dcc5 !important;
+             color: #fff;
+         }
+
+         .panel-body p {
+             color: #000;
+             font-weight: 600;
+         }
+
+         .panel {
+             padding: 0 18px;
+             background-color: white;
+             max-height: initial !important;
+             overflow: auto !important;
+             transition: max-height 0.2s ease-out;
+         }
+         /*Accordian*/
+         .accordion {
+             background-color: #eee;
+             color: #444;
+             cursor: pointer;
+             padding: 18px;
+             width: 100%;
+             border: none;
+             text-align: left;
+             outline: none;
+             font-size: 15px;
+             transition: 0.4s;
+         }
+
+             .panel-heading .active, .accordion:hover {
+                 background-color: #ccc;
+             }
+
+         .panel-heading .accordion:after {
+             content: '\002B';
+             color: #777;
+             font-weight: bold;
+             float: right;
+             margin-left: 5px;
+         }
+
+         .panel-heading .active:after {
+             content: "\2212";
+         }
+
+         .agency-markup-setup .panel-body {
+             background-color: #fff;
+         }
+
+         .table-responsive .table_size tr td {
+             border: 1px solid #cfcfcf;
+             color: #000;
+         }
+
+         .collape-setups p span.party-tablet {
+             color: #1b5c96;
+         }
+
+         .panel {
+             padding: 0 18px;
+             background-color: white;
+             max-height: 0;
+             overflow: hidden;
+             transition: max-height 0.2s ease-out;
+         }
+         /*End Accordian*/
+         .modal-content.smt-content button {
+             color: #fff;
+             opacity: 1;
+             font-size: 30px;
+             position: absolute;
+             right: 12px;
+             outline: none !important;
+             top: 10px;
+         }
+
+         .smt_slider {
+             display: inline-block;
+             float: left;
+             height: 500px;
+             width: 100%;
+             color: #fff;
+         }
+
+             .smt_slider #myCarousel .item img {
+                 height: 500px;
+                 object-fit: contain;
+                 margin: auto;
+             }
+
+         .modal-content.smt-content {
+             border: 0 none;
+         }
+
+         .smt_slider h3 {
+             color: #fff;
+             text-transform: capitalize;
+         }
+
+         .inkind_color {
+             color: #295b8f !important;
+             font-weight: 600 !important;
+         }
+
+         .my-btn {
+             background: #db4437 !important;
+         }
+
+         .radio.radio-info.sublab {
+             margin-top: 0 !important;
+         }
+
+         .transition-radio-btn .radio.radio-info {
+             float: left;
+             margin-top: 10px;
+             width: auto;
+             margin-right: 30px;
+             display: inline-block;
+             margin-bottom: 5px;
+         }
+
+         .transition-radio-btn .radio input[type="radio"] {
+             opacity: 0;
+             z-index: 1;
+             cursor: pointer;
+         }
+
+         .transition-radio-btn .radio-info input[type="radio"]:checked + label {
+             color: #295b8f;
+         }
+
+         .transition-radio-btn .radio label {
+             display: inline-block;
+             vertical-align: middle;
+             position: relative;
+             padding-left: 5px;
+             color: #295b8f;
+             font-size: 15px;
+         }
+
+         .transition-radio-btn .radio-info input[type="radio"]:checked + label::before {
+             border-color: #295b8f;
+             color: #295b8f;
+         }
+
+
+         .transition-radio-btn .radio label::before {
+             content: "";
+             display: inline-block;
+             position: absolute;
+             width: 16px;
+             height: 16px;
+             left: 0;
+             margin-left: -20px;
+             border: 1px solid #163b69;
+             border-radius: 50%;
+             background-color: transparent;
+             -webkit-transition: border 0.15s ease-in-out;
+             -o-transition: border 0.15s ease-in-out;
+             transition: border 0.15s ease-in-out;
+             top: 2px;
+         }
+
+         .transition-radio-btn .radio label::before {
+             content: "";
+             display: inline-block;
+             position: absolute;
+             width: 16px;
+             height: 16px;
+             left: 0;
+             margin-left: -20px;
+             border: 1px solid #295b8f;
+             border-radius: 50%;
+             background-color: transparent;
+             -webkit-transition: border 0.15s ease-in-out;
+             -o-transition: border 0.15s ease-in-out;
+             transition: border 0.15s ease-in-out;
+             top: 2px;
+         }
+
+         .transition-radio-btn .radio input[type="radio"]:checked + label::after {
+             -webkit-transform: scale(1, 1);
+             -ms-transform: scale(1, 1);
+             -o-transform: scale(1, 1);
+             transform: scale(1, 1);
+         }
+
+         .transition-radio-btn .radio-info input[type="radio"]:checked + label::after {
+             background-color: #295b8f;
+             color: #295b8f;
+         }
+
+         .transition-radio-btn .radio-info input[type="radio"] + label::after {
+             background-color: #295b8f;
+             color: #295b8f;
+         }
+
+         .transition-radio-btn .radio label::after {
+             display: inline-block;
+             position: absolute;
+             content: " ";
+             width: 8px;
+             height: 8px;
+             left: 4px;
+             top: 6px;
+             margin-left: -20px;
+             border-radius: 50%;
+             background-color: transparent;
+             -webkit-transform: scale(0, 0);
+             -ms-transform: scale(0, 0);
+             -o-transform: scale(0, 0);
+             transform: scale(0, 0);
+             -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+             -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+             -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+             transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+         }
+
+         .page-wrapper-change {
+             background-image: url(../../Images/body-bg.jpg);
+             background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
+             background-size: cover !important;
+             background-position: 100% 100% !important;
+         }
+
+         .asset_perform .modal-content {
+             background: url(../../Images/body-bg.jpg) center no-repeat #000 !important;
+             background-size: cover !important;
+             background-position: 100% 100% !important;
+             /*background-color:  #74c2e1;*/
+             color: #fff;
+         }
+
+         .import_ui_bgm thead tr {
+             background-color: #2d3e50;
+         }
+
+         .import_ui_bgm tbody tr {
+             color: #2d3e50;
+             font-weight: 600;
+         }
+
+             .import_ui_bgm tbody tr td {
+                 color: #337ab7 !important;
+                 font-weight: 600;
+                 text-align: center !important;
+             }
+
+         .import_ui_bgm {
+             background: #fff;
+             padding: 15px;
+             border-radius: 7px;
+         }
+
+             .import_ui_bgm thead tr th {
+                 border-right: 1px solid #fff;
+             }
+
+                 .import_ui_bgm thead tr th:last-child {
+                     border-right: 0;
+                 }
+
+         .asset_perform .modal-header h3 {
+             /*background-color: #285b90;
+    padding: 15px;
+    border-radius: 4px;*/
+             font-weight: 700;
+         }
+
+         .fb_headscale .page-header {
+             border-bottom: 4px solid #f9c751 !important;
+             color: #fff;
+         }
+
+         .mi_melet {
+             padding: 0 45px 0 17px;
+             float: left;
+             margin: 0 0 0 15px;
+             width: 100%;
+         }
+
+         .ui_zarala {
+             background-color: #fff;
+             margin-bottom: 10px;
+             border-radius: 6px;
+             padding: 15px;
+             display: inline-block;
+         }
+
+             .ui_zarala h3 {
+                 color: #295b8f;
+                 text-transform: capitalize;
+                 border-bottom: 2px solid;
+                 padding-bottom: 12px;
+             }
+         /* tooltip */
+         td.set-cap {
+             position: relative;
+             cursor: pointer;
+         }
+
+             td.set-cap:hover .imr_setlab {
+                 display: block;
+                 transition: all 0.4s ease 0s;
+             }
+
+         .imr_setlab {
+             position: absolute;
+             background-color: rgba(0, 0, 0, 0.63);
+             width: 250px;
+             transition: all 0.6s ease 0s;
+             height: auto;
+             padding: 0px;
+             font-size: 14px !important;
+             display: inline-block;
+             float: left;
+             border-radius: 4px;
+             left: 120px;
+             top: -34px;
+             z-index: 99999 !important;
+             display: none;
+         }
+
+             .imr_setlab::before {
+                 content: "\f0d9";
+                 color: rgba(0, 0, 0, 0.63);
+                 position: absolute;
+                 left: -9px;
+                 font-family: Fontawesome;
+                 font-size: 25px;
+                 bottom: -6px;
+             }
+
+             .imr_setlab p {
+                 font-weight: 300;
+                 color: #fff;
+                 margin-bottom: 5px;
+                 text-align: left;
+                 padding-left: 10px;
+             }
+
+         .seticc {
+             margin: 0 !important;
+             padding-bottom: 5px;
+         }
+
+         .imr_setlab p span {
+             font-weight: 600;
+         }
+
+         .section_setoff {
+             width: 100%;
+             float: left;
+             margin: 5px 0;
+             margin-bottom: 16px;
+         }
+
+             .section_setoff > label {
+                 width: 20%;
+             }
+
+         .tablaee {
+             width: 60%;
+             float: right;
+         }
+
+         .seticc label {
+             width: 100% !important;
+             float: left;
+         }
+
+         .import-agara {
+             float: none;
+             display: none;
+             padding: 15px;
+             width: 97%;
+             margin: auto;
+             box-sizing: border-box;
+         }
+
+         .agara_service span {
+             margin-top: 9px;
+             display: inline-block;
+             font-weight: 600;
+         }
+
+         .agara_setup {
+             width: 100%;
+             float: left;
+             background-color: #fff;
+             border-radius: 7px;
+             padding: 15px;
+         }
+
+         .agara_service {
+             color: #333;
+             min-height: 40px;
+         }
+
+             .agara_service label {
+                 float: left;
+                 font-weight: 600;
+                 color: #1b5c96;
+                 width: 32% !important;
+             }
+
+         .panel-title > a:before {
+             float: right !important;
+             font-family: FontAwesome;
+             content: "\f068";
+             padding-right: 5px;
+         }
+
+         .panel-title > a.collapsed:before {
+             float: right !important;
+             content: "\f067";
+         }
+
+         .panel-title > a:hover,
+         .panel-title > a:active,
+         .panel-title > a:focus {
+             text-decoration: none;
+         }
+
+         .notes_command {
+             float: left;
+             width: 75%;
+         }
+</style>
+    <div class="row">
+
+        @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
+
+
+        <div class="col-lg-12 fb_headscale">
+            <h2 class="page-header"><i class="fa fa-university" aria-hidden="true"></i>  Center Overview <i style="font-size:18px;">(Work Orders)</i></h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+            <div class="table-responsive import_ui_bgm">
+                <table class="table table_size" id="gridViewAgency">
+                    <thead style="cursor: pointer;">
+                        <tr>
+                            <th>Center Name</th>
+                            <th>Openned</th>
+                          
+                            <th>Assigned To External</th>
+                            <th>Assigned To Internal</th>
+                            <th>Temporarily Fixed</th>
+                            <th>Completed</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @if (Model.FacilitiesDashboardList.Count() > 0)
+                        {
+
+                            foreach (FingerprintsModel.FacilitiesManagerDashboard dashboard in Model.FacilitiesDashboardList)
+                            {
+                                
+                                <tr>
+                                    <td accesskey="@dashboard.Enc_CenterId"><a style="text-decoration: underline;" href="#">@dashboard.CenterName</a></td>
+                                    <td style="text-align:right;"><a data-centerid="@dashboard.CenterId" style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadWorkOrderList(this, 1);" typeofdatacount="Indicated" mode="Pending">@dashboard.OpenedWorkOrders</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" data-centerid="@dashboard.CenterId" onclick="LoadWorkOrderList(this, 2);" typeofdatacount="Pending" mode="QualifyReleased">@dashboard.ExternalAssigned</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" data-centerid="@dashboard.CenterId" onclick="LoadWorkOrderList(this, 3);" typeofdatacount="Pending" mode="QualifyReleased">@dashboard.InternalAssigned</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" data-centerid="@dashboard.CenterId" onclick="LoadWorkOrderList(this, 4);" typeofdatacount="Qualified" mode="Released">@dashboard.TemporarilyFixedWorkOrders</a></td>
+                                    <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" data-centerid="@dashboard.CenterId" onclick="LoadWorkOrderList(this, 5);" typeofdatacount="Released" mode="All">@dashboard.CompletedWorkOrders</a></td>
+                                </tr>
+                              
+                            }
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="ModalWaitingList" role="dialog">
+        <div class="modal-dialog income-popup width-auto asset_perform">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h3>Assign Work Order</h3>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    @*<h3 id="CenterName" class="text-center"><span class="extra-title muted"></span></h3>*@
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                        <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="add-useragform">
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom: 3%;">
+
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive import_ui_bgm">
+                                            <table class="table table_size" id="DivWaitingListPopup">
+                                                <thead style="cursor: pointer;">
+                                                    <tr>
+
+                                                        <th>Yakkr & Description</th>
+                                                        <th>User Description</th>
+                                                        <th>Assigned By</th>
+                                                        <th>Assigned Date</th>
+                                                     
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            <div id="div1" style="text-align: center; display: none; margin-left: 38%;">
+                                                <label>No result found.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                 
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="ModalExternalList" role="dialog">
+        <div class="modal-dialog income-popup width-auto asset_perform">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h3>External Assigned List</h3>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                        <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                            <button type="button" class="my-btn pull-right"  data-dismiss="modal" tabindex="8">Exit</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="add-useragform">
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom: 3%;">
+
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive import_ui_bgm">
+                                            <table class="table table_size" id="DivModalExternalList">
+                                                <thead style="cursor: pointer;">
+                                                    <tr>
+                                                        <th>Order Id</th>
+                                                        <th>Yakkr Code & Description</th>
+                                                        <th>Company Name</th>
+
+                                                        <th>Date on List</th>
+                                                        <th>Estimated Date&Time</th>
+                                                      
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            <div id="div2" style="text-align: center; display: none; margin-left: 38%;">
+                                                <label>No result found.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="import-agara ExternalBind">
+                                    <div class="agara_setup">
+                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;">
+                                            <i class="fa fa-cogs" aria-hidden="true"></i><span class="spnHeading">Details of WDR000001</span>
+                                        </h2>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                            <div class="form-group agara_service">
+                                                <label>User Description</label>
+                                                <span class="spnDescription">Insects or Bugs Infestation</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Created By</label>
+                                                <span class="spnStaff">DanHammersley (Teacher)</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Fixed Type</label>
+                                                <span class="spnFixedType">Internal</span>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+
+                                            <div class="form-group agara_service">
+                                                <label>Center</label>
+                                                <span class="spnCenterName">GLENWOOD CENTER for EARLY CHILDHOOD</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Date</label>
+                                                <span class="spnDate">04/27/2018</span>
+                                            </div>
+                                            @*<div class="form-group agara_service">
+                                                <label>Recently Worked By</label>
+                                                <span class="spnAssignTo">(Worker Name)</span>
+                                            </div>*@
+
+                                        </div>
+                                        <div class="workparts">
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="ModalInternalList" role="dialog">
+        <div class="modal-dialog income-popup width-auto asset_perform">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h3>Internal Assigned Staff List</h3>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    @*<h3 id="CenterName" class="text-center"><span class="extra-title muted"></span></h3>*@
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                        <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="add-useragform">
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom: 3%;">
+
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive import_ui_bgm">
+                                            <table class="table table_size" id="DivModalInternalList">
+                                                <thead style="cursor: pointer;">
+                                                    <tr>
+                                                        <th>Order Id</th>
+                                                        <th>Yakkr Code & Description </th>
+                                                        <th>Work Order Created By</th>
+                                                        <th>Work Order Date</th>
+                                                        <th>Assigned to</th>
+                                                        <th>Assigned Date</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            <div id="div3" style="text-align: center; display: none; margin-left: 38%;">
+                                                <label>No result found.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="import-agara InternalBind">
+                                    <div class="agara_setup">
+                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;">
+                                            <i class="fa fa-cogs" aria-hidden="true"></i><span class="spnHeading">Details of WDR000001</span>
+                                        </h2>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                            <div class="form-group agara_service">
+                                                <label>User Description</label>
+                                                <span class="spnDescription">Insects or Bugs Infestation</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Created By</label>
+                                                <span class="spnStaff">DanHammersley (Teacher)</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Fixed Type</label>
+                                                <span class="spnFixedType">Internal</span>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+
+                                            <div class="form-group agara_service">
+                                                <label>Center</label>
+                                                <span class="spnCenterName">GLENWOOD CENTER for EARLY CHILDHOOD</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Date</label>
+                                                <span class="spnDate">04/27/2018</span>
+                                            </div>
+                                            @*<div class="form-group agara_service">
+                                                <label>Recently Worked By</label>
+                                                <span class="spnAssignTo">(Worker Name)</span>
+                                            </div>*@
+
+                                        </div>
+                                        <div class="workparts">
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="ModalTempList" role="dialog">
+        <div class="modal-dialog income-popup width-auto asset_perform">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h3>Temporary Fixed List</h3>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>
+                    <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                        <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="add-useragform">
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom: 3%;">
+
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive import_ui_bgm">
+                                            <table class="table table_size" id="DivModalTempList">
+                                                <thead style="cursor: pointer;">
+                                                    <tr>
+                                                        <th>Order Id</th>
+                                                        <th>Yakkr & Description</th>
+                                                        <th>Recently Fixed By</th>
+                                                        <th>Date on List</th>
+                                                     
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            <div id="div4" style="text-align: center; display: none; margin-left: 38%;">
+                                                <label>No result found.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                       
+                                <div class="import-agara TempBind">
+                                    <div class="agara_setup">
+                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;">
+                                            <i class="fa fa-cogs" aria-hidden="true"></i><span class="spnHeading">Details of WDR000001</span>
+                                        </h2>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                            <div class="form-group agara_service">
+                                                <label>User Description</label>
+                                                <span class="spnDescription">Insects or Bugs Infestation</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Created By</label>
+                                                <span class="spnStaff">DanHammersley (Teacher)</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Fixed Type</label>
+                                                <span class="spnFixedType">Internal</span>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+
+                                            <div class="form-group agara_service">
+                                                <label>Center</label>
+                                                <span class="spnCenterName">GLENWOOD CENTER for EARLY CHILDHOOD</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Date</label>
+                                                <span class="spnDate">04/27/2018</span>
+                                            </div>
+                                            @*<div class="form-group agara_service">
+                                                <label>Recently Worked By</label>
+                                                <span class="spnAssignTo">(Worker Name)</span>
+                                            </div>*@
+
+                                        </div>
+                                        <div class="workparts">
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row qualifierdiv">
+    <div class="modal fade scroll-modal" id="ModalCompleteList" role="dialog">
+        <div class="modal-dialog income-popup width-auto asset_perform">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="col-xs-12 ersea-detl-title">
+                        <h3>Completed Work Order List</h3>
+                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    </div>     <div class="col-sm-5 col-xs-12 pull-right" style="padding-right: 0;">
+                        <div class="btnwrp_subcal" style="padding: 0; margin: 0;">
+                            <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
+                            <div class="clear"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="add-useragform">
+                        <div class="row qualifierdiv">
+                            <div class="row" style="margin-bottom: 3%;">
+
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="table-responsive import_ui_bgm">
+                                            <table class="table table_size" id="DivModalCompleteList">
+                                                <thead style="cursor: pointer;">
+                                                    <tr>
+                                                        <th>Order Id</th>
+                                                        <th>Yakkr & Description</th>
+                                                        <th>Recently Fixed By</th>
+                                                        <th>Date on List</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                            <div id="div5" style="text-align: center; display: none; margin-left: 38%;">
+                                                <label>No result found.</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="import-agara CompleteBind">
+                                    <div class="agara_setup">
+                                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;">
+                                            <i class="fa fa-cogs" aria-hidden="true"></i><span class="spnHeading">Details of WDR000001</span>
+                                        </h2>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+                                            <div class="form-group agara_service">
+                                                <label>User Description</label>
+                                                <span class="spnDescription">Insects or Bugs Infestation</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Created By</label>
+                                                <span class="spnStaff">DanHammersley (Teacher)</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Fixed Type</label>
+                                                <span class="spnFixedType">Internal</span>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
+
+                                            <div class="form-group agara_service">
+                                                <label>Center</label>
+                                                <span class="spnCenterName">GLENWOOD CENTER for EARLY CHILDHOOD</span>
+                                            </div>
+                                            <div class="form-group agara_service">
+                                                <label>Date</label>
+                                                <span class="spnDate">04/27/2018</span>
+                                            </div>
+                                            @*<div class="form-group agara_service">
+                                                <label>Recently Worked By</label>
+                                                <span class="spnAssignTo">(Worker Name)</span>
+                                            </div>*@
+
+                                        </div>
+                                        <div class="workparts">
+
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="ModalCarousel" role="dialog" style="background-color: rgba(0,0,0,0.8);">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content smt-content">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="smt_slider">
+                    <h3 id="CarouselTitle">Images for WRDR000032</h3>
+                    <div id="myCarousel" class="carousel slide" data-target="carousel">
+                        <!-- Wrapper for slides -->
+                        <div class="carousel-inner" style="background-color: #fff;">
+                            @*<div class="item active">
+                                    <img src="~/Content/imgs/child1.png" style="width:100%;" />
+
+                                </div>
+                                <div class="item">
+                                    <img src="~/Content/img/NoImagesAvailable.jpg" style="width:100%;" />
+
+                                </div>
+                                <div class="item">
+                                    <img src="~/Content/imgs/sec5.jpg"  style="width:100%;"/>
+
+                                </div>
+
+                                <div class="item">
+                                    <img src="~/Content/img/body-bg.jpg" style="width:100%;"/>
+
+                                </div>
+                                <div class="item">
+                                    <img src="~/Content/img/ic_male.png"  style="width:100%;"/>
+
+                                </div>*@
+
+
+                        </div>
+
+                        <!-- Left and right controls -->
+                        <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                            <span class="glyphicon glyphicon-chevron-left"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                            <span class="glyphicon glyphicon-chevron-right"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+<div id="GetAppendDiv" style="display:none;">
+    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 agency-markup-setup">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="padding:0;">
+                <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#accordion" aria-expanded="false" href="#collapse13" style="display:block;padding: 10px 15px;font-weight:600">SectionTitle</a>
+                </h4>
+            </div>
+            <div id="collapse13" class="panel-collapse collapse ">
+                <div class="panel-body" style="line-height:22px;">
+                    <div class="col-xs-12 collapse-label collape-setups" style="padding:0;">
+                        <div class="col-xs-12 col-md-6 col-lg-6 col-sm-12" style="padding:0;">
+                            <p><span class="party-tablet">Staff Worked  : </span><span>StaffWorked</span></p>
+                            <p><span class="party-tablet">Status : </span><span>CurrentStatus</span></p>
+                            <p><span class="party-tablet">Image Count : </span><span>ImageCount</span></p>
+                        </div>
+                        <div class="col-xs-12 col-md-6 col-lg-6 col-sm-12" style="padding:0;">
+                            <p><span class="party-tablet">Notes : </span><span class="notes_command">Notes123</span></p>
+                            <p><span class="party-tablet">Date on List : </span><span>DateGiven</span></p>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="table table_size table-bordered" style="background: #fff;">
+                                <thead style="cursor: pointer;">
+                                    <tr>
+                                        <th>SNo</th>
+                                        <th>Part Number</th>
+                                        <th>Description</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Cost</th>
+                                        <th>Total Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}

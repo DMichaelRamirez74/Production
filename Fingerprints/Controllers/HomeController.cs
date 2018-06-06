@@ -508,7 +508,7 @@ namespace Fingerprints.Controllers
         //}
 
 
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        //  [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
         public ActionResult Dashboard()
         {
             try
@@ -1123,14 +1123,297 @@ namespace Fingerprints.Controllers
         }
 
 
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
         public ActionResult AgencyFacilitiesManagerDashboard()
         {
-            return View();
+            FacilitesModel model = new FacilitesModel();
+            StaffDetails details = StaffDetails.GetInstance();
+            try
+            {
+
+                model = new FacilitiesData().GetFacilitiesModelDashboard(details);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(model);
         }
-       
+
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public ActionResult FacilityWorks(int YakkrID = 0)
+        {
+            AssignFacilityStaff staff = new AssignFacilityStaff();
+            try
+            {
+                TempData["StaffYakkrid"] = YakkrID;
+                FacilitiesData fd = new FacilitiesData();
+                staff = fd.GetFacilityStaffList(YakkrID, Session["AgencyID"].ToString());
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(staff);
+        }
+
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public ActionResult SaveFacilityWorks(AssignFacilityStaff AssignWork)
+        {
+            var result = true;
+            try
+            {
+                string yakkrid;
+                if (TempData["StaffYakkrid"] == null)
+                {
+                    yakkrid = AssignWork.YakkrId;
+                }
+                else
+                {
+                    yakkrid = TempData["StaffYakkrid"].ToString();
+                }
+                FacilitiesData fd = new FacilitiesData();
+                AssignFacilityStaff ToAddressDetails = new AssignFacilityStaff();
+                ToAddressDetails = fd.AssignToFaciltyStaff(AssignWork, yakkrid, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+
+                if (AssignWork.IsInternal == false)
+                {
+                    string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
+                    ToAddressDetails.ExternalEmailId = AssignWork.ExternalEmailId;
+                    if (AssignWork.Request == true)
+                        SendMail.SendMailForQuotation(Server.MapPath("~/MailTemplate"), AssignWork, ToAddressDetails);
+                    else
+                        SendMail.SendMailForFacilityIssue(Server.MapPath("~/MailTemplate"), AssignWork, ToAddressDetails);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public ActionResult FacilityStaffWorks(int YakkrID = 0)
+        {
+            AssignFacilityStaff staff = new AssignFacilityStaff();
+            try
+            {
+                TempData["StaffYakkrid"] = YakkrID;
+                FacilitiesData fd = new FacilitiesData();
+                staff = fd.GetFacilityStaffList(YakkrID, Session["AgencyID"].ToString());
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(staff);
+
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public ActionResult FacilityWorkerDashboard()
+        {
+            FacilitesModel model = new FacilitesModel();
+            StaffDetails staffDetails = StaffDetails.GetInstance();
+            try
+            {
+                model = new FacilitiesData().GetFacilitiesStaffDashboard(staffDetails);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(model);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public JsonResult AutoCompleteExternalFacility(string term)
+        {
+            List<AssignFacilityStaff> result = new List<AssignFacilityStaff>();
+            try
+            {
+                result = new FacilitiesData().AutoCompleteExternalFacility(term);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public ActionResult GetWorkOrderStatusList(string Centerid, string Type, bool IsCenterManager = false)
+        {
+            List<AssignFacilityStaff> stafflist = new List<AssignFacilityStaff>();
+            try
+            {
+                FacilitiesData fd = new FacilitiesData();
+                stafflist = fd.GetWorkOrderStatusList(Centerid, Type, Session["AgencyId"].ToString(), Session["UserId"].ToString(), IsCenterManager);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(stafflist);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public ActionResult GetStaffWorkOrderStatusList(string Centerid, string Type)
+        {
+            List<AssignFacilityStaff> stafflist = new List<AssignFacilityStaff>();
+
+            try
+            {
+                FacilitiesData fd = new FacilitiesData();
+                stafflist = fd.GetStaffWorkOrderStatusList(Centerid, Type, Session["AgencyId"].ToString(), Session["UserId"].ToString());
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(stafflist);
+        }
+        [HttpPost]
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public JsonResult SaveFacilityStaffWorks(AssignFacilityStaff AssignWork)
+        {
+            var result = true;
+            try
+            {
+                string yakkrid;
+                if (TempData["StaffYakkrid"] == null)
+                {
+                    yakkrid = AssignWork.YakkrId;
+                }
+                else
+                {
+                    yakkrid = TempData["StaffYakkrid"].ToString();
+                }
+
+                FacilitiesData fd = new FacilitiesData();
+                AssignFacilityStaff ToAddressDetails = new AssignFacilityStaff();
+                ToAddressDetails = fd.SaveFacilityStaff(AssignWork, yakkrid, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+
+            }
+
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
 
 
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
 
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
 
+        public JsonResult AutoCompletePartDetails(string term)
+        {
+            var result = new List<PartDetails>();
+            try
+            {
+                FacilitiesData fd = new FacilitiesData();
+                result = fd.AutoCompletePartDetails(term);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public JsonResult UpdateEstimatedTime(string facilityid, string EstimateDate, string EstimatedHours)
+        {
+            var result = false;
+            try
+            {
+                FacilitiesData fd = new FacilitiesData();
+                result = fd.UpdateEstimatedTime(facilityid, EstimateDate, EstimatedHours, Session["UserID"].ToString());
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result);
+        }
+        [HttpPost]
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public JsonResult UploadFacilityImages(FormCollection fc, List<HttpPostedFileBase> ImageList)
+        {
+            var result = false;
+            try
+            {
+                if (ImageList != null && ImageList.Count > 0)
+                {
+                    string yakkrid = fc["YakkrId"].ToString();
+                    List<DamageFixedImages> Images = new List<DamageFixedImages>();
+                    foreach (var image in ImageList)
+                    {
+                        if (image != null && image.ContentLength > 0)
+                        {
+                            DamageFixedImages fixImage = new DamageFixedImages();
+                            fixImage.FileName = image.FileName;
+                            fixImage.FileExtension = Path.GetExtension(image.FileName);
+                            BinaryReader b = new BinaryReader(image.InputStream);
+                            fixImage.ImageByte = b.ReadBytes(image.ContentLength);
+                            Images.Add(fixImage);
+                        }
+                    }
+                    FacilitiesData fd = new FacilitiesData();
+                     result = fd.AddDamageFixedImage(yakkrid, Images, Session["UserID"].ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public JsonResult LoadCarouselImages(string workid)
+        {
+            var result =new  List<string>();
+            try
+            {
+                FacilitiesData fd = new FacilitiesData();
+                 result = fd.LoadCarouselImages(workid);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+        [CustAuthFilter("825f6940-9973-42d2-b821-5b6c7c937bfe,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,cb540cea-154c-482e-82a6-c1e0a189f611")]
+
+        public JsonResult GetWorkOrderDetail(string Yakkrid, string OrderId)
+        {
+            AssignFacilityStaff result = new AssignFacilityStaff();
+            try
+            {
+                FacilitiesData fd = new FacilitiesData();
+                 result = fd.GetWorkOrderDetail(Yakkrid, OrderId);
+               
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
     }
 }

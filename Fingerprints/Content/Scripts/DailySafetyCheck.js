@@ -4,10 +4,10 @@ $(function () {
     var data = new FormData();
 
     $('body').on('click', '.imgIssues,.pDesc', function () {
-
+     
         // if (!$(this).parent().parent().find('.img-tick').is(':visible') && !$(this).parent().parent().find('.img-cross').is(':visible') && $(this).parent().parent().find('.hdn-passfailcode').val() == "") {
-        $('#myModal .modal-header').css('border-bottom', '0px').css('height', '25px');
-        $('#myModal').modal('show');
+       // $('#myModal .modal-header').css('border-bottom', '0px').css('height', '25px');
+      //  $('#myModal').modal('show');
         $('.error-center-message').hide();
         $('.ImgContainer').removeClass('Selected');
         $(this).parent().parent().addClass('Selected');
@@ -21,12 +21,15 @@ $(function () {
         //}
     });
 
-    $('body').on('click', '.btn-pass', function () {
-
+    $('body').on('click', '.btn-pass1', function () {
+        $('.ImgContainer').removeClass('Selected');
+        $(this).parent().parent().parent().addClass('Selected');
         $('.error-center-message').hide();
         $('.Selected').find('.img-tick').show();
-        $('.Selected').find('.img-cross').hide();
-        $('#myModal').modal('hide');
+        $('.Selected').find('.img-cross').show();
+        $('.Selected').find('.trans-tick').hide();
+        $('.Selected').find('.trans-cross').hide();
+        $('.Selected').find('.trans-tick').show();
         var monitor = {};
         monitor.ImageId = $('.Selected .hdn-imageid').val();
         monitor.PassFailCode = true;
@@ -38,6 +41,7 @@ $(function () {
         DeleteExistingMonitor(monitor.RouteCode);
         MonitorList.push(monitor);
         $('.ImgContainer').removeClass('Selected');
+        $('#myModal').modal('hide');
 
     });
 
@@ -52,9 +56,15 @@ $(function () {
         console.log(MonitorList);
     }
 
-    $('body').on('click', '.btn-fail', function () {
+    $('body').on('click', '.btn-fail1', function () {
 
-
+        $('.ImgContainer').removeClass('Selected');
+        $(this).parent().parent().parent().addClass('Selected');
+        var desc = $('.Selected').find('.pDesc').text().trim();
+        var rolename = $('#myModal').find('.roleinfo').text();
+        $('#myModal').find('.modal-title').text("");
+        $('#myModal').find('.modal-title').text(rolename +" for "+desc);
+        $('#myModal').modal('show');
         $('.error-center-message').hide();
         $('.err-message').hide();
         $('.tblFailDetails,.btn-submit,.btn-back').show();
@@ -67,16 +77,24 @@ $(function () {
 
     $('body').on('click', '.btn-back', function () {
         $('.tblFailDetails,.btn-submit,.btn-back').hide();
-        $('.btn-pass,.btn-fail').show();
-        $('#myModal .modal-header').css('border-bottom', '0px').css('height', '25px');
+        $('.btn-pass,.btn-fail').hide();
+        $('#myModal').modal('hide');
+       // $('#myModal .modal-header').css('border-bottom', '0px').css('height', '25px');
     });
 
     var ImagePath = "";
 
     $('.btn-submit').click(function () {
         if (ValidateInput()) {
+
+            
+            $('.error-center-message').hide();
+            // $('.btn-pass1').find('.ImgContainer').find('.trans-tick').show();
+            $('.Selected').find('.img-tick').show();
             $('.Selected').find('.img-cross').show();
-            $('.Selected').find('.img-tick').hide();
+            $('.Selected').find('.trans-tick').hide();
+            $('.Selected').find('.trans-cross').hide();
+            $('.Selected').find('.trans-cross').show();
             $('#myModal').modal('hide');
             SaveFile();
             $('#myModal .modal-header').css('border-bottom', '0px').css('height', '25px');
@@ -86,8 +104,8 @@ $(function () {
     $('.btn-save').click(function () {
         $('.ImgContainer').removeClass('Selected');
         var imageLength = $('.imgIssues').length;
-        var imageCrossLength = $('.img-cross:visible').length;
-        var imageCheckLength = $('.img-tick:visible').length;
+        var imageCrossLength = $('.trans-cross:visible').length;
+        var imageCheckLength = $('.trans-tick:visible').length;
         var totalcheck = (imageCrossLength + imageCheckLength);
         if (totalcheck != imageLength) {
             customAlert('Daily safety check is required for all blocks');
@@ -398,7 +416,7 @@ function getMonitorList() {
         if ($('.center-id').val().trim() != "")
         monitor.CenterId = $('.center-id').val().trim();
         monitorListArray.push(monitor);
-        
+   
     });
 
     console.log(monitorListArray);
