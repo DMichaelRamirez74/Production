@@ -3071,7 +3071,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                var result = familyData.AutoCompletefamilyList(term, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Active);
+                var result = familyData.AutoCompletefamilyList(term, Session["AgencyID"].ToString(), Session["UserID"].ToString(),Session["RoleID"].ToString(), Active);
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)

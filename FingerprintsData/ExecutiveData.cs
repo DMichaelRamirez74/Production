@@ -25,6 +25,7 @@ namespace FingerprintsData
             ExecutiveDashBoard executive = new ExecutiveDashBoard();
             try
             {
+                double doubCheck = 0;
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
 
@@ -50,8 +51,8 @@ namespace FingerprintsData
                         executive.AvailableSeat = _dataset.Tables[0].Rows[0]["AvailableSeat"].ToString();
                         executive.YesterDayAttendance = _dataset.Tables[0].Rows[0]["YesterDayAttendance"].ToString();
                         executive.ADA = _dataset.Tables[0].Rows[0]["ADA"].ToString();
-                        executive.WaitingList = Math.Round(Convert.ToDouble(_dataset.Tables[0].Rows[0]["WaitingListPercentage"].ToString()), 1).ToString("N1");
-                        executive.WaitingListCount = Math.Round(Convert.ToDouble(_dataset.Tables[0].Rows[0]["WaitingListCount"].ToString()), 1).ToString();
+                        executive.WaitingList =double.TryParse(_dataset.Tables[0].Rows[0]["WaitingListPercentage"].ToString(),out doubCheck) ? Math.Round(Convert.ToDouble(_dataset.Tables[0].Rows[0]["WaitingListPercentage"].ToString()), 1).ToString("N1"): 0.ToString("N1");
+                        executive.WaitingListCount = double.TryParse(_dataset.Tables[0].Rows[0]["WaitingListCount"].ToString(),out doubCheck) ?  Math.Round(Convert.ToDouble(_dataset.Tables[0].Rows[0]["WaitingListCount"].ToString()), 1).ToString():0.ToString("N1");
                     }
                     //EmployeeBirhday
                     if (_dataset != null && _dataset.Tables[1].Rows.Count > 0)
