@@ -687,6 +687,8 @@ namespace Fingerprints.Controllers
                 {
                     ViewBag.message = "An error occurred while adding data.";
                 }
+
+                ViewBag.mode = info.mode;
                 return View(info);
                 //info = null;
             }

@@ -14,6 +14,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.Web;
 using System.Drawing;
+using System.Globalization;
 
 namespace FingerprintsData
 {
@@ -7276,7 +7277,7 @@ namespace FingerprintsData
             }
 
         }
-        public List<FamilyHousehold> AutoCompletefamilyList(string term, string agencyid, string userid, string active = "0")
+        public List<FamilyHousehold> AutoCompletefamilyList(string term, string agencyid, string userid,string roleId,string active = "0")
         {
             List<FamilyHousehold> _householdlist = new List<FamilyHousehold>();
             try
@@ -7295,6 +7296,7 @@ namespace FingerprintsData
                         command.Parameters.AddWithValue("@Active", active);
                         command.Parameters.AddWithValue("@agencyid", agencyid);
                         command.Parameters.AddWithValue("@userid", userid);
+                        command.Parameters.AddWithValue("@RoleID", roleId);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
                     }

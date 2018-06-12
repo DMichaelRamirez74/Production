@@ -42,13 +42,14 @@
             if ('@ViewBag.mode' == 1) {
                 $('#Meal').hide();
                 $("#Operational").hide();
-                // $('#Hideclassroomdiv').hide();
+             
                 $('.hodiv').hide();
                 $('#divclass_0').remove();
                 if ($('#AdminSite').val() == "1") {
                     $('#plussign').hide();
                     $('#Hideclassroomdiv').hide();
-                    $('#HideHomeBased').hide();
+                    $('#HideHomeBased,#areaDiv,#divisionDiv,#qualityStarsDiv,#certifiedDiv').hide();
+                
                 }
                 if ($("#HomeBased").prop("checked")) {
                     while (count >= 0) {
@@ -193,13 +194,13 @@
                 plainValidation('#CenterName');
                 return isValid;
             }
-            else if ($('#StepUpToQualityStars')[0].value.trim() == "") {
+            else if ( $('#qualityStarsDiv').is(':visible') &&  $('#StepUpToQualityStars')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Quality Stars is required.");
                 plainValidation('#StepUpToQualityStars');
                 return isValid;
             }
-            else if ($('#NAEYCCertified')[0].value.trim() == "") {
+            else if ($('#certifiedDiv').is(':visible') &&  $('#NAEYCCertified')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("NAEYC Certified is required");
                 plainValidation('#NAEYCCertified');
@@ -242,7 +243,7 @@
                 return isValid;
             }
 
-            else if ($('#AreaID').length > 0 && $('#AreaID').val() == '') {
+            else if ($('#areaDiv').is(':visible') && $('#AreaID').length > 0 && $('#AreaID').val() == '') {
                 isValid = false;
                 customAlert("Area is required.");
                 plainValidation('#AreaID');
@@ -250,7 +251,7 @@
 
             }
 
-            else if ($('#DivisionID').length > 0 && $('#DivisionID').val() == '') {
+            else if ($('#divisionDiv').is(':visible') && $('#DivisionID').length > 0 && $('#DivisionID').val() == '') {
                 isValid = false;
                 customAlert("Division is required.");
                 plainValidation('#DivisionID');
@@ -491,13 +492,15 @@
                     $('#divclass').hide();
                     $('#plussign').hide();
                     $('#Hideclassroomdiv').hide();
-                    $('#HideHomeBased').hide();
+                    $('#HideHomeBased,#areaDiv,#divisionDiv,#qualityStarsDiv,#certifiedDiv').hide();
+
                 }
                 if ($('#AdminSite').val() == "0") {
                     $('#divclass').show();
                     $('#plussign').show();
                     $('#Hideclassroomdiv').show();
-                    $('#HideHomeBased').show();
+                    $('#HideHomeBased,#areaDiv,#divisionDiv,#qualityStarsDiv,#certifiedDiv').show();
+
                 }
             }
             if ('@ViewBag.mode' == "1") {
@@ -521,7 +524,8 @@
                                         $('#divedit').hide();
                                         $('#plussign').hide();
                                         $('#Hideclassroomdiv').hide();
-                                        $('#HideHomeBased').hide();
+                                        $('#HideHomeBased,#areaDiv,#divisionDiv,#qualityStarsDiv,#certifiedDiv').hide();
+
                                         $("#HomeBased").prop("checked", false)
                                     }
                                 }
@@ -539,7 +543,8 @@
                     ShowDiv();
                     $('#plussign').show();
                     $('#Hideclassroomdiv').show();
-                    $('#HideHomeBased').show();
+                    $('#HideHomeBased,#areaDiv,#divisionDiv,#qualityStarsDiv,#certifiedDiv').show();
+
                 }
             }
         }
@@ -1652,7 +1657,22 @@
                                 @Html.TextBoxFor(m => m.CenterName, new { placeholder = "Center Name", id = "CenterName", maxlength = "100", @class = "form-control" })
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-12">
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" style="min-height: 45px">
+                            <div class="form-group">
+                                <label for="loginallowed">Admin Site <sup>*</sup></label>
+                                @{
+                                    List<SelectListItem> admin_list = new List<SelectListItem>();
+                                    admin_list.Add(new SelectListItem() { Text = "No", Value = "0" });
+                                    admin_list.Add(new SelectListItem() { Text = "Yes", Value = "1" });
+                                }
+                                @Html.DropDownListFor(m => m.AdminSite, new SelectList(admin_list, "Value", "Text", Model.AdminSite), new { @class = "form-control", onchange = "hidediv(this);" })
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="qualityStarsDiv">
                             <div class="form-group">
                                 <label for="pwd">Quality Stars <sup>*</sup></label>
                                 @{
@@ -1667,7 +1687,7 @@
                                 @Html.DropDownListFor(m => m.StepUpToQualityStars, new SelectList(StepUpToQualityStars_list, "Value", "Text", Model.StepUpToQualityStars), new { id = "StepUpToQualityStars", Name = "StepUpToQualityStars", @class = "form-control" })
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="certifiedDiv">
                             <div class="form-group">
                                 <label for="email">NAEYC Certified <sup>*</sup></label>
                                 @{
@@ -1711,17 +1731,6 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-6 col-md-6 col-sm-12" style="min-height: 45px">
-                            <div class="form-group">
-                                <label for="loginallowed">Admin Site <sup>*</sup></label>
-                                @{
-                                    List<SelectListItem> admin_list = new List<SelectListItem>();
-                                    admin_list.Add(new SelectListItem() { Text = "No", Value = "0" });
-                                    admin_list.Add(new SelectListItem() { Text = "Yes", Value = "1" });
-                                }
-                                @Html.DropDownListFor(m => m.AdminSite, new SelectList(admin_list, "Value", "Text", Model.AdminSite), new { @class = "form-control", onchange = "hidediv(this);" })
-                            </div>
-                        </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="pwd">Time Zone <sup>*</sup></label>
@@ -1744,7 +1753,7 @@
                                 }).ToList();
                             }
 
-                            <div class="col-lg-6 col-md-6 col-sm-12" id="HideHomeBased">
+                            <div class="col-lg-6 col-md-6 col-sm-12" id="areaDiv">
                                 <div class="form-group">
                                     <label for="pwd">Area<sup>*</sup></label>
                                     @Html.DropDownListFor(m => m.AreaID, new SelectList(areaList, "Value", "Text", Model.AreaID.ToString()), "--Select--", new { @class = "form-control" })
@@ -1767,7 +1776,7 @@
                                 }).ToList();
                             }
 
-                            <div class="col-lg-6 col-md-6 col-sm-12 " id="HideHomeBased">
+                            <div class="col-lg-6 col-md-6 col-sm-12 " id="divisionDiv">
                                 <div class="form-group">
                                     <label for="pwd">Division<sup>*</sup></label>
                                     @Html.DropDownListFor(m => m.DivisionID, new SelectList(divList, "Value", "Text", Model.DivisionID.ToString()), "--Select--", new { @class = "form-control" })

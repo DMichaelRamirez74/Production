@@ -151,13 +151,18 @@ namespace FingerprintsData
             }
         }
 
-        public void GetMaterialDetails(ref DataTable dtElements, string RoleId)
+        public void GetMaterialDetails(ref DataTable dtElements)
         {
             dtElements = new DataTable();
             try
             {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetMaterial";
@@ -175,14 +180,17 @@ namespace FingerprintsData
             }
         }
 
-        public void GetMaterialDetailsShare(ref DataTable dtElements, string RoleId, string UserId)
+        public void GetMaterialDetailsShare(ref DataTable dtElements)
         {
             dtElements = new DataTable();
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetMaterialShare";
@@ -200,15 +208,19 @@ namespace FingerprintsData
             }
         }
 
-        public void GetMaterialDetailsBySearchText(ref DataTable dtElements, string RoleId, string SerachText, string UserId)
+        public void GetMaterialDetailsBySearchText(ref DataTable dtElements,string SerachText)
         {
             dtElements = new DataTable();
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
                 command.Parameters.Add(new SqlParameter("@SearchText", SerachText));
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetMaterialBySerachText";
@@ -226,13 +238,18 @@ namespace FingerprintsData
             }
         }
 
-        public void GetPostedDocumentsDetails(ref DataTable dtElements, string RoleId)
+        public void GetPostedDocumentsDetails(ref DataTable dtElements)
         {
             dtElements = new DataTable();
             try
             {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                command.Parameters.Add(new SqlParameter("@RoleId",staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetMaterialPostedHistoryByUserId";
@@ -255,8 +272,12 @@ namespace FingerprintsData
             dtDocument = new DataSet();
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetMaterialDocumentForParent";
@@ -303,8 +324,12 @@ namespace FingerprintsData
             bool isInserted = false;
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
                 command = new SqlCommand();
                 command.Parameters.Add(new SqlParameter("@Id", Id));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_DeleteMaterialById";

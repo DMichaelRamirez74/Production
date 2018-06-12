@@ -101,7 +101,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtMaterial = new DataTable();
-                new EducationMaterialData().GetMaterialDetails(ref dtMaterial, Session["Roleid"].ToString());
+                new EducationMaterialData().GetMaterialDetails(ref dtMaterial);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtMaterial);
             }
             catch (Exception Ex)
@@ -118,7 +118,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtMaterial = new DataTable();
-                new EducationMaterialData().GetMaterialDetailsShare(ref dtMaterial, Session["Roleid"].ToString(), Session["UserID"].ToString());
+                new EducationMaterialData().GetMaterialDetailsShare(ref dtMaterial);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtMaterial);
             }
             catch (Exception Ex)
@@ -134,7 +134,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtMaterial = new DataTable();
-                new EducationMaterialData().GetMaterialDetailsBySearchText(ref dtMaterial, Session["Roleid"].ToString(), SearchText, Session["UserID"].ToString());
+                new EducationMaterialData().GetMaterialDetailsBySearchText(ref dtMaterial, SearchText);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtMaterial);
             }
             catch (Exception Ex)
@@ -150,7 +150,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtMaterial = new DataTable();
-                new EducationMaterialData().GetPostedDocumentsDetails(ref dtMaterial, Session["Roleid"].ToString());
+                new EducationMaterialData().GetPostedDocumentsDetails(ref dtMaterial);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtMaterial);
             }
             catch (Exception Ex)
