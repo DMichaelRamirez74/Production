@@ -1026,7 +1026,7 @@ namespace FingerprintsData
         }
         public string addParentInfo(ref FamilyHousehold obj, int mode, Guid ID, List<FamilyHousehold.Parentphone1> ParentPhoneNos,
            List<FamilyHousehold.Parentphone2> ParentPhoneNos1, List<FamilyHousehold.calculateincome> Income, List<FamilyHousehold.calculateincome1> Income1,
-            List<FamilyHousehold.ImmunizationRecord> Imminization, List<FamilyHousehold.phone> PhoneNos, Screening _screen, string Roleid, FormCollection collection, HttpFileCollectionBase Files)
+            List<FamilyHousehold.ImmunizationRecord> Imminization, List<FamilyHousehold.phone> PhoneNos, Screening _screen, string Roleid, FormCollection collection, HttpFileCollectionBase Files,bool isIncome=false)
         {
 
             //string pol = obj.PPolicyCouncil;
@@ -2118,6 +2118,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters.Add(new SqlParameter("@IsFutureIntake", (obj.IsFutureApplication)?"1":"0"));
+                command.Parameters.Add(new SqlParameter("@IsIncomeEntry", isIncome));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_FamilyDetails_info";//SP_FamilyDetails_info_TempNutritn
