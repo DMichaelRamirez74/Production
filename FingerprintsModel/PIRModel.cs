@@ -299,7 +299,9 @@ namespace FingerprintsModel
         public string C_52_E { get; set; }
         public string C_53 { get; set; }
         public string C_54 { get; set; }
-
+        public string C_55 { get; set; }
+        public string C_56 { get; set; }
+        public string C_57 { get; set; }
         public string B1_1 { get; set; }
         public string B1_2 { get; set; }
         public string B1A_1 { get; set; }

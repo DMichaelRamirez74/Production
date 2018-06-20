@@ -309,7 +309,9 @@ namespace FingerprintsData
                            _PIR.C_52_E = dr["C52E"].ToString();
                            _PIR.C_53 = dr["C53"].ToString();
                            _PIR.C_54 = dr["C54"].ToString();
-
+                           _PIR.C_55 = dr["C55"].ToString();
+                           _PIR.C_56 = dr["C56"].ToString();
+                           _PIR.C_57 = dr["C57"].ToString();
                            _PIR.B1_1 = dr["B1_1"].ToString();
                            _PIR.B1_2 = dr["B1_2"].ToString();
                            _PIR.B1A_1 = dr["B1A_1"].ToString();
@@ -357,6 +359,7 @@ namespace FingerprintsData
 
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = 500;
                 command.CommandText = "SP_GENERATE_PIR";
 
                 DataAdapter = new SqlDataAdapter(command);
@@ -387,7 +390,7 @@ namespace FingerprintsData
             command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
             command.Parameters.Add(new SqlParameter("@UserID", UserID));
             command.Parameters.Add(new SqlParameter("@ProgramType", Program));
-
+            command.CommandTimeout = 500;
             command.Connection = Connection;
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = "SP_GENERATE_PIR";
