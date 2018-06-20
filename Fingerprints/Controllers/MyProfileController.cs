@@ -34,7 +34,9 @@ namespace Fingerprints.Controllers
            roleid=9ad1750e-2522-4717-a71b-5916a38730ed(Health Manager)
           roleid=7c2422ba-7bd4-4278-99af-b694dcab7367(executive)
            */
-    //    [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,a31b1716-b042-46b7-acc0-95794e378b26,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,7c2422ba-7bd4-4278-99af-b694dcab7367,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        //    [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,a31b1716-b042-46b7-acc0-95794e378b26,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,7c2422ba-7bd4-4278-99af-b694dcab7367,c352f959-cfd5-4902-a529-71de1f4824cc")]
+
+        [CustAuthFilter()] //allows all users if the session is not expired//
         public ActionResult editProfile(string id = "0")
         {
             try
@@ -50,6 +52,7 @@ namespace Fingerprints.Controllers
         }
       //  [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,a31b1716-b042-46b7-acc0-95794e378b26,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,7c2422ba-7bd4-4278-99af-b694dcab7367,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult editProfile(string id, FingerprintsModel.MyProfile _profile)
         {
             try
@@ -81,6 +84,7 @@ namespace Fingerprints.Controllers
 
         }
         //[CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,a31b1716-b042-46b7-acc0-95794e378b26,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,7c2422ba-7bd4-4278-99af-b694dcab7367,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter()]
         public ActionResult ChangeRole(string id)
         {
             string newLocation = string.Empty;

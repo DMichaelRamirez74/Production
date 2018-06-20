@@ -336,7 +336,7 @@ namespace FingerprintsData
 
             _TeacherM.ClosedDetails = new ClosedInfo();
 
-            if (_dataset.Tables[2] != null)
+            if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count>0)
             {
                 // _TeacherM.TodayClosed = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]);
 

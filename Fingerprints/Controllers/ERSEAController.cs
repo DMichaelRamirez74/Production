@@ -29,7 +29,8 @@ namespace Fingerprints.Controllers
    roleid=9ad1750e-2522-4717-a71b-5916a38730ed(Health Manager)
    roleid=b65759ba-4813-4906-9a69-e180156e42fc (ERSEA Manager)
    */
-
+    
+        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
         public ActionResult ERSEADashboard()
         {
             ERSEADashBoard obj = new ERSEADashBoard();
@@ -131,6 +132,7 @@ namespace Fingerprints.Controllers
         //}
         //GET Selection SelectionCriteriaUpdate Page.
 
+        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
         public ActionResult SelectionCriteriaUpdate()
         {
             SelectPointsData progData = new SelectPointsData();
@@ -142,6 +144,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
+        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
         public ActionResult SelectionCriteriaUpdate(SelectPoints info, string Command, FormCollection collection, List<FingerprintsModel.SelectPoints.CustomQuestion> CustomQues)
         {
             try
@@ -288,12 +291,14 @@ namespace Fingerprints.Controllers
             }
         }
 
+        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
         public ActionResult CommunityAssessment()
         {
             return View();
         }
 
         //GET Center Analysis page;
+        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc")]
         public ActionResult CenterAnalysis()
         {
             return View();

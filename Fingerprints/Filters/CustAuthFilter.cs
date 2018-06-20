@@ -15,7 +15,7 @@ namespace Fingerprints.Filters
         }
         public CustAuthFilter()
         {
-
+            Usertype = new string[0];
         }
         public override void OnAuthorization(AuthorizationContext filterContext)
         {
@@ -38,6 +38,10 @@ namespace Fingerprints.Filters
                             return;
                         }
 
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
             }

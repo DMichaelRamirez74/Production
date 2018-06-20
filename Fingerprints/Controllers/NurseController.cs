@@ -1271,6 +1271,8 @@ namespace Fingerprints.Controllers
             }
         }
         //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+        [CustAuthFilter()]
         public ActionResult DownloadScreeningMatrixExcel(string Centerid, string Classroom = "")
         {
             try

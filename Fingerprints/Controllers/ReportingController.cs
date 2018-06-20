@@ -33,6 +33,7 @@ namespace Fingerprints.Controllers
             return View();
         }
         [HttpGet]
+        [Fingerprints.Filters.CustAuthFilter()]
         public ActionResult ReportingStatus(int reporttype)
         {
             try
