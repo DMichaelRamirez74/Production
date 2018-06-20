@@ -195,6 +195,7 @@ namespace Fingerprints.Controllers
 
 
         [HttpGet]
+        [CustAuthFilter()]
         public ActionResult YakkrList(string YakkrCode)
         {
             List<YakkrClientDetail> listYakkr = new List<FingerprintsModel.YakkrClientDetail>();

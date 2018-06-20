@@ -1924,10 +1924,10 @@ namespace Fingerprints.Controllers
                     #region SaveFamilyDetails
                     string message = string.Empty;
                     if (info.HouseholdId == 0)
-                        message = familyData.addParentInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files);
+                        message = familyData.addParentInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files,false);
                     else
                     {
-                        message = familyData.addParentInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files);
+                        message = familyData.addParentInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files,false);
                         new TransportationData().InsertTransportationyakkrForEnrolledChild(info.ChildId.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
                     }
                     _familyinfo = info;
@@ -4994,9 +4994,9 @@ namespace Fingerprints.Controllers
                 }
                 string message = string.Empty;
                 if (info.HouseholdId == 0)
-                    message = familyData.addParentInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files);
+                    message = familyData.addParentInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files,true);
                 else
-                    message = familyData.addParentInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files);
+                    message = familyData.addParentInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files, true);
 
                 var list = "";
                 if (info.Income1 != null && info.Income1.Count > 0)

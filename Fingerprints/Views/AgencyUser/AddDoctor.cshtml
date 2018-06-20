@@ -256,9 +256,9 @@
 
             $('#myModalDoctor').modal('hide');
             var community;
-            if ($('#txtCompanyNameD').val() != "")
+            if ($('#divmedicalCenter').is(':visible') && $('#txtCompanyNameD').val() != "")
                 community = 1;
-            if ($('#txtCompanyNameDen').val() != "")
+            if ($('#divdentalCenter').is(':visible') &&  $('#txtCompanyNameDen').val() != "")
                 community = 2;
             $.ajax({
                 url: HostedDir + "/AgencyUser/AdddoctorAjax",
@@ -353,9 +353,30 @@
                     }
                     $('#Username').find('option').remove().end().append(option);
                     $('#Username').val('');
-                    // $('#Username option:last-child').val();//Changes on3Feb2017
-                    $('#CDoctor').val($('#Username').find('option:last-child').text());
-                    $('#Doctor').val($('#Username').find('option:last-child').val());
+
+                    //Medical and Dental entry for Child//
+                    if ($('#myTab').children('li:eq(3)').hasClass('active')) {
+                        // $('#Username option:last-child').val();//Changes on3Feb2017
+                        $('#CDoctor').val($('#Username').find('option:last-child').text());
+                        $('#Doctor').val($('#Username').find('option:last-child').val());
+                    }
+
+                    //Medical and Dental Entry for Preg Mom
+                    //if ($('#myTab').children('li:eq(2)').hasClass('active')) {
+
+                    //    $('#addp1').find('#CDoctorP1').val($('#Username').find('option:last-child').text());
+                    //    $('#addp1').find('#Doctor').val($('#Username').find('option:last-child').val());
+                        
+                    //}
+                    if (popupid == 3) {
+                        $('#CDoctorP1').val($('#Username').find('option:last-child').text());
+                        $('#P1Doctor').val($('#Username').find('option:last-child').val());
+                    }
+                    if (popupid == 4) {
+                        $('#CDoctorP2').val($('#Username').find('option:last-child').text());
+                        $('#P2Doctor').val($('#Username').find('option:last-child').val());
+                    }
+
 
                 }
 

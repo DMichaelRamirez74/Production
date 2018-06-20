@@ -46,6 +46,8 @@ namespace Fingerprints.Controllers
          roleid=9c34ec8E-2359-4704-be89-d9f4b7706e82 (Disability Staff)
          roleid=944d3851-75cc-41e9-b600-3fa904cf951f (Billing Manager)
          roleid=825f6940-9973-42d2-b821-5b6c7c937bfe(Facilities Manager)
+         roleid=cb540cea-154c-482e-82a6-c1e0a189f611(Facility Worker)
+         roleid=4b77aab6-eed1-4ac3-b498-f3e80cf129c0(Education Manager)
          */
         DisabilityManagerData _DisabilityManagerData = new DisabilityManagerData();
         SuperAdminData superAdmin = new SuperAdminData();
@@ -333,6 +335,8 @@ namespace Fingerprints.Controllers
 
         //Task
         [HttpGet]
+
+        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
         public ActionResult DailySafetyCheck(Int64? CenterId)
         {
             try
@@ -508,7 +512,7 @@ namespace Fingerprints.Controllers
         //}
 
 
-        //  [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c,b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult Dashboard()
         {
             try
