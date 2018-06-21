@@ -16,6 +16,8 @@ using System.Data;
 using iTextSharp.tool.xml;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Web.Script.Serialization;
+
 
 namespace Fingerprints.Controllers
 {
@@ -351,6 +353,11 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtMaterial = new DataTable();
+
+                int _householdId = 0;
+
+                Householdid = int.TryParse(Householdid, out _householdId) ? Householdid : EncryptDecrypt.Decrypt64(Householdid);
+
                 new RosterData().GetCaseNoteByTags(ref dtMaterial, Convert.ToInt32(Householdid), Convert.ToInt32(centerid), ClientId, Session["AgencyID"].ToString(), Session["UserID"].ToString(), TagName);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtMaterial);
             }
@@ -447,6 +454,11 @@ namespace Fingerprints.Controllers
             try
             {
                 TempData["CaseNoteid"] = CaseNote.CaseNoteid;
+
+                int _householdID = 0;
+
+                CaseNote.HouseHoldId = int.TryParse(CaseNote.HouseHoldId, out _householdID) ? CaseNote.HouseHoldId : EncryptDecrypt.Decrypt64(CaseNote.HouseHoldId);
+
                 isInserted = new RosterData().SaveSubNotes(CaseNote.CaseNoteid, CaseNote.CaseNoteDate, Convert.ToInt32(CaseNote.HouseHoldId), Convert.ToInt32(CaseNote.CenterId), CaseNote.Classroomid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), CaseNote.Note, Session["Roleid"].ToString());
                 TempData.Keep();
             }
@@ -456,7 +468,7 @@ namespace Fingerprints.Controllers
             }
             return Json(isInserted);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter("9c34ec8e-2359-4704-be89-d9f4b7706e82,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
 
         [ValidateInput(false)]
         public ActionResult CaseNotesclient(string id = "")
@@ -502,8 +514,8 @@ namespace Fingerprints.Controllers
                 else
                     ViewBag.Programid = 0;
                 ViewBag.User = Session["FullName"].ToString();
-                ViewBag.Date = DateTime.Now.ToString("MM/dd/yyy");
-                // if (Session["RoleList"] != null)                    
+             
+
                 List<FingerprintsModel.Role> listRole = Session["RoleList"] as List<FingerprintsModel.Role>;
                 ViewBag.Role = listRole.Select(a => a.RoleName).FirstOrDefault();
             }
@@ -994,7 +1006,7 @@ namespace Fingerprints.Controllers
             return View();
         }
         //Changes on 29Dec2016
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter("9c34ec8e-2359-4704-be89-d9f4b7706e82,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult Getcasenotedetails(string Casenoteid, string ClientId)
         {
             try

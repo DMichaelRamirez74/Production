@@ -111,7 +111,7 @@ namespace FingerprintsData
                             info.Title = dr["Title"].ToString();
                             info.Attachment = dr["Attachment"].ToString();
                             info.References = dr["References"].ToString();
-                            info.Date = Convert.ToDateTime(dr["casenotedate"]).ToString("MM/dd/yyyy");
+                            info.Date = dr["casenotedate"].ToString();
                             info.SecurityLevel = Convert.ToBoolean(dr["SecurityLevel"]);
                             CaseNoteList.Add(info);
                         }
@@ -257,12 +257,11 @@ namespace FingerprintsData
                     Connection.Close();
                 Connection.Open();
                 command.Connection = Connection;
-                DateTime dt = Convert.ToDateTime(CaseNoteDate);
                 command.Parameters.Add(new SqlParameter("@CaseNoteID", CaseNoteId));
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
                 command.Parameters.Add(new SqlParameter("@Householdid", Householdid));
-                command.Parameters.Add(new SqlParameter("@ProgramYR", "16-17"));
-                command.Parameters.Add(new SqlParameter("@SubCaseNoteDate", dt));
+                //command.Parameters.Add(new SqlParameter("@ProgramYR", "16-17"));
+                command.Parameters.Add(new SqlParameter("@SubCaseNoteDate", CaseNoteDate));
                 command.Parameters.Add(new SqlParameter("@WrittenBy", UserId));
                 command.Parameters.Add(new SqlParameter("@RoleOfOwner", RoleId));
                 command.Parameters.Add(new SqlParameter("@Note", Notes));
@@ -309,7 +308,7 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             info = new CaseNote();
-                            info.Date = Convert.ToDateTime(dr["casenotedate"]).ToString("MM/dd/yyyy");
+                            info.Date = dr["casenotedate"].ToString();
                             info.Title = dr["Title"].ToString();
                             info.clientid = dr["ClientID"].ToString();
                             info.Staffid = dr["Staffid"].ToString();
@@ -491,7 +490,7 @@ namespace FingerprintsData
                             info.Title = dr["Title"].ToString();
                             info.Attachment = dr["Attachment"].ToString();
                             info.References = dr["References"].ToString();
-                            info.Date = Convert.ToDateTime(dr["casenotedate"]).ToString("MM/dd/yyyy");
+                                info.Date = dr["casenotedate"].ToString();
                             CaseNoteList.Add(info);
                         }
                     }
@@ -897,6 +896,9 @@ namespace FingerprintsData
 
             try
             {
+                int cenID = 0;
+                Centerid = int.TryParse(Centerid, out cenID) ? Centerid : EncryptDecrypt.Decrypt64(Centerid);
+
                 StaffDetails staffDetails = StaffDetails.GetInstance();
                 command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));

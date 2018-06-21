@@ -28,6 +28,11 @@
     {
         Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     }
+
+    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("9c34ec8e-2359-4704-be89-d9f4b7706e82")))
+    {
+        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    }
 }
 @section Script{
 
@@ -142,6 +147,12 @@
                     }
                 });
             });
+
+
+            $('.casenote-date').val(getFormattedDateNumber(new Date()));
+
+
+
         });
 
 
@@ -237,6 +248,25 @@
 
             return monthNames[parseInt(month)] + ' ' + day + ',' + year;
         }
+
+
+
+        function getFormattedDateNumber(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+
+
+
         function BindCaseNotelist(Data) {
             cleanValidation();
             //$('#Attachment').hide();
@@ -1042,7 +1072,7 @@
                             </div>
                             <div class="col-sm-8">
                                 <div class="addn-poup-div">
-                                    <input class="form-control ui-autocomplete-input" type="text" placeholder="08/16/2017" value="@ViewBag.Date" readonly="readonly">
+                                    <input class="form-control ui-autocomplete-input casenote-date" type="text" placeholder="MM/DD/YYYY" value="" readonly="readonly">
                                 </div>
                             </div>
                         </div>
@@ -1204,7 +1234,7 @@
                             </div>
                             <div class="col-sm-8">
                                 <div class="addn-poup-div1">
-                                    <input class="form-control ui-autocomplete-input txt-date" type="text" placeholder="MM/DD/YYYY" value="@ViewBag.Date">
+                                    <input class="form-control ui-autocomplete-input casenote-date txt-date" type="text" placeholder="MM/DD/YYYY" value="">
                                     <input type="hidden" class="hdn-casenoteid" />
                                 </div>
                             </div>
@@ -1306,7 +1336,7 @@
                     <div class="col-xs-12 bdr-popup"></div>
                     <div class="col-xs-12 addn-al" style="padding: 0;">
                         <div class="Status-title-addn btn-save-note" style="text-align: right;">
-                            <a style="margin-top: 0;text-transform: uppercase;margin: 0;width: auto;display: inline-block;padding: 7px 15px;margin-right: 10px;line-height:22px;">
+                            <a style="margin-top: 0;text-transform: uppercase;margin: 0;cursor:pointer;width: auto;display: inline-block;padding: 7px 15px;margin-right: 10px;line-height:22px;">
                                 Save
                             </a>
                         </div>
@@ -1532,6 +1562,8 @@
                 console.log('month:' + month);
                 return monthNames[month] + ' ' + day + ',' + year;
             }
+
+
         });
     </script>
     <script type="text/javascript">
@@ -1644,7 +1676,7 @@
                                     </div>
                                     <div class="col-sm-8">
                                         <div class="addn-poup-div1">
-                                            <input type="text" id="CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input" />
+                                            <input type="text" id="CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input casenote-date" />
                                         </div>
                                     </div>
                                 </div>
