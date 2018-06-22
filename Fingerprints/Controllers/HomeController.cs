@@ -512,7 +512,7 @@ namespace Fingerprints.Controllers
         //}
 
 
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c,b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
         public ActionResult Dashboard()
         {
             try
