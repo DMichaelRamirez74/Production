@@ -102,14 +102,14 @@
                                             <label>No result found.</label>
                                         </div>
                                     </div>
-
-                                    <div class="row" id="divChangeStatus" style="display: none;">
+                             
+                                    <div class="row" id="divChangeStatus" >
                                         <div class="col-sm-12">
                                             <fieldset id="fieldsetid" style="border: 1px solid #295b8f;">
                                                 <legend class="legend1"></legend>
 
                                                 <div id="divform">
-
+                                                  
                                                     <div class="col-sm-10">
                                                         <div class="col-sm-3">
                                                             <label style="width: 100%;">Client</label>
@@ -134,8 +134,7 @@
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody style="border:1px solid black;line-height:30px;text-align:center;" id="specialServiceTbody"></tbody>
-                                                            </table>
-
+                                                           </table>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-10 adddivspace">
@@ -206,7 +205,7 @@
 
                                                     <div id="divdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
                                                         <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Primary Disability Type</label>
+                                                            <label style="width: 100%;"> Primary Disability Type <sup>*</sup></label>
                                                         </div>
                                                         <div class="col-sm-5">
                                                             <select id="primaryDisabilitySelect" name="primaryDisabilitySelect" class="form-control"></select>
@@ -234,14 +233,7 @@
                                                     </div>
 
                                                 </div>
-                                                <div class="col-sm-9" id="dvClientNameQualified">
-                                                    <div class="col-sm-2">
-                                                        <label style="width: 100%;">Client</label>
-                                                    </div>
-                                                    <div class="col-sm-10">
-                                                        <label style="width: 100%; font-size: 15px; font-weight: bold; color: #333;" id="ClientNameQualified"></label>
-                                                    </div>
-                                                </div>
+                                           
 
                                                 <div class="table-responsive" style="float:left;width:99%" id="dvdisablenotes">
                                                     <h4 style="text-align: center; margin-top: 4px !important" class="page-header"> Disability Notes</h4>
@@ -314,6 +306,7 @@
         });
     }
 
+  
 
     //method to bind the Primary disability option on selection of disability//
 
@@ -599,7 +592,7 @@
 
     //method to show the div on click of client name//
     function showdiv(Aobject) {
-
+        cleanValidation();
         $('#txtappnotes,#DocumentDate,#txtdocdesc,#ddlqualifiedreleased').val('');
         $('.file-upload').val('');
         $('.div-additional').remove();
@@ -608,8 +601,7 @@
         $('#tblNotesList').show();
         $('#disableheader').show();
         $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
-        $('#ClientNameQualified').text($(Aobject).closest("tr").find("td:first").text());
-        $('#dvClientNameQualified').hide();
+     
         $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
         LoadNotes(_Object);
 
@@ -623,7 +615,7 @@
 
         if (heading == 'Qualified') {
 
-            $('#dvClientNameQualified').show();
+           
             $('#divDocumentDate').hide();
             $('#divDocument').hide();
             $('#divDocumentDescription').hide();
@@ -634,7 +626,7 @@
             $('#ModalPending').find('#specialServicesDiv').show();
         }
         else if (heading == 'Released') {
-            $('#dvClientNameQualified').show();
+         
             $('#divDocumentDate').hide();
             $('#divDocument').hide();
             $('#divDocumentDescription').hide();
@@ -643,8 +635,13 @@
         }
         else if (heading == 'Pending') {
             $('#fieldsetid').show();
+            $('#disabilitySelectedDiv').hide();
+            $('#divdPrimaryDisabilityType').hide();
+            
         }
         else if (heading == 'Indicated') {
+            $('#disabilitySelectedDiv').hide();
+            $('#divdPrimaryDisabilityType').hide();
             $('#fieldsetid').show();
         }
 
@@ -696,6 +693,7 @@
         }
 
     }
+
 
 
     //method to save disability children process//
@@ -1001,10 +999,11 @@
             success: function (data) {
 
                 if (data != null) {
-
+                    
+                  
                     BindSelectedDisabilities(data);
                     BindNotesHtml(data);
-                    BindDocumentsHtml(data);
+                   BindDocumentsHtml(data);
                 }
             }
            , error: function (data) {

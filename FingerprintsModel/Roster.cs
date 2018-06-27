@@ -77,6 +77,15 @@ namespace FingerprintsModel
             public HttpPostedFileBase file { get; set; }
         }
     }
+    public class InternalRefferalCaseNote
+    {
+        public RosterNew.CaseNote CaseNote { get; set; }
+        public string ReferredBy { get; set; }
+        public string CenterName { get; set; }
+        public string ClassroomName { get; set; }
+        public string RoleName { get; set; }
+
+    }
     public class REF
     {
         public int? ServiceID { get; set; }

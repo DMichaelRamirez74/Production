@@ -2121,7 +2121,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsIncomeEntry", isIncome));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_FamilyDetails_info";//SP_FamilyDetails_info_TempNutritn
+                // command.CommandText = "SP_FamilyDetails_info";//SP_FamilyDetails_info_TempNutritn
+                command.CommandText = "SP_FamilyDetails_info_20_06_2018";
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -2524,6 +2525,7 @@ namespace FingerprintsData
                         info.Address = dr["address"].ToString();
                         info.Zip = dr["Zip"].ToString();
                         info.SeatsAvailable = dr["AvailSeats"].ToString();
+                        info.Homebased = Convert.ToBoolean(dr["HomeBased"]);
                         centerList.Add(info);
                     }
                     obj.HrcenterList = centerList;
@@ -6879,7 +6881,7 @@ namespace FingerprintsData
         }
 
 
-        public string SaveHirarchyAcceptanceprocess(string Clientid, string Usernurseid, string householdid, string centerid, string agencyid, string userid, string Programid)
+        public string SaveHirarchyAcceptanceprocess(string Clientid, string UserFSWId, string householdid, string centerid, string agencyid, string userid, string Programid)
         {
 
             try
@@ -6896,6 +6898,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@Programid", Programid));
+                command.Parameters.Add(new SqlParameter("@AssignedFSW", UserFSWId));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.ExecuteNonQuery();
@@ -6934,16 +6937,17 @@ namespace FingerprintsData
                 DataTable dt = new DataTable();
                 if (ClientList.Count > 0)
                 {
-                    dt.Columns.AddRange(new DataColumn[2] {
+                    dt.Columns.AddRange(new DataColumn[3] {
                     new DataColumn("Id", typeof(int)),
-                    new DataColumn("ClientId", typeof(string))
+                    new DataColumn("ClientId", typeof(string)),
+                      new DataColumn("FamilyAdvocate", typeof(string))
                     });
                 }
                 int i = 0;
                 foreach (string str in ClientList)
                 {
                     i++;
-                    dt.Rows.Add(i, str);
+                    dt.Rows.Add(i, str.Split(',')[0], str.Split(',')[1]);
                 }
                 command.Parameters.Add(new SqlParameter("@Clientid", dt));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
@@ -8070,6 +8074,7 @@ namespace FingerprintsData
                         {
                             ClientWaitingList info = new ClientWaitingList();
                             info.ClientId = dr["Clientid"].ToString();
+                            info.IsHomeBased = Convert.ToBoolean((dr["Ishomebased"].ToString()));
                             info.HouseholdId = dr["Householdid"].ToString();
                             info.Programid = dr["Programid"].ToString();
                             info.CenterId = dr["centerid"].ToString();
@@ -8220,6 +8225,58 @@ namespace FingerprintsData
             }
 
         }
+
+        public List<UserInfo> GetFSWListByClient(string clientid,string CenterId,  string AgencyId,int type)
+        {
+            List<UserInfo> FSWList = new List<UserInfo>();
+           
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@CenterId",  CenterId));
+                command.Parameters.Add(new SqlParameter("@clientid", clientid));
+                command.Parameters.Add(new SqlParameter("@Type", type));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_GetFSWList";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+
+             
+                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                {
+                    UserInfo obj = null;
+                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                    {
+                        obj = new UserInfo();
+                        obj.userId = Convert.ToString(dr["UserId"]);
+                        obj.Name = dr["UserName"].ToString();
+                        obj.IsSelected = dr["isSelected"].ToString() == "0" ? false : true;
+                        FSWList.Add(obj);
+                    }
+                }
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+                            
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                DataAdapter.Dispose();
+                if (Connection != null && Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                    command.Dispose();
+                }
+
+            }
+            return FSWList;
+        }
+
         //Changes
         public List<ClientAcceptList> GetclientAcceptList(string CenterId, string Option, string AgencyId, string UserId)
         {
@@ -8294,6 +8351,19 @@ namespace FingerprintsData
                         }
 
                     }
+                    info.FSWList = new List<UserInfo>();
+                    //if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                    //{
+                    //    UserInfo obj = null;
+                    //    foreach (DataRow dr in _dataset.Tables[2].Rows)
+                    //    {
+                    //        obj = new UserInfo();
+                    //        obj.userId = Convert.ToString(dr["UserId"]);
+                    //        obj.Name = dr["UserName"].ToString();
+
+                    //        info.FSWList.Add(obj);
+                    //    }                 
+                    //}
                 }
                 DataAdapter.Dispose();
                 command.Dispose();
@@ -8341,6 +8411,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ChildDis", ChildDis));
                 command.Parameters.Add(new SqlParameter("@ChildBMI", ChildBMI));
                 command.Parameters.Add(new SqlParameter("@ChildFood", ChildFood));
+             
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.ExecuteNonQuery();
@@ -8696,6 +8767,9 @@ namespace FingerprintsData
             string result = string.Empty;
             try
             {
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@HouseholdId", info.HouseholdId));
                 command.Parameters.Add(new SqlParameter("@Street", info.Street));
@@ -8875,7 +8949,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@bWeight", obj.AWeight));
                 command.Parameters.Add(new SqlParameter("@HeadCircle", obj.HeadCircle));
                 command.Parameters.Add(new SqlParameter("@OtherRace", obj.Raceother));
-
+                command.Parameters.Add(new SqlParameter("@IsIEP", obj.IsIEP));
+                command.Parameters.Add(new SqlParameter("@IsIFSP", obj.IsIFSP));
+                command.Parameters.Add(new SqlParameter("@IsExpired", obj.IsExpired));
                 DataTable dt1 = new DataTable();
                 dt1.Columns.AddRange(new DataColumn[18] {
                     new DataColumn("Immunizationmasterid", typeof(Int32)),

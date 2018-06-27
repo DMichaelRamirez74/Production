@@ -250,6 +250,33 @@ namespace Fingerprints.Controllers
         //    }
         //}
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        public JsonResult GetFSWOrHVList(string ClientId,string Centerid, int ListType)
+        {
+            try
+            {
+                return Json(_family.GetFSWListByClient(ClientId,Centerid, Session["AgencyID"].ToString(), ListType));
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occured please try again.");
+            }
+        }
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")]
+        //public JsonResult DeleteRejectedRecord(string Id)
+        //{
+        //    try
+        //    {
+
+        //        return Json(_family.DeleteRejectedRecord(Id, Session["UserID"].ToString()));
+        //    }
+        //    catch (Exception Ex)
+        //    {
+        //        clsError.WriteException(Ex);
+        //        return Json("Error occured please try again.");
+        //    }
+        //}
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult DeleteRejectedRecord(string Id, string ClientId, string HouseholdId)
         {
             try
@@ -644,7 +671,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        // shambhu changes 21 feb
+        // shambhu changes 21 Feb
         [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
 
         public ActionResult AgencyDisabilityManagerDashboard(string a)
@@ -753,7 +780,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -770,7 +797,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -789,7 +816,7 @@ namespace Fingerprints.Controllers
                 string DISABLETYPEID = "";
                 string result = "";
                 string primaryDisabilityType = "";
-               
+
                 if (Request.Form["disabilitytype"] != null)
                 {
                     DISABLETYPEID = Request.Form["disabilitytype"].ToString();
@@ -819,7 +846,7 @@ namespace Fingerprints.Controllers
 
                     }
 
-                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc,primaryDisabilityType);
+                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc, primaryDisabilityType);
                 }
 
                 else
@@ -882,6 +909,37 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+        [JsonMaxLengthAttribute]
+        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        public JsonResult BindDisableTypeByClient(string Clientid)
+        {
+            try
+            {
+                var list = _DisabilityManagerData.BindDisableTypeByClient(Clientid);
+                return Json(new { list });
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occured please try again.");
+            }
+        }
+        [JsonMaxLengthAttribute]
+        [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
+        public JsonResult SaveDisablityTypes(string ClientId, string DisabilityTypeId,string PrimaryDisablity)
+        {
+            try
+            {
+                var list = _DisabilityManagerData.SaveDisabilityTypes(ClientId,DisabilityTypeId,PrimaryDisablity);
+                return Json(new { list });
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occured please try again.");
+            }
+        }
+        
 
         [CustAuthFilter("047c02fe-b8f1-4a9b-b01f-539d6a238d80,9c34ec8e-2359-4704-be89-d9f4b7706e82")]
         public FileResult getDisableDocument(string id = "0")
@@ -1418,6 +1476,68 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(ex);
             }
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetInternalRefDetails(string ClientId)
+        {
+           Role result =new Role();
+            try
+            {
+                DisabilityManagerData fd = new DisabilityManagerData();
+                 result = fd.GetInternalRefDetails(ClientId);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
+        [HttpPost]
+        [ValidateInput(false)]
+        public ActionResult SaveInternalReferral(InternalReferral internRef)
+        {
+            var result = false;
+            DisabilityManagerData fd = new DisabilityManagerData();
+            try
+            {
+                string name = "";
+                string casenoteid = "";
+
+                List<RosterNew.Attachment> Attachments = new List<RosterNew.Attachment>();
+                var ate = Request.Files;
+                var ate2 = ate.AllKeys;
+                for (int i = 0; i < ate2.Length; i++)
+                {
+                    RosterNew.Attachment aatt = new RosterNew.Attachment();
+                    aatt.file = ate[i];
+                    if(aatt.file.ContentLength>0)
+                       Attachments.Add(aatt);
+                }
+                 RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
+                 List<CaseNote> caseNote = new List<CaseNote>();            
+                 RosterNew.Users _users = new RosterNew.Users();
+                _caseNote.CenterId =EncryptDecrypt.Decrypt64( internRef.CaseCenterId);
+                _caseNote.Classroomid = internRef.CaseClassroomId.ToString();
+                _caseNote.ClientId = EncryptDecrypt.Decrypt64(internRef.CaseClientId.ToString());             
+                _caseNote.CaseNotetags = internRef.Tags.Trim(',');
+                _caseNote.CaseNotetitle = internRef.Title;
+                _caseNote.CaseNoteDate = internRef.Date;
+                _caseNote.Note = internRef.Note;
+                _caseNote.ClientIds= string.Join(",", internRef.ClientIds.ToArray());
+                _caseNote.ProgramId = EncryptDecrypt.Decrypt64(internRef.CaseProgramId);
+                _caseNote.CaseNoteAttachmentList = Attachments;
+
+                casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(), Session["UserId"].ToString(), 2);
+                result = fd.SaveInternalReferral(internRef, name);                       
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return RedirectToAction("AgencyDisabilityManagerDashboard");
+
         }
     }
 }

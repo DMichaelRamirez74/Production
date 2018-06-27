@@ -2649,6 +2649,7 @@ namespace Fingerprints.Controllers
             }
         }
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public ActionResult IncomeCalculator(List<FingerprintsModel.FamilyHousehold.calculateincome> Income)
         {
             if (Income == null || Income.Count <= 0)
@@ -2659,6 +2660,7 @@ namespace Fingerprints.Controllers
             return View(Income);
         }
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public ActionResult IncomeCalculator2(List<FingerprintsModel.FamilyHousehold.calculateincome1> Income1)
         {
             if (Income1 == null || Income1.Count <= 0)
@@ -2669,7 +2671,7 @@ namespace Fingerprints.Controllers
         }
         // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
-
+        [CustAuthFilter()]
         public ActionResult IncomeCalculatorFamilySummarry(List<FingerprintsModel.FamilyHousehold.calculateincome> Income)
         {
             if (Income == null || Income.Count <= 0)
@@ -2696,6 +2698,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+        [CustAuthFilter()]
         private List<FamilyHousehold.calculateincome> GenerateIncomeList()
         {
             List<FamilyHousehold.calculateincome> IncomeList = new List<FamilyHousehold.calculateincome>();
@@ -2703,6 +2706,7 @@ namespace Fingerprints.Controllers
             return IncomeList;
 
         }
+        [CustAuthFilter()]
         private List<FamilyHousehold.calculateincome1> GenerateIncomeList1()
         {
             List<FamilyHousehold.calculateincome1> IncomeList = new List<FamilyHousehold.calculateincome1>();
@@ -2710,7 +2714,7 @@ namespace Fingerprints.Controllers
             return IncomeList;
 
         }
-        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
         public ActionResult Immunizationquestion(List<FingerprintsModel.FamilyHousehold.ImmunizationRecord> Immunization)
         {
@@ -2850,7 +2854,7 @@ namespace Fingerprints.Controllers
             }
         }
         //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-
+        [CustAuthFilter()]
         public ActionResult ScreeningIntake(DataTable CustomScreening)
         {
             CustomScreeningIntake screening = new CustomScreeningIntake();
@@ -2867,6 +2871,7 @@ namespace Fingerprints.Controllers
         }
         //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [JsonMaxLengthAttribute]
+        [CustAuthFilter()]
         public JsonResult SavePovertyCalculation(string clientid, string HouseHoldId, string Parentid1, string Parentid2 = "", string Percentage1 = "",
         string Percentage2 = "", string Amount1 = "", string Amount2 = "",
         string ChildIncome = "", string PovertyPercentage = "", string mode = "")
@@ -2885,6 +2890,7 @@ namespace Fingerprints.Controllers
             }
         }
         // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter()]
         public JsonResult getselectionpoints(string Programid, string clientid, string householdid)
         {
             try
@@ -3022,13 +3028,13 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult SaveAcceptanceprocess(string Clientid, string Usernurseid, string householdid, string centerid, string Programid)
+        public JsonResult SaveAcceptanceprocess(string Clientid, string UserFSWId, string householdid, string centerid, string Programid)
         {
             try
             {
 
                 // return Json(familyData.SaveAcceptanceprocess(Clientid, Usernurseid, householdid, centerid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Programid));
-                return Json(familyData.SaveHirarchyAcceptanceprocess(Clientid, Usernurseid, householdid, centerid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Programid));
+                return Json(familyData.SaveHirarchyAcceptanceprocess(Clientid, UserFSWId, householdid, centerid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Programid));
 
             }
             catch (Exception Ex)
@@ -6092,7 +6098,7 @@ namespace Fingerprints.Controllers
         //  public readonly string GoogleApiKey = System.Configuration.ConfigurationManager.AppSettings["GoogleMapKey"].ToString();
 
         public readonly string GoogleApiKey = "AIzaSyCbNxbfW0RSsXvvj6J7li2e3WDxlpD9xt8";
-
+        [CustAuthFilter()]
         public ActionResult SaveTransportation(ChildTransportation objTransportation)
         {
             bool Result = false;
@@ -6100,8 +6106,13 @@ namespace Fingerprints.Controllers
             var locationService = new GoogleLocationService(GoogleApiKey);
             try
             {
+
                 if (objTransportation != null)
                 {
+                    int clientid;
+                    var isNumeric = int.TryParse(objTransportation.ClientId, out clientid);
+                    objTransportation.ClientId = isNumeric ? objTransportation.ClientId : EncryptDecrypt.Decrypt64(objTransportation.ClientId);
+
                     objTransportation.AgencyId = Session["AgencyID"].ToString();
                     if (objTransportation.PickupStatus == "1")
                     {
@@ -6175,12 +6186,16 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
-
+        [CustAuthFilter()]
         public ActionResult GetTransportationDetails(string ClientId)
         {
             string JSONString = string.Empty;
             try
             {
+                int cid;
+                var isNumeric = int.TryParse(ClientId, out cid);
+                ClientId = isNumeric ? ClientId : EncryptDecrypt.Decrypt64(ClientId);
+
                 DataTable dtTransportation = new DataTable();
                 familyData.GetTranportationDetails(ref dtTransportation, Session["AgencyID"].ToString(), ClientId);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtTransportation);
@@ -6234,7 +6249,7 @@ namespace Fingerprints.Controllers
             return Json(listValues);
         }
 
-      //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
        public ActionResult UpdateDateOfBirth(string DOB, string Clientid)
         {

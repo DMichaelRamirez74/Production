@@ -620,9 +620,10 @@ namespace FingerprintsData
         }
 
 
-        public RosterNew.CaseNote GetCaseNoteByYakkr(string clientId, string yakkrId)
+        public InternalRefferalCaseNote GetCaseNoteByYakkr(string clientId, string yakkrId)
         {
-            RosterNew.CaseNote casenote = new RosterNew.CaseNote();
+            InternalRefferalCaseNote InternCasenote = new InternalRefferalCaseNote();
+            InternCasenote.CaseNote = new RosterNew.CaseNote();
             StaffDetails staffDetails = StaffDetails.GetInstance();
             try
             {
@@ -647,15 +648,19 @@ namespace FingerprintsData
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        casenote = new RosterNew.CaseNote();
 
-                        casenote.ClientId = _dataset.Tables[0].Rows[0]["ClientId"].ToString();
-                        casenote.ClientName = _dataset.Tables[0].Rows[0]["ClientName"].ToString();
-                        casenote.CaseNoteDate = _dataset.Tables[0].Rows[0]["CaseNoteDate"].ToString();
-                        casenote.CaseNoteid = _dataset.Tables[0].Rows[0]["CaseNoteId"].ToString();
-                        casenote.Note = _dataset.Tables[0].Rows[0]["Notes"].ToString();
-                        casenote.CaseNotetitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
-                        casenote.AttachmentIdArray = (from DataRow dr1 in _dataset.Tables[0].Rows
+                        InternCasenote.ClassroomName = _dataset.Tables[0].Rows[0]["classroomname"].ToString();
+                        InternCasenote.CenterName = _dataset.Tables[0].Rows[0]["CenterName"].ToString();
+                        InternCasenote.RoleName = _dataset.Tables[0].Rows[0]["RoleName"].ToString();
+                        InternCasenote.ReferredBy = _dataset.Tables[0].Rows[0]["StaffName"].ToString();
+
+                        InternCasenote.CaseNote.ClientId = _dataset.Tables[0].Rows[0]["ClientId"].ToString();
+                        InternCasenote.CaseNote.ClientName = _dataset.Tables[0].Rows[0]["ClientName"].ToString();
+                        InternCasenote.CaseNote.CaseNoteDate = _dataset.Tables[0].Rows[0]["CaseNoteDate"].ToString();
+                        InternCasenote.CaseNote.CaseNoteid = _dataset.Tables[0].Rows[0]["CaseNoteId"].ToString();
+                        InternCasenote.CaseNote.Note = _dataset.Tables[0].Rows[0]["Notes"].ToString();
+                        InternCasenote.CaseNote.CaseNotetitle = _dataset.Tables[0].Rows[0]["Title"].ToString();
+                        InternCasenote.CaseNote.AttachmentIdArray = (from DataRow dr1 in _dataset.Tables[0].Rows
                                                       where Convert.ToInt32(dr1["AttachmentId"].ToString()) > 0
                                                       select dr1["AttachmentId"].ToString()
                                                     ).ToArray();
@@ -670,7 +675,7 @@ namespace FingerprintsData
             {
                 clsError.WriteException(ex);
             }
-            return casenote;
+            return InternCasenote;
         }
 
         /// <summary>

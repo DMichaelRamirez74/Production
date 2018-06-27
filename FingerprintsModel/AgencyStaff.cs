@@ -241,6 +241,8 @@ namespace FingerprintsModel
         public string TransitionColor{get;set;}
 
         public int TransitionType { get; set; }
+
+        public string Returning { get; set; }
     }
   public class CenterAndClassRoom
     {
@@ -336,6 +338,7 @@ namespace FingerprintsModel
         public string Name { get; set; }
         public int ClassroomID { get; set; }//
         public int ClassAssignId { get; set; }
+        public bool IsSelected { get; set; }
 
     }
 
@@ -425,6 +428,7 @@ namespace FingerprintsModel
     public class ClientWaitingList
     {
         public string Id { get; set; }
+        public bool IsHomeBased { get; set; }
         public string ClientId { get; set; }
         public string HouseholdId { get; set; }
         public string HouseholdIdencrypted { get; set; }
@@ -484,7 +488,7 @@ namespace FingerprintsModel
         //
         public string CParentDisable { get; set; }
         public List<UserInfo> UserList { get; set; }
-        public List<UserInfo> UserList1 { get; set; }
+        public List<UserInfo> FSWList { get; set; }
         public List<UserInfo> UserListNutrition { get; set; }
 
     }

@@ -428,7 +428,7 @@ namespace FingerprintsData
             return isInserted;
         }
 
-        public string SaveCaseNotes(ref string Name, ref List<CaseNote> CaseNoteList, ref FingerprintsModel.RosterNew.Users Userlist, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, string Agencyid, string UserID)
+        public string SaveCaseNotes(ref string Name, ref List<CaseNote> CaseNoteList, ref FingerprintsModel.RosterNew.Users Userlist, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, string Agencyid, string UserID, int mode = 1)
         {
             string result = string.Empty;
 
@@ -455,6 +455,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters.Add(new SqlParameter("@IsLateArrival", CaseNote.IsLateArrival));
+                command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 DataTable dt = new DataTable();
                 dt.Columns.AddRange(new DataColumn[3] {
@@ -473,68 +474,86 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Attachments", dt));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveCaseNote";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                if (_dataset.Tables[0] != null)
+
+
+                if (mode == 1)
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0)
+
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+
+                    if (_dataset.Tables[0] != null)
                     {
-                        CaseNote info = null;
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        if (_dataset.Tables[0].Rows.Count > 0)
                         {
-                            info = new CaseNote();
-                            info.Householid = dr["householdid"].ToString();
-                            info.CaseNoteid = dr["casenoteid"].ToString();
-                            info.BY = dr["By"].ToString();
-                            info.Title = dr["Title"].ToString();
-                            info.Attachment = dr["Attachment"].ToString();
-                            info.References = dr["References"].ToString();
+                            CaseNote info = null;
+                            foreach (DataRow dr in _dataset.Tables[0].Rows)
+                            {
+                                info = new CaseNote();
+                                info.Householid = dr["householdid"].ToString();
+                                info.CaseNoteid = dr["casenoteid"].ToString();
+                                info.BY = dr["By"].ToString();
+                                info.Title = dr["Title"].ToString();
+                                info.Attachment = dr["Attachment"].ToString();
+                                info.References = dr["References"].ToString();
                                 info.Date = dr["casenotedate"].ToString();
-                            CaseNoteList.Add(info);
+                                CaseNoteList.Add(info);
+                            }
                         }
-                    }
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-
-                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        if (_dataset.Tables[1].Rows.Count > 0)
                         {
 
-                            Name = dr["Name"].ToString();
+                            foreach (DataRow dr in _dataset.Tables[1].Rows)
+                            {
 
+                                Name = dr["Name"].ToString();
+
+                            }
                         }
-                    }
 
-                    if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
-                    {
-
-                        List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
+                        if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
                         {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = dr["clientid"].ToString();
-                            obj.Name = dr["Name"].ToString();
-                            Clientlist.Add(obj);
-                        }
-                        Userlist.Clientlist = Clientlist;
-                    }
-                    if (_dataset != null && _dataset.Tables[3].Rows.Count > 0)
-                    {
-                        List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
-                        {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = (dr["UserId"]).ToString();
-                            obj.Name = dr["Name"].ToString();
-                            _userlist.Add(obj);
-                        }
-                        Userlist.UserList = _userlist;
-                    }
 
+                            List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
+                            FingerprintsModel.RosterNew.User obj = null;
+                            foreach (DataRow dr in _dataset.Tables[2].Rows)
+                            {
+                                obj = new FingerprintsModel.RosterNew.User();
+                                obj.Id = dr["clientid"].ToString();
+                                obj.Name = dr["Name"].ToString();
+                                Clientlist.Add(obj);
+                            }
+                            Userlist.Clientlist = Clientlist;
+                        }
+                        if (_dataset != null && _dataset.Tables[3].Rows.Count > 0)
+                        {
+                            List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
+                            FingerprintsModel.RosterNew.User obj = null;
+                            foreach (DataRow dr in _dataset.Tables[3].Rows)
+                            {
+                                obj = new FingerprintsModel.RosterNew.User();
+                                obj.Id = (dr["UserId"]).ToString();
+                                obj.Name = dr["Name"].ToString();
+                                _userlist.Add(obj);
+                            }
+                            Userlist.UserList = _userlist;
+                        }
+
+                    }
                 }
-
+                else if(mode==2)
+                {
+                    Name=Convert.ToString( command.ExecuteScalar());
+                    Connection.Close();
+                }
+                else
+                {
+                    command.ExecuteNonQuery();
+                    Connection.Close();
+                }
 
 
                 result = command.Parameters["@result"].Value.ToString();
@@ -551,14 +570,10 @@ namespace FingerprintsData
                 command.Dispose();
             }
             return result;
-
-
-
-
-
         }
+
         //Changes on 30Dec2016
-        public Roster GetrosterList(out string totalrecord, string sortOrder, string sortDirection, string Center, string Classroom, int skip, int pageSize, string userid, string agencyid, string roleId, int filterOption,string searchText="")
+        public Roster GetrosterList(out string totalrecord, string sortOrder, string sortDirection, string Center, string Classroom, int skip, int pageSize, string userid, string agencyid, string roleId, int filterOption, string searchText = "")
         {
             Roster _roster = new Roster();
             List<Roster> RosterList = new List<Roster>();

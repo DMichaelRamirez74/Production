@@ -496,12 +496,12 @@ YakkrExcludeFromFacility.Add(282);
                                             </tr>
                                         }
 
-                                        else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303")
+                                        else if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode == "301" || ViewBag.YakkrCode == "302" || ViewBag.YakkrCode == "303" ||ViewBag.YarkkrCode=="304")
                                         {
 
 
                                             // typeofdatacount= (@ViewBag.YakkrCode == "300")?
-                                            if (ViewBag.YakkrCode == "300")
+                                            if (ViewBag.YakkrCode == "300" || ViewBag.YakkrCode=="304")
                                             {
                                                 typeofdatacount = "Indicated";
                                                 mode = "Pending";
@@ -955,15 +955,27 @@ YakkrExcludeFromFacility.Add(282);
                 <div class="modal-header">
                     <input type="hidden" name="childid" id="childid" value="">
                     <input type="hidden" name="childname" id="childname" value="">
-                    <label class="alert-dismissible classroom-header" for="current_password" style="text-transform:capitalize;">Child Referral Notes</label>
+                    <label class="alert-dismissible classroom-header" for="current_password" style="text-transform:capitalize;">Internal Referral Notes</label>
                 </div>
                 <div class="form-group classroom-panel cls-teachername" style="text-align:left;">
-                    <label class="control-label" for="current_password" style="font-size:16px;">Teacher Name:</label>
+                    <label class="control-label" for="current_password" style="font-size:16px;">Referred By:</label>
                     <span class="child-referral-teachername" style="font-size:14px;"></span>
+                </div>
+                <div class="form-group classroom-panel cls-teachername" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Role:</label>
+                    <span class="child-referral-teachername1" style="font-size:14px;">Disability Manager</span>
                 </div>
                 <div class="form-group classroom-panel cls-classroom" style="text-align:left;">
                     <label class="control-label" for="current_password" style="font-size:16px;">Client Name:</label>
                     <span class="child-referral-clientroom" style="font-size:14px;"></span>
+                </div>
+                <div class="form-group classroom-panel cls-classroom" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Title:</label>
+                    <span class="child-referral-clientroom1" style="font-size:14px;">Internal Referral</span>
+                </div>
+                <div class="form-group classroom-panel cls-classroom" style="text-align:left;">
+                    <label class="control-label" for="current_password" style="font-size:16px;">Date</label>
+                    <span class="child-referral-clientroom2" style="font-size:14px;">@DateTime.Now</span>
                 </div>
                 <div class="form-group classroom-panel" style="text-align:left;">
                     <label class="control-label" for="current_password" style="font-size:16px;">Class Name:</label>
@@ -975,7 +987,7 @@ YakkrExcludeFromFacility.Add(282);
                 </div>
                 <div class="form-group classroom-panel" style="text-align:left;">
                     <label class="control-label" for="current_password" style="font-size:16px;">Message:</label>
-                    <span class="child-referral-message" style="font-size:14px;"></span>
+                    <span class="child-referral-message" style="font-size:14px;">Test Case Note</span>
                 </div>
                 <div class="modal-footer">
                     <button class="btnPassword address-btn btn-classroom-cancel" data-dismiss="modal">Back</button>
@@ -1109,6 +1121,57 @@ YakkrExcludeFromFacility.Add(282);
                             <div class="col-sm-8">
                                 <div class="addn-poup-div1">
                                     <p id="caseNoteClientName"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="Yakkr292" style="display:none;">
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Referred By:</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteReferredBy"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Role:</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteRole"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Center:</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteCenter"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                <div class="col-sm-4">
+                                    <div class="addn-poup-div">
+                                        <label>Classroom:</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="addn-poup-div1">
+                                        <p id="caseNoteClassroom"></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1770,24 +1833,24 @@ YakkrExcludeFromFacility.Add(282);
                     $('#myModalApprovalForClassRoomOpenCloseRequest').modal('show');
                 }
 
-                else if ($('.yakkr-code').text().trim() == "292") {
-                    $.ajax({
-                        type: "POST",
-                        url: "/Parent/GetAlert",
-                        data: { 'HouseHoldId': YakkrID, 'RouteCode': '292', 'Date': Date },
-                        success: function (data) {
-                            $('.child-referral-teachername').text(TeacherName);
-                            $('.child-referral-centername').text(Center);
-                            $('.child-referral-clientroom').text(ClientName);
-                            $('.child-referral-classname').text(data[0]);
-                            $('.child-referral-message').text(data[1]);
-                        },
-                        error: function (data) {
-                            console.log('Error');
-                        }
-                    });
-                    $('#myModalChildReferralNotes').modal('show');
-                }
+                //else if ($('.yakkr-code').text().trim() == "292") {
+                //    $.ajax({
+                //        type: "POST",
+                //        url: "/Parent/GetAlert",
+                //        data: { 'HouseHoldId': YakkrID, 'RouteCode': '292', 'Date': Date },
+                //        success: function (data) {
+                //            $('.child-referral-teachername').text(TeacherName);
+                //            $('.child-referral-centername').text(Center);
+                //            $('.child-referral-clientroom').text(ClientName);
+                //            $('.child-referral-classname').text(data[0]);
+                //           // $('.child-referral-message').text(data[1]);
+                //        },
+                //        error: function (data) {
+                //            console.log('Error');
+                //        }
+                //    });
+                //    $('#myModalChildReferralNotes').modal('show');
+                //}
                 else if ($('.yakkr-code').text().trim() == "700" || $('.yakkr-code').text().trim() == "703") {
                     if ($('.yakkr-code').text().trim() == "703") {
                         $('.transportation-header-text').text("Transportation Route Request");
@@ -1856,7 +1919,9 @@ YakkrExcludeFromFacility.Add(282);
                     $('#transportation1').modal('show');
                 }
 
-                else if ($('.yakkr-code').text().trim() == "350") {
+                else if ($('.yakkr-code').text().trim() == "350" || $('.yakkr-code').text().trim() == "292") {
+                    $('#Yakkr292').hide();
+                    $('#CaseNoteHeading').text("Case Note Development Team");
                     $.ajax({
                         url: '/Yakkr/GetCaseNoteDetailsByYakkr',
                         datatype: 'json',
@@ -1867,12 +1932,21 @@ YakkrExcludeFromFacility.Add(282);
                             var caseNoteModal = $('#Casenotedevelopement');
                             var attachmentDiv = '';
                             if (data != null) {
-                                caseNoteModal.find('#caseNoteClientName').html(data.ClientName);
-                                caseNoteModal.find('#caseNoteTitle').html(data.CaseNotetitle);
-                                caseNoteModal.find('#caseNoteDate').html(data.CaseNoteDate);
-                                caseNoteModal.find('#caseNoteNotes').html(data.Note);
-                                if (data.AttachmentIdArray.length > 0) {
-                                    $.each(data.AttachmentIdArray, function (i, attach) {
+                                if ($('.yakkr-code').text().trim() == "292")
+                                {
+                                    $('#CaseNoteHeading').text("Internal Referral Details");
+                                    caseNoteModal.find('#caseNoteReferredBy').html(data.ReferredBy);
+                                    caseNoteModal.find('#caseNoteCenter').html(data.CenterName);
+                                    caseNoteModal.find('#caseNoteRole').html(data.RoleName);
+                                    caseNoteModal.find('#caseNoteClassroom').html(data.ClassroomName);
+                                    $('#Yakkr292').show();
+                                }
+                                caseNoteModal.find('#caseNoteClientName').html(data.CaseNote.ClientName);
+                                caseNoteModal.find('#caseNoteTitle').html(data.CaseNote.CaseNotetitle);
+                                caseNoteModal.find('#caseNoteDate').html(data.CaseNote.CaseNoteDate);
+                                caseNoteModal.find('#caseNoteNotes').html(data.CaseNote.Note);
+                                if (data.CaseNote.AttachmentIdArray.length > 0) {
+                                    $.each(data.CaseNote.AttachmentIdArray, function (i, attach) {
                                         if (attach != '0') {
                                             attachmentDiv += "<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + attach + ",CaseNote,0'><i class='fa fa-download download-ic' style='font-size:18px!important;'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;"
                                             //attachmentDiv+='<a target="_blank" accesskey='+attach+'  title="Click here to download" href="#"><i class="fa fa-download download-ic"></i></a>'

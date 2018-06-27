@@ -1,4 +1,5 @@
-﻿@model FingerprintsModel.FamilyHousehold
+﻿
+@model FingerprintsModel.FamilyHousehold
 @using MvcCheckBoxList
 
 @{
@@ -10,10 +11,8 @@
 }
 @section Script{
     <style>
-
-        .futurequalifier
-        {
-                color: green;
+        .futurequalifier {
+            color: green;
         }
 
 
@@ -8274,7 +8273,7 @@
                 $('#divO1').show();
             }
             else {
-              
+
                 $('#divO1').hide();
                 $('#divPaging').show();
                 var tbody = $('#gridViewOther > tbody');
@@ -9504,8 +9503,7 @@
                     }
                     $('#percage1').blur();
                     $('#percage2').blur();
-                    if (mode == 1)
-                    {
+                    if (mode == 1) {
                         $('#percage1').prop('disabled', false);
                         $('#povertybtnSave').show();
                     }
@@ -9558,8 +9556,7 @@
 
                     bindselectiontablePoint(response, $(value).attr("clientype"));
 
-                    if(mode==1)
-                    {
+                    if (mode == 1) {
                         $('#btnSaveSelectionPoint').show();
 
                     }
@@ -9572,15 +9569,111 @@
                     }
             });
         }
+
+        function AskForAlert(arg)
+        {
+            var prev = $(arg).data('val');
+           // alert(prev);
+            if (advocate != "") {
+                BootstrapDialog.confirm('You are trying to change the advocate for this family. Please click OK to confirm', function (result) {
+                    if (!result) {
+                        if (CenterType == 1) {
+                            $('#selAssignFSW').val(advocate);
+                        }
+                        else {
+                            $('#selAssignHV').val(advocate);
+                        }
+                    }
+
+
+                });
+            }
+        }
+        var CenterType = 0;
+        var advocate="";
+        function LoadFSWorHVList(centerid, type) {
+            var index = -1;
+            CenterType = type;
+            $('#AssignFSW').show();
+            $('.DivHide').hide();
+            $.ajax({
+                url: HostedDir + "/Home/GetFSWOrHVList",
+                type: "POST",
+                data: {
+                    ClientId: $(AcceptProcessobject).attr("accesskey"),
+                    CenterId: centerid,
+                    ListType: type
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data != null && data.length > 0) {
+
+                        var option = '';
+                        if (type == 1)
+                            option = option + '<option  value="0">Select FSW</option>';
+                        else
+                            option = option + '<option  value="0">Select HV</option>';
+
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].IsSelected === true)
+                                index = i;
+                            option = option + '<option value="' + data[i].userId + '">' + data[i].Name + '</option>';
+                        }
+
+
+                        if (type == 1) {
+                            $('#selAssignFSW').find('option').remove();
+                            $('#selAssignFSW').find('option').remove().end().append(option);
+                            $('#DivForFSW').show();
+                            if (index == -1)
+                                $('#selAssignFSW').val('0');
+                            else
+                            {
+                                advocate = data[index].userId;
+                                $('#selAssignFSW').val(data[index].userId);
+                            }
+
+
+
+                        }
+                        else {
+                            $('#selAssignHV').find('option').remove();
+                            $('#selAssignHV').find('option').remove().end().append(option);
+                            $('#DivForHV').show();
+                            if (index == -1)
+                                $('#selAssignHV').val('0');
+                            else {
+                                advocate = data[index].userId;
+                                $('#selAssignHV').val(data[index].userId);
+                            }
+
+                        }
+
+                    }
+                    else {
+                        $('#selAssignFSW').find('option').remove();
+                        $('#selAssignHV').find('option').remove();
+                    }
+                }
+    , error: function (data) {
+        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+    }
+            });
+        }
+
         var AcceptProcessobject = null;
+        var familyAdvocate = "";
         function AcceptProcess(value) {
             AcceptProcessobject = value;
             $('#ddlnurse').find('option').remove()
             $("#DivCenterlist > tbody >tr").each(function () {
                 $(this).find('input:radio').prop("checked", false);
             });
-
-
+            $('#DivForFSW').hide();
+            $('#DivForHV').hide();
             $.ajax({
                 url: HostedDir + "/Agencyuser/Checkallmanadatoryfield",
                 type: "POST",
@@ -9607,20 +9700,26 @@
                         if ($(value).closest('tr').find('td:eq(3) a').text().trim() == "0") {
                             customAlert("Selection Points can't be zero. ");
                         }
-                        else
+                        else {
+
+                            if ($(value).parent('td').parent('tr').children('td:eq(1)').html() == 'PM') {
+                                $('#AcceptanceProcess').find('#DivCenterlist').find('tr[ackey=False]').hide();
+                            }
+                            else {
+                                $('#AcceptanceProcess').find('#DivCenterlist').find('tr[ackey=False]').show();
+
+                            }
                             $('#AcceptanceProcess').modal('show');
+                        }
+
                     }
 
                 }
             }
-
-
-
-
         }
 
         function SaveAcceptanceprocess() {
-           
+
             cleanValidation();
             if (AcceptProcessobject != null) {
 
@@ -9636,12 +9735,20 @@
                 if (centrerselected == 0) {
                     customAlert("Please select center. ");
                 }
-                    //else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
-                    //    customAlert("Health/Nurse staff is required.");
-                    //    plainValidation('#ddlnurse');
-                    //}
+                else if ($('#DivForFSW').is(':visible')===true && $('#selAssignFSW').val() == "0" ) {
+                        customAlert("Please choose any one FSW");
+                        plainValidation('#selAssignFSW');
+                }
+                else if ($('#DivForHV').is(':visible')===true &&  $('#selAssignHV').val() == "0") {
+                    customAlert("Please choose any one HV");
+                    plainValidation('#selAssignHV');
+                }
                 else {
-
+                    var fswid
+                    if (CenterType == 1 && $('#DivForFSW').is(':visible') === true)
+                        fswid = $('#selAssignFSW').val();
+                    else
+                        fswid = $('#selAssignHV').val();
 
                     BootstrapDialog.confirm('Click OK to move client to acceptance process', function (result) {
                         if (result) {
@@ -9650,7 +9757,7 @@
                                 type: "POST",
                                 data: {
                                     Clientid: $(AcceptProcessobject).attr("accesskey"),
-                                    Usernurseid: $('#ddlnurse').val(),
+                                    UserFSWId: fswid,
                                     householdid: $('#HouseholdId').val(),
                                     centerid: centerid,
                                     Programid: $(AcceptProcessobject).attr("Programid")
@@ -9661,7 +9768,9 @@
                                 success: function (response) {
                                     if (response == 1) {
                                         customAlert("Record saved successfully.");
-                                        $('#ddlnurse').find('option').remove()
+                                        $('#ddlnurse').find('option').remove();
+                                        $('#DivForFSW').hide();
+                                        $('#DivForHV').hide();
                                         $("#DivCenterlist > tbody >tr").each(function () {
                                             $(this).find('input:radio').prop("checked", false);
                                         });
@@ -9847,7 +9956,7 @@
                     if (Data.TrimesterEnrolled == 3 && Data._Selectionpoints.Trimester3 != 0) {
                         tbody = tbody + "<tr><td>Trimester Enrolled </td><td>" + Data._Selectionpoints.Trimester3 + "</td></tr>";
                     }
-                    if (Data.Povertypercentage != "" ) { 
+                    if (Data.Povertypercentage != "" && !($('#SSI').prop("checked")) && !($('#TANF').prop("checked")) && !($('#HomeType1').prop("checked"))) {
                         var percentage = parseFloat(Data.Povertypercentage);
                         if (percentage < 26 && Data._Selectionpoints.poverty0to25 > 0)
                             tbody = tbody + "<tr><td>Poverty Percentage Level </td><td>" + Data._Selectionpoints.poverty0to25 + "</td></tr>";
@@ -9978,7 +10087,7 @@
                             tbody = tbody + "<tr><td>Child Age: Greather than 6yr</td><td>" + Data._Selectionpoints.Age6yrorgreater + "</td></tr>";
                     }
 
-                    if (Data.Povertypercentage != "" ) {
+                    if (Data.Povertypercentage != "" && !($('#SSI').prop("checked")) && !($('#TANF').prop("checked")) && !($('#HomeType1').prop("checked"))) {
                         var percentage = parseFloat(Data.Povertypercentage);
                         if (percentage < 26 && Data._Selectionpoints.poverty0to25 > 0)
                             tbody = tbody + "<tr><td>Poverty Percentage Level </td><td>" + Data._Selectionpoints.poverty0to25 + "</td></tr>";
@@ -10112,7 +10221,7 @@
                         secureuri: false,
                         async: false,
                         success: function (response1) {
-                           
+
                             if (response1 == 1) {
                                 customAlert("Record saved successfully.");
                                 $(selectionobject).closest('tr').find('td:eq(4) a').text('Complete');
@@ -11305,7 +11414,7 @@
                         }
                         else {
 
-                        
+
 
                             $(value).text('Complete');
                             $(value).attr("style", "color:#337ab7;text-decoration:underline;");
@@ -13437,7 +13546,7 @@
             return isValid;
         }
         function AddWorkshopDetails() {
-      
+
             // var value = { 'Workshoplist[]': [] };
             // var value ;
             var value = new Array();
@@ -14743,20 +14852,20 @@
                                                         </div>
 
                                                         @*<div class="col-lg-6 col-md-6 col-sm-12">
-                                                            <div class="form-group">
-                                                                <label>Member of Policy Council?<sup>*</sup></label>
-                                                                <div class="cont-sz">
-                                                                    <div class="col-xs-6 col-sm-4">
-                                                                        @Html.RadioButtonFor(m => m.PPolicyCouncil, 1, new { id = "PPolicyCouncil" })
-                                                                        <span>Yes</span>
-                                                                    </div>
-                                                                    <div class="col-xs-6 col-sm-4">
-                                                                        @Html.RadioButtonFor(m => m.PPolicyCouncil, 2, new { id = "PPolicyCouncil1" })
-                                                                        <span>No </span>
+                                                                <div class="form-group">
+                                                                    <label>Member of Policy Council?<sup>*</sup></label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.PPolicyCouncil, 1, new { id = "PPolicyCouncil" })
+                                                                            <span>Yes</span>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.PPolicyCouncil, 2, new { id = "PPolicyCouncil1" })
+                                                                            <span>No </span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        </div>*@
+                                                            </div>*@
 
                                                         <div class="col-lg-6 col-md-6 col-sm-12">
                                                             <div class="form-group">
@@ -14812,16 +14921,16 @@
                                                                                 <tr>
                                                                                     <td>
                                                                                         <select class="form-control" style="width:100%;" name="@PhoneTypeP" onchange="addcontact(this);">
-                                                                                            <option @if (@item.PhoneTypeP == "1") { <text> selected="selected" </text>                } value="1">Home</option>
-                                                                                            <option @if (@item.PhoneTypeP == "2") { <text> selected="selected" </text>                } value="2">Mobile</option>
-                                                                                            <option @if (@item.PhoneTypeP == "3") { <text> selected="selected" </text>                } value="3">Work</option>
+                                                                                            <option @if (@item.PhoneTypeP == "1") { <text> selected="selected" </text>                 } value="1">Home</option>
+                                                                                            <option @if (@item.PhoneTypeP == "2") { <text> selected="selected" </text>                 } value="2">Mobile</option>
+                                                                                            <option @if (@item.PhoneTypeP == "3") { <text> selected="selected" </text>                 } value="3">Work</option>
                                                                                         </select>
                                                                                         <input type="hidden" value="@item.PhoneTypeP" />
                                                                                     </td>
                                                                                     <td><input name="@phonenoP" class="form-control" type="text" value="@item.phonenoP"></td>
-                                                                                    <td><input value="true" onchange="uncheckParentother(this);" name="@StateP" type="checkbox" data-val="true" @if (@item.StateP) { <text> checked="checked" </text>      } /></td>
+                                                                                    <td><input value="true" onchange="uncheckParentother(this);" name="@StateP" type="checkbox" data-val="true" @if (@item.StateP) { <text> checked="checked" </text>       } /></td>
                                                                                     <td><input data-val="true" class="form-control" maxlength="100" type="text" name="@notesP" value="@item.notesP"></td>
-                                                                                    <td><input style="width:50%;" type="checkbox" name="@SmsP" value="true" @if (@item.PhoneTypeP == "1" || @item.PhoneTypeP == "3") { <text> disabled="disabled" </text>       } @if (@item.SmsP) { <text> checked="checked" </text>       } /></td>
+                                                                                    <td><input style="width:50%;" type="checkbox" name="@SmsP" value="true" @if (@item.PhoneTypeP == "1" || @item.PhoneTypeP == "3") { <text> disabled="disabled" </text>        } @if (@item.SmsP) { <text> checked="checked" </text>        } /></td>
                                                                                     <td><input type="hidden" name="@Phoneid" value="@item.PPhoneId" /> <a href="javascript:void(0)" onclick="RemovePhone(this);" accesskey="@item.PPhoneId" style=" text-decoration:underline;">Delete</a></td>
                                                                                 </tr>
                                                                                 rounds++;
@@ -15313,7 +15422,7 @@
                                                                             <div class="col-sm-7" style=" margin-bottom:10px;">
                                                                                 Has the pregnant mom received the following services?
                                                                             </div>
-                                                                            <div class="col-sm-5" style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-5" style=" margin-bottom 10px;">
                                                                                 <a style="margin-left:3%;" title="Add Conditions" href="#" data-toggle="modal" data-target="#PMS1"><i class="fa fa-arrow-up"></i></a>
                                                                             </div>
                                                                             <div id="PMServiceText1">
@@ -15349,7 +15458,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
                                                                                 Did the mother have any of the following problems during this pregnancy?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz">
@@ -15370,7 +15479,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace" style="margin-top:2%;">
                                                                         <div class="row">
-                                                                            <div class="col-sm-7" style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-7" style=" margin-bottom 10px;">
                                                                                 What problems did mother have?
                                                                             </div>
                                                                             <div class="col-sm-5">
@@ -15398,7 +15507,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
                                                                                 If pregnant mom had other issues, please explain:
                                                                             </div>
                                                                             <div class="col-md-12">
@@ -15425,7 +15534,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
                                                                                 If any of the previous question are selected, please provide an explanation
                                                                             </div>
                                                                             <div class="col-md-12">
@@ -15435,7 +15544,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
 
                                                                                 Is this pregnancy considered medically high risk by a physician or health care provider?
                                                                             </div>
@@ -15454,7 +15563,7 @@
 
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
                                                                                 Has this woman received a professional dental exam and/or dental treatment in the last 12 months?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz">
@@ -15475,7 +15584,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
                                                                                 Date of the most recent professional dental exam and/or treatment
                                                                             </div>
                                                                             <div class="col-md-12">
@@ -15485,7 +15594,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
                                                                                 Did pregnant mom need a dental treatment?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz">
@@ -15563,20 +15672,20 @@
                                                         </div>
 
                                                         @*<div class="col-lg-6 col-md-6 col-sm-12">
-                                                            <div class="form-group">
-                                                                <label>Member of Policy Council?<sup>*</sup></label>
-                                                                <div class="cont-sz">
-                                                                    <div class="col-xs-6 col-sm-4">
-                                                                        @Html.RadioButtonFor(m => m.PPolicyCouncil, 1, new { id = "PPolicyCouncil" })
-                                                                        <span>Yes</span>
-                                                                    </div>
-                                                                    <div class="col-xs-6 col-sm-4">
-                                                                        @Html.RadioButtonFor(m => m.PPolicyCouncil, 2, new { id = "PPolicyCouncil1" })
-                                                                        <span>No </span>
+                                                                <div class="form-group">
+                                                                    <label>Member of Policy Council?<sup>*</sup></label>
+                                                                    <div class="cont-sz">
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.PPolicyCouncil, 1, new { id = "PPolicyCouncil" })
+                                                                            <span>Yes</span>
+                                                                        </div>
+                                                                        <div class="col-xs-6 col-sm-4">
+                                                                            @Html.RadioButtonFor(m => m.PPolicyCouncil, 2, new { id = "PPolicyCouncil1" })
+                                                                            <span>No </span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        </div>*@
+                                                            </div>*@
 
 
 
@@ -15632,16 +15741,16 @@
                                                                                 <tr>
                                                                                     <td>
                                                                                         <select class="form-control" style="width:100%;" name="@PhoneTypeP" onchange="addcontact(this);">
-                                                                                            <option @if (@item.PhoneTypeP1 == "1") { <text> selected="selected" </text>                   } value="1">Home</option>
-                                                                                            <option @if (@item.PhoneTypeP1 == "2") { <text> selected="selected" </text>                   } value="2">Mobile</option>
-                                                                                            <option @if (@item.PhoneTypeP1 == "3") { <text> selected="selected" </text>                   } value="3">Work</option>
+                                                                                            <option @if (@item.PhoneTypeP1 == "1") { <text> selected="selected" </text>                    } value="1">Home</option>
+                                                                                            <option @if (@item.PhoneTypeP1 == "2") { <text> selected="selected" </text>                    } value="2">Mobile</option>
+                                                                                            <option @if (@item.PhoneTypeP1 == "3") { <text> selected="selected" </text>                    } value="3">Work</option>
                                                                                         </select>
                                                                                         <input type="hidden" value="@item.PhoneTypeP1" />
                                                                                     </td>
                                                                                     <td><input name="@phonenoP" class="form-control" type="text" value="@item.phonenoP1"></td>
-                                                                                    <td><input value="true" onchange="uncheckParent1other(this);" name="@StateP" type="checkbox" data-val="true" @if (@item.StateP1) { <text> checked="checked" </text>         } /></td>
+                                                                                    <td><input value="true" onchange="uncheckParent1other(this);" name="@StateP" type="checkbox" data-val="true" @if (@item.StateP1) { <text> checked="checked" </text>          } /></td>
                                                                                     <td><input data-val="true" class="form-control" maxlength="100" type="text" name="@notesP" value="@item.notesP1"></td>
-                                                                                    <td><input style="width:50%;" type="checkbox" name="@SmsP" value="true" @if (@item.PhoneTypeP1 == "1" || @item.PhoneTypeP1 == "3") { <text> disabled="disabled" </text>          } @if (@item.SmsP1) { <text> checked="checked" </text>          } /></td>
+                                                                                    <td><input style="width:50%;" type="checkbox" name="@SmsP" value="true" @if (@item.PhoneTypeP1 == "1" || @item.PhoneTypeP1 == "3") { <text> disabled="disabled" </text>           } @if (@item.SmsP1) { <text> checked="checked" </text>           } /></td>
                                                                                     <td><input type="hidden" name="@Phoneid" value="@item.PPhoneId1" /> <a href="javascript:void(0)" onclick="RemovePhone1(this);" accesskey="@item.PPhoneId1" style=" text-decoration:underline;">Delete</a></td>
                                                                                 </tr>
                                                                                 round1++;
@@ -16856,7 +16965,7 @@
                                                                         </div>
                                                                         <div class=" col-md-12 col-sm-12 mb10">
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Have any of the child's direct blood relatives (parents, grandparents, aunts, uncles, brothers, or sisters)? 
+                                                                                Have any of the child's direct blood relatives (parents, grandparents, aunts, uncles, brothers, or sisters)?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 23jan2017*@
@@ -16873,7 +16982,7 @@
                                                                         <div class="col-md-12 col-sm-12 adddivspace mb10">
 
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Has the child been diagnosed with any of the following conditions since last year's PIR? 
+                                                                                Has the child been diagnosed with any of the following conditions since last year's PIR?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 23jan2017*@
@@ -16890,7 +16999,7 @@
                                                                         <div class="col-md-12 col-sm-12 adddivspace mb10">
 
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Did the child require medical treatment for the following chronic health conditions ?  
+                                                                                Did the child require medical treatment for the following chronic health conditions ?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 23jan2017*@
@@ -16909,7 +17018,7 @@
                                                                         <div class="col-md-12 col-sm-12 adddivspace mb10">
 
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Did child receive treatment for any of the following chronic health conditions?  
+                                                                                Did child receive treatment for any of the following chronic health conditions?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 23jan2017*@
@@ -17154,7 +17263,7 @@
                                                                             <div class="form-group">
                                                                                 <div class="col-sm-8" style="margin-bottom:5px;">
                                                                                     Was the child born?
-                                                                                   
+
                                                                                 </div>
                                                                                 <div class="col-sm-12 cont-sz">
                                                                                     @*Changes by Akansha on 13Dec2016*@
@@ -17184,7 +17293,7 @@
                                                                                     <div class="col-md-12">
                                                                                         What was the child's birth weight?
                                                                                     </div>
-                                                                                    <div class="col-md-5" style=" margin-top: 8px; ">
+                                                                                    <div class="col-md-5" style=" margin-top 8px; ">
                                                                                         @Html.TextBoxFor(m => m.EhsChildBirthWt, new { @class = "form-control", @style = "width:100% !important;", onkeyup = "checkDec(this);", onblur = "checkDecimal(this);" })
                                                                                     </div>
                                                                                 </div>
@@ -17196,7 +17305,7 @@
                                                                             <div class="col-md-12">
                                                                                 What was the child's length?
                                                                             </div>
-                                                                            <div class="col-md-5" style=" margin-top: 8px; ">
+                                                                            <div class="col-md-5" style=" margin-top 8px; ">
                                                                                 @Html.TextBoxFor(m => m.EhsChildLength, new { @class = "form-control", @style = "width:72% !important;", onkeyup = "checkDec(this);", onblur = "checkDecimal(this);" })
                                                                             </div>
                                                                         </div>
@@ -17231,7 +17340,7 @@
                                                                         <div class=" col-md-12 col-sm-12 mb10">
                                                                             <div class="col-md-10 col-sm-7">
 
-                                                                                Have any of the child's direct blood relatives (parents, grandparents, aunts, uncles, brothers, or sisters)? 
+                                                                                Have any of the child's direct blood relatives (parents, grandparents, aunts, uncles, brothers, or sisters)?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*<a style="margin-left:3%;" title="Add Conditions" href="javascript:void(0)" data-toggle="modal" data-target="#CDBR"><i class="fa fa-arrow-up"></i></a>*@
@@ -17251,7 +17360,7 @@
 
                                                                         <div class=" col-md-12 col-sm-12 mb10">
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Has the child ever had any of these condition? 
+                                                                                Has the child ever had any of these condition?
                                                                             </div>
 
                                                                             <div class="col-md-2 col-sm-5">
@@ -17291,7 +17400,7 @@
 
                                                                         <div class="col-md-12 col-sm-12 mb10">
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Has this child received medical treatment for the following chronic health conditions  
+                                                                                Has this child received medical treatment for the following chronic health conditions
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*<a style="margin-left:3%;" title="Add Conditions" href="javascript:void(0)" data-toggle="modal" data-target="#EHSRMCHC"><i class="fa fa-arrow-up"></i></a>*@
@@ -17303,8 +17412,8 @@
                                                                         <div class="col-md-12 col-sm-12 mb10">
                                                                             <div class="col-md-10 col-sm-7">
 
-                                                                                Is this child receiving treatment for any of the following chronic health conditions?  
-                                                                                                                                                        </div>
+                                                                                Is this child receiving treatment for any of the following chronic health conditions?
+                                                                            </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*<a style="margin-left:3%;" title="Add Conditions" href="javascript:void(0)" data-toggle="modal" data-target="#EHSCHC"><i class="fa fa-arrow-up"></i></a>*@
                                                                                 <a style="margin-left:-188%;" title="Add Conditions" href="javascript:void(0)" data-toggle="modal" data-target="#EHSCHC"><i class="fa fa-arrow-up"></i></a>
@@ -17388,7 +17497,7 @@
                                                                         <div class="col-md-12 col-sm-12  mb10">
                                                                             <div class="col-md-10 col-sm-7">
 
-                                                                                Did the child require medical treatment for the following chronic health conditions?   
+                                                                                Did the child require medical treatment for the following chronic health conditions?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 24Jan2017*@
@@ -17400,7 +17509,7 @@
                                                                         </div>
                                                                         <div class="col-md-12 col-sm-12 mb10">
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                Did child receive treatment for any of the following chronic health conditions? 
+                                                                                Did child receive treatment for any of the following chronic health conditions?
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 24Jan2017*@
@@ -18583,7 +18692,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                How do you know when your child is hungry? 
+                                                                                How do you know when your child is hungry?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -18604,7 +18713,7 @@
                                                                         <div class="col-md-12 col-sm-12 mb10">
 
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                How do you know when your child is full? (Check all that apply) 
+                                                                                How do you know when your child is full? (Check all that apply)
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*Changes on 24jan2017*@
@@ -19903,7 +20012,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                How do you know when your child is hungry? 
+                                                                                How do you know when your child is hungry?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -19924,7 +20033,7 @@
                                                                         <div class="col-md-12 col-sm-12 mb10">
 
                                                                             <div class="col-md-10 col-sm-7">
-                                                                                How do you know when your child is full? (Check all that apply) 
+                                                                                How do you know when your child is full? (Check all that apply)
                                                                             </div>
                                                                             <div class="col-md-2 col-sm-5">
                                                                                 @*<a style="margin-left:3%;" title="Add Conditions" href="javascript:void(0)" data-toggle="modal" data-target="#CDietfull"><i class="fa fa-arrow-up"></i></a>*@
@@ -19985,7 +20094,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                If breastfeeding, how many times do you nurse in 24 hours? 
+                                                                                If breastfeeding, how many times do you nurse in 24 hours?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -20006,7 +20115,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                If formula feeding, how many fluid ounces of formula does your child take in 24 hours? 
+                                                                                If formula feeding, how many fluid ounces of formula does your child take in 24 hours?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -20046,7 +20155,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                At what age did you start feeding your child pureed and/or mashed foods? 
+                                                                                At what age did you start feeding your child pureed and/or mashed foods?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -20067,7 +20176,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                At what age did you start feeding your child ground and/or finely chopped foods? 
+                                                                                At what age did you start feeding your child ground and/or finely chopped foods?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -20128,7 +20237,7 @@
                                                                         <div class="col-sm-12 mb10" style="margin-top:10px;">
 
                                                                             <div class="col-sm-12">
-                                                                                At what age did you begin feeding your child 100% fruit juice with Vitamin C? 
+                                                                                At what age did you begin feeding your child 100% fruit juice with Vitamin C?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz" style="margin-top:12px;">
                                                                                 @{
@@ -20805,7 +20914,7 @@
                                                                                         <div class="col-lg-12 col-md-6 col-sm-12 adddivspace">
                                                                                             <div class="form-group">
                                                                                                 <div class="col-lg-12 col-md-7 col-sm-12" style="line-height: normal; margin-bottom:10px; color:#595959">
-                                                                                                    Have any of the child's direct blood relatives (parents, grandparents, aunts, uncles, brothers, or sisters)? 
+                                                                                                    Have any of the child's direct blood relatives (parents, grandparents, aunts, uncles, brothers, or sisters)?
                                                                                                 </div>
                                                                                                 <br />
                                                                                                 <div class="col-md-6 input_wd scroll-none adddvispace" id="CDBRlist" style="width:81%;">
@@ -21701,7 +21810,7 @@
                                                 {
                                                     foreach (var item in Model.QualifierRecords)
                                                     {
-                                                        <tr @if (item.IsFutureIntake) {<text>class="futurequalifier"</text> }>
+                                                        <tr @if (item.IsFutureIntake) { <text> class="futurequalifier" </text>  }>
                                                             <td>@item.Name</td>
                                                             <td>@item.Programtype</td>
 
@@ -21715,7 +21824,7 @@
                                                                     }
                                                                     else
                                                                     {
-                                                                        <td style="text-align:right;"><a style="color:#3e4c5a;" href="javascript:void(0)" data-toggle="modal"  onclick="SetPoverty(this,0);"  data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align:right;"><a style="color:#3e4c5a;" href="javascript:void(0)" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                 }
                                                                 else
@@ -21727,7 +21836,7 @@
                                                                     }
                                                                     else
                                                                     {
-                                                                        <td style="text-align: right; "><a style="color: #3e4c5a; " href="javascript:void(0)" data-toggle="modal"  onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
+                                                                        <td style="text-align: right; "><a style="color: #3e4c5a; " href="javascript:void(0)" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">@item.PovertyPercentage % <i class="fa fa-arrow-up"></i></a></td>
                                                                     }
                                                                 }
                                                             }
@@ -21740,7 +21849,7 @@
                                                                 else
                                                                 {
 
-                                                                    <td style="text-align: right;"><a style="color: #3e4c5a;" href="javascript:void(0)"  data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">0 % <i class="fa fa-arrow-up"></i></a></td>
+                                                                    <td style="text-align: right;"><a style="color: #3e4c5a;" href="javascript:void(0)" data-toggle="modal" onclick="SetPoverty(this,0);" data-target="#MyQualifier">0 % <i class="fa fa-arrow-up"></i></a></td>
                                                                 }
 
 
@@ -21819,7 +21928,7 @@
                                                                     {
                                                                         if (!item.Iswaiting && !item.IsAccepted)
                                                                         {
-                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" href="javascript:void(0)"  >Waiting List <i class="fa fa-arrow-up"></i></a>
+                                                                            <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid" href="javascript:void(0)" onclick="Acceptwaitinglist(this);">Waiting List <i class="fa fa-arrow-up"></i></a>
                                                                         }
                                                                         else
                                                                         {
@@ -21847,7 +21956,7 @@
                                                                     if (item.ApplicationStatus == 1)
                                                                     {
 
-                                                                        if (!item.Iswaiting && !item.IsAccepted &&!item.IsFutureIntake )
+                                                                        if (!item.Iswaiting && !item.IsAccepted && !item.IsFutureIntake)
                                                                         {
                                                                             <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " onclick="AcceptProcess(this);" href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
                                                                         }
@@ -21861,7 +21970,7 @@
                                                                     else
                                                                     {
 
-                                                                        if (!item.Iswaiting && !item.IsAccepted &&!item.IsFutureIntake)
+                                                                        if (!item.Iswaiting && !item.IsAccepted && !item.IsFutureIntake)
                                                                         {
                                                                             <a style="text-decoration:underline;" accesskey="@item.clientid" programid="@item.Programid " href="javascript:void(0)">Acceptance Process <i class="fa fa-arrow-up"></i></a>
                                                                         }
@@ -22029,7 +22138,7 @@
                                                                                     {
                                                                                         if (item1.CenterId != "0")
                                                                                         {
-                                                                                            <tr>
+                                                                                            <tr ackey=@item1.Homebased.ToString()>
                                                                                                 @*@if (item1.SeatsAvailable == "0")
                                                                                                     {
                                                                                                         <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
@@ -22040,11 +22149,16 @@
                                                                                                     }*@
                                                                                                 @if (item1.SeatsAvailable == "0" || Convert.ToInt32(item1.SeatsAvailable) <= -1)
                                                                                                 {
-                                                                                                    <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
+                                                                                                    <td>@item1.Name  <input name="Accept" disabled="disabled" value="@item1.CenterId" type="radio" /></td>
+                                                                                                }
+                                                                                                else if (item1.Homebased)
+                                                                                                {
+                                                                                                    <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="LoadFSWorHVList(@item1.CenterId,2);" type="radio" /></td>
+
                                                                                                 }
                                                                                                 else
                                                                                                 {
-                                                                                                    <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="GetNurse(@item1.CenterId);" type="radio" /></td>
+                                                                                                    <td>@item1.Name  <input name="Accept" value="@item1.CenterId" onchange="LoadFSWorHVList(@item1.CenterId,1);" type="radio" /></td>
                                                                                                 }
 
 
@@ -22063,11 +22177,15 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-6" style="display:none;">
+                                                            <div class="col-sm-6" id="AssignFSW" style="display:none;">
                                                                 <div class="col-sm-12 divposition">
-                                                                    <div class="form-group DivHide" id="DivAccessType">
-                                                                        <label for="email">Assign To <sup>*</sup></label>
-                                                                        <select id="ddlnurse" class="form-control"></select>
+                                                                    <div class="form-group DivHide" id="DivForFSW">
+                                                                        <label for="email">Assign Family Advocate <sup>*</sup></label>
+                                                                        <select id="selAssignFSW" onchange="AskForAlert(this);" class="form-control"></select>
+                                                                    </div>
+                                                                    <div class="form-group DivHide" id="DivForHV">
+                                                                        <label for="email">Assign Family Advocate <sup>*</sup></label>
+                                                                        <select id="selAssignHV" onchange="AskForAlert(this);" class="form-control"></select>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -22139,7 +22257,7 @@
                                                                                     {
                                                                                         if (item1.CenterId != "0")
                                                                                         {
-                                                                                            <tr>
+                                                                                            <tr ackey=@item1.Homebased.ToString()>
                                                                                                 <td>@item1.Name  <input name="Accept" onchange="Clearselect(this);" value="@item1.CenterId" type="checkbox" /></td>
                                                                                                 <td>@item1.Address</td>
                                                                                                 <td>@item1.Zip</td>
@@ -23190,7 +23308,7 @@
                             url: "/AgencyUser/GetTransportationDetails",
                             data: { 'ClientId': $('#ChildId').val() },
                             success: function (data) {
-                            
+
                                 var result = JSON.parse(data);
                                 if (result.length > 0) {
                                     $('.transportation-id').val(result[0].Id);
@@ -23207,7 +23325,7 @@
                                         $('#rdEmailNo').prop('checked', true);
                                         $('#txtPickupAddress').val(result[0].PickupAddress);
                                         $('#txtPickupZipcode').val(result[0].PickupZipcode);
-                                       
+
                                         checkZipCode($('#txtPickupZipcode')[0]);
                                         $('.ddlPickupCity').val(result[0].PickupCity);
                                         $('#txtPickupState').val(result[0].PickupState);
@@ -23444,7 +23562,7 @@
                         data: { 'Zipcode': Zipcode },
                         async: false,
                         success: function (response) {
-                         
+
                             if (response != null && response.length > 0) {
                                 var option = "<option value='0'>Choose</option>";
                                 for (var i = 0; i < response.length; i++) {
@@ -23452,7 +23570,7 @@
                                 }
 
 
-                               
+
                                 if ($(value).attr('id') == "txtPickupZipcode") {
                                     $('.ddlPickupCity').find('option').remove().end().append(option);
                                     $('.ddlPickupCity').val('0');

@@ -44,11 +44,23 @@
                     $('#spinner').show();
                     window.location.reload();
                 }
+                $('.AssignFSW').hide();
+                $('.selAssignFSW').val('');
+                $('.selAssignHV').val('');
+                $('#Acceptancediv').hide();
+                multipleArr = [];
+               
             });
 
             $("#ModalWaitingList").on("hidden.bs.modal", function () {
              
                 $('#dvClientName').html("");
+
+                $('.AssignFSW').hide();
+                $('.selAssignFSW').val('');
+                $('.selAssignHV').val('');
+                $('#Acceptancediv').hide();
+                multipleArr = [];
             });
 
 
@@ -267,9 +279,9 @@
                 var option = "";
                 $('#DivWaitingListPopup > tbody > tr').remove();
                 for (var i = 0; i < Data.length; i++) {
-                    tbody = tbody + '<tr><td><input ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" type="Checkbox" onchange="ChangeCheckBox(this,$(this));"  /></td><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
+                    tbody = tbody + '<tr><td><input   name="' + Data[i].Name + '"  ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '" IsHomeBased="' + Data[i].IsHomeBased + '"  type="Checkbox" class="chckClient" onchange="ChangeCheckBox(this,$(this));"  /></td><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
 					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
-				   '<a href="#" onclick="ShowHealthstaff(this);" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td>' +
+				   '<a href="#"  onclick="LoadFSWorHVList(this);" name="' + Data[i].Name + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td>' +
                     '<td><a href="#" onclick="removeFromWaiting(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>' +
                    '</tr>';
                 }
@@ -309,62 +321,75 @@
                 $('#div1').show();
             }
         }
-        function ShowHealthstaff(Aobject) {
-            _Object = Aobject;
-            var clientname = $(Aobject).closest("tr").find("td:eq(1)").text();
+        function ShowHealthstaff() {
+          //  _Object = Aobject;
+            var clientname = $(_Object).closest("tr").find("td:eq(0)").text();
+            debugger;
+            if ($('#ModalWaitingListAll').is(':visible') && $('#ModalWaitingListAll').find('.selAssignFSW').val() == "0")
+            {
+                customAlert("Please select family advocate");
+                return false;
+            }
+           else if ($('#ModalWaitingList').is(':visible') && $('#ModalWaitingList').find('.selAssignFSW').val() == "0") {
+                customAlert("Please select family advocate");
+                return false;
+            }
+            else {
+                BootstrapDialog.confirm('Click OK to move ' + clientname + ' to acceptance process', function (result) {
+                    if (result) {
 
-            BootstrapDialog.confirm('Click OK to move ' + clientname + ' to acceptance process', function (result) {
-                if (result) {
+                        $.ajax({
+                            url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
+                            type: "POST",
+                            data: {
+                                Clientid: $(_Object).attr("clientid"),
+                                UserFSWId: $('.selAssignFSW :selected').val(),
+                                householdid: $(_Object).attr("householdid"),
+                                centerid: $(_Object).attr("centerid"),
+                                Programid: $(_Object).attr("programid"),
 
-                    $.ajax({
-                        url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
-                        type: "POST",
-                        data: {
-                            Clientid: $(_Object).attr("clientid"),
-                            Usernurseid: $('#ddlnurse').val(),
-                            householdid: $(_Object).attr("householdid"),
-                            centerid: $(_Object).attr("centerid"),
-                            Programid: $(_Object).attr("programid"),
-
-                        },
-                        dataType: "json",
-                        secureuri: false,
-                        async: false,
-                        traditional: true,
-                        success: function (response) {
-                            if (response == 1) {
-                                customAlert("Record saved successfully.");
-                                $('#Acceptancediv').hide();
-                                $('#ddlnurse').val('');
-                                $(_Object).closest('tr').remove();
-                                if ($('#DivWaitingListPopup > tbody tr').length < 1) {
-                                    $('#div1').show();
+                            },
+                            dataType: "json",
+                            secureuri: false,
+                            async: false,
+                            traditional: true,
+                            success: function (response) {
+                                if (response == 1) {
+                                    customAlert("Record saved successfully.");
+                                    $('#Acceptancediv').hide();
+                                    $('#ddlnurse').val('');
+                                    $(_Object).closest('tr').remove();
+                                    if ($('#DivWaitingListPopup > tbody tr').length < 1) {
+                                        $('#div1').show();
+                                    }
+                                    if ($(WaitObject).text() != "" && $(WaitObject).text() != "0") {
+                                        $(WaitObject).text(parseInt($(WaitObject).text()) - 1);
+                                        $(WaitObject).closest('tr').find('td a').eq(5).text(parseInt($(WaitObject).closest('tr').find('td a').eq(5).text()) + 1);
+                                        $(WaitObject).closest('tr').find('td a').eq(4).text(parseInt($(WaitObject).closest('tr').find('td a').eq(4).text()) - 1);
+                                    }
+                                    if ($(WaitObject).text() == "0") {
+                                        $(WaitObject).attr("href", "#");
+                                    }
+                                    setTimeout(function () {
+                                        window.location.reload();
+                                    }, 800);
                                 }
-                                if ($(WaitObject).text() != "" && $(WaitObject).text() != "0") {
-                                    $(WaitObject).text(parseInt($(WaitObject).text()) - 1);
-                                    $(WaitObject).closest('tr').find('td a').eq(5).text(parseInt($(WaitObject).closest('tr').find('td a').eq(5).text()) + 1);
-                                    $(WaitObject).closest('tr').find('td a').eq(4).text(parseInt($(WaitObject).closest('tr').find('td a').eq(4).text()) - 1);
+                                if (response == 2) {
+                                    customAlert("No available slots. Please contact your administrator for assistance.");
                                 }
-                                if ($(WaitObject).text() == "0") {
-                                    $(WaitObject).attr("href", "#");
-                                }
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 800);
                             }
-                            if (response == 2) {
-                                customAlert("No available slots. Please contact your administrator for assistance.");
-                            }
-                        }
-              , error: function (response) {
-                  customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-              }
-                    });
+                  , error: function (response) {
+                      customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                  }
+                        });
 
-                }
-            });
-            $('#Acceptancediv').hide();
-            $('#Acceptancediv').focus();
+                    }
+                });
+                $('#Acceptancediv').hide();
+                $('#Acceptancediv').focus();
+            }
+
+        
         }
 
         function GetUserList() {
@@ -423,7 +448,12 @@
         function SaveWaiting() {
             //debugger
             var count = 0;
+            var count1 = 0;
+            var hid;
             var clientarray = [];
+            var householdids = [];
+            var familyAdvocate = [];
+            var userid = '';
             cleanValidation();
             isValid = true;
 
@@ -431,25 +461,60 @@
                 //debugger
                 if ($(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked")) {
                     count = count + 1;
-                    clientid = ($(this).find('td:eq(0)').find('input[type="checkbox"]').attr("clientid"))
-                    clientarray.push(clientid);
+                    clientid = ($(this).find('td:eq(0)').find('input[type="checkbox"]').attr("clientid"));
+                     userid = $('#dvClientName').find('span[id=' + clientid + ']').next('select').val();
+                     clientarray.push(clientid + ',' + userid);
+
+
+                    hid = ($(this).find('td:eq(0)').find('input[type="checkbox"]').attr("householdid"));
+                    householdids.push(hid);
 
                 }
             });
+            $('.households').each(function () {
+                if ($(this).val() != "0") {
+                    count1 = count1 + 1;
+                    familyAdvocate.push($(this).val());
+                }
+            });
 
+            var i = -1, j = 0;          
+            for (var a = 0 ; a < householdids.length; a++)
+            {
+                var cls = '.household' + householdids[a];               
+                $(cls).each(function () {
+                    var comp = $(this).val();
+                    j = 0;
+                    $(cls).each(function () {
+                      
+                        if ($(this).val() != comp && i >= j) {
+                            //customAlert("One household can have one family advocate.");
+                          //  planValidation(cls);
+                            isValid = false;                          
+                        }
+                        j++;
+                    });
+                    i++;
+                });
+            }
+          
             if (count == 0) {
                 isValid = false;
                 customAlert("Please select client.");
                 return isValid;
             }
-
-                //else if ($('#ddlnurse').val() == "" || $('#ddlnurse').val() == null) {
-                //    isValid = false;
-                //    customAlert("Assign to is required. ");
-                //    plainValidation('#ddlnurse');
-                //    return isValid;
-                //}
-
+            else if (count1==0 || count1 != householdids.length)
+            {
+                isValid = false;
+                customAlert("Please select family advocate for selected clients");
+                return isValid;
+           }
+           else if (isValid == 0) {
+               isValid = false;
+               customAlert("One household can have one family advocate.");
+               return isValid;
+           }
+         
             else {
                 if (_Object != null && _centerid != null) {
 
@@ -465,6 +530,7 @@
                                 data: {
                                     // Clientid: $(_Object).attr("clientid"),
                                     ClientList: clientarray,
+                                  
                                     Usernurseid: $('#ddlnurse').val(),
                                     householdid: $(_Object).attr("householdid"),
                                     centerid: $(_Object).attr("CenterID"),
@@ -515,7 +581,14 @@
             }
         }
         function CancelWaiting() {
+            $('.AssignFSW').hide();
+            $('.selAssignFSW').val('');
+            $('.selAssignHV').val('');
             $('#Acceptancediv').hide();
+            $('#dvClientName').html("");
+            $('.chckClient').prop('checked', false);
+            
+            multipleArr = [];
         }
         function loadclientPendinglist(Object, Centerid) {
             WaitObject = Object;
@@ -1033,6 +1106,195 @@
             }
         }
         // }
+        // for family advocate
+        function AskForAlert(arg) {
+            var prev = $(arg).data('val');
+            if (advocate != "") {
+                BootstrapDialog.confirm('You are trying to change the advocate for this family. Please click OK to confirm', function (result) {
+                    if (!result) {
+                        if (CenterType == 1) {
+                            $('.selAssignFSW').val(advocate);
+                        }
+                        else {
+                            $('.selAssignHV').val(advocate);
+                        }
+                    }
+
+
+                });
+            }
+        }
+        function AskForAlert1(arg) {
+            debugger;
+            var hid = $(arg).attr('householdid');
+            for (var a = 0; multipleArr.length > 0; a++)
+            {
+                var check = multipleArr[a].split(',')[0];
+                if (check == hid && multipleArr[a].split(',')[1] != "")
+                {
+                    BootstrapDialog.confirm('You are trying to change the advocate for this family. Please click OK to confirm', function (result) {
+                        if (!result) {                           
+                            $('.household'+hid).val(multipleArr[a].split(',')[1]);                          
+                        }
+                        else
+                        {
+                            $('.household' + hid).val($(arg).val());
+                        }
+                    });
+                    break;
+                }
+             
+                
+            }
+         
+        }
+        var CenterType = 0;
+        var advocate = "";
+        function LoadFSWorHVList(arg) {
+            _Object = arg;
+            var index = -1;
+            advocate = "";
+            CenterType = $(arg).attr("IsHomeBased") === 'true' ? 2 : 1;
+            $('#Acceptancediv').hide();
+            $('#dvClientName').html("");
+            $('.chckClient').prop('checked', false);
+            $('.lblClientName').text($(arg).attr("name"))
+            $('.AssignFSW').show();
+            $('.DivHide').hide();
+            $.ajax({
+                url: HostedDir + "/Home/GetFSWOrHVList",
+                type: "POST",
+                data: {
+                    ClientId: $(_Object).attr("clientid"),
+                    CenterId: $(_Object).attr("centerid"),
+                    ListType: CenterType
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data != null && data.length > 0) {
+
+                        var option = '';
+                        if (CenterType == 1)
+                            option = option + '<option  value="0">Select FSW</option>';
+                        else
+                            option = option + '<option  value="0">Select HV</option>';
+
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].IsSelected === true)
+                                index = i;
+                            option = option + '<option value="' + data[i].userId + '">' + data[i].Name + '</option>';
+                        }
+
+
+                        if (CenterType == 1) {
+                            $('.selAssignFSW').find('option').remove();
+                            $('.selAssignFSW').find('option').remove().end().append(option);
+                            $('.DivForFSW').show();
+                            if (index == -1)
+                                $('.selAssignFSW').val('0');
+                            else {
+                                advocate = data[index].userId;
+                                $('.selAssignFSW').val(data[index].userId);
+                            }
+
+
+
+                        }
+                        else {
+                            $('.selAssignHV').find('option').remove();
+                            $('.selAssignHV').find('option').remove().end().append(option);
+                            $('.DivForHV').show();
+                            if (index == -1)
+                                $('.selAssignHV').val('0');
+                            else {
+                                advocate = data[index].userId;
+                                $('.selAssignHV').val(data[index].userId);
+                            }
+
+                        }
+
+                    }
+                    else {
+                        $('.selAssignFSW').find('option').remove();
+                        $('.selAssignHV').find('option').remove();
+                    }
+                }
+    , error: function (data) {
+        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+    }
+            });
+        }
+
+
+        var multipleArr = [];
+        function LoadMultipleFSWorHVList(arg) {
+            _Object = arg;
+            var index = -1;
+            advocate = "";
+            CenterType = $(arg).attr("IsHomeBased") === 'true' ? 2 : 1;
+
+   
+            $('.AssignFSW').hide();
+            $('.DivHide').hide();
+            $.ajax({
+                url: HostedDir + "/Home/GetFSWOrHVList",
+                type: "POST",
+                data: {
+                    ClientId: $(_Object).attr("clientid"),
+                    CenterId: $(_Object).attr("centerid"),
+                    ListType: CenterType
+                },
+                dataType: "json",
+                secureuri: false,
+                async: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data != null && data.length > 0) {
+                       
+                        var option = '<select class="form-control households household' + $(arg).attr("householdid") + '" householdid="' + $(arg).attr("householdid") + '" onchange="AskForAlert1(this)" > ';
+                        if (CenterType == 1)
+                            option = option + '<option  value="0">Select FSW</option>';
+                        else
+                            option = option + '<option  value="0">Select HV</option>';
+
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].IsSelected === true)
+                                index = i;
+                            option = option + '<option value="' + data[i].userId + '">' + data[i].Name + '</option>';
+                        }
+                          option = option + '</select> ';
+
+                        
+                          
+                          $('#dvClientName').append('<div class="listmulti-client divMultiClient' + $(_Object).attr("clientid") + '"><span style="margin-bottom:0px;"  id=' + $(_Object).attr("clientid") + ' class="SpnSelectedClient">' + $(arg).attr("name") + '</span>' + option + '</div>');
+                            if (index == -1)
+                            {
+                                $('.household' + $(arg).attr("householdid")).val('0');
+                                multipleArr.push($(arg).attr("householdid") + ',' +'');
+                            }
+                              
+                            else {
+                                multipleArr.push($(arg).attr("householdid") + ',' + data[index].userId);
+                                $('.household' + $(arg).attr("householdid")).val(data[index].userId);
+                            }
+               
+
+                    }
+                    else {
+                      
+                    }
+                }
+    , error: function (data) {
+        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+    }
+            });
+        }
+
+        //end
+     
         function showdiv(Aobject, BMIStatus, Disability) {
             // alert($(Aobject).attr('transport'));
             _Object = Aobject;
@@ -1244,8 +1506,6 @@
                 data: {
                     Centerid: Centerid,
                     Option: Option,
-
-                    // Programtype: 0
                 },
                 dataType: "json",
                 secureuri: false,
@@ -1497,7 +1757,7 @@
             _Nurse1 = 0;
             _option1 = 0;
             $('#CenterNameAll').text('All waiting for ' + $(Object).closest("tr").find("td:first a").text());
-            $('#Acceptancedivall').hide();
+          
             $('#ddlProgramtypeAll').val('');
             $('#ddlnurseAll').val('');
             $.ajax({
@@ -1528,7 +1788,7 @@
                 for (var i = 0; i < Data.length; i++) {
                     tbody = tbody + '<tr><td>' + Data[i].Name + '</td><td>' + Data[i].SelectionPoints + '</td><td>' + Data[i].DateOnList +
 					' </td><td>' + Data[i].ProgramType + '</td><td>' + Data[i].Choice + '</td><td>' + Data[i].Gender + '</td><td>' + Data[i].DOB + '</td> <td> ' +
-				   '<a href="#" onclick="ShowHealthstaffall(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td>' +
+				   '<a href="#" onclick="LoadFSWorHVList(this);" name="' + Data[i].Name + '"  IsHomeBased="' + Data[i].IsHomeBased + '" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Acceptance Process</a> </td>' +
                    '<td><a href="#" onclick="removeFromWaiting(this);" option="' + Data[i].Option + '" ClientId="' + Data[i].ClientId + '" HouseHoldId="' + Data[i].HouseholdId + '" ProgramID="' + Data[i].Programid + '"  CenterID="' + Data[i].CenterId + '"  style="text-decoration:underline;">Remove</a> </td>' +
                    '</tr>';
                 }
@@ -1632,7 +1892,7 @@
         }
 
         function GetUserListAll() {
-            $('#Acceptancedivall').hide();
+         
             if (_centerid != null) {
                 $.ajax({
                     url: HostedDir + "/Home/GetclientWaitingList",
@@ -1656,7 +1916,7 @@
             }
         }
         function ClearUserListAll() {
-            $('#Acceptancedivall').hide();
+         
             $('#ddlProgramtypeAll').val('');
             if (_centerid != null) {
                 $.ajax({
@@ -1740,7 +2000,7 @@
             });
         }
         function CancelWaitingAll() {
-            $('#Acceptancedivall').hide();
+      
         }
         function SaveWaitingall() {
             cleanValidation();
@@ -1771,7 +2031,7 @@
                                 success: function (response) {
                                     if (response == 1) {
                                         customAlert("Record saved successfully.");
-                                        $('#Acceptancedivall').hide();
+                                     
                                         $('#ddlnurseAll').val('');
                                         $(_Object).closest('tr').remove();
                                         if ($('#DivWaitingListAllPopup > tbody tr').length < 1) {
@@ -2439,17 +2699,22 @@
         function ChangeCheckBox(Aobject, t) {
             _Object = Aobject;
 
+            $('.AssignFSW').hide();
+            $('.selAssignFSW').val('');
+            $('.selAssignHV').val('');
+
             if (t.is(':checked')) {
                 var data = $(Aobject).closest("tr").find("td:nth-child(2)").text();
 
-                $('#dvClientName').append('<span style="margin-bottom:0px;"  id=' + $(Aobject).attr("clientid") + ' class="SpnSelectedClient">' + data + '</span>');
+                //$('#dvClientName').append('<span style="margin-bottom:0px;"  id=' + $(Aobject).attr("clientid") + ' class="SpnSelectedClient">' + data + '</span>');
 
                 $('#Acceptancediv').show();
-                $('#Acceptancediv').focus();
+                $('#Acceptancediv').focus(Aobject);
+               LoadMultipleFSWorHVList(Aobject);
             }
             else {
 
-                //$('#dvClientName').remove('<span class="SpnSelectedClient">' + data + '</span>');
+                $('#dvClientName').find('.divMultiClient' + $(Aobject).attr("clientid")).remove();
                 $('#' + $(Aobject).attr("clientid") + '').remove();
             }
         }
@@ -2465,6 +2730,43 @@
         #gridViewAgency > thead > tr > th {
             white-space: nowrap;
         }
+        .listmulti-client {
+    width:  100%;
+    float:  left;
+}
+        div#dvClientName h4 {
+    color: #295b8f;
+}
+        .edulist_centeryur {
+        border: 1px solid #285b90;
+    margin-bottom: 15px;
+    padding-top: 5px;
+        }
+        .edulist_centeryur .form-group label:first-child {
+    text-align: right;
+    padding-right: 20px;
+}
+        .edulist_centeryur .DivHide select {
+            width: 30% !important;
+        }
+        .edulist_centeryur .DivHide label {
+    text-align: right !important;
+    padding-right: 16px !important;
+}
+.listmulti-client span {
+    padding:  17px;
+    color: #295b8f;
+    background:  transparent;
+    text-transform:  capitalize;
+    font-weight:  600;
+    width:  25%;
+    float:  left;
+}
+
+.listmulti-client select {
+    width: 40%;
+    float:  left;
+}
     </style>
 
     <div class="row">
@@ -2754,34 +3056,45 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-xs-12 AssignFSW" style="text-align:center;display:none;">
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-12 edulist_centeryur divposition">
+                                                <div class="form-group">
+                                                    <label for="email" style="font-weight:600">Client :</label>
+                                                    <label for="email" style="text-align:left;font-weight:600" class="lblClientName">ClientName <sup>*</sup></label>
+                                                </div>
+                                                <div class="form-group DivHide DivForFSW">
+                                                    <label for="email">Assign Family Advocate <sup>*</sup></label>
+                                                    <select id="" onchange="AskForAlert(this);" class="form-control selAssignFSW"></select>
+                                                </div>
+                                                <div class="form-group DivHide DivForHV">
+                                                    <label for="email">Assign Family Advocate <sup>*</sup></label>
+                                                    <select id="" onchange="AskForAlert(this);" class="form-control selAssignHV"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="text-align:center">
+                                            <button type="button" style="background: #4caf50!important;" class="my-btn" onclick="return ShowHealthstaff();">Save</button>
+                                            <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
+                                        </div>
+                                    </div>
                                     <div class="col-sm-12" id="Acceptancediv" style="display: none;">
                                         <div class="col-sm-12">
                                             <fieldset>
                                                 <legend class="legend1"></legend>
                                                 <div class="col-sm-12" style="border: 1px solid #295b8f;margin-bottom: 10px;padding: 10px;">
-                                                    <div class="col-sm-2">
-                                                        <label style="width: 100%;font-weight: bold;">Client Name: </label>
-                                                    </div>
+                                                    <h4 style="color:#285b90;">Assign Family Advocate For Clients</h4>
                                                     <div id="dvClientName" style="width:82%" class="col-sm-5">
-
+                                                       
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-12">
-                                                    <div style="display:none;">
-                                                        <div class="col-sm-2">
-                                                            <label style="width: 100%;">Assign To <sup>*</sup></label>
-                                                        </div>
-                                                        <div class="col-sm-5">
-                                                            <select id="ddlnurse" style="width: 100%;" class="form-control"></select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12" style="text-align:center">
-                                                        <button type="button" style="background: #4caf50!important;" class="my-btn" onclick="return SaveWaiting();">Save</button>
-                                                        <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
-                                                    </div>
-
-                                                </div>
+                                          
+                                              
                                             </fieldset>
+                                        </div>
+                                        <div class="col-xs-12" style="text-align:center">
+                                            <button type="button" style="background: #4caf50!important;" class="my-btn" onclick="return SaveWaiting();">Save</button>
+                                            <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -3240,36 +3553,59 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12" id="Acceptancedivall" style="display: none;">
+                                    <div class="col-xs-12 AssignFSW" style="text-align:center;display:none;">
                                         <div class="col-sm-12">
-                                            <fieldset style="border: 1px solid #295b8f;">
-                                                <legend class="legend1"></legend>
-                                                <div class="col-sm-9">
-                                                    <div class="col-sm-2">
-                                                        <label style="width: 100%;">Client Name</label>
-                                                    </div>
-                                                    <div class="col-sm-5">
-                                                        <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
-                                                    </div>
+                                            <div class="col-sm-12 edulist_centeryur divposition">
+                                                <div class="form-group">
+                                                    <label for="email" style="font-weight:600" >Client :</label>
+                                                    <label for="email" style="text-align:left;font-weight:600" class="lblClientName">ClientName <sup>*</sup></label>
                                                 </div>
-                                                <div class="col-sm-9">
-                                                    <div class="col-sm-2">
-                                                        <label style="width: 100%;">Assign To <sup>*</sup></label>
-                                                    </div>
-                                                    <div class="col-sm-5">
-                                                        <select id="ddlnurseAll" style="width: 100%;" class="form-control"></select>
-                                                    </div>
-                                                    <div class="col-sm-2">
-                                                        <button type="button" class="my-btn" style="background: #4caf50!important;" onclick="return SaveWaitingall();">Save</button>
-                                                    </div>
-                                                    <div class="col-sm-2">
-                                                        <button type="button" class="my-btn" onclick="CancelWaitingAll();">Cancel</button>
-                                                    </div>
+                                                <div class="form-group DivHide DivForFSW">
+                                                    <label for="email">Assign Family Advocate <sup>*</sup></label>
+                                                    <select id="" onchange="AskForAlert(this);" class="form-control selAssignFSW"></select>
                                                 </div>
-                                            </fieldset>
+                                                <div class="form-group DivHide DivForHV">
+                                                    <label for="email">Assign Family Advocate <sup>*</sup></label>
+                                                    <select id="" onchange="AskForAlert(this);" class="form-control selAssignHV"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="text-align:center">
+                                            <button type="button" style="background: #4caf50!important;" class="my-btn" onclick="return ShowHealthstaff();">Save</button>
+                                            <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
                                         </div>
                                     </div>
-                                </div>
+                                        @*<div class="col-sm-12" id="Acceptancedivall" style="display: none;">
+                <div class="col-sm-12">
+                    <fieldset style="border: 1px solid #295b8f;">
+                        <legend class="legend1"></legend>
+                        <div class="col-sm-9">
+                            <div class="col-sm-2">
+                                <label style="width: 100%;">Client Name</label>
+                            </div>
+                            <div class="col-sm-5">
+                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
+                            </div>
+                        </div>
+                        @*<div class="col-sm-9">
+                            <div class="col-sm-2">
+                                <label style="width: 100%;">Assign To <sup>*</sup></label>
+                            </div>
+                            <div class="col-sm-5">
+                                <select id="ddlnurseAll" style="width: 100%;" class="form-control"></select>
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="my-btn" style="background: #4caf50!important;" onclick="return SaveWaitingall();">Save</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="my-btn" onclick="CancelWaitingAll();">Cancel</button>
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </div>
+            </div>*@
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -3459,6 +3795,14 @@
                                                     </div>
                                                     <div class="col-sm-5">
                                                         <select id="HVddlclassroom" style="width: 100%;" tabindex="1" class="form-control"></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <div class="col-sm-4">
+                                                        <label style="width: 100%;">Assign HV <sup>*</sup></label>
+                                                    </div>
+                                                    <div class="col-sm-5">
+                                                        <select id="selAssignHV" style="width: 100%;" class="form-control"></select>
                                                     </div>
                                                 </div>
                                                 <div class="col-sm-9">

@@ -102,7 +102,7 @@ namespace FingerprintsData
         {
             List<DissabilityManagerDashboard> centerList = new List<DissabilityManagerDashboard>();
             List<HrCenterInfo> centerList1 = new List<HrCenterInfo>();
-            // var ista = EncryptDecrypt.Decrypt64("NzQ=");
+           // var ista = EncryptDecrypt.Decrypt64("NzQ=");
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
@@ -190,8 +190,12 @@ namespace FingerprintsData
                             info.FSW = dr["fswname"].ToString();
                             info.Teacher = dr["teacher"].ToString();//DBNull.Value.Equals(dr["ChildTransport"])
                             info.IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]);//.ToString() //Added on 30Dec2016
-                                                                                                                         //  info.Dayscount = dr["dayscount"].ToString();
-                                                                                                                         //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
+                            info.RosterYakkr= DBNull.Value==(dr["yakkrcode"]) ? "0" : Convert.ToString(dr["yakkrcode"]);//.ToString() //Added on 30Dec2016
+                            info.classroomid = DBNull.Value == (dr["classroomid"]) ? "0" : Convert.ToString(dr["classroomid"]);//.ToString() //Added on 30Dec2016
+
+
+                            //  info.Dayscount = dr["dayscount"].ToString();
+                            //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
                             info.District = Convert.ToString(dr["District"]);
                             RosterList.Add(info);
 
@@ -229,7 +233,7 @@ namespace FingerprintsData
 
         }
 
-        public Roster GetPendingDisableRoster(string centerid, string Classroom, string userid, string agencyid, string RoleId, string Mode, string sortOrder, string sortDirection, string clientId)
+        public Roster GetPendingDisableRoster(string centerid, string Classroom, string userid, string agencyid, string RoleId, string Mode, string sortOrder, string sortDirection,string clientId)
         {
             List<Roster> RosterList = new List<Roster>();
             Roster _roster = new Roster();
@@ -244,7 +248,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
                 command.Parameters.Add(new SqlParameter("@Mode", Mode));
                 command.Parameters.Add(new SqlParameter("@sortDirection", sortDirection));
-                command.Parameters.Add(new SqlParameter("@ClientId", clientId));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientId)); 
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_DisableRosterList";
@@ -263,7 +267,7 @@ namespace FingerprintsData
                             info.Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString());
                             info.EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString());
                             info.Name = dr["name"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.DOB = dr["dob"].ToString();
                             info.Gender = dr["gender"].ToString();
                             info.CenterName = dr["CenterName"].ToString();
                             info.CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString());
@@ -278,7 +282,7 @@ namespace FingerprintsData
                             info.classroomid = dr["classroomid"].ToString();
                             if (dr["recordCreated"] != DBNull.Value)
                             {
-                                info.recordCreated = Convert.ToDateTime(dr["recordCreated"]).ToString("MM/dd/yyyy");
+                                info.recordCreated = dr["recordCreated"].ToString();
                                 DateTime dt = Convert.ToDateTime(info.recordCreated);
                                 TimeSpan tt = DateTime.Now.Subtract(dt);
                                 info.totalday = tt.Days.ToString();
@@ -350,40 +354,7 @@ namespace FingerprintsData
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        //DisableNotes info = null;
-                        //foreach (DataRow dr in _dataset.Tables[0].Rows)
-                        //{
-                        //    info = new DisableNotes();
-
-                        //    info.Name = dr["Firstname"].ToString();
-                        //    info.Notes = dr["Notes"].ToString();
-                        //    info.DisableDocumentName = dr["DisableDocumentName"].ToString();
-                        //    info.DocumentDescription = dr["DocumentDescription"].ToString();
-                        //    info.noteid = dr["DisableNotesId"].ToString();
-                        //    info.Createdon = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
-                        //    info.DisabilityTypeID = string.IsNullOrEmpty(dr["DisablitiesTypeId"].ToString()) ? "" : dr["DisablitiesTypeId"].ToString();
-                        //    info.YakkrId = Convert.ToInt16(dr["YakkrId"]);
-                        //    info.SpecialServiceDisability = dr["ReceivedServicesId"].ToString();
-
-                        //    disablenotes.Add(info);
-
-                        //}
-
-                        //_roster.disablenotes = disablenotes;//Changes on 29Dec2016
-
-                        //_roster.disablenotes = _dataset.Tables[0].AsEnumerable().Select(x => new DisableNotes {
-
-                        //    Name=x.Field<string>("Firstname"),
-                        //    Notes=x.Field<string>("Notes"),
-                        //    DisableDocumentName=x.Field<string>("DisableDocumentName"),
-                        //    DocumentDescription=x.Field<string>("DocumentDescription"),
-                        //    noteid=x.Field<string>("DisableNotesId"),
-                        //    Createdon=x.Field<string>("DateEntered"),
-                        //    DisabilityTypeID=x.Field<string>("DisablitiesTypeId"),
-                        //    YakkrId=Convert.ToInt32(x.Field<string>("YakkrId")),
-                        //    SpecialServiceDisability=x.Field<string>("ReceivedServicesId"),
-                        //    PrimaryDisability=x.Field<int>("PrimaryDisability")
-                        //}).ToList();
+                 
                         _roster.disablenotes = new List<DisableNotes>();
                         if (_dataset.Tables[0] != null)
                         {
@@ -393,29 +364,25 @@ namespace FingerprintsData
                                                         select new DisableNotes
                                                         {
                                                             Name = Convert.ToString(dr5["Firstname"]),
-                                                            Notes = Convert.ToString(dr5["Notes"]),
-                                                            DisableDocumentName = Convert.ToString(dr5["DisableDocumentName"]),
-                                                            DocumentDescription = Convert.ToString(dr5["DocumentDescription"]),
-                                                            noteid = Convert.ToString(dr5["DisableNotesId"]),
-                                                            Createdon = Convert.ToString(dr5["DateEntered"]),
-                                                            DisabilityTypeID = Convert.ToString(dr5["DisablitiesTypeId"]),
-                                                            YakkrId = Convert.ToInt32(dr5["YakkrId"]),
-                                                            SpecialServiceDisability = Convert.ToString(dr5["ReceivedServicesId"]),
-                                                            PrimaryDisability = int.Parse(Convert.ToString(dr5["PrimaryDisability"])),
-
-
+                                                             Notes = Convert.ToString(dr5["Notes"]),
+                                                             DisableDocumentName = Convert.ToString(dr5["DisableDocumentName"]),
+                                                             DocumentDescription = Convert.ToString(dr5["DocumentDescription"]),
+                                                             noteid = Convert.ToString(dr5["DisableNotesId"]),
+                                                             Createdon = Convert.ToString(dr5["DateEntered"]),
+                                                             DisabilityTypeID = Convert.ToString(dr5["DisablitiesTypeId"]),
+                                                             YakkrId = Convert.ToInt32(dr5["YakkrId"]),
+                                                             SpecialServiceDisability = Convert.ToString(dr5["ReceivedServicesId"]),
+                                                             PrimaryDisability = int.Parse(Convert.ToString(dr5["PrimaryDisability"])),
                                                            }).ToList();
 
                             }
                         }
 
-
-                        // disablenotes = new List<DisableNotes>();
                         DisableNotes notes = new DisableNotes();
                         int primaryDisability = 0;
                         string disabilityType = _roster.disablenotes.Select(x => x.DisabilityTypeID).Where(x => !string.IsNullOrEmpty(x)).ToList().FirstOrDefault();
 
-                        primaryDisability = _roster.disablenotes.Select(x => x.PrimaryDisability).Where(x => x > 0).ToList().FirstOrDefault();
+                         primaryDisability = _roster.disablenotes.Select(x => x.PrimaryDisability).Where(x =>x>0).ToList().FirstOrDefault();
 
                         //notes.NotesList = _roster.disablenotes.Where(x => x.Notes != string.Empty).Select(x => new DisableNotes
                         //{
@@ -550,6 +517,53 @@ namespace FingerprintsData
         //    return _roster;
 
         //}
+        public DissabilityManagerDashboard BindDisableTypeByClient(string clientid)
+        {
+            DissabilityManagerDashboard _dissabilityManagerDashboard = new DissabilityManagerDashboard();
+            List<DisablilityType> _DisablilityType = new List<DisablilityType>();
+            try
+            {
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@ClientId", EncryptDecrypt.Decrypt64(clientid));
+                command.CommandText = "[SP_DisablitiesTypeByClientId]";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset.Tables[0] != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        DisablilityType info = null;
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            info = new DisablilityType();
+                            info.Id = Convert.ToInt32(dr["ID"]);
+                            info.DisabilityType = dr["DisablitiesType"].ToString();
+                            info.IsChecked = Convert.ToBoolean(Convert.ToInt32(dr["ischecked"]));
+                            info.PrimaryTypeId = Convert.ToInt32(dr["PrimaryDisability"]);
+                            
+                            _DisablilityType.Add(info);
+
+                        }
+                        _dissabilityManagerDashboard.disabilitytype = _DisablilityType;//Changes on 29Dec2016
+                    }
+                }
+     
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return _dissabilityManagerDashboard;
+
+        }
 
         public DissabilityManagerDashboard BindDisableType()
         {
@@ -559,7 +573,7 @@ namespace FingerprintsData
             {
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "[SP_DisablitiesTypeDropdownList]";
+                command.CommandText = "[SP_DisablitiesTypeDropdownList]";                
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -596,8 +610,45 @@ namespace FingerprintsData
 
         }
 
+        public bool SaveDisabilityTypes(string clientid, string distypes,string primarydisablity)
+        {
+            bool result = false;
+            try
+            {
+              
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveDisablityTypes";
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Clientid", EncryptDecrypt.Decrypt64(clientid)));
+                command.Parameters.Add(new SqlParameter("@DisablityTypes", distypes));
+                command.Parameters.Add(new SqlParameter("@PrimaryDisabilityType", primarydisablity));              
+             
+                int res= command.ExecuteNonQuery();
+                if (res > 1)
+                    result = true;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null && Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                    command.Dispose();
+                }
+            }
+            return result;
+        }
+
+
         public string SavePendingDisableUseInfo(string Clientid, string ClassroomID, string centerid
-         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "", string primaryDistype = "")
+         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "",string primaryDistype="")
         {
             try
             {
@@ -791,6 +842,115 @@ namespace FingerprintsData
                 DataAdapter.Dispose();
                 command.Dispose();
             }
+        }
+
+        public Role GetInternalRefDetails(string ClientId)
+        {
+            Role role = new Role();
+            role.RoleList = new List<Role>();
+            role.ClientList = new List<RosterNew.User>();
+            StaffDetails staff = StaffDetails.GetInstance();
+            try
+            {
+                command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(ClientId)));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "[SP_GetInternalRefDetails]";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0]!=null)
+                {
+
+                    role.RoleList = (from DataRow dr in _dataset.Tables[0].Rows
+                                     select new Role
+                                     {
+                                         RoleId = dr["RoleId"].ToString(),
+                                         RoleName = dr["RoleName"].ToString()
+                                     }).ToList();
+
+
+                }
+                if ( _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count>0)
+                {
+
+                    role.AssignedRoles=String.Join("," ,(from DataRow dr in _dataset.Tables[1].Rows
+                                select  dr["RoleName"].ToString() ).ToList());
+
+
+                }
+                if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
+                {
+                   FingerprintsModel.RosterNew.User obj = null;
+                    foreach (DataRow dr in _dataset.Tables[2].Rows)
+                    {
+                        obj = new FingerprintsModel.RosterNew.User();
+                        obj.Id = dr["clientid"].ToString();
+                        obj.Name = dr["Name"].ToString();
+                        role.ClientList.Add(obj);
+                    }
+                   
+                }
+                DataAdapter.Dispose();
+                command.Dispose();
+             
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            
+            }
+            finally
+            {
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+            return role;
+        }
+
+
+        public bool SaveInternalReferral(InternalReferral internRef,string casenoteid)
+        {
+            bool result = false;
+            try
+            {
+                StaffDetails staff = new StaffDetails();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_SaveInternalReferral";
+                command.Connection = Connection;
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Clientid", EncryptDecrypt.Decrypt64( internRef.CaseClientId)));
+                command.Parameters.Add(new SqlParameter("@CenterId", EncryptDecrypt.Decrypt64(internRef.CaseCenterId)));
+               command.Parameters.Add(new SqlParameter("@ClassroomId", (internRef.CaseClassroomId)));
+                command.Parameters.Add(new SqlParameter("@ProgramId", EncryptDecrypt.Decrypt64((internRef.CaseProgramId))));
+                command.Parameters.Add(new SqlParameter("@SelectedRole", (internRef.RoleId)));
+                command.Parameters.Add(new SqlParameter("@CaseNoteId", casenoteid));
+                command.Parameters.Add(new SqlParameter("@YakkrCode", internRef.YakkrCode));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                int res = command.ExecuteNonQuery();
+                if (res > 1)
+                    result = true;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null && Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                    command.Dispose();
+                }
+            }
+            return result;
         }
 
 

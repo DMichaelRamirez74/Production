@@ -284,7 +284,7 @@ namespace Fingerprints.Controllers
 
         public JsonResult GetCaseNoteDetailsByYakkr(string clientId, string yakkrId)
         {
-            RosterNew.CaseNote caseNote = new RosterNew.CaseNote();
+            InternalRefferalCaseNote caseNote = new InternalRefferalCaseNote();
             try
             {
                 caseNote = new YakkrData().GetCaseNoteByYakkr(clientId, yakkrId);

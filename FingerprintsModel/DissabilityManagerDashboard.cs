@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,6 @@ namespace FingerprintsModel
         public bool Homebased { get; set; }
         public string TotalChildren { get; set; }
         public string DisabilityPercentage { get; set; }
-        public string Possible { get; set; }
         public string Indicated { get; set; }
         public string Pending { get; set; }
         public string Qualified { get; set; }
@@ -43,6 +43,8 @@ namespace FingerprintsModel
     public class DisablilityType
     {
         public int Id { get; set; }
+        public bool IsChecked { get; set; }
         public string DisabilityType { get; set; }
+        public int PrimaryTypeId { get; set; }
     }
 }

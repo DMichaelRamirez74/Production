@@ -552,28 +552,72 @@ namespace Fingerprints.Controllers
 
                 if (pendingcount != 0)
                 {
+                    string newLocation = string.Empty;
+                    if (Session["Roleid"].ToString().Contains("f87b4a71-f0a8-43c3-aea7-267e5e37a59d"))
+                        newLocation = "~/Home/SuperAdminDashboard";
+                    else if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") && Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
+                        newLocation = "~/Home/AgencyAdminDashboard";
+                  
+                    else if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
+                        newLocation = "~/Home/AgencyHRDashboard";
+                    else if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
+                        newLocation = "~/Home/AgencystaffDashboard";
+                    else if (Session["Roleid"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26")
+                        newLocation = "~/Home/ApplicationApprovalDashboard";
+                    else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
+                        newLocation = "~/Home/AgencystaffDashboard";
+                    else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
+                        newLocation = "~/Teacher/Roster";
+                    else if (Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b")
+                        newLocation = "~/Home/Dashboard";
+                    else if (Session["Roleid"].ToString() == "2ADFE9C6-0768-4A35-9088-E0E6EA91F709")
+                        newLocation = "~/Teacher/Roster";
+                    else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
+                        newLocation = "~/Home/HealthManager";
+                    else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
+                        newLocation = "~/Home/Dashboard";
+                    else if (Session["Roleid"].ToString() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80")
+                        newLocation = "~/Home/AgencyDisabilityManagerDashboard";
+                    else if (Session["Roleid"].ToString() == "9c34ec8e-2359-4704-be89-d9f4b7706e82")
+                        newLocation = "~/Home/DisabilityStaffDashboard";
+                    else if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
+                        newLocation = "~/Home/AgencystaffDashboard";
+                    else if (Session["Roleid"].ToString().Contains("5ac211b2-7d4a-4e54-bd61-5c39d67a1106"))
+                        newLocation = "~/Parent/ParentInfo";
+                    else if (Session["Roleid"].ToString().ToUpper().Contains("944D3851-75CC-41E9-B600-3FA904CF951F"))
+                        newLocation = "~/Billing/FamilyOverride";
+                    else if (Session["Roleid"].ToString().ToUpper().Contains("B65759BA-4813-4906-9A69-E180156E42FC"))
+                        newLocation = "~/ERSEA/ERSEADashboard";
+                    else if (Session["Roleid"].ToString() == "6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba")
+                        newLocation = "~/Transportation/Dashboard";
+                    else if (Session["Roleid"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe")
+                        newLocation = "~/Home/AgencyFacilitiesManagerDashboard";
+                    else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
+                        newLocation = "~/Home/FacilityWorkerDashboard";
+                    else
+                        newLocation = "~/Home/Dashboard";
+                    return Redirect(newLocation);
+                    //if (message == "1")
+                    //{
+                    //    //_nurse.InsertAcceptReason(info, Session["AgencyID"].ToString(), Session["RoleId"].ToString());
+                    //    TempData["message"] = "Applicant accepted successfully. ";
+                    //    return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
+                    //}
+                    //if (message == "2")
+                    //{
+                    //    TempData["message"] = "Applicant rejected successfully.";
+                    //    return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
+                    //}
+                    //if (message == "3")
+                    //{
+                    //    return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
+                    //}
+                    //if (message == "4")
+                    //{
+                    //    TempData["message"] = "Application already reviewed by other user.";
+                    //    return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
 
-                    if (message == "1")
-                    {
-                        //_nurse.InsertAcceptReason(info, Session["AgencyID"].ToString(), Session["RoleId"].ToString());
-                        TempData["message"] = "Applicant accepted successfully. ";
-                        return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
-                    }
-                    if (message == "2")
-                    {
-                        TempData["message"] = "Applicant rejected successfully.";
-                        return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
-                    }
-                    if (message == "3")
-                    {
-                        return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
-                    }
-                    if (message == "4")
-                    {
-                        TempData["message"] = "Application already reviewed by other user.";
-                        return Redirect("~/Nurse/ViewCenterDetails/?id=" + info.CenterID + "&Name=" + info.CenterName);
-
-                    }
+                    //}
                 }
                 else
                 {

@@ -13,8 +13,24 @@
         line-height: 25px;
         border: 1px solid black;
     }
-
-
+    sup{
+        color:red;
+    }
+    div#EditDisablityType {
+    width: 100%;
+    float: left;
+    border: 1px solid #ccc;
+    padding: 24px;
+}
+    .manager-edu-btn {
+    width: 100%;
+    float: left;
+        text-align: center;
+    margin-top: 15px;
+}
+    .edu-typepro {
+    padding-left: 31px;
+    }
         .child_name .tooltiptext::after {
             content: " ";
             position: absolute;
@@ -42,7 +58,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="CenterName" class="text-center">Roster for Client<span class="extra-title muted"></span></h3>
+                <h3 id="CenterName" class="text-center">List of Children with Possible Disabilities<span class="extra-title muted"></span></h3>
                 <div class="col-sm-5" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
                     <span style="float:left;">Center Name:</span>
                     <span id="centernameSpan" style="font-weight:normal;float:left;margin-left:10px; "></span>
@@ -92,6 +108,42 @@
                                             <label>No result found.</label>
                                         </div>
                                     </div>
+                                    <div id="EditDisablityType" style="display: none;">
+                                        <div class="edu-typepro">
+                                            <label>Client : <span id="DisClientName">Trucker Crawner</span></label>
+                                            
+                                        </div>
+                                        <div id="divEditDisType" class="col-sm-10 adddivspace" >
+                                            <div class="col-sm-3">
+                                                <label style="width: 100%;"> Disability Type <sup>*</sup></label>
+                                            </div>
+                                            <div class="col-sm-10" style="width: 127%;margin:15px 0px 15px 0px">
+                                                <div class="col-sm-12">
+                                                    <fieldset style="border: 1px solid #295b8f;padding-bottom: 22px;">
+                                                        <legend class="legend1"></legend>
+
+                                                        <label class="checkbox-inline" id="EditDisablityCheckbox"> </label>
+                                                    
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                              <div id="EditdivdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
+                                                        <div class="col-sm-3">
+                                                            <label style="width: 100%;"> Primary Disability Type<sup>*</sup></label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <select id="EditprimaryDisabilitySelect" style="display:none;" name="primaryDisabilitySelect" class="form-control"></select>
+                                                            <label style="width: 100%;font-size: 15px;color:#333;font-weight:normal;display:none;" id="EditprimaryDisabilityLbl"></label>
+                                                        </div>
+                                                        
+                                                    </div>
+
+                                        <div class="manager-edu-btn">
+                                            <button id="DisType" onclick="return SaveDisablityTypes(this);" class="my-btn">Submit</button>
+                                            <button onclick="CancelForm();" class="my-btn1">Cancel</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -103,7 +155,106 @@
     </div>
 </div>
 
+
 <script>
+    function CancelForm()
+    {
+        location.reload(this);
+    }
+    function bindEditPrimaryDisability(ele) {
+        var primaryDisabilityDiv = $('#EditdivdPrimaryDisabilityType');
+      //  var disabilityDiv = $('#divEditDisType');
+        var disLength = $('.DisServiece:checked').length;
+        var selectOption = "";
+        if (disLength > 0) {
+            if (disLength == 1) {
+
+                var disId = $('.DisServiece:checked')[0].value;
+                var disText = $('.DisServiece:checked')[0].nextSibling.innerHTML
+               
+                primaryDisabilityDiv.find('#EditprimaryDisabilityLbl').html(disText).attr('dis-id', disId);
+                primaryDisabilityDiv.find('#EditprimaryDisabilityLbl').show();
+                primaryDisabilityDiv.find('#EditprimaryDisabilitySelect').html('').hide();
+
+                primaryDisabilityDiv.show();
+
+            }
+            else {
+                selectOption += '<option value="0">--Select Primary Disability--</option>';
+
+                $('.DisServiece:checked').each(function (i, dis) {
+
+                    selectOption += '<option value=' + $(dis).attr('value') + '>' + $(dis).siblings('span').html() + '</option>';
+                });
+                primaryDisabilityDiv.find('#EditprimaryDisabilitySelect').html(selectOption).show();
+                primaryDisabilityDiv.show();
+                primaryDisabilityDiv.find('#EditprimaryDisabilityLbl').html('').attr('dis-id', 0);
+                primaryDisabilityDiv.find('#EditprimaryDisabilityLbl').hide();
+            }
+
+        }
+        else {
+            primaryDisabilityDiv.find('#EditprimaryDisabilitySelect').html('');
+            primaryDisabilityDiv.hide();
+            primaryDisabilityDiv.find('#EditprimaryDisabilityLbl').html('').attr('dis-id', 0);
+            primaryDisabilityDiv.find('#EditprimaryDisabilityLbl').hide();
+
+        }
+    }
+   
+    // while clicking Dis service can changes dis types
+    function SaveDisablityTypes(arg) {
+        var typeid = "";
+        // var clientid = $(arg).attr('data-EClientid');
+
+      
+        $('.DisServiece').each(function () {
+            if($(this).prop('checked')==true)
+             typeid = typeid +  ','+$(this).val() ;
+        });
+        if (typeid == "")
+        {
+            customAlert("Please select anyone disablity type");
+         
+            return false;
+        }
+        if ($('#EditprimaryDisabilitySelect').is(':visible') == true && $('#EditprimaryDisabilitySelect').val() == "0")
+        {
+            customAlert("Please select primary disablity");
+            plainValidation('#EditprimaryDisabilitySelect');
+            return false;
+        }
+   
+
+        var primaryDisId = 0;
+        var primaryDisDiv = $('#EditdivdPrimaryDisabilityType');
+        if (primaryDisDiv.find('#EditprimaryDisabilityLbl').is(':visible')) {
+            primaryDisId = primaryDisDiv.find('#EditprimaryDisabilityLbl').attr('dis-id');
+        }
+        else if (primaryDisDiv.find('#EditprimaryDisabilitySelect').is(':visible')) {
+            primaryDisId = primaryDisDiv.find('#EditprimaryDisabilitySelect').val();
+        }
+        typeid= typeid.slice(1);
+        $.ajax({
+            url: HostedDir + "/Home/SaveDisablityTypes",
+            type: "POST",
+            data: {
+                ClientId: clientid,
+                DisabilityTypeId: typeid,
+                PrimaryDisablity: primaryDisId
+            },
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                customAlert("Record saved successfully");
+                setTimeout(function () { CancelForm(); }, 2000);
+            }
+      , error: function (data) {
+          customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+      }
+        });
+    }
     //method to load the enrolled children//
     function Loadallenrolled(Object) {
         $.ajax({
@@ -123,9 +274,63 @@
            }
         });
     }
+    var clientid;
+    function DisablityTypeByClientid(arg) {
+         clientid = $(arg).attr('data-EClientid');
+         $('#DisClientName').text($(arg).attr('data-ClientName'));
+      
+        $.ajax({
+            url: HostedDir + "/Home/BindDisableTypeByClient",
+            type: "POST",
+            dataType: "json",
+            secureuri: false,
+            async: false,
+            data: { Clientid: clientid },
+            success: function (data) {
+               
+                var dts = ''
+                $('#EditDisablityCheckbox').html('');
+                var primaryid;
+                var primaryDisabilityDiv = $('#EditdivdPrimaryDisabilityType');
+                debugger;
+                var selectOption = '';
+                selectOption += '<option value="0">--Select Primary Disability--</option>';
 
+                for (var i = 0; i < data.list.disabilitytype.length; i++) {
+                    var id = data.list.disabilitytype[i].Id;
+                    dts += '<div class="col-xs-6 col-sm-4" style="width:300px;"><label class="checkbox-inline"><input ';
+                    if (data.list.disabilitytype[i].IsChecked == true) {
+                        dts += 'checked="" type="checkbox" value=' + data.list.disabilitytype[i].Id + ' name="disabilitytype"  class="DisServiece" onclick="bindEditPrimaryDisability(this);"><span>' + data.list.disabilitytype[i].DisabilityType + '</span></label></div>';
+                        selectOption += '<option value=' + data.list.disabilitytype[i].Id + '>' + data.list.disabilitytype[i].DisabilityType + '</option>';
+
+                    }
+                    else
+                        dts += ' type="checkbox" value=' + data.list.disabilitytype[i].Id + ' name="disabilitytype" class="DisServiece" onclick="bindEditPrimaryDisability(this);"><span>' + data.list.disabilitytype[i].DisabilityType + '</span></label></div>';
+
+                    if(data.list.disabilitytype[i].PrimaryTypeId ==1)
+                    {
+                        primaryid = data.list.disabilitytype[i].Id;
+                    }
+
+                }
+              
+                $('#EditprimaryDisabilityLbl').hide();            
+                $('#EditDisablityCheckbox').html(dts);
+                $('#EditDisablityType').show();
+                $('#EditprimaryDisabilityLbl').html('').attr('dis-id', 0).hide();
+                $('#EditprimaryDisabilitySelect').html(selectOption).show();
+                $('#EditprimaryDisabilitySelect').val(primaryid);
+            }
+           , error: function (data) {
+               customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+           }
+        });
+    }
     //method to bind the grid//
     function drawgrid() {
+       
+        $('#CenterId').val($('#centerIdGrid').val());
+        $('#ClassroomId').val($("#Classroom").val());
 
         $.ajax({
             url: HostedDir + "/Home/Loadallenrolled",
@@ -186,7 +391,14 @@
                 tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
                 tr += '<td height="70" style="width:23%;">';
                 tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">REF </a>  &nbsp';
+                tr += '<a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ReferralService/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">REF </a> &nbsp';
+                tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here to write case notes" href="#">nREF </a>  &nbsp ';
+                if (data.list.Rosters[i].RosterYakkr == "302") {
+                    tr += '<a style="text-decoration:underline;cursor:pointer;"  data-ClientName="' + data.list.Rosters[i].Name + '" data-EClientid="' + data.list.Rosters[i].Eclientid + '" onclick="DisablityTypeByClientid(this)" title="Click here to change disablity types" href="#EditDisablityType">DIS </a>  &nbsp ';
+
+                }
+                tr += '</td>';
+             
                 $('#DivclientenrolledList > tbody').append(tr);
             }
 
@@ -208,10 +420,12 @@
     }
 
 
+  
     function cleargrid() {
-        $("#Classroom").val('');
+        $("#Classroom").val('0');
+        drawgrid()
     }
-
+   
     //method to get the profile picture on hover of client name//
     function getProfilePicture(pic) {
 
@@ -253,4 +467,393 @@
             }
         });
     }
+
+    // for nREF internal referral
+    var cid;
+    function SetDataForNREF() {
+        cleanValidation();
+        var isValid = true;
+        $('#ClientId').val(clientid);
+
+        var Tags = '';
+        $('#status_CaseNotetags_tagsinput .tag span').each(function () {
+            Tags = Tags + $(this).text().trim() + ',';
+        });
+        $('#Tags').val(Tags);
+        Tags = '';
+
+        $('#RolesDiv').css("background-color", "");
+
+
+        //Case Note Section//
+        if ($('.roletype:checked').length == 0) {
+            isValid = false;
+            plainValidation('#RolesDiv');
+            customAlert('Please select development team role');
+           
+        }
+        if ($('#txtNotes').val() == "") {
+            isValid = false;
+            plainValidation('#txtNotes');
+            customAlert('Please enter notes');
+           
+        }
+        if ($('#txtStatusCaseNoteDate').val() == '') {
+            isValid = false;
+            plainValidation('#txtStatusCaseNoteDate');
+            customAlert('Please enter Case Note Date');
+           
+        }
+
+        if ($('#txtStatusCaseNoteTitle').val() == '') {
+            isValid = false;
+            plainValidation('#txtStatusCaseNoteTitle');
+            customAlert('Please enter Case Note Title');
+           
+        }
+
+        //if ($('#nREFNote').val().trim() == '') {
+        //    isValid = false;
+        //    customAlert("Please enter Note");
+        //    plainValidation('#statusNote');
+          
+        //}
+        if ($('#statusclientsDiv').find('input[type=checkbox]:checked').length === 0) {
+
+            isValid = false;
+            customAlert('Please select Clients');
+            
+        }
+
+        if ($('#status_CaseNotetags').val().trim() == "") {
+            isValid = false;
+            customAlert("Tags are  required.");
+            plainValidation('#status_CaseNotetags');
+          
+        }
+        if (isValid && $('#yakkrcode').val()=="700")
+        {
+            saveTransportation();
+        }
+       
+        return isValid;
+
+    }
+
+    function OnSelectRoles(arg) {
+        $('#transportation').modal('hide');
+        $('.check1').prop('checked', false);
+        $('#status_CaseNotetags_tagsinput').find('.tag').remove();
+        $('#status_CaseNotetags').importTags("nREF,,;");
+        $("#txtStatusCaseNoteTitle").val("Internal Referral")
+        $('#chkYakkrDiv').show();
+        Closetransportaion();
+        if ($('.roletype:checked').val() == '699168ac-ad2d-48ac-b9de-9855d5dc9af8') {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("310");
+            $('#lblyakkrcode').text("Yakkr - 310 ");
+            $('#status_CaseNotetags').addTag('Y310');
+            $("#txtStatusCaseNoteTitle").val("Mental Health Referral")
+        }
+
+        else if ($('.roletype:checked').val() == '6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba') {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("700");
+            $('#lblyakkrcode').text("Yakkr - 700 ");
+            $('#status_CaseNotetags').addTag('Y700');
+            $('#transportation').modal('show');
+            TransportationNeeded();
+          //  $('#ModalAddCasenote').modal('hide');
+        }
+        else if ($('.roletype:checked').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80') {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("302");
+            $('#lblyakkrcode').text("Yakkr - 302 ");
+            $('#status_CaseNotetags').addTag('Y302');
+        }
+        else {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("292");
+            $('#lblyakkrcode').text("Yakkr - 292 ");
+            $('#status_CaseNotetags').addTag('Y292');
+        }
+    }
+    function AddTags(arg) {
+        if ($(arg).prop('checked') == true) {
+            $('#status_CaseNotetags').addTag($(arg).val());
+        }
+        else {
+            $('#status_CaseNotetags').removeTag($(arg).val());
+        }
+    }
+
+    function AddCaseNote(arg) {
+        $('.divReferTo').hide();
+        $('#Modalclientenrolled').modal('hide');
+        $('.internal_reference').css("overflow", 'auto');
+        $('#lblClientName').text($(arg).attr('data-CName'));
+        $('#lblCenterName').text($(arg).attr('data-centername'));
+        $('#lblClassroom').text($(arg).attr('data-classroom'));
+        cid = $(arg).attr('EClientId');
+        $('#ClassroomId').val($(arg).attr('data-classroomid'));
+        $('#CaseNoteCenterId').val($(arg).attr('data-centerid'));
+        $('#CaseNoteClientId').val($(arg).attr('eclientid'));
+        $('#HouseholdId').val($(arg).attr('data-householdid'));
+        $('#CaseNoteProgramId').val($(arg).attr('data-programid'));
+        $.ajax({
+            url: HostedDir + "/Home/GetInternalRefDetails",
+            type: "POST",
+            dataType: "json",
+            data: {
+                ClientId: $(arg).attr('eclientid')
+            },
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                console.log(data);
+                // customAlert("Record saved successfully");
+                if (data != null) {
+                    debugger;
+                    $('#DivAppendRoles').empty();
+
+                    var divContent = '  <div class=" col-lg-6 col-xs-12 internal_reference_radiobtn no-padding">\
+                                                            <div class="radio radio-info">\
+                                                                <input type="radio" name="RoleId"  onchange="OnSelectRoles(this);" class="roletype" value="NewValue">\
+                                                                <label>LabelContent</label>\
+                                                            </div>\
+                                                        </div>';
+                    for (var i = 0; i < data.RoleList.length; i++) {
+                        var result = "";
+                        result = result + divContent;
+                        result = result.replace("LabelContent", data.RoleList[i].RoleName);
+                        result = result.replace("NewValue", data.RoleList[i].RoleId);
+                        $('#DivAppendRoles').append(result);
+                    }
+                    if (data.AssignedRoles != null && data.AssignedRoles != "") {
+                        $('.divReferTo').show();
+                        $('#spnReferTo').text('This client already refered to ' + data.AssignedRoles)
+                    }
+                    //bindClients//
+                    var clientAppend = '';
+                    if (data.ClientList != null && data.ClientList.length > 0) {
+                        $.each(data.ClientList, function (k, clients) {
+                            clientAppend += '<div class="col-sm-12 adddivspace">\
+                                                    <input type="checkbox" name="ClientIds" value=' + clients.Id + '>\
+                                                    <span style="color:#295b8f;">' + clients.Name + '</span>\
+                                                </div>';
+                        });
+                    }
+                    $('#statusclientsDiv').html(clientAppend);
+
+                }
+            }
+   , error: function (data) {
+       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+   }
+        });
+        $('#ModalAddCasenote').modal('show');
+      // $('#Modalclientenrolled').modal('toggle');
+    }
+
+
+    function addMoreStatusAtt(ele) {
+        var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
+
+
+
+        var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
+                                                   <div class="col-sm-7 col-lg-8 no-padding">\
+                                                       <input type="file" id="FirstFile" name="Attachments"  class="form-control">\
+                                                   </div>\
+                                                   <div class="col-sm-3 col-lg-3 adddivspace">\
+                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                                   </div>\
+                                               </div>';
+
+        $(ele).parent('div').parent('div').siblings("#addAttachmentDiv").append(appendDiv);
+
+
+    }
+
+
+    function removeStatusAtt(ele) {
+        $(ele).parent('div').parent('div').remove();
+    }
+
+    function UpdateCaseNoteContent(arg) {
+        CKEDITOR.instances['nREFNote'].setData($(arg).val());
+    }
+
+    //transpotation
+
+    function TransportationNeeded()
+    {
+        //if (arg.value == "True") {
+            
+        //}
+        $.ajax({
+            dataType: 'json',
+            type: "POST",
+            async: false,
+            url: "/AgencyUser/GetTransportationDetails",
+            data: { 'ClientId': cid },
+            success: function (data) {
+                console.log(data);
+                var result = JSON.parse(data);
+                if (result.length > 0) {
+                    $('.transportation-id').val(result[0].Id);
+                    if (result[0].PickupStatus == true) {
+                        $('.pickup-details').hide();
+                        $('#rdEmailYes').prop('checked', true);
+                        $('#txtPickupAddress').val("");
+                        $('#txtPickupZipcode').val("");
+                    }
+                    else {
+                        $('.pickup-details').show();
+                        $('#rdEmailNo').prop('checked', true);
+                        $('#txtPickupAddress').val(result[0].PickupAddress);
+                        $('#txtPickupZipcode').val(result[0].PickupZipcode);
+                    }
+                    if (result[0].DropStatus == true) {
+                        $('.drop-details').hide();
+                        $('#rdPrintYes').prop('checked', true);
+                        $('#txtDropAddress').val("");
+                        $('#txtDropZipcode').val("");
+                    }
+                    else {
+                        $('.drop-details').show();
+                        $('#rdPrintNo').prop('checked', true);
+                        $('#txtDropAddress').val(result[0].DropAddress);
+                        $('#txtDropZipcode').val(result[0].DropZipcode);
+                    }
+                }
+                $('#transportation').modal('show');
+            },
+            error: function (data) {
+            }
+        });
+    }
+
+    function Pickup(arg)
+    {
+        if (arg.value == "0")
+            $('.pickup-details').show();
+        else
+            $('.pickup-details').hide();
+        $('#txtPickupAddress').val("");
+        $('#txtPickupZipcode').val("");
+    }
+ 
+    function Drop(arg)
+    {
+        if (arg.value == "0")
+            $('.drop-details').show();
+        else
+            $('.drop-details').hide();
+        $('#txtDropAddress').val("");
+        $('#txtDropZipcode').val("");
+    }
+    function Closetransportaion()
+    {
+        
+        $('#transportation').modal('hide');
+        $('#txtPickupAddress').val("");
+        $('#txtPickupZipcode').val("");
+        $('#txtDropAddress').val("");
+        $('#txtDropZipcode').val("");
+        $('#rdEmailYes').prop('checked', true);
+        $('#rdPrintYes').prop('checked', true);
+        $('#divTransportation').hide();
+    }
+
+    function SetAddress()
+    {
+        var isAllow = true;
+        if ($('.Pickup:checked').val() == undefined) {
+            isAllow = false;
+            customAlert("Select pickup option");
+
+        }
+        else if ($('.Pickup:checked').val() == "0") {
+            if ($('#txtPickupAddress').val() == "") {
+                isAllow = false;
+                customAlert("Enter pickup address");
+            }
+            else if ($('#txtPickupZipcode').val() == "") {
+                isAllow = false;
+                customAlert("Enter pickup zipcode");
+            }
+        }
+        if ($('.Drop:checked').val() == undefined && isAllow) {
+            isAllow = false;
+            customAlert("Select drop off option");
+        }
+        else if ($('input[type=radio][name=Drop]:checked').val() == "0") {
+            if ($('#txtDropAddress').val() == "") {
+                isAllow = false;
+                customAlert("Enter drop off address");
+            }
+            else if ($('#txtDropZipcode').val() == "") {
+                isAllow = false;
+                customAlert("Enter drop off zip code");
+            }
+        }
+        else if ($('.Drop:checked').val() == "2" && $('.Pickup:checked').val() == "2") {
+            isAllow = false;
+            customAlert("Both should not be Not Needed");
+        }
+        if (isAllow)
+        {
+            $('#divTransportation').show();
+            $('#txtPickup').val($('.Pickup:checked').val() == "1" ? "Pick child up from home" : $('#txtPickupAddress').val() + ' , ' + $('#txtPickupZipcode').val())
+            $('#txtDrop').val($('.Drop:checked').val() == "1" ? "Drop off child to home" : $('#txtDropAddress').val() + ' , ' + $('#txtDropZipcode').val())
+
+            $('.internal_reference').css("overflow", 'auto');
+            $('#transportation').modal('hide');
+            //$('#txtPickupAddress').val("");
+            //$('#txtPickupZipcode').val("");
+            //$('#txtDropAddress').val("");
+            //$('#txtDropZipcode').val("");
+            //$('#rdEmailYes').prop('checked', true);
+            //$('#rdPrintYes').prop('checked', true);
+        }
+        
+    }
+    function saveTransportation()
+    {
+
+    
+            var Trasportation = {};
+            if ($('.transportation-id').val().trim() != "")
+                Trasportation.Id = $('.transportation-id').val().trim();
+            Trasportation.ClientId = cid;
+            Trasportation.PickupStatus = $('.Pickup:checked').val() == "1" ? true : false;
+            Trasportation.PickupAddress = $('#txtPickupAddress').val();
+            Trasportation.PickupZipcode = $('#txtPickupZipcode').val();
+            Trasportation.DropStatus = $('.Drop:checked').val() == "1" ? true : false;
+            Trasportation.DropAddress = $('#txtDropAddress').val();
+            Trasportation.DropZipcode = $('#txtDropZipcode').val();
+            Trasportation = JSON.stringify({ 'objTransportation': Trasportation });
+            $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: "POST",
+                async: false,
+                url: "/AgencyUser/SaveTransportation",
+                data: Trasportation,
+                success: function (data) {
+                    if (data) {
+                       // customAlertSuccess("Record Saved Successfully");
+                       
+                      
+                    }
+                    else
+                        customAlertSuccess("Sorry,Unable to save details");
+                },
+                error: function (data) {
+                }
+            });
+        
+    }
+    //end
 </script>
