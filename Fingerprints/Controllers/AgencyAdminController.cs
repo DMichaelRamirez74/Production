@@ -1152,7 +1152,7 @@ namespace Fingerprints.Controllers
         //    catch (Exception Ex)
         //    {
         //        clsError.WriteException(Ex);
-        //        return Json("Error occured please try again.");
+        //        return Json("Error occurred please try again.");
         //    }
         //}
         //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
@@ -1789,7 +1789,7 @@ namespace Fingerprints.Controllers
                 }
                 else
                 {
-                    ViewBag.message = "Plaese try again.";
+                    ViewBag.message = "Please try again.";
                 }
                 Response.Redirect(Request.RawUrl);
                 return View();
@@ -1841,7 +1841,7 @@ namespace Fingerprints.Controllers
                 int rowsAffected = 0;
                 accessRolesList = new agencyData().InsertPIRAccessRoles(out rowsAffected, PIRAccessRoles);
 
-                ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Plaese try again";
+                ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Please try again";
                
             }
             catch(Exception ex)
@@ -1866,7 +1866,7 @@ namespace Fingerprints.Controllers
                 }
                 else
                 {
-                    ViewBag.message = "Plaese try again.";
+                    ViewBag.message = "Please try again.";
                 }
                 Response.Redirect(Request.RawUrl);
                 return View();
@@ -1920,7 +1920,7 @@ namespace Fingerprints.Controllers
                 }
                 else
                 {
-                    ViewBag.message = "Plaese try again.";
+                    ViewBag.message = "Please try again.";
                 }
                 Response.Redirect(Request.RawUrl);
                 return View();
@@ -1999,7 +1999,7 @@ namespace Fingerprints.Controllers
                 }
                 else if (message == "2")
                 {
-                    ViewBag.message = "Seats already asigned. Please assign seats according to available seats.";
+                    ViewBag.message = "Seats already signed. Please assign seats according to available seats.";
 
                 }
                 else if (message == "3")
@@ -2083,7 +2083,7 @@ namespace Fingerprints.Controllers
                 int rowsAffected = 0;
                 incomeReviewRolesList = new agencyData().InsertIncomeReviewRoles(out rowsAffected, IncomeReviewRoles);
 
-                ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Plaese try again";
+                ViewBag.Message = (rowsAffected > 0) ? "Record saved successfully" : "Please try again";
 
             }
             catch (Exception ex)

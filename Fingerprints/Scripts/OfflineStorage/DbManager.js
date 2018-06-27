@@ -54,7 +54,7 @@
 
             }
             catch (e) {
-                console.log(" error occured in selecting data");
+                console.log(" error occurred in selecting data");
             }
 
         },
@@ -78,7 +78,7 @@
 
             }
             catch (e) {
-                console.log(" error occured in selecting data");
+                console.log(" error occurred in selecting data");
             }
 
         },
@@ -96,7 +96,7 @@
 
             }
             catch (e) {
-                console.log(" error occured in selecting data");
+                console.log(" error occurred in selecting data");
             }
         },
         DeleteUser: function (data, callback) {
@@ -160,7 +160,7 @@
 
             }
             catch (e) {
-                console.log(" error occured in selecting data");
+                console.log(" error occurred in selecting data");
             }
 
         },
@@ -185,7 +185,7 @@
 
             }
             catch (e) {
-                console.log(" error occured in selecting data");
+                console.log(" error occurred in selecting data");
             }
 
         },
@@ -203,7 +203,7 @@
 
             }
             catch (e) {
-                console.log(" error occured in selecting data");
+                console.log(" error occurred in selecting data");
             }
         },
 

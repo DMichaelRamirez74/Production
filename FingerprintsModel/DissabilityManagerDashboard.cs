@@ -25,6 +25,7 @@ namespace FingerprintsModel
         public bool Homebased { get; set; }
         public string TotalChildren { get; set; }
         public string DisabilityPercentage { get; set; }
+        public string Possible { get; set; }
         public string Indicated { get; set; }
         public string Pending { get; set; }
         public string Qualified { get; set; }

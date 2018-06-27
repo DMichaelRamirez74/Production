@@ -41,7 +41,7 @@ namespace FingerprintsData
         /// </summary>
         /// <param name="staffDetails">StafDetails</param>
         /// <param name="searchText">string</param>
-        /// <returns>Inkind</returns>
+        /// <returns>Unkind</returns>
         public Inkind GetInkindParentCompanyDonors(StaffDetails staffDetails, string searchText)
         {
 
