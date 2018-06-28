@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -13,10 +16,14 @@ namespace FingerprintsModel
         public long ProgramTypeId { get; set; }
         public string DateOfTransition { get; set; }
 
+        public string TransProgramTypeID { get; set; }
+
+        public int FamilyType { get; set; }
+        public string Enc_ProgID { get; set; }
+        public string ParentID { get; set; }
         public string Name { get; set; }
         public string DOB { get; set; }
         public string Gender { get; set; }
-
         public string HouseholdId { get; set; }
         public string Status { get; set; }
         public string StatusText { get; set; }
@@ -66,9 +73,26 @@ namespace FingerprintsModel
         public string Description_E_C1D11 { get; set; }
         public int NoIns_S_C2 { get; set; }
         public int NoIns_E_C2 { get; set; }
-        public  bool JobTrainingFinished { get; set; }
+        public bool? JobTrainingSchool   { get;set; }
 
+        public int? ParentRole { get; set; }
+
+        public string ParentID2 { get; set; }
+
+        public int? ParentRole2 { get; set; }
+        public string ParentName { get; set; }
+        public string ParentName2 { get; set; }
+
+        public bool? JobTrainingSchool2 { get; set; }
+        public  bool JobTrainingFinished { get; set; }
+        public bool? JobTrainingFinished2 { get; set; }
+
+
+        public int QuestionNumber { get; set; }
+        public bool AcceptJobTrainingFinished { get; set; }
+        public bool AcceptJobTrainingFinished2 { get; set; }
         public int ShoolAchievement { get; set; }
+        public int? ShoolAchievement2 { get; set; }
         public bool NONE { get; set; }
         public bool TANF { get; set; }
         public bool SSI { get; set; }
@@ -80,16 +104,22 @@ namespace FingerprintsModel
         public bool AssociateDegree { get; set; }
         public bool AdvancedDegree { get; set; }
 
+ public bool? HighSchool2 { get; set; }
+        public bool? HighSchoolGraduate2 { get; set; }
+        public bool? AssociateDegree2 { get; set; }
+        public bool? AdvancedDegree2 { get; set; }
+		
         public int ImmunizationService { get; set; }
 
         public bool MedicalHome { get; set; }
 
         public bool DentalHome { get; set; }
         public bool DentalServices { get; set; }
+        public bool? NewProgramYearTransition { get; set; }
         public bool MedicalServices { get; set; }
         public int MedicalServiceTypes { get; set; }
         public int DentalCare { get; set; }
-
+        public bool PMDental { get; set; }
         public string TrnsInsuranceType { get; set; }
 
         public int CenterId { get; set; }
@@ -105,7 +135,14 @@ namespace FingerprintsModel
 
         public int TransitioningType { get; set; }
 
+        public string PregnantMotherInsurance { get; set; }
+      
 
+        public bool? PregnantMotherEnrollment { get; set; }
+
+        public bool? IsShowJobTrainingQuestion { get; set; }
+
+        public bool IsPreg { get; set; }
         public RosterNew.CaseNote CaseNoteDetails { get; set; }
 
 
@@ -113,6 +150,23 @@ namespace FingerprintsModel
         public List<RosterNew.Attachment> CaseNoteAttachments { get; set; }
 
         public List<FamilyHousehold.EnrollmentChangeReason> EnrollmentChangeReason { get; set; }
+        public string LDAAge { get; set; }
+
+        public string ReferenceProgram { get; set; } 
+        public int TypeOfTransition { get; set; }
+
+        public int Returning { get; set; }
+
+        public int PregMomTransitionReady{get;set;}
+        
+        public string SchoolDistrictDate { get; set; }
+
+        public int EHSHSEnrolled { get; set; }
+
+
+        public List<SelectListItem> EHSPrograms { get; set; }
+
+        public List<SelectListItem> HSPrograms { get; set; }
     }
 
     public class TransitionDetails {
@@ -142,5 +196,35 @@ namespace FingerprintsModel
         public int SeatAvailable { get; set; }
         public int Result { get; set; }
         public string ChildName { get; set; }
+    }
+
+
+
+
+
+    /// <summary>
+    /// Represents a file that has uploaded by a client via multipart/form-data. 
+    /// </summary>
+    public class HttpPostedFileMultipart : HttpPostedFileBase
+    {
+        private readonly MemoryStream _fileContents;
+
+        public override int ContentLength => (int)_fileContents.Length;
+        public override string ContentType { get; }
+        public override string FileName { get; }
+        public override Stream InputStream => _fileContents;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpPostedFileMultipart"/> class. 
+        /// </summary>
+        /// <param name="fileName">The fully qualified name of the file on the client</param>
+        /// <param name="contentType">The MIME content type of an uploaded file</param>
+        /// <param name="fileContents">The contents of the uploaded file.</param>
+        public HttpPostedFileMultipart(string fileName, string contentType, byte[] fileContents)
+        {
+            FileName = fileName;
+            ContentType = contentType;
+            _fileContents = new MemoryStream(fileContents);
+        }
     }
 }

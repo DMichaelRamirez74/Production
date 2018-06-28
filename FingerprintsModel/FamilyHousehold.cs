@@ -67,6 +67,11 @@ namespace FingerprintsModel
         public bool? IsEmergency { get; set; }
         //
         public List<FamilyHousehold> getList { get; set; }
+
+        public bool IsFutureWithdrawal { get; set; }
+
+        public bool IsFutureWithdrawal1 { get; set; }
+
         public calculateincome calcualteincome { get; set; }
         public string AmountNo { get; set; }
         public string DocumentDesc { get; set; }
@@ -75,6 +80,8 @@ namespace FingerprintsModel
         public string GenderParent2 { get; set; }
         public string Gender { get; set; }
         public string Yakkr { get; set; }
+
+        public string Yakkr1 { get; set; }
         public string EncryptedName { get; set; }
 
         [Display(Name ="Married?")]
@@ -187,6 +194,9 @@ namespace FingerprintsModel
         public string PGender { get; set; }
         public int PMilitaryStatus { get; set; }
         public string PEnrollment { get; set; }
+        public string PEnrollmentFinished { get; set; }
+        public string PEnrollmentFinished1 { get; set; }
+        public string PEnrollment1 { get; set; }
         public string PCurrentlyWorking { get; set; }
         public string PPolicyCouncil { get; set; }
         public string PDegreeEarned { get; set; }
@@ -423,6 +433,7 @@ namespace FingerprintsModel
         public List<Programdetail> AvailableProgram { get; set; }
 
         public bool AllowFutureApplication { get; set; }
+        public bool AllowCurrentYearApplication { get; set; }
         public bool IsFutureApplication { get; set; }
         public string FutureProgramYear { get; set; }
         public List<Programdetail> SelectedProgram { get; set; }
@@ -1140,6 +1151,8 @@ namespace FingerprintsModel
         public string PMCondtnDesc { get; set; }
         public bool PMRisk { get; set; }
         public int PMDentalExam { get; set; }
+
+        public bool PMDentalEntered { get; set; }
         public string PMDentalExamDate { get; set; }
         public int PMNeedDental { get; set; }
         public int PMRecieveDental { get; set; }

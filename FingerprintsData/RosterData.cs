@@ -73,7 +73,7 @@ namespace FingerprintsData
             }
             return RosterList;
         }
-        public List<CaseNote> GetCaseNote(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string UserId)
+        public List<CaseNote> GetCaseNote(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, ref FingerprintsModel.RosterNew.Users selectList,  int Householdid, int centerid, string id, string AgencyId, string UserId)
         {
             List<CaseNote> CaseNoteList = new List<CaseNote>();
 
@@ -139,6 +139,18 @@ namespace FingerprintsData
                             Clientlist.Add(obj);
                         }
                         Userlist.Clientlist = Clientlist;
+
+                        selectList.Clientlist = (from DataRow dr1 in _dataset.Tables[2].Rows
+                                             where (Convert.ToInt32(dr1["IsFamily"]) == 1 || Convert.ToInt32(dr1["IsChild"]) == 1)
+                                             select new RosterNew.User
+                                             {
+                                                 Id = Convert.ToString(dr1["clientid"]),
+                                                 Name = Convert.ToString(dr1["Name"]).Split('(')[0]
+                                             }
+                                           ).ToList();
+
+
+
                     }
                     if (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
                     {
@@ -200,6 +212,38 @@ namespace FingerprintsData
             }
 
         }
+
+        public void GetCaseNotesByClient(ref DataTable dtCaseNote, string id,string householdID)
+        {
+            dtCaseNote = new DataTable();
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@clientid", id));
+                command.Parameters.Add(new SqlParameter("@centerid", 0));
+                command.Parameters.Add(new SqlParameter("@Householdid", householdID));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "SP_Getcasenotes";
+                DataAdapter = new SqlDataAdapter(command);
+                DataAdapter.Fill(dtCaseNote);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+
+        }
+
+
 
         public void GetCaseNoteByNoteId(ref DataTable dtNotes, string NoteId)
         {
@@ -5075,6 +5119,295 @@ namespace FingerprintsData
                 _dataset.Dispose();
             }
             return tagsList;
+        }
+
+        public FamilyHouseless GetHouselessClient(string householdId, string clientId)
+        {
+
+            FamilyHouseless Family = new FamilyHouseless();
+            Family.FamilyHousehold = new FamilyHousehold();
+            Family.UsersList = new RosterNew.Users();
+            Family.UsersList.Clientlist = new List<RosterNew.User>();
+            Family.UsersList.UserList = new List<RosterNew.User>();
+
+
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@HouseholdId", Convert.ToInt64(EncryptDecrypt.Decrypt64(householdId))));
+                    command.Parameters.Add(new SqlParameter("@ClientId", Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId))));
+                    command.CommandText = "USP_GetHomeLessHousingClient";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        Family.FamilyHousehold.ClientFname = _dataset.Tables[0].Rows[0]["Name"].ToString();
+                        Family.FamilyHousehold.clientIdnew = EncryptDecrypt.Encrypt64(_dataset.Tables[0].Rows[0]["ClientId"].ToString());
+                        Family.FamilyHousehold.CProgramType = EncryptDecrypt.Encrypt64(_dataset.Tables[0].Rows[0]["ProgramID"].ToString());
+                        Family.FamilyHousehold.CenterId = Convert.ToInt64(_dataset.Tables[0].Rows[0]["CenterID"]);
+
+                    }
+
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+                        Family.UsersList.Clientlist = _dataset.Tables[1].AsEnumerable().Select(x => new RosterNew.User
+                        {
+                            Id = EncryptDecrypt.Encrypt64(x.Field<long>("ClientId").ToString()),
+                            Name = x.Field<string>("ParentName")
+                        }).ToList();
+                        Family.FamilyHousehold.EAddress1 = _dataset.Tables[1].Rows[0]["HouseholdAddress"].ToString();
+                        Family.FamilyHousehold.Encrypthouseholid = EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[0]["ID"].ToString());
+                        Family.FamilyHousehold.HouseholdId = Convert.ToInt32(_dataset.Tables[1].Rows[0]["ID"]);
+
+                    }
+
+                    if (_dataset.Tables[2].Rows.Count > 0)
+                    {
+                        Family.UsersList.UserList = _dataset.Tables[2].AsEnumerable().Select(x => new RosterNew.User
+                        {
+
+                            Id = x.Field<Guid>("UserId").ToString(),
+                            Name = x.Field<string>("Name").ToString()
+
+                        }).ToList();
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Family;
+
+        }
+
+
+        public List<SelectListItem> GetFollowUpScreenings(string clientId, int followup = 0)
+        {
+            List<SelectListItem> followupScreen = new List<SelectListItem>();
+
+
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@ClientID", Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId))));
+                    command.Parameters.Add(new SqlParameter("@followup", followup));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetFollowupScreeningByClient";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                }
+
+                if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
+                {
+                    followupScreen = _dataset.Tables[0].AsEnumerable().Select(x => new SelectListItem
+                    {
+
+                        Text = x.Field<string>("ScreeningName"),
+                        Value = x.Field<int>("ScreeningID").ToString()
+
+                    }).ToList();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return followupScreen;
+        }
+
+
+        public List<ClassRoom> GetClassroomsWithFSWHVByCenter(ref List<SelectListItem> staffList, string Centerid)
+        {
+            List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
+            staffList = new List<SelectListItem>();
+            try
+            {
+                int cenID = 0;
+                Centerid = int.TryParse(Centerid, out cenID) ? Centerid : EncryptDecrypt.Decrypt64(Centerid);
+
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
+                    command.Parameters.Add(new SqlParameter("@Agencyid", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetClassroomWithFSWHVByCenter";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        _ClassRoomlist = _dataset.Tables[0].AsEnumerable().Select(x => new ClassRoom
+                        {
+
+                            ClassroomID = Convert.ToInt32(x.Field<long>("ClassroomID")),
+                            Enc_ClassRoomId = EncryptDecrypt.Encrypt64(x.Field<long>("ClassroomID").ToString()),
+                            ClassName = x.Field<string>("ClassroomName")
+
+                        }).ToList();
+                    }
+
+
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        staffList = _dataset.Tables[1].AsEnumerable().Select(x => new SelectListItem
+                        {
+                            Value = x.Field<Guid>("UserID").ToString(),
+                            Text = x.Field<string>("StaffName")
+                        }).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+            return _ClassRoomlist;
+        }
+
+
+        public bool NextProgramYearTransition(string clientId)
+        {
+            bool isResult = false;
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("ClientID", Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId))));
+                    command.Parameters.Add(new SqlParameter("@mode", 0));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_InsertNextProgramYearTransition";
+                    Connection.Open();
+                    isResult = (Convert.ToInt32(command.ExecuteNonQuery()) > 0);
+
+                    Connection.Close();
+                }
+
+
+
+
+            }
+
+           catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return isResult;
+        }
+
+
+        public bool UpdateReturningTransitionClient(int returnValue,string clientID)
+        {
+
+            bool isRowsAffected = false;
+            try
+            {
+                clientID = EncryptDecrypt.Decrypt64(clientID);
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@Returning", returnValue));
+                    command.Parameters.Add(new SqlParameter("@ClientID", Convert.ToInt64(clientID)));
+                    command.CommandText = "USP_UpdateReturning_TransitionClient";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    isRowsAffected = (Convert.ToInt32(command.ExecuteNonQuery()) > 0);
+                }
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return isRowsAffected;
         }
 
 

@@ -7160,7 +7160,7 @@ namespace FingerprintsData
                         Fswuserapproval info = new Fswuserapproval();
                         info.ClientId = dr["ClientId"].ToString();
                         info.ClientName = dr["Name"].ToString();
-                        info.Date = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
+                        info.Date = DBNull.Value == dr["DateEntered"] ? "" : Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
                         info.CenterName = dr["centername"].ToString();
                         info.StaffName = dr["staffname"].ToString();
                         info.routecode = dr["RouteCode"].ToString();
@@ -7334,6 +7334,55 @@ namespace FingerprintsData
             }
             return _householdlist;
         }
+
+        public List<string> AutoCompleteWithdrawnList(string term, string agencyid, string userid, string trans = "0")
+        {
+            List<string> NameList = new List<string>();
+            try
+            {
+                DataSet ds = null;
+                using (SqlConnection Connection = connection.returnConnection())
+                {
+
+                    using (SqlCommand command = new SqlCommand())
+                    {
+                        ds = new DataSet();
+                        command.Connection = Connection;
+                        command.CommandText = "AutoComplete_WithdrawnTransList";
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@Name", term);
+                        command.Parameters.AddWithValue("@trans", trans);
+                        command.Parameters.AddWithValue("@agencyid", agencyid);
+                        command.Parameters.AddWithValue("@userid", userid);
+                        SqlDataAdapter da = new SqlDataAdapter(command);
+                        da.Fill(ds);
+                    }
+                }
+                if (ds.Tables[0].Rows.Count > 0)
+                {
+                    try
+                    {
+
+                        foreach (DataRow dr in ds.Tables[0].Rows)
+                        {
+                            string name = dr["CName"].ToString();
+                            NameList.Add(name);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        clsError.WriteException(ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return NameList;
+        }
+
+
         public List<Fswuserapproval> Getallyakkrclients(int centerid, int option, string Agencyid, string userid)
         {
             List<Fswuserapproval> FswuserapprovalList = new List<Fswuserapproval>();
@@ -13391,7 +13440,37 @@ namespace FingerprintsData
             }
             return Address;
         }
+        public bool UpdateJobTraining(bool IsCompleted, string ClientId)
+        {
+            bool isupdated = true;
 
+            try
+            {
+                command.Parameters.Clear();
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
+                command.Parameters.Add(new SqlParameter("@IsCompleted", IsCompleted));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_UpdateJobTraining";
+                command.ExecuteNonQuery();
+                int Affected = command.ExecuteNonQuery();
+                if (Affected > 0)
+                    isupdated = true;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return isupdated;
+        }
         public bool UpdateDateOfBirth(string DOB, string ClientId)
         {
             bool isupdated = true;
@@ -13800,6 +13879,136 @@ namespace FingerprintsData
             }
             return family;
         }
+        public FamilyHouseless GetHouseholdDetails(FamilyHouseless householdDetails)
+        {
+            // FamilyHouseless family = new FamilyHouseless();
+
+            try
+            {
+
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                //  householdDetails.FamilyHousehold = new FamilyHousehold();
+                householdDetails.CaseNoteAttachments = new List<RosterNew.Attachment>();
+                householdDetails.FamilyHousehold.relationship = new List<FamilyHousehold.Relationship>();
+                householdDetails.FamilyHousehold.langList = new List<FamilyHousehold.PrimarylangInfo>();
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@HouseholdID", Convert.ToInt64(EncryptDecrypt.Decrypt64(householdDetails.FamilyHousehold.Encrypthouseholid))));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetHouseHoldDetails";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        householdDetails.FamilyHousehold.HouseholdId = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
+                        householdDetails.FamilyHousehold.Encrypthouseholid = EncryptDecrypt.Encrypt64(_dataset.Tables[0].Rows[0]["ID"].ToString());
+                        householdDetails.FamilyHousehold.Street = _dataset.Tables[0].Rows[0]["Street"].ToString();
+                        householdDetails.FamilyHousehold.StreetName = _dataset.Tables[0].Rows[0]["StreetName"].ToString();
+                        householdDetails.FamilyHousehold.City = _dataset.Tables[0].Rows[0]["City"].ToString();
+                        householdDetails.FamilyHousehold.ZipCode = _dataset.Tables[0].Rows[0]["ZipCode"].ToString();
+                        householdDetails.FamilyHousehold.State = _dataset.Tables[0].Rows[0]["State"].ToString();
+                        householdDetails.FamilyHousehold.County = _dataset.Tables[0].Rows[0]["County"].ToString();
+                        householdDetails.FamilyHousehold.RentTypetext = _dataset.Tables[0].Rows[0]["RentType"].ToString();
+                        if (_dataset.Tables[0].Rows[0]["Hpaper"].ToString() != "")
+                            householdDetails.FamilyHousehold.AdresssverificationinPaper = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Hpaper"]);
+                        if (_dataset.Tables[0].Rows[0]["RentTypes"].ToString() != "")
+                            householdDetails.FamilyHousehold.RentType = Convert.ToInt32(_dataset.Tables[0].Rows[0]["RentTypes"]);
+                        if (_dataset.Tables[0].Rows[0]["TANF"].ToString() != "")
+                            householdDetails.FamilyHousehold.TANF = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["TANF"]);
+                        if (_dataset.Tables[0].Rows[0]["HouseType"].ToString() != "")
+                            householdDetails.FamilyHousehold.HomeType = Convert.ToInt32(_dataset.Tables[0].Rows[0]["HouseType"]);
+                        if (_dataset.Tables[0].Rows[0]["FamilyType"].ToString() != "")
+                            householdDetails.FamilyHousehold.FamilyType = Convert.ToInt32(_dataset.Tables[0].Rows[0]["FamilyType"]);
+                        if (_dataset.Tables[0].Rows[0]["SSI"].ToString() != "")
+                            householdDetails.FamilyHousehold.SSI = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["SSI"]);
+                        if (_dataset.Tables[0].Rows[0]["WIC"].ToString() != "")
+                            householdDetails.FamilyHousehold.WIC = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["WIC"]);
+                        if (_dataset.Tables[0].Rows[0]["SNAP"].ToString() != "")
+                            householdDetails.FamilyHousehold.SNAP = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["SNAP"]);
+                        if (_dataset.Tables[0].Rows[0]["NONE"].ToString() != "")
+                            householdDetails.FamilyHousehold.NONE = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["NONE"]);
+                        if (_dataset.Tables[0].Rows[0]["Interpretor"].ToString() != "")
+                            householdDetails.FamilyHousehold.Interpretor = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Interpretor"]);
+                        if (_dataset.Tables[0].Rows[0]["ParentRelatioship"].ToString() != "")
+                            householdDetails.FamilyHousehold.ParentRelatioship = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ParentRelatioship"]);
+                        if (_dataset.Tables[0].Rows[0]["OtherRelationship"].ToString() != "")
+                            householdDetails.FamilyHousehold.ParentRelatioshipOther = _dataset.Tables[0].Rows[0]["OtherRelationship"].ToString();
+                        if (_dataset.Tables[0].Rows[0]["OtherDesc"].ToString() != "")
+                            householdDetails.FamilyHousehold.OtherLanguageDetail = _dataset.Tables[0].Rows[0]["OtherDesc"].ToString();
+                        householdDetails.FamilyHousehold.PrimaryLanguauge = Convert.ToString(_dataset.Tables[0].Rows[0]["PrimaryLanguauge"]);
+                        householdDetails.FamilyHousehold.Married = _dataset.Tables[0].Rows[0]["Married"].ToString();
+                        householdDetails.FamilyHousehold.docstorage = Convert.ToInt32(_dataset.Tables[0].Rows[0]["docsStorage"]);
+                        householdDetails.FamilyHousehold.CTransportNeeded = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["ChildTransport"]);
+                        householdDetails.FamilyHousehold.ExistPmprogram = Convert.ToInt32(_dataset.Tables[0].Rows[0]["Pmprogram"]);
+
+                        householdDetails.HasNewAddress = (string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ZipCode"].ToString()));
+                        householdDetails.FamilyHousehold.FamilyHasAddress = (string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ZipCode"].ToString())) ? 2 : 1;
+                    }
+
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+                        householdDetails.UsersList.Clientlist = _dataset.Tables[1].AsEnumerable().Select(x => new RosterNew.User
+                        {
+                            Id = EncryptDecrypt.Encrypt64(x.Field<long>("ClientId").ToString()),
+                            Name = x.Field<string>("Name")
+                        }).ToList();
+
+                    }
+                    if (_dataset.Tables[2].Rows.Count > 0)
+                    {
+                        householdDetails.FamilyHousehold.relationship = _dataset.Tables[2].AsEnumerable().Select(x => new FamilyHousehold.Relationship
+                        {
+
+                            Id = x.Field<int>("ID").ToString(),
+                            Name = x.Field<string>("Name")
+                        }).ToList();
+                    }
+
+                    if (_dataset.Tables[3].Rows.Count > 0)
+                    {
+                        householdDetails.FamilyHousehold.langList = _dataset.Tables[3].AsEnumerable().Select(x => new FamilyHousehold.PrimarylangInfo
+                        {
+
+                            LangId = x.Field<int>("ID").ToString(),
+                            Name = x.Field<string>("Name")
+                        }).ToList();
+                    }
+                    if (_dataset.Tables[4].Rows.Count > 0)
+                    {
+                        householdDetails.UsersList.UserList = _dataset.Tables[4].AsEnumerable().Select(x => new RosterNew.User
+                        {
+                            Id = x.Field<Guid>("UserId").ToString(),
+                            Name = x.Field<string>("Name").ToString()
+
+                        }).ToList();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return householdDetails;
+        }
         public List<ClassRoom> GetClassRoomWithSeats(long centerId,List<ClassRoom>clasroom)
         {
 
@@ -13904,5 +14113,303 @@ namespace FingerprintsData
             return isRowsAffected;
         }
 
+
+        public bool UpdatePregMomDentalExam(long clientid, bool dentalExam)
+        {
+            bool isResult = false;
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", clientid));
+                    command.Parameters.Add(new SqlParameter("@DentalExam", dentalExam));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_UpdatePregMomDentalService";
+                    Connection.Open();
+                    isResult = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
+                    Connection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return isResult;
+        }
+      
+
+        public WithdrawalQuestions GetAnswerForPIRQuestions(out List<Tuple<int, string, int>> tuples, string ClientId, string QuestionNumber, bool ispregmon, long programID)
+        {
+            string Result = "";
+            tuples = new List<Tuple<int, string, int>>();
+            WithdrawalQuestions transWithdrawal = new WithdrawalQuestions();
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@ClientId", ClientId));
+
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@Question", QuestionNumber));
+                    command.Parameters.Add(new SqlParameter("@IsPreg", ispregmon));
+                    command.Parameters.Add(new SqlParameter("@ProgramTypeID", programID));
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_GetAnswerForWithdrawQuestion";
+                    Connection.Open();
+                    
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+
+                    if (_dataset != null && _dataset.Tables.Count > 0)
+                    {
+                        switch (QuestionNumber)
+                        {
+                            case "1":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.InsuranceTypeQ1Start = Convert.ToString(_dataset.Tables[0].Rows[0]["Insurance@S"]);
+                                    transWithdrawal.InsuranceTypeQ1End = Convert.ToString(_dataset.Tables[0].Rows[0]["Insurance@E"]);
+                                    transWithdrawal.DescInsurancTypeQ1Start = Convert.ToString(_dataset.Tables[0].Rows[0]["InsuranceDes@S"]);
+                                    transWithdrawal.DescInsurancTypeQ1End = Convert.ToString(_dataset.Tables[0].Rows[0]["InsuranceDes@E"]);
+
+                                }
+                                break;
+                            case "2":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+
+                                    transWithdrawal.IsPregMom = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsPreg"]);
+
+                                    if (transWithdrawal.IsPregMom)
+                                    {
+                                        transWithdrawal.IsAnsweredQ2 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ2"]);
+                                        transWithdrawal.DentalServiceQ5Start = Convert.ToString(_dataset.Tables[0].Rows[0]["PMDentalExam"]);
+                                    }
+
+
+                                    else
+                                    {
+                                        transWithdrawal.IsAnsweredQ2 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ2"]);
+                                        transWithdrawal.MedicalHomeQ2Start = Convert.ToString(_dataset.Tables[0].Rows[0]["MedicalHome"]);
+                                    }
+
+                                }
+                                break;
+                            case "3":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ3 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ3"]);
+                                    transWithdrawal.MedicalServiceQ3Start = Convert.ToString(_dataset.Tables[0].Rows[0]["MedicalService"]);
+                                }
+
+                                break;
+                            case "4":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ4 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ4"]);
+                                    transWithdrawal.DentalHomeQ4Start = Convert.ToString(_dataset.Tables[0].Rows[0]["DentalHome"]);
+                                }
+                                break;
+
+                            case "5":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ5 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ5"]);
+                                    transWithdrawal.DentalServiceQ5Start = Convert.ToString(_dataset.Tables[0].Rows[0]["DentalService"]);
+                                }
+
+                                break;
+
+                            case "6":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ6 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ6"]);
+                                    transWithdrawal.ImmunizationQ6Start = Convert.ToString(_dataset.Tables[0].Rows[0]["ImmunizationServiceType"]);
+                                }
+
+                                break;
+
+                            case "7":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ7 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ7"]);
+                                    transWithdrawal.FamilyServiceTANFQ7Start = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TANF"]).ToString();
+                                    transWithdrawal.FamilyServiceSSIQ7Start = Convert.ToInt32(_dataset.Tables[0].Rows[0]["SSI"]).ToString();
+                                    transWithdrawal.FamilyServiceWICQ7Start = Convert.ToInt32(_dataset.Tables[0].Rows[0]["WIC"]).ToString();
+                                    transWithdrawal.FamilyServiceSNAPQ7Start = Convert.ToInt32(_dataset.Tables[0].Rows[0]["SNAP"]).ToString();
+                                    transWithdrawal.FamilyServiceNoneQ7Start = Convert.ToInt32(_dataset.Tables[0].Rows[0]["NONE"]).ToString();
+                                }
+                                break;
+
+                            case "8":
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ8 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ8"]);
+                                    transWithdrawal.ParentID = string.Empty;
+                                    transWithdrawal.ParentName = string.Empty;
+                                    transWithdrawal.ParentID1 = string.Empty;
+                                    transWithdrawal.ParentName1 = string.Empty;
+
+                                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                                    {
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 1)
+                                        {
+
+                                            transWithdrawal.EducationQ8Start = Convert.ToString(dr["EducationLevel"]);
+                                            transWithdrawal.ParentID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ParentID"]));
+                                            transWithdrawal.ParentName = Convert.ToString(dr["ParentName"]);
+                                        }
+
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 2)
+                                        {
+                                            transWithdrawal.EducationQ8Start1 = Convert.ToString(dr["EducationLevel"]);
+                                            transWithdrawal.ParentID1 = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ParentID"]));
+                                            transWithdrawal.ParentName1 = Convert.ToString(dr["ParentName"]);
+                                        }
+                                    }
+
+                                }
+                                break;
+
+                            case "9":
+
+                                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                                {
+                                    transWithdrawal.IsAnsweredQ9 = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["IsAnsweredQ9"]);
+                                    transWithdrawal.ParentID = string.Empty;
+                                    transWithdrawal.ParentName = string.Empty;
+                                    transWithdrawal.ParentID1 = string.Empty;
+                                    transWithdrawal.ParentName1 = string.Empty;
+
+
+                                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                                    {
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 1)
+                                        {
+
+                                            transWithdrawal.JobTrainingCompletedQ9Start = Convert.ToString(dr["JobTrainingFinished"]);
+                                            transWithdrawal.ParentID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ParentID"]));
+                                            transWithdrawal.ParentName = Convert.ToString(dr["ParentName"]);
+                                        }
+
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 2)
+                                        {
+                                            transWithdrawal.JobTrainingCompletedQ9Start1 = Convert.ToString(dr["JobTrainingFinished"]);
+                                            transWithdrawal.ParentID1 = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ParentID"]));
+                                            transWithdrawal.ParentName1 = Convert.ToString(dr["ParentName"]);
+                                        }
+
+                                    }
+                                }
+                                break;
+
+                        }
+
+
+                        //   transWithdrawal.Client = Convert.ToString(_dataset.Tables[0].Rows[0]["ClientName"]);
+                        transWithdrawal.ProgramTypeID = EncryptDecrypt.Encrypt64(programID.ToString());
+                        transWithdrawal.Enc_ClientID = EncryptDecrypt.Encrypt64(ClientId);
+
+                    }
+
+
+
+                    Connection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return transWithdrawal;
+        }
+
+
+        public bool UpdateWithdrawQuestions(Transition transition, string agencyid, string userid)
+        {
+            bool isResult = false;
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@ClientId", transition.ClientId));
+                    command.Parameters.Add(new SqlParameter("@IsPreg", transition.IsPreg));
+                    command.Parameters.Add(new SqlParameter("@AgencyId", agencyid));
+                    command.Parameters.Add(new SqlParameter("@ProgramTypeID", transition.ProgramTypeId));
+                    command.Parameters.Add(new SqlParameter("@UserId", userid));
+                    command.Parameters.Add(new SqlParameter("@Question", transition.QuestionNumber));
+                    command.Parameters.Add(new SqlParameter("@InsuranceType", transition.InsuranceType));
+                    command.Parameters.Add(new SqlParameter("@OtherInsuranceTypeDesc", transition.OtherInsuranceTypeDesc));
+                    command.Parameters.Add(new SqlParameter("@MedicalHome", transition.MedicalHome));
+                    command.Parameters.Add(new SqlParameter("@PMDentalExam", transition.PMDental));
+                    command.Parameters.Add(new SqlParameter("@MedicalService", transition.MedicalServices));
+                    command.Parameters.Add(new SqlParameter("@DentalHome", transition.DentalHome));
+                    command.Parameters.Add(new SqlParameter("@DentalService", transition.DentalServices));
+                    command.Parameters.Add(new SqlParameter("@ImmunizationServiceType", transition.ImmunizationService));
+                    command.Parameters.Add(new SqlParameter("@TANF", transition.TANF));
+                    command.Parameters.Add(new SqlParameter("@WIC", transition.WIC));
+                    command.Parameters.Add(new SqlParameter("@SSI", transition.SSI));
+                    command.Parameters.Add(new SqlParameter("@SNAP", transition.SNAP));
+                    command.Parameters.Add(new SqlParameter("@None", transition.NONE));
+
+
+                    //Father//
+                    command.Parameters.Add(new SqlParameter("@ParentID", transition.ParentID));
+                    command.Parameters.Add(new SqlParameter("@SchoolAchievement", transition.ShoolAchievement));
+                    command.Parameters.Add(new SqlParameter("@JobTrainingFinished", transition.JobTrainingFinished));
+
+
+                    //Mother//
+                    command.Parameters.Add(new SqlParameter("@ParentID2", transition.ParentID2));
+                    command.Parameters.Add(new SqlParameter("@SchoolAchievement2", transition.ShoolAchievement2));
+                    command.Parameters.Add(new SqlParameter("@JobTrainingFinished2", transition.JobTrainingFinished2));
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_UpdateWithdrawQuestion";
+                    Connection.Open();
+                    isResult = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
+                    Connection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return isResult;
+        }
     }
 }

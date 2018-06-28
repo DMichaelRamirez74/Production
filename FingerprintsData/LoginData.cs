@@ -20,7 +20,7 @@ namespace FingerprintsData
         DataSet _Dataset = null;
         public FingerprintsModel.Login LoginUser(out string result, out List<Role> RoleList, string UserName, string Password, string IPaddress)
         {
-      // string Pwd = EncryptDecrypt.Decrypt(Password);
+     //  string Pwd = EncryptDecrypt.Decrypt(Password);
             Login Login = null;
             result = string.Empty;
             RoleList = new List<Role>();

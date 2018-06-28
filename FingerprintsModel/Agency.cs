@@ -79,6 +79,8 @@ namespace FingerprintsModel
         public List<FundSource> FundSourcedata { get; set; }
 
         public List<ProgramType> ProgramTypeList { get; set; }
+
+       public List<SelectListItem> ReferenceProgramList { get; set; }
       
         public class FundSource
         {

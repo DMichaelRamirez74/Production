@@ -1,0 +1,333 @@
+﻿@model FingerprintsModel.TransitionWithdrawal
+
+
+<script>
+    //$(function () {
+
+    //    $('.fold-table>tbody tr.datas').on('click', function () {
+
+
+    //    });
+
+    //});
+</script>
+<div id="partialDiv">
+    <div class="col-md-6 col-sm-4 col-xs-12 insert-client" style="padding: 0;">
+        @if (Model != null)
+        {
+            <span><b>Total Client:</b> <b id="clientCount">@Model.TotalRecord</b></span>
+        }
+    </div>
+    <table class="table table-bordered fold-table">
+        <thead>
+            <tr>
+                <th style="width:20%">Client</th>
+                <th style="width:80%">PIR Questions</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+            @if (Model != null && Model.TransitionWithdrawnClients != null && Model.TransitionWithdrawnClients.Count > 0)
+            {
+
+
+
+
+
+                foreach (var item in Model.TransitionWithdrawnClients)
+                {
+                    if (item.IsPregMom)
+                    {
+                        <tr class="view">
+                            <td onclick="transitionClients.ViewClientDetails(this)"><span class="viewClient" >@item.Client</span></td>
+                            <td style="padding:0;">
+                                <table width="100%" class="table-bordered edu-inner-quest" border="0" cellspacing="0" cellpadding="0">
+                                    <tr class="datas">
+                                        <td style="display:none;">
+                                            <input type="hidden" value="@item.IsPregMom.ToString()" class="isPreg" />
+                                            <input type="hidden" value="@item.ClientID" class="clientid" />
+                                            <input type="hidden" value="@item.ProgramTypeID" class="enc-prg-id" />
+                                        </td>
+                                        <td @if (item.IsAnsweredQ1) { <text> class="passed" </text>      }  >
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q1</span>
+                                            <div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                       @if (item.IsShowDentalServiceQuestion)
+                                       {
+
+
+
+                                        <td @if (item.IsAnsweredQ5)
+                                        { <text> class="passed" </text>     } >
+                                        <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q2</span>
+                                        <div class="newlist">
+                                        <div class="question-edu">
+
+                                        </div>
+                                        </div>
+                                        </td>
+                                       }
+                                       else
+                                       {
+                                           <td></td>
+                                       }
+
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr class="view">
+                            <td onclick="transitionClients.ViewClientDetails(this)"><span class="viewClient">@item.Client</span></td>
+                            <td style="padding:0;">
+                                <table width="100%" class="table-bordered edu-inner-quest" border="0" cellspacing="0" cellpadding="0">
+                                    <tr class="datas">
+                                        <td style="display:none;">
+                                            <input type="hidden" value="@item.IsPregMom.ToString()" class="isPreg" />
+                                            <input type="hidden" value="@item.ClientID" class="clientid" />
+                                            <input type="hidden" value="@item.ProgramTypeID" class="enc-prg-id" />
+
+                                        </td>
+                                        <td @if (item.IsAnsweredQ1) { <text> class="passed" </text>} >
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q1</span>
+                                            <div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ2) { <text> class="passed" </text>      }  >
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q2</span>
+                                            <div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ3) { <text> class="passed" </text>      }>
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);" >Q3</span> <div class="newlist">
+
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ4) { <text> class="passed" </text>      }>
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q4</span> <div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ5) { <text> class="passed" </text>      } >
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q5</span><div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ6) { <text> class="passed" </text>      }>
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q6</span> <div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ7) { <text> class="passed" </text>      } >
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q7</span><div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td @if (item.IsAnsweredQ8) { <text> class="passed" </text>      }  >
+                                            <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q8</span><div class="newlist">
+                                                <div class="question-edu">
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @if (item.IsShowQ9)
+                                        {
+                                            <td @if (item.IsAnsweredQ9) { <text> class="passed" </text>       } >
+                                                <span style="text-decoration: underline;display:inline-block;width:100%;" onclick="transitionClients.ViewQuestions(this);">Q9</span> <div class="newlist">
+                                                    <div class="question-edu">
+
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+
+
+                    <tr class="fold">
+                        <td colspan="2">
+                            <div class="fold-content fold-class col-lg-12 col-xs-12">
+
+                                <div class="col-lg-8">
+                                    <div class="col-xs-12 col-lg-12">
+                                        <div class="col-lg-4">
+                                            <label>Client</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <label>@item.Client</label>
+                                        </div>
+                                    </div>
+
+                                    @if (!Model.IsWithdrawal)
+                                    {
+                                        <div class="col-xs-12 col-lg-12">
+                                            <div class="col-lg-4">
+                                                <label>LDA</label>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <label>@item.LDAAge</label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if(Model.IsWithdrawal)
+                                    {
+                                    <div class="col-xs-12 col-lg-12">
+                                        <div class="col-lg-4">
+                                            <label>Withdrawal Date</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            @{ 
+
+                                                bool isAllAnswered = false;
+
+
+                                                switch (item.IsPregMom)
+                                                {
+                                                    case true:
+
+                                                      
+                                                            isAllAnswered = (item.IsAnsweredQ1 && ((item.IsShowDentalServiceQuestion)?item.IsAnsweredQ5:true));
+                                                        break;
+
+                                                    case false:
+
+
+                                                        isAllAnswered = (item.IsAnsweredQ1 && item.IsAnsweredQ2 && item.IsAnsweredQ3 && item.IsAnsweredQ4 && item.IsAnsweredQ5
+
+                                                                     && item.IsAnsweredQ6 && item.IsAnsweredQ7 && item.IsAnsweredQ8 && ((item.IsShowQ9) ? item.IsAnsweredQ9 : true));
+
+
+                                                        break;
+                                                }
+
+
+
+                                                            }
+
+                                            <label @if (isAllAnswered) {<text> style="color: #ffffff;width: auto;background-color: #2c3e50;" </text>  }  else if (item.WithdrawnDays >= 7 && item.WithdrawnDays <= 13) { <text> style="color: #ffffff;width: auto;background-color: #e67e22;" </text>     } else if (item.WithdrawnDays >= 14) { <text> style="color: #ffffff;width: auto;background-color: #e74c3c;" </text>     }>@item.WithdrawnDate</label>
+                                        </div>
+                                    </div>
+                                    }
+
+                                    <div class="col-xs-12 col-lg-12">
+                                        <div class="col-lg-4">
+                                            <label>Center</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <label>@item.Center</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-lg-12">
+                                        <div class="col-lg-4">
+                                            <label>Classroom</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <label>@item.Classroom</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-lg-12">
+                                        <div class="col-lg-4">
+                                            <label>FSW/HV</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <label>@item.FSWHV</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-lg-12">
+                                        <div class="col-lg-4">
+                                            <label>Health Worker</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <label>@item.HealthManager</label>
+                                        </div>
+                                    </div>
+
+                                    @if (!Model.IsWithdrawal)
+                                                    {
+                                        <div class="col-xs-12 col-lg-12">
+                                            <div class="col-lg-4">
+                                                <label>Returning</label>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <label>@(item.IsReturning?"Yes":"No")</label>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-xs-12 col-lg-12">
+                                            <div class="col-lg-4">
+                                                <label>Wait List</label>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <label>@(item.ISWaiting ? "Yes" : "No")</label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (Model.IsWithdrawal)
+                                {
+                                    <div class="col-lg-4 withdrawal-header">
+                                        <h4>Withdrawal Date</h4>
+                                        <ul class="withdrawal-days">
+                                            <li>7 or more days after Withdrawal date</li>
+                                            <li>14 or more days after Withdrawal date</li>
+                                            <li>All Questions are answered</li>
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+            }
+        </tbody>
+    </table>
+</div>

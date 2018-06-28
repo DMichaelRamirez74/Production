@@ -25,5 +25,24 @@ namespace FingerprintsModel
         public List<FamilyHousehold.Programdetail> Programlist { get; set; }
 
     }
+
+    public class AddSlotsEmail
+    {
+
+        public string Subject { get; set; }
+        public string Body { get; set; }
+
+
+        public string SenderName { get; set; }
+        public string SenderRole { get; set; }
+        public string SenderPhone { get; set; }
+        public string ExecutiveEmailList { get; set; }
+
+  
+
+        public string Name { get; set; }
+        public string slots { get; set; }
+
+    }
   
 }

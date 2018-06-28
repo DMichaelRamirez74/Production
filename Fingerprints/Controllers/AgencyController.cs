@@ -1657,6 +1657,18 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpPost]
+
+        public ActionResult AddFundsNextProgramYear(Agency.FundSource fundSource)
+        {
+            bool isResult = false;
+
+           // isResult = new agencyData().AddFunds(fundSource,1);
+
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
        
 
     }

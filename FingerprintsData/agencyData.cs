@@ -646,7 +646,10 @@ namespace FingerprintsData
                             Duration = x.Field<int>("Duration").ToString(),
                             ServiceQty = x.Field<int>("ServiceQty").ToString(),
                             fundingtype = x.Field<int>("FundingType").ToString(),
-                            ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear").Substring(0, 2) + "-" + x.Field<string>("ProgramYear").Substring(2, 2),
+                            // ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear").Substring(0, 2) + "-" + x.Field<string>("ProgramYear").Substring(2, 2),
+
+                            ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear"),
+
                             nameGranteeDelegate = x.Field<string>("Grantee"),
                             grantNo = x.Field<string>("GranteeNo"),
                             IsReferredByProgram = Convert.ToBoolean(x.Field<int>("IsReferredByProgram"))
@@ -5020,51 +5023,150 @@ namespace FingerprintsData
 
 
 
-        //public AccessStaffs GetStaffsByRole(string roleId)
-        //{
-        //    AccessStaffs staffs = new AccessStaffs();
-        //    try
-        //    {
+        public AccessStaffs GetStaffsByRole(string roleId)
+        {
+            AccessStaffs staffs = new AccessStaffs();
+            try
+            {
 
-        //        StaffDetails details = StaffDetails.GetInstance();
+                StaffDetails details = StaffDetails.GetInstance();
 
-        //        if (Connection.State != ConnectionState.Closed)
-        //            Connection.Close();
+                if (Connection.State != ConnectionState.Closed)
+                    Connection.Close();
 
-        //                using (Connection)
-        //        {
-        //            command.Connection = Connection;
-        //            command.Parameters.Clear();
-        //            command.Parameters.Add(new SqlParameter("@AgencyID", details.AgencyId));
-        //            command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
-        //            command.Parameters.Add(new SqlParameter("@UserID", details.UserId));
-        //            command.Parameters.Add(new SqlParameter("@TargetRole", roleId));
-        //            command.CommandType = CommandType.StoredProcedure;
-        //            command.CommandText = "USP_GetStaffByRole";
-        //            Connection.Open();
-        //            DataAdapter = new SqlDataAdapter(command);
-        //            _dataset = new DataSet();
-        //            DataAdapter.Fill(_dataset);
-        //            Connection.Close();
-        //        }
+                using (Connection)
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", details.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", details.UserId));
+                    command.Parameters.Add(new SqlParameter("@TargetRole", roleId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetStaffByRole";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
 
-        //                if(_dataset!=null)
-        //        {
+                if (_dataset != null)
+                {
 
-        //        }
-               
-
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        clsError.WriteException(ex);
-        //    }
-        //    return staffs;
-        //}
+                }
 
 
-        // public TransitionWithdrawal GetTransitionWithDrawalClients(int mode=0,long centerID=0,long classroomId=0,string clientID="0")
-        public AccessRoles SP_AccessRole(int type,string Agencyid)
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return staffs;
+        }
+
+
+        
+        public TransitionWithdrawal GetTransitionWithDrawalClients(int mode, int centerid = 0, int classroomid = 0, string fswid = "", string searchText = "", int reqPage = 0, int pgSize = 10)
+
+        {
+
+            TransitionWithdrawal transWithdrawal = TransitionWithdrawal.Instance;
+            transWithdrawal.TransitionWithdrawnClients = new List<WithdrawalQuestions>();
+            int skip = pgSize * (reqPage - 1);
+            skip = (skip < 0) ? 0 : skip;
+            try
+            {
+                StaffDetails staff = new StaffDetails();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@CenterID", centerid));
+                    command.Parameters.Add(new SqlParameter("@ClassroomID", classroomid));
+                    command.Parameters.Add(new SqlParameter("@fswid", string.IsNullOrEmpty(fswid)|| fswid=="0"? (Guid?)null:new Guid(fswid)));
+                   // command.Parameters.Add(new SqlParameter("@fswid",null));
+
+                    command.Parameters.Add(new SqlParameter("@SearchText1", (searchText != "")? searchText.Split(' ')[0]:searchText));
+                    command.Parameters.Add(new SqlParameter("@SearchText2", (searchText != "") ? searchText.Split(' ')[1]: searchText));
+                    command.Parameters.Add(new SqlParameter("@take", pgSize));
+                    command.Parameters.Add(new SqlParameter("@skip", skip));
+                    command.Parameters.Add(new SqlParameter("@sortcolumn", ""));
+                    command.Parameters.Add(new SqlParameter("@sortorder", ""));
+                    command.Parameters.Add(new SqlParameter("@ClientID", 0));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = (mode == 1)? "USP_GetWithdrawalClientList": "USP_GetTransitionClientList";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        transWithdrawal.TotalRecord = Convert.ToInt32(_dataset.Tables[0].Rows[0]["TotalRecord"]);
+
+                        transWithdrawal.TransitionWithdrawnClients = (from DataRow dr in _dataset.Tables[0].Rows
+                                                                      select new WithdrawalQuestions
+                                                                      {
+                                                                          Client = dr["ClientName"].ToString(),
+                                                                          ClientID = Convert.ToInt64(dr["ClientID"].ToString()),
+                                                                          Enc_ClientID = EncryptDecrypt.Encrypt64(dr["ClientId"].ToString()),
+                                                                          ISWaiting = Convert.ToBoolean(dr["IsWaiting"]),
+                                                                          Center = dr["CenterName"].ToString(),
+                                                                          Classroom = dr["ClassroomName"].ToString(),
+                                                                          WithdrawnDays = string.IsNullOrEmpty(dr["WithdrawnDays"].ToString()) ? 0 : Convert.ToInt32(dr["WithdrawnDays"].ToString()),
+                                                                          HealthManager = dr["HealthNurse"].ToString(),
+                                                                          FSWHV = dr["FSW"].ToString(),
+                                                                          WithdrawnDate = dr["DateWithdrawn"].ToString(),
+                                                                          IsPregMom = Convert.ToBoolean((dr["IsPregMom"])),
+                                                                          IsAnsweredQ1 = Convert.ToBoolean(dr["IsAnsweredQ1"]),
+                                                                          IsAnsweredQ2 = Convert.ToBoolean(dr["IsAnsweredQ2"]),
+                                                                          IsAnsweredQ3 = Convert.ToBoolean(dr["IsAnsweredQ3"]),
+                                                                          IsAnsweredQ4 = Convert.ToBoolean(dr["IsAnsweredQ4"]),
+                                                                          IsAnsweredQ5 = Convert.ToBoolean(dr["IsAnsweredQ5"]),
+                                                                          IsAnsweredQ6 = Convert.ToBoolean(dr["IsAnsweredQ6"]),
+                                                                          IsAnsweredQ7 = Convert.ToBoolean(dr["IsAnsweredQ7"]),
+                                                                          IsAnsweredQ8 = Convert.ToBoolean(dr["IsAnsweredQ8"]),
+                                                                          IsAnsweredQ9 = Convert.ToBoolean(dr["IsAnsweredQ9"]),
+                                                                          IsShowQ9=Convert.ToBoolean(dr["IsShowQ9"]),
+                                                                          IsShowDentalServiceQuestion=Convert.ToBoolean(dr["IsShowDentalServiceQuestion"]),
+                                                                          ProgramTypeID=EncryptDecrypt.Encrypt64(dr["ProgramID"].ToString()),
+                                                                          IsReturning=Convert.ToBoolean(dr["Returning"]),
+                                                                          LDAAge=Convert.ToString(dr["LDAAge"]),
+                                                                          ProgramType=Convert.ToString(dr["ProgramType"])
+
+                                                                      }).ToList();
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return transWithdrawal;
+        }
+        public AccessRoles SP_AccessRole(int type, string Agencyid)
         {
             AccessRoles AccessRoles = new AccessRoles();
             try
@@ -5305,6 +5407,386 @@ namespace FingerprintsData
                 clsError.WriteException(ex);
             }
             return AccessRoles;
+
+        }
+
+
+        public NewProgramYearTransition EndOfProgramYear()
+        {
+
+            NewProgramYearTransition newProgramYear = new NewProgramYearTransition();
+            try
+            {
+
+         
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetEndOfYearTransitionDashboard";
+                    Connection.Open();
+                    _dataset = new DataSet();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        newProgramYear.EndOfProgramYearDashboard.Funds = new NewProgramYearTransitionCounts
+                        {
+                            Active=Convert.ToInt64(_dataset.Tables[0].Rows[0]["activefund"])
+                        };
+
+                        newProgramYear.EndOfProgramYearDashboard.ProgramTypes = new NewProgramYearTransitionCounts
+                        {
+                            //Total = Convert.ToInt64(_dataset.Tables[0].Rows[0]["totalprograms"]),
+                            Active = Convert.ToInt64(_dataset.Tables[0].Rows[0]["activeprogramtypes"])
+                        };
+
+
+                        newProgramYear.EndOfProgramYearDashboard.Centers = new NewProgramYearTransitionCounts
+                        {
+                            // Total = Convert.ToInt64(_dataset.Tables[0].Rows[0]["totalCenters"]),
+                            Active = Convert.ToInt64(_dataset.Tables[0].Rows[0]["activeCenters"])
+                        };
+
+                        newProgramYear.EndOfProgramYearDashboard.Classrooms = new NewProgramYearTransitionCounts
+                        {
+
+                            // Total = Convert.ToInt64(_dataset.Tables[0].Rows[0]["totalClassrooms"]),
+                            Active = Convert.ToInt64(_dataset.Tables[0].Rows[0]["activeclassrooms"])
+                        };
+
+                        newProgramYear.EndOfProgramYearDashboard.Seats = new EndOfYearSlotsSeats
+                        {
+
+                            Total = Convert.ToInt64(_dataset.Tables[0].Rows[0]["TotalSeats"]),
+                            Occupied = Convert.ToInt64(_dataset.Tables[0].Rows[0]["OccupiedSeats"]),
+                            Opened = Convert.ToInt64(_dataset.Tables[0].Rows[0]["OpenSeats"])
+
+                        };
+
+                        newProgramYear.EndOfProgramYearDashboard.Slots = new EndOfYearSlotsSeats
+                        {
+
+                            Total = Convert.ToInt64(_dataset.Tables[0].Rows[0]["TotalSlots"]),
+                            Occupied = Convert.ToInt64(_dataset.Tables[0].Rows[0]["OccupiedSlots"]),
+                            Opened = Convert.ToInt64(_dataset.Tables[0].Rows[0]["OpenSlots"]),
+                            Expiring = Convert.ToInt64(_dataset.Tables[0].Rows[0]["ExpiringSlots"])
+
+                        };
+
+
+                        newProgramYear.EndOfProgramYearDashboard.Staffs = new NewProgramYearTransitionCounts
+                        {
+
+                            Active = Convert.ToInt64(_dataset.Tables[0].Rows[0]["ActiveStaffs"])
+
+                        };
+
+                    }
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return newProgramYear;
+        }
+
+
+        public Agency GetEndOfYearFunds_Programs()
+        {
+            Agency _agency = new Agency();
+
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.CommandText = "USP_GetEndOfYearFunds_ProgramTypes";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+
+                    if (_dataset != null && _dataset.Tables.Count > 0)
+                    {
+                        if (_dataset.Tables[0].Rows.Count > 0) //funding source
+                        {
+
+                            _agency.FundSourcedata = _dataset.Tables[0].AsEnumerable().Select(x => new Agency.FundSource
+                            {
+
+                                FundID = (int)x.Field<long>("FundID"),
+                                OldFund = "0",
+                                Acronym = x.Field<string>("Acronym"),
+                                Description = x.Field<string>("FundDescription"),
+                                Amount = x.Field<int>("Amount"),
+                                Date = x.Field<string>("Date"),
+                                FundStatus = x.Field<int>("FundStatus"),
+                                Duration = x.Field<int>("Duration").ToString(),
+                                ServiceQty = x.Field<int>("ServiceQty").ToString(),
+                                fundingtype = x.Field<int>("FundingType").ToString(),
+                                ProgramYear = string.IsNullOrEmpty(x.Field<string>("ProgramYear").ToString()) ? "0" : x.Field<string>("ProgramYear"),
+                                nameGranteeDelegate = x.Field<string>("Grantee"),
+                                grantNo = x.Field<string>("GranteeNo"),
+                                IsReferredByProgram = Convert.ToBoolean(x.Field<int>("IsReferredByProgram"))
+                            }).ToList();
+                        }
+
+
+
+                        if (_dataset.Tables[1].Rows.Count > 0)
+                        {
+                            _agency.ProgramTypeList = _dataset.Tables[1].AsEnumerable().Select(x => new Agency.ProgramType
+                            {
+
+                                ProgramID = Convert.ToInt32(x.Field<long>("ProgramTypeID")),
+                                FundID = x.Field<string>("FundID"),
+                                ProgramTypes = x.Field<string>("ProgramType"),
+                                Description = x.Field<string>("ProgDesc"),
+                                PIRReport = x.Field<bool>("PIRReport"),
+                                Slots = string.IsNullOrEmpty(x.Field<int?>("Slots").ToString()) ? "" : x.Field<int>("Slots").ToString(),
+                                ReferenceProg = string.IsNullOrEmpty(x.Field<int?>("ReferenceProg").ToString()) ? "" : x.Field<int?>("ReferenceProg").ToString(),
+                                DivisionID = string.IsNullOrEmpty(x.Field<long?>("DivisionID").ToString()) ? "1" : x.Field<long>("DivisionID").ToString(),
+                                //Area = x.Field<string>("AreaID"),
+                                MinAge = string.IsNullOrEmpty(x.Field<int?>("MinAge").ToString()) ? 0 : x.Field<int>("MinAge"),
+                                MaxAge = string.IsNullOrEmpty(x.Field<int?>("MaxAge").ToString()) ? 0 : x.Field<int>("MaxAge"),
+                                //  HealthReview = x.Field<bool>("HealthReview"),
+                                ProgStatus = string.IsNullOrEmpty(x.Field<int?>("ProgStatus").ToString()) ? 1 : x.Field<int>("ProgStatus"),
+                                programstartDate = string.IsNullOrEmpty(x.Field<string>("ProgramStartDate")) ? "" : x.Field<string>("ProgramStartDate"),
+                                programendDate = string.IsNullOrEmpty(x.Field<string>("ProgramEndDate")) ? "" : x.Field<string>("ProgramEndDate"),
+                                LastDateCurrentApplication = string.IsNullOrEmpty(x.Field<string>("LastDateCurrentApplication")) ? "" : x.Field<string>("LastDateCurrentApplication"),
+                                DateFutureApplication = string.IsNullOrEmpty(x.Field<string>("DateFutureApplication")) ? "" : x.Field<string>("DateFutureApplication"),
+                                TransitionDate = string.IsNullOrEmpty(x.Field<string>("TransitionDate")) ? "" : x.Field<string>("TransitionDate"),
+                                ProgramTypeAssociation = string.IsNullOrEmpty(x.Field<long?>("ProgramTypeAssociation").ToString()) ? "" : x.Field<long>("ProgramTypeAssociation").ToString(),
+                                refList = (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0) ? _dataset.Tables[3].AsEnumerable().Select(y => new Agency.ProgramType.ReferenceProgInfo
+                                {
+                                    Id = y.Field<long>("ReferenceId").ToString(),
+                                    Name = y.Field<string>("Name")
+                                }).ToList() : new List<Agency.ProgramType.ReferenceProgInfo>()
+
+                            }).ToList();
+
+
+                        }
+                        if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                        {
+                            _agency.DivisionsList = _dataset.Tables[2].AsEnumerable().Select(x => new SelectListItem
+                            {
+                                Text = x.Field<long>("DivisionID").ToString(),
+                                Value = x.Field<long>("DivisionID").ToString()
+
+                            }).ToList();
+                        }
+                        if (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
+                        {
+                            _agency.ReferenceProgramList = _dataset.Tables[3].AsEnumerable().Select(x => new
+                              SelectListItem
+                            {
+
+                                Text = x.Field<string>("Name").ToString(),
+                                Value = x.Field<long>("ReferenceId").ToString()
+                            }).ToList();
+                        }
+
+                        if (_dataset.Tables[4] != null && _dataset.Tables[4].Rows.Count > 0)
+                        {
+                            _agency.ProgramYearList = _dataset.Tables[4].AsEnumerable().Select(x => new SelectListItem
+                            {
+                                Text = x.Field<string>("FutureProgramYear")
+                            }
+                            ).ToList();
+                        }
+
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return _agency;
+
+        }
+
+
+        public string InsertEndOfYearFundsPrograms(Agency agencyDetails, List<Agency.FundSource> FundSource)
+        {
+            string result = "";
+
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+
+
+                    DataTable dt = new DataTable();
+                    dt.Columns.AddRange(new DataColumn[29] {
+                    new DataColumn("Acronym ", typeof(string)),
+                    new DataColumn("Description",typeof(string)),
+                    new DataColumn("Amount",typeof(string)),
+                    new DataColumn("Date",typeof(string)),
+                    new DataColumn("Duration",typeof(string)),
+                       new DataColumn("ServiceQty ",typeof(string)),
+                          new DataColumn("FundingType",typeof(string)),
+                             new DataColumn("ProgramYear",typeof(string)),
+                             new DataColumn("GranteeNo",typeof(string)),
+                             new DataColumn("Grantee",typeof(string)),
+                                new DataColumn("Status",typeof(string)),
+                                 new DataColumn("FundID",typeof(Int32)),
+                             new DataColumn("OldFund",typeof(string)),
+                             new DataColumn("FundQ1",typeof(string)),
+                             new DataColumn("FundQ2",typeof(string)),
+                             new DataColumn("FundQ3",typeof(string)),
+                             new DataColumn("FundQ4",typeof(string)),
+                             new DataColumn("FundQ5",typeof(string)),
+                             new DataColumn("FundQ6",typeof(string)),
+                             new DataColumn("FundQ7",typeof(string)),
+                             new DataColumn("FundQ8",typeof(string)),
+                             new DataColumn("FundQ9",typeof(string)),
+                             new DataColumn("FundQ10",typeof(string)),
+                             new DataColumn("FundQ11",typeof(string)),
+                             new DataColumn("FundQ12",typeof(string)),
+                             new DataColumn("FundQ13",typeof(string)),
+                             new DataColumn("FundQ14",typeof(string)),
+                             new DataColumn("FundQ15",typeof(string)),
+                             new DataColumn("FundQ16",typeof(string))
+                    });
+
+                    DataTable dt1 = new DataTable();
+                    dt1.Columns.AddRange(new DataColumn[19] {
+                        new DataColumn("ProgramType", typeof(string)),
+                        new DataColumn("Description",typeof(string)),
+                        new DataColumn("PIRReport",typeof(bool)),
+                        new DataColumn("Slots",typeof(string)),
+                        new DataColumn("ReferenceProg",typeof(string)),
+                         new DataColumn("DivisionID",typeof(string)),
+                         new DataColumn("MinAge",typeof(string)),
+                        new DataColumn("MaxAge",typeof(string)),
+                        new DataColumn("programstartDate",typeof(string)),
+                        new DataColumn("programendDate",typeof(string)),
+                        new DataColumn("ProgramID",typeof(Int32)),
+                         new DataColumn("FundID",typeof(string)),
+                          new DataColumn("OldFund",typeof(string)),
+                          new DataColumn("HealthReview",typeof(bool)),
+                          new DataColumn("LastDateCurrentApplication",typeof(string)),
+                          new DataColumn("DateFutureApplication",typeof(string)),
+                          new DataColumn("TransitionDate",typeof(string)),
+                           new DataColumn("ProgramTypeAssociation",typeof(string)),
+                           new DataColumn("Status",typeof(int))
+                        });
+
+
+
+                    //Fund and Program Types
+                    if (FundSource != null && FundSource.Count > 0)
+                    {
+
+                        foreach (Agency.FundSource fund in agencyDetails.FundSourcedata)
+                        {
+                            if (fund.Acronym != null && fund.Description != null)
+                            {
+                                dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype,
+                                    //(string.IsNullOrEmpty(fund.ProgramYear)) ? "" : (fund.ProgramYear).Replace("-", ""), 
+                                    fund.ProgramYear,
+                                    fund.grantNo,
+
+                                    fund.nameGranteeDelegate, fund.FundStatus.ToString(), fund.FundID, fund.OldFund,
+                                    fund.FundQ1, fund.FundQ2, fund.FundQ3, fund.FundQ4, fund.FundQ5, fund.FundQ6, fund.FundQ7,
+                                    fund.FundQ8, fund.FundQ9, fund.FundQ10, fund.FundQ11, fund.FundQ12, fund.FundQ13, fund.FundQ14
+                                    , fund.FundQ15, fund.FundQ16
+                                    );
+                            }
+                        }
+
+                        foreach (Agency.ProgramType prog in agencyDetails.ProgramTypeList)
+                        {
+                            if (prog.ProgramTypes != null && prog.Description != null)
+                            {
+                                dt1.Rows.Add(prog.ProgramTypes, prog.Description, prog.PIRReport,
+                                    prog.Slots, prog.ReferenceProg, prog.DivisionID, prog.MinAge, prog.MaxAge,
+                                    prog.programstartDate, prog.programendDate, prog.ProgramID,
+                                    prog.FundID, prog.OldFund, prog.HealthReview, prog.LastDateCurrentApplication, prog.DateFutureApplication, prog.TransitionDate, prog.ProgramTypeAssociation,prog.ProgStatus);//changes
+
+                            }
+                        }
+                    }
+
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@tblfund", dt));
+                    command.Parameters.Add(new SqlParameter("@tblprog", dt1));
+                    command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
+                    command.CommandText = "USP_EndOfYear_Add_Programs_Funds";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    Connection.Open();
+                    command.ExecuteNonQuery();
+                    Connection.Close();
+                    result= command.Parameters["@result"].Value.ToString();
+                 
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+                
+            }
+            return result;
+           
+
 
         }
 

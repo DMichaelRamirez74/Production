@@ -1,0 +1,183 @@
+﻿@model FingerprintsModel.TransitionWithdrawal
+
+
+@{
+    ViewBag.Title = "Transition Clients";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+
+@section Title
+{
+    Withdrawn Clients
+    
+    }
+
+
+@section Style {
+
+  
+<link href="~/Content/css/TransitionWithdrawal.css" rel="stylesheet" />
+
+}
+
+@section Script{
+
+<script src="~/Scripts/TransitionWithdrawal.js"></script>
+   
+}
+
+
+@section MainContentHolder{
+    <div class="container-fuild">
+        <div class="row" style="margin:0px;">
+            <div class="edu_class_room">
+                <div class="edu_clrm_head trasit-setup">
+                    <h3>Withdrawal Clients</h3>
+                </div>
+                <div class="edu_transit_body">
+                    <div class="col-xs-12 no-padding">
+                        <div class="form-group trans-select-edu no-padding">
+
+                            <div class="col-md-4 col-lg-4 col-sm-12 col-xs-12 no-padding">
+                                <label>Center</label>
+
+                                @{
+
+                                    var selectedlist = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString(), false, false);
+
+                                    if (selectedlist != null && selectedlist.Count > 0)
+                                    {
+                                        selectedlist.ForEach(x =>
+                                        {
+                                            x.Value = (x.Value == "0") ? x.Value : FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        selectedlist = new List<SelectListItem>();
+                                    }
+
+
+                                }
+
+                                @Html.DropDownList("widCenter", selectedlist, new { @class = "form-control" })
+                            </div>
+
+                            <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12 padding-responsive">
+                                <label>Classroom</label>
+                                <select class="form-control" id="widClassroomSelect"></select>
+                            </div>
+
+                            <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12 padding-responsive">
+                                <label>Family Advocate</label>
+                                <select class="form-control" id="fswHvselect"></select>
+                            </div>
+
+                            <div class="import-transits-set col-md-2 col-xs-12 col-sm-12 col-lg-2">
+                                <button class="btn btn-yellow-edu" onclick="transitionClients.SearchByCenter(1);">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edu-semi-table table-responsive">
+                        <div class="col-xs-12">
+                            <div class="col-md-6 col-sm-8 col-xs-12" style="padding: 0;">
+                                <div class="insert-sort">
+                                    <div class="form-group">
+                                        <input type="text" id="SearchName" onkeypress="transitionClients.AutoComplete(this);" placeholder="Search By Name" name="" />
+                                        <button onclick="transitionClients.SearchByCenter(2);"><i class="fa fa-search"></i>Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                            @Html.Partial("~/Views/Partialviews/TransitionWithdrawalListPartial.cshtml", Model)
+                        </div>
+                    </div>
+                    <!--Pagination-->
+                    <div class="col-xs-12 poppage-slot" style="padding:0px;" id="paginationDiv">
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 pagination-file">
+                            <div class="pages_display">
+                                <ul>
+                                    <li style="color:#fff;">Display</li>
+                                    <li>
+                                        <select id="ddlpagetodisplay" onchange="transitionClients.drawgrid();">
+
+                                            <option value="10" selected="selected">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+
+                                        </select>
+                                    </li>
+                                    <li style="color:#fff;">Records Per Page</li>
+                                </ul>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div id="divPaging" class="pagination_wrp">
+                                <ul id="ulPaging" class="pagination">
+                                    <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="transitionClients.fnChangePage('First'); return false;" center="NzU="></li>
+                                    <li title="Back"><input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="transitionClients.fnChangePage('Back'); return false;" center="NzU="></li>
+                                    <li title="Select">
+                                        <select class="select_cl" id="ddlpaging" onchange="transitionClients.getListafterupdation(this)"><option value="1">1</option></select>
+                                    </li>
+                                    <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="transitionClients.fnChangePage('Next'); return false;" center="NzU="></li>
+                                    <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="transitionClients.fnChangePage('Last'); return false;" center="NzU="></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Pagination-->
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+
+
+        var totalRecord = '@Model.TotalRecord';
+
+        var isTransition = 0;
+
+        transitionClients.getTotalRecord(totalRecord);
+
+
+
+
+
+    </script>
+    <script type="text/javascript">
+
+        function tableresisescroll() {
+
+            var win = $(window).height();
+
+
+            var tableheaderht = $(".navbar-fixed-top").height();
+            var tablefooterht = $(".footer-one").height();
+            var pagewrapperht = win - tableheaderht - tablefooterht;
+
+            $(".page-wrapper-change").css({
+                height: pagewrapperht
+            });
+
+        }
+        $(document).ready(function () {
+            tableresisescroll();
+        });
+        $(window).resize(function () {
+            tableresisescroll();
+        });
+        $(window).load(function () {
+            tableresisescroll();
+        });
+    </script>
+
+}
