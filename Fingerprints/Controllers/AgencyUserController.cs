@@ -44,6 +44,7 @@ namespace Fingerprints.Controllers
         FamilyData familyData = new FamilyData();
         CommunityResourceData communitydata = new CommunityResourceData();
         List<WellBabyExamModel> wellBabyList=new List<WellBabyExamModel>();
+        [CustAuthFilter()]
         public ActionResult staffRegistration()
         {
             try
@@ -60,6 +61,7 @@ namespace Fingerprints.Controllers
 
         }
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult staffRegistration(staffRegistration staffregistration)
         {
             try
@@ -100,6 +102,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
+        [CustAuthFilter()]
         public ActionResult staffemailverificationnew()
         {
 
@@ -152,6 +155,7 @@ namespace Fingerprints.Controllers
             //}
         }
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult staffemailverification(AgencyStaff _staflist, FormCollection collection)
         {
 
@@ -216,6 +220,7 @@ namespace Fingerprints.Controllers
             return View(_staffList);
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter()]
         [HttpPost]
         public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages)
         {
@@ -3086,19 +3091,6 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        public JsonResult AutoCompleteWithdrawnList(string term, string trans)
-        {
-            try
-            {
-                var result = familyData.AutoCompleteWithdrawnList(term, Session["AgencyID"].ToString(), Session["UserID"].ToString(), trans);
-                return Json(result, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return Json(Ex.Message);
-            }
-        }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public ActionResult Yakkrlist(string id = "0")
         {
@@ -5755,7 +5747,7 @@ namespace Fingerprints.Controllers
             return Json("");
         }
 
-
+        [CustAuthFilter()]
         public ActionResult ClientFileReview()
         {
             if (Session["Roleid"] == null)
@@ -5764,7 +5756,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-
+        [CustAuthFilter()]
         public ActionResult DemographicPercentage()
         {
             if (Session["Roleid"] == null)
@@ -5773,7 +5765,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-
+        [CustAuthFilter()]
         public JsonResult GetClassess(string CurrentMonth)
         {
 
@@ -5798,7 +5790,7 @@ namespace Fingerprints.Controllers
 
             return Json(new { centers, clientsList, clientStatus }, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult GetClassByCenterID(long CenterID)
         {
             List<Class_Center> classess = new List<Class_Center>();
@@ -5816,7 +5808,7 @@ namespace Fingerprints.Controllers
             }
             return Json(classess, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult CheckIsHost(string currentMonth, long clientID)
         {
 
@@ -5838,6 +5830,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { HostInfo, member }, JsonRequestBehavior.AllowGet);
         }
+        [CustAuthFilter()]
         public JsonResult GetClients(Class_Center classCenter)
         {
             List<ClientDetails> clientDetails = new List<ClientDetails>();
@@ -5854,7 +5847,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { clientDetails, clientStatus }, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult GetMembers(string ReviewMonth, long ClientId)
         {
             List<DevelopmentMembers> membersList = new List<DevelopmentMembers>();
@@ -5875,7 +5868,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { membersList, contributorCount }, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult InsertMembersAttendance(string membersList)
         {
             bool IsRowAffected = false;
@@ -5895,7 +5888,7 @@ namespace Fingerprints.Controllers
             return Json(IsRowAffected, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter()]
         public JsonResult GetReviewNotes(string MonthReviewed, long ClientID)
         {
 
@@ -5921,7 +5914,7 @@ namespace Fingerprints.Controllers
             return Json(new { OpenNotesList, ClosedNotesList }, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter()]
         public JsonResult InsertReviewNotes(string reviewNotes)
         {
 
@@ -5941,7 +5934,7 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter()]
         public JsonResult UpdateReviewNotes(string ReviewNotes)
         {
             bool isResult = false;
@@ -5961,7 +5954,7 @@ namespace Fingerprints.Controllers
 
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetClientProfile(long ClientId, string dateReview)
         {
 
@@ -5978,14 +5971,14 @@ namespace Fingerprints.Controllers
             }
             return Json(clientProfile, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public ActionResult CFRReport()
 
         {
             //  var userid = Session["UserID"].ToString();
             return View();
         }
-
+        [CustAuthFilter()]
         public JsonResult GetCFRReport(long centerID = 0)
         {
             List<Guid?> useridList = new List<Guid?>();
@@ -6007,7 +6000,7 @@ namespace Fingerprints.Controllers
             return Json(new { useridList, anaList }, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetCenters()
         {
             List<Class_Center> centers = new List<Class_Center>();
@@ -6245,7 +6238,7 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
-
+        [CustAuthFilter()]
         public ActionResult GetAddressByClientId(string ClientId)
         {
             string JSONString = string.Empty;
@@ -6279,7 +6272,7 @@ namespace Fingerprints.Controllers
 
             return Json(familyData.AddWellBabyDetails(Screening,Session["AgencyId"].ToString(),Session["UserId"].ToString()));
         }
-
+        [CustAuthFilter()]
         public ActionResult GetWellBabyExamDetails(Screening Screening)
         {
             familyData = new FamilyData();
@@ -6297,13 +6290,7 @@ namespace Fingerprints.Controllers
             status = familyData.UpdateDateOfBirth(DOB, Clientid);
             return Json(status);
         }
-        public ActionResult UpdateJobTraining(string Clientid, bool IsCompleted)
-        {
-            bool status = false;
-            familyData = new FamilyData();
-            status = familyData.UpdateJobTraining(IsCompleted, Clientid);
-            return Json(status);
-        }
+        [CustAuthFilter()]
         public ActionResult GetDemographicPercentage()
         {
             try
@@ -6317,7 +6304,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-
+        [CustAuthFilter()]
         public ActionResult GetAcceptanceStatus(string ClientId)
         {
             try
@@ -6331,21 +6318,23 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-
+        [CustAuthFilter()]
         public JsonResult SaveReviewAgainDetails(string ClientId, string RoleId)
         {
 
             return Json(new FamilyData().SaveReviewAgainDetails(ClientId, RoleId, Session["AgencyID"].ToString(), Session["Userid"].ToString()));
         }
+        [CustAuthFilter()]
         public ActionResult AcceptanceProcess()
         {
             return View();
         }
+        [CustAuthFilter()]
         public ActionResult Testing()
         {
             return View();
         }
-
+        [CustAuthFilter()]
         public JsonResult GetProgramDatesByProgram(long programID)
         {
             //DataSet dateset = new DataSet();
@@ -6359,89 +6348,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        [HttpGet]
-        public ActionResult HouseholdDetails(string id = "0")
-        {
-            FamilyHouseless householdDetails = new FamilyHouseless();
-            householdDetails.FamilyHousehold = new FamilyHousehold();
-            householdDetails.FamilyHousehold.Encrypthouseholid = id;
-
-            householdDetails = new FamilyData().GetHouseholdDetails(householdDetails);
-            ViewBag.message = "";
-
-            return View(householdDetails);
-        }
-
-        [HttpPost]
-        [ValidateInput(false)]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        public ActionResult HouseholdDetails(FamilyHouseless homeless)
-        {
-            string message = "";
-            List<CaseNote> CaseNoteList = new List<CaseNote>();
-            RosterNew.Users Users = new RosterNew.Users();
-
-
-            if (homeless.HasNewAddress && homeless.FamilyHousehold.HomeType == 1)
-            {
-                homeless.FamilyHousehold.Street = homeless.NewAddressHousehold.Street;
-                homeless.FamilyHousehold.StreetName = homeless.NewAddressHousehold.StreetName;
-                homeless.FamilyHousehold.ZipCode = homeless.NewAddressHousehold.ZipCode;
-                homeless.FamilyHousehold.City = homeless.NewAddressHousehold.City;
-                homeless.FamilyHousehold.State = homeless.NewAddressHousehold.State;
-                homeless.FamilyHousehold.County = homeless.NewAddressHousehold.County;
-                homeless.FamilyHousehold.FileaddressAvatar = homeless.FamilyHousehold.FileaddressAvatar;
-
-            }
-
-
-            if (homeless.FamilyHousehold.FileaddressAvatar != null)
-            {
-                homeless.FamilyHousehold.HFileName = homeless.FamilyHousehold.FileaddressAvatar.FileName;
-                homeless.FamilyHousehold.HFileExtension = Path.GetExtension(homeless.FamilyHousehold.FileaddressAvatar.FileName);
-                BinaryReader b = new BinaryReader(homeless.FamilyHousehold.FileaddressAvatar.InputStream);
-                homeless.FamilyHousehold.HImageByte = b.ReadBytes(homeless.FamilyHousehold.FileaddressAvatar.ContentLength);
-            }
-            else
-            {
-                homeless.FamilyHousehold.HImageByte = homeless.FamilyHousehold.HFileInString == null ? null : Convert.FromBase64String(homeless.FamilyHousehold.HFileInString);
-            }
-
-         //   message = familyData.SaveFamilySummary(homeless.FamilyHousehold, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
-            if (message == "1")
-            {
-
-                if (homeless.HasCaseNoteDetails)
-                {
-
-                    homeless.CaseNoteDetails.CaseNotetags = string.IsNullOrEmpty(homeless.CaseNoteDetails.CaseNotetags) ? "" : homeless.CaseNoteDetails.CaseNotetags.Substring(0, homeless.CaseNoteDetails.CaseNotetags.Length - 1);
-                    homeless.CaseNoteDetails.ClientIds = (homeless.UsersList.Clientlist != null && homeless.UsersList.Clientlist.Count > 0) ? string.Join(",", homeless.UsersList.Clientlist.Where(x => x.Id != "").Select(x => EncryptDecrypt.Decrypt64(x.Id)).ToArray()) : "";
-                    homeless.CaseNoteDetails.StaffIds = (homeless.UsersList.UserList != null && homeless.UsersList.UserList.Count > 0) ? string.Join(",", homeless.UsersList.UserList.Where(x => x.Id != "").Select(x => x.Id).ToArray()) : "";
-                    homeless.CaseNoteDetails.HouseHoldId = homeless.FamilyHousehold.HouseholdId.ToString();
-                    homeless.CaseNoteDetails.IsLateArrival = false;
-                    //homeless.CaseNoteDetails.ClientId = EncryptDecrypt.Decrypt64(homeless.FamilyHousehold.clientIdnew);
-                    //homeless.CaseNoteDetails.ProgramId = homeless.FamilyHousehold.CProgramType;
-                    //homeless.CaseNoteDetails.CenterId = homeless.FamilyHousehold.CenterId.ToString();
-                    homeless.CaseNoteDetails.CaseNoteid = "0";
-                    message = new RosterData().SaveCaseNotes(ref message, ref CaseNoteList, ref Users, homeless.CaseNoteDetails, homeless.CaseNoteAttachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), 2);
-                }
-
-                ViewBag.message = "Household summary updated successfully.";
-
-            }
-
-
-
-
-
-            var sre = homeless.FamilyHousehold.FamilyHasAddress;
-            return View(homeless);
-
-            //return RedirectToAction("HouseholdDetails", "AgencyUser", new { @id = homeless.FamilyHousehold.Encrypthouseholid });
-        }
-
-
+      
         [HttpPost]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
         public JsonResult GetClassroomWithSeats(dynamic centerId)
@@ -6511,7 +6418,7 @@ namespace Fingerprints.Controllers
 
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult AgencyStaffDashboardAjax()
         {
             TempData["userrole"] = FingerprintsModel.EncryptDecrypt.Encrypt64(Session["Roleid"].ToString());
@@ -6525,260 +6432,5 @@ namespace Fingerprints.Controllers
 
             return Json(hrCenter, JsonRequestBehavior.AllowGet);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        [HttpGet]
-        public ActionResult WithdrawnClients()
-        {
-
-            TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
-            try
-            {
-                transwithdrawal.ProcessMode = Mode.Withdrawal;
-
-               transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode);
-                transwithdrawal.IsWithdrawal = true;
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return View(transwithdrawal);
-        }
-
-        [CustAuthFilter()]
-        public ActionResult GetWithdrawnListByCenter(string CenterId, string ClassRoomID, string FSWId,string SearchText="", int reqPage=1,int pgSize=10)
-        {
-
-            TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
-            try
-            {
-                int _centerid = 0;
-                int _classroomid = 0;
-
-                 _centerid = string.IsNullOrEmpty(CenterId) || CenterId == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
-                 _classroomid = string.IsNullOrEmpty(ClassRoomID) || ClassRoomID == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(ClassRoomID));
-
-                transwithdrawal.ProcessMode = Mode.Withdrawal;
-
-                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText, reqPage, pgSize);
-                transwithdrawal.IsWithdrawal = true;
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return PartialView("~/Views/Partialviews/TransitionWithdrawalListPartial.cshtml", transwithdrawal);
-
-        }
-
-        [CustAuthFilter()]
-        public ActionResult GetTransitionListByCenter(string CenterId, string ClassRoomID, string FSWId, string SearchText = "", int reqPage = 1, int pgSize = 10)
-        {
-
-            TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
-            try
-            {
-                int _centerid = 0;
-                int _classroomid = 0;
-
-                _centerid = string.IsNullOrEmpty(CenterId) || CenterId == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
-                _classroomid = string.IsNullOrEmpty(ClassRoomID) || ClassRoomID == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(ClassRoomID));
-
-                transwithdrawal.ProcessMode = Mode.Transition;
-
-                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText, reqPage, pgSize);
-
-                transwithdrawal.IsWithdrawal = false;
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return PartialView("~/Views/Partialviews/TransitionWithdrawalListPartial.cshtml", transwithdrawal);
-
-        }
-
-
-
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        [HttpGet]
-        public ActionResult TransitionClients()
-        {
-            TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
-            try
-            {
-                transwithdrawal.ProcessMode = Mode.Transition;
-                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode);
-                transwithdrawal.IsWithdrawal = false;
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return View(transwithdrawal);
-        }
-
-        [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-
-        public JsonResult GetClassroomsWithFSWHVByCenter(string centerId)
-        {
-            List<SelectListItem> stafflist = new List<SelectListItem>();
-            List<ClassRoom> classroomList = new List<ClassRoom>();
-            try
-            {
-
-
-                classroomList = new RosterData().GetClassroomsWithFSWHVByCenter(ref stafflist, centerId);
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return Json(new { classroomList, stafflist }, JsonRequestBehavior.AllowGet);
-        }
-
-        [CustAuthFilter()]
-        public JsonResult GetWithdrawnTranstionQuestionsByClient(string clientId)
-        {
-            TransitionWithdrawal withdrawntr = TransitionWithdrawal.Instance;
-            try
-            {
-                clientId = EncryptDecrypt.Decrypt64(clientId);
-                withdrawntr.ProcessMode = Mode.Withdrawal;
-                withdrawntr = new agencyData().GetTransitionWithDrawalClients((int)withdrawntr.ProcessMode);
-                withdrawntr.IsWithdrawal = true;
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-
-            return Json(withdrawntr, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        [ValidateInput(false)]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-        public JsonResult UpdatePregMomEnrollmentStatus(string Transition, string PregMomChilds)
-        {
-
-            List<SeatAvailability> results = new List<SeatAvailability>();
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            
-            TransitionDetails transitionDetails = new TransitionDetails();
-
-            List<PregMomChilds> pregChilds = new List<FingerprintsModel.PregMomChilds>();
-            Transition transition = new FingerprintsModel.Transition();
-            List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
-            var ate = Request.Files;
-            var ate2 = ate.AllKeys;
-
-            for (int i = 0; i < ate2.Length; i++)
-            {
-                RosterNew.Attachment aatt = new RosterNew.Attachment();
-                aatt.file = ate[i];
-                attach.Add(aatt);
-            }
-
-
-            transition = serializer.Deserialize<Transition>(Transition);
-            pregChilds = serializer.Deserialize<List<PregMomChilds>>(PregMomChilds);
-            transition.CaseNoteDetails.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
-
-            transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
-            transition.ParentID = (transition.ParentID == "0" || transition.ParentID == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID);
-            transitionDetails.Transition = transition;
-            transitionDetails.PregMomChilds = pregChilds;
-
-            transitionDetails.Transition.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.EClientID));
-            transitionDetails.Transition.HouseholdId = EncryptDecrypt.Decrypt64(transitionDetails.Transition.HouseholdId);
-            transitionDetails.Transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.Enc_ProgID));
-
-            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, Session["AgencyId"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString());
-
-            return Json(results);
-        }
-
-        [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-
-        public JsonResult UpdatePregMomDentalExam(long clientId,bool dentalAnswer)
-        {
-
-            bool isResult = false;
-            try
-            {
-
-                isResult=  new FamilyData().UpdatePregMomDentalExam(clientId, dentalAnswer);
-            }
-            catch(Exception ex)
-            {
-                clsError.WriteException(ex);
-
-            }
-            return Json(isResult, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        [CustAuthFilter()]
-        public JsonResult GetPIRQuestionAnswer(string ClientId, string QuestionNumber, bool IsPregMom,string programTypeID)
-        {
-           // string result = "";
-
-            FamilyData fdata = new FamilyData();
-            List<Tuple<int, string, int>> tuples = new List<Tuple<int, string, int>>();
-            WithdrawalQuestions transWithdrawal = new WithdrawalQuestions();
-            try
-            {
-                long _progID = 0;
-                _progID = Int64.TryParse(programTypeID, out _progID) ? _progID : Convert.ToInt64(EncryptDecrypt.Decrypt64(programTypeID));
-
-
-                transWithdrawal = fdata.GetAnswerForPIRQuestions(out tuples,ClientId, QuestionNumber, IsPregMom, _progID);
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-
-            }
-           //if(QuestionNumber=="9")
-           // return Json( tuples ,JsonRequestBehavior.AllowGet);
-           //else
-                return Json(transWithdrawal, JsonRequestBehavior.AllowGet);
-        }
-        [HttpPost]
-        [ValidateInput(false)]
-        [CustAuthFilter()]
-
-        public JsonResult SaveWithdrawnQuestion(string transition)
-        {            
-            bool isResult = false;
-            try
-            {
-                Transition trans = new Transition();
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                trans = serializer.Deserialize<Transition>(transition);
-                trans.ClientId =Convert.ToInt64( EncryptDecrypt.Decrypt64(trans.EClientID));
-                trans.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(trans.Enc_ProgID));
-                trans.ParentID = (string.IsNullOrEmpty(trans.ParentID) || trans.ParentID == "0") ? "0" : EncryptDecrypt.Decrypt64(trans.ParentID);
-                trans.ParentID2 = (string.IsNullOrEmpty(trans.ParentID2) || trans.ParentID2 == "0") ? "0" : EncryptDecrypt.Decrypt64(trans.ParentID2);
-                isResult = new FamilyData().UpdateWithdrawQuestions(trans, Session["AgencyID"].ToString(),Session["UserID"].ToString());
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-
-            }
-            return Json(isResult, JsonRequestBehavior.AllowGet);
-        }
-    
     }
 }
