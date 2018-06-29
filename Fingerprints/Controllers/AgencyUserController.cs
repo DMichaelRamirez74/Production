@@ -3046,11 +3046,11 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult Getallcenter(string mode)
+        public JsonResult Getallcenter(string mode,bool homebased)
         {
             try
             {
-                return Json(familyData.Getallcenter(mode, Session["Roleid"].ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                return Json(familyData.Getallcenter(mode, Session["Roleid"].ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString(), homebased));
             }
             catch (Exception Ex)
             {
@@ -3972,14 +3972,38 @@ namespace Fingerprints.Controllers
         }
        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
         [HttpPost]
-        public ActionResult DropClient(Transition Transition)
+        [ValidateInput(false)]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public ActionResult DropClient(string Transition)
         {
             try
             {
-    
-                var id = familyData.DropClient(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Transition);
-                return Json(id);
-               
+
+                Transition transition = new Transition();
+
+
+                List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
+                var ate = Request.Files;
+                var ate2 = ate.AllKeys;
+
+                for (int i = 0; i < ate2.Length; i++)
+                {
+                    RosterNew.Attachment aatt = new RosterNew.Attachment();
+                    aatt.file = ate[i];
+                    attach.Add(aatt);
+                }
+
+
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                transition = serializer.Deserialize<Transition>(Transition);
+                transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
+                transition.ParentID = (transition.ParentID == "0" || transition.ParentID == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID);
+                transition.ParentID2 = (transition.ParentID2 == "0" || transition.ParentID2 == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID2);
+                var id = familyData.DropClient(transition);
+                return Json(id, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception Ex)
             {
@@ -3989,12 +4013,14 @@ namespace Fingerprints.Controllers
         }
 
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,e4c80fc2-8b64-447a-99b4-95d1510b01e9")] //added  e4c80fc2-8b64-447a-99b4-95d1510b01e9 on 01/02/2018
-      
-        public JsonResult GetEnrollReason(string Status = "0")
+
+        public JsonResult GetEnrollReason(string Status = "0", string clientId = "0")
         {
             try
             {
-                return Json(new FamilyData().GetEnrollReason(Status, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+
+
+                return Json(new FamilyData().GetEnrollReason(Status, clientId));
             }
             catch (Exception Ex)
             {
