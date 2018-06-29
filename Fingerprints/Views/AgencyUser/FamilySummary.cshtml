@@ -26,6 +26,57 @@
         var EnrolledObject = null;
 
 
+
+        function updateDentalQuestion(ele)
+        {
+
+
+            if($('#showDentalModal').find('input[name=DentalServicesradio]:checked').length==0)
+            {
+                customAlert('Please select Yes or No');
+                return false;
+            }
+
+            var answ=$('#showDentalModal').find('input[name=DentalServicesradio]:checked').val()=='1'?true:false;
+
+            $.ajax({
+                url: HostedDir + '/AgencyUser/UpdatePregMomDentalExam',
+                datatype: 'json',
+                type: 'post',
+                data:{clientID: $('#showDentalModal').find('#pregID').val(),dentalAnswer:answ},
+                success:function(data)
+                {
+                    if(data)
+                    {
+                        debugger;
+                        customAlert('Record updated successfully');
+                        var po=parseInt($('#showDentalModal').find('#pregID').attr('pos'));
+                        $('input[name=dentalExamPreg]')[po].value=$('#showDentalModal').find('input[name=DentalServicesradio]:checked').val();
+                        $('input[name=dentalExamPreg]').siblings('p').removeClass('Parent-badge-bg-dental-n');
+                        $('input[name=dentalExamPreg]').siblings('p').addClass('Parent-badge-bg-dental-y');
+                        $('#showDentalModal').modal('hide');
+                    }
+                    else
+                    {
+                        customAlert('Some Error Occured.Please, try again later.');
+                        $('#showDentalModal').modal('hide');
+                        
+                    }
+
+                },
+                error:function(data)
+                {
+                    $('#showDentalModal').modal('hide');
+                },
+                complete:function(data)
+                {
+                    $('#showDentalModal').modal('hide');
+                }
+
+
+            });
+        }
+
         function Checkdate(date) {
             var isAllow = false;
             var now = new Date();
@@ -37,6 +88,70 @@
             }
             return isAllow;
         }
+
+
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+        function checkClassdate(value) {
+
+            isValid = true;
+            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(value).val())) {
+                    customAlert("Invalid date format. ");
+                    $(value).val('');
+                    return false;
+                }
+            }
+            var txtdate = $(value).val();
+            var selectedTimestampequal = new Date();
+            var year = selectedTimestampequal.getFullYear();
+            var month = selectedTimestampequal.getMonth() + 1;
+            var day = selectedTimestampequal.getDate();
+            today1 = month + '/' + day + '/' + year;
+            var newinput = today1.split("/");
+            var newday = newinput[1];
+            var str = newday.substr(0, 1);
+            var newdaynew = ('0' + newday).slice(-2);
+
+            var newmonth = newinput[0];
+            var str1 = newmonth.substr(0, 1);
+            var newmonthnew = ('0' + newmonth).slice(-2);
+
+            today = newmonthnew + '/' + newdaynew + '/' + year;
+            if (today == txtdate) {
+                return true;
+            }
+            var testdatelocalinput = new Date(txtdate);
+            var selectedTimestamp = new Date().getTime();
+            var testdatelocalinputTS = testdatelocalinput.getTime();
+            var timestamp = new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
+            if (testdatelocalinputTS < selectedTimestamp) {
+                customAlert("Class Start Date must be greater than or equal to today's date.");
+                $(value).val('');
+                return false;
+            }
+            else if (timestamp < testdatelocalinputTS) {
+                customAlert("Class Start Date cannot be more than 30 days from today's date.");
+                $(value).val('');
+                return false;
+            }
+            return true;
+        }
+
         function isvalid_mdy(s) {
 
             var day, A = s.match(/[1-9][\d]*/g);
@@ -52,17 +167,16 @@
 
         }
 
-                function ValidateAge(birthDay, programtype)
-                {
+        function ValidateAge(birthDay, programtype) {
 
-                    debugger;
-                    var DOB = new Date(birthDay);
-                    var today = new Date();
-                    var age = today.getTime() - DOB.getTime();
-                    age = Math.floor(age / (1000 * 60 * 60 * 24 * 365.25));
-                 
+            debugger;
+            var DOB = new Date(birthDay);
+            var today = new Date();
+            var age = today.getTime() - DOB.getTime();
+            age = Math.floor(age / (1000 * 60 * 60 * 24 * 365.25));
+
             if (programtype == 'EHS' && age > 3) {
-              
+
                 $('.error-ageerror-date').text("Invalid age for EHS child");
                 return false;
             }
@@ -96,14 +210,13 @@
             var TodayDate = new Date();
             var endDate = new Date(text);
 
-                    return isValid;
-                }
-                function IsValidDOB()
-                {
-                    debugger;
-                    var isValid = true;
-                    var programtype = $('.txt-date').attr('data-programtype');
-                    var selectedDate= $('.txt-date').val();
+            return isValid;
+        }
+        function IsValidDOB() {
+            debugger;
+            var isValid = true;
+            var programtype = $('.txt-date').attr('data-programtype');
+            var selectedDate = $('.txt-date').val();
 
             if (selectedDate != "") {
                 var isValid = Checkdate(selectedDate);
@@ -137,6 +250,11 @@
 
         }
 
+        function ShowJobPopup(clientid, type) {
+            // $(arg).removeClass("zoomify");
+            $('#hChildID').val(clientid);
+            $('#UpdateJobTraining').modal('show');
+        }
 
         function ShowChangeClassReason(object) {
             if ($(object).val() == "-1")
@@ -145,9 +263,126 @@
                 $('#DivChangeClassReason').hide();
         }
 
+
+        function showPregMomDental(clientId,ele,pos)
+        {
+            let pregDental = $(ele).parent('p').next('input[name=dentalExamPreg]').val();
+
+
+            $('#showDentalModal').find('input[name=DentalServicesradio][value=' + pregDental + ']').prop('checked', true);
+         
+            $('#showDentalModal').find('#pregID').val(clientId);
+
+            $('#showDentalModal').find('#pregID').attr('pos',pos);
+
+
+            $('#showDentalModal').modal('show');
+           
+        }
+
         $(document).ready(function () {
 
 
+            $('#statusClassStart').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+
+            $('#statusClassStart').on('blur', function () {
+
+                return checkClassdate(this);
+
+            });
+
+            $('#divSelectCenter').find('#centerList').on('change', function () {
+
+
+                cleanValidation();
+
+                var centerValue = $(this).val();
+                if (centerValue == "" || centerValue == '0') {
+                    plainValidation('#centerList');
+                    customAlert('Please select center');
+                    return false;
+                }
+
+                $.ajax({
+
+                    url: HostedDir + "/AgencyUser/GetClassroomWithSeats",
+                    datatype: 'json',
+                    type: 'post',
+                    data: { centerId: centerValue },
+                    beforeSend: function () { $('#spinner').show() },
+                    success: function (data) {
+                        $('#spinner').hide();
+                        var appendSelect = '';
+                        if (data != null && data.length > 0) {
+                            appendSelect += '<option value="0">--Select Classroom--</option>';
+
+                            $.each(data, function (i, clsRoom) {
+
+                                if (clsRoom.ActualSeats <= 0) {
+                                    appendSelect += '<option value="' + clsRoom.Enc_ClassRoomId + '" disabled="disabled" style="color: red;">' + clsRoom.ClassName + '</option>';
+                                }
+                                else {
+                                    appendSelect += '<option value=' + clsRoom.Enc_ClassRoomId + '>' + clsRoom.ClassName + '</option>';
+
+                                }
+
+                            });
+                        }
+
+                        $('#divSelectClassroom').find("#classroomSelect").html(appendSelect);
+
+
+
+                    },
+                    error: function (data) {
+                        $('#spinner').hide();
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+                    },
+                    complete: function (data) {
+                        $('#spinner').hide();
+                    }
+
+
+                });
+
+            });
+
+
+            $('.btn-UpdateJobTraining').click(function () {
+
+                if ($('.jobTraing').prop('checked') == false) {
+                    customAlert("Please select Has parent completed the job training.");
+                    return false;
+                }
+                else {
+                    $.ajax({
+                        url: "/AgencyUser/UpdateJobTraining",
+                        type: "POST",
+                        data: {
+                            ClientId: $('#hChildID').val(),
+                            IsCompleted: $('.jobTraing:checked').val()
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (data) {
+                            if (data == true) {
+                                customAlert("Record updated successfully.");
+                                $('.job-badge').css('background', '#be20d0');
+                                $('#UpdateJobTraining').modal('hide');
+
+
+                            }
+                            else
+                                customAlert("Record not updated successfully.");
+                        }
+                    });
+
+                }
+
+            });
             $('.btn-DOBChange').click(function () {
 
                 if (IsValidDOB()) {
@@ -476,7 +711,7 @@
 
                 $('.errorAvailableSeat').hide();
                 $.ajax({
-                    url: HostedDir + "/Roster/GetAvailablitySetsByClass",
+                    url: HostedDir + "/Roster/GetAvailablitySeatsByClass",
                     type: "POST",
                     data: {
                         CenterId: $('#Centers').val(), ClassRoomId: $('#ddClassroom').val(), ClientID: $('#hChildID').val()
@@ -654,8 +889,8 @@
                 return isValid;
             }
             $('#SaveNoteSubmit').click(function () {
-               
-               // if (ValidateInput()) {
+
+                if (ValidateInput()) {
                     var clientIDs = [];
 
                     var Tags = '';
@@ -723,7 +958,7 @@
                                 }
                             }
                         });
-                //}
+                }
 
 
             });
@@ -1056,19 +1291,8 @@
 
 
         }
-        function uncheckdata1() {
-            if ($('#NONE1').prop("checked")) {
-                $('#TANF1').prop("checked", false);
-                $('#SSI1').prop("checked", false);
-                $('#WIC1').prop("checked", false);
-                $('#SNAP1').prop("checked", false);
-            }
-        }
-        function uncheckdataNone1() {
-            if (($('#TANF1').prop("checked")) || ($('#SSI1').prop("checked")) || ($('#WIC1').prop("checked")) || ($('#SNAP1').prop("checked"))) {
-                $('#NONE1').prop("checked", false);
-            }
-        }
+
+
         function uncheckdata() {
             if ($('#None').prop("checked")) {
                 $('#TANF').prop("checked", false);
@@ -1506,6 +1730,33 @@
                 $(this).css("background-color", "");
             });
             $('#rblwaitinglist').removeAttr('style');
+
+            if ($('#lblNewStatus').text() == 'Re-enrolled') {
+                if ($('#divSelectCenter').is(':visible') && $('#divSelectCenter').find("#centerList").val() == '0') {
+                    isValid = false;
+                    plainValidation('#centerList');
+                    customAlert('Please select center');
+                    return isValid;
+                }
+
+                if ($('#divSelectClassroom').is(':visible') && $('#divSelectClassroom').find("#classroomSelect").val() == '0') {
+                    isValid = false;
+                    plainValidation('#classroomSelect');
+                    customAlert('Please select classroom');
+                    return isValid;
+                }
+
+                if ($('#divSelectDate').is(':visible') && $('#divSelectDate').find("#statusClassStart").val() == '') {
+                    isValid = false;
+                    plainValidation('#statusClassStart');
+                    customAlert('Please enter class start date');
+                    return isValid;
+                }
+
+
+            }
+
+
             if ($('#ddlreason').val() == "" || $('#ddlreason').val() == null) {
                 isValid = false;
                 customAlert("Reason is required.");
@@ -1562,7 +1813,13 @@
                     return isValid;
 
                 }
-              
+                else if ($('.Education').is(':checked') == false) {
+                    isValid = false;
+                    customAlert("Parent/guardian education details is required");
+                    plainValidation('#EducationID');
+                    return isValid;
+
+                }
                 else if ($('.JobTrainingFinished').is(':checked') == false) {
                     isValid = false;
                     customAlert("Parent/guardian completed Job Training is required");
@@ -1588,11 +1845,10 @@
                         if (EnrolledObject != null) {
                             var Transition = {};
                             debugger;
-                            Transition.TANF = $('#TANF1').is(':checked');;
-                            Transition.SSI = $('#SSI1').is(':checked');
-                            Transition.WIC = $('#WIC1').is(':checked');
-                            Transition.SNAP = $('#SNAP1').is(':checked');
-                            Transition.NONE = $('#NONE1').is(':checked');
+                            Transition.TANF = $('#TANF').is(':checked');;
+                            Transition.SSI = $('#SSI').is(':checked');
+                            Transition.WIC = $('#WIC').is(':checked');
+                            Transition.SNAP = $('#SNAP').is(':checked');
                             //Transition.HighSchool = $('#HighSchool').val();
                             //Transition.HighSchoolGraduate = $('#HighSchoolGraduate').val();
                             //Transition.AssociateDegree = $('#AssociateDegree').val();
@@ -1617,7 +1873,9 @@
 
                             Transition.IsWaiting = $('input:radio[name="waitinglist"]:checked').val();
 
-                       
+                            Transition.Enc_CenterID = ($('#divSelectCenter').is(':visible') && $('#lblNewStatus').text() == 'Re-enrolled') ? $('#divSelectCenter').find("#centerList").val() : '0';
+                            Transition.Enc_ClassroomID = ($('#divSelectClassroom').is(':visible') && $('#lblNewStatus').text() == 'Re-enrolled') ? $('#divSelectClassroom').find("#classroomSelect").val() : '0';
+                            Transition.ClassStartDate = ($('#divSelectDate').is(':visible') && $('#lblNewStatus').text() == 'Re-enrolled') ? $('#divSelectDate').find("#statusClassStart").val() : '';
 
                             $.ajax({
                                 url: HostedDir + "/AgencyUser/DropClient",
@@ -1847,95 +2105,7 @@
             $('#OtherModel').modal('show');
         }
 
-        function Loadchangestatusmodel(object) {
-       
 
-            cleanValidation();
-            $('#divForWithdrawn').hide();
-            $('#Divwaitinglist').hide();
-            $('#Divreason').hide();
-          
-            $('input:radio').prop('checked', false);
-            $('#txtreason').val("");
-            $('input:checkbox').prop('checked', false);
-
-            $('.enroll-sec').each(function () {
-
-                $(this).css("background-color", "");
-            });
-            var Insurance = $(object).attr('data-Insurance');
-         
-
-            if ($(object).attr("accesskey") == "5") {
-                BindReason(object);
-                EnrolledObject = object;
-                $('#lblCurrentStatus').text("Enrolled");
-                // $('#lblNewStatus').text("Withdrawn");
-                $('#lblNewStatus').text("Dropped");
-                $('#Divwaitinglist').show();
-
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-                $('#ChangeclientStatus').modal('show');
-            }
-            if ($(object).attr("accesskey") == "6") {
-                BindReason(object);
-                EnrolledObject = object;
-                $('#lblCurrentStatus').text("Dropped");
-                $('#lblNewStatus').text("Re-enrolled");
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-                $('#ChangeclientStatus').modal('show');
-            }
-            if ($(object).attr("accesskey") == "7") {
-                BindReason(object);
-                EnrolledObject = object;
-                $('#lblCurrentStatus').text("Withdrawn");
-                $('#lblNewStatus').text("Re-enrolled");
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-                $('#ChangeclientStatus').modal('show');
-            }
-            if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
-                BindReason(object);
-                EnrolledObject = object;
-                if ($(object).attr("accesskey") == "8") {
-                    $('#lblCurrentStatus').text("Enrollmentservices");
-                    $('#lblNewStatus').text("Withdrawn");
-                }
-                if ($(object).attr("accesskey") == "9") {
-                    $('#lblCurrentStatus').text("Re-enrolled");
-                    $('#lblNewStatus').text("Withdrawn");
-                }
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-
-                switch (Insurance) {
-                    case "1":
-                        $('#MedicareInsurance').prop('checked', true);
-                        break;
-                    case "2":
-                        $('#NoInsurance').prop('checked', true);
-                        break;
-                    case "3":
-                        $('#OtherInsurance').prop('checked', true);
-                        break;
-                    case "4":
-                        $('#PrivateInsurance').prop('checked', true);
-                        break;
-                    case "5":
-                        $('#StateInsurance').prop('checked', true);
-                        break;
-                }
-
-                $('#divForWithdrawn').show();
-                $('#ChangeclientStatus').modal('show');
-            }
-
-
-
-
-        }
         @*function isValidChangestatus1() {
             cleanValidation();
 
@@ -2020,37 +2190,7 @@
             else
                 $('#Divreason').hide();
         }
-        function BindReason(object) {
-            console.log(object);
-            $.ajax({
-                url: HostedDir + "/Agencyuser/GetEnrollReason",
-                type: "POST",
-                data: {
-                    Status: $(object).attr("accesskey")
-                },
-                dataType: "json",
-                secureuri: false,
-                async: false,
-                success: function (response) {
-                    if (response.length > 0) {
-                        var option = "";
-                        for (var i = 0; i < response.length; i++) {
-                            option = option + '<option value="' + response[i].ReasonID + '">' + response[i].ReasonText + '</option>';
-                        }
-                        $('#ddlreason').find('option').remove().end().append(option);
-                        $('#ddlreason').val('');
-                    }
-                    else {
-                        $('#ddlreason').find('option').remove();
-                    }
-                }
-                , error: function (response) {
-                    console.log(response.responseText);
-                    // customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
-                }
-            });
 
-        }
 
 
 
@@ -2341,20 +2481,33 @@
                 height: heightparent
             });
         });
+
+        function updateHousehold() {
+
+            $('#spinner').show();
+            var EHouseholid = $('#hiddenHousehold').val();
+            var url = HostedDir + '/AgencyUser/HouseholdDetails/' + EHouseholid;
+            window.location.href = url;
+        }
+
     </script>
 
 }
 @section MainContentHolder{
-<link href="~/Content/css/Transition.css" rel="stylesheet" />
-<style>
-    /*#page-wrapper {
-        padding-left: 0;
-        padding-right: 0;
-    }*/
-   .btn-hover-none a:hover,.btn-hover-none a:active,.btn-hover-none a:focus{text-decoration:none;outline:none;}
-    .no-padding {
-        padding: 0;
-    }
+    <link href="~/Content/css/Transition.css" rel="stylesheet" />
+    <style>
+        /*#page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }*/
+        .btn-hover-none a:hover, .btn-hover-none a:active, .btn-hover-none a:focus {
+            text-decoration: none;
+            outline: none;
+        }
+
+        .no-padding {
+            padding: 0;
+        }
 
     .right-side-container-ch {
         width: 100%;
@@ -2364,47 +2517,95 @@
         min-height: 689px;
     }
 
-    .error-notify {
-        position: relative;
-        display: inline-block;
-        vertical-align: top;
-        color: red;
-        font-size: 13px;
-        margin-left: 2px;
-        font-weight: bold;
-    }
+        .error-notify {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            color: red;
+            font-size: 13px;
+            margin-left: 2px;
+            font-weight: bold;
+        }
 
-    .transition-inner .form-control {
-        background: #fff;
-        border: 1px solid #e7e7e7;
-        padding: 10px 10px;
-        color: #163b69;
-        text-align: left;
-        font-size: 15px;
-        margin: 0;
-        text-transform: none;
-        width: 100%;
-        float: left;
-        height: 43px;
-        box-shadow: none;
-        border-radius: 0;
-    }
+        .transition-inner .form-control {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            padding: 10px 10px;
+            color: #163b69;
+            text-align: left;
+            font-size: 15px;
+            margin: 0;
+            text-transform: none;
+            width: 100%;
+            float: left;
+            height: 43px;
+            box-shadow: none;
+            border-radius: 0;
+        }
 
-    .err-container, irr-error {
-        width: 100%;
-        float: left;
-        margin: 6px 0;
-    }
+        .err-container, irr-error {
+            width: 100%;
+            float: left;
+            margin: 6px 0;
+        }
 
-    .err-message {
-        display: none;
-        color: red;
-        font-size: 12px;
-        margin: 6px;
-        height: 10px;
-    }
-    .inforeader-inner-ch .hld-img {width: 108px!important;}
-</style>
+        .err-message {
+            display: none;
+            color: red;
+            font-size: 12px;
+            margin: 6px;
+            height: 10px;
+        }
+
+        .inforeader-inner-ch .hld-img {
+            width: 108px !important;
+        }
+
+
+
+        /*houseless module style*/
+        div#section_attachment label {
+            width: 26%;
+            float: left;
+        }
+
+        div#section_attachment input {
+            width: 35.8% !important;
+            float: left;
+        }
+
+        div#section_attachment .adddivspace {
+            width: auto;
+            float: left !important;
+            margin-left: 13px;
+        }
+
+        div#ClientDiv div {
+            padding: 0;
+        }
+
+        div#section_attachment {
+            padding: 0 15px;
+        }
+
+        div#StaffDiv {
+            background-color: #fff;
+        }
+
+            div#StaffDiv div {
+                padding: 0;
+            }
+
+        .import_ft_files input {
+            width: 47% !important;
+            margin-right: 10px;
+        }
+
+        .some_attach {
+            padding: 10px;
+        }
+        /*houseless module style*/
+    </style>
     <style>
         body {
             font-family: Arial,sans-serif !important;
@@ -2822,21 +3023,38 @@
             width: 100px;
         }
         #blue-down::-ms-expand {
-    display: none;
-}
-         #blue-down {
-  
-    -moz-appearance:none; /* Firefox */
-    -webkit-appearance:none;
-        background:url(../../images/drop.png) no-repeat 97% scroll #fff!important;
-    }
-.hld-img,.hld-img img{width:110px;height:110px;border-radius:100%;background:#e6e6e6;}
-    .det-cont{width:67%;}
-        .household-main-ch{height:248px;}
-        .bade-div{height:40px;}
+            display: none;
+        }
+
+        #blue-down {
+            -moz-appearance: none; /* Firefox */
+            -webkit-appearance: none;
+            background: url(../../images/drop.png) no-repeat 97% scroll #fff !important;
+        }
+
+        .hld-img, .hld-img img {
+            width: 110px;
+            height: 110px;
+            border-radius: 100%;
+            background: #e6e6e6;
+        }
+
+        .det-cont {
+            width: 67%;
+        }
+
+        .household-main-ch {
+            height: 248px;
+        }
+
+        .bade-div {
+            height: 40px;
+        }
+
         .household-main-ht {
-    height: 188px!important;
-}
+            /*height: 188px !important;*/
+            height:230px!important;
+        }
     </style>
     <div class="row Zoom">
         <div class="col-lg-12" style="padding:0;">
@@ -2854,10 +3072,11 @@
                                 </div>*@
 
                                 <div class="col-lg-12">
-                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;"><i class="fa fa-group"></i> Family Summary
-                                    
-                                    <span class="view-btn backto_listspan">
-                                        <a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back To Roster</a>
+                                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                        <i class="fa fa-group"></i> Family Summary
+
+                                        <span class="view-btn backto_listspan">
+                                            <a href="/Roster/Roster" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back To Roster</a>
 
                                     </span>
                                     </h2>
@@ -2891,7 +3110,8 @@
                                         </div>
                                     </div>
 
-                                    @if (Model.staffList != null && Model.staffList.Count() > 0) {
+                                    @if (Model.staffList != null && Model.staffList.Count() > 0)
+                                    {
 
                                     <div class="col-md-7 col-lg-7 col-sm-12 col-xs-12">
                                         <div class="house-hold household-main-ch" style="padding: 15px 10px;margin:0;height:auto;">
@@ -3042,56 +3262,82 @@
 
                                                     @if (item.CenterId > 0 && item.ClassRoomId > 0)
                                                             {
-                                                            <li>
-                                                    <p class="household-left-txt"><i class="fa fa-institution"></i>Center</p><span class="overflow-common household-right-txt">
-                                                                <a href="#" title="@item.CenterName" class="add-new-center" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-roomname="@item.ClassRoomName" data-center-name="@item.CenterName">@item.CenterName</a>
-                                                                </span></li>
-                                                            <li>
-                                                    <p class="household-left-txt"><i class="fa fa-building"></i>Classroom</p>
-                                                                <span class="household-right-txt">
-                                                                    <a href="#" class="add-new-cls" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-attr="@item.ClassRoomId" data-cls-roomname="@item.ClassRoomName">@item.ClassRoomName</a>
-                                                                </span>
-                                                            </li>
+                                                                <li>
+                                                                    <p class="household-left-txt"><i class="fa fa-institution"></i>Center</p><span class="overflow-common household-right-txt">
+                                                                        <a href="#" title="@item.CenterName" class="add-new-center" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-roomname="@item.ClassRoomName" data-center-name="@item.CenterName">@item.CenterName</a>
+                                                                    </span>
+                                                                </li>
+                                                                <li>
+                                                                    <p class="household-left-txt"><i class="fa fa-building"></i>Classroom</p>
+                                                                    <span class="household-right-txt">
+                                                                        <a href="#" class="add-new-cls" data-childid="@item.ChildId" data-center-attr="@item.CenterId" data-cls-attr="@item.ClassRoomId" data-cls-roomname="@item.ClassRoomName">@item.ClassRoomName</a>
+                                                                    </span>
+                                                                </li>
                                                             }
 
-                                                </ul>
-                                            </div>
-                                            <div class="home-fft">
-                                                     @if (@item.Yakkr == "1")
+                                                        </ul>
+                                                    </div>
+                                                    <div class="home-fft col-xs-12">
+                                                        @{
+                                                            string encClient = FingerprintsModel.EncryptDecrypt.Encrypt64(item.ChildId.ToString());
+
+                                                        }
+
+
+                                                        @if (@item.Yakkr == "1")
                                                         {
-                                                        <a style="color:red;font-size:18px;" clientid="@item.ChildId" name="@item.Cfirstname" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Intake</a>
+
+                                                            <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Intake</a>
                                                         }
                                                         else if (@item.Yakkr == "2")
                                                         {
-                                                        <a style="color:red;font-size:18px;" clientid="@item.ChildId" name="@item.Cfirstname" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Waiting List</a>
+                                                            <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Waiting List</a>
                                                         }
                                                         else if (@item.Yakkr == "3")
                                                         {
-                                                        <a style="color:red;font-size:18px;" clientid="@item.ChildId" name="@item.Cfirstname" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Pending</a>
+                                                            <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Pending</a>
                                                         }
                                                         else if (@item.Yakkr == "4")
                                                         {
-                                                        <a style="color:red;font-size:18px;" clientid="@item.ChildId" name="@item.Cfirstname" data-Insurance="@(item.InsuranceOption)" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Accepted</a>
+                                                            <a style="color:red;font-size:18px;" clientid="@encClient" name="@item.Cfirstname" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@(item.InsuranceOption)" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Accepted</a>
                                                         }
                                                         else if (@item.Yakkr == "5")
                                                         {
-                                                        <a style="color:red;font-size:18px;" title="Click to change status" clientid="@item.ChildId" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
+                                                            <a style="color:green;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Accepted</a>
                                                         }
                                                         else if (@item.Yakkr == "6")
                                                         {
-                                                        <a style="color:red;font-size:18px;" title="Click to change status" clientid="@item.ChildId" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Dropped</a>
+                                                            <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Dropped</a>
                                                         }
                                                         else if (@item.Yakkr == "7")
                                                         {
-                                                        <a style="color:red;font-size:18px;" title="Click to change status" clientid="@item.ChildId" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Withdrawn</a>
+                                                            <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Withdrawn</a>
                                                         }
                                                         else if (@item.Yakkr == "8")
                                                         {
-                                                        <a style="color:red;font-size:18px;" title="Click to change status" clientid="@item.ChildId" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Enrollmentservices</a>
+                                                            if (item.IsFutureWithdrawal)
+                                                            {
+                                                                <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated  for future withdrawal" clientid="@encClient" progid="@item.ProgramTypeID" householdid="@item.Encrypthouseholid" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@item.InsuranceOption" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Enrolled</a>
+
+                                                            }
                                                         }
                                                         else if (@item.Yakkr == "9")
                                                         {
-                                                        <a style="color:red;font-size:18px;" title="Click to change status" clientid="@item.ChildId" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+                                                            if (item.IsFutureWithdrawal)
+                                                            {
+                                                                <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated  for future withdrawal" clientid="@encClient" householdid="@item.Encrypthouseholid" progid="@item.ProgramTypeID" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@item.Encrypthouseholid" data-Insurance="@(item.InsuranceOption)" name="@item.Cfirstname" progid="@item.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@item.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+
+                                                            }
                                                         }
                                                 <div class="btn btn-success btn-hover-none" style="float: right;"><i class="fa fa-pencil" aria-hidden="true"></i><a style="color:#fff;" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Clientid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.ChildId.ToString())">&nbsp;Edit</a>	</div>
                                             </div>
@@ -3275,20 +3521,129 @@
 
                                                 </ul>*@
 
+                                                                  
+    @if (Model.Pregnantmotherenrolled)
+    {
+        <div class="col-xs-12">
+            @{
+                string encClient = FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString());
 
-                                            <div class="home-fft" style="margin-top:0;">
+            }
 
-                                                <div class="bade-div hidden" style="width:auto;display:inline-block;float:left;">
-                                                    @*<p class="house-hold-badge Parent-badge-bg-r">P</p>*@
-                                                    <p class="house-hold-badge Parent-badge-bg-b">P</p>
-                                                    <p class="house-hold-badge Parent-badge-bg-g">P</p>
-                                                </div>
-                                                <div class="btn btn-success btn-hover-none" style="float: right;"><i class="fa fa-pencil" aria-hidden="true"></i>
-                                                    <a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())">&nbsp;Edit</a>
-                                                	</div>
-                                            </div>
-                                        </div>
-                                    </div>
+
+            @if (Model.Yakkr == "1")
+            {
+
+                <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.Pfirstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Intake</a>
+            }
+            else if (Model.Yakkr == "2")
+            {
+                <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.Pfirstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Waiting List</a>
+            }
+            else if (Model.Yakkr == "3")
+            {
+                <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.Pfirstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Pending</a>
+            }
+            else if (Model.Yakkr == "4")
+            {
+                <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.Pfirstname" householdid="@Model.Encrypthouseholid" data-Insurance="@(Model.InsuranceOption)" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Accepted</a>
+            }
+            else if (Model.Yakkr == "5")
+            {
+                <a style="color:green;font-size:18px;" title="Click to change status" clientid="@encClient" name="@Model.Pfirstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Accepted</a>
+            }
+            else if (Model.Yakkr == "6")
+            {
+                <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" name="@Model.Cfirstname" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Dropped</a>
+            }
+            else if (Model.Yakkr == "7")
+            {
+                <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" name="@Model.Cfirstname" progid="@Model.ProgramTypeID" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Withdrawn</a>
+            }
+            else if (Model.Yakkr == "8")
+            {
+                if (Model.IsFutureWithdrawal)
+                {
+                    <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated  for future withdrawal" clientid="@encClient" householdid="@Model.Encrypthouseholid" progid="@Model.ProgramTypeID" data-Insurance="@Model.InsuranceOption" name="@Model.Cfirstname" accesskey="@Model.Yakkr" href="javascript:void(0)">Enrolled</a>
+
+                }
+                else
+                {
+                    <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID" name="@Model.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Enrolled</a>
+
+                }
+            }
+            else if (Model.Yakkr == "9")
+            {
+                if (Model.IsFutureWithdrawal)
+                {
+                    <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated  for future withdrawal" clientid="@encClient" householdid="@Model.Encrypthouseholid" progid="@Model.ProgramTypeID" data-Insurance="@(Model.InsuranceOption)" name="@Model.Cfirstname" accesskey="@Model.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+
+                }
+                else
+                {
+                    <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@(Model.InsuranceOption)" progid="@Model.ProgramTypeID" name="@Model.Cfirstname" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr" href="javascript:void(0)">Re-enrolled</a>
+
+                }
+            }
+        </div>
+                }
+                                                                    
+
+                                                                    <div class="home-fft col-xs-12" style="margin-top:25px;">
+
+
+
+
+
+                                                                        <div class="bade-div" style="width:auto;display:inline-block;float:left;">
+                                                                            @*<p class="house-hold-badge Parent-badge-bg-r">P</p>*@
+
+
+                                                                            @if (Model.PEnrollment == "1")
+                                                                            {
+
+                                                                                if (Model.PEnrollmentFinished == "1")
+                                                                                {
+                                                                                    <p style="background:#be20d0;" class="house-hold-badge Parent-badge-bg-b">J</p>
+
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <p onclick="ShowJobPopup(@Model.ParentID,1)" style="background:#e2ad0f;cursor:pointer;" class="house-hold-badge job-badge Parent-badge-bg-b">J</p>
+
+                                                                                }
+
+
+                                                                            }
+                                                                            @if (Model.IsPreg == 1 && Model.Pregnantmotherenrolled)
+                                                                            {
+                                                                                if (Model.PMDentalExam != 1)
+                                                                                {
+                                                                                    <p class="house-hold-badge Parent-badge-bg-dental-n"><a href="javascript:void(0);" onclick="showPregMomDental(@Model.ParentID,this,0);">D</a></p>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <p class="house-hold-badge Parent-badge-bg-dental-y"><a href="javascript:void(0);" onclick="showPregMomDental(@Model.ParentID, this,0);">D</a></p>
+
+                                                                                }
+
+                                                                                <input type="hidden" name="dentalExamPreg" class="dentalexamPreg" value="@Model.PMDentalExam" />
+
+                                                                            }
+
+
+
+                                                                            @*<p class="house-hold-badge Parent-badge-bg-b">P</p>
+                                                                            <p class="house-hold-badge Parent-badge-bg-g">P</p>*@
+                                                                        </div>
+                                                                        <div class="btn btn-success btn-hover-none" style="float: right;">
+                                                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                                            <a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID.ToString())">&nbsp;Edit</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
                                     @if (Model.ParentID1 != 0)
                                     {
@@ -3360,19 +3715,122 @@
                                                 </ul>*@
 
 
-                                            <div class="home-fft" style="margin-top:0;">
-                                                <div class="bade-div hidden" style="width:auto;display:inline-block;float:left;">
-                                                    @*<p class="house-hold-badge Parent-badge-bg-r">P</p>*@
-                                                    <p class="house-hold-badge Parent-badge-bg-b">P</p>
-                                                    <p class="house-hold-badge Parent-badge-bg-g">P</p>
-                                                </div>
-                                                <div class="btn btn-success btn-hover-none" style="float:right;">
-                                                    <i class="fa fa-pencil" aria-hidden="true"></i>	<a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())">&nbsp;Edit</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    }
+
+                                                                      
+    @if (Model.PregnantmotherenrolledP1)
+    {
+        <div class="col-xs-12">
+            @{
+                string encClient = FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString());
+
+            }
+
+
+            @if (Model.Yakkr1 == "1")
+            {
+
+            <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.P1firstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption"  progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Intake</a>
+            }
+            else if (Model.Yakkr1 == "2")
+            {
+            <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.P1firstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Waiting List</a>
+            }
+            else if (Model.Yakkr1 == "3")
+            {
+            <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.P1firstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Pending</a>
+            }
+            else if (Model.Yakkr1 == "4")
+            {
+            <a style="color:red;font-size:18px;" clientid="@encClient" name="@Model.P1firstname" householdid="@Model.Encrypthouseholid" data-Insurance="@(Model.InsuranceOption)" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Accepted</a>
+            }
+            else if (Model.Yakkr1 == "5")
+            {
+            <a style="color:green;font-size:18px;" title="Click to change status" clientid="@encClient" name="@Model.P1firstname" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Accepted</a>
+            }
+            else if (Model.Yakkr1 == "6")
+            {
+            <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" name="@Model.P1firstname" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Dropped</a>
+            }
+            else if (Model.Yakkr1 == "7")
+            {
+            <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" name="@Model.P1firstname" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Withdrawn</a>
+            }
+            else if (Model.Yakkr1 == "8")
+            {
+            if (Model.IsFutureWithdrawal)
+            {
+            <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated  for future withdrawal" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" progid="@Model.ProgramTypeID1" name="@Model.P1firstname" accesskey="@Model.Yakkr1" href="javascript:void(0)">Enrolled</a>
+
+            }
+            else
+            {
+            <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@Model.InsuranceOption" name="@Model.P1firstname" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Enrolled</a>
+
+            }
+            }
+            else if (Model.Yakkr1 == "9")
+            {
+            if (Model.IsFutureWithdrawal1)
+            {
+            <a style="color:red;font-size:18px;" title="Enrollment Status of Client already updated  for future withdrawal" clientid="@encClient" householdid="@Model.Encrypthouseholid" progid="@Model.ProgramTypeID1" data-Insurance="@(Model.InsuranceOption)" name="@Model.P1firstname" accesskey="@Model.Yakkr1" href="javascript:void(0)">Re-enrolled</a>
+
+            }
+            else
+            {
+            <a style="color:red;font-size:18px;" title="Click to change status" clientid="@encClient" householdid="@Model.Encrypthouseholid" data-Insurance="@(Model.InsuranceOption)" name="@Model.P1firstname" progid="@Model.ProgramTypeID1" onclick="Loadchangestatusmodel(this);" accesskey="@Model.Yakkr1" href="javascript:void(0)">Re-enrolled</a>
+
+            }
+            }
+        </div>
+                }
+                                                                      
+
+
+
+                                                                        <div class="home-fft col-xs-12" style="margin-top:25px;">
+
+                                                                            <div class="bade-div" style="width:auto;display:inline-block;float:left;">
+
+
+                                                                                @if (Model.PEnrollment1 == "1")
+                                                                                {
+                                                                                    if (Model.PEnrollmentFinished1 == "1")
+                                                                                    {
+                                                                                        <p style="background:#be20d0;" class="house-hold-badge Parent-badge-bg-b">J</p>
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <p onclick="ShowJobPopup(@Model.ParentID1,2)" style="background:#e2ad0f;cursor:pointer;" class="house-hold-badge job-badge Parent-badge-bg-b">J</p>
+
+                                                                                    }
+
+                                                                                }
+                                                                                @if (Model.IsPreg1 == 1 && Model.PregnantmotherenrolledP1)
+                                                                                {
+                                                                                    if (Model.PMDentalExam1 != 1)
+                                                                                    {
+                                                                                        <p class="house-hold-badge Parent-badge-bg-dental-n"><a href="javascript:void(0);" onclick="showPregMomDental(@Model.ParentID1,this,1);">D</a></p>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <p class="house-hold-badge Parent-badge-bg-dental-y"><a href="javascript:void(0);" onclick="showPregMomDental(@Model.ParentID1,this,1);">D</a></p>
+
+                                                                                    }
+                                                                                    <input type="hidden" name="dentalExamPreg" class="dentalexamPreg" value="@Model.PMDentalExam1" />
+
+                                                                                }
+
+                                                                                @*<p class="house-hold-badge Parent-badge-bg-b">P</p>
+                                                                                <p class="house-hold-badge Parent-badge-bg-g">P</p>*@
+                                                                            </div>
+                                                                            <div class="btn btn-success btn-hover-none" style="float:right;">
+                                                                                <i class="fa fa-pencil" aria-hidden="true"></i>	<a style="color:#fff;" href="~/AgencyUser/AddNewParent?id=@Model.Encrypthouseholid&Parentid=@FingerprintsModel.EncryptDecrypt.Encrypt64(Model.ParentID1.ToString())">&nbsp;Edit</a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
 
                                 </div>
                             </div>
@@ -3423,7 +3881,7 @@
                                                             </p><span class="household-right-txt">@item.ODOB</span></li>
                                                     </ul>
                                                 </div>
-                                                <div class="home-fft">
+                                                                                <div class="home-fft col-xs-12">
                                                     @if (item.OtherEligible)
                                                             {
                                                             <a title="Click to enroll" style="color:red;" href="~/AgencyUser/AddNewChild?id=@Model.Encrypthouseholid&Name=@Model.EncryptedName&OthersId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@item.OthersId.ToString())">Eligible</a>
@@ -3495,7 +3953,7 @@
                                                     <span class="household-right-txt">@item.EDOB</span></li>
                                                 </ul>
                                             </div>
-                                            <div class="home-fft" style="margin: 10px 0 0;">
+                                                                            <div class="home-fft col-xs-12" style="margin: 10px 0 0;">
                                                 <a href="javascript:void(0)" accesskey="@item.EmegencyId" onclick="Getemergencycontact(this);" style="padding:15px;float: right; color: #fff;background-color:#5cb85c;border-radius: 4px;">View</a>
 
 
@@ -3554,7 +4012,7 @@
                                                     <li><p class="household-left-txt"> </p><span>@item.EDOB</span></li>
                                                 </ul>*@
                                             </div>
-                                            <div class="home-fft">
+                                                                            <div class="home-fft col-xs-12">
                                                 <a href="javascript:void(0)" accesskey="@item.RestrictedId" onclick="GetRestricted(this);" style="padding:15px;float: right; color: #fff;background-color:#5cb85c;border-radius: 4px;">View</a>&nbsp;
                                                 <a href="javascript:void(0)" onclick="deleteRestricted(this);" accesskey="@item.RestrictedId" style="padding:15px;float: right;color: #fff;margin-right: 15px;background-color:#e74c3c;border-radius: 4px; ">Delete</a>
 
@@ -3681,7 +4139,7 @@
                     </div>
                     <div class="control-group">
                         <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                 <div class="add-useragform">
                                     <div class="col-lg-12 col-md-12 col-sm-12">
                                         <div class="form-group">
@@ -3999,7 +4457,71 @@
                 </div>
             </div>
         </div>
+                                <div class="modal fade" id="UpdateJobTraining" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <!-- Modal content-->
+                                        <div class="modal-content">
+                                            <div class="modal-header">
 
+                                                <label class="alert-dismissible" for="current_password">Update Job Training Completion</label>
+                                            </div>
+                                            <div class="form-group-al">
+                                                <div class="form-group input-container">
+
+                                                    <div class="row">
+
+                                                        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px;">
+                                                            <div class="col-lg-7 col-xs-7" style="padding-left: 0;">
+                                                                <div class="enroll-sec" style="padding-left: 0;">
+                                                                    <div class="transition-content-desc" style="position: relative;">
+                                                                        <p style="background: none;border: none;">Has parent completed the job training?<span class="error-notify">*</span></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div> <div class="transition-radio-btn enroll-sec" id="jobTraing">
+
+                                                                <div class="radio radio-info">
+                                                                    <input type="radio" name="jobTraing" class="jobTraing" value="true">
+                                                                    <label>Yes</label>
+                                                                </div>
+                                                                <div class="radio radio-info">
+                                                                    <input type="radio" name="jobTraing" class="jobTraing" value="false">
+                                                                    <label>No</label>
+                                                                </div>
+
+
+                                                                <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                                    <span class="err-message err-message-ms">Job Training is required.</span>
+                                                                </div>
+
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-xs-12 col-sm-12" style="text-align:center">
+                                                            @*<input name="CNotes" style="width: 30%;display:inline-block;" class="form-control txtslotdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">*@
+                                                            <button class="btn-UpdateJobTraining address-btn btn btn-primary" type="button" style="display:inline-block;width:auto;">Submit</button>
+                                                        </div>
+
+                                                    </div>
+
+                                                    @*<label class="control-label" for="current_password" style="width:180px;">Date:</label>
+                                                        <input name="CNotes" style="width: 30%;display:inline-block" class="form-control txtseatdate txt-date txt-mandatory" id="CNotes" type="text" maxlength="50" placeholder="mm/dd/yyyy" value="">
+                                                        <button class="btn-seat-submit address-btn btn btn-primary" style="width:auto;display:inline-block;">Submit</button>*@
+                                                    <div class="err-container" style="height:15px;">
+                                                        <span class="error-message seats-message-empty error-message-empty" style="text-align:center;margin-top:10px;display:none;color:red;margin-left: 210px;">Date is mandatory</span>
+                                                        <span class="error-message seats-invalid-date error-invalid-date" style="text-align:center;margin-top:10px;display:none;color:red;margin-left: 210px;">Invalid Date</span>
+                                                        <span class="error-message seats-future-date error-future-date" style="text-align:center;margin-top:10px;display:none;color:red;margin-left: 210px;">Future date is not allowed</span>
+                                                        <span class="error-message seats-future-date error-ageerror-date" style="text-align:center;margin-top:10px;display:none;color:red;margin-left: 210px;">Future date is not allowed</span>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btnPassword address-btn" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
         <div class="modal fade" id="ChangeDOB" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -4059,7 +4581,7 @@
                     </div>
                     <div class="control-group">
                         <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                 <div class="add-useragform">
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="form-group">
@@ -4161,7 +4683,7 @@
                     </div>
                     <div class="control-group">
                         <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                 <div class="add-useragform">
                                     <div class="col-lg-6 col-md-6 col-sm-12">
                                         <div class="form-group">
@@ -4310,7 +4832,7 @@
                     </div>
                     <div class="control-group">
                         <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                 <div class="add-useragform">
 
                                     <div class="col-lg-6 col-md-6 col-sm-12">
@@ -4359,547 +4881,21 @@
         </div>
 
 
-        <div class="modal fade" id="ChangeclientStatus" role="dialog">
-            <div class="modal-dialog income-popup width-auto">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
-                    </div>
-                    <div class="control-group">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
-                                <div class="add-useragform1">
+                                @Html.Partial("~/Views/Partialviews/EnrollmentStatusChangePartial.cshtml")
 
-                                    <div class="col-sm-12">
-                                        <fieldset style="border: 1px solid #295b8f; ">
-                                            <legend class="legend1"></legend>
-                                            <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                    <div class="enroll-sec" style="padding-left: 0;">
-                                                        <div class="transition-content-desc" style="position: relative;">
-                                                            <p style="background: none;border: none;">Name<span class="error-notify">*</span></p>
-                                                        </div>
-                                                    </div>
+
+
+
+                                @*<div class="modal fade" id="ChangeclientStatus" role="dialog">
+                                        <div class="modal-dialog income-popup width-auto">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
                                                 </div>
-                                                <div class="col-lg-5 col-xs-7" style="padding:0;">
-                                                    <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
-                                                        <div class="col-sm-12">
-                                                            <label style="width: 100%; font-size: 15px; padding-top:10px; color: #337ab7;" id="ClientNameAll"></label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                    <div class="enroll-sec" style="padding-left: 0;">
-                                                        <div class="transition-content-desc" style="position: relative;">
-                                                            <p style="background: none;border: none;">Current Status<span class="error-notify">*</span></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-8 col-sm-7">
-                                                    <label style="width: 100%; font-size: 15px; color: #337ab7;padding-top:10px" id="lblCurrentStatus"></label>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                    <div class="enroll-sec" style="padding-left: 0;">
-                                                        <div class="transition-content-desc" style="position: relative;">
-                                                            <p style="background: none;border: none;">New Status<span class="error-notify">*</span></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-8 col-sm-7">
-                                                    <label style="width: 100%; font-size: 15px; color: #337ab7; padding-top:5px;" id="lblNewStatus"></label>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                                <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                    <div class="enroll-sec" style="padding-left: 0;">
-                                                        <div class="transition-content-desc" style="position: relative;">
-                                                            <p style="background: none;border: none;">Reason<span class="error-notify">*</span></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-8 col-sm-7">
-                                                    <select id="ddlreason" style="width:40%;" onchange="Showreason(this);" class="form-control">
-                                                        <option>Others</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            @*<div class="col-sm-9">
-                                                <div class="col-sm-3">
-                                                    <label style="width:100%;">New Status</label>
-                                                </div>
-                                                <div class="col-sm-5">
-                                                    <label style="width: 100%; font-size: 15px; color: #337ab7;" id="lblNewStatus"></label>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-9" style="margin-bottom:1%;">
-                                                <div class="col-sm-3">
-                                                    <label style="width:100%;">Reason<sup>*</sup></label>
-                                                </div>
-                                                <div class="col-sm-5">
-                                                    <select id="ddlreason" style="width:100%;" onchange="Showreason(this);" class="form-control">
-                                                        <option>Others</option>
-                                                    </select>
-                                                </div>
-                                            </div>*@
-                                            <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="Divreason">
-                                                <div class="col-sm-3">
-                                                    <label style="width:100%;"></label>
-                                                </div>
-                                                <div class="col-sm-5">
-                                                    <textarea id="txtreason" placeholder="Reason" class="form-control"></textarea>
-                                                </div>
-                                            </div>
-                                            <div id="divForWithdrawn" style="display:none;">
-
-                                                <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                        <div class="enroll-sec" style="padding-left: 0;">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Insurance Type<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-5 col-xs-7" style="padding:0;">
-                                                        <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="InsType" id="MedicareInsurance" class="InsuranceType" value="C3A1">
-                                                                    <label>Medicare / Chip</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="InsType" id="StateInsurance" class="InsuranceType" value="C3B1">
-                                                                    <label>State Insurance</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="InsType" id="PrivateInsurance" class="InsuranceType" value="C3C1">
-                                                                    <label>Private Insurance</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="InsType" id="NoInsurance" class="InsuranceType" value="C4">
-                                                                    <label>No Insurance</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="InsType" id="OtherInsurance" class="InsuranceType" value="C3D1">
-                                                                    <label>Other Insurance</label>
-                                                                </div>
-                                                                <div class="transition-inner divInsType" style="position: relative;width: 50%;display: none;">
-                                                                    <span class="transition-field-style"></span>
-                                                                    <input type="text" class="form-control" id="OtherInsuranceType" value="">
-                                                                    <div class="err-container irr-error">
-                                                                        <span class="other-ins-err"></span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                            <span class="err-message err-message-instype">Insurance type is required</span>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Ongoing source continuous, accessible health care?<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec" id="MedicalHomeID">
-
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="MedicalHome" class="MedicalHome" value="true">
-                                                                <label>Yes</label>
-                                                            </div>
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="MedicalHome" class="MedicalHome" value="false">
-                                                                <label>No</label>
-                                                            </div>
-
-
-                                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                                <span class="err-message err-message-ms">Medical Home is required</span>
-                                                            </div>
-
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Is the child  up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care?<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec" id="MedicalServicesID">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="MedicalServices" class="MedicalServices" value="true">
-                                                                <label>Yes</label>
-                                                            </div>
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="MedicalServices" class="MedicalServices" value="false">
-                                                                <label>No</label>
-                                                            </div>
-
-                                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                                <span class="err-message err-message-ms">Medical services is required</span>
-                                                            </div>
-
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5" ">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Did child have continual accessible dental care provided by a dentist<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec" id="DentalHomeID">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="DentalHome" class="DentalHome" value="true">
-                                                                <label>Yes</label>
-                                                            </div>
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="DentalHome" class="DentalHome" value="false">
-                                                                <label>No</label>
-                                                            </div>
-
-
-                                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                                <span class="err-message err-message-ms">Medical services is required</span>
-                                                            </div>
-
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule?<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec" id="DentalServicesID">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="DentalServices" class="DentalServices" value="true">
-                                                                <label>Yes</label>
-                                                            </div>
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="DentalServices" class="DentalServices" value="false">
-                                                                <label>No</label>
-                                                            </div>
-
-                                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                                <span class="err-message err-message-ms">Medical services is required</span>
-                                                            </div>
-
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Is Child up-to-date on all immunizations appropriate for their age?<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-inner" style="position: relative;">
-                                                            <select id="ddImmunizationType" style="height:45px !important;width:350px;" class="form-control  mandatory clsTransitioningType">
-                                                                <option value="">--Select--</option>
-                                                                <option value="1">Yes</option>
-                                                                <option value="2">No</option>
-                                                                <option value="3">Child has not received all immunizations appropriate for their age</option>
-                                                            </select>
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Is the family receiving any of the following services?<span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec" id="ServicesId">
-
-
-                                                            <div class="col-xs-6 col-sm-2">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="TANF1" name="TANF1" class="services" onchange="uncheckdataNone1();" value="true" />
-                                                                    <span>TANF</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-2">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="SSI1" name="SSI1" class="services" onchange="uncheckdataNone1();" value="true" />
-                                                                    <span>SSI</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-2">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="SNAP1" name="SNAP1" class="services" onchange="uncheckdataNone1();" value="true" />
-                                                                    <span>SNAP</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-2">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="WIC1" name="WIC1" class="services" onchange="uncheckdataNone1();" value="true" />
-                                                                    <span>WIC</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-2">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="NONE1" onchange="uncheckdata1();" name="NONE1" class="services" value="true" />
-                                                                    <span>NONE</span>
-                                                                </label>
-                                                            </div>
-
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none;">Has any parent/guardian completed the following (education)?</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec margin-enroll" id="EducationID" style="margin-left:0px;">
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="EduType" class="Education" value="1">
-                                                                    <label>Grade Level prior to high school</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="EduType" class="Education" value="2">
-                                                                    <label>GED or High School Graduate</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="EduType" class="Education" value="3">
-                                                                    <label>Associate Degree</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-xs-12 no-padding">
-                                                                <div class="radio radio-info">
-                                                                    <input type="radio" name="EduType" class="Education" value="4">
-                                                                    <label>Baccalaureate or Advanced Degree</label>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                        @*<div class="transition-radio-btn enroll-sec">
-
-                                                            <div class="col-xs-6 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="HighSchool" name="HighSchool" class="Education" value="true" />
-
-                                                                    <span>Grade Level prior to high school </span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="HighSchoolGraduate" name="HighSchoolGraduate" class="Education" value="true" />
-
-                                                                    <span>GED or High School Graduate</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="AssociateDegree" name="AssociateDegree" class="Education" value="true" />
-                                                                    <span>Associate Degree</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xs-6 col-sm-12">
-                                                                <label class="checkbox-inline">
-                                                                    <input type="checkbox" id="AdvancedDegree" name="AdvancedDegree" class="Education" value="true" />
-                                                                    <span>Baccalaureate or Advanced Degree</span>
-                                                                </label>
-                                                            </div>
-
-
-                                                        </div>*@
-                                                    </div>
-
-                                                </div>
-
-                                                <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                    <div class="col-lg-5 col-xs-5">
-                                                        <div class="enroll-sec">
-                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                <p style="background: none;border: none">Has parent/guardian completed Job Training? <span class="error-notify">*</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-7 col-xs-7">
-                                                        <div class="transition-radio-btn enroll-sec" id="JobTrainingFinishedID">
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="true">
-                                                                <label>Yes</label>
-                                                            </div>
-                                                            <div class="radio radio-info">
-                                                                <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="false">
-                                                                <label>No</label>
-                                                            </div>
-                                                            <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                                <span class="err-message err-message-ms">Medical services is required</span>
-                                                            </div>
-
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                            @*<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                                <div class="col-lg-3 col-xs-5">
-                                                    <div class="enroll-sec">
-                                                        <div class="transition-content-desc" style="position: relative;">
-                                                            <p style="background: none;border: none;">Place on Waiting List<span class="error-notify">*</span></p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-7 col-xs-7">
-                                                    <div class="transition-radio-btn enroll-sec">
-
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="MedicalHome" class="MedicalHome" value="true">
-                                                            <label>Yes</label>
-                                                        </div>
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="MedicalHome" class="MedicalHome" value="false">
-                                                            <label>No</label>
-                                                        </div>
-
-
-                                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                            <span class="err-message err-message-ms">Medical Home is required</span>
-                                                        </div>
-
-
-                                                    </div>
-
-                                                </div>
-                                            </div>*@
-
-
-
-                                            <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="Divwaitinglist">
-                                                <div class="col-sm-3" style="padding:0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Place on Waiting List<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-9" id="rblwaitinglist">
-
-
-                                                    <div class="transition-radio-btn enroll-sec">
-
-                                                        <div class="radio radio-info">
-                                                            <input id="rdWaintingList" name="waitinglist" tabindex="22" type="radio" value="1">
-
-                                                            <label>Yes</label>
-                                                        </div>
-                                                        <div class="radio radio-info">
-                                                            <input data-val="true" id="rdWaintingList" name="waitinglist" tabindex="23" type="radio" value="0">
-
-                                                            <label>No</label>
-                                                        </div>
-
-
-                                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                            <span class="err-message err-message-ms">Medical Home is required</span>
-                                                        </div>
-
-
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-
-                                        </fieldset>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <div class="btnwrp_subcal">
-                                    <button type="button" class="my-btn" onclick="return isValidStatusChange();">Submit</button>
-                                    <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        @*<div class="modal fade" id="ChangeclientStatus" role="dialog">
-            <div class="modal-dialog income-popup width-auto">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
-                    </div>
-                    <div class="control-group">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
-                                <div class="add-useragform">
+                                                <div class="control-group">
+                                                    <div class="row">
+                                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
+                                                            <div class="add-useragform">
 
                                     <div class="col-sm-12">
                                         <fieldset style="border: 1px solid #295b8f; ">
@@ -5249,4 +5245,46 @@
         </div>
     </div>
 
-}|
+
+
+    <!-- Modal -->
+<div id="showDentalModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                @*<h4 class="modal-title">Modal Header</h4>*@
+            </div>
+            <div class="modal-body">
+                
+              
+                <strong>Has pregnant mother had a professional dental exam since last year's PIR?</strong>
+                <input type="hidden" id="pregID"/>
+                <div id="DentalServicesID" style="text-align:center;margin-top:20px;">
+                        <div class="radio radio-info">
+                            <input type="radio" name="DentalServicesradio"  value="1">
+                            <label>Yes</label>
+                        </div>
+                        <div class="radio radio-info">
+                            <input type="radio" name="DentalServicesradio"  value="0">
+                            <label>No</label>
+                        </div>
+
+                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                            <span class="err-message err-message-ms">Medical services is required</span>
+                        </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="updateDentalQuestion(this);">Accept</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+}

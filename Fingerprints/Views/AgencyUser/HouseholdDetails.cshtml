@@ -1,0 +1,1907 @@
+﻿@model FingerprintsModel.FamilyHouseless
+
+@{
+    @section Title{
+        Household Details
+    }
+
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+
+@section Style{
+
+
+    <link href="~/Content/css/householddetails.css" rel="stylesheet" />
+
+    <style>
+
+        body {
+
+        font-family: arial,sans-serif;
+        }
+
+
+        .contact-entry-div {
+            display: none;
+        }
+
+        .impart-rght {
+            text-align: right;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            width: 98.3%;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 0px;
+            overflow: auto;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .checkbox-validation {
+            border: 1px solid #a94442;
+            padding-bottom: 10px;
+            padding-top: 5px;
+            border-radius: 10px;
+            background-color: pink;
+        }
+
+        table#centerTable thead th {
+            font-size: 14px !important;
+        }
+
+        .check-space {
+            margin-top: 0px;
+            float: left;
+            margin-right: 4px;
+        }
+    </style>
+    <link href="~/Content/css/Inkindprocessing.css" rel="stylesheet" />
+    <link href="~/Content/css/parentcontact.css" rel="stylesheet" />
+
+}
+
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            if ('@ViewBag.message' != '')
+            {
+                customAlert('@ViewBag.message');
+            }
+
+            CKEDITOR.replace('CaseNoteDetails_Note', {
+                language: 'en-gb',
+                uiColor: '#295b8f',
+                disableNativeSpellChecker: false
+            });
+
+
+            $('#backtofamily').on('click', function () {
+
+                
+                    $('#spinner').show();
+                    var EHouseholid = $('#enhousehold').val();
+                    var url = HostedDir + '/AgencyUser/FamilySummary/' + EHouseholid;
+                    window.location.href = url;
+                    //$('#spinner').hide();
+               
+
+            });
+
+            $('#newAddressDiv').find('#City1').on('change', function () {
+
+                bindCaseNoteforNoHome(1);
+            });
+
+
+            $('#caseNoteDetails_CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('input[name="FamilyHousehold.FamilyHasAddress"]').on('click', function () {
+
+              
+                $('#newAddressDiv').find('input[type=text]').val('');
+                $('#newAddressDiv').find('select').find('option').remove().end();
+                $('#newAddressDiv').find('input[type=file]').val('');
+
+
+                if ($(this).val() == '1') {
+                    $('#newAddressDiv').show('slow');
+                    bindCaseNoteforNoHome(1);
+                }
+                else {
+                    
+                    $('#newAddressDiv').hide('slow');
+                    bindCaseNoteforNoHome(2);
+                }
+
+              
+
+            });
+
+        });
+
+        //function to add More Attachments//
+        function addMore(ele) {
+            var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
+
+
+            var appendDiv = '<div class="form-group" >\
+                                            <input name="CaseNoteAttachments[' + index + '].file" accept="image/*" capture="camera" class="form-control houseless-attach"  onchange="ValidateSingleInputpdf2(this);" id="CaseNoteAttachments_' + index + '_file"  style="width:54%;display:inline-block;" tabindex="6" type="file" value="">\
+                                            <div class="some_attach" style="display:inline-block;">\
+                                                <a href="javascript:void(0);" style="display:inline-block;" title="Remove Attachment" onclick="removeAttachment(this);">Remove &nbsp;<i class="fa fa-times-circle" aria-hidden="true"></i></a>\
+                                            </div>\
+                                        </div>';
+
+            $(ele).closest('#section_attachment').siblings('.import_ft_files').append(appendDiv);
+
+        }
+
+        //function to remove additional Attachments//
+        function removeAttachment(ele) {
+            $(ele).parent('.some_attach').parent('div').remove();
+        }
+
+        //function to Check ZipCode Availability//
+        function checkZipCode(inputTextObject) {
+            if ($(inputTextObject).val() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();
+                var len = Zipcode.length;
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddress(1);
+                return ret;
+            }
+            else {
+                $('#City').find('option').remove();
+                $('#State').val('');
+                $('#County').val('');
+
+
+            }
+        }
+
+
+        function checkZipCodeNew(inputTextObject) {
+            if ($(inputTextObject).val() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();
+                var len = Zipcode.length;
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddressNew(1);
+                return ret;
+            }
+            else {
+                $('#City1').find('option').remove();
+                $('#State1').val('');
+                $('#County1').val('');
+
+
+            }
+        }
+
+        function CheckdateHouseless(value) {
+
+
+
+            isValid = true;
+            if (!$(value).attr("readonly")) {
+
+                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                    var regex = new RegExp(dateformat);
+                    if (!regex.test($(value).val())) {
+                        customAlert("Invalid date format. ");
+                        $(value).val('');
+                        return false;
+                    }
+                    else {
+                        var text = $(value).val();
+                        var comp = text.split('/');
+                        var m = parseInt(comp[0], 10);
+                        var d = parseInt(comp[1], 10);
+                        var y = parseInt(comp[2], 10);
+                        var date = new Date(y, m - 1, d);
+                        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                        } else {
+                            customAlert("Invalid date. ");
+                            $(value).val('');
+                            return false;
+                        }
+
+
+
+                    }
+                }
+                var txtdate = $(value).val();
+                var selectedTimestampequal = new Date();
+                var year = selectedTimestampequal.getFullYear();
+                var month = selectedTimestampequal.getMonth() + 1;
+                var day = selectedTimestampequal.getDate();
+                today1 = month + '/' + day + '/' + year;
+                var newinput = today1.split("/");
+                var newday = newinput[1];
+                var str = newday.substr(0, 1);
+                var newdaynew = ('0' + newday).slice(-2);
+                var newmonth = newinput[0];
+                var str1 = newmonth.substr(0, 1);
+                var newmonthnew = ('0' + newmonth).slice(-2);
+                today = newmonthnew + '/' + newdaynew + '/' + year;
+                if (today == txtdate) {
+                    return true;
+                }
+                var testdatelocalinput = new Date(txtdate);
+                var selectedTimestamp = new Date().getTime();
+                var testdatelocalinputTS = testdatelocalinput.getTime();
+                var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+                if (testdatelocalinputTS > selectedTimestamp) {
+                    customAlert("Case Note date must be less than or equal to today's date.");
+                    $(value).val('');
+                    return false;
+                }
+                else if (timestamp > testdatelocalinputTS) {
+                    customAlert("Case Note date cannot be less than 30 days from today's date.");
+                    $(value).val('');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        //function to checkAddress//
+        function CheckAddress(value) {
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $('#ZipCode').val();
+
+            if (value == 0 && $('#State').val().trim() != "") {
+                $.ajax({
+                    url: HostedDir + "/Agencyuser/Checkaddress",
+                    type: "POST",
+                    data: {
+                        Address: $('#Street').val() + $('#StreetName').val() + $('#ZipCode').val(),
+                        HouseHoldId: $('#HouseholdId').val(),
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (response.Result == 1) {
+                            BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                                if (!result) {
+                                    $('#Street').val("");
+                                    $('#StreetName').val("");
+                                    $('#ZipCode').val("");
+                                    $('#City').find('option').remove().end();
+                                    $('#City').val('');
+                                    $('#State').val('');
+                                    $('#County').val('');
+                                    bindCaseNoteForAddressChange();
+                                }
+                                if (result) {
+                                    bindCaseNoteForAddressChange();
+                                }
+                            });
+                        }
+                        else {
+                            bindCaseNoteForAddressChange();
+                        }
+                    }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                });
+
+
+            }
+            else {
+                if ($('#ZipCode').val().trim() != "") {
+
+                    $.ajax({
+                        url: HostedDir + "/Agencyuser/Checkaddress",
+                        type: "POST",
+                        data: {
+                            Address: $('#Street').val() + $('#StreetName').val() + $('#ZipCode').val(),
+                            HouseHoldId: $('#HouseholdId').val(),
+                            Zipcode: Zipcode
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (value == 1) {
+                                if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                                    var option = "";
+                                    for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                        option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                                    }
+                                    $('#City').find('option').remove().end().append(option);
+                                    $('#City').val('');
+                                    $('#State').val(response.Zipcodelist[0].State);
+                                    $('#County').val(response.Zipcodelist[0].County);
+                                    $('#ZipCode').val(response.Zipcodelist[0].Zipcode);
+                                    bindCaseNoteForAddressChange();
+                                }
+                                else {
+                                    $('#City').find('option').remove().end();
+                                    $('#City').val('');
+                                    $('#State').val('');
+                                    $('#ZipCode').val('');
+                                    $('#County').val('');
+                                    bindCaseNoteForAddressChange();
+                                    customAlert("Could not find zipcode details.");
+
+                                }
+                            }
+                            if (response.Result == 1) {
+                                BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                                    if (!result) {
+                                        $('#Street').val("");
+                                        $('#StreetName').val("");
+                                        $('#ZipCode').val("");
+                                        $('#City').find('option').remove().end();
+                                        $('#City').val('');
+                                        $('#State').val('');
+                                        $('#County').val('');
+                                        bindCaseNoteForAddressChange();
+                                    }
+                                });
+                            }
+                            if (result) {
+                                bindCaseNoteForAddressChange();
+
+                            }
+                        }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                    });
+                }
+
+
+            }
+
+
+        }
+
+
+        function CheckAddressNew(value) {
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $('#ZipCode1').val();
+
+            if (value == 0 && $('#State1').val().trim() != "") {
+                $.ajax({
+                    url: HostedDir + "/Agencyuser/Checkaddress",
+                    type: "POST",
+                    data: {
+                        Address: $('#Street1').val() + $('#StreetName1').val() + $('#ZipCode1').val(),
+                        HouseHoldId: $('#HouseholdId').val(),
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (response.Result == 1) {
+                            BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                                if (!result) {
+                                    $('#Street1').val("");
+                                    $('#StreetName1').val("");
+                                    $('#ZipCode1').val("");
+                                    $('#City1').find('option').remove().end();
+                                    $('#City1').val('');
+                                    $('#State1').val('');
+                                    $('#County1').val('');
+                                    bindCaseNoteforNoHome(1);
+                                }
+                                if (result) {
+                                    bindCaseNoteforNoHome(1);
+                                }
+                            });
+                        }
+                        else {
+                            bindCaseNoteforNoHome(1);
+                        }
+                    }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                });
+
+
+            }
+            else {
+                if ($('#ZipCode1').val().trim() != "") {
+
+                    $.ajax({
+                        url: HostedDir + "/Agencyuser/Checkaddress",
+                        type: "POST",
+                        data: {
+                            Address: $('#Street1').val() + $('#StreetName1').val() + $('#ZipCode1').val(),
+                            HouseHoldId: $('#HouseholdId').val(),
+                            Zipcode: Zipcode
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (value == 1) {
+                                if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                                    var option = "";
+                                    for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                        option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                                    }
+                                    $('#City1').find('option').remove().end().append(option);
+                                    $('#City1').val('');
+                                    $('#State1').val(response.Zipcodelist[0].State);
+                                    $('#County1').val(response.Zipcodelist[0].County);
+                                    $('#ZipCode1').val(response.Zipcodelist[0].Zipcode);
+                                    bindCaseNoteforNoHome(1);
+                                }
+                                else {
+                                    $('#City1').find('option').remove().end();
+                                    $('#City1').val('');
+                                    $('#State1').val('');
+                                    $('#ZipCode1').val('');
+                                    $('#County1').val('');
+                                    bindCaseNoteforNoHome(1);
+                                    customAlert("Could not find zipcode details.");
+
+                                }
+                            }
+                            if (response.Result == 1) {
+                                BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                                    if (!result) {
+                                        $('#Street1').val("");
+                                        $('#StreetName1').val("");
+                                        $('#ZipCode1').val("");
+                                        $('#City1').find('option').remove().end();
+                                        $('#City1').val('');
+                                        $('#State1').val('');
+                                        $('#County1').val('');
+                                        bindCaseNoteforNoHome(1);
+                                    }
+                                });
+                            }
+                            if (result) {
+                                bindCaseNoteforNoHome(1);
+
+                            }
+                        }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                    });
+                }
+
+
+            }
+
+
+        }
+
+
+
+
+        function bindCaseNoteforNoHome(mode)
+        {
+
+            var old_familyhomeless = $('#old_familyhomeless').val().trim();
+            var old_address = $('#old_address').val().trim();
+            var old_apartment = $('#old_apartment').val().trim();
+            var old_zipcode = $('#old_zipcode').val().trim();
+            var old_city = $('#old_city').val().trim();
+            var old_state = $('#old_state').val().trim();
+            var old_county = $('#old_county').val().trim();
+
+            var current_address = ($('#Street1').val() == undefined || $('#Street1').val() == null) ? "" : $('#Street1').val().trim();
+            var current_apartment = ($('#StreetName1').val() == undefined || $('#StreetName1').val() == null) ? "" : $('#StreetName1').val().trim();
+            var current_zipcode = ($('#ZipCode1').val() == undefined || $('#ZipCode1').val() == null) ? "" : $('#ZipCode1').val().trim();
+            var current_city = ($('#City1').val() == undefined || $('#City1').val() == null) ? "" : $('#City1').val().trim();
+            var current_state = ($('#State1').val() == undefined || $('#State1').val() == null) ? "" : $('#State1').val().trim();
+            var current_county = ($('#County1').val() == undefined || $('#County1').val() == null) ? "" : $('#County1').val().trim();
+
+            if(old_familyhomeless=='2')
+            {
+                var noteSection = '';
+
+                var caseNoteDiv = $('#caseNoteDiv');
+
+                noteSection += '<h2>Old Address</h2>';
+
+                noteSection += old_address + '<br>';
+                noteSection += old_apartment == '' ? '' : old_apartment + '</br>';
+                noteSection += old_city + '<br>';
+                noteSection += old_county + '<br>';
+                noteSection += old_state + '-' + old_zipcode + '<br>';
+
+                if (mode == 1)  //having new address for family houseless
+                {
+                    noteSection += '<h2>New Address</h2>';
+                    noteSection += current_address + '<br>';
+                    noteSection += current_apartment == '' ? '' : current_apartment + '</br>';
+                    noteSection += current_city + '<br>';
+                    noteSection += current_county + '<br>';
+                    noteSection += current_state + '-' + current_zipcode + '<br>';
+                }
+                else //no-address for family houseless
+                {
+                    noteSection += '<h2>New Address - <span>No Home</span></h2>';
+                }
+
+             
+
+                caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate').val(getFormattedDate(new Date()));
+
+                caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Family Homeless");
+                caseNoteDiv.find('#CaseNoteDetails_Note').val(noteSection);
+
+
+                if (CKEDITOR.instances['CaseNoteDetails_Note']) {
+                    CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+
+                }
+
+                CKEDITOR.replace('CaseNoteDetails_Note', {
+                    language: 'en-gb',
+                    uiColor: '#295b8f',
+                    disableNativeSpellChecker: false
+                });
+
+
+                $('#CaseNoteDetails_CaseNotetags').tagsInput({
+                    width: 'auto',
+                    height: 'auto',
+                    delimiter: [',', ';'],
+                    autocomplete: {
+                        //'source': tags_array[0].split(/,\s*/)
+                        'source': getTagsOnInput()
+                    },
+                    autocomplete_url: '',
+                });
+
+                $('#CaseNoteDetails_CaseNotetags').importTags(',,;Family Homeless');
+
+                caseNoteDiv.show('slow');
+            }
+
+            else {
+
+
+                var noteSection = '';
+
+                var caseNoteDiv = $('#caseNoteDiv');
+
+                noteSection += '<h2>Old Address</h2>- <span> No home</span>';
+
+                //noteSection += old_address + '<br>';
+                //noteSection += old_apartment == '' ? '' : old_apartment + '</br>';
+                //noteSection += old_city + '<br>';
+                //noteSection += old_county + '<br>';
+                //noteSection += old_state + '-' + old_zipcode + '<br>';
+
+                if (mode == 1)  //having new address for family houseless
+                {
+                    noteSection += '<h2>New Address</h2>';
+                    noteSection += current_address + '<br>';
+                    noteSection += current_apartment == '' ? '' : current_apartment + '</br>';
+                    noteSection += current_city + '<br>';
+                    noteSection += current_county + '<br>';
+                    noteSection += current_state + '-' + current_zipcode + '<br>';
+                }
+                else //no-address for family houseless
+                {
+                    noteSection += '<h2>New Address - <span>No Home</span></h2>';
+                }
+
+
+
+                caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate').val(getFormattedDate(new Date()));
+
+                caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Home Found");
+                caseNoteDiv.find('#CaseNoteDetails_Note').val(noteSection);
+
+
+                if (CKEDITOR.instances['CaseNoteDetails_Note']) {
+                    CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+
+                }
+
+                CKEDITOR.replace('CaseNoteDetails_Note', {
+                    language: 'en-gb',
+                    uiColor: '#295b8f',
+                    disableNativeSpellChecker: false
+                });
+
+
+                $('#CaseNoteDetails_CaseNotetags').tagsInput({
+                    width: 'auto',
+                    height: 'auto',
+                    delimiter: [',', ';'],
+                    autocomplete: {
+                        //'source': tags_array[0].split(/,\s*/)
+                        'source': getTagsOnInput()
+                    },
+                    autocomplete_url: '',
+                });
+
+                $('#CaseNoteDetails_CaseNotetags').importTags(',,;Home Found');
+
+                caseNoteDiv.show('slow');
+            }
+
+
+
+
+
+        }
+
+        function bindCaseNoteForAddressChange() {
+
+            debugger;
+            var old_address = $('#old_address').val().trim();
+            var old_apartment = $('#old_apartment').val().trim();
+            var old_zipcode = $('#old_zipcode').val().trim();
+            var old_city = $('#old_city').val().trim();
+            var old_state = $('#old_state').val().trim();
+            var old_county = $('#old_county').val().trim();
+
+
+            var current_address = ($('#Street').val() == undefined || $('#Street').val() == null) ? "" : $('#Street').val().trim();
+            var current_apartment = ($('#StreetName').val() == undefined || $('#StreetName').val() == null) ? "" : $('#StreetName').val().trim();
+            var current_zipcode = ($('#ZipCode').val() == undefined || $('#ZipCode').val() == null) ? "" : $('#ZipCode').val().trim();
+            var current_city = ($('#City').val() == undefined || $('#City').val() == null) ? "" : $('#City').val().trim();
+            var current_state = ($('#State').val() == undefined || $('#State').val() == null) ? "" : $('#State').val().trim();
+            var current_county = ($('#County').val() == undefined || $('#County').val() == null) ? "" : $('#County').val().trim();
+
+            var caseNoteDiv = $('#caseNoteDiv');
+            var addresChange = 0;
+
+            if (current_address != '' && current_zipcode != '' && current_city != '' && current_state != '' && current_county != '') {
+
+                if (current_address != old_address) {
+                    addresChange++;
+                }
+
+                if (current_apartment != old_apartment) {
+                    addresChange++;
+                }
+
+                if (current_zipcode != old_zipcode) {
+                    addresChange++;
+                }
+                if (current_city != old_city) {
+                    addresChange++;
+                }
+
+                if (current_state != old_state) {
+                    addresChange++;
+                }
+
+                if (current_county != old_county) {
+                    addresChange++;
+                }
+            }
+
+            if(addresChange>0)
+            {
+                var noteSection = '';
+
+               
+                
+                noteSection += '<h2>Old Address</h2>';
+
+                noteSection += old_address + '<br>';
+                noteSection += old_apartment == '' ? '' : old_apartment + '</br>';
+                noteSection += old_city + '<br>';
+                noteSection += old_county + '<br>';
+                noteSection += old_state + '-' + old_zipcode + '<br>';
+
+                noteSection += '<h2>New Address</h2>';
+
+                noteSection += current_address + '<br>';
+                noteSection += current_apartment == '' ? '' : current_apartment + '</br>';
+                noteSection += current_city + '<br>';
+                noteSection += current_county + '<br>';
+                noteSection += current_state + '-' + current_zipcode + '<br>';
+
+                caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate').val(getFormattedDate(new Date()));
+
+                caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val("Address Change");
+                caseNoteDiv.find('#CaseNoteDetails_Note').val(noteSection);
+
+
+                if (CKEDITOR.instances['CaseNoteDetails_Note']) {
+                    CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+
+                }
+
+                CKEDITOR.replace('CaseNoteDetails_Note', {
+                    language: 'en-gb',
+                    uiColor: '#295b8f',
+                    disableNativeSpellChecker: false
+                });
+
+
+                $('#CaseNoteDetails_CaseNotetags').tagsInput({
+                    width: 'auto',
+                    height: 'auto',
+                    delimiter: [',', ';'],
+                    autocomplete: {
+                        //'source': tags_array[0].split(/,\s*/)
+                        'source': getTagsOnInput()
+                    },
+                    autocomplete_url: '',
+                });
+
+                $('#CaseNoteDetails_CaseNotetags').importTags(',,;Address Change');
+
+                caseNoteDiv.show('slow');
+
+            }
+
+            else
+            {
+                caseNoteDiv.hide('slow');
+            }
+
+
+
+
+
+        }
+
+
+        function getTagsOnInput() {
+            var tagInp = $('#CaseNoteDetails_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: tagInp },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+
+                }
+
+            });
+
+            return tagsArr;
+        }
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+
+        function bindCaseNoteArea(mode) {
+            debugger;
+            var houselessModal = $('#Houselessmodal');
+            var oldAddress = houselessModal.find('#oldAddress').val();
+            var newAddress = '';
+            var street = houselessModal.find('#FamilyHousehold_Street').val() == null ? '' : $('#FamilyHousehold_Street').val();
+            var appartment = houselessModal.find('#FamilyHousehold_StreetName').val() == null ? '' : houselessModal.find('#FamilyHousehold_StreetName').val();
+            var city = houselessModal.find('#FamilyHousehold_City').val() == null ? '' : houselessModal.find('#FamilyHousehold_City').val();
+            var county = houselessModal.find('#FamilyHousehold_County').val() == null ? '' : houselessModal.find('#FamilyHousehold_County').val();
+            var state = houselessModal.find('#FamilyHousehold_State').val() == null ? '' : houselessModal.find('#FamilyHousehold_State').val();
+            var zipcode = houselessModal.find('#FamilyHousehold_ZipCode').val() == null ? '' : houselessModal.find('#FamilyHousehold_ZipCode').val();
+
+            //  CKEDITOR.instances['CaseNoteDetails_Note'].setData('');
+
+            if (mode == 1) {
+                newAddress += oldAddress + '<h2>New Address</h2>';
+
+                newAddress += street + '<br>';
+                newAddress += appartment == '' ? '' : appartment + '</br>';
+                newAddress += city + '<br>';
+                newAddress += county + '<br>';
+                newAddress += state + '-' + zipcode;
+                CKEDITOR.instances['CaseNoteDetails_Note'].setData(newAddress);
+            }
+            else {
+                CKEDITOR.instances['CaseNoteDetails_Note'].setData(oldAddress);
+            }
+
+        }
+
+        function ShowHideDivParentTwo1() {
+            $('#divParentrelatioship').hide();
+            $('#divrelationshipparent').hide();
+            $('#married').hide();
+        }
+
+        function ShowHideDivParentTwo2() {
+            $('#ParentRelatioship').find('option').remove().end().append('<option value="1">Parents (biological, adoptive, stepparents, etc.)</option>' +
+                '<option value="2">Grandparents</option><option value="3">Relatives other than grandparents</option><option value="4">Foster parents not including relatives</option>' +
+               '<option value="6">Other</option> ');
+            $('#ParentRelatioship').val('');
+            $('#divParentrelatioship').hide();
+            $('#divrelationshipparent').show();
+            $('#married').show();
+
+        }
+
+        function Checkhouse(object) {
+            if ($('#RentType1').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $('#RentType1').prop("checked", false);
+                    }
+                });
+            }
+            if ($('#RentType2').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $('#RentType2').prop("checked", false);
+                    }
+                });
+            }
+            if ($('#RentType3').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $('#RentType3').prop("checked", false);
+                    }
+                });
+            }
+            if ($('#RentType4').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $('#RentType4').prop("checked", false);
+                    }
+                });
+            }
+
+            $('#curr_house_div').hide('slow');
+            $('#makedFamilyHomeless').show('slow');
+
+            $('input[name=hasNewAddress]').prop('checked', false);
+        }
+
+        //function UnCheckhouse(object) {
+        //    $('#curr_house_div').show('slow');
+        //    if ($('#old_familyhomeless').val() == '1')
+        //    {
+        //        $('#makedFamilyHomeless').hide('slow');
+        //        $('input[name="FamilyHousehold.FamilyHasAddress"][value=1]').trigger('click');
+        //        // $('#newAddressDiv').show('slow');
+              
+        //    }
+
+        //    else
+        //    {
+        //        $('input[name=hasNewAddress]').prop('checked', false);
+        //        $('#makedFamilyHomeless').hide('slow');
+        //        $('#newAddressDiv').hide('slow');
+        //    }
+          
+        //}
+
+
+        function UnCheckhouse(object) {
+            $('#curr_house_div').show('slow');
+           
+                $('input[name=hasNewAddress]').prop('checked', false);
+                $('#makedFamilyHomeless').hide('slow');
+                $('#newAddressDiv').hide('slow');
+          
+
+        }
+
+
+        function Renting(object) {
+            if ($('#HomeType1').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $(object).prop("checked", false);
+                    }
+                });
+            }
+        }
+        function Buying(object) {
+            if ($('#HomeType1').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $(object).prop("checked", false);
+                    }
+                });
+            }
+        }
+        function SubsidizedRent(object) {
+            if ($('#HomeType1').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $(object).prop("checked", false);
+                    }
+                });
+            }
+        }
+        function NoPayment(object) {
+            if ($('#HomeType1').prop("checked")) {
+                BootstrapDialog.confirm('Rent type is not applicable with Homeless family. Do you want to continue?', function (result) {
+                    if (!result) {
+                        $(object).prop("checked", false);
+                    }
+                });
+            }
+        }
+
+        function uncheckdataNone() {
+            if (($('#TANF').prop("checked")) || ($('#SSI').prop("checked")) || ($('#WIC').prop("checked")) || ($('#SNAP').prop("checked"))) {
+                $('#None').prop("checked", false);
+            }
+        }
+
+        function uncheckdata() {
+            if ($('#None').prop("checked")) {
+                $('#TANF').prop("checked", false);
+                $('#SSI').prop("checked", false);
+                $('#WIC').prop("checked", false);
+                $('#SNAP').prop("checked", false);
+            }
+        }
+
+        function Showotherlanguage() {
+            $('#OtherLanguageDetail').val("");
+            if ($('#PrimaryLanguauge').val() == 12)
+                $('#div2').show('slow');
+            else
+                $('#div2').hide('slow');
+        }
+
+        function ShowdivParentotherrelationship() {
+            $('#ParentRelatioshipOther').val('');
+            if ($('#ParentRelatioship').val() == 6)
+                $('#divParentrelatioship').show();
+
+            else
+                $('#divParentrelatioship').hide();
+        }
+
+
+        function SaveHouseholdDetails() {
+
+
+
+            debugger;
+            var isValid = true;
+            cleanValidation();
+            var ishaveHome=false;
+            
+
+            var Tags = '';
+            $('#caseNoteDiv').find('#CaseNoteDetails_CaseNotetags_tagsinput .tag span').each(function () {
+                Tags = Tags + $(this).text().trim() + ',';
+            });
+            $('#caseNoteDiv').find("#CaseNoteDetails_CaseNotetags").val(Tags);
+
+            $('#HasCaseNoteDetails').val('False');
+            $('#HasNewAddress').val('False');
+
+            if ($('#HomeType2').prop("checked") || (!$('#HomeType1').prop("checked") && !$('#HomeType2').prop("checked")))
+            {
+                ishaveHome=true;
+            }
+
+            if ($('#Street')[0].value.trim() == "" && ishaveHome) {
+                isValid = false;
+                customAlert("Address is required. ");
+                plainValidation('#Street');
+                return isValid;
+            }
+            if ($('#ZipCode')[0].value.trim() == "" && ishaveHome) {
+                isValid = false;
+                customAlert("Zip Code is required. ");
+                plainValidation('#ZipCode');
+                return isValid;
+            }
+            if (($('#City').val() == "" || $('#City').val() == null) &&  ishaveHome) {
+                isValid = false;
+                customAlert("City is required. ");
+                plainValidation('#City');
+                return isValid;
+            }
+            if ($('#State')[0].value.trim() == "" && ishaveHome) {
+                isValid = false;
+                customAlert("State is required. ");
+                plainValidation('#State');
+                return isValid;
+            }
+            if ($('#County')[0].value.trim() == "" && ishaveHome) {
+                isValid = false;
+                customAlert("County is required. ");
+                plainValidation('#County');
+                return isValid;
+            }
+            if (!$('#HomeType1').prop("checked") && !$('#HomeType2').prop("checked")) {
+                isValid = false;
+                customAlert("Is family Homeless at this time is required. ");
+                return isValid;
+            }
+
+            if (!$('#chk input[type="checkbox"]').is(':checked')) {
+                isValid = false;
+                customAlert("Federal or other assistance is required. ");
+                return isValid;
+            }
+            if ($('#PrimaryLanguauge').val() == "" || $('#PrimaryLanguauge').val() == null) {
+                isValid = false;
+                customAlert("Primary languauge is required. ");
+                plainValidation('#PrimaryLanguauge');
+                return isValid;
+            }
+            else if ($('#PrimaryLanguauge').val() == "12" && $('#OtherLanguageDetail').val() == "") {
+                isValid = false;
+                customAlert("Other language detail is required. ");
+                plainValidation('#OtherLanguageDetail');
+                return isValid;
+            }
+            if (!$('#Interpretor').prop("checked") && !$('#Interpretor1').prop("checked")) {
+                isValid = false;
+                customAlert("Does family need an interpreter is required. ");
+                return isValid;
+            }
+
+            if ($('#HomeType1').prop("checked") && $('#makedFamilyHomeless').is(':visible') && !$('input[name="FamilyHousehold.FamilyHasAddress"]').is(':checked'))
+            {
+                isValid = false;
+                customAlert("Does family has any address is required. ");
+                return isValid;
+            }
+
+            if ($('#HomeType1').prop("checked") && $('#makedFamilyHomeless').is(':visible') && !$('input[name="FamilyHousehold.FamilyHasAddress"]:checked').val() == '1')
+            {
+
+
+                if ($('#Street1')[0].value.trim() == "" && !ishaveHome) {
+                    isValid = false;
+                    customAlert("Address is required. ");
+                    plainValidation('#Street1');
+                    return isValid;
+                }
+                if ($('#ZipCode1')[0].value.trim() == "" && !ishaveHome) {
+                    isValid = false;
+                    customAlert("Zip Code is required. ");
+                    plainValidation('#ZipCode1');
+                    return isValid;
+                }
+                if (($('#City1').val() == "" || $('#City').val() == null) && !ishaveHome) {
+                    isValid = false;
+                    customAlert("City is required. ");
+                    plainValidation('#City1');
+                    return isValid;
+                }
+                if ($('#State1')[0].value.trim() == "" && !ishaveHome) {
+                    isValid = false;
+                    customAlert("State is required. ");
+                    plainValidation('#State1');
+                    return isValid;
+                }
+                if ($('#County1')[0].value.trim() == "" && !ishaveHome) {
+                    isValid = false;
+                    customAlert("County is required. ");
+                    plainValidation('#County1');
+                    return isValid;
+                }
+
+             
+                $('#HasNewAddress').val('True');
+
+            }
+
+            if ($('#HomeType1').prop("checked") && $('#makedFamilyHomeless').is(':visible'))
+            {
+                
+                $('#HasNewAddress').val('True');
+            }
+
+
+            if ($('#caseNoteDiv').is(':visible'))
+            {
+
+               
+                var caseNoteDiv = $('#caseNoteDiv');
+                if (caseNoteDiv.find('#CaseNoteDetails_caseNoteDate').val() == '') {
+                    plainValidation('#CaseNoteDetails_caseNoteDate');
+                    customAlert("Please enter Case Note Date");
+                    return false;
+                }
+                else {
+                    if (!CheckdateHouseless(caseNoteDiv.find('#CaseNoteDetails_CaseNoteDate'))) {
+                        plainValidation('#CaseNoteDetails_caseNoteDate');
+                        // customAlert("Please enter valid date");
+                        return false;
+                    }
+                }
+
+                if (caseNoteDiv.find('#CaseNoteDetails_CaseNotetitle').val() == '') {
+                    plainValidation('#CaseNoteDetails_CaseNotetitle');
+                    customAlert("Please enter Case Note Title");
+                    return false;
+                }
+                if (CKEDITOR.instances['CaseNoteDetails_Note'].getData() == "") {
+                    caseNoteDiv.find("#CaseNoteDetails_Note").focus();
+                    customAlert("Please enter Case Note");
+                    return false;
+                }
+                if (!caseNoteDiv.find("#ClientDiv").find('.client-check').is(':checked')) {
+                    caseNoteDiv.find("#ClientDiv").focus();
+                    customAlert("Please select Client(s)");
+                    return false;
+                }
+                if (caseNoteDiv.find('#CaseNoteDetails_CaseNotetags').val().trim() == "") {
+                    isValid = false;
+                    customAlert("Tags are required.");
+                    plainValidation('#CaseNoteDetails_CaseNotetags');
+                    return isValid;
+                }
+
+                if (!caseNoteDiv.find('#StaffDiv').find('.staff-check').is(':checked')) {
+                    caseNoteDiv.find("#StaffDiv").focus();
+                    customAlert("Please select Development Team Staff(s)");
+                    return false;
+                }
+
+                $('#HasCaseNoteDetails').val('True');
+
+            }
+
+
+
+            return isValid;
+        }
+
+        var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInputpdf2(oInput) {
+
+            debugger;
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    var valid_size = 3 * 1000 * 1000;
+                    var v = oInput.files[0].size;
+                    if (v <= valid_size) {
+                        for (var j = 0; j < _validFileExtensions1.length; j++) {
+                            var sCurExtension = _validFileExtensions1[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                //  $('#DobverificationinPaper').prop("checked", false);
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            return false;
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 3 MB. ");
+                        return false;
+
+                    }
+
+                }
+            }
+            return true;
+        }
+
+    </script>
+}
+
+@section MainContentHolder{
+
+    <div class="row Zoom">
+        <div class="col-lg-12" style="padding:0;">
+
+            <div class="page-wrapper-change">
+
+                <div class="row">
+                    <!------------Your Code----------------->
+                    <div class="right-side-container-ch col-xs-12" style="padding-top: 30px;">
+                        <!---Heading Section-->
+                        <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
+                            <div class="col-lg-12">
+                                <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                    <i class="fa fa-group"></i> Household Details
+
+                                    <span class="view-btn backto_listspan">
+                                        <a href="javascript:void(0);" id="backtofamily" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back To Family Summary</a>
+                                    </span>
+                                </h2>
+                            </div>
+                        </div>
+
+                @using (Html.BeginForm("HouseholdDetails","AgencyUser",FormMethod.Post, new { enctype = "multipart/form-data",autocomplete=false }))
+                {
+                        <!---Heading Section-->
+                        <!--Household-->
+
+                        <div class="col-lg-12 col-xs-12 contact-entry-div" id="curr_house_div" style="margin-top: 20px; margin-bottom: 20px; padding: 0px; display: block;">
+
+                            <fieldset>
+                                <legend id="contact-legend">Household</legend>
+
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" @if (Model.HasNewAddress) { <text> style="display:none;" </text>}>
+                                    <div class="add-useragform">
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.FamilyHousehold.Street, new { @class = "icc_label lbl-required" })
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.Street, new { @id = "Street", @class = "form-control", @maxlength = "50", @onblur = "CheckAddress(0);", @placeholder = "Address", @tabindex = "3" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @*<label class="icc_label" for="email">Apartment No., Lot No. </label>
+                                                    <input class="form-control" id="StreetName" maxlength="100" name="StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="4" type="text" value="1212">*@
+                                                @Html.LabelFor(m => m.FamilyHousehold.StreetName, new { @class = "icc_label" })
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.StreetName, new { @id = "StreetName", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddress(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @*<label class="icc_label" for="email">Zip Code  <sup>*</sup></label>
+                                                    <input class="form-control" id="ZipCode" maxlength="5" name="ZipCode" onblur="checkZipCode(this);" placeholder="Zip Code " tabindex="5" type="text" value="60001">*@
+
+                                                @Html.LabelFor(m => m.FamilyHousehold.ZipCode, new { @class = "icc_label lbl-required" })
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.ZipCode, new { @id = "ZipCode", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCode(this);", @placeholder = "Zip Code", @tabindex = "5" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+
+                                                @Html.LabelFor(m => m.FamilyHousehold.City, new { @class = "icc_label lbl-required" })
+
+                                              
+                                                <select id="City" name="FamilyHousehold.City" class="form-control" tabindex="6">
+                                                    <option value="@Model.FamilyHousehold.City">@Model.FamilyHousehold.City</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @* <label class="icc_label" for="email">State  <sup>*</sup></label>*@
+                                                @*<input class="form-control" id="State" maxlength="100" name="State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="7" type="text" value="IL">*@
+                                                @Html.LabelFor(m => m.FamilyHousehold.State, new { @class = "icc_label lbl-required" })
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.State, new { @id = "State", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.FamilyHousehold.County, new { @class = "icc_label lbl-required" })
+
+                                                @Html.TextBoxFor(m => m.FamilyHousehold.County, new { @id = "County", @class = "form-control", maxlength = "100", @placeholder = "County", @readonly = true, tabindex = "8" })
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            @*<div class="form-group">
+                                                    <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
+                                                    <input name="FileaddressAvatar" accept="image/*" capture="camera" class="form-control" id="FileaddressAvatar" onchange="ValidateSingleInputpdf(this)" style="width:65%;" tabindex="6" type="file" value="">
+                                                    <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                        <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="AdresssverificationinPaper" name="AdresssverificationinPaper" tabindex="7" type="checkbox" value="true"><input name="AdresssverificationinPaper" type="hidden" value="false">
+                                                        <label style="width:45px;">Paper</label>
+                                                    </div>
+                                                </div>*@
+
+
+                                            @if (Model.FamilyHousehold.docstorage == 0)
+                                            {
+
+                                                <div class="form-group">
+                                                    <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
+                                                    @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;", tabIndex = "6" })
+                                                    <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                        @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
+                                                        <label style="width:45px;">Paper</label>
+                                                    </div>
+                                                </div>
+
+                                            }
+                                            @if (Model.FamilyHousehold.docstorage == 2)
+                                            {
+                                                <div class="form-group">
+                                                    <label>Address Verification Form</label>
+                                                    <div class="cont-sz">
+                                                        @Html.CheckBoxFor(m => m.FamilyHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper", @class = "minimal", tabIndex = "7" })
+                                                        <label style="width:45px;">Paper</label>
+                                                    </div>
+                                                    @Html.TextBoxFor(m => m.FamilyHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                                @if(Model.HasNewAddress)
+                                {
+                                    <div class="col-xs-12">
+                                        <div class="text-center" style="padding:20px;">Family does not having any address</div>
+                                    </div>
+                                }
+
+                                @Html.Hidden("old_address", Model.FamilyHousehold.Street)
+                                @Html.Hidden("old_apartment", Model.FamilyHousehold.StreetName)
+                                @Html.Hidden("old_zipcode", Model.FamilyHousehold.ZipCode)
+                                @Html.Hidden("old_city", Model.FamilyHousehold.City)
+
+                                @Html.Hidden("old_state", Model.FamilyHousehold.State)
+                                @Html.Hidden("old_county", Model.FamilyHousehold.County)
+                                @Html.Hidden("old_familyhomeless", Model.FamilyHousehold.HomeType)
+
+                                
+
+                            </fieldset>
+                        </div>
+
+                        <!---Household-->
+                        <!-- Family -->
+                        <div class="col-lg-12 col-xs-12 contact-entry-div" style="margin-top: 20px; margin-bottom: 20px; padding: 0px; display: block;">
+
+                            <fieldset>
+                                <legend id="contact-legend">Family Household</legend>
+
+                                <div class="icc_contact_family">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main add-useragform1">
+
+                                            <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                        @*<label class="icc_label"> Family Type <sup style="color:red;">*</sup></label>*@
+
+                                                        @Html.LabelFor(m => m.FamilyHousehold.FamilyType, new { @class = "icc_label lbl-required" })
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyType, 1, new { @id = "FamilyType", onchange = "ShowHideDivParentTwo1()", tabIndex = "8", @disabled = "disabled" })
+                                                            <span style="font-size: 14px;">Single Parent Family </span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyType, 2, new { @id = "FamilyType1", onchange = "ShowHideDivParentTwo2()", tabIndex = "9", @disabled = "disabled" })
+                                                            <span style="font-size: 14px;">Two Parent Family </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
+                                                <div class="form-group">
+                                                    <div class="col-xs-8 col-sm-12">
+                                                        @Html.LabelFor(m => m.FamilyHousehold.HomeType, new { @class = "icc_label lbl-required" })
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.HomeType, 1, new { @id = "HomeType1", tabIndex = "10", onchange = "Checkhouse(this)" })
+                                                            <span>Yes</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.HomeType, 2, new { @id = "HomeType2", tabIndex = "10", onchange = "UnCheckhouse(this)" })
+                                                            <span>No  </span>
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="row col-sm-12">
+                                                <div class="col-lg-6 adddivspace" id="divrelationshipparent" style="display:none;">
+                                                    <div class="form-group">
+                                                        <div class="col-sm-12">
+                                                            @Html.LabelFor(m => m.FamilyHousehold.ParentRelatioship, new { @class = "lbl-required" })
+                                                        </div>
+                                                        <div class="col-sm-9">
+
+                                                            @{
+                                                                List<SelectListItem> ParentRelatioshipList = new List<SelectListItem>();
+                                                            }
+                                                            @Html.DropDownListFor(m => m.FamilyHousehold.ParentRelatioship, new SelectList(ParentRelatioshipList, "Value", "Text", Model.FamilyHousehold.ParentRelatioship), new { @id = "ParentRelatioship", @class = "form-control", onchange = "ShowdivParentotherrelationship();", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 adddivspace" id="married" style="display:none;">
+                                                    <div class="form-group">
+                                                        <div class="col-sm-12">
+                                                            <div class="col-xs-8 col-sm-12">
+                                                                @Html.LabelFor(m => m.FamilyHousehold.Married, new { @class = "lbl-required" })
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.Married, 1, new { tabIndex = "22", id = "Married", @disabled = "disabled" })
+                                                                    <span>Yes</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.Married, 2, new { tabIndex = "22", id = "Married1", @disabled = "disabled" })
+                                                                    <span>No  </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="row col-sm-12">
+                                                <div class="col-lg-6 adddivspace" id="divParentrelatioship" style="display:none;">
+                                                    <div class="form-group">
+                                                        <div class="col-xs-8">
+                                                            @Html.LabelFor(m => m.FamilyHousehold.ParentRelatioshipOther, new { @class = "lbl-requried" })
+                                                        </div>
+                                                        <div class="col-xs-9">
+                                                            @Html.TextBoxFor(m => m.FamilyHousehold.ParentRelatioshipOther, new { @id = "ParentRelatioshipOther", placeholder = "Other Relationship", maxlength = "20", @class = "form-control", tabIndex = "25", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
+                                                <div class="form-group">
+                                                    <div class="col-xs-8 col-sm-12">
+                                                        @Html.LabelFor(m => m.FamilyHousehold.RentType, new { @class = "icc_label" })
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "1", new { tabIndex = "12", id = "RentType1", onchange = "Renting(this);" })
+                                                            <span>Renting </span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "2", new { tabIndex = "13", id = "RentType2", onchange = "Buying(this);" })
+                                                            <span>Buying</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "3", new { tabIndex = "14", id = "RentType3", onchange = "SubsidizedRent(this);" })
+                                                            <span>Subsidized Rent</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.RentType, "4", new { tabIndex = "15", id = "RentType4", onchange = "NoPayment(this);" })
+                                                            <span>No Payment </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6 col-md-6 col-sm-12 adddivspace" id="chk">
+
+                                                <div class="form-group">
+                                                    <div class="col-xs-8 col-sm-12">
+                                                        <label class="icc_label">Federal or Other Assistance <sup style="color:red;">*</sup></label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="checkbox-inline">
+                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.TANF, new { @id = "TANF", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "16" })
+                                                            <span>TANF</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="checkbox-inline">
+                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.SSI, new { @id = "SSI", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "17" })
+                                                            <span>SSI</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="checkbox-inline">
+                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.SNAP, new { @id = "SNAP", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "18" })
+                                                            <span>SNAP</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="checkbox-inline">
+                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.WIC, new { @id = "WIC", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "19" })
+
+
+                                                            <span>WIC</span>
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="checkbox-inline">
+                                                            @Html.CheckBoxFor(m => m.FamilyHousehold.NONE, new { @id = "None", @class = "minimal", @onchange = "uncheckdata();", tabIndex = "20" })
+                                                            <span>NONE</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row col-lg-12">
+                                                <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
+                                                    <div class="form-group">
+                                                        <div class="col-xs-8 col-sm-12">
+                                                            <label for="email" class="icc_label">Primary Language Spoken  <sup style="color:red;">*</sup></label>
+                                                        </div>
+                                                        <div class="col-xs-6 col-sm-9">
+                                                            @Html.DropDownListFor(m => m.FamilyHousehold.PrimaryLanguauge, new SelectList(Model.FamilyHousehold.langList, "LangId", "Name"), new { @id = "PrimaryLanguauge", @class = "form-control", onchange = "Showotherlanguage();", tabIndex = "21" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 adddivspace">
+                                                    <div class="form-group">
+                                                        <div class="col-sm-12">
+                                                            <div class="col-xs-8 col-sm-12">
+                                                                <label class="icc_label lbl-required">Does Family need an Interpreter?</label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.Interpretor, 1, new { tabIndex = "22", id = "Interpretor" })
+                                                                    <span>Yes</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="col-xs-6 col-sm-2">
+                                                                <label class="radio-inline">
+                                                                    @Html.RadioButtonFor(m => m.FamilyHousehold.Interpretor, 2, new { tabIndex = "22", id = "Interpretor1" })
+                                                                    <span>No  </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-6 adddivspace" id="div2" style="display:none;">
+                                                <div class="form-group">
+                                                    <div class="col-xs-8">
+                                                        <label for="email" class="icc_label">Other Language Detail</label>
+                                                    </div>
+                                                    <div class="col-xs-9">
+                                                        @Html.TextBoxFor(m => m.FamilyHousehold.OtherLanguageDetail, new { @id = "OtherLanguageDetail", placeholder = "Other Language Detail", maxlength = "20", @class = "form-control", tabIndex = "25" })
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-lg-6 adddivspace" id="makedFamilyHomeless" @if (Model.HasNewAddress) { <text> style="display:block;" </text>}>
+                                                <div class="form-group">
+                                                    <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                                                        @Html.LabelFor(m => m.FamilyHousehold.FamilyHasAddress,new { @class= "icc_label lbl-required" })
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="radio-inline">
+
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyHasAddress, 1, new { tabIndex = "23",  @id= "hasNewAddress1" })
+
+                                                            <span>Yes</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-2">
+                                                        <label class="radio-inline">
+                                                            @Html.RadioButtonFor(m => m.FamilyHousehold.FamilyHasAddress, 2, new { tabIndex = "24", @id = "hasNewAddress1" })
+                                                            <span>No  </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <!-- Family-->
+                        <!---New Address-->
+                        <div class="col-lg-12 col-xs-12 contact-entry-div" id="newAddressDiv" style="margin-top: 20px; margin-bottom: 20px; padding: 0px; display: none;">
+
+                            <fieldset>
+                                <legend id="contact-legend">New Address</legend>
+
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                    <div class="add-useragform">
+
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.NewAddressHousehold.Street, new { @class = "icc_label lbl-required" })
+                                                @Html.TextBoxFor(m => m.NewAddressHousehold.Street, new { @id = "Street1", @class = "form-control", @maxlength = "50", @onblur = "CheckAddressNew(0);", @placeholder = "Address", @tabindex = "3" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.NewAddressHousehold.StreetName, new { @class = "icc_label" })
+                                                @Html.TextBoxFor(m => m.NewAddressHousehold.StreetName, new { @id = "StreetName1", @class = "form-control lbl-required", @maxlength = "100", @onblur = "CheckAddressNew(0);", @placeholder = "Apartment No., Lot No.", @tabindex = "4" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.NewAddressHousehold.ZipCode, new { @class = "icc_label lbl-required" })
+                                                @Html.TextBoxFor(m => m.NewAddressHousehold.ZipCode, new { @id = "ZipCode1", @class = "form-control lbl-required", @maxlength = "5", @onblur = "checkZipCodeNew(this);", @placeholder = "Zip Code", @tabindex = "5" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+
+                                                @Html.LabelFor(m => m.NewAddressHousehold.City, new { @class = "icc_label lbl-required" })
+
+                                                <select id="City1" name="NewAddressHousehold.City" class="form-control" tabindex="6">
+                                                    <option value="@Model.NewAddressHousehold.City">@Model.NewAddressHousehold.City</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+
+                                                @Html.LabelFor(m => m.NewAddressHousehold.State, new { @class = "icc_label lbl-required" })
+                                                @Html.TextBoxFor(m => m.NewAddressHousehold.State, new { @id = "State1", @class = "form-control", @maxlength = "100", @placeholder = "State", @onblur = "isSpclChar(this);", @tabindex = "7", @readonly = true })
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.NewAddressHousehold.County, new { @class = "icc_label lbl-required" })
+
+                                                @Html.TextBoxFor(m => m.NewAddressHousehold.County, new { @id = "County1", @class = "form-control", maxlength = "100", @placeholder = "County", @readonly = true, tabindex = "8" })
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+
+                                            @if (Model.FamilyHousehold.docstorage == 0)
+                                            {
+
+                                                <div class="form-group">
+                                                    <label class="icc_label">Address Verification Form <span style="font-weight: 300;font-size: 12px;">(pdf,jpg,jpeg,bmp,gif,png)</span> </label>
+                                                    @Html.TextBoxFor(m => m.NewAddressHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar1", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:65%;", tabIndex = "6" })
+                                                    <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                        @Html.CheckBoxFor(m => m.NewAddressHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper1", @class = "minimal", tabIndex = "7" })
+                                                        <label style="width:45px;">Paper</label>
+                                                    </div>
+                                                </div>
+
+                                            }
+                                            @if (Model.FamilyHousehold.docstorage == 2)
+                                            {
+                                                <div class="form-group">
+                                                    <label>Address Verification Form</label>
+                                                    <div class="cont-sz">
+                                                        @Html.CheckBoxFor(m => m.NewAddressHousehold.AdresssverificationinPaper, new { @id = "AdresssverificationinPaper1", @class = "minimal", tabIndex = "7" })
+                                                        <label style="width:45px;">Paper</label>
+                                                    </div>
+                                                    @Html.TextBoxFor(m => m.NewAddressHousehold.FileaddressAvatar, new { @id = "FileaddressAvatar1", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @accept = "image/*", @capture = "camera", @style = "width:63%;display:none;", tabIndex = "6" })
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+
+
+                            </fieldset>
+                        </div>
+
+                        <!---New Address-->
+                        <!---Case Notes-->
+                        <!-- Family -->
+                        <div class="col-lg-12 col-xs-12 contact-entry-div" id="caseNoteDiv" style="margin-top: 20px; margin-bottom: 20px; padding: 0px; display:none;">
+
+                            <fieldset>
+                                <legend id="contact-legend">Case Note</legend>
+
+                                <div class="case_ic_family">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                        <div class="col-lg-8 col-md-6 col-sm-12 mlt_spaces">
+                                            <div class="form-group ic_case_note">
+                                                @Html.LabelFor(m => m.CaseNoteDetails.CaseNoteDate, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
+
+                                                @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNoteDate, new { @class = "form-control col-md-8 col-sm-12 col-xs-12 no-padding", tabindex = "9", placeholder = "MM/DD/YYYY", onblur = "CheckdateHouseless(this);" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                            <div class="form-group  ic_case_note">
+
+                                                @Html.LabelFor(m => m.CaseNoteDetails.CaseNotetitle, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
+                                                @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNotetitle, new { @clss = "form-control col-md-8 col-sm-12 col-xs-12 no-padding", tabindex = "10", maxlength = "50", placeholder = "Case Note Title" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 col-md-6 col-sm-12">
+                                        <div class="form-group ic_case_note">
+                                            @Html.LabelFor(m => m.CaseNoteDetails.Note, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
+
+                                            <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
+                                                @Html.TextAreaFor(m => m.CaseNoteDetails.Note, new { @style = "visibility: hidden; display: none;" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 col-md-6 col-sm-12 mmt_bottom mlt_spaces">
+                                        <label for="email" class="col-md-4 col-sm-12 col-xs-12 no-padding lbl-required">Client(s)</label>
+                                        <div id="ClientDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
+
+                                            @if (Model.UsersList != null && Model.UsersList.Clientlist != null && Model.UsersList.Clientlist.Count > 0)
+                                            {
+                                                for (int i = 0; i < Model.UsersList.Clientlist.Count; i++)
+                                                {
+                                                    <div class="col-sm-12 m-tp mt-bmn">
+
+                                                        <input type="checkbox" class="client-check" name="UsersList.clientlist[@i].Id" value="@Model.UsersList.Clientlist[i].Id">
+                                                        <span name="UsersList.clientlist[@i].Name">@Model.UsersList.Clientlist[i].Name</span>
+                                                    </div>
+                                                }
+
+                                            }
+
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                            <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
+                                                <div class="form-group">
+
+                                                    @Html.LabelFor(m => m.CaseNoteDetails.CaseNotetags, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding lbl-required" })
+
+                                                    <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
+                                                        @Html.TextBoxFor(m => m.CaseNoteDetails.CaseNotetags, new { @class = "form-control ui-autocomplete-input" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 no-padding">
+                                                <div class="form-group">
+                                                    <label for="email" class="col-md-4 col-sm-12 col-xs-12 no-padding lbl-required">Developmental Team </label>
+                                                    <div id="StaffDiv" class="case-note col-md-8 col-sm-12 col-xs-12 no-padding">
+
+
+                                                        @if (Model.UsersList != null && Model.UsersList.UserList != null && Model.UsersList.UserList.Count > 0)
+
+                                                        {
+                                                            for (int j = 0; j < Model.UsersList.UserList.Count; j++)
+                                                            {
+                                                                <div class="col-sm-12 m-tp mt-bmn">
+                                                                    <input type="checkbox" class="staff-check" name="UsersList.UserList[@j].Id" value="@Model.UsersList.UserList[j].Id">
+                                                                    <span name="UsersList.UserList[@j].Name">@Model.UsersList.UserList[j].Name</span>
+                                                                </div>
+                                                            }
+                                                        }
+
+
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                            <div class="col-sm-12 no-padding">
+                                                <div class="form-group mlt_spaces">
+
+                                                    @Html.LabelFor(m => m.CaseNoteDetails.CaseNoteSecurity, new { @class = "col-md-4 col-sm-12 col-xs-12 no-padding" })
+
+                                                    <div class="addn-poup-div1 col-md-8 col-sm-12 col-xs-12 no-padding">
+                                                        @Html.CheckBoxFor(m => m.CaseNoteDetails.CaseNoteSecurity, new { style = "margin-left:5px;top:0;" })
+                                                        @*<input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">*@
+                                                        <span style="margin-top:10px;float:left;">Yes</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 no-padding">
+                                        <div class="form-group no-padding" id="section_attachment">
+                                            <div class="icc_camera col-lg-12 col-xs-12 col-md-12 no-padding">
+                                                <label>Attachment</label>
+
+                                                
+
+                                                <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach" id="CaseNoteAttachments_0_file" style="width:54%;" onchange="ValidateSingleInputpdf2(this);" tabindex="6" type="file" value="">
+                                                <div class="adddivspace" style="width: 8%;display:inline-block;float:right;">
+                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;">Add&nbsp;<i class="fa fa-plus-circle"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="import_ft_files">
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </fieldset>
+                        </div>
+                        <div class="form-group final-btn">
+                            <button class="btn btn-success" type="submit" id="householdSubmit" onclick="return SaveHouseholdDetails();">Submit</button>
+                            <button class="btn btn-danger" type="button" id="householdExit">Exit</button>
+                        </div>
+
+                        @Html.HiddenFor(m=>m.FamilyHousehold.Encrypthouseholid)
+                         @Html.HiddenFor(m=>m.FamilyHousehold.HouseholdId)
+
+                        @Html.Hidden("householdId", Model.FamilyHousehold.HouseholdId)
+
+                            @Html.Hidden("enhousehold",Model.FamilyHousehold.Encrypthouseholid)
+                                     
+
+                         @Html.HiddenFor(m=>m.HasCaseNoteDetails)
+                        @Html.HiddenFor(m=>m.HasNewAddress)
+}
+                        <!---Case Notes-->
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+}
+

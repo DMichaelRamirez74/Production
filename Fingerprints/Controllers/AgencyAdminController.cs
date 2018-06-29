@@ -1999,7 +1999,7 @@ namespace Fingerprints.Controllers
                 }
                 else if (message == "2")
                 {
-                    ViewBag.message = "Seats already signed. Please assign seats according to available seats.";
+                    ViewBag.message = "Seats already assigned. Please assign seats according to available seats.";
 
                 }
                 else if (message == "3")
@@ -2270,7 +2270,7 @@ namespace Fingerprints.Controllers
             AccessStaffs access = new AccessStaffs();
             try
             {
-              //  access = new agencyData().GetStaffsByRole(roleID);
+                access = new agencyData().GetStaffsByRole(roleID);
             }
             catch(Exception ex)
             {
@@ -2301,6 +2301,64 @@ namespace Fingerprints.Controllers
                 return PartialView("~/Views/Partialviews/ScreeningAccessRoles.cshtml", accessRoles);
             else
             return PartialView("~/Views/Partialviews/AccessRolesListPartial.cshtml", accessRoles);
+        }
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        public ActionResult EndOfProgramYear()
+        {
+
+            NewProgramYearTransition newProgramYear = new NewProgramYearTransition();
+
+            newProgramYear=  new agencyData().EndOfProgramYear();
+
+            return View(newProgramYear);
+        }
+
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [HttpGet]
+        public ActionResult EndOfYearProgramTypes()
+        {
+            Agency agency = new Agency();
+
+            try
+            {
+
+             //   AgencyStaff _staff = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString());
+
+             //   agency = agencyData.editAgency(Session["AgencyID"].ToString());
+               // ViewBag.RefList = _staff.refList;
+                agency = agencyData.GetEndOfYearFunds_Programs();
+               // ViewBag.NextProgramYear = agency.ActiveProgYear.Split('-')[1] + "-" + (int.Parse(agency.ActiveProgYear.Split('-')[1]) + 1).ToString();
+
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return View(agency);
+        }
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [HttpPost]
+        public ActionResult EndOfYearProgramTypes(Agency agencyinfo, FormCollection collection)
+        {
+            string result = "";
+
+            result= new agencyData().InsertEndOfYearFundsPrograms(agencyinfo,agencyinfo.FundSourcedata);
+
+
+             if (result == "1")
+                ViewBag.message = "Record updated successfully";
+            else if(result=="")
+
+                ViewBag.message = "Error Occured.Please, try again later.";
+
+            agencyinfo = agencyData.GetEndOfYearFunds_Programs();
+
+            //return RedirectToAction("EndOfYearProgramTypes");
+           return View(agencyinfo);
         }
 
 

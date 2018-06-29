@@ -18,9 +18,28 @@
             $('#spinner').hide();
             $('#li1').addClass("active");
         });
+
+        function redirectToEndProgramYear()
+        {
+            $('#spinner').show();
+            location.href = HostedDir+'/AgencyAdmin/EndOfProgramYear';
+        }
+
+
     </script>
 }
 @section MainContentHolder{
+
+    @*<style type="text/css">
+        .alert {
+            position: relative;
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: .25rem;
+        }
+    </style>*@
+
     @{
         Dictionary<string, string> items = ViewBag.agencyadmindashboard as Dictionary<string, string>;
     }
@@ -29,6 +48,17 @@
             <h2 class="page-header">Dashboard</h2>
         </div>
     </div>
+
+
+    @if (items["ShowEndOfYearNotification"].ToString() == "1")
+    {
+        <div class="alert alert-danger" role="alert" style="line-height:30px;font-size:16px;">
+            Please set-up the transactions for next program year.&nbsp;
+            <a href="javascript:void(0);" onclick="redirectToEndProgramYear();">Click here</a>
+        </div>
+    }
+
+
     <div class="row">
         <div class="col-lg-4 col-md-6">
             <div class="agencybox1">

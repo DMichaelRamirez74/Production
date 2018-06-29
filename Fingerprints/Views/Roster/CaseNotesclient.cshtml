@@ -64,7 +64,15 @@
                 },
                 //allowDuplicates: false
             });
-            $('#txtSearch').tagsInput({ width: 'auto', height: '38px', delimiter: ["','"] });
+            $('#txtSearch').tagsInput({ 
+                 width: 'auto',
+                 height: '38px',
+                 delimiter: ['',''],
+                 autocomplete_url: '',
+                 autocomplete: {
+                     'source': getTagsOnInput()
+                 }
+            });
 
             CKEDITOR.replace('Note', {
                 language: 'en-gb',
@@ -78,18 +86,86 @@
             });
 
 
+            $(window).bind("load resize", function () {
+
+                topOffset = 50;
+                width = (this.window.innerWidth > 0) ? this.window.innerWidth : this.screen.width;
+                if (width < 768) {
+                    topOffset = 100; // 2-row-menu
+                }
+
+                height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
+
+                height = height - topOffset;
+                if (height < 1) height = 1;
+                if (height > topOffset) {
+                    var fileHeight = height - 25;
+
+                    $('.right-side-container-ch').css('min-height', (fileHeight - 5) + 'px');
+                    $('.scroll-tbody').height(fileHeight - 317);
+                }
+
+                //reSizeContent();
+            });
+
+
+            $('#clientSelect').on('change', function () {
+
+                $.ajax({
+                    url:'/Roster/GetCaseNoteByClient',
+                    type:'POST',
+                    beforeSend: function () { $('#spinner').show() },
+                    data: { 'clientId': $(this).val(), 'householdId': $('#HouseHoldId').val() },
+                    success:function(data)
+                    {
+                        $('#spinner').hide();
+                        bindCaseNoteTableSection(data);
+
+                    },
+                    error:function(data)
+                    {
+                        $('#spinner').hide();
+                    }
+
+
+
+                });
+
+
+            });
 
 
             $('.btn-search').click(function () {
                 $.ajax({
                     type: "POST",
                     url: "/Roster/GetCaseNoteByTags",
+                    beforeSend:function(){$('#spinner').show()},
                     data: { 'Householdid': $('#HouseHoldId').val(), 'centerid': $('#CenterId').val(), 'ClientId': $('#ClientId').val(), 'TagName': $('#txtSearch').val() },
                     success: function (data) {
-                        $('.addn-table-head').empty();
-                        $(JSON.parse(data)).each(function (i, val) {
-                            console.log(val);
-                            var row = '<tr casenoteid="{casenoteid}">\
+                        $('#spinner').hide();
+                        bindCaseNoteTableSection(data)
+                    },
+                    error: function (data) {
+                        $('#spinner').hide();
+                        console.log(data);
+                    }
+                });
+            });
+
+
+            $('.casenote-date').val(getFormattedDateNumber(new Date()));
+
+
+
+        });
+
+
+        function bindCaseNoteTableSection(data)
+        {
+            $('.addn-table-head').empty();
+            $(JSON.parse(data)).each(function (i, val) {
+            
+                var row = '<tr casenoteid="{casenoteid}">\
                                                     <td data-title="Date">\
                                                         <div class="addn-content-desc" style="position: relative;">\
                                                             <p>{Date}</p>\
@@ -126,36 +202,22 @@
                                                                         Append Case Note\
                                                                     </a> </span>\
                                                             </p>';
-                            
-                            if (!val.SecurityLevel)
-                                row = row.replace('{SUBNOTE}', subnote);
-                            else
-                                row = row.replace('{SUBNOTE}', "<p style='padding: 5px;height:50px;'>");
-                            row = row.replace('{casenoteid}', val.casenoteid);
-                            row = row.replace('{Date}', val.casenotedate);
-                            row = row.replace('{Id}', val.casenoteid);
-                            row = row.replace('{Title}', val.Title);
-                            row = row.replace('{BY}', val.By);
-                            row = row.replace('{Attachment}', val.Attachment);
-                            row = row.replace('{References}', val.References);
-                            $('.addn-table-head').append(row);
-                        });
 
-                    },
-                    error: function (data) {
-                        console.log(data);
-                    }
-                });
+                if (!val.SecurityLevel)
+                    row = row.replace('{SUBNOTE}', subnote);
+                else
+                    row = row.replace('{SUBNOTE}', "<p style='padding: 5px;height:50px;'>");
+                row = row.replace('{casenoteid}', val.casenoteid);
+                row = row.replace('{Date}', val.casenotedate);
+                row = row.replace('{Id}', val.casenoteid);
+               // row = row.replace('{ClientId}', val.ClientID);
+                row = row.replace('{Title}', val.Title);
+                row = row.replace('{BY}', val.By);
+                row = row.replace('{Attachment}', val.Attachment);
+                row = row.replace('{References}', val.References);
+                $('.addn-table-head').append(row);
             });
-
-
-            $('.casenote-date').val(getFormattedDateNumber(new Date()));
-
-
-
-        });
-
-
+        }
 
         function getTagsOnInput()
         {
@@ -191,7 +253,7 @@
         }
 
 
-        function Getcasenote(Casenoteid) {
+        function Getcasenote(Casenoteid,clientId) {
            
             $('#CaseNoteid').val(Casenoteid);
             $.ajax({
@@ -199,16 +261,19 @@
                 type: "POST",
                 data: {
                     Casenoteid: Casenoteid,
-                    ClientId: $('#ClientId').val()
+                    ClientId: clientId
                 },
                 dataType: "json",
                //secureuri: false,
-             //  async: false,
+                //  async: false,
+                beforeSend:function(){$('#spinner').show()},
                 success: function (Data) {
-                    console.log(Data);
+                    $('#spinner').hide();
                     BindCaseNotelist(Data);
+                   
                 }
             , error: function (Data) {
+                $('#spinner').hide();
                 customAlert("Error occured please try again later.");
             }
             });
@@ -917,14 +982,6 @@
     <div class="container-fluid">
         <div class="row">
             <div class="right-side-container-ch">
-                @*<div class="col-xs-12 top-header-background no-padding">
-                        <div class="top-header">
-                            <div class="nav-icon1">
-                                <img src="images/nav-bar.png">
-                            </div>
-
-                        </div>
-                    </div>*@
                 <div class="col-xs-12 no-padding">
                     <div class="top-header-title-addn">
                         <h1>Case Note Manager</h1>
@@ -952,12 +1009,40 @@
                 <div class="col-xs-12 no-padding">
                     <div class="col-xs-12 no-padding">
                         <div class="col-xs-12 serch-addn-block">
+
                             <div class="top-header-title-addn1 col-md-4 col-xs-12 no-padding">
-                                @if (ViewBag.Name != null)
+                                @if (ViewBag.Name != null && ViewBag.Name!="")
                                 {
                                     <h2>@ViewBag.Name</h2>
                                     <span id="clientName" style="color: #285b8f;display:none;">@ViewBag.Name</span>
                                 }
+
+                                @*else if (ViewBag.SelectList != null && ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist != null)
+                                {
+
+                                    if (((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist.Count == 1)
+                                    {
+                                        foreach (var clientitem in ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist)
+                                        {
+                                            <h2>@clientitem.Name</h2>
+                                            <span id="clientName" style="color: #285b8f;display:none;">@clientitem.Name</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <label style="font-size:14px;color:#ffffff;">Select Client</label>
+                                        <select id="clientSelect" class="form-control" style="height:38px;">
+                                            <option value="0">--Select--</option>
+
+                                            @foreach (var clientitem in ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist)
+                                            {
+                                                <option value="@clientitem.Id">@clientitem.Name</option>
+                                            }
+
+                                        </select>
+                                    }
+
+                                }*@
 
                             </div>
                             <div class="col-md-8 col-xs-12 serch-addn-block" style="text-align: right;">
@@ -1587,67 +1672,6 @@
     </script>
 
 
-    @*<div class="row">
-                <div class="col-lg-12">
-                    <h2 class="page-header">
-                        <span>Case Note Manager</span>
-                        <span class="view-btn backto_listspan" id="BackToList">
-                            @if (ViewBag.Householdid != null && Convert.ToString(ViewBag.Householdid) != "0")
-                            {
-                                <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Case Note</a>
-                                <a href="~/Agencyuser/FamilyDetails/@ViewBag.Householdid" class="backto_list">Back To Family Intake</a>
-                            }
-                            else
-                            {
-                                <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Case Note</a>
-                                <a href="~/Roster/Roster" class="backto_list">Back To Roster</a>
-
-
-                            }
-                        </span>
-                    </h2>
-                </div>
-                <div class="col-lg-12">
-                    <h4>
-                        @if (ViewBag.Name != null)
-                        {
-                            <span id="clientName" style="color: #285b8f;">@ViewBag.Name</span>
-                        }
-                    </h4>
-                </div>
-            </div>
-        <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                    <div class="table-responsive">
-                        <table class="table table_size">
-                            <thead style="cursor:pointer;">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Title</th>
-                                    <th>By</th>
-                                    <th>Attachments</th>
-                                    <th>References</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (ViewBag.CaseNotelist != null)
-                                {
-                                    foreach (var item1 in ViewBag.CaseNotelist)
-                                    {
-                                        <tr>
-                                            <td style="text-align:center;">@item1.Date</td>
-                                            <td style="text-align:center;"><a style="text-decoration:underline;cursor:pointer;" title="Click here to view Case Note" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</a>  </td>
-                                            <td style="text-align:center;">@item1.BY</td>
-                                            <td style="text-align:center;">@item1.Attachment</td>
-                                            <td style="text-align:center;">@item1.References</td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>*@
     <div class="row qualifierdiv">
         <form method="post" enctype="multipart/form-data" role="form" id="form2" autocomplete="off">
             <div class="modal fade scroll-modal" id="ModalAddCasenote" role="dialog">
@@ -1765,7 +1789,7 @@
                                     }
                                     else
                                     {
-                                        <div class="col-sm-12 adddivspace" style="display:none;">
+                                        <div class="col-sm-12 adddivspace">
                                             <div class="col-sm-4">
                                                 <div class="addn-poup-div">
                                                     <label>Developmental Team</label>
@@ -1847,167 +1871,7 @@
                         </div>
 
 
-                        @*<div class="modal-header">
-
-                                <h3 class="text-center"><span id="CaseNoteHeading" class="extra-title muted">Add New Case Note</span></h3>
-                                <div class="col-sm-12 col-xs-12 pull-right" style="padding-right:0;">
-                                    <div class="btnwrp_subcal" style="padding:0; margin:0;">
-                                        <h3 id="CaseNoteTitle" class="text-center pull-left"><span class="extra-title muted"></span></h3>
-                                        <button type="submit" id="SaveNoteSubmit" onclick="return Validatecasenote();" class="my-btn pull-right">Save</button>
-                                        <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
-                                        <input id="ClientId" type="hidden" name="ClientId" value="@ViewBag.Client" />
-                                        <input id="CenterId" type="hidden" name="CenterId" value="@ViewBag.centerid" />
-                                        <input id="ProgramId" type="hidden" name="ProgramId" value="@ViewBag.Programid" />
-                                        <input id="HouseHoldId" type="hidden" name="HouseHoldId" value="@ViewBag.Householdid" />
-                                        <input id="CaseNoteid" type="hidden" name="CaseNoteid" value="0" />
-                                        <div class="clear"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="control-group">
-                                <div>
-                                    <div class="row qualifierdiv add-useragform1">
-                                        <div class="row" style="margin-bottom:3%;">
-                                            <div class="col-sm-12">
-                                                <div class="col-sm-2">
-                                                    <label>Date <sup style="color:red">*</sup></label>
-                                                </div>
-                                                <div class="col-sm-10">
-                                                    <input type="text" id="CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control" />
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-sm-2">
-                                                    <label>Title <sup style="color:red">*</sup></label>
-                                                </div>
-                                                <div class="col-sm-10">
-                                                    <input type="text" maxlength="100" id="CaseNotetitle" name="CaseNotetitle" class="form-control" />
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-sm-2">
-                                                    <label>Note <sup style="color:red">*</sup></label>
-                                                </div>
-                                                <div class="col-sm-10">
-                                                    <textarea id="Note" name="Note">  </textarea>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-xs-3  col-sm-2">
-                                                    <label>Clients  <sup style="color:red">*</sup></label>
-                                                </div>
-                                                <div class="col-xs-9 col-sm-10">
-                                                    <div id="ClientDiv" class="case-note">
-
-                                                        @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist != null)
-                                                        {
-                                                            foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist)
-                                                            {
-                                                                <div class="col-sm-12"><input type="checkbox" name="ClientIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
-                                                            }
-                                                        }
-
-
-
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-sm-2">
-                                                    <label>Tags <sup style="color:red">*</sup> </label>
-                                                </div>
-                                                <div class="col-sm-10">
-                                                    <input type="text" id="CaseNotetags" name="CaseNotetags" class="form-control" />
-                                                </div>
-                                            </div>
-                                            @if (ViewBag.Householdid != null && ViewBag.Householdid == "0")
-                                            {
-                                                <div class="col-sm-12 adddivspace">
-                                                    <div class="col-xs-3 col-sm-2">
-                                                        <label>Developmental Team</label>
-                                                    </div>
-                                                    <div class="col-xs-9 col-sm-10" id="Divstaff">
-                                                        <div id="StaffDiv" class="case-note">
-
-                                                            @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
-                                                            {
-                                                                foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
-                                                                {
-                                                                    <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
-                                                                }
-                                                            }
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="col-sm-12 adddivspace" style="display:none;">
-                                                    <div class="col-xs-3 col-sm-2">
-                                                        <label>Developmental Team</label>
-                                                    </div>
-                                                    <div class="col-xs-9 col-sm-10" id="Divstaff">
-                                                        <div id="StaffDiv" class="case-note">
-
-                                                            @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
-                                                            {
-                                                                foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
-                                                                {
-                                                                    <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
-                                                                }
-                                                            }
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                            }
-                                            <div class="col-sm-12 adddivspace">
-                                                <div class="col-sm-2">
-                                                    <label>Secure Note Level?</label>
-                                                </div>
-                                                <div class="col-sm-2" style="margin-left:16px;">
-
-                                                    <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" />
-                                                    <span>Yes</span>
-
-                                                </div>
-                                            </div>
-                                            <div id="Attachment">
-                                                <div class="col-sm-12 adddivspace">
-                                                    <div class="col-sm-2">
-                                                        <label>Attachment</label>
-                                                    </div>
-                                                    <div class="col-sm-3">
-                                                        <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control" />
-                                                    </div>
-                                                    <div class="col-sm-3 adddivspace">
-                                                        <span>Add Attachment </span>
-                                                        <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment"><i class="fa fa-plus-square"></i></a>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="Attachments" style="display:none;">
-                                                <div class="col-sm-12 adddivspace">
-                                                    <div class="col-sm-2">
-                                                        <label>Download Attachment</label>
-                                                    </div>
-                                                    <div id="Attach" class="col-sm-10 adddivspace">
-
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>*@
+                      
                     </div>
                 </div>
             </div>

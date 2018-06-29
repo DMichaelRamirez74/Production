@@ -7185,7 +7185,7 @@ namespace FingerprintsData
             }
             return FswuserapprovalList;
         }
-        public List<HrCenterInfo> Getallcenter(string mode, string RoleId, string Agencyid, string userid)
+        public List<HrCenterInfo> Getallcenter(string mode, string RoleId, string Agencyid, string userid, bool homeBased)
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             try
@@ -7194,6 +7194,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                command.Parameters.Add(new SqlParameter("@homebased", homeBased));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getallcnterforfsw";
@@ -7211,6 +7212,7 @@ namespace FingerprintsData
                         info.Address = dr["address"].ToString();
                         info.Zip = dr["Zip"].ToString();
                         info.SeatsAvailable = dr["AvailSeats"].ToString();
+                        info.Enc_CenterID = EncryptDecrypt.Encrypt64(dr["center"].ToString());
                         centerList.Add(info);
                     }
 
@@ -8640,6 +8642,19 @@ namespace FingerprintsData
                     obj.PImagejson = _dataset.Tables[1].Rows[0]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[1].Rows[0]["ProfilePic"]);
                     obj.RPhoneno = _dataset.Tables[1].Rows[0]["ParentPhoneNo"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["ParentPhoneNo"]);
                     obj.PPhoneList = obj.RPhoneno.Split(',').ToList();
+                    obj.PEnrollment = _dataset.Tables[1].Rows[0]["PEnrollment"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["PEnrollment"]);
+                    obj.PEnrollmentFinished = _dataset.Tables[1].Rows[0]["PEnrollmentFinished"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["PEnrollmentFinished"]);
+                    // obj.IsFutureWithdrawal = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["IsFutureWithdrawal"]);
+                    if (_dataset.Tables[1].Rows[0]["gender"].ToString() == "2")
+                    {
+                        obj.Yakkr = _dataset.Tables[1].Rows[0]["yakkr"].ToString();
+                        obj.Pregnantmotherenrolled = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["Pregnantmotherenrolled"]);
+                        obj.PMDentalExam = Convert.ToInt32(_dataset.Tables[1].Rows[0]["PMDentalExam"]);
+                        obj.PMDentalEntered = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["DentalEntered"]);
+                        obj.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[0]["ProgramID"].ToString()));
+                        
+                    }
+
                     if (_dataset.Tables[1].Rows.Count > 1)
                     {
                         obj.ParentID1 = Convert.ToInt32(_dataset.Tables[1].Rows[1]["clientid"]);
@@ -8651,6 +8666,17 @@ namespace FingerprintsData
                         obj.P1Imagejson = _dataset.Tables[1].Rows[1]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[1].Rows[1]["ProfilePic"]);
                         obj.P1phoneno = _dataset.Tables[1].Rows[1]["ParentPhoneNo"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["ParentPhoneNo"]);
                         obj.P1PhoneList = obj.P1phoneno.Split(',').ToList();
+                        obj.PEnrollment1 = _dataset.Tables[1].Rows[1]["PEnrollment"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["PEnrollment"]);
+                        obj.PEnrollmentFinished1 = _dataset.Tables[1].Rows[1]["PEnrollmentFinished"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["PEnrollmentFinished"]);
+                        //  obj.IsFutureWithdrawal1 = Convert.ToBoolean(_dataset.Tables[1].Rows[1]["IsFutureWithdrawal"]);
+                        if (_dataset.Tables[1].Rows[1]["gender"].ToString() == "2")
+                        {
+                            obj.Yakkr1 = _dataset.Tables[1].Rows[1]["yakkr"].ToString();
+                            obj.PregnantmotherenrolledP1 = Convert.ToBoolean(_dataset.Tables[1].Rows[1]["Pregnantmotherenrolled"]);
+                            obj.PMDentalExam1 = Convert.ToInt32(_dataset.Tables[1].Rows[1]["PMDentalExam"]);
+                            obj.ProgramTypeID1 = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[1]["ProgramID"].ToString()));
+
+                        }
                     }
                 }
                 //Child list
@@ -8669,13 +8695,18 @@ namespace FingerprintsData
                         familyinfo.Imagejson = _dataset.Tables[2].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[2].Rows[i]["ProfilePic"]);
                         familyinfo.Yakkr = _dataset.Tables[2].Rows[i]["yakkr"].ToString();
                         if (_dataset.Tables[2].Rows[i]["PrimaryInsurance"].ToString() != "")
-                          familyinfo.InsuranceOption = _dataset.Tables[2].Rows[i]["PrimaryInsurance"].ToString();
+                            familyinfo.InsuranceOption = _dataset.Tables[2].Rows[i]["PrimaryInsurance"].ToString();
 
                         familyinfo.ClassRoomName = _dataset.Tables[2].Rows[i]["ClassRoomName"].ToString();
                         familyinfo.ClassRoomId = Convert.ToInt64(_dataset.Tables[2].Rows[i]["ClassRoomId"]);
                         familyinfo.CenterName = _dataset.Tables[2].Rows[i]["CenterName"].ToString();
                         familyinfo.CenterId = Convert.ToInt64(_dataset.Tables[2].Rows[i]["CenterId"].ToString());
                         familyinfo.CProgramType = Convert.ToString(_dataset.Tables[2].Rows[i]["ProgramType"].ToString());
+                        familyinfo.Encrypthouseholid = EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["HouseholdId"].ToString());
+                        // familyinfo.IsFutureWithdrawal = Convert.ToBoolean(_dataset.Tables[2].Rows[i]["IsFutureWithdrawal"]);
+
+                        familyinfo.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[2].Rows[i]["ProgramID"].ToString()));
+
                         _Childlist.Add(familyinfo);
                     }
                     obj._Clist = _Childlist;
@@ -8811,7 +8842,7 @@ namespace FingerprintsData
                 }
             }
         }
-        public string SaveFamilySummary(FamilyHousehold info, string Agenyid, string UserId)
+        public string SaveFamilySummary(FamilyHousehold info, string Agenyid, string UserId, int mode = 1)
         {
             string result = string.Empty;
             try
@@ -8845,13 +8876,38 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CreatedBy", UserId));
                 command.Parameters.Add(new SqlParameter("@AgencyID", Agenyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveFamilysummary";
+                Connection.Open();
+
                 DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                FamilySummaryinfo(info, _dataset);
+                if (mode == 1)
+                {
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    FamilySummaryinfo(info, _dataset);
+
+                }
+                else
+                {
+                    command.ExecuteNonQuery();
+                }
+
+
+                //if (mode == 1)
+                //{
+                //    DataAdapter = new SqlDataAdapter(command);
+                //    _dataset = new DataSet();
+                //    DataAdapter.Fill(_dataset);
+                //    FamilySummaryinfo(info, _dataset);
+                //}
+                //else
+                //{
+                //    command.ExecuteNonQuery();
+                //}
+
                 result = command.Parameters["@result"].Value.ToString();
 
             }
@@ -8859,7 +8915,11 @@ namespace FingerprintsData
             {
                 clsError.WriteException(Ex);
             }
-
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
             return result;
         }
 
@@ -10284,55 +10344,67 @@ namespace FingerprintsData
             }
             return Info;
         }
-        public string DropClient(string userid, string Agencyid, Transition Transition)
+        public string DropClient(Transition Transition)
         {
-           // try
-            //{
+            try
+            {
+
+                //          1 Medicaid / Chip
+                //          2 No Insurance
+                //          3 Other Insurance
+                //          4 Private Health Insurance
+                //          5 State Funded
+
+                StaffDetails details = StaffDetails.GetInstance();
+
                 int n, n1;
                 var isClientid = int.TryParse(Transition.EClientID, out n);
-                var ishouseholdid = int.TryParse(Transition.EClientID, out n1);            
-                switch (Transition.TrnsInsuranceType)
+                var ishouseholdid = int.TryParse(Transition.HouseholdId, out n1);
+
+
+                DataTable dt = new DataTable();
+                dt.Columns.AddRange(new DataColumn[3] {
+                    new DataColumn("Attachment", typeof(byte[])),
+                      new DataColumn("AttachmentName",typeof(string)),
+                        new DataColumn("Attachmentextension",typeof(string))
+                    });
+                foreach (RosterNew.Attachment Attachment in Transition.CaseNoteDetails.CaseNoteAttachmentList)
                 {
-                    case "C3A1":
+                    if (Attachment != null && Attachment.file != null)
+                    {
+                        dt.Rows.Add(new BinaryReader(Attachment.file.InputStream).ReadBytes(Attachment.file.ContentLength), Attachment.file.FileName, Path.GetExtension(Attachment.file.FileName));
 
-                        Transition.MedicaidCHIP_S_C1A1 = 1;
-                        Transition.MedicaidCHIP_E_C1A2 = 1;
-                        break;
-                    case "C3B1":
-                        Transition.StateFunded_S_C1B1 = 1;
-                        Transition.StateFunded_E_C1B2 = 1;
-                        break;
-                    case "C3C1":
-                        Transition.PrivateIns_S_C1C1 = 1;
-                        Transition.PrivateIns_E_C1C2 = 1;
-                        break;
-                    case "C3D1":
-                        Transition.OtherIns_S_C1D1 = 1;
-                        Transition.OtherIns_E_C1D2 = 1;
-                        Transition.Description_S_C1D11 = Transition.OtherInsuranceTypeDesc;
-                        Transition.Description_E_C1D11 = Transition.OtherInsuranceTypeDesc;
-
-                        break;
-                    case "C4":
-                        Transition.NoIns_S_C2 = 1;
-                        Transition.NoIns_E_C2 = 1;
-                        break;
+                    }
                 }
+
+
+
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
                 command.Parameters.Clear();
 
+                command.Parameters.Add(new SqlParameter("@Attachments", dt));
+                command.Parameters.Add(new SqlParameter("@Note", Transition.CaseNoteDetails.Note));
+                command.Parameters.Add(new SqlParameter("@CaseNoteDate", Transition.CaseNoteDetails.CaseNoteDate));
+                command.Parameters.Add(new SqlParameter("@CaseNoteSecurity", Transition.CaseNoteDetails.CaseNoteSecurity));
+                command.Parameters.Add(new SqlParameter("@CaseNotetags", Transition.CaseNoteDetails.CaseNotetags.Trim(',')));
+                command.Parameters.Add(new SqlParameter("@CaseNotetitle", Transition.CaseNoteDetails.CaseNotetitle));
+                command.Parameters.Add(new SqlParameter("@ClientIds", string.Join(",", Transition.Users.Clientlist.Select(x => x.Id).ToArray())));
+                command.Parameters.Add(new SqlParameter("@StaffIds", string.Join(",", Transition.Users.UserList.Select(x => x.Id).ToArray())));
 
-                command.Parameters.Add(new SqlParameter("@ClientId",(isClientid)? Transition.EClientID:EncryptDecrypt.Decrypt64( Transition.EClientID)));
-                command.Parameters.Add(new SqlParameter("@HouseholdId",(ishouseholdid)?Transition.HouseholdId: EncryptDecrypt.Decrypt64(Transition.HouseholdId)));
+
+                command.Parameters.Add(new SqlParameter("@ClientId", (isClientid) ? Transition.EClientID : EncryptDecrypt.Decrypt64(Transition.EClientID)));
+                command.Parameters.Add(new SqlParameter("@HouseholdId", (ishouseholdid) ? Transition.HouseholdId : EncryptDecrypt.Decrypt64(Transition.HouseholdId)));
                 command.Parameters.Add(new SqlParameter("@status", Transition.Status));
                 command.Parameters.Add(new SqlParameter("@Reason", Transition.Reason));
                 command.Parameters.Add(new SqlParameter("@StatusText", Transition.StatusText));
                 command.Parameters.Add(new SqlParameter("@ddlreason", Transition.ddlreason));
                 command.Parameters.Add(new SqlParameter("@ddlreasontext", Transition.ddlreasontext));
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
+                command.Parameters.Add(new SqlParameter("@Agencyid", details.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", details.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleID", details.RoleId));
+
                 command.Parameters.Add(new SqlParameter("@IsWaiting", string.IsNullOrEmpty(Transition.IsWaiting) ? false : Transition.IsWaiting == "1" ? true : false));
 
                 // for addtional questions
@@ -10350,26 +10422,33 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@SNAP", Transition.SNAP));
                 command.Parameters.Add(new SqlParameter("@ImmunizationService", Transition.ImmunizationService));
 
+
+                #region father education and job training details
+
+                command.Parameters.Add(new SqlParameter("@ParentID", Transition.ParentID));
                 command.Parameters.Add(new SqlParameter("@ShoolAchievement", Transition.ShoolAchievement));
                 command.Parameters.Add(new SqlParameter("@JobTrainingFinished", Transition.JobTrainingFinished));
+                command.Parameters.Add(new SqlParameter("@AcceptJobTrainingFinished", Transition.AcceptJobTrainingFinished));
 
-                command.Parameters.Add(new SqlParameter("@ActiveRecCode", Transition.TrnsInsuranceType));
-                command.Parameters.Add(new SqlParameter("@MedicaidCHIP_S_C1A1", Transition.MedicaidCHIP_S_C1A1));
-                command.Parameters.Add(new SqlParameter("@MedicaidCHIP_E_C1A2", Transition.MedicaidCHIP_E_C1A2));
-                command.Parameters.Add(new SqlParameter("@StateFunded_S_C1B1", Transition.StateFunded_S_C1B1));
-                command.Parameters.Add(new SqlParameter("@StateFunded_E_C1B2", Transition.StateFunded_E_C1B2));
-                command.Parameters.Add(new SqlParameter("@PrivateIns_S_C1C1", Transition.PrivateIns_S_C1C1));
-                command.Parameters.Add(new SqlParameter("@PrivateIns_E_C1C2", Transition.PrivateIns_E_C1C2));
-                command.Parameters.Add(new SqlParameter("@OtherIns_S_C1D1", Transition.OtherIns_S_C1D1));
-                command.Parameters.Add(new SqlParameter("@OtherIns_E_C1D2", Transition.OtherIns_E_C1D2));
+                #endregion
 
-                command.Parameters.Add(new SqlParameter("@Description_S_C1D1", Transition.Description_S_C1D11));
-                command.Parameters.Add(new SqlParameter("@Description_E_C1D1", Transition.Description_S_C1D11));
-                command.Parameters.Add(new SqlParameter("@NoIns_S_C2", Transition.NoIns_S_C2));
-                command.Parameters.Add(new SqlParameter("@NoIns_E_C2", Transition.NoIns_E_C2));
+                #region mother education and job training details
+
+                command.Parameters.Add(new SqlParameter("@ParentID2", Transition.ParentID2));
+                command.Parameters.Add(new SqlParameter("@SchoolAchievement2", Transition.ShoolAchievement2));
+                command.Parameters.Add(new SqlParameter("@JobTrainingFinished2", Transition.JobTrainingFinished2));
+                command.Parameters.Add(new SqlParameter("@AcceptJobTrainingFinished2", Transition.AcceptJobTrainingFinished2));
+                #endregion
 
 
+                command.Parameters.Add(new SqlParameter("@InsuranceType", Transition.TrnsInsuranceType));
+                command.Parameters.Add(new SqlParameter("@OtherInsuranceDescrition", Transition.OtherInsuranceTypeDesc));
 
+                command.Parameters.Add(new SqlParameter("@CenterID", (string.IsNullOrEmpty(Transition.Enc_CenterID) || Transition.Enc_CenterID == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(Transition.Enc_CenterID))));
+                command.Parameters.Add(new SqlParameter("@ClassroomID", (string.IsNullOrEmpty(Transition.Enc_ClassroomID) || Transition.Enc_ClassroomID == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(Transition.Enc_ClassroomID))));
+                command.Parameters.Add(new SqlParameter("@ClassStartDate", Transition.ClassStartDate));
+                command.Parameters.Add(new SqlParameter("@DateOfWithdrawn", Transition.DateOfWithdrawn));
+                command.Parameters.Add(new SqlParameter("@WithdrawnType", Transition.TransitioningType));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -10377,30 +10456,42 @@ namespace FingerprintsData
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.ExecuteNonQuery();
                 return command.Parameters["@result"].Value.ToString();
-           // }
-           // catch (Exception ex)
-           // {
-            //    clsError.WriteException(ex);
-           //     return "";
-          //  }
-          //  finally
-           // {
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return "";
+            }
+            finally
+            {
                 if (Connection != null)
                     Connection.Close();
 
-           // }
+            }
 
         }
-        public List<FingerprintsModel.FamilyHousehold.EnrollmentChangeReason> GetEnrollReason(string Status, string UserId, string Agencyid)
+        public Transition GetEnrollReason(string Status, string clientId = "")
         {
-            List<FingerprintsModel.FamilyHousehold.EnrollmentChangeReason> _EnrollmentChangeReasonlist = new List<FingerprintsModel.FamilyHousehold.EnrollmentChangeReason>();
+            Transition trans = new Transition();
+
+            trans.EnrollmentChangeReason = new List<FamilyHousehold.EnrollmentChangeReason>();
+            trans.CaseNoteDetails = new RosterNew.CaseNote();
+            trans.Users = new RosterNew.Users();
+            trans.Users.Clientlist = new List<RosterNew.User>();
+            trans.Users.UserList = new List<RosterNew.User>();
             if (!String.IsNullOrWhiteSpace(Status))
             {
                 try
                 {
+                    long _clientId = (clientId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
+
+                    StaffDetails staff = StaffDetails.GetInstance();
+
                     command.Parameters.Add(new SqlParameter("@Status", Status));
-                    command.Parameters.Add(new SqlParameter("@UserId", UserId));
-                    command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", _clientId));
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "Sp_GetEnrollmentReason";
@@ -10409,16 +10500,159 @@ namespace FingerprintsData
                     DataAdapter.Fill(_dataset);
                     if (_dataset != null && _dataset.Tables.Count > 0)
                     {
-                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+
+
+                        trans.EnrollmentChangeReason = _dataset.Tables[0].AsEnumerable().Select(x => new FamilyHousehold.EnrollmentChangeReason
                         {
-                            FingerprintsModel.FamilyHousehold.EnrollmentChangeReason obj = new FingerprintsModel.FamilyHousehold.EnrollmentChangeReason();
-                            obj.ReasonID = dr["TagKey"].ToString();
-                            obj.ReasonText = dr["Description"].ToString();
-                            _EnrollmentChangeReasonlist.Add(obj);
+
+
+                            ReasonID = x.Field<long>("TagKey").ToString(),
+                            ReasonText = x.Field<string>("Description")
+
+                        }).ToList();
+
+                        if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                        {
+
+                            trans.InsuranceType = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["PrimaryInsurance"].ToString()) ? (int?)null : Convert.ToInt32(_dataset.Tables[1].Rows[0]["PrimaryInsurance"]);
+                            if (Convert.ToBoolean(_dataset.Tables[1].Rows[0]["IsPreg"]))
+                            {
+                                trans.OtherInsuranceTypeDesc = Convert.ToString(_dataset.Tables[1].Rows[0]["InsuranceDescription"]);
+                            }
+                            else
+                            {
+                                trans.ChildOtherInsuranceTypeDesc = Convert.ToString(_dataset.Tables[1].Rows[0]["InsuranceDescription"]);
+
+                            }
+                            trans.ImmunizationService = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["Immunizationservicetype"].ToString()) ? 0 : Convert.ToInt32(_dataset.Tables[1].Rows[0]["Immunizationservicetype"]);
+                            trans.MedicalHome = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["Medicalhome"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["Medicalhome"].ToString() == "2" || _dataset.Tables[1].Rows[0]["Medicalhome"].ToString() == "3") ? true : false;
+                            trans.MedicalServices = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["MedicalService"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["MedicalService"].ToString() == "1") ? true : false;
+                            trans.DentalServices = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["DentalService"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["DentalService"].ToString() == "1") ? true : false;
+                            trans.DentalHome = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["DentalHome"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["DentalHome"].ToString() == "2" || _dataset.Tables[1].Rows[0]["DentalHome"].ToString() == "3") ? true : false;
+                            trans.TANF = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["TAN"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["TAN"].ToString() == "False") ? false : true;
+
+                            trans.SSI = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["SSI"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["SSI"].ToString() == "False") ? false : true;
+                            trans.SNAP = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["SNAP"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["SNAP"].ToString() == "False") ? false : true;
+                            trans.WIC = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["WIC"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["WIC"].ToString() == "False") ? false : true;
+                            trans.NONE = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["NONE"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["NONE"].ToString() == "False") ? false : true;
+
+                            trans.Name = _dataset.Tables[1].Rows[0]["ClientName"].ToString();
+                            trans.EClientID = EncryptDecrypt.Encrypt64(_clientId.ToString());
+                            trans.HouseholdId = EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[0]["HouseholdID"].ToString());
+                            trans.IsPreg = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["IsPreg"]);
+                            trans.PregnantMotherEnrollment = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["EnrolledPregnant"].ToString()) || _dataset.Tables[1].Rows[0]["EnrolledPregnant"].ToString() == "0" ? false : true;
+                            trans.IsShowJobTrainingQuestion = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["IsShowJobTrainingQuestion"]);
+                            trans.Returning = Convert.ToInt32(_dataset.Tables[1].Rows[0]["Returning"]);
+                            trans.SchoolDistrictDate = Convert.ToString(_dataset.Tables[1].Rows[0]["SchoolDistrictDate"]);
+                            trans.DateOfTransition = Convert.ToString(_dataset.Tables[1].Rows[0]["DateOfTransition"]);
+                            trans.FamilyType = Convert.ToInt32(_dataset.Tables[1].Rows[0]["FamilyType"]);
                         }
+
+                        if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                        {
+                            trans.Users.Clientlist = _dataset.Tables[2].AsEnumerable().Select(x => new RosterNew.User
+                            {
+
+                                Id = Convert.ToString(x.Field<long>("clientid")),
+                                Name = x.Field<string>("Name")
+
+                            }).ToList();
+                        }
+
+                        if (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
+                        {
+                            trans.Users.UserList = _dataset.Tables[3].AsEnumerable().Select(x => new RosterNew.User
+                            {
+
+                                Id = Convert.ToString(x.Field<Guid>("UserId")),
+                                Name = x.Field<string>("Name")
+
+                            }).ToList();
+                        }
+
+                        if (_dataset.Tables[4] != null && _dataset.Tables[4].Rows.Count > 0)
+                        {
+                            trans.LDAAge = Convert.ToString(_dataset.Tables[4].Rows[0]["LDAAgeString"]);
+                            trans.ReferenceProgram = Convert.ToString(_dataset.Tables[4].Rows[0]["Name"]);
+                            trans.TypeOfTransition = Convert.ToInt32(_dataset.Tables[4].Rows[0]["TransitionType"]);
+                        }
+
+                        if (_dataset.Tables[5] != null && _dataset.Tables[5].Rows.Count > 0)
+                        {
+
+
+                            foreach (DataRow dr in _dataset.Tables[5].Rows)
+                            {
+                                if (Convert.ToInt32(dr["ParentRole"]) == 1)
+                                {
+                                    trans.JobTrainingSchool = string.IsNullOrEmpty(dr["JobTrainingSchool"].ToString()) ? false : Convert.ToInt32(dr["JobTrainingSchool"]) == 1 ? true : false;
+                                    trans.JobTrainingFinished = string.IsNullOrEmpty(dr["JobTrainingFinished"].ToString()) ? false : Convert.ToBoolean(dr["JobTrainingFinished"]);
+
+                                    trans.AdvancedDegree = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "1") ? true : false;
+                                    trans.AssociateDegree = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "2") ? true : false;
+                                    trans.HighSchoolGraduate = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "3") ? true : false;
+                                    trans.HighSchool = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "4") ? true : false;
+                                    trans.ParentRole = Convert.ToInt32(dr["ParentRole"]);
+                                    trans.ParentID = EncryptDecrypt.Encrypt64(dr["ParentID"].ToString());
+                                    trans.ParentName = Convert.ToString(dr["ParentName"]) + " " + "(Father)";
+                                }
+
+                                if (Convert.ToInt32(dr["ParentRole"]) == 2)
+                                {
+                                    trans.JobTrainingSchool2 = string.IsNullOrEmpty(dr["JobTrainingSchool"].ToString()) ? false : Convert.ToInt32(dr["JobTrainingSchool"]) == 1 ? true : false;
+                                    trans.JobTrainingFinished2 = string.IsNullOrEmpty(dr["JobTrainingFinished"].ToString()) ? false : Convert.ToBoolean(dr["JobTrainingFinished"]);
+                                    trans.AdvancedDegree2 = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "1") ? true : false;
+                                    trans.AssociateDegree2 = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "2") ? true : false;
+                                    trans.HighSchoolGraduate2 = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "3") ? true : false;
+                                    trans.HighSchool2 = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "4") ? true : false;
+                                    trans.ParentRole2 = Convert.ToInt32(dr["ParentRole"]);
+                                    trans.ParentID2 = EncryptDecrypt.Encrypt64(dr["ParentID"].ToString());
+                                    trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Mother)";
+                                }
+                            }
+                            //  trans.JobTrainingFinished = string.IsNullOrEmpty(_dataset.Tables[5].Rows[0]["JobTrainingFinished"].ToString()) ? false : (_dataset.Tables[5].Rows[0]["JobTrainingFinished"].ToString() == "1") ? true : false;
+                            //  trans.AdvancedDegree = string.IsNullOrEmpty(_dataset.Tables[5].Rows[0]["Educationlevel"].ToString()) ? false : (_dataset.Tables[5].Rows[0]["Educationlevel"].ToString() == "1") ? true : false;
+                            //  trans.AssociateDegree = string.IsNullOrEmpty(_dataset.Tables[5].Rows[0]["Educationlevel"].ToString()) ? false : (_dataset.Tables[5].Rows[0]["Educationlevel"].ToString() == "2") ? true : false;
+                            //  trans.HighSchoolGraduate = string.IsNullOrEmpty(_dataset.Tables[5].Rows[0]["Educationlevel"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["Educationlevel"].ToString() == "3") ? true : false;
+                            //  trans.HighSchool = string.IsNullOrEmpty(_dataset.Tables[1].Rows[5]["Educationlevel"].ToString()) ? false : (_dataset.Tables[1].Rows[0]["Educationlevel"].ToString() == "4") ? true : false;
+
+
+                        }
+
+                        if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+                        {
+                            trans.EHSPrograms = _dataset.Tables[6].AsEnumerable().Where(x => x.Field<long>("ReferenceId") == 1).Select(x =>
+                                                                                              new SelectListItem
+                                                                                              {
+
+                                                                                                  Text = x.Field<string>("ProgramType"),
+                                                                                                  Value = EncryptDecrypt.Encrypt64(x.Field<long>("ProgramTypeID").ToString())
+
+                                                                                              }
+                                                                                       ).ToList();
+
+
+                            trans.HSPrograms = _dataset.Tables[6].AsEnumerable().Where(x => x.Field<long>("ReferenceId") == 2).Select(x =>
+                                                                                                new SelectListItem
+                                                                                                {
+
+                                                                                                    Text = x.Field<string>("ProgramType"),
+                                                                                                    Value = EncryptDecrypt.Encrypt64(x.Field<long>("ProgramTypeID").ToString())
+
+                                                                                                }
+                                                                                         ).ToList();
+                        }
+
+
+
+
                     }
+
+                    //DateTime datetime =  DateTime.Now.Tosring("MM/dd/yyyy");
+
                     DataAdapter.Dispose();
                     command.Dispose();
+
                 }
                 catch (Exception ex)
                 {
@@ -10431,7 +10665,7 @@ namespace FingerprintsData
                 }
 
             }
-            return _EnrollmentChangeReasonlist;
+            return trans;
         }
         public string GeneratehouseholdeditRequest(string HouseHoldId, string agencyid, string userid)
         {
@@ -13870,6 +14104,15 @@ namespace FingerprintsData
                 {
                     family.AllowFutureApplication = true;
                     family.FutureProgramYear = progType.FutureProgramYear;
+                    family.AllowCurrentYearApplication = true;
+
+                }
+
+                else if (progType.AllowFutureApplication)
+                {
+                    family.AllowFutureApplication = true;
+                    family.FutureProgramYear = progType.FutureProgramYear;
+                    family.AllowCurrentYearApplication = false;
                 }
 
             }

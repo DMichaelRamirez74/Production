@@ -229,7 +229,7 @@ namespace FingerprintsData
                     });
 
                     DataTable dt1 = new DataTable();
-                    dt1.Columns.AddRange(new DataColumn[18] {
+                    dt1.Columns.AddRange(new DataColumn[19] {
                         new DataColumn("ProgramType", typeof(string)),
                         new DataColumn("Description",typeof(string)),
                         new DataColumn("PIRReport",typeof(bool)),
@@ -247,14 +247,20 @@ namespace FingerprintsData
                           new DataColumn("LastDateCurrentApplication",typeof(string)),
                           new DataColumn("DateFutureApplication",typeof(string)),
                           new DataColumn("TransitionDate",typeof(string)),
-                           new DataColumn("ProgramTypeAssociation",typeof(string))
+                           new DataColumn("ProgramTypeAssociation",typeof(string)),
+                           new DataColumn("Status",typeof(int))
+
                         });
 
                     foreach (Agency.FundSource fund in agencyDetails.FundSourcedata)
                     {
                         if (fund.Acronym != null && fund.Description != null)
                         {
-                            dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype, (string.IsNullOrEmpty(fund.ProgramYear)) ? "" : (fund.ProgramYear).Replace("-", ""), fund.grantNo,
+                            dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype,
+                                //(string.IsNullOrEmpty(fund.ProgramYear)) ? "" : (fund.ProgramYear).Replace("-", ""), 
+                                fund.ProgramYear,
+                                fund.grantNo,
+
                                 fund.nameGranteeDelegate, fund.FundStatus, fund.FundID, fund.OldFund,
                                 fund.FundQ1, fund.FundQ2, fund.FundQ3, fund.FundQ4, fund.FundQ5, fund.FundQ6, fund.FundQ7,
                                 fund.FundQ8, fund.FundQ9, fund.FundQ10, fund.FundQ11, fund.FundQ12, fund.FundQ13, fund.FundQ14
@@ -270,7 +276,7 @@ namespace FingerprintsData
                             dt1.Rows.Add(prog.ProgramTypes, prog.Description, prog.PIRReport,
                                 prog.Slots, prog.ReferenceProg, prog.DivisionID, prog.MinAge, prog.MaxAge,
                                 prog.programstartDate, prog.programendDate, prog.ProgramID,
-                                prog.FundID, prog.OldFund, prog.HealthReview, prog.LastDateCurrentApplication, prog.DateFutureApplication, prog.TransitionDate, prog.ProgramTypeAssociation);//changes
+                                prog.FundID, prog.OldFund, prog.HealthReview, prog.LastDateCurrentApplication, prog.DateFutureApplication, prog.TransitionDate, prog.ProgramTypeAssociation,prog.ProgStatus);//changes
 
                         }
                     }
@@ -2098,6 +2104,8 @@ namespace FingerprintsData
                     superadmindashboard.Add("pendingapproval", dt.Rows[0]["pendingapproval"].ToString());
                     superadmindashboard.Add("pendingverification", dt.Rows[0]["pendingverification"].ToString());
                     superadmindashboard.Add("Rejectedrequest", dt.Rows[0]["Rejectedrequest"].ToString());
+                    superadmindashboard.Add("ShowEndOfYearNotification", dt.Rows[0]["ShowEndOfYearNotification"].ToString());
+
                     //superadmindashboard.Add("totalactiveagencyuser", dt.Rows[0]["totalactiveagencyuser"].ToString());
                     //superadmindashboard.Add("totaldeactiveagencyuser", dt.Rows[0]["totaldeactiveagencyuser"].ToString());
                     //superadmindashboard.Add("totalsuspendedagencyuser", dt.Rows[0]["totalsuspendedagencyuser"].ToString());
@@ -4689,7 +4697,7 @@ namespace FingerprintsData
         /// </summary>
         /// <param name="fund"></param>
         /// <returns></returns>
-        public bool AddFunds(Agency.FundSource fund)
+        public bool AddFunds(Agency.FundSource fund, int mode = 0)
         {
             bool isRowsAffected = false;
             try
@@ -4733,7 +4741,7 @@ namespace FingerprintsData
 
                 if (fund.Acronym != null && fund.Description != null)
                 {
-                    dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype, (string.IsNullOrEmpty(fund.ProgramYear)) ? "" : (fund.ProgramYear).Replace("-", ""), fund.grantNo,
+                    dt.Rows.Add(fund.Acronym, fund.Description, fund.Amount, fund.Date, fund.Duration, fund.ServiceQty, fund.fundingtype, (string.IsNullOrEmpty(fund.ProgramYear)) ? "" : fund.ProgramYear, fund.grantNo,
                         fund.nameGranteeDelegate, fund.FundStatus, fund.FundID, fund.OldFund,
                         fund.FundQ1, fund.FundQ2, fund.FundQ3, fund.FundQ4, fund.FundQ5, fund.FundQ6, fund.FundQ7,
                         fund.FundQ8, fund.FundQ9, fund.FundQ10, fund.FundQ11, fund.FundQ12, fund.FundQ13, fund.FundQ14
@@ -4750,13 +4758,15 @@ namespace FingerprintsData
 
                     command.Parameters.Clear();
                     command.Connection = Connection;
-                    command.Parameters.Add(new SqlParameter("@AgencyId", fund.AgencyID));
+
+
+                    command.Parameters.Add(new SqlParameter("@AgencyId", (mode == 0)?fund.AgencyID:staff.AgencyId));
                     command.Parameters.Add(new SqlParameter("@LoginAgencyId", staff.AgencyId));
                     command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
                     command.Parameters.Add(new SqlParameter("@tblfund", dt));
                     command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = "USP_AddFund";
+                    command.CommandText = (mode == 0) ? "USP_AddFund" : "USP_AddFund_EndOfProgramYear";
                     Connection.Open();
                     isRowsAffected = (command.ExecuteNonQuery() > 0);
                     Connection.Close();

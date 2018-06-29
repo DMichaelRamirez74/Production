@@ -8,6 +8,36 @@
     ViewBag.Title = "AgencyHealthNurse";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
+
+
+@section Style{
+
+
+<style type="text/css">
+    .table-headfix thead {
+        cursor: pointer;
+        table-layout: fixed;
+        width: calc(100% - 0px);
+        display: table;
+    }
+
+    .table-headfix tbody {
+        height: 235px;
+        overflow-y: scroll;
+        width: calc(100% - 0px);
+        float: left;
+        display: table-column;
+    }
+
+        .table-headfix tbody tr {
+            display: table;
+            table-layout: fixed;
+            width: 100%;
+        }
+</style>
+
+}
+
 @section Script{
 
     <script type="text/javascript">
@@ -23,6 +53,50 @@
                 TempData["message"] = null;
             }
         });
+
+        function showImage(ele) {
+            $('#spinner').show();
+            var enc_id = $(ele).attr('EClientId');
+            $.ajax({
+                url: '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                    }
+
+                    //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    //$(pic).parent('td').find('.roundimage').zoomify();
+
+                    $(ele).parent('td').append(image);
+                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).remove();
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+        }
+
+
+
         function Loadallenrolled(Object) {;
 
             $.ajax({
@@ -131,21 +205,9 @@
                     tr += '</td>';
                     //End
                     tr += '<td height="70" style="text-align:center;width:11%;">';
-                    if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
-                        tr += '<img class="roundimage"  width="50" height="50" src="' + HostedDir + '/Content/img/ic_female.png" />';
-                    }
-                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
-                        tr += '<img class="roundimage"   width="50" height="50" src="' + HostedDir + '/Content/img/ic_male.png" />';
-                    }
-                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
-                        tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/ic_male_default.png" />';
-                    }
-                    else if (data.list.Rosters[i].Picture != "") {
-                        tr += '<img class="roundimage"   width="50" height="50" src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
-                    }
-                    else {
-                        tr += '<img class="roundimage"  width="50" height="50"  src="' + HostedDir + '/Content/img/download.jpg" />';
-                    }
+                    tr += '<a href="javascript:void(0)" onclick="showImage(this);" eclientid="' + data.list.Rosters[i].Eclientid + '">View</a>';
+
+
                     tr += '</td>';
                     tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
                     // tr += '<td height="70" style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
@@ -289,6 +351,8 @@
 
         //End
         function Loadcenterscreening(Object) {
+
+            $('#spinner').show();
             centerid = 0;
             centername = null;
             centerid = $(Object).attr("accesskey");
@@ -304,15 +368,16 @@
                 },
                 dataType: "json",
                 secureuri: false,
-                async: false,
+                async: true,
                 success: function (data) {
-
-                        $('#CenterName1').text($(Object).attr("centername"));
-                        BindClientscreeningscenter(data);
+                    $('#spinner').hide();
+                    $('#CenterName1').text($(Object).attr("centername"));
+                    BindClientscreeningscenter(data);
 
                 }
                , error: function (Data) {
-                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                   $('#spinner').hide();
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                }
             });
         }
@@ -382,8 +447,7 @@
                }
             });
         }
-        function bindClassroom(data)
-        {
+        function bindClassroom(data) {
 
             if (data != null && data.length > 0) {
                 var option = "";
@@ -411,8 +475,7 @@
                 var th = "";
                 var tr = "";
                 var column = data[0];
-                if (column != null)
-                {
+                if (column != null) {
                     th += "<tr><th>Client</th>";
                     for (var i = 2; i < column.length; i++) {
                         th += "<th>" + column[i] + "</th>";
@@ -429,10 +492,8 @@
                             tr += "<td>" + rows[j] + "</td>";
                         else if (rows[j] == "M")
                             tr += "<td><span style='color:#295b8f;'>" + rows[j] + " </span></td>";
-                        else if (rows[j].indexOf("ExpiredDate") > -1)
-                        {
-                            //  tr += "<td><span style='color:#FF0000;cursor: pointer;'  title=" + rows[j].replace('ExpiredDate', '') + ">X</span></td>";
-                            tr += "<td><span style='color:#FF0000;'>" + rows[j].replace('ExpiredDate', '') + " </span></td>";
+                        else if (rows[j].indexOf("ExpiredDate") > -1) {
+                            tr += "<td><span style='color:#FF0000;cursor: pointer;'  title=" + rows[j].replace('ExpiredDate', '') + ">X</span></td>";
                         }
                         else if (rows[j].indexOf("ScreeningDate") > -1)
                             tr += "<td>" + rows[j].replace('ScreeningDate', '') + " </td>";
@@ -457,9 +518,8 @@
                 for (var j = 0; j < 4; j++) {
                     tr += "<tr>";
                     for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
-                        if (i == 0)
-                        {
-                            if(j==0)
+                        if (i == 0) {
+                            if (j == 0)
                                 tr += "<td>Complete</td>";
                             if (j == 1)
                                 tr += "<td style='color:#295b8f;'>Missing</td>";
@@ -468,11 +528,9 @@
                             if (j == 3)
                                 tr += "<td style='color:#FFA500;'>Expiring</td>";
                         }
-                        else
-                        {
+                        else {
                             var count = 0;
-                            if (j== 0)
-                            {
+                            if (j == 0) {
 
                                 for (var k = 1; k < data.length; k++) {
                                     var Rowi = data[k];
@@ -544,13 +602,11 @@
                 $('#Modalclientscreeningmissing').modal('toggle');
             }
         }
-        function Getsscreeningid()
-        {
+        function Getsscreeningid() {
             var screeningid = "";
             $('#DivcenterscreeningList > tbody > tr').each(function () {
                 if ($(this).find('td:eq(0)').find('input[type="checkbox"]').length > 0 && !$(this).find('td:eq(0)').find('input[type="checkbox"]').prop("disabled")
-                    && $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
-                {
+                    && $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked")) {
                     screeningid = screeningid + $(this).find('td:eq(0)').find('input[type="checkbox"]').attr("accesskey") + ',';
                 }
             });
@@ -563,8 +619,7 @@
 
         }
 
-        function getclient(object)
-        {
+        function getclient(object) {
             $.ajax({
                 url: HostedDir + "/Nurse/Loadmissingclient",
                 type: "POST",
@@ -731,8 +786,7 @@
                 $('#div6').show();
             }
         }
-        function Loadchildmissingscreeningclear()
-        {
+        function Loadchildmissingscreeningclear() {
             $('#Classroommatrix').val('');
             cleanValidation();
             if(Center!=null)
@@ -744,8 +798,7 @@
                 customAlert("Classroom is required. ");
                 plainValidation('#Classroommatrix');
             }
-            else
-            {
+            else {
                 if (Center != null)
                     Loadchildmissingscreening(Center);
             }
@@ -754,15 +807,13 @@
 
         function DownLoadExcelFile() {
 
-            if ($('#DivclientmissingList > tbody > tr').length > 0)
-            {
+            if ($('#DivclientmissingList > tbody > tr').length > 0) {
                 if (Center != null) {
                     var centerid = $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
                         window.location.href = HostedDir + "/Nurse/DownloadScreeningMatrixExcel?Centerid=" + $(Center).attr("accesskey") + "&Classroom=" + centerid;
                 }
             }
-            else
-            {
+            else {
                 customAlert("No record to print.");
             }
         }
@@ -1040,12 +1091,12 @@
                                                 <table class="table table_size" id="DivclientenrolledList">
                                                     <thead style="cursor:pointer;">
                                                         <tr>
-                                                            <th style="width: 18%;">Name</th>
+                                                            <th style="width: 18%;">Client</th>
                                                             @*Added on 4Jan2017*@
                                                             <th></th>
                                                             @*End*@
                                                             <th>Gender</th>
-                                                            <th>Child's Picture</th>
+                                                            <th>Profile Picture</th>
                                                             <th>DOB</th>
                                                             <th>Classroom Name</th>
                                                             <th>Teacher</th>

@@ -49,6 +49,301 @@
 
 
 
+        function pregMomTransAlert(ele)
+        {
+
+
+            var cName = $(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html();
+                var cId = $(ele).attr('ecid');
+                var programID = $(ele).attr('ProgramId');
+                var yakkr = $(ele).attr('st');
+                var message = '';
+                if($(ele).attr('isr')=='1')
+                {
+                    message='<p><strong>' + cName + '</strong> has been transitioned to new program year.</p><p>If you would like to change, Click OK to proceed.</p>';
+                }
+                
+                else if ($(ele).attr('isr') == '0')
+                {
+                    message = '<p><strong>' + cName + '</strong> has indicated as not planning on returning to our program.</p><p>If you would like to change, Click OK to proceed.</p>';
+
+                }
+
+                 BootstrapDialog.show({
+                     title:'Pregnant Mother Transition Confirmation',
+                     message: message,
+                     buttons: [{
+                         label: 'OK',
+                         cssClass: 'btn-primary',
+                         action: function () {
+                            $('#spinner').show();
+                            location.href = "" + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + cId + '&ProgramId=' + programID + '&st=' + yakkr + "";
+                         }
+                     },  {
+                         label: 'Cancel',
+                         cssClass: 'btn-primary',
+                         action: function (dialogItself) {
+                             dialogItself.close();
+                         }
+                     }]
+                 });
+        }
+
+
+        //function newYearTransition(ele, preg, pgrmtype) {
+        //    var transAlertText = '';
+        //    var cName = $(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html();
+        //    var cId = $(ele).attr('ecid');
+        //    var programID = $(ele).attr('ProgramId');
+        //    var yakkr = $(ele).attr('st');
+        //    if (preg == 1) {
+        //        $('#spinner').show();
+        //        location.href = "" + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + cId + '&ProgramId=' + programID + '&st=' + yakkr + "";
+        //    }
+        //    if (preg == 2) {
+        //        $('#spinner').show();
+        //        location.href = "" + HostedDir + '/Roster/HeadStartTransition/?Id=' + cId + '&ProgramId=' + programID + '&st=' + yakkr + "";
+        //    }
+        //}
+
+
+        //function pregMotherTransition(ele)
+        //{
+        //    var cName = $(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html();
+        //     var cId = $(ele).attr('ecid');
+        //     var programID = $(ele).attr('programid');
+        //     var yakkr = $(ele).attr('st');
+
+
+         
+            
+        //     BootstrapDialog.show({
+        //         title:'Pregnant Mother Transition Confirmation',
+        //         message: '<p>Is <strong>' + cName + '</strong> ready for transition?. Click OK to start transition or Cancel to exit</p>',
+        //         buttons: [{
+        //             label: 'OK',
+        //             cssClass: 'btn-primary',
+        //             action: function () {
+        //                $('#spinner').show();
+        //                location.href = "" + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + cId + '&ProgramId=' + programID + '&st=' + yakkr + "";
+        //             }
+        //         },  {
+        //             label: 'Cancel',
+        //             cssClass: 'btn-primary',
+        //             action: function (dialogItself) {
+        //                 dialogItself.close();
+        //             }
+        //         }]
+        //     });
+
+            
+
+        //}
+
+
+        function getScreeningByClient(ele) {
+            debugger;
+            var cId = $(ele).attr('ecid');
+            var fup = $(ele).attr("follow-up");
+            var pId = $(ele).attr('pId');
+
+
+            $.ajax({
+
+                url: '/AgencyUser/GetFollowUpScreenings',
+                datatype: 'json',
+                type: 'post',
+                data: { clientId: cId, followup: fup },
+                success: function (data) {
+                  
+
+                    var $scrModal = $('#screeningFollowupModal');
+
+                    if (data != null && data.length > 0) {
+                        var appendSelect = '';
+                        appendSelect += '<option value="0">--Select--</option>';
+                        $.each(data, function (i, scr) {
+                            appendSelect += '<option value=' + scr.Value + '>' + scr.Text + '</option>';
+                        });
+
+                        $scrModal.find('#ScreeningSelect').html(appendSelect);
+
+                        $scrModal.find('#scrClientName').val($(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html());
+                        $scrModal.find('#scrClientName').attr('ecid', cId);
+                        $scrModal.find('#scrClientName').attr('pId', pId);
+                        $scrModal.find('#scrClientName').siblings('#programId').val(pId);
+                        $scrModal.find('#scrClientName').siblings('#encClientID').val(cId);
+                        $scrModal.modal('show');
+                    }
+                },
+                error: function (data) {
+
+                }
+
+
+            });
+        }
+
+        function Getscreeningtemplate() {
+            var screenValue = $('#ScreeningSelect').val();
+            if (screenValue == '0') {
+                customAlert('Please select screening name');
+                return false;
+            }
+
+            var clientId = $('#screeningFollowupModal').find('#scrClientName').attr('ecid');
+            var prID = $('#screeningFollowupModal').find('#scrClientName').attr('pId');
+
+            $('#spinner').show();
+            $("#screeningfollowDiv").load('@Url.Action("GetScreeningDetailsByID", "AgencyUser")', { clientId: clientId, programId: prID, screeningId: screenValue }, function () {
+
+                $('#spinner').hide();
+                $('#saveScreening').show();
+            });
+        }
+
+
+        @*function Loadchangestatusmodel(ele)
+        {
+
+            var acckye = $(object).attr("accesskey");
+
+            if (acckye == "5" || acckye == '6' || acckye == '7' || acckye == '8' || acckye == '9')
+            {
+
+            }
+
+
+            $("#statusChangeDiv").load('@Url.Action("GetScreeningDetailsByID", "AgencyUser")', { clientId: clientId, programId: prID, screeningId: screenValue }, function () {
+
+                $('#spinner').hide();
+                $('#saveScreening').show();
+            });
+            if ($(object).attr("accesskey") == "5") {
+                BindReason(object, _clientid);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Enrolled");
+                //  $('#lblNewStatus').text("Withdrawn");
+                $('#lblNewStatus').text("Dropped");
+                $('#Divwaitinglist').show();
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').hide();
+
+                bindStatusCaseNoteDetails();
+
+
+
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "6") {
+                BindReason(object, _clientid);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Dropped");
+                $('#lblNewStatus').text("Re-enrolled");
+                $('#ddlreason').val('');
+                $('#ClientNameAll').text($(object).attr("name"));
+                $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').show();
+                bindStatusCaseNoteDetails();
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "7") {
+                BindReason(object, _clientid);
+                EnrolledObject = object;
+                $('#lblCurrentStatus').text("Withdrawn");
+                $('#lblNewStatus').text("Re-enrolled");
+                $('#ddlreason').val('');
+
+                $('#ClientNameAll').text($(object).attr("name"));
+
+                $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').show();
+                bindStatusCaseNoteDetails();
+                $('#ChangeclientStatus').modal('show');
+            }
+            if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
+                BindReason(object, _clientid);
+                EnrolledObject = object;
+                if ($(object).attr("accesskey") == "8") {
+                    $('#lblCurrentStatus').text("Enrollmentservices");
+
+                    $('#lblNewStatus').text("Withdrawn");
+
+                }
+                if ($(object).attr("accesskey") == "9") {
+                    $('#lblCurrentStatus').text("Re-enrolled");
+                    $('#lblNewStatus').text("Withdrawn");
+                }
+                $('#ddlreason').val('');
+                $('#Divwaitinglist').show();
+                $('#ChangeclientStatus').find('#divSelectCenter,#divSelectClassroom,#divSelectDate').hide();
+                $('#ClientNameAll').text($(object).attr("name"));
+
+                switch (Insurance) {
+                    case "1":
+                        $('#MedicareInsurance').prop('checked', true);
+                        break;
+                    case "2":
+                        $('#NoInsurance').prop('checked', true);
+                        break;
+                    case "3":
+                        $('#OtherInsurance').prop('checked', true);
+                        break;
+                    case "4":
+                        $('#PrivateInsurance').prop('checked', true);
+                        break;
+                    case "5":
+                        $('#StateInsurance').prop('checked', true);
+                        break;
+                }
+                bindStatusCaseNoteDetails();
+                $('#divForWithdrawn').show();
+                $('#ChangeclientStatus').modal('show');
+            }
+
+        }*@
+
+
+        function loadScreening(ele) {
+            var screenValue = $('#ScreeningSelect').val();
+
+
+            if (screenValue == '0') {
+                customAlert('Please select screening name');
+                return false;
+            }
+
+            var clientId = $('#screeningFollowupModal').find('#scrClientName').attr('ecid');
+            var prID = $('#screeningFollowupModal').find('#scrClientName').attr('pId');
+
+            $('#spinner').show();
+            $("#screeningfollowDiv").load('@Url.Action("GetScreeningDetailsByID", "AgencyUser")', { clientId: clientId, programId: prID, screeningId: screenValue }, function () {
+
+                $('#spinner').hide();
+                $('#saveScreening').show();
+            });
+
+
+
+
+
+            //$.ajax({
+            //    url: '/AgencyUser/GetScreeningDetailsByID',
+            //    datatype: 'json',
+            //    type: 'post',
+            //    data: { clientId: clientId, programId: prID, screeningId: screenValue },
+            //    success: function (data) {
+
+            //    },
+            //    error: function (data) {
+
+            //    }
+
+            //});
+
+
+        }
+
+
         function validDate(text) {
             var isValid = true;
             var comp = text.split('/');
@@ -186,6 +481,110 @@
             }
             return isAllow;
         }
+
+        function CheckdateHouseless(value) {
+
+
+
+            isValid = true;
+            if (!$(value).attr("readonly")) {
+
+                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                    var regex = new RegExp(dateformat);
+                    if (!regex.test($(value).val())) {
+                        customAlert("Invalid date format. ");
+                        $(value).val('');
+                        return false;
+                    }
+                    else {
+                        var text = $(value).val();
+                        var comp = text.split('/');
+                        var m = parseInt(comp[0], 10);
+                        var d = parseInt(comp[1], 10);
+                        var y = parseInt(comp[2], 10);
+                        var date = new Date(y, m - 1, d);
+                        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                        } else {
+                            customAlert("Invalid date. ");
+                            $(value).val('');
+                            return false;
+                        }
+
+
+
+                    }
+                }
+                var txtdate = $(value).val();
+                var selectedTimestampequal = new Date();
+                var year = selectedTimestampequal.getFullYear();
+                var month = selectedTimestampequal.getMonth() + 1;
+                var day = selectedTimestampequal.getDate();
+                today1 = month + '/' + day + '/' + year;
+                var newinput = today1.split("/");
+                var newday = newinput[1];
+                var str = newday.substr(0, 1);
+                var newdaynew = ('0' + newday).slice(-2);
+                var newmonth = newinput[0];
+                var str1 = newmonth.substr(0, 1);
+                var newmonthnew = ('0' + newmonth).slice(-2);
+                today = newmonthnew + '/' + newdaynew + '/' + year;
+                if (today == txtdate) {
+                    return true;
+                }
+                var testdatelocalinput = new Date(txtdate);
+                var selectedTimestamp = new Date().getTime();
+                var testdatelocalinputTS = testdatelocalinput.getTime();
+                var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+                if (testdatelocalinputTS > selectedTimestamp) {
+                    customAlert("Case Note date must be less than or equal to today's date.");
+                    $(value).val('');
+                    return false;
+                }
+                else if (timestamp > testdatelocalinputTS) {
+                    customAlert("Case Note date cannot be less than 30 days from today's date.");
+                    $(value).val('');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+        var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+        function ValidateSingleInputpdf2(oInput) {
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    var valid_size = 3 * 1000 * 1000;
+                    var v = oInput.files[0].size;
+                    if (v <= valid_size) {
+                        for (var j = 0; j < _validFileExtensions1.length; j++) {
+                            var sCurExtension = _validFileExtensions1[j];
+                            if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                                //  $('#DobverificationinPaper').prop("checked", false);
+                                blnValid = true;
+                                break;
+                            }
+                        }
+                        if (!blnValid) {
+                            oInput.value = "";
+                            return false;
+                        }
+                    }
+                    else {
+                        oInput.value = "";
+                        customAlertforlongtime("File size should not be greater than 3 MB. ");
+                        return false;
+
+                    }
+
+                }
+            }
+            return true;
+        }
         var flag = 0;
 
         var EnrolledObject = null;
@@ -232,8 +631,451 @@
             }, 2000);
         }
 
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
+
+        function loadHouselessClient(ele) {
+
+            $.ajax({
+
+                url: '/Roster/GetHouselessClient',
+                type: 'post',
+                datatype: "json",
+                data: { householdId: $(ele).attr('data-house'), clientId: $(ele).attr('data-cli') },
+                beforeSend: function () { $('#spinner').show() },
+                success: function (data) {
+
+               
+                    $('#spinner').hide();
+
+                    var houselessModal = $('#Houselessmodal');
+                    var clientAppend = '';
+                    var staffAppend = '';
+                    houselessModal.find('#CaseNoteDetails_Note').val('');
+                    if (data != null) {
+                        if (data.UsersList.Clientlist != null) {
+                            if (data.UsersList.Clientlist.length > 0) {
+                                $.each(data.UsersList.Clientlist, function (c, client) {
+
+                                    clientAppend += '<div class="col-sm-12 m-tp">\
+                                        <input type="checkbox" class="client-check" name="UsersList.clientlist['+ c + '].Id" value=' + client.Id + '>\
+                                            <span name="UsersList.clientlist['+ c + '].Name">' + client.Name + '</span></div>';
+                                });
+
+
+                            }
+                        }
+
+                        if (data.UsersList.UserList != null) {
+                            if (data.UsersList.UserList.length > 0) {
+                                $.each(data.UsersList.UserList, function (d, staff) {
+
+                                    staffAppend += '<div class="col-sm-12 m-tp">\
+                                        <input type="checkbox" class="staff-check" name="UsersList.UserList[' + d + '].Id" value=' + staff.Id + '>\
+                                        <span name="UsersList.UserList[' + d + '].Name">' + staff.Name + '</span>\
+                                        </div>';
+                                });
+                            }
+                        }
+                        houselessModal.find('#ClientDiv').html(clientAppend);
+
+                        houselessModal.find('#StaffDiv').html(staffAppend);
+
+
+                        houselessModal.find('#CaseNoteDetails_caseNoteDate').val(getFormattedDate(new Date()));
+
+                        houselessModal.find('#CaseNoteDetails_CaseNotetitle').val("Homelessness and Address Change");
+                        houselessModal.find('#oldAddress').val('');
+
+                        if (data.FamilyHousehold != null) {
+                            if (data.FamilyHousehold.EAddress1 != null || data.FamilyHousehold.EAddress1 != '') {
+                                var list = "<h2 style='text-decoration:underline;'>Old Address</h2><hr>";
+                                list += data.FamilyHousehold.EAddress1;
+                                houselessModal.find('#CaseNoteDetails_Note').val(list);
+
+                                houselessModal.find('#oldAddress').val(list);
+                            }
+
+                            houselessModal.find('#FamilyHousehold_ClientFname').html(data.FamilyHousehold.ClientFname);
+
+                            houselessModal.find('#FamilyHousehold_clientIdnew').val(data.FamilyHousehold.clientIdnew);
+
+                            houselessModal.find('#FamilyHousehold_CProgramType').val(data.FamilyHousehold.CProgramType);
+
+                            houselessModal.find('#FamilyHousehold_CenterId').val(data.FamilyHousehold.CenterId);
+
+                            houselessModal.find('#FamilyHousehold_HouseholdId').val(data.FamilyHousehold.HouseholdId);
+                        }
+
+                        if (CKEDITOR.instances['CaseNoteDetails_Note']) {
+                            CKEDITOR.instances['CaseNoteDetails_Note'].destroy(true);
+
+                        }
+
+
+                        CKEDITOR.replace('CaseNoteDetails_Note', {
+                            language: 'en-gb',
+                            uiColor: '#295b8f',
+                            disableNativeSpellChecker: false
+                        });
+
+
+
+                        $('#CaseNoteDetails_CaseNotetags').tagsInput({
+                            width: 'auto',
+                            height: 'auto',
+                            delimiter: [',', ';'],
+                            autocomplete: {
+                                //'source': tags_array[0].split(/,\s*/)
+                                'source': getTagsOnInput()
+                            },
+                            autocomplete_url: '',
+                        });
+
+                        $('#CaseNoteDetails_CaseNotetags').importTags('Home Found,,;Address Change');
+
+
+                    }
+                    houselessModal.modal('show');
+
+
+                },
+                error: function (data) {
+
+                },
+                complete: function (data) {
+
+                }
+            });
+
+        }
+
+
+        function checkZipCode(inputTextObject, parentModal) {
+            if ($(inputTextObject).val() != "") {
+                var ret = true;
+                var Zipcode = $(inputTextObject).val();
+                var len = Zipcode.length;
+                if ((isNaN(inputTextObject.value)) && (len < 2)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                else if (len < 2) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code length must be 2 digit. ");
+                    var ret = false;
+                }
+                else if (isNaN(inputTextObject.value)) {
+                    $(inputTextObject).val('');
+                    customAlert("Zip code must be numeric. ");
+                    var ret = false;
+                }
+                if (ret)
+                    CheckAddress(1, parentModal);
+                return ret;
+            }
+            else {
+                $(parentModal).find('#FamilyHousehold_City').find('option').remove();
+                $(parentModal).find('#FamilyHousehold_State').val('');
+                $(parentModal).find('#FamilyHousehold_County').val('');
+
+
+            }
+        }
+
+        function CheckAddress(value, parentDiv) {
+            var Zipcode = 0;
+            if (value == 0)
+                Zipcode = 0;
+            else
+                Zipcode = $(parentDiv).find('#FamilyHousehold_ZipCode').val();
+
+            if (value == 0 && $(parentDiv).find('#FamilyHousehold_State').val() != "") {
+                $.ajax({
+                    url: HostedDir + "/Agencyuser/Checkaddress",
+                    type: "POST",
+                    data: {
+                        Address: $(parentDiv).find('#FamilyHousehold_Street').val() + $(parentDiv).find('#FamilyHousehold_StreetName').val() + $(parentDiv).find('#FamilyHousehold_ZipCode').val(),
+                        HouseHoldId: $(parentDiv).find('#FamilyHousehold_HouseholdId').val(),
+                        Zipcode: Zipcode
+                    },
+                    dataType: "json",
+                    secureuri: false,
+                    async: false,
+                    success: function (response) {
+                        if (response.Result == 1) {
+                            BootstrapDialog.confirm('Address already exists. Do you want to continue?', function (result) {
+                                if (!result) {
+                                    $(parentDiv).find('#FamilyHousehold_Street').val("");
+                                    $(parentDiv).find('#FamilyHousehold_StreetName').val("");
+                                    $(parentDiv).find('#FamilyHousehold_ZipCode').val("");
+                                    $(parentDiv).find('#FamilyHousehold_City').find('option').remove().end();
+                                    $(parentDiv).find('#FamilyHousehold_City').val('');
+                                    $(parentDiv).find('#FamilyHousehold_State').val('');
+                                    $(parentDiv).find('#FamilyHousehold_County').val('');
+                                    bindCaseNoteArea(2);
+                                }
+                                if (result) {
+                                    bindCaseNoteArea(1);
+                                }
+                            });
+                        }
+                        else {
+                            bindCaseNoteArea(1);
+                        }
+                    }
+                        , error: function (response) {
+                            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                        }
+                });
+
+
+            }
+            else {
+                if ($(parentDiv).find('#FamilyHousehold_ZipCode').val().trim() != "") {
+
+                    $.ajax({
+                        url: HostedDir + "/Agencyuser/Checkaddress",
+                        type: "POST",
+                        data: {
+                            Address: $(parentDiv).find('#FamilyHousehold_Street').val() + $(parentDiv).find('#FamilyHousehold_StreetName').val() + $(parentDiv).find('#FamilyHousehold_ZipCode').val(),
+                            HouseHoldId: $(parentDiv).find('#FamilyHousehold_HouseholdId').val(),
+                            Zipcode: Zipcode
+                        },
+                        dataType: "json",
+                        secureuri: false,
+                        async: false,
+                        success: function (response) {
+                            if (value == 1) {
+                                if (response.Zipcodelist != null && response.Zipcodelist.length > 0) {
+                                    var option = "";
+                                    for (var i = 0; i < response.Zipcodelist.length; i++) {
+                                        option = option + '<option value="' + response.Zipcodelist[i].City + '">' + response.Zipcodelist[i].City + '</option>';
+                                    }
+                                    $(parentDiv).find('#FamilyHousehold_City').find('option').remove().end().append(option);
+                                    $(parentDiv).find('#FamilyHousehold_City').val('');
+
+                                    //$(parentDiv).find('#FamilyHousehold_Street').val("");
+                                    //$(parentDiv).find('#FamilyHousehold_StreetName').val("");
+                                    $(parentDiv).find('#FamilyHousehold_ZipCode').val(response.Zipcodelist[0].Zipcode);
+
+                                    $(parentDiv).find('#FamilyHousehold_State').val(response.Zipcodelist[0].State);
+                                    $(parentDiv).find('#FamilyHousehold_County').val(response.Zipcodelist[0].County);
+                                    bindCaseNoteArea(1);
+                                }
+                                else {
+
+                                    $(parentDiv).find('#FamilyHousehold_City').find('option').remove().end();
+                                    $(parentDiv).find('#FamilyHousehold_City').val('');
+                                    $(parentDiv).find('#FamilyHousehold_ZipCode').val('');
+                                    $(parentDiv).find('#FamilyHousehold_State').val('');
+                                    $(parentDiv).find('#FamilyHousehold_County').val('');
+                                    bindCaseNoteArea(2);
+                                    customAlert("Could not find zipcode details.");
+
+                                }
+                            }
+                            if (response.Result == 1) {
+                                BootstrapDialog.confirm('Address already exists.Click OK to proceed.', function (result) {
+                                    if (!result) {
+
+
+                                        $(parentDiv).find('#FamilyHousehold_City').find('option').remove().end();
+                                        $(parentDiv).find('#FamilyHousehold_City').val('');
+                                        $(parentDiv).find('#FamilyHousehold_ZipCode').val('');
+                                        $(parentDiv).find('#FamilyHousehold_State').val('');
+                                        $(parentDiv).find('#FamilyHousehold_County').val('');
+                                        $(parentDiv).find('#FamilyHousehold_Street').val("");
+                                        $(parentDiv).find('#FamilyHousehold_StreetName').val("");
+                                        bindCaseNoteArea(2);
+                                    }
+                                    if (result) {
+                                        bindCaseNoteArea(1);
+
+                                    }
+                                });
+                            }
+                        }
+                            , error: function (response) {
+                                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                            }
+                    });
+                }
+
+
+            }
+
+
+        }
+
+
+        function bindCaseNoteArea(mode) {
+            debugger;
+            var houselessModal = $('#Houselessmodal');
+            var oldAddress = houselessModal.find('#oldAddress').val();
+            var newAddress = '';
+            var street = houselessModal.find('#FamilyHousehold_Street').val() == null ? '' : $('#FamilyHousehold_Street').val();
+            var appartment = houselessModal.find('#FamilyHousehold_StreetName').val() == null ? '' : houselessModal.find('#FamilyHousehold_StreetName').val();
+            var city = houselessModal.find('#FamilyHousehold_City').val() == null ? '' : houselessModal.find('#FamilyHousehold_City').val();
+            var county = houselessModal.find('#FamilyHousehold_County').val() == null ? '' : houselessModal.find('#FamilyHousehold_County').val();
+            var state = houselessModal.find('#FamilyHousehold_State').val() == null ? '' : houselessModal.find('#FamilyHousehold_State').val();
+            var zipcode = houselessModal.find('#FamilyHousehold_ZipCode').val() == null ? '' : houselessModal.find('#FamilyHousehold_ZipCode').val();
+
+            //  CKEDITOR.instances['CaseNoteDetails_Note'].setData('');
+
+            if (mode == 1) {
+                newAddress += oldAddress + '<h2>New Address</h2>';
+
+                newAddress += street + '<br>';
+                newAddress += appartment == '' ? '' : appartment + '</br>';
+                newAddress += city + '<br>';
+                newAddress += county + '<br>';
+                newAddress += state + '-' + zipcode;
+                CKEDITOR.instances['CaseNoteDetails_Note'].setData(newAddress);
+            }
+            else {
+                CKEDITOR.instances['CaseNoteDetails_Note'].setData(oldAddress);
+            }
+
+        }
+
+        function addMore(ele) {
+            var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
+
+
+            var appendDiv = '<div class="form-group">\
+                                            <input name="CaseNoteAttachments[' + index + '].file" accept="image/*" capture="camera" class="form-control houseless-attach"  onchange="ValidateSingleInputpdf2(this);" id="CaseNoteAttachments_' + index + '_file"  style="width:54%;" tabindex="6" type="file" value="">\
+                                            <div class="some_attach">\
+                                                <a href="javascript:void(0);" title="Remove Attachment" onclick="removeAttachment(this);">Remove &nbsp;<i class="fa fa-times-circle" aria-hidden="true"></i></a>\
+                                            </div>\
+                                        </div>';
+
+            $(ele).closest('#section_attachment').siblings('.import_ft_files').append(appendDiv);
+
+        }
+
+
+        function removeAttachment(ele) {
+            $(ele).parent('.some_attach').parent('div').remove();
+        }
+
+
         $(document).ready(function () {
-          
+
+            CKEDITOR.replace('Note', {
+                language: 'en-gb',
+                uiColor: '#295b8f',
+                disableNativeSpellChecker: false
+            });
+
+
+            $('#Houselessmodal').find('#FamilyHousehold_City').on('change', function () {
+
+                bindCaseNoteArea(1);
+            });
+
+
+            $('#caseNoteDetails_CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('#Houselessmodal').find('#btnSubmitHouseless').on('click', function () {
+
+                var houseModal = $('#Houselessmodal');
+
+                var Tags = '';
+                houseModal.find('#CaseNoteDetails_CaseNotetags_tagsinput .tag span').each(function () {
+                    Tags = Tags + $(this).text().trim() + ',';
+                });
+                houseModal.find("#CaseNoteDetails_CaseNotetags").val(Tags);
+
+                houseModal.find('#CaseNoteDetails_Note').val(CKEDITOR.instances['CaseNoteDetails_Note'].getData());
+
+                cleanValidation();
+                if (houseModal.find('#FamilyHousehold_Street').val() == '') {
+                    plainValidation('#FamilyHousehold_Street');
+                    customAlert("Please enter address");
+                    return false;
+                }
+                if (houseModal.find("#FamilyHousehold_ZipCode").val() == '') {
+                    plainValidation('#FamilyHousehold_ZipCode');
+                    customAlert("Please enter zipcode");
+                    return false;
+                }
+                if (houseModal.find('#FamilyHousehold_City').val() == null || houseModal.find('#FamilyHousehold_City').val() == '') {
+                    plainValidation('#FamilyHousehold_City');
+                    customAlert("Please select city");
+                    return false;
+                }
+
+                if (houseModal.find('#CaseNoteDetails_caseNoteDate').val() == '') {
+                    plainValidation('#CaseNoteDetails_caseNoteDate');
+                    customAlert("Please enter Case Note Date");
+                    return false;
+                }
+                else {
+                    if (!CheckdateHouseless(houseModal.find('#CaseNoteDetails_caseNoteDate'))) {
+                        plainValidation('#CaseNoteDetails_caseNoteDate');
+                        // customAlert("Please enter valid date");
+                        return false;
+                    }
+                }
+
+                if (houseModal.find('#CaseNoteDetails_CaseNotetitle').val() == '') {
+                    plainValidation('#CaseNoteDetails_CaseNotetitle');
+                    customAlert("Please enter Case Note Title");
+                    return false;
+                }
+                if (CKEDITOR.instances['CaseNoteDetails_Note'].getData() == "") {
+                    houseModal.find("#CaseNoteDetails_Note").focus();
+                    customAlert("Please enter Case Note");
+                    return false;
+                }
+                if (!houseModal.find("#ClientDiv").find('.client-check').is(':checked')) {
+                    houseModal.find("#ClientDiv").focus();
+                    customAlert("Please select Parent/Guardian");
+                    return false;
+                }
+                if ($('#CaseNoteDetails_CaseNotetags').val().trim() == "") {
+                    isValid = false;
+                    customAlert("Tags are required.");
+                    plainValidation('#CaseNoteDetails_CaseNotetags');
+                    return isValid;
+                }
+
+                if (!houseModal.find('#StaffDiv').find('.staff-check').is(':checked')) {
+                    houseModal.find("#StaffDiv").focus();
+                    customAlert("Please select Development Team Staff(s)");
+                    return false;
+                }
+
+
+
+
+                return true;
+
+            });
+
+            $('#Houselessmodal').keydown(function (event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    return false;
+                }
+            });
+
+
+
 
             if ('@Session["_RosterCenter"]' != '' || '@Session["_RosterSearchText"]'!='' ) {
 
@@ -323,6 +1165,22 @@
                 $('#divAbsenceNoShow').hide();
 
             });
+
+
+            $("#Houselessmodal").on("hidden.bs.modal", function () {
+
+                //  CKEDITOR.instances['Note'].setData("");
+                $('#CaseNoteDetails_CaseNotetags .tag ').each(function () {
+                    $(this).remove();
+                });
+                $('#Houselessmodal').find('input[type=text]').val('');
+
+                $('#Houselessmodal').find('#FamilyHousehold_HouseholdId').val('');
+
+                CKEDITOR.instances['CaseNoteDetails_Note'].setData('');
+
+            });
+
 
 
             $('.abtCheckbox').change(function () {
@@ -539,7 +1397,7 @@
                     $('.error-message').hide();
                 }
 
-            })
+            });
 
             $('.txt-date').focusout(function () {
                 $(this).parent('.input-container').find('span').hide();
@@ -949,192 +1807,11 @@
             $('#MeetingId').val(0);
             $('#seatsDatetimePicker2').val("");
         }
-        function Showreason(object) {
-
-            cleanValidation();
-            if ($(object).val() == "0")
-                $('#Divreason').show();
-            else
-                $('#Divreason').hide();
-        }
-        function uncheckdata() {
-            if ($('#NONE').prop("checked")) {
-                $('#TANF').prop("checked", false);
-                $('#SSI').prop("checked", false);
-                $('#WIC').prop("checked", false);
-                $('#SNAP').prop("checked", false);
-                //  $('#OGendermale').prop("checked", false);
-
-            }
-        }
-        function uncheckdataNone() {
-         
-            if (($('#TANF').prop("checked")) || ($('#SSI').prop("checked")) || ($('#WIC').prop("checked")) || ($('#SNAP').prop("checked"))) {
-                $('#NONE').prop("checked", false);
-               
-                //  $('#OGendermale').prop("checked", false);
-
-            }
-        }
-        function isValidStatusChange()
-        {
-            var isValid = true;
-            cleanValidation();
-            $('.enroll-sec').each(function () {
-
-                $(this).css("background-color", "");
-            });
-            $('#rblwaitinglist').removeAttr('style');
-            if ($('#ddlreason').val() == "" || $('#ddlreason').val() == null) {
-                isValid = false;
-                customAlert("Reason is required.");
-                plainValidation('#ddlreason');
-                return isValid;
-            }
-            else if ($('#ddlreason').val() == 0 && $('#txtreason').val() == "") {
-                isValid = false;
-                customAlert("Other reason is required.");
-                plainValidation('#txtreason');
-                return isValid;
-            }
-            if ($('#lblNewStatus').text() == "Withdrawn") {
-                if ($('.InsuranceType').is(':checked') == false) {
-                    isValid = false;
-                    customAlert("Insurance Type is required");
-                    plainValidation('#InsuranceTypeID');
-                    return isValid;
-                }
-                else if ($('.MedicalHome').is(':checked') == false) {
-                    isValid = false;
-                    customAlert("Ongoing source continuous, accessible health care is required.");
-                    plainValidation('#MedicalHomeID');
-                    return isValid;
-                }
-                else if ($('.MedicalServices').is(':checked') == false) {
-                    isValid = false;
-                    customAlert("Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care is required.");
-                    plainValidation('#MedicalServicesID');
-                    return isValid;
-                }
-                else if ($('.DentalHome').is(':checked') == false) {
-                    isValid = false;
-                    customAlert(" Child have continual accessible dental care provided by a dentist is required.");
-                    plainValidation('#DentalHomeID');
-                    return isValid;
-                }
-                else if ($('.DentalServices').is(':checked') == false) {
-                    isValid = false;
-                    customAlert("Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule is required.");
-                    plainValidation('#DentalServicesID');
-                    return isValid;
-                }
-                else if ($('#ddImmunizationType').val() == "" || $('#ddImmunizationType').val() == null) {
-                    isValid = false;
-                    customAlert("Child up-to-date on all immunizations appropriate for their age is required.");
-                    plainValidation('#ddImmunizationType');
-                    return isValid;
-                }
-                else if ($('.services').is(':checked') == false) {
-                    isValid = false;
-                    customAlert("Family receiving services is required");
-                    plainValidation('#ServicesId');
-                    return isValid;
-
-                }
-               
-                else if ($('.JobTrainingFinished').is(':checked') == false) {
-                    isValid = false;
-                    customAlert("Parent/guardian completed Job Training is required");
-                    plainValidation('#JobTrainingFinishedID');
-                    return isValid;
-
-                }
-            }
-            else{
-                if ($('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
-                    isValid = false;
-                    customAlert("Waiting list is required.");
-                    plainValidation('#rblwaitinglist');
-                    return isValid;
-                }
-            }
-           
-            if (isValid)
-            {
-
-            
-                BootstrapDialog.confirm("Client status will be changed. Do you want to continue?", function (result) {
-                    if (result) {
-                        if (EnrolledObject != null) {
-                            var Transition = {};
-                            debugger;
-                            Transition.TANF = $('#TANF').is(':checked');;
-                            Transition.SSI = $('#SSI').is(':checked');
-                            Transition.WIC = $('#WIC').is(':checked');
-                            Transition.SNAP = $('#SNAP').is(':checked');
-                            Transition.NONE = $('#NONE').is(':checked');
-                            //Transition.HighSchool = $('#HighSchool').val();
-                            //Transition.HighSchoolGraduate = $('#HighSchoolGraduate').val();
-                            //Transition.AssociateDegree = $('#AssociateDegree').val();
-                            //Transition.AdvancedDegree = $('#AdvancedDegree').val();
-                            Transition.ImmunizationService = $('#ddImmunizationType').val();
-                            Transition.JobTrainingFinished = $('.JobTrainingFinished:checked').val();
-                            Transition.ShoolAchievement = $('.Education:checked').val();
-                            Transition.MedicalHome = $('.MedicalHome:checked').val();
-                            Transition.DentalHome = $('.DentalHome:checked').val();
-                            Transition.DentalServices = $('.DentalServices:checked').val();
-                            Transition.MedicalServices = $('.MedicalServices:checked').val();
-                            Transition.TrnsInsuranceType = $('.InsuranceType:checked').val();
-                            Transition.OtherInsuranceTypeDesc = $('#OtherInsuranceType').val();
-                            Transition.EClientID = $(EnrolledObject).attr("clientid");
-                            Transition.DateOfTransition = $('#transitionDate').val();
 
 
-                            Transition.HouseholdId = $(EnrolledObject).attr('householdid');
-                            Transition.Status = $(EnrolledObject).attr('accesskey');
-                            Transition.StatusText = $('#lblNewStatus').text();
-                            Transition.Reason = $('#txtreason').val();
-                            Transition.ddlreason = $('#ddlreason').val();
-                            Transition.ddlreasontext = $('#ddlreason').find('option:selected').text();
 
-                            Transition.IsWaiting = $('input:radio[name="waitinglist"]:checked').val();
 
-                            $.ajax({
-                                url: HostedDir + "/AgencyUser/DropClient",
-                                type: "POST",
-                                datatype: 'json',
-                                async: false,
-                                data: Transition,
-                                success: function (result) {
-                                    if (result == 0) {
-                                        customAlert("Error occurred please try again.");
-                                    }
-                                    if (result == 1) {
-                                        customAlert("Client status changed successfully.");
-                                        setTimeout(function () {
-                                            //window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
-                                            window.location.href = HostedDir + "/Roster/Roster";
-                                        }, 300);
-                                    }
-                                    if (result == 2) {
-                                        customAlert("Client status already changed.");
-                                        setTimeout(function () {
-                                            window.location.href = HostedDir + "/AgencyUser/FamilySummary/" + $(EnrolledObject).attr("householdid") + "";
-                                        }, 300);
-                                    }
-                                },
-                                error: function () {
-                                    $("#pleaseWaitDialog").modal('show');
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-            
-        }
-     
-        
+
         function getListafterupdation() {
 
             pageSize = $('#ddlpagetodisplay').val();
@@ -1282,14 +1959,12 @@
 
             var filterLength = $('#filterSelect').length;
             var filtervalue = 0;
-            var searchText='';
-            if (filterLength > 0)
-            {
+            var searchText = '';
+            if (filterLength > 0) {
                 filtervalue = $('#filterSelect').val();
             }
-            if($('#searchTextName').length>0)
-            {
-                searchText=$('#searchTextName').val();
+            if ($('#searchTextName').length > 0) {
+                searchText = $('#searchTextName').val();
             }
 
             $.ajax({
@@ -1311,10 +1986,10 @@
             // drawgrid();
 
         }
+
         function fnChangePage(val) {
-var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
-            if (rowLength === 0)
-            {
+            var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
+            if (rowLength === 0) {
 
                 return false;
             }
@@ -1455,7 +2130,7 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                 $('#ddlpagetodisplay').prop('disabled', false);
 
                 var tbody = $('#GridRoster > tbody');
-
+                
                 for (var i = 0; i < data.list.Rosters.length; i++) {
 
                     var tr = "";
@@ -1551,7 +2226,12 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                         }
                         tr += '<a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ReferralService/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">REF </a> &nbsp';
                         tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
-                        tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;"  title="Click to change status" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="Loadchangestatusmodel(this);" accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
+
+
+                        if (data.list.Rosters[i].IsFutureWithdrawal)
+                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;color:orange;"  title="Enrollment Status of Client already updated  for future withdrawal" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '" progID="' + data.list.Rosters[i].ProgramId + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="showWithdrawalStatus(this);" refpr="'+data.list.Rosters[i].ReferenceProg+'"  accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
+                        else
+                            tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;"  title="Click to change status" clientid="' + data.list.Rosters[i].Eclientid + '" name="' + data.list.Rosters[i].Name + '"progID="' + data.list.Rosters[i].ProgramId + '" Insurance="' + data.list.Rosters[i].PrimaryInsurance + '" Householdid="' + data.list.Rosters[i].EHouseholid + '" onclick="Loadchangestatusmodel(this);" refpr="' + data.list.Rosters[i].ReferenceProg + '"  accesskey="' + data.list.Rosters[i].RosterYakkr + '" >STAT</a> &nbsp;';
 
                         //ABT
 
@@ -1568,13 +2248,96 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
 
                         //ABT//
 
-                        if (data.list.Rosters[i].ProgramType == "TRN" && data.list.Rosters[i].IsPreg == 1) {
-                            tr += '<a title="Click here to open Early Head Start Process" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '">TRN </a> &nbsp';
-                        }
-                        else if (data.list.Rosters[i].ProgramType == "TRN") {
-                            tr += '<a title="Click here to open Head Start Process" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '">TRN </a> &nbsp';
+                        //EHS TO HS TRANS
+                        //HS WITHDRAWN TRANS
+                        //BACK EHS TRANS
+                        //'BACK HS TRANS'
+                        //PREG
+
+
+                        if (data.list.Rosters[i].IsPreg == 1 && data.list.Rosters[i].IsShowTransition == true) {
+
+
+
+
+
+
+                            tr += (data.list.Rosters[i].TransitionColor == '1') ? '<a title="Click here for transition of pregnant mom" \
+                                    style="text-decoration: underline; cursor: pointer;color:red;"\
+                                    href="' + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp' :
+
+                                  (data.list.Rosters[i].TransitionColor == '2') ? '<a title="Click here for transition of pregnant mom" \
+                                style="text-decoration: underline; cursor: pointer;color:orange;"\
+                               href="javascript:void(0);"\
+                              ecid="' + data.list.Rosters[i].Eclientid + '" programid="' + data.list.Rosters[i].ProgramId + '" isr="'+data.list.Rosters[i].Returning+'"  st="' + data.list.Rosters[i].RosterYakkr + '" onclick="pregMomTransAlert(this);">TRN </a> &nbsp':
+                                 '<a title="Click here for transition of pregnant mom" \
+                                style="text-decoration: underline; cursor: pointer;color:green;"\
+                                href="' + HostedDir + '/Roster/ChildEarlyHeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+
+
+
+
+                         //   tr += (data.list.Rosters[i].TransitionColor == 'red') ? '<a title="Click here for transition of pregnant mom" \
+                         //           style="text-decoration: underline; cursor: pointer;color:red;"\
+                         //           href="javascript:void(0);"  onclick="pregMotherTransition(this);" \
+                         //           ecid="' + data.list.Rosters[i].Eclientid + '"  ProgramId="' + data.list.Rosters[i].ProgramId + '" st="' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp' :
+
+                         //tr += '<a title="Click here for transition of pregnant mom" \
+                         //           style="text-decoration: underline; cursor: pointer;color:green;"\
+                         //           href="javascript:void(0);"  onclick="pregMotherTransition(this);" \
+                         //           ecid="' + data.list.Rosters[i].Eclientid + '"  ProgramId="' + data.list.Rosters[i].ProgramId + '" st="' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+
                         }
 
+
+                        else if (data.list.Rosters[i].IsPreg == 0 && data.list.Rosters[i].IsShowTransition == true) {
+
+
+                            var titleName = '';
+                            if (data.list.Rosters[i].TransitionColor == '1') {
+
+                                switch (data.list.Rosters[i].TransitionType) {
+                                    case 1:
+                                        titleName = 'Click here for new program year client transition from EHS to HS or EHS to EHS';
+                                        break;
+                                    case 2:
+                                        titleName = 'Click here for new program year client transition from EHS to HS';
+                                        break;
+                                    case 3:
+                                        titleName = 'Click here for new program year client transition from EHS to EHS or not come back at all';
+                                        break;
+                                    case 4:
+                                        titleName = 'Click here for new program year client transition from HS to HS';
+                                        break;
+                                    case 5:
+                                        titleName = 'Click here for new program year client transition from HS to Kindergarden';
+                                        break;
+                                }
+
+                                tr += '<a title="' + titleName + '" style="text-decoration: underline; cursor: pointer;color:red;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                            }
+
+                            else if (data.list.Rosters[i].TransitionColor == '3') {
+
+                                switch (data.list.Rosters[i].TransitionType) {
+                                    case 7:
+
+                                        tr += '<a title="Click here for client transition from EHS to HS or EHS to EHS" style="text-decoration: underline; cursor: pointer;color:green;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                                        break;
+
+                                    case 8:
+                                        tr += '<a title="Click here for client transition from EHS to HS" style="text-decoration: underline; cursor: pointer;color:green;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                                        break;
+                                }
+                            }
+                            else {
+                                tr += '<a title="Click here to open Head Start Process" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/HeadStartTransition/?Id=' + data.list.Rosters[i].Eclientid + '&ProgramId=' + data.list.Rosters[i].ProgramId + '&st=' + data.list.Rosters[i].RosterYakkr + '">TRN </a> &nbsp';
+                            }
+                        }
+
+                        if (data.list.Rosters[i].FamilyHomeless == 1) {
+                            tr += '<a title="Click here to update household address for family" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
+                        }
 
                         tr += '</td></tr>';
 
@@ -1591,7 +2354,18 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                         if (roleid === 'a31b1716-b042-46b7-acc0-95794e378b26') {
                             tr += '<td height="70" style="width:26%;">';
                             tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                            tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>';
+                            tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>&nbsp;';
+
+                            if (data.list.Rosters[i].IsScreeningFollowUpReq) {
+                                tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
+
+                            }
+                            else if (data.list.Rosters[i].IsScreeningFollowUpComplete) {
+                                tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
+
+                            }
+
+
                             tr += '</td>';
                         }
 
@@ -1599,9 +2373,18 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
 
                     }
 
-
+                   
                     $('#GridRoster > tbody').append(tr);
 
+
+                    //$('#GridRoster > tbody>tr>td:last-child>a').on('click', function () {
+                    //    $('#spinner').show();
+                    //});
+
+                    //$('.modal').unbind('shown.bs.modal');
+                    //$('.modal').on('shown.bs.modal', function (e) {
+                    //    $('#spinner').hide();
+                    //});
                 }
                 //$('#GridRoster img').zoomify();
             }
@@ -1712,120 +2495,122 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                 $('#schedule_popup').modal('show');
         }
 
-        function Loadchangestatusmodel(object) {
-            cleanValidation();
-            $('#divForWithdrawn').hide();
-            $('#Divwaitinglist').hide();
-            $('#Divreason').hide();
-            $('input:radio').prop('checked', false);
-            $('#txtreason').val("");
-            $('input:checkbox').prop('checked', false);
-            $('.enroll-sec').each(function () {
+        //function Loadchangestatusmodel(object) {
+        //    var _clientid=$(object).attr('clientid');
 
-                $(this).css("background-color", "");
-            });
+        //    cleanValidation();
+        //    $('#divForWithdrawn').hide();
+        //    $('#Divwaitinglist').hide();
+        //    $('#Divreason').hide();
+        //    $('input:radio').prop('checked', false);
+        //    $('.enroll-sec').each(function () {
+        //        $(this).css("background-color", "");
+        //    });
 
-            var Insurance = $(object).attr('Insurance');
-            
-            if ($(object).attr("accesskey") == "5") {
-                BindReason(object);
-                EnrolledObject = object;
-                $('#lblCurrentStatus').text("Enrolled");
-                //  $('#lblNewStatus').text("Withdrawn");
-                $('#lblNewStatus').text("Dropped");
-                $('#Divwaitinglist').show();
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-                $('#ChangeclientStatus').modal('show');
-            }
-            if ($(object).attr("accesskey") == "6") {
-                BindReason(object);
-                EnrolledObject = object;
-                $('#lblCurrentStatus').text("Dropped");
-                $('#lblNewStatus').text("Re-enrolled");
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-                $('#ChangeclientStatus').modal('show');
-            }
-            if ($(object).attr("accesskey") == "7") {
-                BindReason(object);
-                EnrolledObject = object;
-                $('#lblCurrentStatus').text("Withdrawn");
-                $('#lblNewStatus').text("Re-enrolled");
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
-                $('#ChangeclientStatus').modal('show');
-            }
-            if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
-                BindReason(object);
-                EnrolledObject = object;
-                if ($(object).attr("accesskey") == "8") {
-                    $('#lblCurrentStatus').text("Enrollmentservices");
-                    $('#lblNewStatus').text("Withdrawn");
-                }
-                if ($(object).attr("accesskey") == "9") {
-                    $('#lblCurrentStatus').text("Re-enrolled");
-                    $('#lblNewStatus').text("Withdrawn");
-                }
-                $('#ddlreason').val('');
-                $('#ClientNameAll').text($(object).attr("name"));
+        //    var Insurance = $(object).attr('Insurance');
 
-                switch (Insurance) {
-                    case "1":
-                        $('#MedicareInsurance').prop('checked', true);
-                        break;
-                    case "2":
-                        $('#NoInsurance').prop('checked', true);
-                        break;
-                    case "3":
-                        $('#OtherInsurance').prop('checked', true);
-                        break;
-                    case "4":
-                        $('#PrivateInsurance').prop('checked', true);
-                        break;
-                    case "5":
-                        $('#StateInsurance').prop('checked', true);
-                        break;
-                }
+        //    if ($(object).attr("accesskey") == "5") {
+        //        BindReason(object, _clientid);
+        //        EnrolledObject = object;
+        //        $('#lblCurrentStatus').text("Enrolled");
+        //        //  $('#lblNewStatus').text("Withdrawn");
+        //        $('#lblNewStatus').text("Dropped");
+        //        $('#Divwaitinglist').show();
+        //        $('#ddlreason').val('');
+        //        $('#ClientNameAll').text($(object).attr("name"));
+        //        $('#ChangeclientStatus').modal('show');
+        //    }
+        //    if ($(object).attr("accesskey") == "6") {
+        //        BindReason(object, _clientid);
+        //        EnrolledObject = object;
+        //        $('#lblCurrentStatus').text("Dropped");
+        //        $('#lblNewStatus').text("Re-enrolled");
+        //        $('#ddlreason').val('');
+        //        $('#ClientNameAll').text($(object).attr("name"));
+        //        $('#ChangeclientStatus').modal('show');
+        //    }
+        //    if ($(object).attr("accesskey") == "7") {
+        //        BindReason(object, _clientid);
+        //        EnrolledObject = object;
+        //        $('#lblCurrentStatus').text("Withdrawn");
+        //        $('#lblNewStatus').text("Re-enrolled");
+        //        $('#ddlreason').val('');
+        //        $('#ClientNameAll').text($(object).attr("name"));
 
-                $('#divForWithdrawn').show();
-                $('#ChangeclientStatus').modal('show');
-            }
+        //        $('#ChangeclientStatus').modal('show');
+        //    }
+        //    if ($(object).attr("accesskey") == "8" || $(object).attr("accesskey") == "9") {
+        //        BindReason(object, _clientid);
+        //        EnrolledObject = object;
+        //        if ($(object).attr("accesskey") == "8") {
+        //            $('#lblCurrentStatus').text("Enrollmentservices");
+        //            $('#lblNewStatus').text("Withdrawn");
+        //        }
+        //        if ($(object).attr("accesskey") == "9") {
+        //            $('#lblCurrentStatus').text("Re-enrolled");
+        //            $('#lblNewStatus').text("Withdrawn");
+        //        }
+        //        $('#ddlreason').val('');
+        //        $('#ClientNameAll').text($(object).attr("name"));
 
+        //        switch (Insurance) {
+        //            case "1":
+        //                $('#MedicareInsurance').prop('checked', true);
+        //                break;
+        //            case "2":
+        //                $('#NoInsurance').prop('checked', true);
+        //                break;
+        //            case "3":
+        //                $('#OtherInsurance').prop('checked', true);
+        //                break;
+        //            case "4":
+        //                $('#PrivateInsurance').prop('checked', true);
+        //                break;
+        //            case "5":
+        //                $('#StateInsurance').prop('checked', true);
+        //                break;
+        //        }
 
+        //        $('#divForWithdrawn').show();
+        //        $('#ChangeclientStatus').modal('show');
+        //    }
 
 
-        }
-        function BindReason(object) {
 
-            $.ajax({
-                url: HostedDir + "/Agencyuser/GetEnrollReason",
-                type: "POST",
-                data: {
-                    Status: $(object).attr("accesskey")
-                },
-                dataType: "json",
-                secureuri: false,
-                async: false,
-                success: function (response) {
-                    if (response.length > 0) {
-                        var option = "";
-                        for (var i = 0; i < response.length; i++) {
-                            option = option + '<option value="' + response[i].ReasonID + '">' + response[i].ReasonText + '</option>';
-                        }
-                        $('#ddlreason').find('option').remove().end().append(option);
-                        $('#ddlreason').val('');
-                    }
-                    else {
-                        $('#ddlreason').find('option').remove();
-                    }
-                }
-                , error: function (response) {
-                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                }
-            });
 
-        }
+        //}
+        //function BindReason(object,clID) {
+
+        //    $.ajax({
+        //        url: HostedDir + "/Agencyuser/GetEnrollReason",
+        //        type: "POST",
+        //        data: {
+        //            Status: $(object).attr("accesskey"),
+        //            clientId: clID
+        //        },
+        //        dataType: "json",
+        //        secureuri: false,
+        //        async: false,
+        //        success: function (response) {
+        //            if (response.length > 0) {
+        //                var option = "";
+        //                for (var i = 0; i < response.length; i++) {
+        //                    option = option + '<option value="' + response[i].ReasonID + '">' + response[i].ReasonText + '</option>';
+        //                }
+        //                $('#ddlreason').find('option').remove().end().append(option);
+        //                $('#ddlreason').val('');
+        //            }
+        //            else {
+        //                $('#ddlreason').find('option').remove();
+        //            }
+        //        }
+        //        , error: function (response) {
+        //            customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+        //        }
+        //    });
+
+        //}
+
         function GetClassrooms(Select, isTrigger) {
 
             $.ajax({
@@ -1995,6 +2780,35 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
         //    $(pics).find('.tooltiptext').css({ 'visibility': 'hidden' });
         //}
 
+
+        function getTagsOnInput() {
+            var tagInp = $('#CaseNoteDetails_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: tagInp },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+
+                }
+
+            });
+
+            return tagsArr;
+        }
+
     </script>
 }
 
@@ -2008,6 +2822,12 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
             padding-right: 0;
         }*/
 
+
+
+        .bootstrap-dialog-title
+        {
+            margin-top:15px;
+        }
         .no-padding {
             padding: 0;
         }
@@ -2084,9 +2904,143 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                 width: 100%;
                 table-layout: fixed;
             }
+
+        .add-useragform input[type="checkbox"] {
+            width: 13%;
+            position: relative;
+            top: -10px;
+        }
+
+        .import_ft_files {
+            width: 73%;
+            float: right;
+        }
+
+        div#section_attachment label {
+            width: 26%;
+            float: left;
+        }
+
+        div#section_attachment input {
+            width: 35.8% !important;
+            float: left;
+        }
+
+        div#section_attachment .adddivspace {
+            width: auto;
+            float: left !important;
+            margin-left: 13px;
+        }
+
+        div#ClientDiv div {
+            padding: 0;
+        }
+
+        div#section_attachment {
+            padding: 0 15px;
+        }
+
+        div#StaffDiv {
+            background-color: #fff;
+        }
+
+            div#StaffDiv div {
+                padding: 0;
+            }
+
+        .import_ft_files input {
+            width: 47% !important;
+            margin-right: 10px;
+        }
+
+        .some_attach {
+            padding: 10px;
+        }
+
+        div#Houselessmodal label {
+            /*color: #295b8f;*/
+            color: #333;
+        }
     </style>
 
     <style>
+        /* modal-transition */
+        .bootstrap-dialog-footer.edu-transition b {
+            width: 100%;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .bootstrap-dialog-footer-buttons .btn-default {
+            padding: 7px 12px !important;
+        }
+
+        .bootstrap-dialog-footer-buttons button {
+            width: 15%;
+        }
+
+        .bootstrap-dialog-footer-buttons {
+            text-align: center;
+        }
+
+            .bootstrap-dialog-footer-buttons .btn-default {
+                margin-right: 14px;
+            }
+
+        .edu-testnewborn {
+            display: inline-block;
+        }
+
+        div#mytransition .modal-header {
+            background: #337ab7;
+            color: #fff;
+            margin-bottom: 0px;
+        }
+
+        div#mytransition .modal-content {
+            border-radius: 0;
+        }
+
+        div#mytransition .modal-header button {
+            color: #fff;
+            opacity: 1;
+        }
+
+        .eduicc-trans span {
+            width: 16%;
+            float: left;
+            margin-left: 20px;
+        }
+
+        .form-group.eduicc-trans.radio.radio-info p {
+            color: #163b69;
+            text-align: left;
+            font-size: 15px;
+            margin: 0;
+            width: 100%;
+            float: left;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-group.eduicc-trans.radio.radio-info .transition-content-desc p {
+            padding-left: 0;
+        }
+
+        .form-group.eduicc-trans.radio.radio-info {
+            width: 100%;
+            float: left;
+            margin-right: 0;
+            padding-left: 0;
+        }
+
+        .eduicc-trans span input {
+            margin-right: 7px;
+            margin-top: 0;
+            outline: none !important;
+        }
+        /* modal-transition */
+
         #MyModalLateArrival .close {
             opacity: 1;
             position: absolute;
@@ -2233,6 +3187,36 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                     position: relative;
                     top: 0px;
                 }
+
+
+        #Houselessmodal .modal-content {
+            background: #f1f5f8 none repeat scroll 0 0;
+            border: 6px solid #295b8f;
+            border-radius: 3px;
+            /* color: #ffffff; */
+            float: left;
+            padding: 15px 3%;
+            position: relative;
+            width: 100%;
+        }
+
+        .m-tp {
+            margin-top: 10px;
+        }
+
+        #Houselessmodal .modal-header {
+            border-bottom: 1px solid #adadad;
+        }
+
+        #Houselessmodal .btnwrp_subcal {
+            border-top: 1px solid #adadad;
+        }
+
+        #Houselessmodal h3 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #295b8f;
+        }
     </style>
     <link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
     <div class="row">
@@ -2274,6 +3258,13 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                 </div>
             }
 
+            @if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
+            {
+                <div class="col-sm-4 col-md-3 col-lg-3">
+                    <label style="color:#295b8f;font-weight:bold;">Filter By</label>
+                </div>
+            }
+
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
             <div class="col-sm-4 col-lg-3" style="margin-bottom: 8px;">
@@ -2291,6 +3282,19 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                         <option value="0">--Select--</option>
                         <option value="1">ABT</option>
                         <option value="2">TRN</option>
+                        <option value="3">HOM</option>
+                    </select>
+                </div>
+            }
+
+            else if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
+            {
+                <div class="col-sm-4 col-lg-3">
+                    <select id="filterSelect" style="height:38px !important;" class="form-control">
+                        <option value="0">--Select--</option>
+                        <option value="4">ALL SFU</option>
+                        <option value="5">SFU (Need Follow-up) </option>
+                        <option value="6">SFU (Follow-up Completed) </option>
                     </select>
                 </div>
             }
@@ -2542,539 +3546,13 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
             </div>
         </div>
     </div>
-  <div class="modal fade" id="ChangeclientStatus" role="dialog">
-    <div class="modal-dialog income-popup width-auto">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="text-center">Change Status<span class="extra-title muted"></span></h3>
-            </div>
-            <div class="control-group">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main*">
-                        <div class="add-useragform1">
 
-                            <div class="col-sm-12">
-                                <fieldset style="border: 1px solid #295b8f; ">
-                                    <legend class="legend1"></legend>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Name<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-5 col-xs-7" style="padding:0;">
-                                            <div class="transition-radio-btn enroll-sec margin-enroll" style="margin-left:0px;">
-                                                <div class="col-sm-12">
-                                                    <label style="width: 100%; font-size: 15px; padding-top:10px; color: #337ab7;" id="ClientNameAll"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Current Status<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
+    @Html.Partial("~/Views/Partialviews/EnrollmentStatusChangePartial.cshtml")
 
-                                        <div class="col-lg-8 col-sm-7">
-                                            <label style="width: 100%; font-size: 15px; color: #337ab7;padding-top:10px" id="lblCurrentStatus"></label>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">New Status<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-8 col-sm-7">
-                                            <label style="width: 100%; font-size: 15px; color: #337ab7; padding-top:5px;" id="lblNewStatus"></label>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Reason<span class="error-notify">*</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-8 col-sm-7">
-                                            <select id="ddlreason" style="width:40%;" onchange="Showreason(this);" class="form-control">
-                                                <option>Others</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    @*<div class="col-sm-9">
-                                            <div class="col-sm-3">
-                                                <label style="width:100%;">New Status</label>
-                                            </div>
-                                            <div class="col-sm-5">
-                                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="lblNewStatus"></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-9" style="margin-bottom:1%;">
-                                            <div class="col-sm-3">
-                                                <label style="width:100%;">Reason<sup>*</sup></label>
-                                            </div>
-                                            <div class="col-sm-5">
-                                                <select id="ddlreason" style="width:100%;" onchange="Showreason(this);" class="form-control">
-                                                    <option>Others</option>
-                                                </select>
-                                            </div>
-                                        </div>*@
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="Divreason">
-                                        <div class="col-sm-3">
-                                            <label style="width:100%;"></label>
-                                        </div>
-                                        <div class="col-sm-5">
-                                            <textarea id="txtreason" placeholder="Reason" class="form-control"></textarea>
-                                        </div>
-                                    </div>
-                                    <div id="divForWithdrawn" style="display:none;">
-
-                                        <div class="col-xs-12 col-sm-12" style="margin-bottom: 10px;">
-                                            <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                                <div class="enroll-sec" style="padding-left: 0;">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Insurance Type<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-5 col-xs-7" style="padding:0;">
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="MedicareInsurance" class="InsuranceType" value="C3A1">
-                                                            <label>Medicare / Chip</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="StateInsurance" class="InsuranceType" value="C3B1">
-                                                            <label>State Insurance</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="PrivateInsurance" class="InsuranceType" value="C3C1">
-                                                            <label>Private Insurance</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="NoInsurance" class="InsuranceType" value="C4">
-                                                            <label>No Insurance</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="InsType" id="OtherInsurance" class="InsuranceType" value="C3D1">
-                                                            <label>Other Insurance</label>
-                                                        </div>
-                                                        <div class="transition-inner divInsType" style="position: relative;width: 50%;display: none;">
-                                                            <span class="transition-field-style"></span>
-                                                            <input type="text" class="form-control" id="OtherInsuranceType" value="">
-                                                            <div class="err-container irr-error">
-                                                                <span class="other-ins-err"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
-                                                    <span class="err-message err-message-instype">Insurance type is required</span>
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Ongoing source continuous, accessible health care?<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec" id="MedicalHomeID">
-
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalHome" class="MedicalHome" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalHome" class="MedicalHome" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical Home is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Is the child up-to-date on a schedule of age-appropriate preventive and primary health care, according to the relevant state’s EPSDT schedule for well child care?<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec" id="MedicalServicesID">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalServices" class="MedicalServices" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalServices" class="MedicalServices" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5" ">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Did child have continual accessible dental care provided by a dentist<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec" id="DentalHomeID">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalHome" class="DentalHome" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalHome" class="DentalHome" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Up-to-date on a schedule of age-appropriate preventive and primary oral health care according to the relevant state’s EPSDT schedule?<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec" id="DentalServicesID">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalServices" class="DentalServices" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="DentalServices" class="DentalServices" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Is Child up-to-date on all immunizations appropriate for their age?<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-inner" style="position: relative;">
-                                                    <select id="ddImmunizationType" style="height:45px !important;width:350px;" class="form-control  mandatory clsTransitioningType">
-                                                        <option value="">--Select--</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="2">No</option>
-                                                        <option value="3">Child has not received all immunizations appropriate for their age</option>
-                                                    </select>
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Is the family receiving any of the following services?<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec" id="ServicesId">
-
-
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="TANF" name="TANF" class="services"  onchange="uncheckdataNone();" value="true" />
-                                                            <span>TANF</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="SSI" name="SSI" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>SSI</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="SNAP" name="SNAP" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>SNAP</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="WIC" name="WIC" class="services" onchange="uncheckdataNone();" value="true" />
-                                                            <span>WIC</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="col-xs-6 col-sm-2">
-                                                        <label class="checkbox-inline">
-                                                            <input type="checkbox" id="NONE" onchange="uncheckdata();" name="NONE" class="services" value="true" />
-                                                            <span>NONE</span>
-                                                        </label>
-                                                    </div>
-                                                    
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Has any parent/guardian completed the following (education)?</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="EducationID" style="margin-left:0px;">
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="EduType" class="Education" value="1">
-                                                            <label>Grade Level prior to high school</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="EduType" class="Education" value="2">
-                                                            <label>GED or High School Graduate</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="EduType" class="Education" value="3">
-                                                            <label>Associate Degree</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 no-padding">
-                                                        <div class="radio radio-info">
-                                                            <input type="radio" name="EduType" class="Education" value="4">
-                                                            <label>Baccalaureate or Advanced Degree</label>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                                @*<div class="transition-radio-btn enroll-sec">
-
-                                                        <div class="col-xs-6 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                <input type="checkbox" id="HighSchool" name="HighSchool" class="Education" value="true" />
-
-                                                                <span>Grade Level prior to high school </span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                <input type="checkbox" id="HighSchoolGraduate" name="HighSchoolGraduate" class="Education" value="true" />
-
-                                                                <span>GED or High School Graduate</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                <input type="checkbox" id="AssociateDegree" name="AssociateDegree" class="Education" value="true" />
-                                                                <span>Associate Degree</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-xs-6 col-sm-12">
-                                                            <label class="checkbox-inline">
-                                                                <input type="checkbox" id="AdvancedDegree" name="AdvancedDegree" class="Education" value="true" />
-                                                                <span>Baccalaureate or Advanced Degree</span>
-                                                            </label>
-                                                        </div>
-
-
-                                                    </div>*@
-                                            </div>
-
-                                        </div>
-
-                                        <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-5 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none">Has parent/guardian completed Job Training? <span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec" id="JobTrainingFinishedID">
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="JobTrainingFinished" class="JobTrainingFinished" value="false">
-                                                        <label>No</label>
-                                                    </div>
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical services is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    @*<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-                                            <div class="col-lg-3 col-xs-5">
-                                                <div class="enroll-sec">
-                                                    <div class="transition-content-desc" style="position: relative;">
-                                                        <p style="background: none;border: none;">Place on Waiting List<span class="error-notify">*</span></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7 col-xs-7">
-                                                <div class="transition-radio-btn enroll-sec">
-
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalHome" class="MedicalHome" value="true">
-                                                        <label>Yes</label>
-                                                    </div>
-                                                    <div class="radio radio-info">
-                                                        <input type="radio" name="MedicalHome" class="MedicalHome" value="false">
-                                                        <label>No</label>
-                                                    </div>
-
-
-                                                    <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                        <span class="err-message err-message-ms">Medical Home is required</span>
-                                                    </div>
-
-
-                                                </div>
-
-                                            </div>
-                                        </div>*@
-
-
-
-                                    <div class="col-sm-12" style="margin-bottom:1%;display:none;" id="Divwaitinglist">
-                                        <div class="col-sm-3" style="padding:0;">
-                                            <div class="transition-content-desc" style="position: relative;">
-                                                <p style="background: none;border: none;">Place on Waiting List<span class="error-notify">*</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-9" id="rblwaitinglist">
-
-
-                                            <div class="transition-radio-btn enroll-sec">
-
-                                                <div class="radio radio-info">
-                                                    <input id="rdWaintingList" name="waitinglist" tabindex="22" type="radio" value="1">
-
-                                                    <label>Yes</label>
-                                                </div>
-                                                <div class="radio radio-info">
-                                                    <input data-val="true" id="rdWaintingList" name="waitinglist" tabindex="23" type="radio" value="0">
-
-                                                    <label>No</label>
-                                                </div>
-
-
-                                                <div class="err-container irr-error col-xs-12" style="padding:0;">
-                                                    <span class="err-message err-message-ms">Medical Home is required</span>
-                                                </div>
-
-
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-
-                                </fieldset>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="btnwrp_subcal">
-                            <button type="button" class="my-btn" onclick="return isValidStatusChange();">Submit</button>
-                            <button tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
     @*Modal Popup*@
+
+
     <div class="modal fade" id="schedule_popup" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -3356,14 +3834,6 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
                                         </div>
                                     </div>
 
-                                    @*<div class="form-group" id="divAbsenceTypeList">
-                                            <label class="control-label" for="current_password">Attendance Type <span style="color:red;">*</span> </label>
-                                            <select name="AbsentType" id="AbsentType" placeholder="Select" class="form-control txt-clear" style="width:45%;" required></select>
-                                        </div>
-                                        <div class="form-group" id="divAbsenceReasonList" style="display:none;">
-                                            <label class="control-label">Absent Reason <span style="color:red;">*</span> </label>
-                                            <select id="ReasonList" name="ReasonList" style="width: 45%;" class="form-control txt-clear"></select>
-                                             </div>*@
                                     <div class="modal-footer" style="width:100%;display:  inline-block;margin-top:  10px;padding: 7px 0;float: left;width: 100%;">
                                         <button class="btnPassword" style="background-color: #2ecc71;padding: 8px;" id="Attendancesubmit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
                                         <button class="btnPassword" id="btnCancelPassword" style="background-color:#db4437;padding: 8px;" type="button" data-dismiss="modal">Exit</button>
@@ -3377,6 +3847,396 @@ var rowLength = $('#GridRoster').find('#table_body').find('.child_name').length;
         </div>
     </div>
 
+
+
+
+    <!--no home modal-->
+
+    <div class="modal fade in" id="Houselessmodal" role="dialog" style="display: none;background: rgba(0,0,0,0.7);overflow:auto;">
+        <div class="modal-dialog income-popup width-auto">
+
+
+            @using (Html.BeginForm("FamilyHouseless", "Roster", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+        <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="text-center" style="margin:0;">Update Household<span class="extra-title muted"></span></h3>
+                    </div>
+                    <div class="control-group">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="add-useragform">
+
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+
+                                        <label for="ClientId">Client</label>
+                                        <label id="FamilyHousehold_ClientFname" name="FamilyHousehold_ClientFname" style="color:#295b8f;font-weight:bold;"></label>
+
+
+                                        <input type="hidden" id="FamilyHousehold_clientIdnew" name="FamilyHousehold.clientIdnew" />
+                                        <input type="hidden" id="FamilyHousehold_CProgramType" name="FamilyHousehold.CProgramType" />
+                                        <input type="hidden" id="FamilyHousehold_CenterId" name="FamilyHousehold.CenterId" />
+                                        <input type="hidden" id="oldAddress" />
+                                    </div>
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <h3 class="addapplicant">Household Address</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Address <sup>*</sup></label>
+                                            <input class="form-control" id="FamilyHousehold_Street" maxlength="50" name="FamilyHousehold.Street" onblur="CheckAddress(0);" placeholder="Address" tabindex="1" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Apartment No., Lot No. </label>
+                                            <input class="form-control" id="FamilyHousehold_StreetName" maxlength="100" name="FamilyHousehold.StreetName" onblur="CheckAddress(0);" placeholder="Apartment No., Lot No." tabindex="2" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">Zip Code  <sup>*</sup></label>
+                                            <input class="form-control" id="FamilyHousehold_ZipCode" maxlength="5" name="FamilyHousehold.ZipCode" onblur="checkZipCode(this,'#Houselessmodal');" placeholder="Zip Code " tabindex="3" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">City  <sup>*</sup></label>
+                                            <select id="FamilyHousehold_City" name="FamilyHousehold.City" class="form-control" tabindex="4"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">State  <sup>*</sup></label>
+                                            <input class="form-control" id="FamilyHousehold_State" maxlength="100" name="FamilyHousehold.State" onblur="isSpclChar(this);" placeholder="State " readonly="readonly" tabindex="5" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="email">County  <sup>*</sup></label>
+                                            <input class="form-control" id="FamilyHousehold_County" maxlength="100" name="FamilyHousehold.County" placeholder="County " readonly="readonly" tabindex="6" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label>Address Verification Form (pdf,jpg,jpeg,bmp,gif,png) </label>
+                                            <input name="FamilyHousehold.FileaddressAvatar" accept="image/*" capture="camera" class="form-control" id="FamilyHousehold_FileaddressAvatar" onchange="ValidateSingleInputpdf2(this)" style="width:65%;" tabindex="7" type="file" value="">
+                                            <div class="cont-sz" style="width: 85px;display:none; margin-left: 10px; float: right;">
+                                                <input class="minimal" data-val="true" data-val-required="The AdresssverificationinPaper field is required." id="FamilyHousehold_AdresssverificationinPaper" name="FamilyHousehold.AdresssverificationinPaper" tabindex="8" type="checkbox" value="true"><input name="FamilyHousehold.AdresssverificationinPaper" type="hidden" value="false">
+                                                <label style="width:45px;">Paper</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="form-group">
+                                            <h3 class="addapplicant">Case Note </h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Date <sup>*</sup></label>
+                                                <input type="text" id="CaseNoteDetails_caseNoteDate" tab-index="9" name="CaseNoteDetails.CaseNoteDate" onblur="CheckdateHouseless(this);" placeholder="MM/DD/YYYY" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Title <sup>*</sup></label>
+                                                <input class="form-control" id="CaseNoteDetails_CaseNotetitle" maxlength="50" name="CaseNoteDetails.CaseNotetitle" placeholder="Case Note Title" tabindex="10" type="text">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="email">Note <sup>*</sup></label>
+                                                <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
+                                                    <textarea id="CaseNoteDetails_Note" name="CaseNoteDetails.Note"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 col-md-6 col-sm-12">
+                                            <label for="email">Parent/Guardian <sup>*</sup></label>
+                                            <div id="ClientDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
+
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                                <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
+                                                    <div class="form-group">
+                                                        <label for="email">Tags <sup>*</sup></label>
+                                                        <div class="addn-poup-div1">
+                                                            <input type="text" id="CaseNoteDetails_CaseNotetags" name="CaseNoteDetails.CaseNotetags" class="form-control ui-autocomplete-input" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12 no-padding">
+                                                    <div class="form-group">
+                                                        <label for="email">Developmental Team <sup>*</sup></label>
+                                                        <div id="StaffDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                                <div class="col-sm-12 no-padding">
+                                                    <div class="form-group">
+                                                        <label for="email">Secure Note Level?</label>
+                                                        <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
+                                                            <input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">
+                                                            <span style="margin-top:10px;float:left;">Yes</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <!-- import -->
+                                        <div class="col-sm-12 no-padding">
+                                            <div class="form-group" id="section_attachment">
+
+                                                <label>Attachment</label>
+                                                <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach" id="CaseNoteAttachments_0_file" style="width:54%;" onchange="ValidateSingleInputpdf2(this);" tabindex="6" type="file" value="">
+                                                <div class="adddivspace" style="width: 8%;display:inline-block;float:right;">
+                                                    <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;">Add&nbsp;<i class="fa fa-plus-circle"></i></a>
+
+                                                </div>
+
+                                            </div>
+                                            <div class="import_ft_files">
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding: 0 30px;">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmitHouseless" tabindex="16" value="Householdbutton" onclick="" class="my-btn" type="submit">Save</button>
+                                    <button id="btnCancelhouseless" tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                                    <input id="FamilyHousehold_HouseholdId" type="hidden" name="FamilyHousehold.HouseholdId" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+
+
+    <div class="modal fade in" id="screeningFollowupModal" role="dialog" style="display: none;background: rgba(0,0,0,0.7);overflow:auto;">
+        <div class="modal-dialog income-popup width-auto">
+
+
+            @using (Html.BeginForm("SaveScreeningAjax", "AgencyUser", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+        <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="text-center" style="margin:0;">Screening Follow-Up<span class="extra-title muted"></span></h3>
+                    </div>
+                    <div class="control-group">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                <div class="add-useragform">
+
+
+
+
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group datepicker-days">
+                                                <label>Child Name </label>
+                                                <div class="date custom-time">
+                                                    <input class="form-control" type="text" id="scrClientName" readonly="readonly" value="">
+                                                    <input type="hidden" name="programId" id="programId" />
+                                                    <input type="hidden" name="encClientID" id="encClientID" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*<div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group datepicker-days">
+                                                    <label>DOB </label>
+                                                    <div class="date custom-time">
+                                                        <input name="CDOB" class="form-control" id="CDOB" maxlength="50" readonly="readonly" placeholder="MM/DD/YYYY" type="text" value="02/09/2014">
+                                                    </div>
+                                                </div>
+                                            </div>*@
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="pwd">Screening Name <sup>*</sup></label>
+                                                <input value="02/09/2014" id="clientdob" type="hidden">
+                                                <select class="form-control" id="ScreeningSelect" name="Screeningid">
+                                                    <option value="1">30 Day Physical</option>
+                                                    <option value="3">45 Day Hearing</option>
+                                                    <option value="2">45 Day Vision</option>
+                                                    <option value="5">90 Day Dental</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="form-group text-center">
+                                                <button id="btnsearch" type="button" class="my-btn" onclick="Getscreeningtemplate();">Load</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="screeningfollowDiv" style="margin-top:20px;"></div>
+
+
+                        <div class="row" id="saveScreening" style="display:none;">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="padding: 0 30px;">
+                                <div class="btnwrp_subcal">
+                                    <button id="btnSubmitScreeningFollow" tabindex="16" value="Householdbutton" onclick="" class="my-btn" type="submit">Save</button>
+                                    <button id="btnCancelScreeningfollow" tabindex="17" class="my-btn" data-dismiss="modal" type="button">Exit</button>
+                                    <input id="FamilyHousehold_HouseholdId" type="hidden" name="FamilyHousehold.HouseholdId" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+
+
+    <div id="statusChangeDiv"></div>
+
+    <!-- Modal popup -->
+    @*<button type="button" class="btn" data-toggle="modal" data-target="#mytransition">Open Modal</button>*@
+    <!-- Modal -->
+    <div class="modal fade" id="mytransition" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">New Program year Transition</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="edu-testnewborn">
+                        <p><strong>Note:</strong>  TestNewBorn will be transition to HS program, with next program year.</p>
+                        <div class="form-group eduicc-trans radio radio-info">
+                            <p>Parent indicated testnewborn will return next program year</p>
+                            <span><input type="radio" name="tranpart-quest"><label>Yes</label></span>
+                            <span><input type="radio" name="tranpart-quest"><label>No</label></span>
+                            <span><input type="radio" name="tranpart-quest"><label>May be</label></span>
+                            <span><input type="radio" name="tranpart-quest"><label>No Answer</label></span>
+
+                        </div>
+
+                        <div class="form-group eduicc-trans radio radio-info">
+                            <p>Is the partent is ready for transition</p>
+                            <span><input type="radio" name="tranpart"><label>Yes</label></span>
+                            <span><input type="radio" name="tranpart"><label>No</label></span>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 no-padding" style="margin-bottom: 10px;">
+                            <div class="col-lg-5 col-xs-5" style="padding-left: 0;">
+                                <div class="enroll-sec" style="padding-left: 0;">
+                                    <div class="transition-content-desc" style="position: relative;">
+                                        <p class="pir-q-p" style="font-weight: 600;padding-left:0;">Insurance Type</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 col-xs-7">
+
+                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InsType" id="MedicareInsurance" class="InsuranceType" value="C1A2">
+                                            <label>Medicare / Chip</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InsType" id="NoInsurance" class="InsuranceType" value="C2">
+                                            <label>No Insurance</label>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InsType" id="OtherInsurance" class="InsuranceType" value="C1D2">
+                                            <label>Other Insurance</label>
+                                        </div>
+                                        <div class="col-lg-6" style="display:none;">
+                                            <label style="color: #163b69;font-size: 14px;font-weight: normal;"><i>Please Specify</i></label>
+                                            <input type="text" class="form-control" id="PregOtherInsuranceType" value="">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InsType" id="PrivateInsurance" class="InsuranceType" value="C1C2">
+                                            <label>Private Health Insurance</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="InsType" id="StateInsurance" class="InsuranceType" value="C1B2">
+                                            <label>State Insurance</label>
+                                        </div>
+
+                                        <button type="button" class="btn btn-primary btn-accept" id="btnAcceptInsurance">Accept</button>
+                                        <i class="fa fa-check" aria-hidden="true" style="padding-left:8px;font-size:15px;color:green;display:none;"></i>
+                                    </div>
+
+
+
+                                </div>
+
+                                <div class="err-container col-xs-12  irr-error" style="padding:0;">
+                                    <span class="err-message err-message-instype">Insurance type is required</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="bootstrap-dialog-footer edu-transition">
+                            <b>Click OK to start Transition</b>
+                            <div class="bootstrap-dialog-footer-buttons"><button class="btn btn-default" id="5e98c754-3e54-48aa-8bea-7d6f81b08357">Cancel</button><button class="btn btn-primary" id="4269edf6-7900-43e5-ae31-3354fafb7612">OK</button></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal popup -->
 
 }
 

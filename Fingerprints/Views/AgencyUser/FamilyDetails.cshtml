@@ -11,9 +11,58 @@
 }
 @section Script{
     <style>
-        .futurequalifier {
-            color: green;
+                /*@@media only screen and (min-width:768px) and (max-width:1200px) {
+                .title-fixed {
+            position: static;
+            padding-left: 0;
         }
+                .protype-solid span textarea {
+            height: 50px;
+            width: 100% !important;
+        }
+                .protype-solid span {
+            width: 55% !important;
+            float: left;
+        }
+                    .protype-solid label {
+                    width: 45% !important;float: left;
+                    }
+                .protype-solid label input {
+            width: 30px !important;
+            float: left;
+        }
+                }
+                .edu-protextarea textarea {
+            width: 65%;
+            float: left;
+            height: 60px;
+            margin-bottom: 15px;
+            max-width:65%;
+        }
+                .protype-solid span textarea {
+            height:  50px;
+            width: 60%;
+        }
+                .protype-solid {
+            width:  100%;
+            float:  left;
+            margin-bottom: 15px;
+        }
+
+        .protype-solid label {
+            width: 30%;
+            float:  left;
+        }
+
+        .protype-solid span {
+            width:  70%;
+            float:  left;
+        }*/
+
+
+                .futurequalifier {
+                    color: green;
+                }
 
 
         .billing-inner-label label, .billing-inner-label span {
@@ -3144,6 +3193,31 @@
                 customAlert("Is this child up-to-date on a schedule of age-appropriate health care is required. ");
                 return isValid;
             }
+
+            if ($("input:radio[name='MedicalService']").is(":checked") && $("input:radio[name='MedicalService']:checked").val() == '1')
+            {
+                var $appScreening = $('#ApplicationScreening');
+
+                var allowScreening = $appScreening.find('#AllowScreening');
+
+                allowScreening.find('.table-main').children('div').each(function (i,scr) {
+
+                    if($(scr).attr('id')!='ConsolidateHeading')
+                    {
+                        if($(scr).attr('id')=='ScreenAcc' && $(scr).find('input[type=file]').val()=='')
+                        {
+                            isValid = false;
+                            customAlert('Permission document for screening is required');
+                            return isValid;
+                        }
+                    }
+
+                });
+
+            }
+
+
+
             if (!$("input:radio[name='CParentdisable']").is(":checked")) {
                 isValid = false;
                 customAlert("Suspected or document of disabilty is required. ");
@@ -3856,15 +3930,18 @@
             $('#customChecklist').find('#IsFutureApplication').val(isfuture);
 
             if (data.AvailableProgram != null && data.AvailableProgram.length > 0) {
+                var isEHsScreening = false;
+
                 for (var i = 0; i < data.AvailableProgram.length; i++) {
                     if (data.AvailableProgram[i].ReferenceId == 1) {
                         $('#Screening1').show();
                         $('#_childprogrefid').val("1");
+                        isEHsScreening = true;
                     }
                     if (data.AvailableProgram[i].ReferenceId == 2) {
                         $('#Screening1').show();
                         $('#_childprogrefid').val("2");
-
+                        isEHsScreening = false;
                     }
                     $('#customChecklist input[type=checkbox]').each(function () {
                         if ($(this).val() == data.AvailableProgram[i].Id)
@@ -7157,6 +7234,39 @@
                 $('#AllowSpeechScreening').hide();
                 $('#Parentscreening').val($('#Pfirstname').val() + ' ' + $('#Plastname').val());
             }
+
+
+
+            var isEhsScreenn=false;
+            
+            if (data.AvailableProgram != null && data.AvailableProgram.length > 0) {
+
+                debugger;
+                for (var i = 0; i < data.AvailableProgram.length; i++) {
+                    if (data.AvailableProgram[i].ReferenceId == 1) {
+
+                        isEhsScreenn = true;
+                    }
+                    if (data.AvailableProgram[i].ReferenceId == 2) {
+
+                        isEhsScreenn = false;
+                    }
+
+                }
+
+                if (isEhsScreenn) {
+                    $('#AllowScreening').find('.table-main').children('div').hide()
+                    $('#AllowScreening').find('#ConsolidateHeading').show();
+                    $('#AllowScreening').find('#ParentName').show();
+                    $('#AllowScreening').find('#wellBabyScreening').show();
+                }
+
+                else {
+                    $('#AllowScreening').find('.table-main').children('div').show();
+                    $('#AllowScreening').find('#wellBabyScreening').hide();
+                }
+            }
+
 
 
 
@@ -11265,6 +11375,8 @@
         function Getallcenter(value) {
             var mode = 0;
             var text = 'Do you want to see only your centers?';
+            var ishome = false;
+            ishome = $(value).attr('ackey') == '1';
             if ($(value).prop("checked")) {
                 mode = 1;
                 text = 'Do you want to see all centers? ';
@@ -11276,7 +11388,8 @@
                         url: HostedDir + "/Agencyuser/Getallcenter",
                         type: "POST",
                         data: {
-                            mode: mode
+                            mode: mode,
+                            homebased:ishome
                         },
                         dataType: "json",
                         secureuri: false,
@@ -11366,8 +11479,22 @@
                         if ($(value).closest('tr').find('td:eq(3) a').text().trim() == "0") {
                             customAlert("Selection Points can't be zero. ");
                         }
-                        else
+                        else {
+
+                            var ishomBased = 0;
+                            if ($(value).parent('td').parent('tr').children('td:eq(1)').html() == "PM") {
+
+                                $('#Waitinglist').find('#DivWaitinglist').find('tr[ackey=False]').hide();
+                                ishomBased=1
+                            }
+                            else {
+                                $('#Waitinglist').find('#DivWaitinglist').find('tr[ackey=False]').show();
+                                ishomBased = 0;
+                            }
+                            $('#Waitinglist').find('#centerall').attr('ackey', ishomBased);
                             $('#Waitinglist').modal('show');
+
+                        }
                     }
                 }
             }
@@ -12381,6 +12508,49 @@
                     ShowAllMandatoryFields(Data);
                     return isValid;
                 }
+
+                if ($("input:radio[name='MedicalService']").is(":checked") && $("input:radio[name='MedicalService']:checked").val() == '1') {
+                    var $appScreening = $('#ApplicationScreening');
+
+                    var allowScreening = $appScreening.find('#AllowScreening');
+
+                    allowScreening.find('.table-main').children('div').each(function (i, scr) {
+                        debugger;
+                        if ($(scr).attr('id') != 'ConsolidateHeading') {
+
+                            if ($(scr).attr('id') == 'ScreenAcc' && (($(scr).find('input[type=file]').val() == '' && $(scr).find('#ScreeningAcceptance').css('display') == 'none') || $(scr).find('#ScreeningAcceptance').length == 0 || $(scr).find('#ScreeningAcceptance').css('display') == 'none')) {
+                                isValid = false;
+                                customAlert('Permission document for screening is required');
+                                activechildtab();
+                                $('#TabId').val(4);
+                                $('#ApplicationScreening').modal('show');
+                                return isValid
+                            }
+
+                            if(($(scr).attr('id') != 'ScreenAcc'))
+                            {
+                                if($(scr).find('input[type=radio]').length>0  && $(scr).find('input[type=radio]:checked').length==0 )
+                                {
+                                    isValid = false;
+                                    customAlert('Please select Yes or No for screening question.');
+                                    activechildtab();
+                                    $('#TabId').val(4);
+                                    $(scr).find('input[type=radio]').focus();
+                                    $('#ApplicationScreening').modal('show');
+                                   
+                                    return isValid
+                                }
+                            }
+
+                        }
+
+                    });
+
+                }
+
+
+
+
             }
             return isValid;
         }
@@ -15339,7 +15509,8 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                                                                                </div>*@<div class="col-lg-6">
+                                                                                                                                </div>*@
+                                                                    <div class="col-lg-6">
                                                                         <div class="form-group">
                                                                             <label for="email">Primary Insurance <sup>*</sup></label>
                                                                             @{

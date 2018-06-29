@@ -178,6 +178,9 @@ namespace FingerprintsModel
         //Parent Details 1
         public Int32 Parent { get; set; }
         public Int32 ParentID { get; set; }
+        public string ProgramTypeID { get; set; }
+        public string ProgramTypeID1 { get; set; }
+
         public HttpPostedFileBase PAvatar { get; set; }
         public string PAvatarUrl { get; set; }
         public string Pfirstname { get; set; }

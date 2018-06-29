@@ -1653,7 +1653,7 @@ namespace Fingerprints.Controllers
         {
             bool isResult = false;
 
-           isResult= new agencyData().AddFunds(fundSource);
+           isResult= new agencyData().AddFunds(fundSource,0);
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
@@ -1664,7 +1664,7 @@ namespace Fingerprints.Controllers
         {
             bool isResult = false;
 
-           // isResult = new agencyData().AddFunds(fundSource,1);
+            isResult = new agencyData().AddFunds(fundSource,1);
 
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
