@@ -4431,8 +4431,8 @@ namespace FingerprintsData
                         }
 
                         command.Parameters.Add(new SqlParameter("@Result", string.Empty));
-                        command.Parameters.Add(new SqlParameter("@SlotCount", string.Empty));
-                        command.Parameters.Add(new SqlParameter("@SeatCount", string.Empty));
+                        command.Parameters.Add(new SqlParameter("@SlotCount", 0));
+                        command.Parameters.Add(new SqlParameter("@SeatCount",0));
                         command.Parameters["@Result"].Direction = ParameterDirection.Output;
                         command.Parameters["@SlotCount"].Direction = ParameterDirection.Output;
                         command.Parameters["@SeatCount"].Direction = ParameterDirection.Output;
@@ -4489,8 +4489,8 @@ namespace FingerprintsData
                     //parameters for insurance type
                     command.Parameters.Add(new SqlParameter("@UpdatePregMom", (i==1)));
                     command.Parameters.Add(new SqlParameter("@Result", string.Empty));
-                    command.Parameters.Add(new SqlParameter("@SlotCount", string.Empty));
-                    command.Parameters.Add(new SqlParameter("@SeatCount", string.Empty));
+                    command.Parameters.Add(new SqlParameter("@SlotCount",0));
+                    command.Parameters.Add(new SqlParameter("@SeatCount", 0));
                     command.Parameters["@Result"].Direction = ParameterDirection.Output;
                     command.Parameters["@SlotCount"].Direction = ParameterDirection.Output;
                     command.Parameters["@SeatCount"].Direction = ParameterDirection.Output;
