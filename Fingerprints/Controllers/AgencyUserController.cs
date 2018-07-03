@@ -44,6 +44,7 @@ namespace Fingerprints.Controllers
         FamilyData familyData = new FamilyData();
         CommunityResourceData communitydata = new CommunityResourceData();
         List<WellBabyExamModel> wellBabyList=new List<WellBabyExamModel>();
+        [CustAuthFilter()]
         public ActionResult staffRegistration()
         {
             try
@@ -60,6 +61,7 @@ namespace Fingerprints.Controllers
 
         }
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult staffRegistration(staffRegistration staffregistration)
         {
             try
@@ -100,6 +102,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
+        [CustAuthFilter()]
         public ActionResult staffemailverificationnew()
         {
 
@@ -152,6 +155,7 @@ namespace Fingerprints.Controllers
             //}
         }
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult staffemailverification(AgencyStaff _staflist, FormCollection collection)
         {
 
@@ -216,6 +220,7 @@ namespace Fingerprints.Controllers
             return View(_staffList);
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter()]
         [HttpPost]
         public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages)
         {
@@ -3046,11 +3051,11 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
-        public JsonResult Getallcenter(string mode)
+        public JsonResult Getallcenter(string mode,bool homebased)
         {
             try
             {
-                return Json(familyData.Getallcenter(mode, Session["Roleid"].ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                return Json(familyData.Getallcenter(mode, Session["Roleid"].ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString(), homebased));
             }
             catch (Exception Ex)
             {
@@ -3972,14 +3977,38 @@ namespace Fingerprints.Controllers
         }
        // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
         [HttpPost]
-        public ActionResult DropClient(Transition Transition)
+        [ValidateInput(false)]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public ActionResult DropClient(string Transition)
         {
             try
             {
-    
-                var id = familyData.DropClient(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Transition);
-                return Json(id);
-               
+
+                Transition transition = new Transition();
+
+
+                List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
+                var ate = Request.Files;
+                var ate2 = ate.AllKeys;
+
+                for (int i = 0; i < ate2.Length; i++)
+                {
+                    RosterNew.Attachment aatt = new RosterNew.Attachment();
+                    aatt.file = ate[i];
+                    attach.Add(aatt);
+                }
+
+
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                transition = serializer.Deserialize<Transition>(Transition);
+                transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
+                transition.ParentID = (transition.ParentID == "0" || transition.ParentID == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID);
+                transition.ParentID2 = (transition.ParentID2 == "0" || transition.ParentID2 == "") ? "0" : EncryptDecrypt.Decrypt64(transition.ParentID2);
+                var id = familyData.DropClient(transition);
+                return Json(id, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception Ex)
             {
@@ -3989,12 +4018,14 @@ namespace Fingerprints.Controllers
         }
 
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,e4c80fc2-8b64-447a-99b4-95d1510b01e9")] //added  e4c80fc2-8b64-447a-99b4-95d1510b01e9 on 01/02/2018
-      
-        public JsonResult GetEnrollReason(string Status = "0")
+
+        public JsonResult GetEnrollReason(string Status = "0", string clientId = "0")
         {
             try
             {
-                return Json(new FamilyData().GetEnrollReason(Status, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+
+
+                return Json(new FamilyData().GetEnrollReason(Status, clientId));
             }
             catch (Exception Ex)
             {
@@ -5729,7 +5760,7 @@ namespace Fingerprints.Controllers
             return Json("");
         }
 
-
+        [CustAuthFilter()]
         public ActionResult ClientFileReview()
         {
             if (Session["Roleid"] == null)
@@ -5738,7 +5769,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-
+        [CustAuthFilter()]
         public ActionResult DemographicPercentage()
         {
             if (Session["Roleid"] == null)
@@ -5747,7 +5778,7 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
-
+        [CustAuthFilter()]
         public JsonResult GetClassess(string CurrentMonth)
         {
 
@@ -5772,7 +5803,7 @@ namespace Fingerprints.Controllers
 
             return Json(new { centers, clientsList, clientStatus }, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult GetClassByCenterID(long CenterID)
         {
             List<Class_Center> classess = new List<Class_Center>();
@@ -5790,7 +5821,7 @@ namespace Fingerprints.Controllers
             }
             return Json(classess, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult CheckIsHost(string currentMonth, long clientID)
         {
 
@@ -5812,6 +5843,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { HostInfo, member }, JsonRequestBehavior.AllowGet);
         }
+        [CustAuthFilter()]
         public JsonResult GetClients(Class_Center classCenter)
         {
             List<ClientDetails> clientDetails = new List<ClientDetails>();
@@ -5828,7 +5860,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { clientDetails, clientStatus }, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult GetMembers(string ReviewMonth, long ClientId)
         {
             List<DevelopmentMembers> membersList = new List<DevelopmentMembers>();
@@ -5849,7 +5881,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { membersList, contributorCount }, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult InsertMembersAttendance(string membersList)
         {
             bool IsRowAffected = false;
@@ -5869,7 +5901,7 @@ namespace Fingerprints.Controllers
             return Json(IsRowAffected, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter()]
         public JsonResult GetReviewNotes(string MonthReviewed, long ClientID)
         {
 
@@ -5895,7 +5927,7 @@ namespace Fingerprints.Controllers
             return Json(new { OpenNotesList, ClosedNotesList }, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter()]
         public JsonResult InsertReviewNotes(string reviewNotes)
         {
 
@@ -5915,7 +5947,7 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter()]
         public JsonResult UpdateReviewNotes(string ReviewNotes)
         {
             bool isResult = false;
@@ -5935,7 +5967,7 @@ namespace Fingerprints.Controllers
 
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetClientProfile(long ClientId, string dateReview)
         {
 
@@ -5952,14 +5984,14 @@ namespace Fingerprints.Controllers
             }
             return Json(clientProfile, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public ActionResult CFRReport()
 
         {
             //  var userid = Session["UserID"].ToString();
             return View();
         }
-
+        [CustAuthFilter()]
         public JsonResult GetCFRReport(long centerID = 0)
         {
             List<Guid?> useridList = new List<Guid?>();
@@ -5981,7 +6013,7 @@ namespace Fingerprints.Controllers
             return Json(new { useridList, anaList }, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetCenters()
         {
             List<Class_Center> centers = new List<Class_Center>();
@@ -6219,7 +6251,7 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
-
+        [CustAuthFilter()]
         public ActionResult GetAddressByClientId(string ClientId)
         {
             string JSONString = string.Empty;
@@ -6253,7 +6285,7 @@ namespace Fingerprints.Controllers
 
             return Json(familyData.AddWellBabyDetails(Screening,Session["AgencyId"].ToString(),Session["UserId"].ToString()));
         }
-
+        [CustAuthFilter()]
         public ActionResult GetWellBabyExamDetails(Screening Screening)
         {
             familyData = new FamilyData();
@@ -6278,6 +6310,7 @@ namespace Fingerprints.Controllers
             status = familyData.UpdateJobTraining(IsCompleted, Clientid);
             return Json(status);
         }
+	 [CustAuthFilter()]
         public ActionResult GetDemographicPercentage()
         {
             try
@@ -6291,7 +6324,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-
+        [CustAuthFilter()]
         public ActionResult GetAcceptanceStatus(string ClientId)
         {
             try
@@ -6305,21 +6338,23 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-
+        [CustAuthFilter()]
         public JsonResult SaveReviewAgainDetails(string ClientId, string RoleId)
         {
 
             return Json(new FamilyData().SaveReviewAgainDetails(ClientId, RoleId, Session["AgencyID"].ToString(), Session["Userid"].ToString()));
         }
+        [CustAuthFilter()]
         public ActionResult AcceptanceProcess()
         {
             return View();
         }
+        [CustAuthFilter()]
         public ActionResult Testing()
         {
             return View();
         }
-
+        [CustAuthFilter()]
         public JsonResult GetProgramDatesByProgram(long programID)
         {
             //DataSet dateset = new DataSet();
@@ -6485,7 +6520,7 @@ namespace Fingerprints.Controllers
 
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
-
+        [CustAuthFilter()]
         public JsonResult AgencyStaffDashboardAjax()
         {
             TempData["userrole"] = FingerprintsModel.EncryptDecrypt.Encrypt64(Session["Roleid"].ToString());

@@ -2127,11 +2127,12 @@ namespace FingerprintsData
             List<OfflineAttendance> teacherList = new List<OfflineAttendance>();
             try
             {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
                 SqlConnection Connection = connection.returnConnection();
                 SqlCommand command = new SqlCommand();
                 SqlDataAdapter DataAdapter = null;
                 DataSet _dataset = null;
-
+                model.Itemlst = new List<TeacherModel>();
 
                 command.Connection = Connection;
                 command.Parameters.Clear();
@@ -2226,7 +2227,7 @@ namespace FingerprintsData
                                                 TimeZoneID = dr["TimeZone"].ToString(),
                                                 TimeZoneMinuteDiff = Convert.ToInt32(dr["UTCMINUTEDIFFERENC"])
                                             }).ToList();
-
+                        model.Dateofclassstartdate = _dataset.Tables[0].Rows[0]["AccessStartDate"].ToString();
                     }
                 }
             }

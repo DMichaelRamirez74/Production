@@ -92,7 +92,8 @@ namespace Fingerprints.Controllers
         public ActionResult CheckIn(FormCollection collection)
         {
             try
-            { int reasonid = 0;
+            {
+                int reasonid = 0;
                 string NewReason = "";
                 string childCode = collection.Get("childid");
                 string childID =EncryptDecrypt.Decrypt64(childCode);
@@ -2109,41 +2110,108 @@ namespace Fingerprints.Controllers
             }
         }
 
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
         public ActionResult ChildEarlyHeadStartTransition(string Id, string ProgramId)
         {
-            ViewBag.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(Id));
-            ViewBag.ProgramId = Convert.ToInt64(EncryptDecrypt.Decrypt64(ProgramId));
+            Transition transition = new Transition();
 
-            return View();
+            ViewBag.ClientId = Id;
+            ViewBag.ProgramId = ProgramId;
+            transition = new FamilyData().GetEnrollReason("0", Id);
+            return View(transition);
         }
 
         [HttpPost]
-        public ActionResult SaveChildEarlyHeadStartTranstion(TransitionDetails Transition)
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public ActionResult SaveChildEarlyHeadStartTranstion(string Transition, string PregMomChilds)
         {
 
-            List<SeatAvailability> results = new List<SeatAvailability>();
+            //List<SeatAvailability> results = new List<SeatAvailability>();
             string AgencyId = Session["AgencyId"].ToString();
-            string UserId =Session["UserID"].ToString();
-            string RoleId =Session["Roleid"].ToString();
-            results= new RosterData().SaveChildHeadStartTranstion(Transition, AgencyId, UserId, RoleId);
+            string UserId = Session["UserID"].ToString();
+            string RoleId = Session["Roleid"].ToString();
+
+
+
+
+            List<SeatAvailability> results = new List<SeatAvailability>();
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+            TransitionDetails transitionDetails = new TransitionDetails();
+
+            List<PregMomChilds> pregChilds = new List<FingerprintsModel.PregMomChilds>();
+            Transition transition = new FingerprintsModel.Transition();
+            List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
+            var ate = Request.Files;
+            var ate2 = ate.AllKeys;
+
+            for (int i = 0; i < ate2.Length; i++)
+            {
+                RosterNew.Attachment aatt = new RosterNew.Attachment();
+                aatt.file = ate[i];
+                attach.Add(aatt);
+            }
+
+
+            transition = serializer.Deserialize<Transition>(Transition);
+            pregChilds = serializer.Deserialize<List<PregMomChilds>>(PregMomChilds);
+            transition.CaseNoteDetails.CaseNoteAttachmentList = new List<RosterNew.Attachment>();
+            transition.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transition.EClientID));
+            transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transition.Enc_ProgID));
+            transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
+            transition.ParentID = (transition.EClientID.ToString() == "0" || transition.EClientID.ToString() == "") ? "0" : EncryptDecrypt.Decrypt64(transition.EClientID.ToString());
+            transitionDetails.Transition = transition;
+            transitionDetails.PregMomChilds = pregChilds;
+
+            transitionDetails.Transition.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.EClientID));
+            transitionDetails.Transition.HouseholdId = EncryptDecrypt.Decrypt64(transitionDetails.Transition.HouseholdId);
+            transitionDetails.Transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.Enc_ProgID));
+
+            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, AgencyId, UserId, RoleId);
 
             return Json(results);
         }
-        public ActionResult HeadStartTransition(string Id, string ProgramId)
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public ActionResult HeadStartTransition(string Id, string ProgramId, string st)
         {
-           ViewBag.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(Id));
-            ViewBag.ProgramId = Convert.ToInt64(EncryptDecrypt.Decrypt64(ProgramId));
-            return View();
+            Transition trans = new FingerprintsModel.Transition();
+            try
+            {
+
+                trans = new FamilyData().GetEnrollReason(st, Id);
+                trans.Enc_ProgID = ProgramId;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+
+
+            return View(trans);
+
+
+
         }
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
 
-        public JsonResult GetAvailablitySetsByClass(string CenterId, string ClassRoomId,string ClientID)
+        public JsonResult GetAvailablitySeatsByClass(string CenterId, string ClassRoomId, string ClientID)
         {
             try
             {
-                string availableSets = RosterData.GetAvailablitySetsByClass(CenterId, ClassRoomId, Session["AgencyID"].ToString(),ClientID);
-                return Json(availableSets);
+                int result = 0;
+                //bool isIntCenter = int.TryParse(CenterId, out result);
+                //  bool isIntclass = int.TryParse(ClassRoomId, out result);
+
+                CenterId = int.TryParse(CenterId, out result) ? CenterId : (CenterId != "0") ? EncryptDecrypt.Decrypt64(CenterId) : CenterId;
+                ClassRoomId = int.TryParse(ClassRoomId, out result) ? ClassRoomId : (ClassRoomId != "0") ? EncryptDecrypt.Decrypt64(ClassRoomId) : ClassRoomId;
+
+                result = RosterData.GetAvailablitySeatsByClass(CenterId, ClassRoomId, Session["AgencyID"].ToString(), ClientID);
+                return Json(result.ToString());
             }
             catch (Exception Ex)
             {
@@ -2153,20 +2221,77 @@ namespace Fingerprints.Controllers
         }
 
 
-       [HttpPost]
+        [HttpPost]
         public ActionResult GetCenterByAgency()
         {
             var list = RosterData.GetCenterList(Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
             return Json(new { list });
         }
         [HttpPost]
-        public ActionResult SaveHeadStartTransition(Transition Transition)
+        [ValidateInput(false)]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public ActionResult SaveHeadStartTransition(string transition)
         {
             string AgencyId = Session["AgencyId"].ToString();
             string UserId = Session["UserID"].ToString();
-            bool result = new RosterData().SaveHeadStartTranstion(Transition, AgencyId, UserId);
+            int result = 0;
 
-           return Json(result);
+            Transition _transition = new Transition();
+
+            
+
+            List<RosterNew.Attachment> attach = new List<RosterNew.Attachment>();
+            var ate = Request.Files;
+            var ate2 = ate.AllKeys;
+
+            for (int i = 0; i < ate2.Length; i++)
+            {
+                RosterNew.Attachment aatt = new RosterNew.Attachment();
+                aatt.file = ate[i];
+                attach.Add(aatt);
+            }
+
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+            _transition = serializer.Deserialize<Transition>(transition);
+
+            _transition.CaseNoteDetails.CaseNoteAttachmentList = attach;
+
+            _transition.CenterId = (string.IsNullOrEmpty(_transition.Enc_CenterID) || _transition.Enc_CenterID == "0") ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(_transition.Enc_CenterID));
+            _transition.ClassRoomId = (string.IsNullOrEmpty(_transition.Enc_ClassroomID) || _transition.Enc_ClassroomID == "0") ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(_transition.Enc_ClassroomID));
+            RosterNew.CaseNote _caseNote = new RosterNew.CaseNote();
+            _caseNote = _transition.CaseNoteDetails;
+            _transition.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(_transition.EClientID));
+            _transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(_transition.Enc_ProgID));
+            _transition.TransProgramTypeID = (!string.IsNullOrEmpty(_transition.TransProgramTypeID) && _transition.TransProgramTypeID != "0") ? EncryptDecrypt.Decrypt64(_transition.TransProgramTypeID) : "0";
+
+
+            _transition.ParentID = string.IsNullOrEmpty(_transition.ParentID) || _transition.ParentID == "0" ? "0" : EncryptDecrypt.Decrypt64(_transition.ParentID);
+            _transition.ParentID2= string.IsNullOrEmpty(_transition.ParentID2) || _transition.ParentID2 == "0" ? "0" : EncryptDecrypt.Decrypt64(_transition.ParentID2);
+
+            _transition.HouseholdId = EncryptDecrypt.Decrypt64(_transition.HouseholdId);
+            List<CaseNote> caseNote = new List<CaseNote>();
+            RosterNew.Users _users = new RosterNew.Users();
+            _caseNote.ClientIds = string.Join(",", _transition.Users.Clientlist.Select(x => x.Id).ToArray());
+            _caseNote.StaffIds = string.Join(",", _transition.Users.UserList.Select(x => x.Id).ToArray());
+            _caseNote.CenterId = _transition.CenterId.ToString();
+            _caseNote.Classroomid = _transition.ClassRoomId.ToString();
+            _caseNote.ClientId = _transition.ClientId.ToString();
+            _caseNote.HouseHoldId = _transition.HouseholdId;
+            _caseNote.CaseNotetags = _caseNote.CaseNotetags.Trim(',');
+
+            result = new RosterData().SaveHeadStartTranstion(_transition, AgencyId, UserId);
+            if (result==1)
+            {
+                string name = "";
+                name = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, attach, AgencyId, UserId, 0);
+                result = 3;
+            }
+
+
+
+            return Json(result,JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

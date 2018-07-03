@@ -358,7 +358,7 @@
                     CDOB: $('#CDOB')[0].value,
                     CGender: $('input[type="radio"]:checked').val(),
                     Enrollpregnantmother: $('#Ischild').prop("checked"),
-                    futureIntake: $('#allowFutureApplication').length>0 ?$('#allowFutureApplication').find('input[name=IsFutureApplication]:checked').val():"0"
+                    futureIntake: $('#allowFutureApplication').length>0 ?$('#allowFutureApplication').find('input[name=IsFutureApplication]:checked').val():$('#allowFutureApplicationLbl').length>0? "1": "0"
                 },
                 dataType: "json",
                 secureuri: false,
@@ -403,12 +403,20 @@
                 $('#allowFutureApplication').show();
             }
 
+            else if($('#allowFutureApplicationLbl').length>0)
+            {
+                $('#allowFutureApplicationLbl').show();
+            }
 
         }
         else {
 
             if ($('#allowFutureApplication').length > 0) {
                 $('#allowFutureApplication').hide();
+            }
+
+            else if ($('#allowFutureApplicationLbl').length > 0) {
+                $('#allowFutureApplicationLbl').hide();
             }
             $('#showhidechild').show();
         }
@@ -491,7 +499,7 @@
                                         </div>
                                     </div>
 
-                                    @if(Model.AllowFutureApplication)
+                                    @if(Model.AllowFutureApplication && Model.AllowCurrentYearApplication)
                                     {
 
                                         <div class="col-sm-6" id="allowFutureApplication" style="display:none;">
@@ -511,6 +519,18 @@
                                         </div>
 
                                     }
+                                    else if (Model.AllowFutureApplication)
+                                    {
+                                        <div class="col-sm-12" id="allowFutureApplicationLbl" style="display:none;margin-bottom: 15px;padding: 4px 12px;">
+
+                                            <div class="info" style="background-color: #e7f3fe; border-left: 6px solid #2196F3;padding:10px;">
+                                                <p><strong>Note! </strong>This Application has been enrolled to the Program Year <strong>(@Model.FutureProgramYear)</strong></p>
+                                            </div>
+                                        </div>
+
+
+                                    }
+
 
                                     <div class="col-sm-6">
                                         <div class="form-group">

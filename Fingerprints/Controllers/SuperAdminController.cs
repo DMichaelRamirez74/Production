@@ -1689,55 +1689,5 @@ namespace Fingerprints.Controllers
             }
         }
 
-        public ActionResult YakkrEmailContent()
-        {
-            try
-            {
-                YakkrData yakkrData = new YakkrData();
-                YakkrEmail email = new YakkrEmail();
-                email = yakkrData.GetYakkrForEmail();
-                //var Zipcodelist = yakkrData.Checkaddress(out Result, Address, HouseHoldId, Zipcode);
-
-                return View(email);
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return Redirect("~/Login/Loginagency");
-            }
-        }
-        [HttpPost]
-        [ValidateInput(false)]
-        public ActionResult YakkrEmailContent(YakkrEmail yakkrmail)
-        {
-            try
-            {
-                YakkrData yakkrData = new YakkrData();
-                YakkrEmail email = new YakkrEmail();
-                yakkrmail.EmailId = yakkrmail.OtherID == 0 ? yakkrmail.YakkrId : yakkrmail.OtherID;
-                string result = "", inputs = "";
-                inputs = yakkrmail.Body;
-                inputs = Regex.Replace(inputs, "<.*?>", String.Empty);
-                inputs = inputs.Replace("\r\n", " ").Replace("&nbsp;", " ");
-
-                yakkrmail.RawBody = inputs;
-                email = yakkrData.SaveYakkrEmailContent(yakkrmail, Session["UserID"].ToString(), out result);
-                return View(email);
-            }
-            catch (Exception Ex)
-            {
-                clsError.WriteException(Ex);
-                return Redirect("~/Login/Loginagency");
-            }
-        }
-
-        public JsonResult GetMergeFields(int YakkrId)
-        {
-            YakkrData yakkrData = new YakkrData();
-            List<string> MergeFieldsList = new List<string>();
-            string result = "";
-            MergeFieldsList = yakkrData.GetEmailMergeFields(YakkrId,out result);
-            return Json(MergeFieldsList, result);
-        }
     }
 }
