@@ -57,6 +57,7 @@ namespace FingerprintsModel
         public bool Required { get; set; }
         public List<Options> OptionList { get; set; }
 
+        public int QuestionOrder { get; set; }
 
     }
 

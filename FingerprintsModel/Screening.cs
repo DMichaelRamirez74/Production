@@ -104,6 +104,7 @@ namespace FingerprintsModel
           public string s080DetailDC2 { get; set; }
           public string s081FOStatus { get; set; }
           public string AddPhysical { get; set; }
+          public string WellBabyExam { get; set; }
           public string AddVision { get; set; }
           public string AddHearing { get; set; }
           public string AddDevelop { get; set; }

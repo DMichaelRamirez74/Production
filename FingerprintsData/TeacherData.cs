@@ -2035,7 +2035,9 @@ namespace FingerprintsData
                                       Parent1ID = dr1["FatherId"].ToString(),
                                       Parent2ID = dr1["MotherId"].ToString(),
                                       Parent1Name = dr1["FatherName"].ToString(),
-                                      Parent2Name = dr1["MotherName"].ToString()
+                                      Parent2Name = dr1["MotherName"].ToString(),
+                                      AccessDateString = dr1["AccessDateString"].ToString(),
+                                      RestrictedDateString = dr1["RestrictedDateString"].ToString()
                                   }
 
 
@@ -2055,8 +2057,8 @@ namespace FingerprintsData
                                    TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
                                    TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
                                    BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                   Lunch = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                   Snacks = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                                   Lunch = (dr["Lunch"].ToString() != "0" && dr["Lunch"].ToString() != "") ? "1" : "0",
+                                   Snacks = (dr["Snacks"].ToString() != "0" && dr["Snacks"].ToString() != "") ? "1" : "0",
                                    AdultBreakFast = dr["AdultBreakFast"].ToString(),
                                    AdultLunch = dr["AdultLunch"].ToString(),
                                    AdultSnacks = dr["AdultSnacks"].ToString(),
@@ -2141,6 +2143,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ClassRoomId", classRoomId));
                 command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                 command.Parameters.Add(new SqlParameter("@AttendanceDate", attendanceDate));
+                command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetClientAttendanceByAttendanceDate";
                 DataAdapter = new SqlDataAdapter(command);
@@ -2155,6 +2158,8 @@ namespace FingerprintsData
                                    select new OfflineAttendance
                                    {
                                        ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                                       // ClientID = dr["ClientID"].ToString(),
+
                                        CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
                                        ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
                                        AttendanceType = dr["AttendanceType"].ToString(),
@@ -2177,6 +2182,32 @@ namespace FingerprintsData
                                    }
                              ).ToList();
 
+                }
+
+                if (_dataset.Tables[1].Rows.Count > 0)
+                {
+                    model.Itemlst = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                     select new TeacherModel
+                                     {
+                                         ClientID = Convert.ToString(dr1["ClientID"]),
+                                         Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
+                                         CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
+                                         CDOB = Convert.ToString(dr1["DOB"]),
+                                         CenterID = dr1["CenterId"].ToString(),
+                                         Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterID"].ToString()),
+                                         ClassID = dr1["ClassRoomId"].ToString(),
+                                         Enc_ClassRoomId = EncryptDecrypt.Encrypt64(dr1["ClassRoomId"].ToString()),
+                                         Parent1ID = dr1["FatherId"].ToString(),
+                                         Parent2ID = dr1["MotherId"].ToString(),
+                                         Parent1Name = dr1["FatherName"].ToString(),
+                                         Parent2Name = dr1["MotherName"].ToString(),
+                                         AccessDateString = dr1["AccessDateString"].ToString(),
+                                         RestrictedDateString = dr1["RestrictedDateString"].ToString()
+                                     }
+
+
+
+                            ).ToList();
                 }
 
                 model.WeeklyAttendance = teacherList;
@@ -2311,7 +2342,7 @@ namespace FingerprintsData
                                            CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
                                            ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
                                            AttendanceType = dr["AttendanceType"].ToString(),
-                                           AttendanceDate = Convert.ToDateTime(dr["AttendanceDate"]).ToString("MM/dd/yyyy"),
+                                           AttendanceDate =Convert.ToString(dr["AttendanceDate"]),
                                            TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
                                            TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
                                            BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
