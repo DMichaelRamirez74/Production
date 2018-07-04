@@ -213,7 +213,7 @@ namespace FingerprintsModel
     /// <summary>
     /// Represents a file that has uploaded by a client via multipart/form-data. 
     /// </summary>
-
+<<<<<<< HEAD
   //  public class HttpPostedFileMultipart : HttpPostedFileBase
  //   {
  //       private readonly MemoryStream _fileContents;
@@ -236,7 +236,7 @@ namespace FingerprintsModel
      //       _fileContents = new MemoryStream(fileContents);
       //  }
    // }
-
+=======
     //public class HttpPostedFileMultipart : HttpPostedFileBase
     //{
     //    private readonly MemoryStream _fileContents;
@@ -259,5 +259,5 @@ namespace FingerprintsModel
     //        _fileContents = new MemoryStream(fileContents);
     //    }
     //}
-
+>>>>>>> 57af544f71a3618717cc755ccca7b0c2fa3d0731
 }
