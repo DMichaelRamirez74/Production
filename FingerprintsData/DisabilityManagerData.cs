@@ -277,7 +277,7 @@ namespace FingerprintsData
                             info.Teacher = dr["teacher"].ToString();//DBNull.Value.Equals(dr["ChildTransport"])
                             info.IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]);//.ToString() //Added on 30Dec2016
                             //  info.Dayscount = dr["dayscount"].ToString();
-                            info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
+                          //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
                             info.District = Convert.ToString(dr["District"]);
                             info.classroomid = dr["classroomid"].ToString();
                             if (dr["recordCreated"] != DBNull.Value)
