@@ -33,7 +33,7 @@ namespace FingerprintsModel
         public string IsWaiting { get; set; }
         public int? EnrollmentStatus { get; set; }
         public int? InsuranceType { get; set; }
-     
+
         public int? BirthType { get; set; }
         public bool IsEHS { get; set; }
         public bool IsHS { get; set; }
@@ -76,10 +76,10 @@ namespace FingerprintsModel
         public int? OtherIns_E { get; set; }
         public string Description_S { get; set; }
         public string Description_E { get; set; }
-        public int?  NoIns_S { get; set; }
+        public int? NoIns_S { get; set; }
         public int? NoIns_E { get; set; }
 
-        public bool? JobTrainingSchool   { get;set; }
+        public bool? JobTrainingSchool { get; set; }
 
         public int? ParentRole { get; set; }
 
@@ -123,7 +123,7 @@ namespace FingerprintsModel
         public bool? DentalServices { get; set; }
 
         public bool? NewProgramYearTransition { get; set; }
-      
+
         public bool? MedicalServices { get; set; }
         public int? MedicalServiceTypes { get; set; }
         public int? DentalCare { get; set; }
@@ -142,7 +142,7 @@ namespace FingerprintsModel
         public string DateOfWithdrawn { get; set; }
 
         public string PregnantMotherInsurance { get; set; }
-      
+
 
         public bool? PregnantMotherEnrollment { get; set; }
 
@@ -160,13 +160,13 @@ namespace FingerprintsModel
 
         public string LDAAge { get; set; }
 
-        public string ReferenceProgram { get; set; } 
+        public string ReferenceProgram { get; set; }
         public int TypeOfTransition { get; set; }
 
         public int Returning { get; set; }
 
-        public int PregMomTransitionReady{get;set;}
-        
+        public int PregMomTransitionReady { get; set; }
+
         public string SchoolDistrictDate { get; set; }
 
         public int EHSHSEnrolled { get; set; }
@@ -177,11 +177,13 @@ namespace FingerprintsModel
         public List<SelectListItem> HSPrograms { get; set; }
     }
 
-    public class TransitionDetails {
+    public class TransitionDetails
+    {
         public Transition Transition { get; set; }
         public List<PregMomChilds> PregMomChilds { get; set; }
     }
-    public class PregMomChilds {
+    public class PregMomChilds
+    {
 
         public Transition Transition { get; set; }
         public string DateOfTransition { get; set; }
@@ -191,13 +193,13 @@ namespace FingerprintsModel
         public string Gender { get; set; }
 
 
-        
+
         public int InsuranceType { get; set; }
         public bool IsEHS { get; set; }
     }
 
 
- 
+
     public class SeatAvailability
     {
         public int SloatAvailable { get; set; }
@@ -214,28 +216,28 @@ namespace FingerprintsModel
     /// Represents a file that has uploaded by a client via multipart/form-data. 
     /// </summary>
 
-  //  public class HttpPostedFileMultipart : HttpPostedFileBase
- //   {
- //       private readonly MemoryStream _fileContents;
+    //  public class HttpPostedFileMultipart : HttpPostedFileBase
+    //   {
+    //       private readonly MemoryStream _fileContents;
 
- //       public override int ContentLength => (int)_fileContents.Length;
-  //      public override string ContentType { get; }
-  //      public override string FileName { get; }
-  //      public override Stream InputStream => _fileContents;
+    //       public override int ContentLength => (int)_fileContents.Length;
+    //      public override string ContentType { get; }
+    //      public override string FileName { get; }
+    //      public override Stream InputStream => _fileContents;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HttpPostedFileMultipart"/> class. 
-        /// </summary>
-        /// <param name="fileName">The fully qualified name of the file on the client</param>
-        /// <param name="contentType">The MIME content type of an uploaded file</param>
-        /// <param name="fileContents">The contents of the uploaded file.</param>
-     //   public HttpPostedFileMultipart(string fileName, string contentType, byte[] fileContents)
-      //  {
-      //      FileName = fileName;
-     // //      ContentType = contentType;
-     //       _fileContents = new MemoryStream(fileContents);
-      //  }
-   // }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HttpPostedFileMultipart"/> class. 
+    /// </summary>
+    /// <param name="fileName">The fully qualified name of the file on the client</param>
+    /// <param name="contentType">The MIME content type of an uploaded file</param>
+    /// <param name="fileContents">The contents of the uploaded file.</param>
+    //   public HttpPostedFileMultipart(string fileName, string contentType, byte[] fileContents)
+    //  {
+    //      FileName = fileName;
+    // //      ContentType = contentType;
+    //       _fileContents = new MemoryStream(fileContents);
+    //  }
+    // }
 
     //public class HttpPostedFileMultipart : HttpPostedFileBase
     //{
