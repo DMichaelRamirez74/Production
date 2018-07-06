@@ -385,7 +385,7 @@ namespace FingerprintsData
 
                     }
 
-                   
+
 
                     if (_dataset.Tables[3].Rows.Count > 0)
                     {
@@ -397,7 +397,7 @@ namespace FingerprintsData
                         }).ToList();
                     }
 
-                    if (_dataset.Tables[4].Rows.Count > 0) 
+                    if (_dataset.Tables[4].Rows.Count > 0)
                     {
                         _centre.DivisionsList = _dataset.Tables[4].AsEnumerable().Select(x => new Divisions
                         {
@@ -948,22 +948,35 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId,bool isreqAdminSite=false,bool isCenterBasedOnly=false,bool isHomeBasedOnly=false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false)
         {
             dtCenters = new DataTable();
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@UserId", UserID));
-                command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
-                command.Parameters.Add(new SqlParameter("@ReqAdminSite", isreqAdminSite));
-                command.Parameters.Add(new SqlParameter("@ReqCenterBasedOnly", isCenterBasedOnly));
-                command.Parameters.Add(new SqlParameter("@Homebased", isHomeBasedOnly));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetCentersByuserId";
-                DataAdapter = new SqlDataAdapter(command);
-                DataAdapter.Fill(dtCenters);
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                    command.Parameters.Add(new SqlParameter("@UserId", UserID));
+                    command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                    command.Parameters.Add(new SqlParameter("@ReqAdminSite", isreqAdminSite));
+                    command.Parameters.Add(new SqlParameter("@ReqCenterBasedOnly", isCenterBasedOnly));
+                    command.Parameters.Add(new SqlParameter("@Homebased", isHomeBasedOnly));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetCentersByuserId";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(dtCenters);
+                    Connection.Close();
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -972,7 +985,12 @@ namespace FingerprintsData
             finally
             {
                 if (Connection != null)
+                {
                     Connection.Close();
+                }
+
+                DataAdapter.Dispose();
+                command.Dispose();
             }
         }
 
@@ -1488,7 +1506,7 @@ namespace FingerprintsData
                                         ).ToList();
                     }
 
-                    if (_dataset.Tables.Count==2)
+                    if (_dataset.Tables.Count == 2)
                     {
 
                         if (_dataset.Tables[1].Rows.Count > 0)
@@ -1642,10 +1660,10 @@ namespace FingerprintsData
             return model;
         }
 
-        public List<Tuple<bool, string, string, string, long, string,string>> GetParentAndManagementEmail(Guid UserId, string RecordType, bool isStaff, long centerId, long classRoomId)
+        public List<Tuple<bool, string, string, string, long, string, string>> GetParentAndManagementEmail(Guid UserId, string RecordType, bool isStaff, long centerId, long classRoomId)
         {
             Dictionary<String, String> dictEmail = new Dictionary<string, string>();
-            List<Tuple<bool, string, string, string, long, string,string>> list = new List<Tuple<bool, string, string, string, long, string,string>>();
+            List<Tuple<bool, string, string, string, long, string, string>> list = new List<Tuple<bool, string, string, string, long, string, string>>();
 
             try
             {
@@ -1671,8 +1689,8 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             string email = !string.IsNullOrEmpty(dr["Email"].ToString()) ? dr["Email"].ToString() : "";
-                            list.Add(new Tuple<bool, string, string, string, long, string,string>
-                            (true, dr["ParentName"].ToString(), email,  dr["CenterName"].ToString(), Convert.ToInt64(dr["ClassRoomID"]), dr["ClassRoomName"].ToString(), dr["PhoneNumber"].ToString()));
+                            list.Add(new Tuple<bool, string, string, string, long, string, string>
+                            (true, dr["ParentName"].ToString(), email, dr["CenterName"].ToString(), Convert.ToInt64(dr["ClassRoomID"]), dr["ClassRoomName"].ToString(), dr["PhoneNumber"].ToString()));
                             // dictEmail.Add("Parent" + i.ToString(), !string.IsNullOrEmpty(dr["Email"].ToString()) ? dr["Email"].ToString() : "");
                             i++;
                         }
@@ -1685,7 +1703,7 @@ namespace FingerprintsData
                         foreach (DataRow dr in _dataset.Tables[1].Rows)
                         {
                             string email = !string.IsNullOrEmpty(dr["Email"].ToString()) ? dr["Email"].ToString() : "";
-                            list.Add(new Tuple<bool, string, string, string, long, string,string>
+                            list.Add(new Tuple<bool, string, string, string, long, string, string>
                             (false, dr["TeacherName"].ToString(), email, dr["CenterName"].ToString(), Convert.ToInt64(dr["ClassRoomID"]), dr["ClassRoomName"].ToString(), dr["PhoneNumber"].ToString()));
 
                             //dictEmail.Add("Teacher" + i.ToString(), !string.IsNullOrEmpty(dr["Email"].ToString()) ? dr["Email"].ToString() : "");

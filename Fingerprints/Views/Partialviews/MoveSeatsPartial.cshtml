@@ -2,6 +2,13 @@
 
     @if (Model.CenterList != null && Model.CenterList.Count > 0)
     {
+
+        List<SelectListItem> centersList = new List<SelectListItem>();
+        centersList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleId"].ToString());
+
+        centersList.ForEach(x => x.Value = (x.Value == "0") ? x.Value : FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value));
+
+
         foreach (var item in Model.CenterList)
         {
 
@@ -40,9 +47,18 @@
 
 
                                 @if (item.Classroom != null && item.Classroom.Count > 0)
-                                                        {
-                                                            foreach (var item2 in item.Classroom)
-                                                            {
+                                {
+
+
+                                   
+
+                                       
+                                   
+
+
+
+                                        foreach (var item2 in item.Classroom)
+                                        {
                                                         <tr class="view open-class">
                                                             <td enc-id="@item2.Enc_ClassRoomId">@item2.ClassName</td>
                                                             <td style="text-align:center;">@item2.TotalSeats</td>
@@ -81,15 +97,7 @@
 
                                                                                     <div class="form-group col-sm-12 col-lg-5 col-xs-12">
                                                                                         <label for="exampleInputEmail1">Center</label>
-                                                                                        @{
-
-                                                                                                List<SelectListItem> centersList = new List<SelectListItem>();
-                                                                                                centersList = Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["RoleId"].ToString());
-
-                                                                                                centersList.ForEach(x => x.Value = (x.Value == "0") ? x.Value : FingerprintsModel.EncryptDecrypt.Encrypt64(x.Value));
-
-
-                                                                                        }
+                                                                                       
 
 
                                                                                         @Html.DropDownList("ddlCenters", centersList, new { @class = "form-control select-center", onchange = "getClassrooms(this);" })
