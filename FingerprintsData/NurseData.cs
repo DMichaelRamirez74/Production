@@ -504,7 +504,12 @@ namespace FingerprintsData
                         obj.ParentOriginalId = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ParentOriginalId"]);
                     //End
                     if (_dataset.Tables[0].Rows[0]["IsPreg"].ToString() != "")
+                    {
                         obj.PQuestion = _dataset.Tables[0].Rows[0]["IsPreg"].ToString();
+                        //if (obj.PQuestion == "1")
+                        //    obj.ChildId = Convert.ToInt32(obj.ParentID);
+                    }
+                       
                     if (_dataset.Tables[0].Rows[0]["EnrollforPregnant"].ToString() != "")
                         obj.Pregnantmotherenrolled = Convert.ToBoolean(_dataset.Tables[0].Rows[0]["EnrollforPregnant"]);
                     if (_dataset.Tables[0].Rows[0]["motherinsurance"].ToString() != "")

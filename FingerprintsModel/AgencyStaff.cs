@@ -279,7 +279,12 @@ namespace FingerprintsModel
 
 
 
-
+    public class CaseNoteByClientID
+    {
+        public List<CaseNote> CaseNoteList { get; set; }
+        public List<RosterNew.User> UserList { get; set; }
+        public List<RosterNew.User> ClientList { get; set; }
+    }
 
 
     public class Waitinginfo

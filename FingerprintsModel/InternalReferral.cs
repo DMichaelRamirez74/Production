@@ -21,6 +21,8 @@ namespace FingerprintsModel
         public int CaseHouseholdId { get; set; }
         public int CaseClassroomId { get; set; }
         public List<int> ClientIds { get; set; }
+        public List<int> StaffIds { get; set; }
+        public bool IsSecurity { get; set; }
         public string CaseProgramId { get; set; }
     }
 }

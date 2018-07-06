@@ -344,6 +344,7 @@ namespace Fingerprints.Controllers
             return View(_staffList);
 
         }
+        [CustAuthFilter()]
         public void Updatestaff(AgencyStaff agencystaff, FormCollection collection, out string res)
         {
             res = "";
@@ -878,7 +879,6 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public ActionResult Center(string id = "0")
         {
@@ -1428,6 +1428,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+        [CustAuthFilter()]
         public JsonResult GetClassroom(string ClassroomID = "0", string CenterID = "0")
         {
             CenterData obj = new CenterData();
@@ -1704,6 +1705,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+        [CustAuthFilter()]
         public JsonResult Deleteclassroom(string AgencyID, string CenterId = "0")
         {
             CenterData obj = new CenterData();
@@ -1833,6 +1835,7 @@ namespace Fingerprints.Controllers
             return View(accessRolesList);
         }
         [HttpPost]
+        [CustAuthFilter()]
         public ViewResult PIRAccessRoles(List<PIRAccessRoles> PIRAccessRoles)
         {
             List<PIRAccessRoles> accessRolesList = new List<FingerprintsModel.PIRAccessRoles>();
@@ -1854,6 +1857,7 @@ namespace Fingerprints.Controllers
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult Demographic(List<Demographic> Demographics)
         {
             try
@@ -1900,7 +1904,7 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-
+        [CustAuthFilter()]
         public JsonResult GetAcceptanceRole()
         {
             return Json(agencyData.GetAcceptanceProcess(Session["AgencyID"].ToString()));
@@ -2163,7 +2167,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetAvailSeatsByClassroom(dynamic center, dynamic clsroom, dynamic agency)
         {
 
@@ -2185,6 +2189,7 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
+        [CustAuthFilter()]
         public JsonResult AddSeatsDisplacement(MoveSeats centerPair)
         {
             string result = "";
@@ -2223,8 +2228,8 @@ namespace Fingerprints.Controllers
             return Json(result,JsonRequestBehavior.AllowGet);
         }
 
-       
 
+        [CustAuthFilter()]
         public ActionResult GetCenterWithSeats(string agencyId,int reqPage,int skip,int take, string searchText)
         {
             MoveSeats seatsDis = new FingerprintsModel.MoveSeats();
@@ -2249,7 +2254,7 @@ namespace Fingerprints.Controllers
             return PartialView("~/Views/Partialviews/MoveSeatsPartial.cshtml", seatsDis);
         }
 
-
+        [CustAuthFilter()]
         public JsonResult AutoCompleteCenter(string searchText,string agencyId)
         {
             try
@@ -2263,7 +2268,7 @@ namespace Fingerprints.Controllers
             return Json(null);
 
         }
-
+        [CustAuthFilter()]
         public ActionResult GetStaffsByRole(string roleID)
         {
 
@@ -2284,6 +2289,7 @@ namespace Fingerprints.Controllers
    
 
         [HttpPost]
+        [CustAuthFilter()]
         public PartialViewResult AccessRoleList(int type)
         {
 

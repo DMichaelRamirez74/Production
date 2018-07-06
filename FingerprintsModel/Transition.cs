@@ -177,13 +177,11 @@ namespace FingerprintsModel
         public List<SelectListItem> HSPrograms { get; set; }
     }
 
-    public class TransitionDetails
-    {
+    public class TransitionDetails {
         public Transition Transition { get; set; }
         public List<PregMomChilds> PregMomChilds { get; set; }
     }
-    public class PregMomChilds
-    {
+    public class PregMomChilds {
 
         public Transition Transition { get; set; }
         public string DateOfTransition { get; set; }
