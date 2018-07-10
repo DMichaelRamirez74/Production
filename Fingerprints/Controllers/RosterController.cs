@@ -967,7 +967,7 @@ namespace Fingerprints.Controllers
                     }
                     CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
                 }
-                CaseNote.CaseNotetags = CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1);
+                CaseNote.CaseNotetags =(CaseNote!= null && !string.IsNullOrEmpty(CaseNote.CaseNotetags))?  CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1):"";
                 List<CaseNote> CaseNoteList = new List<CaseNote>();
                 FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
                 string Name = "";
