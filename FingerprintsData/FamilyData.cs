@@ -598,8 +598,8 @@ namespace FingerprintsData
                             Info.PRole = ds.Tables[26].Rows[0]["ParentRole"].ToString();
                             if (ds.Tables[26].Rows[0]["PCurrentlyWorking"].ToString() != "")
                                 Info.PCurrentlyWorking = ds.Tables[26].Rows[0]["PCurrentlyWorking"].ToString();
-                            if (ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString() != "")
-                                Info.PPolicyCouncil = ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString();
+                          //  if (ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString() != "")
+                           //     Info.PPolicyCouncil = ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString();
                             if (ds.Tables[26].Rows[0]["ParentId"].ToString() != "")
                                 Info.ParentID = Convert.ToInt32(ds.Tables[26].Rows[0]["ParentId"]);
                             if (ds.Tables[26].Rows[0]["IsPreg"].ToString() != "")
@@ -9586,7 +9586,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@PGender", obj.PGender));
                 command.Parameters.Add(new SqlParameter("@PMilitaryStatus", obj.PMilitaryStatus));
                 command.Parameters.Add(new SqlParameter("@PCurrentlyWorking", obj.PCurrentlyWorking));
-                command.Parameters.Add(new SqlParameter("@PPolicyCouncil", obj.PPolicyCouncil));
+               // command.Parameters.Add(new SqlParameter("@PPolicyCouncil", obj.PPolicyCouncil));
                 command.Parameters.Add(new SqlParameter("@PEnrollment", obj.PEnrollment));
                 command.Parameters.Add(new SqlParameter("@PDegreeEarned", obj.PDegreeEarned));
                 command.Parameters.Add(new SqlParameter("@PGuardiannotes", obj.PGuardiannotes));
