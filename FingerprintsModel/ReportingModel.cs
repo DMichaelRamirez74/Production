@@ -24,5 +24,16 @@ namespace FingerprintsModel
         public string DaysEnrolled { get; set; }
         public string ReasonForAcceptance { get; set; }
         public List<ReportingModel> Reportlst { get; set; }
+      //  public string CenterName { get; set; }
+        public string MonthName { get; set; }
+        public string MealCount { get; set; }
+        public string AmealCount { get; set; }
+        public string Breakfast { get; set; }
+        public string Lunch { get; set; }
+        public string Snack { get; set; }
+        public string ABreakfast { get; set; }
+        public string ALunch { get; set; }
+        public string ASnack { get; set; }
+        public string MealType { get; set; }
     }
 }

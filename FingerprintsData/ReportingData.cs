@@ -148,7 +148,41 @@ namespace FingerprintsData
 
             return _ReportingM;
         }
+        public ReportingModel MonthlyMealReport(string AgencyID){
+        ReportingModel _ReportingM = new ReportingModel();
+            command.Parameters.Clear();
+            command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
+           // command.Parameters.Add(new SqlParameter("@ReportType", 3));
 
+            command.Connection = Connection;
+            command.CommandType = CommandType.StoredProcedure;
+            command.CommandText = "[GetMonthlyMealCount]";
+            DataAdapter = new SqlDataAdapter(command);
+            _dataset = new DataSet();
+            DataAdapter.Fill(_dataset);
+            DataTable dt = _dataset.Tables[0];
+
+            List<ReportingModel> mealList = new List<ReportingModel>();
+            foreach (DataRow dr in _dataset.Tables[0].Rows)
+            {
+                mealList.Add(new ReportingModel
+                {
+                    MonthName = Convert.ToString(dr["AttendanceDate"]),
+                    CenterName = Convert.ToString(dr["CenterName"]),
+                    MealType = Convert.ToString(dr["MealType"]),
+                    MealCount = Convert.ToString(dr["mealcount"]),
+                    AmealCount = Convert.ToString(dr["AMCount"])
+                });
+            }
+           // _ReportingM.reporttype = 3;
+            //_ReportingM.ColumnName = "Race";
+            _ReportingM.Reportlst = mealList;
+            Connection.Close();
+            command.Dispose();
+
+            return _ReportingM;
+
+    }
         public ReportingModel ReturnChildRace(string AgencyID)
         {
             ReportingModel _ReportingM = new ReportingModel();

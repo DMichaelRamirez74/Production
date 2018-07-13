@@ -32,6 +32,23 @@ namespace Fingerprints.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public ActionResult MonthlyMealReport()
+        {
+            try
+            {
+                return View(new Reporting().MonthlyMealReport(Session["AgencyID"].ToString()));
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return null;
+            }
+
+        }
+
         [HttpGet]
         [Fingerprints.Filters.CustAuthFilter()]
         public ActionResult ReportingStatus(int reporttype)
