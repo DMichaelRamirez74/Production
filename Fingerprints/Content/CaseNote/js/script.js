@@ -50,6 +50,7 @@ function resise() {
         height: win - httphdr - htcpy - 110
 
     });
+  
 }
 function resisescroll() {
 
