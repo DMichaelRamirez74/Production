@@ -2121,8 +2121,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsIncomeEntry", isIncome));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
-               command.CommandText = "SP_FamilyDetails_info";//SP_FamilyDetails_info_TempNutritn
-               // command.CommandText = "SP_FamilyDetails_info_20_06_2018";
+                command.CommandText = "SP_FamilyDetails_info";//SP_FamilyDetails_info_TempNutritn
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);

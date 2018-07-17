@@ -370,12 +370,12 @@ var transitionClients = {
 
             //father//
             Transition.ShoolAchievement = ($('#parentEduDiv').is(':visible')) ? $('#parentEduDiv').find('input:radio[name=passed-code]:checked').val() : '0';
-            Transition.JobTrainingFinished = ($('#parentJobDiv').is(':visible')) ? $('#parentJobDiv').find('imput:radio[name=passed-code]:checked').val() == '1' ? true : false : false;
+            Transition.JobTrainingFinished = ($('#parentJobDiv').is(':visible')) ? $('#parentJobDiv').find('input:radio[name=passed-code]:checked').val() == '1' ? true : false : false;
 
 
             //mother//
             Transition.ShoolAchievement2 = ($('#parent1EduDiv').is(':visible')) ? $('#parent1EduDiv').find('input:radio[name=passed-code1]:checked').val() : '0';
-            Transition.JobTrainingFinished2 = ($('#parent1JobDiv').is(':visible')) ? $('#parent1JobDiv').find('imput:radio[name=passed-code1]:checked').val() == '1' ? true : false : false;
+            Transition.JobTrainingFinished2 = ($('#parent1JobDiv').is(':visible')) ? $('#parent1JobDiv').find('input:radio[name=passed-code1]:checked').val() == '1' ? true : false : false;
 
 
             console.log(JSON.stringify(Transition));
