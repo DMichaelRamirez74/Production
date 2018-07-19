@@ -161,22 +161,68 @@ namespace FingerprintsData
             _dataset = new DataSet();
             DataAdapter.Fill(_dataset);
             DataTable dt = _dataset.Tables[0];
-
+          
+            DataView view = new DataView(dt);
+            DataTable distinctValues = view.ToTable(true, "CenterID", "AttendanceMonth","AttendanceDate","CenterName","BreakfastTotal","LunchTotal","DinnerTotal");
+            DataView viewMonth = new DataView(dt);
+            DataTable distinctValuesMonth = viewMonth.ToTable(true, "AttendanceDate", "BreakfastTotalMonth", "LunchTotalMonth", "DinnerTotalMonth");
             List<ReportingModel> mealList = new List<ReportingModel>();
+            List<ReportingModel> centerList = new List<ReportingModel>();
+            List<ReportingModel> monthList = new List<ReportingModel>();
+            foreach (DataRow row in distinctValuesMonth.Rows)
+            {
+                monthList.Add(new ReportingModel
+                {
+
+                    AttendanceDateMonth = row["AttendanceDate"].ToString(),
+                    BreakfastTotalMonth = row["BreakfastTotalMonth"].ToString(),
+                    LunchTotalMonth = row["LunchTotalMonth"].ToString(),
+                    SnackTotalMonth = row["DinnerTotalMonth"].ToString()
+
+                });
+
+
+            }
+            foreach (DataRow row in distinctValues.Rows)
+            {
+                centerList.Add(new ReportingModel
+                {
+                    CenterIDCenter = row["CenterID"].ToString(),
+                    AttendanceMonthCenter = row["AttendanceMonth"].ToString(),
+                    MonthNameCenter = row["AttendanceDate"].ToString(),
+                    CenterNameCenter = row["CenterName"].ToString(),
+                    BreakfastTotal = row["BreakfastTotal"].ToString(),
+                    LunchTotal = row["LunchTotal"].ToString(),
+                    SnackTotal = row["DinnerTotal"].ToString()
+                });
+               
+
+            }
             foreach (DataRow dr in _dataset.Tables[0].Rows)
             {
                 mealList.Add(new ReportingModel
                 {
                     MonthName = Convert.ToString(dr["AttendanceDate"]),
                     CenterName = Convert.ToString(dr["CenterName"]),
-                    MealType = Convert.ToString(dr["MealType"]),
-                    MealCount = Convert.ToString(dr["mealcount"]),
-                    AmealCount = Convert.ToString(dr["AMCount"])
+                    ClassroomName = Convert.ToString(dr["ClassroomName"]),
+                    Breakfast = Convert.ToString(dr["Breakfast"]),
+                    Lunch = Convert.ToString(dr["Lunch"]),
+                    Snack = Convert.ToString(dr["Dinner"]),
+                    CenterID = Convert.ToString(dr["CenterID"]),
+                    AttendanceMonth = Convert.ToString(dr["AttendanceMonth"]),
+                    ABreakfast = Convert.ToString(dr["ABreakfast"]),
+                    ALunch = Convert.ToString(dr["ALunch"]),
+                    ASnack = Convert.ToString(dr["ADinner"]),
+                    BreakfastTotal = Convert.ToString(dr["BreakfastTotal"]),
+                    LunchTotal = Convert.ToString(dr["LunchTotal"]),
+                    SnackTotal = Convert.ToString(dr["DinnerTotal"])
                 });
             }
            // _ReportingM.reporttype = 3;
             //_ReportingM.ColumnName = "Race";
-            _ReportingM.Reportlst = mealList;
+            _ReportingM.Reportlst = centerList;
+            _ReportingM.Meallst = mealList;
+            _ReportingM.Monthlst = monthList;
             Connection.Close();
             command.Dispose();
 

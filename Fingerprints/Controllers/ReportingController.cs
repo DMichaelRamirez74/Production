@@ -27,25 +27,12 @@ namespace Fingerprints.Controllers
             return View(new Reporting().ReturnChildList(Session["AgencyID"].ToString()));
         }
 
-        [HttpGet]
-        public ActionResult PIRSummary()
-        {
-            return View();
-        }
 
-        [HttpGet]
-        public ActionResult MonthlyMealReport()
-        {
-            try
-            {
-                return View(new Reporting().MonthlyMealReport(Session["AgencyID"].ToString()));
 
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-                return null;
-            }
+        public ActionResult MonthlyMealCount()
+        {
+
+            return View(new Reporting().MonthlyMealReport(Session["AgencyID"].ToString()));
 
         }
 
