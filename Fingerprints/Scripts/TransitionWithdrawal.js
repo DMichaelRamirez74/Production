@@ -554,187 +554,196 @@ var transitionClients = {
 
         var questions = transitionClients.WithdrawalQuestions;
 
-        switch (qnvalue) {
-            case "Q1":
-                newList.children('.question-edu').html(questions.WQ1);
-                if (res.InsuranceTypeQ1End != '0') {
-                    newList.children('.question-edu').find('input:radio[value=' + res.InsuranceTypeQ1End + ']').prop('checked', true);
 
-                    if (res.InsuranceTypeQ1End == '3') {
-                        newList.children('.question-edu').find('#otherInsuranceDesc').val(res.DescInsurancTypeQ1End);
-                        newList.children('.question-edu').find('#otherInsuranceDesc').show();
+        if (res.ResponseStatus==true)
+        {
+            switch (qnvalue) {
+                case "Q1":
+                    newList.children('.question-edu').html(questions.WQ1);
+                    if (res.InsuranceTypeQ1End != '0') {
+                        newList.children('.question-edu').find('input:radio[value=' + res.InsuranceTypeQ1End + ']').prop('checked', true);
+
+                        if (res.InsuranceTypeQ1End == '3') {
+                            newList.children('.question-edu').find('#otherInsuranceDesc').val(res.DescInsurancTypeQ1End);
+                            newList.children('.question-edu').find('#otherInsuranceDesc').show();
+                        }
                     }
-                }
-                else if (res.InsuranceTypeQ1Start != '0') {
-                    newList.children('.question-edu').find('input:radio[value=' + res.InsuranceTypeQ1Start + ']').prop('checked', true);
-                    if (res.InsuranceTypeQ1Start == '3') {
-                        newList.children('.question-edu').find('#otherInsuranceDesc').val(res.DescInsurancTypeQ1Start);
-                        newList.children('.question-edu').find('#otherInsuranceDesc').show();
-                    }
-                }
-                else {
-                    newList.children('.question-edu').find('input:radio[value=2]').prop('checked', true);
-                }
-
-                newList.children('.question-edu').find('input:radio').unbind('click');
-
-                newList.children('.question-edu').find('input:radio').on('click', function () {
-
-                    if ($(this).val() == '3') {
-                        newList.children('.question-edu').find('#otherInsuranceDesc').show();
+                    else if (res.InsuranceTypeQ1Start != '0') {
+                        newList.children('.question-edu').find('input:radio[value=' + res.InsuranceTypeQ1Start + ']').prop('checked', true);
+                        if (res.InsuranceTypeQ1Start == '3') {
+                            newList.children('.question-edu').find('#otherInsuranceDesc').val(res.DescInsurancTypeQ1Start);
+                            newList.children('.question-edu').find('#otherInsuranceDesc').show();
+                        }
                     }
                     else {
-                        newList.children('.question-edu').find('#otherInsuranceDesc').hide();
+                        newList.children('.question-edu').find('input:radio[value=2]').prop('checked', true);
                     }
 
-                });
-                break;
+                    newList.children('.question-edu').find('input:radio').unbind('click');
 
-            case "Q2":
+                    newList.children('.question-edu').find('input:radio').on('click', function () {
+
+                        if ($(this).val() == '3') {
+                            newList.children('.question-edu').find('#otherInsuranceDesc').show();
+                        }
+                        else {
+                            newList.children('.question-edu').find('#otherInsuranceDesc').hide();
+                        }
+
+                    });
+                    break;
+
+                case "Q2":
 
 
-                if (ispreg == 'True') {
-                    newList.children('.question-edu').html(questions.WQ10);
+                    if (ispreg == 'True') {
+                        newList.children('.question-edu').html(questions.WQ10);
+
+                        newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.DentalServiceQ5Start + ']').prop('checked', true);
+                    }
+
+                    else {
+                        newList.children('.question-edu').html(questions.WQ2);
+
+                        newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.MedicalHomeQ2Start + ']').prop('checked', true);
+                    }
+
+                    break;
+
+                case "Q3":
+
+                    newList.children('.question-edu').html(questions.WQ3);
+
+                    newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.MedicalServiceQ3Start + ']').prop('checked', true);
+
+                    break;
+
+                case "Q4":
+                    newList.children('.question-edu').html(questions.WQ4);
+
+                    newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.DentalHomeQ4Start + ']').prop('checked', true);
+
+                    break;
+
+                case "Q5":
+
+                    newList.children('.question-edu').html(questions.WQ5);
 
                     newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.DentalServiceQ5Start + ']').prop('checked', true);
-                }
-
-                else {
-                    newList.children('.question-edu').html(questions.WQ2);
-
-                    newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.MedicalHomeQ2Start + ']').prop('checked', true);
-                }
-
-                break;
-
-            case "Q3":
-
-                newList.children('.question-edu').html(questions.WQ3);
-
-                newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.MedicalServiceQ3Start + ']').prop('checked', true);
-
-                break;
-
-            case "Q4":
-                newList.children('.question-edu').html(questions.WQ4);
-
-                newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.DentalHomeQ4Start + ']').prop('checked', true);
-
-                break;
-
-            case "Q5":
-
-                newList.children('.question-edu').html(questions.WQ5);
-
-                newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.DentalServiceQ5Start + ']').prop('checked', true);
 
 
-                break;
+                    break;
 
-            case "Q6":
-                newList.children('.question-edu').html(questions.WQ6);
+                case "Q6":
+                    newList.children('.question-edu').html(questions.WQ6);
 
-                newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.ImmunizationQ6Start + ']').prop('checked', true);
-                break;
+                    newList.children('.question-edu').find('input:radio[name=passed-code][value=' + res.ImmunizationQ6Start + ']').prop('checked', true);
+                    break;
 
-            case "Q7":
-                newList.children('.question-edu').html(questions.WQ7);
-
-
-                if (res.FamilyServiceTANFQ7Start == "1") {
-                    newList.children('.question-edu').find('input:checkbox[name=TANF]').prop('checked', true);
-                }
+                case "Q7":
+                    newList.children('.question-edu').html(questions.WQ7);
 
 
-                if (res.FamilyServiceSSIQ7Start == "1") {
-                    newList.children('.question-edu').find('input:checkbox[name=SSI]').prop('checked', true);
-                }
-
-                if (res.FamilyServiceWICQ7Start == "1") {
-                    newList.children('.question-edu').find('input:checkbox[name=WIC]').prop('checked', true);
-                }
-
-                if (res.FamilyServiceSNAPQ7Start == "1") {
-                    newList.children('.question-edu').find('input:checkbox[name=SNAP]').prop('checked', true);
-                }
+                    if (res.FamilyServiceTANFQ7Start == "1") {
+                        newList.children('.question-edu').find('input:checkbox[name=TANF]').prop('checked', true);
+                    }
 
 
-                if (res.FamilyServiceNoneQ7Start == "1") {
-                    newList.children('.question-edu').find('input:checkbox[name=NONE]').prop('checked', true);
-                }
+                    if (res.FamilyServiceSSIQ7Start == "1") {
+                        newList.children('.question-edu').find('input:checkbox[name=SSI]').prop('checked', true);
+                    }
 
-                break;
+                    if (res.FamilyServiceWICQ7Start == "1") {
+                        newList.children('.question-edu').find('input:checkbox[name=WIC]').prop('checked', true);
+                    }
 
-            case "Q8":
-
-                newList.children('.question-edu').html(questions.WQ8);
-                newList.children('.question-edu').find('#parent1EduDiv').find('input:radio').prop('checked', false);
-                newList.children('.question-edu').find('#parentEduDiv').find('input:radio').prop('checked', false);
-                newList.children('.question-edu').find('#parent1EduDiv').hide();
-                newList.children('.question-edu').find('#parentEduDiv').hide();
-
-                if (res.ParentName != '' && res.ParentID != '') {
-                    newList.children('.question-edu').find('#parentEduDiv').find('#parentName').html(res.ParentName);
-                    newList.children('.question-edu').find('#parentEduDiv').find('#parentName').attr('pid', res.ParentID);
-                    newList.children('.question-edu').find('#parentEduDiv').find('input:radio[name=passed-code][value=' + res.EducationQ8Start + ']').prop('checked', true);
-                    newList.children('.question-edu').find('#parentEduDiv').show();
-                }
-
-                if (res.ParentName1 != '' && res.ParentID1 != '') {
-
-                    newList.children('.question-edu').find('#parent1EduDiv').show();
-                    newList.children('.question-edu').find('#parent1EduDiv').find('#parentName1').html(res.ParentName1);
-                    newList.children('.question-edu').find('#parent1EduDiv').find('#parentName1').attr('pid1', res.ParentID1);
-                    newList.children('.question-edu').find('#parent1EduDiv').find('input:radio[name=passed-code1][value=' + res.EducationQ8Start1 + ']').prop('checked', true);
-                }
-
-                if (res.ParentName != '' && res.ParentID != '' && res.ParentName1 != '' && res.ParentID1 != '') {
-                    newList.children('.question-edu').css({ 'width': '630px', 'left': '-495px' });
-                    newList.children('.question-edu').find('.sec-edu-radio').css({ 'width': '48%', 'margin': '1px' });
-                }
-
-                break;
-
-            case "Q9":
-                newList.children('.question-edu').html(questions.WQ9);
-
-                newList.children('.question-edu').find('#parent1JobDiv').find('input:radio').prop('checked', false);
-                newList.children('.question-edu').find('#parent1JobDiv').hide();
-
-                newList.children('.question-edu').find('#parentJobDiv').find('input:radio').prop('checked', false);
-                newList.children('.question-edu').find('#parentJobDiv').hide();
-
-                if (res.ParentName != '' && res.ParentID != '') {
-                    newList.children('.question-edu').find('#parentJobDiv').find('#parentName').html(res.ParentName);
-                    newList.children('.question-edu').find('#parentJobDiv').find('#parentName').attr('pid', res.ParentID);
-                    newList.children('.question-edu').find('#parentJobDiv').find('input:radio[name=passed-code][value=' + res.JobTrainingCompletedQ9Start + ']').prop('checked', true);
-                    newList.children('.question-edu').find('#parentJobDiv').show();
-                }
-
-                if (res.ParentName1 != '' && res.ParentID1 != '') {
+                    if (res.FamilyServiceSNAPQ7Start == "1") {
+                        newList.children('.question-edu').find('input:checkbox[name=SNAP]').prop('checked', true);
+                    }
 
 
-                    newList.children('.question-edu').find('#parent1JobDiv').show();
-                    newList.children('.question-edu').find('#parent1JobDiv').find('#parentName1').html(res.ParentName1);
-                    newList.children('.question-edu').find('#parent1JobDiv').find('#parentName1').attr('pid1', res.ParentID1);
-                    newList.children('.question-edu').find('#parent1JobDiv').find('input:radio[name=passed-code1][value=' + res.JobTrainingCompletedQ9Start1 + ']').prop('checked', true);
-                }
+                    if (res.FamilyServiceNoneQ7Start == "1") {
+                        newList.children('.question-edu').find('input:checkbox[name=NONE]').prop('checked', true);
+                    }
 
-                if (res.ParentName != '' && res.ParentID != '' && res.ParentName1 != '' && res.ParentID1 != '') {
-                    newList.children('.question-edu').css({ 'width': '630px', 'left': '-495px' });
-                    newList.children('.question-edu').find('.sec-edu-radio').css({ 'width': '48%', 'margin': '1px' });
-                }
-                break;
-            default:
-                newList.children('.question-edu').html('');
-                break;
+                    break;
 
+                case "Q8":
+
+                    newList.children('.question-edu').html(questions.WQ8);
+                    newList.children('.question-edu').find('#parent1EduDiv').find('input:radio').prop('checked', false);
+                    newList.children('.question-edu').find('#parentEduDiv').find('input:radio').prop('checked', false);
+                    newList.children('.question-edu').find('#parent1EduDiv').hide();
+                    newList.children('.question-edu').find('#parentEduDiv').hide();
+
+                    if (res.ParentName != null && res.ParentName != undefined && res.ParentName != '' && res.ParentID != null && res.ParentID != undefined && res.ParentID != '') {
+                        newList.children('.question-edu').find('#parentEduDiv').find('#parentName').html(res.ParentName);
+                        newList.children('.question-edu').find('#parentEduDiv').find('#parentName').attr('pid', res.ParentID);
+                        newList.children('.question-edu').find('#parentEduDiv').find('input:radio[name=passed-code][value=' + res.EducationQ8Start + ']').prop('checked', true);
+                        newList.children('.question-edu').find('#parentEduDiv').show();
+                    }
+
+                    if (res.ParentName1 != null && res.ParentName1 != undefined && res.ParentName1 != '' && res.ParentID1 != null && res.ParentID1 != undefined && res.ParentID1 != '') {
+
+                        newList.children('.question-edu').find('#parent1EduDiv').show();
+                        newList.children('.question-edu').find('#parent1EduDiv').find('#parentName1').html(res.ParentName1);
+                        newList.children('.question-edu').find('#parent1EduDiv').find('#parentName1').attr('pid1', res.ParentID1);
+                        newList.children('.question-edu').find('#parent1EduDiv').find('input:radio[name=passed-code1][value=' + res.EducationQ8Start1 + ']').prop('checked', true);
+                    }
+
+                    if (res.ParentName != null && res.ParentName != undefined && res.ParentName != '' && res.ParentID != null && res.ParentID != undefined && res.ParentID != '' && res.ParentName1 != null && res.ParentName1 != undefined && res.ParentName1 != '' && res.ParentID1 != null && res.ParentID1 != undefined && res.ParentID1 != '') {
+                        newList.children('.question-edu').css({ 'width': '630px', 'left': '-495px' });
+                        newList.children('.question-edu').find('.sec-edu-radio').css({ 'width': '48%', 'margin': '1px' });
+                    }
+
+                    break;
+
+                case "Q9":
+                    newList.children('.question-edu').html(questions.WQ9);
+
+                    newList.children('.question-edu').find('#parent1JobDiv').find('input:radio').prop('checked', false);
+                    newList.children('.question-edu').find('#parent1JobDiv').hide();
+
+                    newList.children('.question-edu').find('#parentJobDiv').find('input:radio').prop('checked', false);
+                    newList.children('.question-edu').find('#parentJobDiv').hide();
+
+                    if (res.ParentName != null && res.ParentName != undefined && res.ParentName != '' && res.ParentID != null && res.ParentID != undefined && res.ParentID != '') {
+                        newList.children('.question-edu').find('#parentJobDiv').find('#parentName').html(res.ParentName);
+                        newList.children('.question-edu').find('#parentJobDiv').find('#parentName').attr('pid', res.ParentID);
+                        newList.children('.question-edu').find('#parentJobDiv').find('input:radio[name=passed-code][value=' + res.JobTrainingCompletedQ9Start + ']').prop('checked', true);
+                        newList.children('.question-edu').find('#parentJobDiv').show();
+                    }
+
+                    if (res.ParentName1 != null && res.ParentName1 != undefined && res.ParentName1 != '' && res.ParentID1 != null && res.ParentID1 != undefined && res.ParentID1 != '') {
+
+
+                        newList.children('.question-edu').find('#parent1JobDiv').show();
+                        newList.children('.question-edu').find('#parent1JobDiv').find('#parentName1').html(res.ParentName1);
+                        newList.children('.question-edu').find('#parent1JobDiv').find('#parentName1').attr('pid1', res.ParentID1);
+                        newList.children('.question-edu').find('#parent1JobDiv').find('input:radio[name=passed-code1][value=' + res.JobTrainingCompletedQ9Start1 + ']').prop('checked', true);
+                    }
+
+                    if (res.ParentName != null && res.ParentName != undefined && res.ParentName != '' && res.ParentID != null && res.ParentID != undefined && res.ParentID != '' && res.ParentName1 != null && res.ParentName1 != undefined && res.ParentName1 != '' && res.ParentID1 != null && res.ParentID1 != undefined && res.ParentID1 != '') {
+                        newList.children('.question-edu').css({ 'width': '630px', 'left': '-495px' });
+                        newList.children('.question-edu').find('.sec-edu-radio').css({ 'width': '48%', 'margin': '1px' });
+                    }
+                    break;
+                default:
+                    newList.children('.question-edu').html('');
+                    break;
+
+            }
+
+
+            $(arg).parent('td').find('.newlist').find('.part_edubtn').children('.btn-edu-sucess').attr({ 'ecid': res.Enc_ClientID, 'pid': res.ProgramTypeID });
+
+            $(arg).parent('td').find(".newlist").show();
+        }
+        else {
+            customAlert('Some error occurred.Please,try again later.');
         }
 
-
-        $(arg).parent('td').find('.newlist').find('.part_edubtn').children('.btn-edu-sucess').attr({ 'ecid': res.Enc_ClientID, 'pid': res.ProgramTypeID });
-
-        $(arg).parent('td').find(".newlist").show();
+   
     },
 
     WithdrawalQuestions: {

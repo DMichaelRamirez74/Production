@@ -183,8 +183,8 @@ namespace FingerprintsModel
 
         public string ProgramType { get; set; }
 
-       
-
+       //for Ajax call success//
+        public bool ResponseStatus { get; set; }
       
     }
 

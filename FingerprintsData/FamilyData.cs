@@ -14424,7 +14424,7 @@ namespace FingerprintsData
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
-
+                    Connection.Close();
                     if (_dataset != null && _dataset.Tables.Count > 0)
                     {
                         switch (QuestionNumber)
@@ -14574,18 +14574,20 @@ namespace FingerprintsData
                         //   transWithdrawal.Client = Convert.ToString(_dataset.Tables[0].Rows[0]["ClientName"]);
                         transWithdrawal.ProgramTypeID = EncryptDecrypt.Encrypt64(programID.ToString());
                         transWithdrawal.Enc_ClientID = EncryptDecrypt.Encrypt64(ClientId);
-
+                        transWithdrawal.ResponseStatus = true;
                     }
-
-
-
-                    Connection.Close();
+                    else
+                    {
+                        transWithdrawal.ResponseStatus = false;
+                    }
                 }
 
             }
             catch (Exception ex)
             {
+                transWithdrawal.ResponseStatus = false;
                 clsError.WriteException(ex);
+
             }
             return transWithdrawal;
         }

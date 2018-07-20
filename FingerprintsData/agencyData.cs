@@ -5528,7 +5528,15 @@ namespace FingerprintsData
         public Agency GetEndOfYearFunds_Programs()
         {
             Agency _agency = new Agency();
-
+            _agency.FundSourcedata = new List<Agency.FundSource>();
+            _agency.ProgramTypeList = new List<Agency.ProgramType>();
+            _agency.ProgramYearList = new List<SelectListItem>();
+            _agency.ReferenceProgramList = new List<SelectListItem>();
+            _agency._FundedEnrollment = new Agency.FundedEnrollment();
+            _agency.DivisionsFullList = new List<Divisions>();
+            _agency.AreasFullList = new List<Areas>();
+            _agency.DivisionsList = new List<SelectListItem>();
+           
             try
             {
 
