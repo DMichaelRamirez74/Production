@@ -2,43 +2,61 @@
     @section Title
 {
         Case Notes Client
+        
     }
     ViewBag.Title = "Roster";
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("047c02fe-b8f1-4a9b-b01f-539d6a238d80")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a31b1716-b042-46b7-acc0-95794e378b26")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("82b862e6-1a0f-46d2-aad4-34f89f72369a")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("047c02fe-b8f1-4a9b-b01f-539d6a238d80")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
 
-    if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("9c34ec8e-2359-4704-be89-d9f4b7706e82")))
-    {
-        Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
-    }
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("9c34ec8e-2359-4704-be89-d9f4b7706e82")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
 }
 @section Script{
 
     <script type="text/javascript">
         var count = 1;
        //var tags_array = ["lorem, ipsum, dolar, sit, amet"];
+        function ShowSecurityAlert()
+        {
+            BootstrapDialog.show({
+                title: 'Secure Case Note Alert',
+                message: "Can't view the secured Case Note",
+                buttons: [{
+                    label: 'OK',
+                    action: function (dialog) {
+                        dialog.close();
+                    }
+                
+                }]
+            });
+         
+        }
+
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -53,7 +71,7 @@
             $('#Yakkrli').removeClass("active");
             $('#Appointmentli').removeClass("active");
             $('#CaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-            $('#CaseNotetags').tagsInput({
+            $('#CaseNotetags,#AppendCaseNotetags').tagsInput({
                 width: 'auto',
                 height: '38px',
                 delimiter: [',', ';'],
@@ -64,15 +82,19 @@
                 },
                 //allowDuplicates: false
             });
-            $('#txtSearch').tagsInput({ 
+            $('#txtSearch').tagsInput({
                  width: 'auto',
-                 height: '38px',
+                 height: '39px',    
                  delimiter: ['',''],
                  autocomplete_url: '',
                  autocomplete: {
                      'source': getTagsOnInput()
-                 }
+                 },
+                
             });
+
+            $('#txtSearch_tag').attr({ 'placeholder': 'Search by Tags' });
+
 
             CKEDITOR.replace('Note', {
                 language: 'en-gb',
@@ -119,6 +141,7 @@
                     success:function(data)
                     {
                         $('#spinner').hide();
+
                         bindCaseNoteTableSection(data);
 
                     },
@@ -163,8 +186,10 @@
         function bindCaseNoteTableSection(data)
         {
             $('.addn-table-head').empty();
-            $(JSON.parse(data)).each(function (i, val) {
-            
+            $('.appendRole').val(data.Role);
+            console.log(data);
+            $((data.CaseNoteList)).each(function (i, val) {
+
                 var row = '<tr casenoteid="{casenoteid}">\
                                                     <td data-title="Date">\
                                                         <div class="addn-content-desc" style="position: relative;">\
@@ -173,7 +198,7 @@
                                                     </td>\
                                                     <td data-title="Title">\
                                                         <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
-                                                            <p style="text-decoration: underline;" onclick="Getcasenote({Id})">{Title}</p>\
+                                                            <p style="text-decoration: underline;" onclick="{function}({Id})">{Title}</p>\
                                                         </div>\
                                                     </td>\
                                                     <td data-title="By">\
@@ -190,34 +215,46 @@
                                                         <div class="addn-content-desc">\
                                                             <p>{References}</p>\
                                                         </div>\
-                                                    </td>\
-                                                    <td data-title="Actions">\
+                                                    </td>   \
+                                                     <td data-title="Actions">\
                                                         <div class="addn-content-desc">{SUBNOTE}\
-                                                        </div>\
-                                                    </td>\
-                                                </tr>';
-                            var subnote = '<p style="padding: 5px;">\
-                                                                <span class="Status-title-addn">\<a href="#" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">\
+                                                            </div>\
+                                                        </td>\</tr>';
+                var subnote = '<p style="padding: 5px;">\
+                                                                <span class="Status-title-addn note-click">\<a href="#" data-toggle="modal" class="add-new" onclick="AppendCaseNote({AppendCaseNoteID})" style="margin-top: 0;padding-left: 15px;">\
                                                                         <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>\
                                                                         Append Case Note\
                                                                     </a> </span>\
                                                             </p>';
 
-                if (!val.SecurityLevel)
+            
+                row = row.replace('{casenoteid}', val.CaseNoteid);
+                row = row.replace('{AppendCaseNoteID}', val.CaseNoteid);
+                row = row.replace('{Date}', val.Date);
+                row = row.replace('{Id}', val.CaseNoteid);
+                if (val.IsAllowSecurityCN == true) {
+                    row = row.replace('{Title}', val.Title);
+                    row = row.replace('{function}', "Getcasenote");
                     row = row.replace('{SUBNOTE}', subnote);
-                else
+                }
+                else if (val.WrittenBy == $('#UserId').val() && val.SecurityLevel) {
+                    row = row.replace('{Title}', val.Title);
+                    row = row.replace('{function}', "Getcasenote");
+                    row = row.replace('{SUBNOTE}', subnote);
+                }
+                else {
+                    row = row.replace('{Title}', "Secured Case Note");
+                    row = row.replace('{function}', "ShowSecurityAlert");
                     row = row.replace('{SUBNOTE}', "<p style='padding: 5px;height:50px;'>");
-                row = row.replace('{casenoteid}', val.casenoteid);
-                row = row.replace('{Date}', val.casenotedate);
-                row = row.replace('{Id}', val.casenoteid);
-               // row = row.replace('{ClientId}', val.ClientID);
-                row = row.replace('{Title}', val.Title);
-                row = row.replace('{BY}', val.By);
+                }
+
+                row = row.replace('{BY}', val.BY);
                 row = row.replace('{Attachment}', val.Attachment);
                 row = row.replace('{References}', val.References);
                 $('.addn-table-head').append(row);
             });
         }
+        
 
         function getTagsOnInput()
         {
@@ -254,7 +291,7 @@
 
 
         function Getcasenote(Casenoteid,clientId) {
-           
+
             $('#CaseNoteid').val(Casenoteid);
             $.ajax({
                 url: HostedDir + "/Roster/Getcasenotedetails",
@@ -268,14 +305,92 @@
                 //  async: false,
                 beforeSend:function(){$('#spinner').show()},
                 success: function (Data) {
+                    debugger;
                     $('#spinner').hide();
+                    
                     BindCaseNotelist(Data);
-                   
+                    GetSubNotes(Casenoteid);
+                  // GetSubNotes(Casenoteid);
+
                 }
             , error: function (Data) {
                 $('#spinner').hide();
                 customAlert("Error occured please try again later.");
             }
+            });
+        }
+        function GetSubNotes(id)
+        {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/Roster/GetSubNotes",
+                async: false,
+                data: { 'CaseNoteId': id },
+
+                success: function (data) {
+                    //alert(data);
+                    $('.sub-notes-details').empty();
+                    console.clear();
+                    console.log(data);
+                    debugger;
+                    if (data != null && data.length > 0) {
+                        $(data).each(function (i, val) {
+                            debugger
+                            var attachments = '';
+                            var tagsName = '';
+                            for (var i = 0; i < val.Attachment.length; i++) {
+                                if (val.Attachment[i] != "0" && val.Attachment[i] != "")
+                                    attachments += ("<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + val.Attachment[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+                            }
+                            for (var i = 0; i < val.Tags.length; i++) {
+                                if (val.Tags[i] != "0" && val.Tags[i] != "")
+                                    tagsName += ('<span id="subTags" class="tag-text">' + val.Tags[i] + '</span>');
+
+                            }
+                            if (tagsName == "") {
+                                tagsName = "<span>No tags available</span>";
+                            }
+                            var template = '   <div class="addn-poup-div sub-text-block">\
+                                             <h4>\
+                                                 Posted on <span>{date},</span> by <span>{name}</span>\
+                                             </h4>\
+                                  <div class="col-xs-12 tag-text-block">\
+                                      <label>Tags:</label>\
+                                       {SubTags}\
+                                </div><div class="col-xs-12 tag-text-block">\
+                                 <label>Notes:</label>\
+                                    {notes}\
+                                      <div id="subAttachments" class="sub-text">\
+                                 <label>Attachments:</label>{SubAttach}</div>\
+                                </div></div>';
+
+                            template = template.replace('{date}', val.WrittenDate);
+                            template = template.replace('{name}', val.Name);
+                            template = template.replace('{notes}', val.Notes);
+                            template = template.replace('{SubAttach}', attachments);
+                            template = template.replace('{SubTags}', tagsName);
+                            $('.sub-notes-details').append(template);
+                        });
+                    }
+                    else {
+                        var template = '   <div class="addn-poup-div">\
+                                             <h4>\
+                                                 No record found\
+                                             </h4>\
+                                             \
+                                         </div>';
+                        $('.sub-notes-details').append(template);
+                    }
+
+
+
+
+                },
+                error: function (data) {
+                    console.log(data);
+                }
             });
         }
         function Getcasenote1(Casenoteid) {
@@ -314,9 +429,6 @@
 
             return monthNames[parseInt(month)] + ' ' + day + ',' + year;
         }
-
-
-
         function getFormattedDateNumber(date) {
             date = new Date(date);
             var year = date.getFullYear();
@@ -334,6 +446,7 @@
 
 
         function BindCaseNotelist(Data) {
+           
             cleanValidation();
             //$('#Attachment').hide();
             $('#Attachments').show();
@@ -381,13 +494,20 @@
                     $('#ClientNameModel').text(Data[0].Name);
 
                     if (Data[0].SecurityLevel)
-                        $('#CaseNoteSecurity').prop("checked", true);
+                    {
+                          $('#CaseNoteSecurity').prop("checked", true);
+                       
+                    }
+                      
                     for (var i = 0; i < Data.length; i++) {
                         $('#ClientDiv input[type=checkbox]').each(function () {
                             if ($(this).val() == Data[i].clientid)
                                 $(this).prop("checked", true);
                         });
                     }
+                   
+                    
+                    
                     for (var i = 0; i < Data.length; i++) {
                         if ((jQuery.inArray(Data[i].Tagname, outputArray)) == -1) {
                             outputArray.push(Data[i].Tagname);
@@ -412,7 +532,7 @@
                         $('.download-attachment').append("<span>No file available</span>");
                     }
                     for (var i = 0; i < outputArray.length; i++) {
-                        $('#CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#" onclick="removetag(this);" title="Removing tag">x</a></span>');
+                        $('#CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#" onclick="removetag1(this);" title="Removing tag">x</a></span>');
                     }
                     for (var i = 0; i < Data.length; i++) {
                         $('#StaffDiv input[type=checkbox]').each(function () {
@@ -525,7 +645,12 @@
 
                 if (!$('#ModalAddCasenote').hasClass('in'))
                     $('#ModalAddCasenote').modal('toggle');
-                $('#ModalAddCasenote').modal('show');
+                $('#ModalAddCasenote').modal({
+                    backdrop: 'static',
+                    keyboard: false,
+                    show: true,
+
+                });
             }
         }
         function BindCaseNotelist1(Data) {
@@ -540,6 +665,7 @@
             $('.tag').remove();
             var outputArray = [];
             var Attachments = [];
+          
             if (Data != null && Data.length > 0) {
 
                 if (Data[0].GroupCaseNote == 0) {
@@ -583,6 +709,7 @@
                                 $(this).prop("checked", true);
                         });
                     }
+
                     for (var i = 0; i < Data.length; i++) {
                         if ((jQuery.inArray(Data[i].Tagname, outputArray)) == -1) {
                             outputArray.push(Data[i].Tagname);
@@ -730,6 +857,8 @@
         }
 
         function AddNewCaseNote(clientid) {
+            $('.divAppendedNotes').hide();
+            $('.sub-notes-details').empty();
             $('#CaseNoteHeading').text('Add New Case Note');
             $('#Attachmectstag').removeAttr("onclick");
             $('#Attachmectstag').attr("onclick", "AddMore();");
@@ -770,9 +899,14 @@
             });
 
 
-            if (!$('#ModalAddCasenote').hasClass('in'))
-                $('#ModalAddCasenote').modal('toggle');
-            $('#ModalAddCasenote').modal('show');
+            //if (!$('#ModalAddCasenote').hasClass('in'))
+            //    $('#ModalAddCasenote').modal('toggle');
+            $('#ModalAddCasenote').modal({
+                backdrop: 'static',
+                keyboard: false,
+                show: true,
+
+            });
         }
         var _validFileExtensions1 = [".pdf", ".jpg", ".jpeg", ".bmp", ".gif", ".png"];
         function ValidateSingleInputpdf2(oInput) {
@@ -808,9 +942,6 @@
             return true;
         }
         function Checkdate(value) {
-
-
-
             isValid = true;
             if (!$(value).attr("readonly")) {
 
@@ -927,6 +1058,13 @@
                 plainValidation('#CaseNotetags');
                 return isValid;
             }
+            else if ($('#CaseNotetags').val().trim() == "") {
+                isValid = false;
+                customAlert("Tags is required.");
+                plainValidation('#CaseNotetags');
+                return isValid;
+            }
+          
             return isValid;
 
         }
@@ -939,9 +1077,47 @@
     <link href="~/Content/CaseNote/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/Content/CaseNote/css/style.css" rel="stylesheet" />
     <style>
+
+
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            width: 98.3%;
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+
+
+
         #page-wrapper {
             padding-left: 0;
             padding-right: 0;
+        }
+
+
+        .backto_list{
+
         }
 
         .backto_list {
@@ -977,86 +1153,123 @@
             padding-top: 18px;
             float: left;
         }
+        .sub-text{float:left;width:100%;line-height:25px;}
+        .addn-poup-div,.tag-text-block{float:left;width:100%;}
+
+        .sub-text-block{padding:10px;background:#f9f9f9;margin-top:5px;}
+         .sub-text-block p{margin:0;padding:0;font-weight:bold;color: #34495e;}
+         .tag-text-block{padding:0;}
+         .tag-text-block label{width:auto;display:inline-block;float:left;    font-size: 16px;
+    font-weight: normal;}
+         .tag-text{width:auto;display:inline-block;float:left;
+    padding: 10px;
+    text-decoration: none;
+    background: #295b8f;
+    color: #fff;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    font-family: helvetica;
+    font-size: 13px;margin-top:7px;}
+         .sub-text-block{box-shadow:0 0 10px rgba(0,0,0,0.1);-webkit-box-shadow:0 0 10px rgba(0,0,0,0.1);}
+         .tag-text-block p, .tag-text-block i{width:auto;display:inline-block;float:left;margin-top:6px;margin-left:5px;}
+    .tag-text-block i{margin-top:10px;}
+    .page-header {
+    margin: 8px 0px 20px !important;
+}
     </style>
 
     <div class="container-fluid">
         <div class="row">
-            <div class="right-side-container-ch">
-                <div class="col-xs-12 no-padding">
-                    <div class="top-header-title-addn">
-                        <h1>Case Note Manager</h1>
+            <div class="right-side-container-ch" style="padding-top: 30px;">
+
+                <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
+                    <div class="col-lg-12">
+                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                            <i class="fa fa-briefcase" aria-hidden="true"></i>&nbsp;Case Note Manager
+
+                            <span class="view-btn backto_listspan">
+
+                                @if (ViewBag.Householdid != null && Convert.ToString(ViewBag.Householdid) != "0")
+                                {
+                                    <a href="~/Agencyuser/FamilyDetails/@ViewBag.Householdid" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Family Intake</a>
+
+                                }
+                                else
+                                {
+
+                                    <a href="@Url.Content("~/Roster/Roster")" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Roster</a>
+                                }
+                            </span>
+                        </h2>
                     </div>
                 </div>
+
                 <div class="col-lg-12">
 
-                    <span class="view-btn backto_listspan" id="BackToList">
-                        @if (ViewBag.Householdid != null && Convert.ToString(ViewBag.Householdid) != "0")
-                        {
-                            <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Case Note</a>
-                            <a href="~/Agencyuser/FamilyDetails/@ViewBag.Householdid" style="background-color:#9b59b6;" class="backto_list">Back To Family Intake</a>
-                        }
-                        else
-                        {
-                            <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');"  class="backto_list">Add New Case Note</a>
-                            <a href="~/Roster/Roster" class="backto_list" style="background-color:#9b59b6;">Back To Roster</a>
+                    <span class="view-btn backto_listspan" id="BackToList" style="padding-right: 15px;">
 
+                        <a href="#" onclick="AddNewCaseNote('@ViewBag.Client');" class="backto_list">Add New Case Note</a>
 
-                        }
+                        
                     </span>
 
                 </div>
 
                 <div class="col-xs-12 no-padding">
+                    <div class="myframe_midteam">
                     <div class="col-xs-12 no-padding">
                         <div class="col-xs-12 serch-addn-block">
 
                             <div class="top-header-title-addn1 col-md-4 col-xs-12 no-padding">
-                                @if (ViewBag.Name != null && ViewBag.Name!="")
+                                @if (ViewBag.Name != null && ViewBag.Name != "")
                                 {
                                     <h2>@ViewBag.Name</h2>
                                     <span id="clientName" style="color: #285b8f;display:none;">@ViewBag.Name</span>
                                 }
 
                                 @*else if (ViewBag.SelectList != null && ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist != null)
-                                {
-
-                                    if (((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist.Count == 1)
                                     {
-                                        foreach (var clientitem in ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist)
+
+                                        if (((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist.Count == 1)
                                         {
-                                            <h2>@clientitem.Name</h2>
-                                            <span id="clientName" style="color: #285b8f;display:none;">@clientitem.Name</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <label style="font-size:14px;color:#ffffff;">Select Client</label>
-                                        <select id="clientSelect" class="form-control" style="height:38px;">
-                                            <option value="0">--Select--</option>
-
-                                            @foreach (var clientitem in ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist)
+                                            foreach (var clientitem in ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist)
                                             {
-                                                <option value="@clientitem.Id">@clientitem.Name</option>
+                                                <h2>@clientitem.Name</h2>
+                                                <span id="clientName" style="color: #285b8f;display:none;">@clientitem.Name</span>
                                             }
+                                        }
+                                        else
+                                        {
+                                            <label style="font-size:14px;color:#ffffff;">Select Client</label>
+                                            <select id="clientSelect" class="form-control" style="height:38px;">
+                                                <option value="0">--Select--</option>
 
-                                        </select>
-                                    }
+                                                @foreach (var clientitem in ((FingerprintsModel.RosterNew.Users)ViewBag.SelectList).Clientlist)
+                                                {
+                                                    <option value="@clientitem.Id">@clientitem.Name</option>
+                                                }
 
-                                }*@
+                                            </select>
+                                        }
+
+                                    }*@
 
                             </div>
+
+
                             <div class="col-md-8 col-xs-12 serch-addn-block" style="text-align: right;">
-                                <input type="text" placeholder="" id="txtSearch" class="addn-select" />
+                                <input type="text"  id="txtSearch" placeholder="Search by Tags" class="addn-select" />
                                 <div class="addn-search-btn btn-search">
                                     <a href="javascript:void(0);">Search</a>
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" id="UserId" value="@Session["UserId"].ToString()"/>
                         <div class="col-xs-12">
                             <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding:0px;padding-bottom:0;overflow: hidden;">
                                 <div id="no-more-tables7" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
                                     <table class="col-md-12 table-striped table-condensed cf table-change addn-table">
-                                        <thead>
+                                        <thead class="table-hd scroll-thead">
                                             <tr>
                                                 <th>Date</th>
                                                 <th>Title</th>
@@ -1066,61 +1279,94 @@
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="addn-table-head">
+                                        <tbody class="addn-table-head ersea-table-head bind_body scroll-tbody">
 
-                                            @if (ViewBag.CaseNotelist != null)
-                                            {
-                                                foreach (var item1 in ViewBag.CaseNotelist)
-                                                {
-                                                    <tr casenoteid="@item1.CaseNoteid">
-                                                        <td data-title="Date">
-                                                            <div class="addn-content-desc" style="position: relative;">
-                                                                <p>@item1.Date</p>
-                                                            </div>
-                                                        </td>
-                                                        <td data-title="Title">
-                                                            <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
-                                                                <p style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</p>
-                                                            </div>
-                                                        </td>
-                                                        <td data-title="By">
-                                                            <div class="addn-content-desc" style="position: relative;">
-                                                                <p>@item1.BY</p>
-                                                            </div>
-                                                        </td>
-                                                        <td data-title="Attachments">
-                                                            <div class="addn-content-desc">
-                                                                <p>@item1.Attachment</p>
-                                                            </div>
-                                                        </td>
-                                                        <td data-title="References">
-                                                            <div class="addn-content-desc">
-                                                                <p>@item1.References</p>
-                                                            </div>
-                                                        </td>
-                                                        <td data-title="Actions">
-                                                            <div class="addn-content-desc">
-                                                                @if (!item1.SecurityLevel)
-                                                                {
-                                                                    <p style="padding: 5px;">
-                                                                        <span class="Status-title-addn">
+                                                                                        @if (ViewBag.CaseNotelist != null)
+                                                                                        {
+                                                                                            foreach (var item1 in ViewBag.CaseNotelist)
+                                                                                            {
+                                                                                                <tr casenoteid="@item1.CaseNoteid">
+                                                                                                    <td data-title="Date">
+                                                                                                        <div class="addn-content-desc" style="position: relative;">
+                                                                                                            <p>@item1.Date</p>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                    @if (item1.IsAllowSecurityCN)
+                                                                                                    {
+                                                                                                        <td data-title="Title">
+                                                                                                            <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
+                                                                                                                <p style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</p>
+                                                                                                            </div>
+                                                                                                        </td>
+                                                                                                    }
+                                                                                                    else if (item1.WrittenBy == Session["UserId"].ToString() && item1.SecurityLevel)
+                                                                                                    {
+                                                                                                        <td data-title="Title">
+                                                                                                            <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
+                                                                                                                <p style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</p>
+                                                                                                            </div>
+                                                                                                        </td>
+                                                                                                    }
+                                                                                                    else
+                                                                                                    {
+                                                                                                        <td data-title="Title">
+                                                                                                            <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
+                                                                                                                <p style="text-decoration: underline;" onclick="ShowSecurityAlert()">Secured case note</p>
+                                                                                                            </div>
+                                                                                                        </td>
+                                                                                                    }
+                                                                                                    <td data-title="By">
+                                                                                                        <div class="addn-content-desc" style="position: relative;">
+                                                                                                            <p>@item1.BY</p>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                    <td data-title="Attachments">
+                                                                                                        <div class="addn-content-desc">
+                                                                                                            <p>@item1.Attachment</p>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                    <td data-title="References">
+                                                                                                        <div class="addn-content-desc">
+                                                                                                            <p>@item1.References</p>
+                                                                                                        </div>
+                                                                                                    </td>
+                                                                                                    <td data-title="Actions">
+                                                                                                        <div class="addn-content-desc">
+                                                                                                            @if (item1.IsAllowSecurityCN)
+                                                                                                            {
+                                                                                                                <p style="padding: 5px;">
+                                                                                                                    <span class="Status-title-addn">
 
-                                                                            <a href="#" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">
-                                                                                <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
-                                                                                Append Case Note
-                                                                            </a>
+                                                                                                                        <a href="#" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">
+                                                                                                                            <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
+                                                                                                                            Append Case Note
+                                                                                                                        </a>
 
 
-                                                                        </span>
-                                                                    </p>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <p style="padding: 5px;height:50px;">
-                                                                        
-                                                                    </p>
-                                                                }
-                                                            </div>
+                                                                                                                    </span>
+                                                                                                                </p>
+                                                                                                            }
+                                                                                                            else if (item1.WrittenBy == Session["UserId"].ToString() && item1.SecurityLevel)
+                                                                                                            {
+                                                                                                                <p style="padding: 5px;">
+                                                                                                                    <span class="Status-title-addn">
+
+                                                                                                                        <a href="#" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">
+                                                                                                                            <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
+                                                                                                                            Append Case Note
+                                                                                                                        </a>
+
+
+                                                                                                                    </span>
+                                                                                                                </p>
+                                                                                                            }
+                                                                                                            else
+                                                                                                            {
+                                                                                                                <p style="padding: 5px;height:50px;">
+
+                                                                                                                </p>
+                                                                                                            }
+</div>
                                                         </td>
                                                     </tr>
                                                 }
@@ -1131,6 +1377,7 @@
                             </div>
                         </div>
                     </div>
+                        </div>
                 </div>
             </div>
 
@@ -1140,7 +1387,7 @@
 
 
 
-    <div class="modal fade" id="matrix_addn" role="dialog">
+    <div class="modal fade" id="matrix_addn" role="dialog" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-dialog-ch">
 
             <!-- Modal content-->
@@ -1162,6 +1409,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="col-xs-12 addn-al" style="padding: 0;">
                             <div class="col-sm-4">
                                 <div class="addn-poup-div">
@@ -1170,7 +1418,7 @@
                             </div>
                             <div class="col-sm-8">
                                 <div class="addn-poup-div">
-                                    <input class="form-control ui-autocomplete-input" type="text" placeholder="@ViewBag.Role" readonly="readonly">
+                                    <input class="form-control ui-autocomplete-input appendRole" type="text" placeholder="" value="" readonly="readonly">
                                 </div>
                             </div>
                         </div>
@@ -1188,9 +1436,7 @@
                                     <div class="main-note">
 
                                     </div>
-                                    @*<p>
-                                            dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled
-                                        </p>*@
+
                                 </div>
                             </div>
                         </div>
@@ -1205,11 +1451,11 @@
                         <div class="col-xs-12 addn-al" style="padding: 0;">
                             <div class="col-sm-4">
                                 <div class="addn-poup-div">
-                                    <label>Append Note</label>
+                                    <label>Append Notes</label>
                                 </div>
                             </div>
                             <div class="col-sm-8 sub-notes-details">
-                               
+
                             </div>
                         </div>
                         <div class="col-xs-12 addn-al" style="padding: 0;">
@@ -1222,11 +1468,11 @@
                                 <div class="addn-poup-chk">
                                     <div id="ClientDiv" class="case-note">
 
-                                        @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist != null)
+                                        @if (ViewBag.Userlist != null && ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist) != null)
                                         {
-                                            foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist)
+                                            foreach (var item1 in ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist))
                                             {
-                                                <input type="checkbox" name="" value="@item1.Id">@item1.Name<br>
+                                                <input type="checkbox" name="" value="@item1.">@item1.Name<br>
                                                 @*<div class="col-sm-12"><input type="checkbox" name="ClientIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>*@
                                             }
                                         }
@@ -1252,21 +1498,19 @@
                             <div class="col-sm-8">
                                 <div id="StaffDiv" class="case-note">
                                     <div class="addn-poup-chk">
-                                        @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
+                                        @if (ViewBag.Userlist != null && ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist) != null)
                                         {
-                                            foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
+                                            foreach (var item1 in ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist))
                                             {
                                                 <input type="checkbox" name="" value="@item1.Id">@item1.Name<br>
                                             }
                                         }
                                     </div>
                                 </div>
-                                @*<div class="addn-poup-chk">
-                                        <input type="checkbox" name="" value="">Betty Beta (Center Manager)<br>
-                                        <input type="checkbox" name="" value="">Jennifer Barnet (Teacher Assistant)
-                                    </div>*@
+                             
                             </div>
                         </div>
+                        
                         <div class="col-xs-12 addn-al" style="padding: 0;">
                             <div class="col-sm-4">
                                 <div class="addn-poup-div">
@@ -1302,12 +1546,11 @@
 
 
 
-    <div class="modal fade" id="matrix_addn2" role="dialog">
+    <div class="modal fade" id="matrix_addn2" role="dialog" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-dialog-ch">
 
             <!-- Modal content-->
             <div class="modal-content">
-
                 <div class="modal-body">
                     <button type="button" class="close" data-dismiss="modal"><img src="~/Content/CaseNote/images/close.png" /></button>
                     <h2>Append Case Note</h2>
@@ -1364,12 +1607,34 @@
                         <div class="col-xs-12 addn-al" style="padding: 0;">
                             <div class="col-sm-4">
                                 <div class="addn-poup-div">
+                                    <label>Appended Notes</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-8 sub-notes-details">
+
+                            </div>
+                        </div>
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div class="col-sm-4">
+                                <div class="addn-poup-div">
                                     <label>Append Note</label>
                                 </div>
                             </div>
                             <div class="col-sm-8">
                                 <div class="addn-poup-div1">
                                     <textarea id="subnotes" name="subnotes" class="form-control ui-autocomplete-input txt-note"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 addn-al" style="padding: 0;">
+                            <div class="col-sm-4">
+                                <div class="addn-poup-div">
+                                    <label>Append Tags </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="addn-poup-div1">
+                                    <input type="text" id="AppendCaseNotetags" name="AppendCaseNotetags" class="form-control ui-autocomplete-input" />
                                 </div>
                             </div>
                         </div>
@@ -1429,22 +1694,12 @@
                     </div>
 
 
-                    <!--                            <div class="col-xs-12">
-                                                    <div class="family-popup-btn">
-                                                        <a href="#"><span>+</span>Add Step</a>
-                                                    </div>
-                                                </div>-->
                 </div>
-                <!--                        <div class="max_foot_btn">
-                                            <div class="lft_btn">
-                                                <a href="#" class="save">SUBMIT</a>
-                                                <a href="#" class="exit">CANCEL</a>
-                                            </div>
-                                        </div>-->
+
             </div>
         </div>
     </div>
-   </div>
+
 
 
 
@@ -1463,6 +1718,8 @@
                     e.preventDefault();
                 };
             }
+
+
             $('.txt-date').val();
             $('.txt-name').val();
             $('.txt-role').val();
@@ -1482,13 +1739,22 @@
                         $('.txt-main-note').empty();
                         var table = JSON.parse(data);
                         $('.txt-main-note').append(table[0].NoteField);
-                        $('#matrix_addn2').modal('show');
+                    
+                        $('#matrix_addn2').modal({
+                            backdrop: 'static',
+                            keyboard: false,
+                            show: true,
+
+                        });
+                        GetSubNotes($('.hdn-casenoteid').val());
 
                     },
                     error: function (data) {
                         console.log(data);
                     }
+
                 });
+
 
 
 
@@ -1505,12 +1771,18 @@
                 }
                 else {
                     var CaseNote = {};
+                    var Tags = '';
+                    $('#AppendCaseNotetags_tagsinput .tag span').each(function () {
+                        Tags = Tags + $(this).text().trim() + ',';
+                    });
+                 
                     CaseNote.Note = CKEDITOR.instances['subnotes'].getData().toString().trim();
                     CaseNote.CaseNoteid = $('.hdn-casenoteid').val();
                     CaseNote.CaseNoteDate = $('.txt-date').val();
                     CaseNote.HouseHoldId = $('#HouseHoldId').val();
                     CaseNote.CenterId = $('#CenterId').val();
                     CaseNote.Classroomid = "0";
+                    CaseNote.CaseNotetags = Tags;
                     CaseNote = JSON.stringify({ 'CaseNote': CaseNote });
                     $.ajax({
                         type: "POST",
@@ -1524,15 +1796,21 @@
                             SaveFile();
                             setTimeout(function () {
                                 Getcasenote1($('.hdn-casenoteid').val());
-                                BindSubNotes($('.hdn-casenoteid').val());
+                                GetSubNotes($('.hdn-casenoteid').val());
                                 $('#ModalAddCasenote').modal('hide');
-                                $('#matrix_addn').modal('show');
+                            
+                                $('#matrix_addn').modal({
+                                    backdrop: 'static',
+                                    keyboard: false,
+                                    show: true,
+
+                                });
                                 CKEDITOR.instances['subnotes'].setData("");
                                 $('.attachments-conatiner .new-file').remove();
                                 $('.fileAttachments').val("");
                                 $('.input-lg').val("");
                                 $('.addn-poup-chk').find('input[type="checkbox"]').attr('disabled', true);
-                                $('.btn-search').click();
+                               // $('.btn-search').click();
                             }, 100);
                         },
                         error: function (data) {
@@ -1540,6 +1818,8 @@
                         }
                     });
                 }
+
+
 
             });
             function SaveFile() {
@@ -1570,7 +1850,8 @@
                 });
 
             }
-            function BindSubNotes(id) {
+            function GetSubNotes(id) {
+               
                 $.ajax({
                     type: "POST",
                     url: "/Roster/GetSubNotes",
@@ -1579,20 +1860,62 @@
 
                     success: function (data) {
                         //alert(data);
+                        $('.divAppendedNotes').show();
                         $('.sub-notes-details').empty();
+                        console.clear();
                         console.log(data);
-                        $(JSON.parse(data)).each(function (i, val) {
-                            var template = '   <div class="addn-poup-div">\
+                        debugger;
+                        if (data != null && data.length > 0) {
+                            $(data).each(function (i, val) {
+                                debugger
+                                var attachments = '';
+                                var tagsName = '';
+                                for (var i = 0; i < val.Attachment.length; i++) {
+                                    if (val.Attachment[i] != "0" && val.Attachment[i] != "")
+                                        attachments+=("<a target='_blank' title='Click here to download' href='" + HostedDir + "/Agencyuser/getpdfimage1/" + val.Attachment[i] + ",CaseNote,0'><i class='fa fa-download'></i></a>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+                                }
+                                for (var i = 0; i < val.Tags.length; i++) {
+                                    if (val.Tags[i] != "0" && val.Tags[i] != "")
+                                        tagsName += ('<span id="subTags" class="tag-text">'+val.Tags[i]+'</span>');
+
+                                }
+                                if (tagsName == "")
+                                {
+                                    tagsName = "<span>No tags available</span>";
+                                }
+                                var template = '   <div class="addn-poup-div sub-text-block">\
                                              <h4>\
                                                  Posted on <span>{date},</span> by <span>{name}</span>\
                                              </h4>\
-                                             {notes}\
+                                  <div class="col-xs-12 tag-text-block">\
+                                      <label>Tags:</label>\
+                                       {SubTags}\
+                                </div><div class="col-xs-12 tag-text-block">\
+                                 <label>Notes:</label>\
+                                    {notes}\
+                                      <div id="subAttachments" class="sub-text">\
+                                 <label>Attachments:</label>{SubAttach}</div>\
+                                </div></div>';
+                                         
+                                template = template.replace('{date}', val.WrittenDate);
+                                template = template.replace('{name}', val.Name);
+                                template = template.replace('{notes}', val.Notes);
+                                template = template.replace('{SubAttach}', attachments);
+                                template = template.replace('{SubTags}', tagsName);
+                                $('.sub-notes-details').append(template);
+                            });
+                        }
+                        else {
+                            var template = '   <div class="addn-poup-div">\
+                                             <h4>\
+                                                 No record found\
+                                             </h4>\
+                                             \
                                          </div>';
-                            template = template.replace('{date}', val.Date);
-                            template = template.replace('{name}', val.Name);
-                            template = template.replace('{notes}', val.NoteField);
                             $('.sub-notes-details').append(template);
-                        });
+                        }
+
 
 
 
@@ -1717,6 +2040,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-xs-12 addn-al" style="padding: 0;">
                                     <div class="col-sm-4">
                                         <div class="addn-poup-div">
@@ -1729,6 +2053,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="col-xs-12 addn-al divAppendedNotes" style="padding: 0;display:none;">
+                                    <div class="col-sm-4">
+                                        <div class="addn-poup-div">
+                                            <label>Appended Notes</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8 sub-notes-details">
+
+                                    </div>
+                                </div>
                                 <div class="col-xs-12 addn-al" style="padding: 0;">
                                     <div class="col-sm-4">
                                         <div class="addn-poup-div">
@@ -1738,10 +2072,10 @@
                                     <div class="col-sm-8" style="padding: 0;">
                                         <div id="ClientDiv" class="case-note">
 
-                                            @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist != null)
+                                            @if (ViewBag.Clientlist != null && ((List<FingerprintsModel.RosterNew.User>)ViewBag.Clientlist) != null)
                                             {
-                                                foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).Clientlist)
-                                                {
+                                                foreach (var item1 in ((List<FingerprintsModel.RosterNew.User>)ViewBag.Clientlist))
+                                                { 
                                                     <div class="col-sm-12"><input type="checkbox" name="ClientIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
                                                 }
                                             }
@@ -1774,9 +2108,9 @@
                                             <div class="col-sm-8" id="Divstaff" style="padding: 0;">
                                                 <div id="StaffDiv" class="case-note">
 
-                                                    @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
+                                                    @if (ViewBag.Userlist != null && ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist) != null)
                                                     {
-                                                        foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
+                                                        foreach (var item1 in ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist))
                                                         {
                                                             <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
                                                         }
@@ -1798,9 +2132,9 @@
                                             <div class="col-sm-8" id="Divstaff">
                                                 <div id="StaffDiv" class="case-note">
 
-                                                    @if (ViewBag.Userlist != null && ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList != null)
+                                                    @if (ViewBag.Userlist != null && ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist) != null)
                                                     {
-                                                        foreach (var item1 in ((FingerprintsModel.RosterNew.Users)ViewBag.Userlist).UserList)
+                                                        foreach (var item1 in ((List<FingerprintsModel.RosterNew.User>)ViewBag.Userlist))
                                                         {
                                                             <div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="@item1.Id" /><span> @item1.Name</span></div>
                                                         }
@@ -1821,12 +2155,12 @@
                                     </div>
                                     <div class="col-sm-8">
                                         <div class="addn-poup-div1">
-                                            <input type="checkbox" id="CaseNoteSecurity" value="true" name="CaseNoteSecurity" style="margin-left:5px;" />
+                                            <input type="checkbox" id="CaseNoteSecurity"  value="true" name="CaseNoteSecurity" style="margin-left:5px;" />
                                             <span>Yes</span>
                                         </div>
                                     </div>
                                 </div>
-
+                               
                                 <div class="col-xs-12 addn-al" style="padding: 0;">
                                     <div id="Attachment">
                                         <div class="col-sm-12 adddivspace" style="padding: 0;">
@@ -1871,7 +2205,7 @@
                         </div>
 
 
-                      
+
                     </div>
                 </div>
             </div>

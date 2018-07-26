@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using static FingerprintsModel.RosterNew;
 
 namespace FingerprintsModel
 {
@@ -113,6 +114,8 @@ namespace FingerprintsModel
         public string Id { get; set; }
         public string Name { get; set; }
     }
+
+    
     public class ProgInfo
     {
         public string Id { get; set; }
@@ -175,6 +178,7 @@ namespace FingerprintsModel
         public string MissingScreening { get; set; }
         public string Gender { get; set; }
         public string Picture { get; set; }
+        public int IsWithdrawn { get; set; }
         public string DOB { get; set; }
         public string MissingScreeningdate { get; set; }
         public string MissingScreeningstatus { get; set; }
@@ -257,12 +261,31 @@ namespace FingerprintsModel
         public string Name { get; set; }
     }
 
+    public class HouseholdTags
+    {
+        public string TagName { get; set; }
+        public string TagId { get; set; }
+        public int TagCount { get; set; }
+        public int CasenoteIdByTags { get; set; }
+        public List<AssociatedTags> AssociatedTags { get; set; }
+
+    }
+
+    public class AssociatedTags
+    {
+        public string TagName { get; set; }
+        public string TagId { get; set; }
+        public string CaseNoteId { get; set; }
+
+    }
+
     public class CaseNote
     {
         public string Householid { get; set; }
         public string clientid { get; set; }
         public string Staffid { get; set; }
         public string CaseNoteid { get; set; }
+        public string WrittenBy { get; set; }
         public string Name { get; set; }
         public string BY { get; set; }
         public string Title { get; set; }
@@ -273,17 +296,35 @@ namespace FingerprintsModel
         public string Note { get; set; }
         public string Tagname { get; set; }
         public bool SecurityLevel { get; set; }
+        public bool IsAllowSecurityCN { get; set; }
         public string GroupCaseNote  { get; set; }
+        public string SecurityRoles { get; set; }
     }
 
 
+    public class SubCaseNote
+    {
 
+        public  string Name { get; set; }
+        public string SubCasenoteid { get; set; }
+        public List<string> Tags { get; set; }
+        public List<string> Attachment { get; set; }
+
+        public string Notes { get; set; }
+        public string WrittenBy { get; set; }
+        public string WrittenDate { get; set; }
+
+    }
 
     public class CaseNoteByClientID
     {
+        public string Role { get; set; }
         public List<CaseNote> CaseNoteList { get; set; }
-        public List<RosterNew.User> UserList { get; set; }
-        public List<RosterNew.User> ClientList { get; set; }
+        public List<User> SecurityRolesList { get; set; }
+        public List<User> Clientlist { get; set; }
+        public List<User> UserList { get; set; }
+     
+    
     }
 
 

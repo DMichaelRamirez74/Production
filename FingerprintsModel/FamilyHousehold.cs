@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Web.Mvc;
 
 namespace FingerprintsModel
 {
@@ -17,6 +18,9 @@ namespace FingerprintsModel
        public int InChildCareSubsidy { get; set; }
         public List<WellBabyExamModel> WellBabyExamModelList = new List<WellBabyExamModel>();
         public List<ClassroomChangeReason> _ChangeReasonList = new List<ClassroomChangeReason>();
+        public int HasFamilyAdvocate { get; set; }
+        public string FamilyAdvocateId { get; set; }
+        public List<SelectListItem> FamilyAdovateList { get; set; }
         public class AssignedTo
         {
             public string Id { get; set; }

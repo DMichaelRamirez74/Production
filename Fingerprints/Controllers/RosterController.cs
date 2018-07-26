@@ -347,26 +347,59 @@ namespace Fingerprints.Controllers
             return Json(_imgpath, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetCaseNoteByTags(string Householdid, string centerid, string ClientId, string TagName)
+        public ActionResult GetCaseNoteByTags(string Householdid, string centerid, string ClientId, string TagName,int IsFromFamilySummary=0)
 
         {
-            string JSONString = string.Empty;
+            CaseNoteByClientID casenote = new CaseNoteByClientID();
+          
             try
             {
-                DataTable dtMaterial = new DataTable();
+                string Name = "";
+                RosterNew.Users Userlist = new RosterNew.Users();
 
                 int _householdId = 0;
 
                 Householdid = int.TryParse(Householdid, out _householdId) ? Householdid : EncryptDecrypt.Decrypt64(Householdid);
 
-                new RosterData().GetCaseNoteByTags(ref dtMaterial, Convert.ToInt32(Householdid), Convert.ToInt32(centerid), ClientId, Session["AgencyID"].ToString(), Session["UserID"].ToString(), TagName);
-                JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtMaterial);
+                casenote.CaseNoteList= new RosterData().GetCaseNoteByTags(ref Name, ref Userlist, Convert.ToInt32(Householdid), Convert.ToInt32(centerid), ClientId, Session["AgencyID"].ToString(), Session["UserID"].ToString(), TagName, IsFromFamilySummary);
+                casenote.UserList = Userlist.UserList;
+                casenote.Clientlist = Userlist.Clientlist;
+
+                List<FingerprintsModel.Role> listRole = Session["RoleList"] as List<FingerprintsModel.Role>;
+                casenote.Role = listRole.Select(a => a.RoleName).FirstOrDefault();
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return Json(JSONString);
+            return Json(casenote, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetCaseNoteByClientId(string Householdid, string Clientid)
+
+        {
+            CaseNoteByClientID casenote = new CaseNoteByClientID();
+           
+            try
+            {
+
+                string Name = "";
+                FingerprintsModel.RosterNew.Users UserList = new RosterNew.Users();
+                int _householdId = 0;
+                int _ClientId = 0;
+                Householdid = int.TryParse(Householdid, out _householdId) ? Householdid : EncryptDecrypt.Decrypt64(Householdid);
+                Clientid = int.TryParse(Clientid, out _ClientId) ? Clientid : EncryptDecrypt.Decrypt64(Clientid);
+                casenote.CaseNoteList = new RosterData().GetCaseNoteByClientId(ref Name, ref UserList, Convert.ToInt32(Householdid), Convert.ToInt32(Clientid), Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                casenote.UserList = UserList.UserList;
+                casenote.Clientlist = UserList.Clientlist;
+              
+                List<FingerprintsModel.Role> listRole = Session["RoleList"] as List<FingerprintsModel.Role>;
+                casenote.Role = listRole.Select(a => a.RoleName).FirstOrDefault();
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+            }
+            return Json(casenote, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetCaseNoteByNoteId(string NoteId)
@@ -401,24 +434,25 @@ namespace Fingerprints.Controllers
         //}
         public ActionResult GetSubNotes(string CaseNoteId)
         {
-            string JSONString = string.Empty;
+            List<SubCaseNote> subList = new List<SubCaseNote>();
             try
             {
                 DataTable dtSubNotes = new DataTable();
-                new RosterData().GetSubNotes(ref dtSubNotes, CaseNoteId);
-                JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtSubNotes);
+             subList=  new RosterData().GetSubNotes(CaseNoteId);
+             
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return Json(JSONString);
+            return Json(subList,JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UploadFiles(string monitor)
         {
             bool isInserted = false;
             string CaseNoteId = TempData["CaseNoteid"].ToString();
+            string Subcasenoteid = TempData["Subcasenoteid"].ToString();
             string[] _imgpath = new string[System.Web.HttpContext.Current.Request.Files.Count];
             try
             {
@@ -434,7 +468,7 @@ namespace Fingerprints.Controllers
                             var fileName = Path.GetFileName(pic.FileName);
                             var _ext = Path.GetExtension(pic.FileName);
                             string name = Path.GetFileNameWithoutExtension(fileName);
-                            isInserted = new RosterData().SaveAttachmentsOnSubNote(Session["AgencyID"].ToString().ToString(), CaseNoteId, new BinaryReader(pic.InputStream).ReadBytes(pic.ContentLength), fileName, _ext, Session["UserID"].ToString());
+                            isInserted = new RosterData().SaveAttachmentsOnSubNote(Session["AgencyID"].ToString().ToString(), CaseNoteId, new BinaryReader(pic.InputStream).ReadBytes(pic.ContentLength), fileName, _ext, Session["UserID"].ToString(), Subcasenoteid);
 
                         }
                     }
@@ -451,7 +485,10 @@ namespace Fingerprints.Controllers
         [ValidateInput(false)]
         public ActionResult SaveSubNotes(RosterNew.CaseNote CaseNote)
         {
-            bool isInserted = false;
+            List<RosterNew.Attachment> Attachments = new List<RosterNew.Attachment>();
+         
+
+            string Subcasenoteid = "";
             try
             {
                 TempData["CaseNoteid"] = CaseNote.CaseNoteid;
@@ -460,14 +497,15 @@ namespace Fingerprints.Controllers
 
                 CaseNote.HouseHoldId = int.TryParse(CaseNote.HouseHoldId, out _householdID) ? CaseNote.HouseHoldId : EncryptDecrypt.Decrypt64(CaseNote.HouseHoldId);
 
-                isInserted = new RosterData().SaveSubNotes(CaseNote.CaseNoteid, CaseNote.CaseNoteDate, Convert.ToInt32(CaseNote.HouseHoldId), Convert.ToInt32(CaseNote.CenterId), CaseNote.Classroomid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), CaseNote.Note, Session["Roleid"].ToString());
+                Subcasenoteid = new RosterData().SaveSubNotes(CaseNote.CaseNoteid, CaseNote.CaseNoteDate, Convert.ToInt32(CaseNote.HouseHoldId), Convert.ToInt32(CaseNote.CenterId), CaseNote.Classroomid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), CaseNote.Note, Session["Roleid"].ToString(),CaseNote.CaseNotetags);
+                TempData["Subcasenoteid"] = Subcasenoteid;
                 TempData.Keep();
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
             }
-            return Json(isInserted);
+            return Json(Subcasenoteid);
         }
         [CustAuthFilter()]
 
@@ -483,19 +521,20 @@ namespace Fingerprints.Controllers
                 else
                 {
                     id = "0";
-                }
-                string Name = "";
+                }           
                 int centerid = 0;
                 int Householdid = 0;
+                string Name = "";
+                RosterNew.Users Userlist = new RosterNew.Users();
                 if (!string.IsNullOrEmpty(Request.QueryString["centerid"]))
                 {
                     ViewBag.centerid = centerid = Convert.ToInt32(EncryptDecrypt.Decrypt64(Request.QueryString["centerid"].ToString()));
                 }
                 else
                     ViewBag.centerid = 0;
-                RosterNew.Users Userlist = new RosterNew.Users();
-                RosterNew.Users selectList = new RosterNew.Users();
-
+            
+               
+              
                 if (!string.IsNullOrEmpty(Request.QueryString["Householdid"]))
                 {
                     if (Request.QueryString["Householdid"].ToString() == "0")
@@ -507,9 +546,10 @@ namespace Fingerprints.Controllers
                 else
                     ViewBag.Householdid = 0;
 
-                ViewBag.CaseNotelist = RosterData.GetCaseNote(ref Name, ref Userlist, ref selectList, Householdid, centerid, id, Session["AgencyID"].ToString(), Session["UserID"].ToString());
-                ViewBag.Userlist = Userlist;
-                ViewBag.SelectList = selectList;
+                ViewBag.CaseNotelist = RosterData.GetCaseNote(ref Name, ref Userlist, Householdid, centerid, id, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.Userlist = Userlist.UserList;
+                ViewBag.Clientlist = Userlist.Clientlist;
+           
                 ViewBag.Name = Name;
                 ViewBag.Client = id;
                 if (!string.IsNullOrEmpty(Request.QueryString["Programid"]))
@@ -936,10 +976,10 @@ namespace Fingerprints.Controllers
             }
         }
         //Changes on 29Dec2016
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter()]
         [ValidateInput(false)]
         [HttpPost]
-        public ActionResult CaseNotesclient(RosterNew.CaseNote CaseNote, RosterNew.ClientUsers ClientIds, RosterNew.ClientUsers TeamIds, List<RosterNew.Attachment> Attachments)
+        public ActionResult CaseNotesclient(RosterNew.CaseNote CaseNote, RosterNew.ClientUsers ClientIds, RosterNew.ClientUsers TeamIds, List<RosterNew.Attachment> Attachments,int Mode=1)
         {
             try
             {
@@ -976,7 +1016,7 @@ namespace Fingerprints.Controllers
                     CaseNote.HouseHoldId = EncryptDecrypt.Decrypt64(CaseNote.HouseHoldId);
                 }
                 CaseNote.IsLateArrival = false;
-                string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Mode);
                 ViewBag.Name = Name;
                 if (string.IsNullOrEmpty(CaseNote.ClientId))
                     ViewBag.Client = "0";
@@ -984,7 +1024,9 @@ namespace Fingerprints.Controllers
                     ViewBag.Client = CaseNote.ClientId;
 
                 ViewBag.CaseNotelist = CaseNoteList;
-                ViewBag.Userlist = Userlist;
+                ViewBag.Userlist = Userlist.UserList;
+                ViewBag.Clientlist = Userlist.Clientlist;
+               
                 ViewBag.centerid = CaseNote.CenterId;
                 if (string.IsNullOrEmpty(CaseNote.ProgramId))
                     ViewBag.Programid = "0";
@@ -1001,6 +1043,12 @@ namespace Fingerprints.Controllers
                 }
                 else
                     ViewBag.message = "Please try again.";
+                if(Mode==3)
+                {
+                    return Redirect("/AgencyUser/FamilySummary/" + ViewBag.Householdid);
+                   // return RedirectToAction("FamilySummary", "AgencyUser", new { ViewBag.Householdid });
+                }
+               
             }
             catch (Exception Ex)
             {
@@ -2299,13 +2347,13 @@ namespace Fingerprints.Controllers
 
         public ActionResult GetCenterAndClassRoomsByCenter(string centerid, string Classroom, string householdid, string ChildId)
         {
-            var list = RosterData.GetCenterAndClassRoomsByCenter(centerid, Classroom, householdid, ChildId,Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
+            var list = RosterData.GetCenterAndClassRoomsByCenter(centerid, Classroom, householdid, ChildId, Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
             return Json(new { list });
         }
 
         [HttpPost]
-       // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
-       [CustAuthFilter()]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
         public ActionResult SaveCenterAndClassRoom(RosterNew.CaseNote CaseNote)
         {
             CaseNote.Note = System.Uri.UnescapeDataString(CaseNote.Note);
@@ -2483,6 +2531,43 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(Ex);
             }
             return Json(JSONString,JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult GetHouseholdCasenoteTags(string HouseholdId)
+        {
+            List<HouseholdTags> result=null;
+            try
+            {
+                RosterData rd = new RosterData();
+               result=   rd.GetHouseholdCasenoteTags(HouseholdId);
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        [HttpPost]
+        public JsonResult SaveFamilyAdvocate(string HouseholdID,string FamilyAdvocate)
+        {
+
+          AgencyStaff staff = null;
+            try
+            {
+                 staff = new FamilyData().SaveFamilyAdvocate(HouseholdID, FamilyAdvocate);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            return Json(staff, JsonRequestBehavior.AllowGet);
         }
 
     }

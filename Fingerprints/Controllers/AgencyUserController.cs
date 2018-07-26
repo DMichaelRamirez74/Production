@@ -2177,6 +2177,24 @@ namespace Fingerprints.Controllers
             TempData.Keep();
             return View(_familyinfo);
         }
+
+        [CustAuthFilter()]
+        public ActionResult SaveCaseNoteFromFamilySummary(CaseNote casenote)
+        {
+
+            try
+            {
+                FamilyData obj = new FamilyData();
+                //var list = obj.childDetails(Householdid, Session["AgencyID"].ToString()).ToList();
+                //return Json(new { list });
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+            return Json(true);
+        }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
         [JsonMaxLengthAttribute]
         public JsonResult listChildDetails(string Householdid = "0")
@@ -2190,7 +2208,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2330,36 +2348,36 @@ namespace Fingerprints.Controllers
             DateTime newDate = new DateTime();
             newDate = (isMonth) ? dob1.AddMonths(monthOrDays) : dob1.AddDays(monthOrDays);
             data.Month = ((isMonth) ? (monthOrDays + " Months") : ("1 Week"));
-            data.ScheduledExamDate = (newDate.ToShortDateString());        
+            data.ScheduledExamDate = (newDate.ToShortDateString());
             data.EnrollmentDate = DOE1.ToShortDateString();
-                DateTime scheduledDate = DateTime.ParseExact(data.ScheduledExamDate, @"MM/dd/yyyy",
-                System.Globalization.CultureInfo.InvariantCulture);
-                DateTime EnrollmentDate = DateTime.ParseExact(data.EnrollmentDate, @"MM/dd/yyyy",
-               System.Globalization.CultureInfo.InvariantCulture);
+            DateTime scheduledDate = DateTime.ParseExact(data.ScheduledExamDate, @"MM/dd/yyyy",
+            System.Globalization.CultureInfo.InvariantCulture);
+            DateTime EnrollmentDate = DateTime.ParseExact(data.EnrollmentDate, @"MM/dd/yyyy",
+           System.Globalization.CultureInfo.InvariantCulture);
 
-                if(scheduledDate>EnrollmentDate)
+            if (scheduledDate > EnrollmentDate)
+            {
+                foreach (var model in wellBabyList)
                 {
-                    foreach (var model in wellBabyList)
+                    if (data.Month == model.Month)//&& data.ExaminedDate==data.EnrollmentDate)
                     {
-                        if (data.Month == model.Month)//&& data.ExaminedDate==data.EnrollmentDate)
-                        {
-                            data.ExaminedDate = model.ExaminedDate;
-                            data.Status = ("Completed");
-                            break;
-                        }
-                    }
-                    if (data.ExaminedDate == null && scheduledDate>DateTime.Now)
-                    {
-                        data.ExaminedDate = "--";
-                        data.Status = ("--");
+                        data.ExaminedDate = model.ExaminedDate;
+                        data.Status = ("Completed");
+                        break;
                     }
                 }
-                else
+                if (data.ExaminedDate == null && scheduledDate > DateTime.Now)
                 {
+                    data.ExaminedDate = "--";
+                    data.Status = ("--");
+                }
+            }
+            else
+            {
                 data.ExaminedDate = "--";
                 data.Status = "Missing";
-                }
-            
+            }
+
 
             return data;
         }
@@ -2375,7 +2393,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -2391,7 +2409,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2439,7 +2457,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2453,7 +2471,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2470,7 +2488,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2484,7 +2502,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2498,7 +2516,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2513,7 +2531,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2529,7 +2547,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2543,7 +2561,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2556,12 +2574,12 @@ namespace Fingerprints.Controllers
                     TempData["DeleteParent"] = "1";
                     return Json("1");
                 }
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2575,7 +2593,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2589,7 +2607,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2602,7 +2620,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2701,7 +2719,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter()]
@@ -2772,7 +2790,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2786,7 +2804,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2799,7 +2817,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2843,7 +2861,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2856,7 +2874,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -2892,7 +2910,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -2906,7 +2924,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]

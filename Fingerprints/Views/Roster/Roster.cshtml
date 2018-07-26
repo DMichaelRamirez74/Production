@@ -981,6 +981,23 @@
                 disableNativeSpellChecker: false
             });
 
+            $('#nREF_status_CaseNotetags').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                delimiter: [',', ';'],
+                autocomplete: {
+
+                },
+                autocomplete_url: '',
+            });
+            $('#nREF_status_CaseNotetags').importTags("nREF,,;");
+
+            CKEDITOR.replace('nREFNote', {
+                language: 'en-gb',
+                uiColor: '#195180',
+                allowedContent: true,
+                disableNativeSpellChecker: false
+            });
 
             $('#Houselessmodal').find('#FamilyHousehold_City').on('change', function () {
 
@@ -2240,6 +2257,8 @@
                             tr += '&nbsp<a style="text-decoration:underline;cursor:pointer;" href="#" onclick="AbsentMarkingPopup(this);"   data-reason="' + data.list.Rosters[i].MarkAbsenseReason;
                             tr += '" data-islate="' + data.list.Rosters[i].IsLateArrival + '"  data-lateDuration="' + data.list.Rosters[i].LateArrivalDuration + '"  data-lateNotes="' + data.list.Rosters[i].LateArivalNotes + '"  data-house="' + data.list.Rosters[i].EHouseholid + '" data-id="' + data.list.Rosters[i].Eclientid + '-' + data.list.Rosters[i].Name + '"> ABT</a>  &nbsp';
                         }
+                        tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+
                         //else if (data.list.Rosters[i].IsPresent == "0" && data.list.Rosters[i].MarkAbsenseReason != "")
                         //{
 
@@ -2364,11 +2383,12 @@
                                 tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
 
                             }
-
-
                             tr += '</td>';
                         }
-
+                        tr += '<td height="70" style="width:26%;">';
+                        tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+                        tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                        tr += '</td>'
                         tr += '</tr>';
 
                     }
@@ -3357,12 +3377,15 @@
                                 <th id="thSN" style="width: 10%;">Date of Last Case Note</th>
                                 <th id="thSN" style="width: 10%;">Date of Last FPA</th>
                                 <th id="thSN" style="width: 10%;">Date of Last Referral</th>
-
+                               
                                 if (Session["RoleId"] != null && (Session["RoleId"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26"))
                                 {
                                     <th id="thSN" style="width: 24%;">Services</th>
                                 }
-
+                                else
+                                {
+                                    <th id="thSN" style="width: 24%;">Services</th>
+                                }
                             }
 
                             @if (Session["Roleid"] != null && ((Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")) || (Session["Roleid"].ToString().Contains("e4c80fc2-8b64-447a-99b4-95d1510b01e9"))))
@@ -4236,6 +4259,7 @@
 
         </div>
     </div>
+@Html.Partial("~/Views/Partialviews/InternalReferral.cshtml");
     <!-- Modal popup -->
 
 }

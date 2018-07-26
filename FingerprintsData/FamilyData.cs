@@ -8562,6 +8562,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@UserId", userid));
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
+                command.Parameters.Add(new SqlParameter("@HasFamilyAdvocate", string.Empty));
+                command.Parameters["@HasFamilyAdvocate"].Direction = ParameterDirection.Output;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getfamilysummarry";
@@ -8569,6 +8571,7 @@ namespace FingerprintsData
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                FamilyObject.HasFamilyAdvocate = Convert.ToInt32(command.Parameters["@HasFamilyAdvocate"].Value);
                 Connection.Close();
                 FamilySummaryinfo(FamilyObject, _dataset);
 
@@ -8820,17 +8823,32 @@ namespace FingerprintsData
                 obj.staffList = new List<AgencyStaff>();
                 if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
                 {
-                    obj.staffList = _dataset.Tables[11].AsEnumerable().Select(x => new AgencyStaff
+                    if (obj.HasFamilyAdvocate == 0)
                     {
+                        obj.FamilyAdovateList = (from DataRow dr in _dataset.Tables[11].Rows
+                                                 select new SelectListItem
+                                                 {
+                                                     Text = dr["familyadvocate"].ToString(),
+                                                     Value = dr["Userid"].ToString()
 
-                        Username = x.Field<string>("FSWName"),
-                        CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
-                        AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
-                        Gender = x.Field<string>("GenderText"),
-                        ServiceYears = x.Field<int>("ServiceYears").ToString()
+                                                 }
+                                   ).ToList();
+                    }
+                    else
+                    {
+                        obj.staffList = _dataset.Tables[11].AsEnumerable().Select(x => new AgencyStaff
+                        {
+
+                            Username = x.Field<string>("FSWName"),
+                            CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
+                            AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
+                            Gender = x.Field<string>("GenderText"),
+                            ServiceYears = x.Field<int>("ServiceYears").ToString()
 
 
-                    }).ToList();
+                        }).ToList();
+                    }
+
                 }
 
                 //Gets, whether currently logged in user can review the familyhousehold income//
@@ -9043,7 +9061,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsFoster", obj.IsFoster));
                 command.Parameters.Add(new SqlParameter("@Inwalfareagency", obj.Inwalfareagency));
                 command.Parameters.Add(new SqlParameter("@InDualcustody", obj.InDualcustody));
-             
+
                 command.Parameters.Add(new SqlParameter("@ImmunizationFileName", obj.ImmunizationFileName));
                 command.Parameters.Add(new SqlParameter("@ImmunizationFileExtension", obj.ImmunizationFileExtension));
                 command.Parameters.Add(new SqlParameter("@Immunizationfileinbytes", obj.Immunizationfileinbytes));
@@ -14654,6 +14672,57 @@ namespace FingerprintsData
                 clsError.WriteException(ex);
             }
             return isResult;
+        }
+ public AgencyStaff SaveFamilyAdvocate(string HouseholdId, string FamilyAdvocateID)
+        {
+            AgencyStaff familystaff = new AgencyStaff();
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@HouseholdId", HouseholdId));
+                    command.Parameters.Add(new SqlParameter("@FamilyAdvocate", FamilyAdvocateID));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_SaveFamilyAdvocate";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+
+                    if (_dataset != null && _dataset.Tables.Count > 0)
+                    {
+
+
+
+
+                        familystaff.Username = _dataset.Tables[0].Rows[0]["FSWName"].ToString();
+                        familystaff.CellNumber = _dataset.Tables[0].Rows[0]["CellNumber"].ToString();
+                        familystaff.AvatarUrl = string.IsNullOrEmpty(Convert.ToString(_dataset.Tables[0].Rows[0]["Avatar"])) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + _dataset.Tables[0].Rows[0]["Avatar"].ToString();
+                        familystaff.Gender = _dataset.Tables[0].Rows[0]["GenderText"].ToString();
+                        familystaff.ServiceYears = _dataset.Tables[0].Rows[0]["ServiceYears"].ToString();
+
+
+
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return familystaff;
         }
     }
 }
