@@ -6,12 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using static FingerprintsModel.RosterNew;
+//using static FingerprintsModel.RosterNew;
 
 namespace FingerprintsModel
 {
     public class AgencyStaff
     {
+
         public Guid AgencyStaffId { get; set; }
         public string enrollid { get; set; }
         public string Username { get; set; }
@@ -320,9 +321,9 @@ namespace FingerprintsModel
     {
         public string Role { get; set; }
         public List<CaseNote> CaseNoteList { get; set; }
-        public List<User> SecurityRolesList { get; set; }
-        public List<User> Clientlist { get; set; }
-        public List<User> UserList { get; set; }
+        public List<RosterNew.User> SecurityRolesList { get; set; }
+        public List<RosterNew.User> Clientlist { get; set; }
+        public List<RosterNew.User> UserList { get; set; }
      
     
     }

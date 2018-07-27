@@ -182,7 +182,6 @@ namespace FingerprintsData
         {
             CommunityAssessment communityAssessment = new CommunityAssessment();
 
-
             try
             {
 
