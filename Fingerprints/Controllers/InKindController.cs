@@ -8,6 +8,7 @@ using System.Linq;
 using System.Web.Script.Serialization;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 
 namespace Fingerprints.Controllers
 {
@@ -102,7 +103,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -129,7 +130,7 @@ namespace Fingerprints.Controllers
         /// JsonResult method to get the Inkind Activity Details list
         /// </summary>
         /// <returns>Inkind</returns>
-
+        [CustAuthFilter()]
         public JsonResult GetInkindActivities()
         {
             Inkind inkind = new Inkind();
@@ -155,6 +156,8 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="inkindActivity"></param>
         /// <returns>Json Result</returns>
+
+        [CustAuthFilter()]
         public JsonResult InsertInkindActivity(string inkindActivity)
         {
             bool isResut = false;
@@ -194,6 +197,8 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="activityCode"></param>
         /// <returns></returns>
+
+        [CustAuthFilter()]
         public JsonResult DeleteInkindActivity(string activityCode)
         {
             bool isResult = false;
@@ -216,6 +221,7 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
         /// <summary>
         /// method to check, whether Activity already exists in database.
         /// </summary>
@@ -324,9 +330,11 @@ namespace Fingerprints.Controllers
         /// <returns></returns>
         /// 
         [JsonMaxLength]
+        [ValidateInput(false)]
         [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106,82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
 
         public JsonResult InsertInkindTransactions(string modelString = "")
+            //public JsonResult InsertInkindTransactions(Inkind _inkind)
         {
             int returnResult = 0;
             long identityRet = 0;
@@ -335,6 +343,30 @@ namespace Fingerprints.Controllers
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 Inkind model = new Inkind();
                 model = serializer.Deserialize<Inkind>(modelString);
+
+
+                var fileKeys = Request.Files.AllKeys;
+
+
+                model.InkindTransactionsList[0].InkindAttachmentsList = new List<InkindAttachments>();
+                var count =model.InkindTransactionsList.Count;
+                if(count==1)
+                {
+                    for (int i = 0; i < fileKeys.Length; i++)
+                    {
+                        model.InkindTransactionsList[0].InkindAttachmentsList.Add(new InkindAttachments
+                        {
+
+                            InkindAttachmentFile = Request.Files[i],
+                            InkindAttachmentFileName = Request.Files[i].FileName,
+                            InkindAttachmentFileExtension=Path.GetExtension(Request.Files[i].FileName),
+                            InkindAttachmentFileByte= new BinaryReader(Request.Files[i].InputStream).ReadBytes(Request.Files[i].ContentLength)
+                        });
+                    }
+                }
+                
+
+
                 if (Session["UserID"] == null)
                 {
                     returnResult = 2;
@@ -407,7 +439,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -416,7 +448,7 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="transactionString"></param>
         /// <returns>boolean</returns>
-
+        [CustAuthFilter()]
         public JsonResult InsertParentParticipation(string transactionString = "", string parentID = "")
         {
             bool returnResult = false;
@@ -443,6 +475,7 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="subID"></param>
         /// <returns>boolean</returns>
+        [CustAuthFilter()]
         public JsonResult DeleteInKindSubActivity(int subID)
         {
             bool returnResult = false;
@@ -457,7 +490,7 @@ namespace Fingerprints.Controllers
             return Json(returnResult, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter()]
         public JsonResult GetActivityByActivityType(int activitytype)
         {
             Inkind inKindData = new Inkind();
@@ -485,6 +518,7 @@ namespace Fingerprints.Controllers
         /// Gets the In-Kind Activities from TempData() and Gets from database in case Tempdata["InKind"] is null.
         /// </summary>
         /// <returns></returns>
+        [CustAuthFilter()]
         public Inkind GetInkindActivityFromTempData()
         {
             Inkind _tempinkindDetails = new Inkind();
@@ -511,7 +545,7 @@ namespace Fingerprints.Controllers
             return _tempinkindDetails;
         }
 
-
+        [CustAuthFilter()]
         public decimal GetAmountByInkindType(InKindTransactions transactions)
         {
             decimal inkindAmount = 0;
@@ -544,7 +578,9 @@ namespace Fingerprints.Controllers
 
                             else if (item.ActivityAmountType == "3")//fixed
                             {
-                                inkindAmount = Convert.ToDecimal(item.ActivityAmountRate);
+                                //inkindAmount = Convert.ToDecimal(item.ActivityAmountRate);
+                                inkindAmount = Convert.ToDecimal(transactions.InKindAmount);
+
                             }
                         }
                     }

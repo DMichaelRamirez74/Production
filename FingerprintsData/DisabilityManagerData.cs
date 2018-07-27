@@ -935,7 +935,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
                 int res = command.ExecuteNonQuery();
-                if (res > 1)
+                if (res >= 1)
                     result = true;
             }
             catch (Exception ex)

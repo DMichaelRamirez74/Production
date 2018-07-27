@@ -52,6 +52,7 @@ namespace FingerprintsModel
           public String Value { get; set; }
           public String Description { get; set; }
       }
+     
 
     }
 

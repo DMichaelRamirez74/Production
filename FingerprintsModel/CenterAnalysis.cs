@@ -151,6 +151,10 @@ namespace FingerprintsModel
         public string ParentName { get; set; }
         public string Enc_ClientId { get; set; }
 
+        public string Age { get; set; }
+        public string AgeInWords { get; set; }
+        public int AgeInMonths { get; set; }
+
     }
 
     public class EnrolledChildren

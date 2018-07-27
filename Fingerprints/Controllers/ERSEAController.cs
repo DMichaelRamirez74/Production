@@ -305,7 +305,7 @@ namespace Fingerprints.Controllers
         }
 
         //GET Workshop Analysis By Center page.
-        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter("b65759ba-4813-4906-9a69-e180156e42fc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult WorkshopAnalysis()
         {
             return View();

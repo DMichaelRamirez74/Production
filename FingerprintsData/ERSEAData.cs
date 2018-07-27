@@ -1956,7 +1956,7 @@ namespace FingerprintsData
                     {
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
-                            child.Text = dr["profilepic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
+                            child.Text = string.IsNullOrEmpty(dr["profilepic"].ToString()) ? "" : Convert.ToBase64String((byte[])dr["profilepic"]);
                             child.Value = dr["gender"].ToString();
                         }
                     }

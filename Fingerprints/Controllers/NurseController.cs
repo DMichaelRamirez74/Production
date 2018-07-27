@@ -820,12 +820,15 @@ namespace Fingerprints.Controllers
 
         }
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+        [CustAuthFilter()]
         public ActionResult ClientList()
         {
 
             return View();
         }
         [JsonMaxLengthAttribute]
+        [CustAuthFilter()]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public JsonResult ClientLists(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
         {
@@ -1029,7 +1032,7 @@ namespace Fingerprints.Controllers
                     else
                     {
 
-                        ViewBag.message = "Error occured please try again later.";
+                        ViewBag.message = "Error occurred please try again later.";
                     }
                     ViewBag.screeningid = _screen.Screeningid.ToString();
                 }

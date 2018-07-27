@@ -1,12 +1,20 @@
 ﻿@{
-    ViewBag.Title = "InKindActivities";
     Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+}
+
+@section Title
+{
+     In-Kind Activities
 }
 
 @section MainContentHolder{
     <link href="~/Content/css/daysoff.css" rel="stylesheet" />
 
     <style>
+
+        body{
+            font-family:arial,sans-serif!important;
+        }
         #amount-rate-div {
             display: none;
         }
@@ -58,13 +66,24 @@
         }
     </style>
     <div class="row" style="width:100%;margin-left:0px;">
-        <div class="right-side-container-ch">
+        <div class="right-side-container-ch" style="padding-top:30px;">
             <div class="col-xs-12 no-padding">
                 <div class="col-xs-12 no-padding">
 
-                    <div class="col-xs-12 ersea-detl-title">
-                        <h2>Inkind Activity</h2>
-                        <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
+                    <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
+
+
+                        <div class="col-lg-12">
+                            <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                                <i class="fa fa-tasks" aria-hidden="true"></i> In-Kind Activity
+
+                                <span class="view-btn backto_listspan">
+                                    <a href="@Url.Content("~/Home/AgencyAdminDashboard")" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                                </span>
+                            </h2>
+                        </div>
+
+
                     </div>
                     <form id="activityForm">
 
@@ -78,7 +97,7 @@
 
                                         <input type="radio" name="activityType" value="1" />&nbsp;<span style="color:#fff;">Center &nbsp;</span>
                                         <input type="radio" name="activityType" value="2" />&nbsp;<span style="color:#fff;"> Home</span> &nbsp;
-                                        <small style="color: #fff;font-style: italic;color: #f9c751;display:none;font-size:83%;" id="homeactivityfilled">(Activity filled out for Home)</small>
+                                        <small style="color: #ffffff;font-style: italic;color: #f9c751;display:none;font-size:83%;" id="homeactivityfilled">(Activity filled out for Home)</small>
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +156,7 @@
 
                             <div class="col-xs-12 no-padding" id="isvolunteer-div">
                                 <div class="col-xs-12  col-md-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
-                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Consider Volunteer Activity ? </label>
+                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Considered as Volunteer Activity ? </label>
                                     <div class="col-lg-4 col-md-4" id="volunteer-inner-div">
                                         <input type="radio" name="volunteerradio" value="1" />&nbsp;<span style="color:#fff;">Yes &nbsp;</span>
                                         <input type="radio" name="volunteerradio" value="0" />&nbsp;<span style="color:#fff;">No &nbsp;</span>
@@ -155,6 +174,18 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="col-xs-12 no-padding" id="doc-req-div">
+                                <div class="col-xs-12 col-md-12 serch-billing-block" style="margin-top: 20px;width: 100%;">
+                                    <label class="icr-inkind-label lbl-required col-lg-4 col-md-4">Allow Document Upload ? </label>
+
+                                    <div class="col-lg-4 col-md-4" id="doc-inner-div">
+                                        <input type="radio" name="radioDoc" value="1" />&nbsp;<span style="color:#fff;">Yes &nbsp;</span>
+                                        <input type="radio" name="radioDoc" value="0" />&nbsp;<span style="color:#fff;">No &nbsp;</span>
+                                    </div>
+                                </div>
+                            </div>
+
 
                             <div class="col-xs-12 no-padding" id="submit-cancel-div">
                                 <div class="btnwrp_subcal">
@@ -177,6 +208,7 @@
                                             <th>Amount Rate</th>
                                             <th>Volunteer</th>
                                             <th>Signature Required</th>
+                                            <th>Document Upload</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -200,7 +232,7 @@
 
             activitySubmitBtn.on('click', function () {
                 cleanValidation();
-                $('#activity-inner-div,#amount-inner-div,#volunteer-inner-div,#signature-inner-div').css('background-color', '');
+                $('#activity-inner-div,#amount-inner-div,#volunteer-inner-div,#signature-inner-div,#doc-inner-div').css('background-color', '');
                 if (!$('input[name=activityType]').is(':checked')) {
                     customAlert('Please select Activity Type');
                     plainValidation('#activity-inner-div');
@@ -235,13 +267,19 @@
 
                 if (!$('input[name=volunteerradio]').is(':checked')) {
                     customAlert('Please Select Volunteer or not');
-                    //plainValidation('#activityrateTxt');
+                    plainValidation('#volunteer-inner-div');
                     return false;
                 }
 
                 if (!$('input[name=sigrequired]').is(':checked')) {
                     customAlert('Please select signature required or not');
                     plainValidation('#signature-inner-div');
+                    return false;
+                }
+
+                if (!$('input[name=radioDoc]').is(':checked')) {
+                    customAlert('Please select allow document upload or not');
+                    plainValidation('#doc-inner-div');
                     return false;
                 }
 
@@ -442,6 +480,8 @@
                                 var actitivityType = (activity.ActivityType === '1') ? "Center" : (activity.ActivityType === '2') ? "Home" : '';
                                 var sigReq = (activity.IsSignatureRequired) ? 'Yes' : 'No';
                                 var sigId = (activity.IsSignatureRequired) ? '1' : '0';
+                                var docId = (activity.IsAllowDocumentUpload==1) ? '1' :(activity.IsAllowDocumentUpload==0)? '0':2;
+                                var docReq = (activity.IsAllowDocumentUpload==1) ? 'Yes' :(activity.IsAllowDocumentUpload==0)? 'No':'';
                                 var volunteer = (activity.Volunteer) ? 'Yes' : 'No';
                                 var isVol = (activity.Volunteer) ? '1' : '0';
                                 var subActivityDes = '';
@@ -473,17 +513,41 @@
                                                      <td data-title="Signature Required" class="attendance-td">\
                                                         <p class="sig-req-text" sig-id='+ sigId + ' >' + sigReq + '</p>\
                                                     </td>\
+                                                         <td data-title="Document Upload" class="attendance-td">\
+                                                        <p class="doc-req-text" doc-id=' + docId + ' >' + docReq + '</p>\
+                                                    </td>\
                                                     <td data-title="Action" >\
                                                         <p class="action icr-btn-abs" style="text-align:right;padding-bottom:20px;">\
-                                                            <button type="button" class="btn btn-default btn-sm edit-activity-item" accesskey='+ activity.ActivityCode + '>\
+                                <button type="button" style="margin-bottom:10px;width:100%;" class="btn btn-default btn-sm edit-activity-item" accesskey='+ activity.ActivityCode + '>\
                                                                 <span class="glyphicon glyphicon-pencil"></span> Edit\
                                                             </button>\
-                                                            <button type="button" class="btn btn-default btn-sm delete-activity-item" accesskey=' + activity.ActivityCode + '>\
+                                                             <br>\
+                                                            <button type="button" style="width:100%;" class="btn btn-default btn-sm delete-activity-item" accesskey=' + activity.ActivityCode + '>\
                                                                 <span class="glyphicon glyphicon-remove"></span> Delete\
                                                             </button>\
                                                         </p>\
                                                     </td>\
                                                 </tr>';
+
+
+
+                                //<button type="button" class="btn btn-default btn-sm edit-activity-item" accesskey='+ activity.ActivityCode + ' style="background-color:#295b8f;">\
+                                //                        <span id="sigbtnText">Edit</span> <span class="badge badge-light"><i class="fa fa-pencil" aria-hidden="true"></i></span>\
+                                //                        <span class="sr-only"></span>\
+                                //                    </button>\
+                                //<button type="button" class="btn btn-default btn-sm delete-activity-item" accesskey=' + activity.ActivityCode + ' style="background-color:#295b8f;">\
+                                //                        <span id="sigbtnText">Delete</span> <span class="badge badge-light"><i class="fa fa-remove" aria-hidden="true"></i></span>\
+                                //                        <span class="sr-only"></span>\
+                                //                    </button>\
+
+
+
+                                //<button type="button" class="btn btn-default btn-sm edit-activity-item" accesskey='+ activity.ActivityCode + '>\
+                                //                                <span class="glyphicon glyphicon-pencil"></span> Edit\
+                                //                            </button>\
+                                //                            <button type="button" class="btn btn-default btn-sm delete-activity-item" accesskey=' + activity.ActivityCode + '>\
+                                //                                <span class="glyphicon glyphicon-remove"></span> Delete\
+                                //                            </button>\
 
                             });
 
@@ -565,6 +629,7 @@
             InkindActivity.IsSignatureRequired = ($('input[name=sigrequired][value=1]').is(':checked')) ? true : false;
             InkindActivity.ActivityCode = $('#btnSubmitInkindActivityType').attr('accesskey');
             InkindActivity.Volunteer = ($('input[name=volunteerradio][value=1]').is(':checked')) ? true : false;
+            InkindActivity.IsAllowDocumentUpload = parseInt($('input:radio[name=radioDoc]:checked').val());
             InkindActivity.IsActive = true;
 
             if ($('input[name=activityType]:checked').val() === '2' && $('#sub-activity-desc-div').is(':visible')) {
@@ -687,6 +752,7 @@
             var amtRate = eleparentrow.find('td').eq(4).children('.amount-rate-text').html();
             var isVolunteer = eleparentrow.find('td').eq(5).children('.volunteer-text').attr('vol-id');
             var sigReqId = eleparentrow.find('td').eq(6).children('.sig-req-text').attr('sig-id');
+            var docReqId = eleparentrow.find('td').eq(7).children('.doc-req-text').attr('doc-id')
             $('input[name=activityType][value=' + activityType + ']').prop('checked', true);
             $('#activitydescriptionTxt').val(activityDes);
             $('input[name=amountType][value=' + amtType + ']').prop('checked', true);
@@ -702,6 +768,7 @@
 
             $('input[name=volunteerradio][value=' + isVolunteer + ']').prop('checked', true);
             $('input[name=sigrequired][value=' + sigReqId + ']').prop('checked', true);
+            $('input:radio[name=radioDoc][value=' + docReqId + ']').prop('checked', true);
             $('#btnSubmitInkindActivityType').attr({ 'accesskey': $(ele).attr('accesskey') });
 
             if (activityType === '2') {

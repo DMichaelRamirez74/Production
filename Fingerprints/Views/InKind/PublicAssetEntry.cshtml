@@ -46,6 +46,25 @@
 
 
 
+            $('input:checkbox[name=parenttype]').on('click', function () {
+
+                if($(this).is(':checked'))
+                {
+                    $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
+                        .parent('span').parent('div').hide();
+
+                    $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=1]').trigger('click');
+
+                   
+                }
+                else {
+                    $('#activitytyperadiodiv').find('input[name=activityTypeRadio][value=2]').prop('checked', false)
+                        .parent('span').parent('div').show();
+                }
+
+            });
+
+
             //on click of Search Button//
             searchBtn.on('click', function () {
 
@@ -353,8 +372,14 @@
             });
 
 
-            $('#text-contact-name').on('blur', function () {
-                var contactName = $(this).val();
+            $('#text-contact-nameF').on('blur', function () {
+                var contactName = $(this).val() + ' ' + $('#text-contact-nameL').val();
+                $('#inkindPersonName').html(contactName);
+                $('#inkindCompanyName').attr('cl_id', '0');
+            });
+
+            $('#text-contact-nameL').on('blur', function () {
+                var contactName = $('#text-contact-nameF').val() + ' ' + $(this).val();
                 $('#inkindPersonName').html(contactName);
                 $('#inkindCompanyName').attr('cl_id', '0');
             });
@@ -389,6 +414,21 @@
                 return emailret;
             });
 
+
+            //on click of No Email Checkbox in the Contact information//
+            $('.sumar_noemail').find('input:checkbox[name=no_email]').on('click', function () {
+
+                if($(this).is(':checked'))
+                {
+                    $('#text-select-email').val('').prop('disabled', true);
+                }
+                else {
+                    $('#text-select-email').val('').prop('disabled', false);
+                } 
+
+            });
+
+
             //On click of Inkind Entry Form Submit, Validates the form and Saves the Record to Database//
             $('#inKindEntrySubmit').on('click', function () {
 
@@ -408,9 +448,15 @@
                         return false;
                     }
 
-                    if ($('#text-contact-name').val() === '') {
-                        plainValidation('#text-contact-name');
-                        customAlert('Please Enter Contact Name');
+                    if ($('#text-contact-nameF').val() === '') {
+                        plainValidation('#text-contact-nameF');
+                        customAlert('Please Enter First Name');
+                        return false;
+                    }
+
+                    if ($('#text-contact-nameL').val() === '') {
+                        plainValidation('#text-contact-nameL');
+                        customAlert('Please Enter Last Name');
                         return false;
                     }
 
@@ -460,12 +506,13 @@
                         customAlert('Please Enter Phone No');
                         return false;
                     }
-                    if ($('#text-select-email').val() === '') {
+                    if ($('#text-select-email').val() === ''
+                        && !$('#contact-info-form').find('#text-select-email').parent().find('input:checkbox[name=no_email]').is(':checked')) {
                         plainValidation('#text-select-email');
                         customAlert('Please Enter Email Address');
                         return false;
                     }
-                    if (!filter2.test($('#text-select-email').val())) {
+                    if ($('#text-select-email').val()!='' && !filter2.test($('#text-select-email').val())) {
                         plainValidation('#text-select-email');
                         customAlert('Please Enter Valid Email Address');
                         return false;
@@ -566,6 +613,7 @@
 
                 var activeCodeArray = [];
 
+                var parentType = false;
 
                 if ($('input[name=activityTypeRadio][value=2]').is(':checked')) {
 
@@ -585,6 +633,8 @@
                 InKindDonarsContact.InKindDonarId = 0;
                 InKindDonarsContact.CorporateName = '';
                 InKindDonarsContact.ContactName = '';
+                InKindDonarsContact.FirstName = '';
+                InKindDonarsContact.LastName = '';
                 InKindDonarsContact.AddressLine1 = '';
                 InKindDonarsContact.AddressLine2 = '';
                 InKindDonarsContact.City = '';
@@ -625,6 +675,28 @@
                             minutes = '0';
                         }
 
+                       
+
+                        if (!$('.inkind-company-div').is(':visible')) {
+
+                            if ($('.contact-entry-div').is(':visible') && $('.contact-entry-div').find('input:radio[name=radiocompany][value=1]').is(':checked')) {
+                                if ($('.contact-entry-div').find('.individual-parent-type-div').is(':visible')) {
+                                    parentType = $('.contact-entry-div').find('.individual-parent-type-div').find('input:checkbox[name=parenttype]').is(':checked');
+                                }
+                            }
+                            else if ($('#inkind-info-form').is(':visible')) {
+                                if ($('#inkind-info-form').find('.individual-parent-type-div-act').is(':visible')) {
+                                    parentType = $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').is(':checked');
+                                }
+                                else {
+                                    parentType = true;
+                                }
+                            }
+
+                        }
+
+
+
                         InKindTransactions = {};
 
                         InKindTransactions.ActivityNotes = activityDesc.val();
@@ -643,7 +715,7 @@
                         InKindTransactions.ClientID = "0";
                         InKindTransactions.ParentID = $('#inkindPersonName').attr('cl_id');
                         InKindTransactions.MilesDriven = miles;
-
+                        InKindTransactions.ParentType = parentType;
                         InKindTransactionsList.push(InKindTransactions);
                     });
                 }
@@ -657,7 +729,9 @@
                 if ($('.contact-entry-div').is(':visible')) {
 
                     if ($('input[name=radiocompany]:checked').length > 0) {
-                        InKindDonarsContact.ContactName = $('#text-contact-name').val();
+                        InKindDonarsContact.FirstName = $('#text-contact-nameF').val();
+                        InKindDonarsContact.LastName = $('#text-contact-nameL').val();
+                        InKindDonarsContact.ContactName = $('#text-contact-nameF').val() + ' ' + $('#text-contact-nameL').val();
                         InKindDonarsContact.AddressLine1 = $('#text-addressline1').val();
                         InKindDonarsContact.AddressLine2 = $('#text-addressline2').val();
                         InKindDonarsContact.City = $('#text-select-city').val();
@@ -665,6 +739,7 @@
                         InKindDonarsContact.ZipCode = $('#text-zipcode').val();
                         InKindDonarsContact.PhoneNo = $('#text-select-phoneNo').val();
                         InKindDonarsContact.EmailId = $('#text-select-email').val();
+                        InKindDonarsContact.NoEmail = $('#text-select-email').parent('div').find('input:checkbox[name=no_email]').is(':checked');
                     }
                     if ($('input[name=radiocompany][value=1]').is(':checked')) {
                         InKindDonarsContact.InKindDonarId = parseInt($('#inkindPersonName').attr('cl_id'));
@@ -692,14 +767,40 @@
                     "InKindDonarsContact": InKindDonarsContact
                 }
 
+
+            
+                var fileData = new FormData();
+                $('#inkind-info-form').find('input:file').each(function (a, b) {
+                    debugger;
+                    var fileInput = $(this);
+                    if (fileInput.val() != undefined && fileInput.val() != null && fileInput.val() != '')
+                    {
+                        var fileUpload = fileInput.get(0);
+                        var files = fileUpload.files;
+
+                        for (var i = 0; i < files.length; i++) {
+                            fileData.append(files[i].name, files[i]);
+                        }
+                    }
+                });
+
+                //$('#inkind-info-form').find('input:file').each(function (a, b) {
+                //    var fileInput = $(this);
+                //    fileData.append($(fileInput).attr("name"), fileInput);
+                //});
+
+                fileData.append('modelString', JSON.stringify(model1));
+
+
                 $.ajax({
 
                     url: HostedDir + '/InKind/InsertInkindTransactions',
                     datatype: 'json',
                     type: 'post',
-                    // data: JSON.stringify(),
-                    data: { modelString: JSON.stringify(model1) },
-                    //  data: { transactions: JSON.stringify(model1) },
+                    beforeSend: function () { $('#spinner').show(); },
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
                     success: function (data) {
                         if (data === 2) {
                             location.href = '/login/Loginagency';
@@ -716,17 +817,32 @@
                             $('#inkindCompanyName').html('');
                             $('.inkind-entry-div').hide();
                             $('.contact-entry-div').hide();
+
+                            if (parentType == true && $('#no-more-tables8').is(':visible') && searchText.val() != '') {
+
+                                if (InKindTransactions.ParentID != null || InKindTransactions.ParentID != '')
+                                {
+                                    $('#no-more-tables8').find('#centerTable').
+                                        find('.scroll-tbody').find('tr').
+                                        children('td:eq(0)').children('p[accesskey=' + InKindTransactions.ParentID + ']').attr('data-ppp', '1');
+                                }
+
+                              //  searchBtn.trigger('click');
+                            }
+                            $('#spinner').hide();
                             customAlert('Record saved successfully');
 
                         }
 
                         else {
+                            $('#spinner').hide();
                             customAlert('Some Error Occured.Please,try again later.');
                         }
 
                         return false;
                     },
                     error: function (data) {
+                        $('#spinner').hide();
                         customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                         return false;
                     }
@@ -762,6 +878,30 @@
 
 
 
+
+        //function to add more attachments for the in-kind entry//
+        function addMoreInkindAtt(ele)
+        {
+            var divLength = $('#inkind-info-form').find('.attach-div').find('input:file').length;
+
+            var appendDiv = '<div class="sum_attachparticic list_panic_info">\
+                                   <input type="file" name="InkindAttachmentsList[' + divLength + '].InkindAttachmentFile" class="form-control" />\
+                                   <a href="javascript:void(0)" title="Remove Attachment" onclick="removeInkindAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                               </div>';
+            $('#inkind-info-form').find('.attachparticic_myactive').append(appendDiv);
+
+        }
+        //function to remove the attachments for the in-kind entry//
+        function removeInkindAtt(ele)
+        {
+            $(ele).parent('.sum_attachparticic').remove();
+
+            $.each($('#inkind-info-form').find('.attach-div').find('input:file'), function (i, att) {
+                $(att).attr('name', 'InkindAttachmentsList[' + i + '].InkindAttachmentFile');
+            });
+        }
+
+
         // function to return unique values in array//
         function unique(list) {
             var result = [];
@@ -779,7 +919,11 @@
                 datatype: 'json',
                 type: 'post',
                 data: { searchName: $('#searchText').val() },
+                beforeSend:function(){$('#spinner').show()},
                 success: function (data) {
+
+                    $('#spinner').hide();
+
                     if (data != null) {
                         if (data.InkindDonorsList != null) {
                             if (data.InkindDonorsList.length > 0) {
@@ -797,7 +941,7 @@
 
                                     appendDiv += '<tr class="child-row" style="line-height:25px;">\
                                                   <td data-title="Name" class="inset-width">\
-                                                    <p class="client-name" onclick="showParentInfo(this);" style="cursor:pointer;text-decoration:underline;" accesskey='+ donors.InkindDonorId + '>' + donors.Name + '</p>\
+                                                    <p class="client-name" onclick="showParentInfo(this);" style="cursor:pointer;text-decoration:underline;" data-ppp=' + donors.PastPresentParent + ' accesskey=' + donors.InkindDonorId + '  data-hme=' + donors.AllowHomeBasedActivity + '>' + donors.Name + '</p>\
                                                     </td>\
                                                      <td data-title="Company Name" class="inset-width">\
                                                       <p class="parent-name">'+ donors.CompanyName + '</p>\
@@ -805,10 +949,20 @@
                                                         <td data-title="Address" class="icc-center">'+ donors.Address + '\
                                                           </td>\
     <td data-title="Phone No" class="inset-width">' + phoneDiv + '\
-    </td>\
-    <td data-title="Email" class="phn-tabrate">'+ donors.EmailAddress + '\
-  </td>\
-    </tr>';
+    </td>';
+
+                                    if(donors.EmailAddress!='')
+                                    {
+                                        appendDiv+= '<td data-title="Email" class="phn-tabrate">'+ donors.EmailAddress + '\
+                                          </td>\
+                                            </tr>';
+                                    }
+                                    else {
+                                        appendDiv += '<td data-title="Email" class="phn-tabrate">No Email</td>\
+                                                     </tr>';
+                                                    
+                                    }
+   
 
 
                                 });
@@ -819,6 +973,16 @@
                                 $('.contact-entry-div').hide();
                                 $('.not-exists-div').hide();
                                 $('.inkind-entry-div').hide();
+
+
+                                if($('.scroll-tbody').find('tr').length===1)
+                                {
+                                    $('.scroll-tbody').css({'width':'98.5%'});
+                                }
+                                else if ($('.scroll-tbody').find('tr').length > 0) {
+
+                                    $('.scroll-tbody').css({ 'width': '98.5%' });
+                                }
 
                             }
 
@@ -846,7 +1010,12 @@
                         $('.contact-entry-div').show();
                     }
                 },
+                failure:function(data)
+                {
+                    $('#spinner').hide();
+                },
                 error: function (data) {
+                    $('#spinner').hide();
                     customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                 }
 
@@ -1043,7 +1212,7 @@
                             $('#inkindAmountTxt').prop('disabled', false);
                         }
 
-                        if (data.IsSignatureRequired) {
+                        if (data.IsSignatureRequired===true) {
 
                             $('#imageSig1,#imageSig2').val('');
                             $('#sig1').signature('clear');
@@ -1056,6 +1225,19 @@
                             $('#sig2').signature('clear');
                             $('#parent-sig-div,#staff-sig-div').hide();
                         }
+                        if (data.IsAllowDocumentUpload === 1)
+                        {
+                            $('#inkind-info-form').find('input:file').val('');
+                            $('#inkind-info-form').find('.attachparticic_myactive').html('');
+                            $('#inkind-info-form').find('.attach-div').show();
+
+                        }
+                        else {
+                            $('#inkind-info-form').find('input:file').val('');
+                            $('#inkind-info-form').find('.attachparticic_myactive').html('');
+                            $('#inkind-info-form').find('.attach-div').hide();
+                        }
+
                     },
                     error: function (data) {
                         $('#spinner').hide();
@@ -1078,8 +1260,15 @@
             // $('#contact-legend').html('Contact Information');
             var iscompany = '0';
             var companyName = '';
+            var isPastPresentParent = 0;
+            var isShowHome = 0;
             companyName = $(ele).parent('td').parent('tr[class=child-row]').children('td').eq(1).children('p').html();
             iscompany = (companyName === '') ? '0' : '1';
+
+            isPastPresentParent = parseInt($(ele).attr('data-ppp'));
+            isShowHome = parseInt($(ele).attr('data-hme'));
+
+            var $homeCheck= $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]');
 
             $('#inkindPersonName').html($(ele).html()).attr({ 'cl_id': $(ele).attr('accesskey'), 'is_comp': iscompany });
             $('#inkindCompanyName').html('');
@@ -1101,6 +1290,11 @@
             if (iscompany === '1') {
                 $('#inkindCompanyName').html(companyName);
                 $('#inkindCompanyName').attr({ 'cl_id': $(ele).attr('accesskey'), 'is_comp': iscompany });
+                $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+                $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
+                $homeCheck.prop('checked', false).parent('span').parent('div').show();
+                  
+
                 $('.inkind-company-div').show();
 
             }
@@ -1108,6 +1302,33 @@
                 $('#inkindCompanyName').html('');
                 $('#inkindCompanyName').attr({ 'cl_id': '0', 'is_comp': '0' });
                 $('.inkind-company-div').hide();
+
+                if (isPastPresentParent == 0) {
+                    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+                    $('#inkind-info-form').find('.individual-parent-type-div-act').show();
+                    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').hide();
+                    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
+                }
+                else {
+                    $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+                    $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
+
+                    $homeCheck.prop('checked', false).parent('span').parent('div').show();
+
+                }
+
+                if(isShowHome===1)
+                {
+                    $homeCheck.prop('checked', false).parent('span').parent('div').show();
+                }
+                else {
+                    $homeCheck.prop('checked', false).parent('span').parent('div').hide();
+
+                    $homeCheck.closest('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
+
+                }
+
+
             }
 
             //$('#scrolldiv').trigger('click');
@@ -1151,8 +1372,12 @@
         function showCompanyEntry() {
 
             cleanValidation();
+
+            var $Inform = $('#inkind-info-form');
+
             $('.company-name-div,.contact-info-div').show();
-            $('.individual-apart-div,.individual-gender-div,.individual-county-div').hide();
+            $('.individual-parent-type-div').find('input:checkbox[name=parenttype]').prop('checked', false);
+            $('.individual-apart-div,.individual-gender-div,.individual-county-div,.individual-parent-type-div').hide();
             //  $('.inkind-hours-div').hide();
             $('.inkind-entry-div').show();
             $('#text-contact-name,#text-company-name,#text-addressline1,#text-addressline2,#text-zipcode,#text-select-phoneNo,#text-select-email,#text-apartment-no,#text-county,#text-state').val('');
@@ -1183,6 +1408,15 @@
 
             $('#parent-sig-div,#staff-sig-div').hide();
 
+            $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
+           prop('checked', false).parent('span').parent('div').hide();
+
+            $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
+
+
+            $Inform.find('.attach-div').find('input:file').val('');
+            $Inform.find('.attachparticic_myactive').html('');
+            $Inform.find('.attach-div').hide();
 
         }
 
@@ -1191,14 +1425,23 @@
 
             cleanValidation();
 
+            var $inkindForm = $('#inkind-info-form');
+
             $('.company-name-div').hide();
-            $('.individual-apart-div,.individual-gender-div,.individual-county-div').show();
+            $('.individual-apart-div,.individual-gender-div,.individual-county-div,.individual-parent-type-div').show();
+            $('.individual-parent-type-div').find('input:checkbox[name=parenttype]').prop('checked', false);
+
+
+            $inkindForm.find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
+            $inkindForm.find('.individual-parent-type-div-act').hide();
 
 
             $('.contact-info-div').show();
             $('.inkind-entry-div').show();
             $('#text-contact-name,#text-company-name,#text-addressline1,#text-addressline2,#text-zipcode,#text-select-phoneNo,#text-select-email,#text-apartment-no,#text-county,#text-state').val('');
-            $('#inkind-info-form').trigger('reset');
+            $inkindForm.trigger('reset');
+
+
             $('#inkindPersonName').attr({ 'cl_id': '0', 'is_comp': '0' });
             $('#inkindPersonName').html('');
             $('#inkindCompanyName').html('');
@@ -1226,6 +1469,14 @@
             $('.amount-div,.inkind-miles-div,.inkind-hours-div').hide();
             $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').val('');
 
+            $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
+                prop('checked', false).parent('span').parent('div').hide();
+
+            $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
+
+            $inkindForm.find('.attach-div').find('input:file').val('');
+            $inkindForm.find('.attachparticic_myactive').html('');
+            $inkindForm.find('.attach-div').hide();
         }
 
         //function to save the signature of Parent/ Corporate Person//
@@ -1457,6 +1708,10 @@
 {
 
     <style>
+
+        body{
+            font-family:arial,sans-serif!important;
+        }
         .contact-entry-div {
             display: none;
         }
@@ -1497,13 +1752,18 @@
             float: left;
             margin-right: 4px;
         }
+
+        .inkind-i {
+            font-size: 18px;
+            color: #f9c751;
+        }
     </style>
     <link href="~/Content/css/Inkindprocessing.css" rel="stylesheet" />
     <link href="~/Content/css/parentcontact.css" rel="stylesheet" />
     <div class="row">
 
         <div class="col-lg-12">
-            <h2 class="page-header page-header-change">Public Asset Entry</h2>
+            <h2 class="page-header page-header-change">Public Asset Entry <i class="inkind-i">(In-kind)</i></h2>
         </div>
         <div class="col-xs-12 text-right">
             <button class="btn btn-secondary" style="background-color:#f9c751;" id="addContactBtn">Add Contact</button>
@@ -1531,7 +1791,7 @@
                 <small style="color: #f9c751;">Name does not exists in the system. Kindly, add the contact information.</small>
             </div>
             <form id="contact-info-form">
-         
+
 
                 <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 20px;display:none;">
                     <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
@@ -1583,7 +1843,7 @@
 
                             <label class="col-lg-4 col-form-label lbl-required">Contact Type</label>
 
-                            <div class="col-lg-8">
+                            <div class="col-lg-4 text-center">
                                 <label class="radio-inline" style="display:initial;">
                                     <input type="radio" name="radiocompany" value="1">Individual
                                 </label>
@@ -1599,9 +1859,18 @@
 
                                     <label class="col-lg-4 col-form-label lbl-required">Name</label>
 
-                                    <div class="col-lg-8">
-                                        <input type="text" class="form-control" id="text-contact-name" />
+                                    <div class="importhead_name_last">
+                                        <input type="text" class="form-control" placeholder="First Name" id="text-contact-nameF" />
+                                        <input type="text" class="form-control" placeholder="Last Name" id="text-contact-nameL" style="width:50%;" />
                                     </div>
+                                    
+                                    @*<div class="col-lg-4" style="padding-right:2px">
+                                        <input type="text" class="form-control" placeholder="First Name" id="text-contact-nameF" />
+                                    </div>
+
+                                    <div class="col-lg-4" style="padding-left:2px;">
+                                        <input type="text" class="form-control" placeholder="Last Name" id="text-contact-nameL" />
+                                    </div>*@
                                 </div>
 
                                 <div class="form-group row individual-gender-div" style="display:none;">
@@ -1633,11 +1902,11 @@
                                     </div>
                                 </div>
                                 @*<div class="form-group row individual-apart-div" style="display:none;">
-                                    <label class="col-lg-4 col-form-label">Apartment No., Lot No.</label>
-                                    <div class="col-lg-8">
-                                        <input type="text" class="form-control" id="text-apartment-no" />
-                                    </div>
-                                </div>*@
+                                        <label class="col-lg-4 col-form-label">Apartment No., Lot No.</label>
+                                        <div class="col-lg-8">
+                                            <input type="text" class="form-control" id="text-apartment-no" />
+                                        </div>
+                                    </div>*@
 
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label lbl-required">Address</label>
@@ -1683,7 +1952,7 @@
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label lbl-required">State</label>
                                     <div class="col-lg-8">
-                                       
+
                                         <input type="text" class="form-control" id="text-state" placeholder="State" disabled />
                                     </div>
                                 </div>
@@ -1707,9 +1976,23 @@
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-lg-4 col-form-label lbl-required">Email Address</label>
-                                    <div class="col-lg-8">
+                                    <div class="col-lg-8 mynoemial_comments">
                                         <input class="form-control" type="text" id="text-select-email" />
+                                        <div class="sumar_noemail">
+                                            <input type="checkbox" name="no_email">
+                                            <label>No Email</label>
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-12 col-xs-12 col-md-12 col-sm-12 no-padding">
+                                <div class="form-group row paratype_ indivi individual-parent-type-div">
+
+                                    <label class="col-form-label">Past Early Head Start/Head Start Parent ?</label>
+                                    <input class="parent-type" name="parenttype" type="checkbox" value="1">
+                                    
                                 </div>
                             </div>
 
@@ -1817,6 +2100,33 @@
                                 </select>
                             </div>
                         </div>
+
+
+                        <div class="form-group row individual-parent-type-div-act">
+
+                            <label class="col-lg-4 col-sm-6 col-md-6 col-form-label">Past Early Head Start/Head Start Parent ?</label>
+
+                            <div class="col-lg-6">
+
+                                <div class="col-xs-6 col-sm-4" style="padding: 0px;">
+                                    <input class="parent-type" name="parenttype" type="checkbox" value="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row attach-div" style="display:none;">
+                            <label class="col-lg-4 col-form-label">Attachment(s)</label>
+                            <div class="col-lg-8 sum_attachparticic">
+                                <input type="file" class="form-control" name="InkindAttachmentsList[0].InkindAttachmentFile" />
+                                <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreInkindAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+                            </div>
+                            <div class="attachparticic_myactive">
+
+                            </div>
+                        </div>
+
+
+
                     </div>
 
                     <div class="form-group row">

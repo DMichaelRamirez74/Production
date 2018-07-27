@@ -27,6 +27,30 @@ $(document).ready(function () {
         changeModalSize(this);
     });
 
+
+    $('.modal').on('shown.bs.modal', function (e) {
+        var trheight = 0;
+        var bodyht = $(this).find('tbody').height();
+        $(this).find('tbody').find('tr').each(function () {
+
+            trheight += $(this).height();
+        });
+
+        //if row length>=5 the width will be set to 98.5%//
+        if (trheight <= bodyht && $(this).find('tbody').find('tr').length>=5 && $(this).find('tbody').find('tr').length<=10 ) {
+            $(this).find('tbody').css({ 'width': '98.5%' });
+        }
+
+       else if ($(this).find('tbody').find('tr').length > 8) {
+            $(this).find('tbody').css({ 'width': '100%' });
+        }
+
+            //if row length<4 the width will be set to 100%//
+        else if($(this).find('tbody').find('tr').length<4) {
+            $(this).find('tbody').css({ 'width': '100%' });
+        }
+    });
+
     $(window).bind("load resize", function () {
 
         topOffset = 50;
@@ -54,6 +78,53 @@ $('#searchByprogramId').click(function () {
     var Prog_Id = $('.select_programType option:selected').val();
     getList(Prog_Id);
 });
+
+
+
+
+function showImage(ele) {
+    $('#spinner').show();
+    var enc_id = $(ele).attr('eclientid');
+    $.ajax({
+        url: HostedDir+'/ERSEA/GetChildrenImage',
+        dataType: 'json',
+        type: 'post',
+        data: { enc_clientId: enc_id },
+        success: function (data) {
+
+            var image = '';
+            if (data.Text == "" && data.Value == "2") {
+                image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+            }
+            else if (data.Text == "" && data.Value == "1") {
+                image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+            }
+            else if (data.Text == "" && ata.Text == "3") {
+                image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+            }
+            else if (data.Text != "") {
+                image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+            }
+            else {
+                image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+            }
+
+            //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+            //$(pic).parent('td').find('.roundimage').zoomify();
+
+            $(ele).parent('td').append(image);
+            $(ele).parent('td').find('.roundimage').zoomify();
+            $(ele).parent('td').parent('tr').height($(ele).parent('td').parent('tr').height());
+            $(ele).remove();
+            $('#spinner').hide();
+
+        },
+        error: function (data) {
+            $('#spinner').hide();
+        }
+    });
+}
+
 
 function changeModalSize(mod) {
     $(mod).find('tbody').height($(window).height() - 412);
@@ -308,6 +379,10 @@ function getList(programID) {
                 $('#centerTable').find(".scroll-thead").css({ "width": "calc( 100% - 17px )" });
             }
 
+            //tbody height set to 50% of window height//
+            $('#centerTable').find('.scroll-tbody').height($(window).height() - (($(window).height() * 50) / 100));
+
+
 
         },
         error: function (data) {
@@ -375,7 +450,7 @@ $('#centerTable').on('click', '.center-name', function () {
     var enrCount = $(this).closest('tr').find('td').eq(2).children('p').html();
     if (enrCount == '0') {
 
-        customAlert('Childrens are not available');
+        customAlert('Children\'s are not available');
         return false;
     }
     var centerId = $(this).attr('center-id');
@@ -722,7 +797,9 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
                     else if (enrChild.Foster == "2") {
                         foster = "N"
                     }
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client"  class="childName"  clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);"  eclientid=' + enrChild.Enc_ClientId + '>View</a></td>'
+
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
 
@@ -755,10 +832,15 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#EnrolledModal').find('.enrolledModalBody').html(bindEle);
-            $('#EnrolledModal').modal('show');
+
+            $('#EnrolledModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            }, 'show');
+
         },
         error: function (data) {
-            alert('error');
+            customAlert('Error Occurred. Please, try again later.');
             isShowLoader(false);
         }
 
@@ -809,8 +891,9 @@ function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $.each(data.WithdrawnChildrenList, function (k, enrChild) {
                     //bindEle += '<tr><td data-title="Name">' + enrChild.ChildrenName + '</td>';
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
-
+                    bindEle += '<tr><td data-title="Client"  class="childName"  clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + enrChild.Enc_ClientId + ' >View</a></td>'
+               
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId === 0) {
@@ -825,12 +908,16 @@ function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#WithdrawnModal').find('.withdrwnChildren').html(bindEle);
-            $('#WithdrawnModal').modal('show');
+
+            $('#WithdrawnModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            }, 'show');
 
         },
         error: function (data) {
             isShowLoader(false);
-            alert('error');
+            customAlert('Error occurred. Please, try again later.');
         }
 
     });
@@ -883,9 +970,9 @@ function getDroppedChildren(centerId, prog_id, reqPage, pgSize) {
                 }
 
                 $.each(data.DroppedChildrenList, function (k, enrChild) {
-                    //bindEle += '<tr><td data-title="Name">' + enrChild.ChildrenName + '</td>';
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
-
+                   
+                    bindEle += '<tr><td data-title="Client"  class="childName"  clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + enrChild.Enc_ClientId + ' >View</a></td>'
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
@@ -900,12 +987,14 @@ function getDroppedChildren(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#DroppedModal').find('.droppedChildren').html(bindEle);
-            $('#DroppedModal').modal('show');
+            $('#DroppedModal').modal({backdrop:'static',
+                                      keyboard:false
+            },'show');
 
         },
         error: function (data) {
             isShowLoader(false);
-            alert('error');
+            customAlert('Error Occurred.Please, try again later.');
         }
 
     });
@@ -957,9 +1046,8 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
                 }
 
                 $.each(data.WaitingChildrenList, function (k, enrChild) {
-                    //bindEle += '<tr><td data-title="Name">' + enrChild.ChildrenName + '</td>';
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
-
+                    bindEle += '<tr><td data-title="Client" class="childName"  clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ChildrenName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + enrChild.Enc_ClientId + ' >View</a></td>'
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     bindEle += '<td data-title="Date on List">' + enrChild.DateOnList + '</td><td data-title="Center Choice">' + enrChild.CenterChoice + '<td data-title="Program Type">' + enrChild.ProgramType + '</td>' +
@@ -970,12 +1058,12 @@ function getWaitingChildren(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#WaitingModal').find('.waitingChildren').html(bindEle);
-            $('#WaitingModal').modal('show');
+            $('#WaitingModal').modal({backdrop:'static',keyboard:false},'show');
 
         },
         error: function (data) {
             isShowLoader(false);
-            alert('error');
+            customAlert('Error occurred. Please, try again later.');
         }
 
     });
@@ -1029,9 +1117,8 @@ function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
                     else if (enrChild.Foster == "2") {
                         foster = "N";
                     }
-                    //bindEle += '<tr><td data-title="Name">' + enrChild.ClientName + '</td>';
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
-
+                    bindEle += '<tr><td data-title="Client"  class="childName"  clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + enrChild.Enc_ClientId + '>View</a></td>'
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
@@ -1049,10 +1136,11 @@ function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#ReturningModal').find('.returningChildren').html(bindEle);
-            $('#ReturningModal').modal('show');
+            $('#ReturningModal').modal({backdrop:'static',keyboard:false},'show');
         },
         error: function (data) {
             isShowLoader(false);
+            customAlert('Error occurred. Please, try again later.');
         }
 
     });
@@ -1107,10 +1195,9 @@ function getGraduatingChildrens(centerId, prog_id, reqPage, pgSize) {
                     else if (enrChild.Foster == "2") {
                         foster = "N"
                     }
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
+                    bindEle += '<tr><td data-title="Client"  class="childName"  clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '</div></td>';
 
-                    // bindEle += '<tr><td data-title="Name">' + enrChild.ClientName + '</td>';
-
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + enrChild.Enc_ClientId + '>View</a></td>'
 
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
@@ -1129,10 +1216,11 @@ function getGraduatingChildrens(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#GraduatingModal').find('.gradChildren').html(bindEle);
-            $('#GraduatingModal').modal('show');
+            $('#GraduatingModal').modal({backdrop:'static',keyboard:false}, 'show');
         },
         error: function (data) {
             isShowLoader(false);
+            customAlert('Error occurred. Please, try again later.');
         }
 
     });
@@ -1191,10 +1279,9 @@ function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
                     else if (enrChild.Foster == "2") {
                         foster = "N";
                     }
-                    // bindEle += '<tr><td data-title="Name">' + enrChild.ClientName + '</td>';
 
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '<span class="tooltiptext"></span></div></td>';
-
+                    bindEle += '<tr><td data-title="Client" class="childName" clientId=' + enrChild.Enc_ClientId + '><div>' + enrChild.ClientName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + enrChild.Enc_ClientId + '>View</a></td>'
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
 
@@ -1221,10 +1308,11 @@ function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#OverIncomeModal').find('.overIncomeChildren').html(bindEle);
-            $('#OverIncomeModal').modal('show');
+            $('#OverIncomeModal').modal({backdrop:'static',keyboard:false}, 'show');
         },
         error: function (data) {
             isShowLoader(false);
+            customAlert('Error occurred. Please, try again later.');
 
         }
 
@@ -1280,9 +1368,8 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
                 $.each(data.FosterChildrenList, function (k, fosterchild) {
 
                     bindDiv += '<tr>';
-                    // bindDiv += '<td style="line-height: 25px;" data-title="Attachment">' + fosterchild.ClientName + ' </td>';
-                    bindDiv += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + fosterchild.Enc_ClientId + '><div>' + fosterchild.ClientName + '<span class="tooltiptext"></span></div></td>';
-
+                    bindDiv += '<tr><td data-title="Client"  class="childName"  clientId=' + fosterchild.Enc_ClientId + '><div>' + fosterchild.ClientName + '</div></td>';
+                    bindDiv += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + fosterchild.Enc_ClientId + '>View</a></td>'
                     bindDiv += (fosterchild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (fosterchild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindDiv += '<td data-title="Date Of Birth">' + fosterchild.Dob + '</td>';
 
@@ -1306,7 +1393,7 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
                 ">Records not found</th></tr>';
             }
             $('#FosterModal').find('.fosterChildren').html(bindDiv);
-            $('#FosterModal').modal('show');
+            $('#FosterModal').modal({backdrop:'static',keyboard:false},'show');
 
         },
         error: function (data) {
@@ -1361,10 +1448,9 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
 
                 $.each(data.HomeLessChildrenList, function (k, hlChild) {
 
-                    //  bindEle += '<tr><td data-title="Name">' + hlChild.ChildrenName + '</td>';
 
-                    bindEle += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + hlChild.Enc_ClientId + '><div>' + hlChild.ChildrenName + '<span class="tooltiptext"></span></div></td>';
-
+                    bindEle += '<tr><td data-title="Client" class="childName"  clientId=' + hlChild.Enc_ClientId + '><div>' + hlChild.ChildrenName + '</div></td>';
+                    bindEle += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + hlChild.Enc_ClientId + '>View</a></td>'
                     bindEle += (hlChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (hlChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + hlChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
@@ -1378,10 +1464,11 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#HomeLessModal').find('.homeLessChildren').html(bindEle);
-            $('#HomeLessModal').modal('show');
+            $('#HomeLessModal').modal({backdrop:'static',keyboard:false},'show');
         },
         error: function (data) {
             isShowLoader(false);
+            customAlert('Error occurred. Please, try again later.');
         }
 
     });
@@ -1453,10 +1540,11 @@ function getLeadsChildren(centerId, prog_id, reqPage, pgSize) {
             }
 
             $('#ExternalLeadsModal').find('.LeadsModalBody').html(bindEle);
-            $('#ExternalLeadsModal').modal('show');
+            $('#ExternalLeadsModal').modal({backdrop:'static',keyboard:false}, 'show');
         },
         error: function (data) {
             isShowLoader(false);
+            customAlert('Error occurred. Please, try again later.');
         }
 
     });
@@ -1479,9 +1567,9 @@ function bindGridByCenter(binData) {
             else if (value1.Foster == "2") {
                 foster = "N"
             }
-            value += '<tr><td data-title="Client" style="cursor:pointer;text-decoration:underline;text-decoration-color:#337ab7;" class="childName" onmouseenter="getChildrenImage(this); " clientId=' + value1.ClientId + '><div>' + value1.ClientName + '<span class="tooltiptext"></span></div></td>';
+            value += '<tr><td data-title="Client" class="childName"  clientId=' + value1.ClientId + '><div>' + value1.ClientName + '</div></td>';
 
-
+            value += '<td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0);" onclick="showImage(this);" eclientid=' + value1.ClientId + ' >View</a></td>';
             value += (value1.Gender == "1") ? '<td data-title="Gender">Male</td>' : (value1.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
             value += '<td data-title="DOB">' + value1.Dob + '</td>';
             value += '<td data-title="Start Date">' + value1.ClassStartDate + '</td>\

@@ -77,6 +77,7 @@ namespace FingerprintsData
                                                        ZipCode = dr["ZipCode"].ToString(),
                                                        InkindDonorId = dr["ClientId"].ToString(),
                                                        CompanyName = dr["CompanyName"].ToString(),
+                                                       PastPresentParent = Convert.ToInt32(dr["PastPresentParent"]),
                                                        PhoneNoList = (dataset.Tables[1].Rows.Count > 0) ?
                                                        (from DataRow dr2 in dataset.Tables[1].Rows
                                                         where (Convert.ToInt64(dr2["ClientId"]) == Convert.ToInt64(dr["ClientId"]))
@@ -88,6 +89,8 @@ namespace FingerprintsData
                                                         }
 
                                                                                                      ).ToList() : new List<FamilyHousehold.phone>(),
+
+                                                       AllowHomeBasedActivity=(Convert.ToBoolean(dr["AllowHomeBasedActivity"]))?1:0
                                                    }
 
 
@@ -158,6 +161,7 @@ namespace FingerprintsData
                                                                 Volunteer = Convert.ToBoolean(dr["Volunteer"]),
                                                                 ActivityType = dr["ActivityType"].ToString(),
                                                                 IsSignatureRequired = Convert.ToBoolean(dr["IsSignatureRequired"]),
+                                                                IsAllowDocumentUpload = string.IsNullOrEmpty(dr["IsAllowDocumentUpload"].ToString()) ? 2 : Convert.ToInt32(dr["IsAllowDocumentUpload"]),
                                                                 SubActivityList = (int.TryParse(dataset.Tables[1].Rows.Count.ToString(), out rowscount)) ? (from DataRow dr1 in dataset.Tables[1].Rows
                                                                                                                                                             where Convert.ToInt32(dr1["ActivityCode"]) == Convert.ToInt32(dr["ActivityCode"])
                                                                                                                                                             select new SubActivities
@@ -215,6 +219,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ActivityDescription", activity.ActivityDescription));
                     command.Parameters.Add(new SqlParameter("@ActivityCode", string.IsNullOrEmpty(activity.ActivityCode) ? "0" : activity.ActivityCode));
                     command.Parameters.Add(new SqlParameter("@Volunteer", activity.Volunteer));
+                    command.Parameters.Add(new SqlParameter("@AllowDocumentUpload", activity.IsAllowDocumentUpload));
                     command.Parameters.Add(new SqlParameter("@SubActivities", actb));
                     command.CommandText = "USP_InsertInkindActivity";
                     command.CommandType = CommandType.StoredProcedure;
@@ -349,6 +354,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@IsSignatureRequired", activity.IsSignatureRequired));
                     command.Parameters.Add(new SqlParameter("@ActivityCode", string.IsNullOrEmpty(activity.ActivityCode) ? "0" : activity.ActivityCode));
                     command.Parameters.Add(new SqlParameter("@ActivityDescription", activity.ActivityDescription));
+                    command.Parameters.Add(new SqlParameter("@AllowDocumentUpload", activity.IsAllowDocumentUpload));
                     command.CommandText = "USP_CheckInkindActivityExists";
                     command.CommandType = CommandType.StoredProcedure;
                     command.Connection = _connection;
@@ -383,6 +389,35 @@ namespace FingerprintsData
             try
             {
 
+
+                DataTable attachmentdt = new DataTable();
+
+                attachmentdt.Columns.AddRange(new DataColumn[5] {
+
+new DataColumn("IndexID",typeof(long)),
+new DataColumn("Attachment",typeof(byte[])),
+new DataColumn("AttachmentName",typeof(string)),
+new DataColumn("AttachmentExtension",typeof(string)),
+new DataColumn("Status",typeof(bool))
+
+                });
+
+
+                if (inkindTransactions.InkindAttachmentsList!=null && inkindTransactions.InkindAttachmentsList.Count > 0)
+                {
+
+                    foreach(var item in inkindTransactions.InkindAttachmentsList)
+                    {
+                        attachmentdt.Rows.Add(item.InkindAttachmentID,
+                                                  item.InkindAttachmentFileByte,
+                                                  item.InkindAttachmentFileName,
+                                                  item.InkindAttachmentFileExtension,
+                                                 item.InkindAttachmentStatus
+                                                  );
+                    }
+
+                }
+
                 StaffDetails details = StaffDetails.GetInstance();
                 using (_connection)
                 {
@@ -404,6 +439,8 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@StaffSignature", inkindTransactions.StaffSignature));
                     command.Parameters.Add(new SqlParameter("@InKindAmount", inkindTransactions.InKindAmount));
                     command.Parameters.Add(new SqlParameter("@MilesDriven", inkindTransactions.MilesDriven));
+                    command.Parameters.Add(new SqlParameter("@ParentType", inkindTransactions.ParentType));
+                    command.Parameters.Add(new SqlParameter("@InkindAttachmentType", attachmentdt));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_MarkInkindActivity";
                     command.Connection = _connection;
@@ -461,6 +498,9 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@IsInsert", corporate.IsInsert));
                     command.Parameters.Add(new SqlParameter("@Gender", corporate.Gender));
                     command.Parameters.Add(new SqlParameter("@County", corporate.County));
+                    command.Parameters.Add(new SqlParameter("@FirstName", corporate.FirstName));
+                    command.Parameters.Add(new SqlParameter("@LastName", corporate.LastName));
+                    command.Parameters.Add(new SqlParameter("@NoEmail", corporate.NoEmail));
                     command.Connection = _connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_InsertInKindDonors";

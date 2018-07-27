@@ -102,7 +102,7 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult Roster(string id="")
         {
             try
