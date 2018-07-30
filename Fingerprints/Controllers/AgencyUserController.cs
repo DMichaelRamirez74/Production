@@ -6732,7 +6732,7 @@ namespace Fingerprints.Controllers
             transitionDetails.Transition.HouseholdId = EncryptDecrypt.Decrypt64(transitionDetails.Transition.HouseholdId);
             transitionDetails.Transition.ProgramTypeId = Convert.ToInt64(EncryptDecrypt.Decrypt64(transitionDetails.Transition.Enc_ProgID));
 
-            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, Session["AgencyId"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString());
+            results = new RosterData().SaveChildHeadStartTranstion(transitionDetails, Session["AgencyId"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString(),true);
 
             return Json(results);
         }

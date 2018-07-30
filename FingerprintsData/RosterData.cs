@@ -4416,7 +4416,7 @@ namespace FingerprintsData
             return _roster;
 
         }
-        public List<SeatAvailability> SaveChildHeadStartTranstion(TransitionDetails Transition, string AgencyId, string UserId, string RoleId)
+        public List<SeatAvailability> SaveChildHeadStartTranstion(TransitionDetails Transition, string AgencyId, string UserId, string RoleId,bool isStatusChange=false)
         {
             List<SeatAvailability> AvailabilityList = new List<SeatAvailability>();
             try
@@ -4440,7 +4440,7 @@ namespace FingerprintsData
 
                 int i = 1;
 
-                if (Transition.Transition.TypeOfTransition==10 && Transition.Transition.NewProgramYearTransition == false)
+                if ((Transition.Transition.TypeOfTransition==10 && Transition.Transition.NewProgramYearTransition == false) || (isStatusChange))
                 {
 
                     foreach (PregMomChilds objChild in Transition.PregMomChilds)
