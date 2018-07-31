@@ -10496,6 +10496,7 @@ namespace FingerprintsData
             trans.Users = new RosterNew.Users();
             trans.Users.Clientlist = new List<RosterNew.User>();
             trans.Users.UserList = new List<RosterNew.User>();
+            trans.TransitionProgramType = new Agency.ProgramType();
             if (!String.IsNullOrWhiteSpace(Status))
             {
                 try
@@ -10660,12 +10661,24 @@ namespace FingerprintsData
                                                                                          ).ToList();
                         }
 
+                        if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
+                        {
+                            trans.TransitionProgramType = (from DataRow dr7 in _dataset.Tables[7].Rows
+                                                           select new Agency.ProgramType
+                                                           {
+                                                               ProgramID = Convert.ToInt32(dr7["programTypeID"]),
+                                                               ProgramTypes = dr7["ProgramType"].ToString(),
+                                                               LastDateCurrentApplication = dr7["LastDateCurrentApplication"].ToString(),
+                                                               DateFutureApplication = dr7["DateFutureApplication"].ToString(),
+                                                               TransitionDate = dr7["TransitionDate"].ToString(),
+                                                               AllowCurrentApplication = Convert.ToBoolean(dr7["AllowCurrentApplication"]),
+                                                               AllowFutureApplication = Convert.ToBoolean(dr7["AllowFutureApplication"]),
+                                                               FutureProgramYear = dr7["NextProgramYear"].ToString()
+                                                           }).FirstOrDefault();
 
 
-
+                        }
                     }
-
-                    //DateTime datetime =  DateTime.Now.Tosring("MM/dd/yyyy");
 
                     DataAdapter.Dispose();
                     command.Dispose();

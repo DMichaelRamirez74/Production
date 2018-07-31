@@ -175,6 +175,12 @@ namespace FingerprintsModel
         public List<SelectListItem> EHSPrograms { get; set; }
 
         public List<SelectListItem> HSPrograms { get; set; }
+
+        public Agency.ProgramType TransitionProgramType { get; set; }
+
+        public bool IsFutureApplication { get; set; }
+
+
     }
 
     public class TransitionDetails {
@@ -190,6 +196,8 @@ namespace FingerprintsModel
         public string DOB { get; set; }
         public string Gender { get; set; }
 
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
 
 
         public int InsuranceType { get; set; }

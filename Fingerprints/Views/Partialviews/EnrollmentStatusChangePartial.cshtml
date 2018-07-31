@@ -169,7 +169,7 @@
         margin-left: 25px;
         margin-top: 5px;
     }
-
+    .transition-radio-btn .radio.radio-info{margin-right:25px;}
     @@media only screen and (min-width: 1024px) and (max-width: 1290px) {
         .response-mtop {
             margin-top: 10px !important;
@@ -189,24 +189,39 @@
 
     var prevTag = '';
 
-    var multiChildAppend = '<div class="col-xs-12 addInnerChildContent">\
+    var multiChildAppend = '<div class="col-xs-12 addInnerChildContent no-padding">\
                                                 <form role="form">\
-                                                    <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;margin-top:15px;">\
+                                                    <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;margin-top:15px;">\
                                                         <div class="col-lg-3 col-xs-5" style="padding-left: 0;">\
                                                             <div class="transition-content-desc" style="position: relative;">\
-                                                                <p style="background: none;border: none">Name<span class="error-notify">*</span></p>\
+                                                                <p style="background: none;border: none">First Name<span class="error-notify">*</span></p>\
                                                             </div>\
                                                         </div>\
                                                         <div class="col-lg-9 col-xs-7 no-padding">\
                                                             <div class="transition-content-desc" style="position: relative;">\
-                                                                <input type="text" style="margin-bottom: 5px;" class="form-control childmandatory childName">\
+                                                                <input type="text" style="margin-bottom: 5px;" class="form-control childmandatory childFirstName" placeholder="First Name">\
                                                                 <div class="err-container irr-error">\
-                                                                    <span class="err-message">Child name is required</span>\
+                                                                    <span class="err-message">First name is required</span>\
                                                                 </div>\
                                                             </div>\
                                                         </div>\
                                                     </div>\
-                                                    <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;margin-top:15px;">\
+                                                    <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;margin-top:15px;">\
+                                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">\
+                                                            <div class="transition-content-desc" style="position: relative;">\
+                                                                <p style="background: none;border: none">Last Name<span class="error-notify">*</span></p>\
+                                                            </div>\
+                                                        </div>\
+                                                        <div class="col-lg-9 col-xs-7 no-padding">\
+                                                            <div class="transition-content-desc" style="position: relative;">\
+                                                                <input type="text" style="margin-bottom: 5px;" class="form-control childmandatory childLastName" placeholder="Last Name">\
+                                                                <div class="err-container irr-error">\
+                                                                    <span class="err-message">Last name is required</span>\
+                                                                </div>\
+                                                            </div>\
+                                                        </div>\
+                                                    </div>\
+                                                    <div class="col-xs-12 col-md-6" style="margin-bottom: 10px;margin-top:15px;">\
                                                         <div class="col-lg-3 col-xs-5" style="padding-left: 0;">\
                                                             <div class="transition-content-desc" style="position: relative;">\
                                                                 <p style="background: none;border: none">DOB<span class="error-notify">*</span></p>\
@@ -222,7 +237,7 @@
                                                             </div>\
                                                         </div>\
                                                     </div>\
-                                                    <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;">\
+                                                    <div class="col-xs-12 col-md-6" style="margin-top: 16px;">\
                                                         <div class="col-lg-3 col-xs-5" style="padding-left: 0;">\
                                                             <div class="transition-content-desc" style="position: relative;">\
                                                                 <p style="background: none;border: none">Gender<span class="error-notify">*</span></p>\
@@ -242,7 +257,7 @@
                                                             </div>\
                                                         </div>\
                                                     </div>\
-                                                    <div class="col-xs-12 col-md-6 no-padding" style="margin-bottom: 10px;">\
+                                                    <div class="col-xs-12" style="margin-bottom: 10px;">\
                                                         <div class="enroll-sec" style="padding-left: 0;">\
                                                             <div class="transition-content-desc" style="position: relative;">\
                                                                 <p style="background: none;border: none;">Will the newborn be enrolled into the EHS program?<span class="error-notify">*</span></p>\
@@ -524,7 +539,7 @@
 
 
     function bindStatusCaseNoteDetailsPregMom(birthOption) {
-        debugger;
+       
         var list = '';
 
 
@@ -596,7 +611,7 @@
     }
 
     function Showreason(object) {
-        debugger;
+      
         cleanValidation();
         var isPregnant = $('#ChangeclientStatus').find('#isclientPreg').val() == 'true' ? true : false;
         var tp = '';
@@ -754,6 +769,16 @@
                 $('#status_CaseNotetags').importTags(reasonTag);
             }
 
+            $('#status_CaseNotetags').tagsInput({
+                width: 'auto',
+                height: 'auto',
+                delimiter: [',', ';'],
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInput()
+                },
+                autocomplete_url: '',
+            });
 
             $('#Divreason').hide();
 
@@ -806,12 +831,12 @@
     }
 
     function isValidStatusChange() {
-        debugger;
+       
         var isValid = true;
         cleanValidation();
 
 
-
+        $('#allowFutureRadioDiv').css('background-color', '');
 
         $('.enroll-sec').each(function () {
 
@@ -836,7 +861,7 @@
         $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').removeClass('err-bg');
 
         //  var birthCheckedValue = '0';
-        if ((ackey == '8' || ackey == '9') && newStat == 'Withdrawn' && $('#dateOfWithdrawnDiv').is(':visible')) {
+        if ((ackey == '8' || ackey == '9'|| ackey=='10') && newStat == 'Withdrawn' && $('#dateOfWithdrawnDiv').is(':visible')) {
             if (dateWithdrawn.val() == null || dateWithdrawn.val() == '') {
                 isValid = false;
                 plainValidation(dateWithdrawn);
@@ -893,7 +918,7 @@
             return isValid;
         }
 
-        if ((ackey == '5' || ackey == '8' || ackey == '9') && $('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
+        if ((ackey == '5' || ackey == '8' || ackey == '9' || ackey=='10') && $('#Divwaitinglist').is(':visible') && $("input:radio[name='waitinglist']:checked").val() == undefined) {
             isValid = false;
             customAlert("Please select Yes or No for Place on Waiting List");
             $("input:radio[name='waitinglist']")[0].focus();
@@ -925,7 +950,14 @@
                 return isValid;
             }
 
-
+            if ($changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').is(':visible') && $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('input[name=newChildInstype]:checked').val() == '3' &&
+                $changeModal.find('#newChildInfoDiv').find('#newChildInsuranceDiv').find('#OtherInsuranceType').val()=='')
+            {
+                isValid = false;
+                customAlert('Please enter other insurance type');
+                plainValidation('#OtherInsuranceType');
+                return isValid;
+            }
 
             if ($changeModal.find('input[name=BirthType]:checked').length > 0) {
                 var birthChecked = $changeModal.find('input[name=BirthType]:checked').val();
@@ -946,6 +978,17 @@
                     return isValid;
                 }
 
+                //if ((birthChecked == '2' || birthChecked == '3') && $('#newChildInfoDiv').is(':visible') == true
+                //    && $('#newChildInfoDiv').find('#allowFutureApplicationDiv').is(':visible') == true &&
+                //     $('#newChildInfoDiv').find('#allowFutureApplicationDiv').find('#allowFutureRadioDiv').is(':visible')==true &&
+                //   $('#newChildInfoDiv').find('#allowFutureApplicationDiv').find('input:radio[name=radioFutureApp]:checked').length==0)
+                //{
+                //    isValid = false;
+                //    plainValidation('#allowFutureRadioDiv');
+                //    customAlert('Please select Yes or No for accept as future application.');
+                //    return isValid;
+                //}
+
                 if (birthChecked == '2' || birthChecked == '3') {
 
                     var childDivLength = parseInt($('#MultiChildBirth').val());
@@ -962,9 +1005,15 @@
                     innerChild.each(function (c, child) {
 
 
-                        if ($(child).find('.childName').val() == '') {
-                            plainValidation($(child).find('.childName'));
-                            $(child).find('.childName').parent('div').find('.err-message').show();
+                        if ($(child).find('.childFirstName').val() == '') {
+                            plainValidation($(child).find('.childFirstName'));
+                            $(child).find('.childFirstName').parent('div').find('.err-message').show();
+                            errorCount++;
+                        }
+
+                        if ($(child).find('.childLastName').val() == '') {
+                            plainValidation($(child).find('.childLastName'));
+                            $(child).find('.childLastName').parent('div').find('.err-message').show();
                             errorCount++;
                         }
 
@@ -1170,7 +1219,7 @@
                 if (result) {
                     if (EnrolledObject != null) {
                         var Transition = {};
-                        debugger;
+                     
 
                         var ispregClient = $changeModal.find('#isclientPreg').val() == 'true' ? true : false;
                         var isbirthDivVis = $changeModal.find('#childBirthTypeDiv').is(':visible');
@@ -1198,7 +1247,7 @@
                         Transition.IsPreg = ispregClient;
                         Transition.ClientId = 0;
                         Transition.TransitioningType = 0;
-
+                     
 
 
                         var fileData = new FormData();
@@ -1224,7 +1273,7 @@
                         var arr = [];
 
                         $changeModal.find('#statusattachmentsDiv').find('input[type=file]').each(function (m, file) {
-                            debugger;
+                          
 
                             var fileUpload = $(file).get(0);
                             var files = fileUpload.files;
@@ -1314,13 +1363,26 @@
 
                             Transition.DateOfTransition = ($changeModal.find('#dateOfWithdrawnDiv').is(':visible')) ? dateWithdrawn.val() : null;
                             Transition.ChildInsuranceType = $changeModal.find('input[name=newChildInstype]:checked').val();
-                            Transition.ChildOtherInsuranceTypeDesc = ($changeModal.find('input[name=newChildInstype]:checked').val() == 'C1D1') ? $changeModal.find('#OtherInsuranceType').val() : '';
-
+                            Transition.ChildOtherInsuranceTypeDesc = ($changeModal.find('input[name=newChildInstype]:checked').val() == '3') ? $changeModal.find('#OtherInsuranceType').val() : '';
+                            Transition.IsFutureApplication = false;
+                            //if ($changeModal.find('#allowFutureApplicationDiv').is(':visible') && $changeModal.find('#allowFutureInput').val() == '1' && $changeModal.find('#allowCurrentInput') == '1' && $changeModal.find('#allowFutureApplicationLbl').is(':visible')==false)
+                            //{
+                            //    if($changeModal.find('#allowFutureApplicationDiv').find('#allowFutureRadioDiv').is(':visible'))
+                            //    {
+                            //        Transition.IsFutureApplication= $changeModal.find('#allowFutureApplicationDiv').find('#allowFutureRadioDiv').find('input:radio[name=radioFutureApp]:checked').val() == '1' ? true : false;
+                            //    }
+                            //}
+                            //else if ($changeModal.find('#allowFutureApplicationLbl').is(':visible') && $changeModal.find('#allowFutureInput').val() == '1' && $changeModal.find('#allowCurrentInput').val() == '0' && $changeModal.find('#allowFutureApplicationDiv').is(':visible')==false)
+                            //{
+                            //    Transition.IsFutureApplication = true;
+                            //}
 
                             var child = [];
                             $changeModal.find('#additionalChildDiv').find('.addInnerChildContent').each(function () {
                                 var Child = {};
-                                Child.Name = $(this).find('.childName').val();
+                                Child.FirstName = $(this).find('.childFirstName').val();
+                                Child.LastName = $(this).find('.childLastName').val();
+                                Child.Name = $(this).find('.childFirstName').val() + ' ' + $(this).find('.childLastName').val();
                                 Child.DOB = $(this).find('.dob').val(); Child.Gender = $(this).find('input[name="yn"]:checked').val();
                                 // Child.InsuranceType = $('input[name=newChildInstype]:checked').val();
                                 Child.IsEHS = $(this).find('input[name="yn1"]:checked').val() == "true" ? true : false;
@@ -1332,8 +1394,7 @@
 
                             fileData.append('Transition', JSON.stringify(Transition));
                             fileData.append('PregMomChilds', JSON.stringify(child));
-                            console.log(fileData);
-                            console.log(child);
+
                             $.ajax({
                                 url: HostedDir + "/AgencyUser/UpdatePregMomEnrollmentStatus",
                                 type: "POST",
@@ -1459,8 +1520,7 @@
             secureuri: false,
             async: false,
             success: function (response) {
-                debugger;
-                console.log(response);
+            
                 var $modal = $('#ChangeclientStatus');
 
                 $modal.find('#accesskey').val($(object).attr("accesskey"));
@@ -1538,6 +1598,46 @@
                             insur.find('#PregOtherInsuranceType').val('');
                             insur.find('#PregOtherInsuranceType').parent('div').hide();
                         }
+
+                        var newChildInfo = $('#ChangeclientStatus').find('#newChildInfoDiv');
+
+                        //newChildInfo.find('#allowFutureApplicationDiv').hide().find('input:radio').prop('checked', false);
+                        //newChildInfo.find('#allowFutureApplicationLbl').hide();
+
+
+                        //if(response.TransitionProgramType !=null && response.TransitionProgramType!=undefined)
+                        //{
+
+                        //    var isCurrent =(response.TransitionProgramType.AllowCurrentApplication == true)?1: 0;
+                        //    var isFuture = (response.TransitionProgramType.AllowFutureApplication == true) ? 1 : 0;
+                          
+                        //    newChildInfo.find('#allowCurrentInput').val(isCurrent);
+
+                        //    newChildInfo.find('#allowFutureInput').val(isFuture);
+
+
+                        //    if(isCurrent==1 && isFuture==1 )
+                        //    {
+                        //        newChildInfo.find('#allowFutureApplicationDiv').find('#spanYear').html('(' + response.TransitionProgramType.FutureProgramYear + ')');
+
+                        //        newChildInfo.find('#allowFutureApplicationDiv').show().find('input:radio').prop('checked', false);
+                        //        newChildInfo.find('#allowFutureApplicationLbl').hide();
+                        //    }
+                        //    else if(isFuture==1)
+                        //    {
+                        //        newChildInfo.find('#allowFutureApplicationDiv').hide().find('input:radio').prop('checked', false);
+                        //        newChildInfo.find('#allowFutureApplicationLbl').find('#strongYear').html('(' + response.TransitionProgramType.FutureProgramYear + ')');
+
+                        //        newChildInfo.find('#allowFutureApplicationLbl').show();
+                        //    }
+
+                        //}
+
+
+
+
+
+
                     }
                     else {
 
@@ -1799,12 +1899,11 @@
 
             }
             , error: function (response) {
-                console.log(response.responseText);
+              
                 // customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
             },
             complete: function (data) {
-                console.log(data);
-                debugger;
+                
 
                 if (data.statusText == 'OK' && data.responseJSON != null) {
                     $.ajax({
@@ -1813,8 +1912,7 @@
                         type: 'post',
                         data: { mode: '0', homebased: (data.responseJSON.IsPreg == true) },
                         success: function (data) {
-                            console.log(data);
-
+                        
                             var appendText = '';
                             appendText += '<option value="0">-Select Center-</option>';
 
@@ -1988,7 +2086,7 @@
 
         $('#spnMultiChildBirth').on('click', function () {
 
-            debugger;
+        
             $('.err-message-birthtype').hide();
             if ($('#MultiChildBirth').val() == "" || $('#MultiChildBirth').val() == null) {
                 //  $('#spnMultiChildBirthErr').text("Please enter number of child.");
@@ -2175,16 +2273,16 @@
 
 
 
-        $('#status_CaseNotetags').tagsInput({
-            width: 'auto',
-            height: 'auto',
-            delimiter: [',', ';'],
-            autocomplete: {
-                //'source': tags_array[0].split(/,\s*/)
-                //'source': getTagsOnInput()
-            },
-            autocomplete_url: '',
-        });
+        //$('#status_CaseNotetags').tagsInput({
+        //    width: 'auto',
+        //    height: '38px',
+        //    delimiter: [',', ';'],
+        //    autocomplete: {
+        //        //'source': tags_array[0].split(/,\s*/)
+        //        //'source': getTagsOnInput()
+        //    },
+        //    autocomplete_url: '',
+        //});
 
     });
 
@@ -2989,7 +3087,12 @@
 
 
                                         <div class="col-xs-12 addNewChildBody edu_header" id="newChildInfoDiv">
+                                            <input type="hidden" id="allowFutureInput" value="0" />
+                                            <input type="hidden" id="allowCurrentInput" value="0"/>
+
                                             <h3><i class="fa fa-child" aria-hidden="true"></i> Child Information</h3>
+
+
                                             <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
                                                 <div class="col-lg-5 col-sm-5 col-xs-12">
                                                     <div class="transition-content-desc" style="position: relative;">
@@ -3044,6 +3147,50 @@
 
                                                 </div>
                                             </div>
+
+
+
+
+                                            @*<div class="col-xs-12 no-padding" id="allowFutureApplicationDiv" style="margin-bottom: 10px;display:none;">
+                                                <div class="col-lg-5 col-xs-12 col-sm-8">
+                                                    <div class="enroll-sec">
+                                                        <div class="transition-content-desc" style="position: relative;">
+                                                            <p class="pir-q-p">Accept Application for Next Program Year <span id="spanYear"></span> ? <span class="error-notify">*</span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-7 col-xs-12 col-sm-4" id="allowFutureRadioDiv">
+                                                    <div class="transition-radio-btn enroll-sec">
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="radioFutureApp"  value="1">
+                                                            <label>Yes</label>
+                                                        </div>
+                                                        <div class="radio radio-info">
+                                                            <input type="radio" name="radioFutureApp" value="0">
+                                                            <label>No</label>
+                                                        </div>
+
+                                                        <div class="err-container irr-error col-xs-12" style="padding:0;">
+                                                            <span class="err-message err-message-ms" style="display: none;">This field is required</span>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>*@
+
+
+                                            @*<div class="col-xs-12 no-padding" id="allowFutureApplicationLbl" style="margin-bottom: 15px; padding: 4px 12px;display:none;">
+
+                                                <div class="info" style="background-color: #e7f3fe; border-left: 6px solid #2196F3;padding:10px;">
+                                                    <p><strong>Note! </strong>This Application will be accepted to the Program Year <strong id="strongYear"></strong></p>
+                                                </div>
+                                            </div>*@
+
+
+
+
+
                                             <div class="col-xs-12" id="additionalChildDiv">
                                                 @*<div class="col-xs-12 addInnerChildContent">
                                                         <form role="form">

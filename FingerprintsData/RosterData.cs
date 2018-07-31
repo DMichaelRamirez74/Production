@@ -4440,7 +4440,7 @@ namespace FingerprintsData
 
                 int i = 1;
 
-                if ((Transition.Transition.TypeOfTransition==10 && Transition.Transition.NewProgramYearTransition == false) || (isStatusChange))
+                if (((Transition.Transition.TypeOfTransition==10 ||Transition.Transition.TypeOfTransition==9) && Transition.Transition.NewProgramYearTransition == false) || (isStatusChange))
                 {
 
                     foreach (PregMomChilds objChild in Transition.PregMomChilds)
@@ -4455,8 +4455,8 @@ namespace FingerprintsData
 
                         command.CommandType = CommandType.StoredProcedure;
 
-                        if (!string.IsNullOrEmpty(objChild.DOB))
-                            dateOfBirth = Convert.ToDateTime(objChild.DOB).ToString("yyyy-MM-dd");
+                        //if (!string.IsNullOrEmpty(objChild.DOB))
+                        //    dateOfBirth = Convert.ToDateTime(objChild.DOB).ToString("yyyy-MM-dd");
 
 
                         command.Parameters.Add(new SqlParameter("@ClientId", Transition.Transition.ClientId));
@@ -4466,7 +4466,9 @@ namespace FingerprintsData
                         command.Parameters.Add(new SqlParameter("@BirthType", Transition.Transition.BirthType));
                         command.Parameters.Add(new SqlParameter("@UpdatePregMom", (i == 1)));
                         command.Parameters.Add(new SqlParameter("@Name", objChild.Name));
-                        command.Parameters.Add(new SqlParameter("@DOB", dateOfBirth));
+                        command.Parameters.Add(new SqlParameter("@ChildFirstName", objChild.FirstName));
+                        command.Parameters.Add(new SqlParameter("@ChildLastName", objChild.LastName));
+                        command.Parameters.Add(new SqlParameter("@DOB", objChild.DOB));
                         command.Parameters.Add(new SqlParameter("@Gender", objChild.Gender));
                         command.Parameters.Add(new SqlParameter("@IsEHS", objChild.IsEHS));
                         command.Parameters.Add(new SqlParameter("@IsFirstChild", i == 1 ? true : false));
@@ -4512,6 +4514,8 @@ namespace FingerprintsData
                         command.Parameters.Add(new SqlParameter("@NewProgramYearTransition", Transition.Transition.NewProgramYearTransition));
                         command.Parameters.Add(new SqlParameter("@TypeOfTransition", Transition.Transition.TypeOfTransition));
                         command.Parameters.Add(new SqlParameter("@TransitionType", Transition.Transition.TransitioningType));
+                        command.Parameters.Add(new SqlParameter("@AllowFutureApplication", Transition.Transition.IsFutureApplication));
+
                         int RowsAffected = command.ExecuteNonQuery();
                         seats.Result = Convert.ToInt32((DBNull.Value == command.Parameters["@Result"].Value) ? 0 : command.Parameters["@Result"].Value);
                         seats.SeatAvailable = Convert.ToInt32((DBNull.Value == command.Parameters["@SeatCount"].Value) ? 0 : command.Parameters["@SeatCount"].Value);
@@ -4568,6 +4572,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@DentalService", Transition.Transition.DentalServices));
                     command.Parameters.Add(new SqlParameter("@TypeOfTransition", Transition.Transition.TypeOfTransition));
                     command.Parameters.Add(new SqlParameter("@TransitionType", Transition.Transition.TransitioningType));
+                    command.Parameters.Add(new SqlParameter("@AllowFutureApplication", Transition.Transition.IsFutureApplication));
 
                     int RowsAffected = command.ExecuteNonQuery();
                     seats.Result = Convert.ToInt32((DBNull.Value == command.Parameters["@Result"].Value) ? 0 : command.Parameters["@Result"].Value);
