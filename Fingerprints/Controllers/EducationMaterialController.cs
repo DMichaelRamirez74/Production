@@ -31,7 +31,7 @@ namespace Fingerprints.Controllers
     public class EducationMaterialController : Controller
     {
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult EducationMaterialMaintenance()
         {
             return View();
@@ -74,7 +74,7 @@ namespace Fingerprints.Controllers
             return Json(_imgpath, JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult SaveEducationMaterial(EductionMaterial objEductaion)
         {
             bool Result = false;
@@ -93,7 +93,7 @@ namespace Fingerprints.Controllers
             }
             return Json(Result);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult GetMaterialDetails()
         {
             string JSONString = string.Empty;
@@ -110,7 +110,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { JSONString, UserId });
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult GetMaterialDetailsShare()
         {
             string JSONString = string.Empty;
@@ -127,7 +127,7 @@ namespace Fingerprints.Controllers
             }
             return Json(new { JSONString, UserId });
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult GetMaterialDetailsBySerachText(string SearchText)
         {
             string JSONString = string.Empty;
@@ -143,7 +143,7 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult GetPostedDocumentsDetails()
         {
             string JSONString = string.Empty;
@@ -159,7 +159,6 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
-
         public ActionResult GetPostedDocumentsDetailsForParent(string ClientId)
         {
             string JSONString = string.Empty;
@@ -175,7 +174,7 @@ namespace Fingerprints.Controllers
             }
             return Json(JSONString);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult GetAttachmentByMaterialId(string MaterialId)
         {
             string JSONString = string.Empty;
@@ -192,7 +191,7 @@ namespace Fingerprints.Controllers
             return Json(JSONString);
         }
         [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public JsonResult DeleteMaterial(string Id)
         {
             bool isResult = false;
@@ -207,7 +206,7 @@ namespace Fingerprints.Controllers
             }
             return Json(isResult);
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult EducationMaterialGroupShare()
         {
             try
@@ -237,7 +236,7 @@ namespace Fingerprints.Controllers
 
             return View();
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public JsonResult Getclassrooms(string Centerid = "0")
         {
             try
@@ -251,7 +250,7 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public JsonResult LoadGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -264,7 +263,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult ShareMaterial(string ClientId)
         {
             TempData["Single"] = "";
@@ -278,7 +277,7 @@ namespace Fingerprints.Controllers
             return View();
         }
         [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public JsonResult SendPost(string Id)
         {
             bool isPosted = false;
@@ -310,7 +309,7 @@ namespace Fingerprints.Controllers
             return Json(isPosted);
         }
         [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public JsonResult SendEmail(string Id)
         {
             string isPosted = "0";
@@ -392,6 +391,7 @@ namespace Fingerprints.Controllers
                     }
                     TempData.Keep();
                 }
+                
             }
             catch (Exception ex)
             {
@@ -528,7 +528,7 @@ namespace Fingerprints.Controllers
 
         //}
 
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80")]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,82b862e6-1a0f-46d2-aad4-34f89f72369a,9ad1750e-2522-4717-a71b-5916a38730ed,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,047c02fe-b8f1-4a9b-b01f-539d6a238d80,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
         public ActionResult DownloadDocuments(string MaterialId)
         {
             string FilePath = "";
