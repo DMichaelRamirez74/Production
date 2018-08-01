@@ -20,6 +20,35 @@
         var EnrolledObject = null;
         var CN_count = 1;
 
+        function getTagsOnInput() {
+
+            var tagInp = $('#New_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: tagInp },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+
+                }
+
+            });
+
+            return tagsArr;
+        }
+
+
         function CarouselOpen(arg1)
         {
             var arg = $(arg1).closest('tr');
@@ -76,33 +105,6 @@
             });
 
         }
-        function getTagsOnInput() {
-            var tagInp = $('#CaseNotetags').val();
-            var tagsArr = [];
-            $.ajax({
-
-                url: '/Roster/GetCaseNoteTagonInput',
-                datatype: 'json',
-                type: 'post',
-                async: true,
-                data: { searchText: tagInp },
-                success: function (data) {
-                    if (data != null) {
-                        if (data.length > 0) {
-                            $.each(data, function (i, tags) {
-                                tagsArr.push(tags.Text);
-                            });
-                        }
-                    }
-                },
-                error: function (data) {
-
-                }
-
-            });
-
-            return tagsArr;
-        }
 
 
         function BindSubNotes(id) {
@@ -113,15 +115,13 @@
                 data: { 'CaseNoteId': id },
 
                 success: function (data) {
-                    //alert(data);
+                   
                     $('.divAppendedNotes').show();
                     $('.sub-notes-details').empty();
-                    console.clear();
-                    console.log(data);
-                    debugger;
+
                     if (data != null && data.length > 0) {
                         $(data).each(function (i, val) {
-                            debugger
+                    
                             var attachments = '';
                             var tagsName = '';
                             for (var i = 0; i < val.Attachment.length; i++) {
@@ -216,10 +216,20 @@
                                                         </div>\
                                                     </div>';
             // var input = "<input type='file' name='fileupload' class='fileAttachments' />";
-            $('.attachments-conatiner').append(input);
+            $('.attachments-conatiner-append').append(input);
         }
 
-        function AppendCaseNote(casenoteid) {
+        function AppendCaseNote(casenoteid,arg) {
+
+            var target = $(arg.getAttribute('href'));
+
+            if (target.length) {
+                event.preventDefault();
+                $('#ModalAddCasenote').stop().animate({
+                    scrollTop: target.offset().top
+                }, 1000);
+            }
+
             $('.case-info').hide();
             $('.subcase-info').hide();
             $('.hdn-casenoteid').val(casenoteid);
@@ -332,7 +342,7 @@
                 }
             });
             Tags = '';
-            debugger;
+
             if ($('#New_CaseNoteDate').val().trim() == "") {
                 isValid = false;
                 customAlert("New_Case note date is required. ");
@@ -366,21 +376,21 @@
 
         }
 
-        function addMoreStatusAtt(ele) {
+        function addMoreStatusAtt1(ele) {
             var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
 
 
 
-            var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
-                                                   <div class="col-sm-7 col-lg-8 no-padding">\
-                                                       <input type="file" id="FirstFile" name="Attachments[' + CN_count + '].file"  class="form-control">\
+            var appendDiv = '<div class="col-lg-8 col-sm-7 no-padding adddivspace">\
+                                                   <div class="col-sm-7 col-lg-6 no-padding">\
+                                                       <input type="file"  name="Attachments[' + CN_count + '].file"  class="form-control">\
                                                    </div>\
                                                    <div class="col-sm-3 col-lg-3 adddivspace">\
                                                        <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
                                                    </div>\
                                                </div>';
 
-            $("#addAttachmentDiv").append(appendDiv);
+            $("#New_addAttachmentDiv").append(appendDiv);
 
             CN_count++;
         }
@@ -392,10 +402,20 @@
 
      
 
-        function Getcasenote(Casenoteid) {
+        function Getcasenote(Casenoteid,arg) {
+
+
+            var target = $(arg.getAttribute('href'));
+
+            if (target.length) {
+                event.preventDefault();
+                $('#ModalAddCasenote').stop().animate({
+                    scrollTop: target.offset().top
+                }, 1000);
+            }
 
             $('#CaseNoteid').val(Casenoteid);
-            $('.case-info').hide();
+
             $('.subcase-info').hide();
             $('#CN_CaseNoteid').val(Casenoteid);
             $('#CN_ClientId').val($('#selHouseholdList').val());
@@ -421,6 +441,8 @@
         }
         function BindCaseNotelist(Data) {
             cleanValidation();
+
+
             $('.case-info').show();
             $('#Attachments').show();
             $('#Attach').empty();
@@ -432,7 +454,7 @@
             $('.tag').remove();
             var outputArray = [];
             var Attachments = [];
-            debugger;
+
             if (Data != null && Data.length > 0) {
 
                 if (Data[0].GroupCaseNote == 0) {
@@ -520,7 +542,7 @@
                         $('.download-attachment').append("<span>No file available</span>");
                     }
                     for (var i = 0; i < outputArray.length; i++) {
-                        $('#New_CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#" onclick="removetag(this);" title="Removing tag">x</a></span>');
+                        $('#New_CaseNotetags_tagsinput').prepend('<span class="tag"><span>' + outputArray[i] + '&nbsp;&nbsp;</span><a href="#" onclick="removetag1(this);" title="Removing tag">x</a></span>');
                     }
                     for (var i = 0; i < Data.length; i++) {
                         $('.New_StaffDiv input[type=checkbox]').each(function () {
@@ -528,8 +550,8 @@
                                 $(this).prop("checked", true);
                         });
                     }
-               
-                    
+
+
                     $('#New_StaffName').text(Data[0].BY);
                     $('#New_CaseNoteDate').attr("Readonly", true);
                     $('#New_CaseNotetitle').attr("Readonly", true);
@@ -703,69 +725,11 @@
 
                 });
             }
-           
+
 
         }
 
-        function bindCaseNoteTableSection(data) {
-            $('.addn-table-head').empty();
-            $('.appendRole').val(data.Role);
-            $(JSON.parse(data)).each(function (i, val) {
 
-                var row = '<tr casenoteid="{casenoteid}">\
-                                                    <td data-title="Date">\
-                                                        <div class="addn-content-desc" style="position: relative;">\
-                                                            <p>{Date}</p>\
-                                                        </div>\
-                                                    </td>\
-                                                    <td data-title="Title">\
-                                                        <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
-                                                            <p style="text-decoration: underline;" onclick="Getcasenote({Id})">{Title}</p>\
-                                                        </div>\
-                                                    </td>\
-                                                    <td data-title="By">\
-                                                        <div class="addn-content-desc" style="position: relative;">\
-                                                            <p>{BY}</p>\
-                                                        </div>\
-                                                    </td>\
-                                                    <td data-title="Attachments">\
-                                                        <div class="addn-content-desc">\
-                                                            <p>{Attachment}</p>\
-                                                        </div>\
-                                                    </td>\
-                                                    <td data-title="References">\
-                                                        <div class="addn-content-desc">\
-                                                            <p>{References}</p>\
-                                                        </div>\
-                                                    </td>\
-                                                    <td data-title="Actions">\
-                                                        <div class="addn-content-desc">{SUBNOTE}\
-                                                        </div>\
-                                                    </td>\
-                                                </tr>';
-                var subnote = '<p style="padding: 5px;">\
-                                                                <span class="Status-title-addn">\<a href="#" onclick="AppendCaseNote({AppendId})" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">\
-                                                                        <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>\
-                                                                        Append Case Note\
-                                                                    </a> </span>\
-                                                            </p>';
-
-                if (!val.SecurityLevel)
-                    row = row.replace('{SUBNOTE}', subnote);
-                else
-                    row = row.replace('{SUBNOTE}', "<p style='padding: 5px;height:50px;'>");
-                row = row.replace('{casenoteid}', val.casenoteid);
-                subnote = subnote.replace('{AppendId}', val.CaseNoteid);
-                row = row.replace('{Date}', val.casenotedate);
-                row = row.replace('{Id}', val.casenoteid);
-                // row = row.replace('{ClientId}', val.ClientID);
-                row = row.replace('{Title}', val.Title);
-                row = row.replace('{BY}', val.By);
-                row = row.replace('{Attachment}', val.Attachment);
-                row = row.replace('{References}', val.References);
-                $('.addn-table-head').html(row);
-            });
-        }
         function BindCasenoteDetails(data) {
 
             $('.txt-role').val(data.Role);
@@ -782,7 +746,7 @@
                                                     </td>\
                                                     <td data-title="Title">\
                                                         <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
-                                                            <p style="text-decoration: underline;" onclick="{function}({Id})">{Title}</p>\
+                                                           <p> <a style="text-decoration: underline;" href="#divCNDetails"  onclick="{function}({Id},this)">{Title}</a></p>\
                                                         </div>\
                                                     </td>\
                                                     <td data-title="By">\
@@ -805,13 +769,13 @@
                                                             </div>\
                                                         </td>\</tr>';
                     var subnote = '<p style="padding: 5px;">\
-                                                                <span class="Status-title-addn note-click">\<a href="#" data-toggle="modal"  onclick="AppendCaseNote({AppendId})" style="margin-top: 0;padding-left: 15px;">\
+                                                                <span class="Status-title-addn note-click">\<a href="#divCNDetails" onclick="AppendCaseNote({AppendId},this)" style="margin-top: 0;padding-left: 15px;">\
                                                                         <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>\
                                                                         Append Case Note\
                                                                     </a> </span>\
                                                             </p>';
 
-                   
+
                     row = row.replace('{casenoteid}', val.CaseNoteid);
                    var subnote1 = subnote.replace('{AppendId}', val.CaseNoteid);
                     row = row.replace('{Date}', val.Date);
@@ -866,15 +830,17 @@
         }
         function SearchByTags(arg) {
 
-          
-            var target = $(arg.getAttribute('href'));
 
-            if (target.length) {
-                event.preventDefault();
-                $('#ModalAddCasenote').stop().animate({
-                    scrollTop: target.offset().top
-                }, 1000);
-            }
+            //var target = $(arg.getAttribute('href'));
+
+            //if (target.length) {
+            //    event.preventDefault();
+            //    $('#ModalAddCasenote').stop().animate({
+            //        scrollTop: target.offset().top
+            //    }, 1000);
+            //}
+
+
             var TagNames = '';
             TagNames += $('.SecurityRoles:checked').val();
 
@@ -1035,7 +1001,7 @@
                 data: { clientID: $('#showDentalModal').find('#pregID').val(), dentalAnswer: answ },
                 success: function (data) {
                     if (data) {
-                        debugger;
+
                         customAlert('Record updated successfully');
                         var po = parseInt($('#showDentalModal').find('#pregID').attr('pos'));
                         $('input[name=dentalExamPreg]')[po].value = $('#showDentalModal').find('input[name=DentalServicesradio]:checked').val();
@@ -1153,7 +1119,7 @@
 
         function ValidateAge(birthDay, programtype) {
 
-            debugger;
+
             var DOB = new Date(birthDay);
             var today = new Date();
             var age = today.getTime() - DOB.getTime();
@@ -1197,7 +1163,7 @@
             return isValid;
         }
         function IsValidDOB() {
-            debugger;
+
             var isValid = true;
             var programtype = $('.txt-date').attr('data-programtype');
             var selectedDate = $('.txt-date').val();
@@ -1264,12 +1230,12 @@
 
         }
         function ClearCaseNote() {
-            $('#addAttachmentDiv').html('');
+            $('#New_addAttachmentDiv').html('');
             $('#FirstFile').val('');
-        
+
             $('.case-info').hide();
             $('.subcase-info').hide();
-            $('.attachments-conatiner').html('');
+            $('.attachments-conatiner-append').html('');
             $('.fileAttachments').val('');
             $('#selHouseholdList').val('0');
             $('.sub-notes-details').html("No records available");
@@ -1279,14 +1245,59 @@
             $('#AppendCaseNotetags_tagsinput .tag ').each(function () {
                 $(this).remove();
             });
-            CKEDITOR.instances['subnotes'].setData('')
+            CKEDITOR.instances['subnotes'].setData('');
 
             $('.addn-table-head').empty();
         }
 
         $(document).ready(function () {
+
+            $('#New_CaseNotetags,#AppendCaseNotetags').tagsInput({
+                width: 'auto',
+                height: '38px',
+                delimiter: [',', ';'],
+                autocomplete_url: '',
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInput(),
+                    'appendTo': "#ModalAddCasenote"
+                },
+                //allowDuplicates: false
+            });
+
+            ; $('#CaseNotetags').tagsInput({
+                width: 'auto',
+                height: '38px',
+                delimiter: [',', ';'],
+                autocomplete_url: '',
+                autocomplete: {
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInput(),
+                    'appendTo': "#matrix_addn2"
+                },
+                //allowDuplicates: false
+            });
+
+            var heightparent = $(".parent-height-common").height();
+
+            $(".parent-height-common").css({
+                height: heightparent
+            });
+
+            $(".fold-table tr.view").on("click", function () {
+                $(this).toggleClass("open").next(".fold").toggleClass("open");
+
+                if ($(this).hasClass('open')) {
+                    $(this).next('.input_smtmarg ').addClass('active');
+                    $(this).next('.input_smtmarg ').slideDown("slow");
+                }
+                else {
+                    $(this).next('.input_smtmarg ').removeClass('active');
+                    $(this).next('.input_smtmarg ').slideUp("slow");
+                }
+            });
             $('.table-submit').on('click', function (event) {
-                alert();
+
                 var target = $(this.getAttribute('href'));
 
                 if (target.length) {
@@ -1300,10 +1311,10 @@
 
             $("#ModalAddCasenote").on("hidden.bs.modal", function () {
                 ClearCaseNote();
-               
+
             });
 
-            
+
             $('#statusClassStart').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
 
@@ -1491,13 +1502,6 @@
                 $('.err-message').hide();
 
             });
-
-            $('#CaseNotetags').tagsInput({ width: 'auto', height: '38px', delimiter: [',', ';'] });
-            $('#New_CaseNotetags,#AppendCaseNotetags').tagsInput({
-                width: 'auto', height: '38px', delimiter: [',', ';'],
-                autocomplete: {                 
-                'source': getTagsOnInput()
-            }});
 
             CKEDITOR.replace('Note', {
                 language: 'en-gb',
@@ -1872,7 +1876,7 @@
             }
 
             function ValidateInput() {
-                //   debugger;
+
                 var isValid = true;
 
                 if ($('.errorAvailableSeat').is(":visible") == true) {
@@ -2330,17 +2334,21 @@
         }
 
 
-        function uncheckdata() {
-            if ($('#None').prop("checked")) {
-                $('#TANF').prop("checked", false);
-                $('#SSI').prop("checked", false);
-                $('#WIC').prop("checked", false);
-                $('#SNAP').prop("checked", false);
+        function uncheckdata2() {
+          
+            if ($('#HouseholdData').find('#None').prop("checked")) {
+                $('#HouseholdData').find('#TANF').prop("checked", false);
+                $('#HouseholdData').find('#SSI').prop("checked", false);
+                $('#HouseholdData').find('#WIC').prop("checked", false);
+                $('#HouseholdData').find('#SNAP').prop("checked", false);
             }
         }
-        function uncheckdataNone() {
-            if (($('#TANF').prop("checked")) || ($('#SSI').prop("checked")) || ($('#WIC').prop("checked")) || ($('#SNAP').prop("checked"))) {
-                $('#None').prop("checked", false);
+
+       
+        function uncheckdataNone2() {
+
+            if (($('#HouseholdData').find('#TANF').prop("checked")) || ($('#HouseholdData').find('#SSI').prop("checked")) || ($('#HouseholdData').find('#WIC').prop("checked")) || ($('#HouseholdData').find('#SNAP').prop("checked"))) {
+                $('#HouseholdData').find('#None').prop("checked", false);
             }
         }
         function SaveClientSummary() {
@@ -2885,7 +2893,7 @@
                     if (result) {
                         if (EnrolledObject != null) {
                             var Transition = {};
-                            debugger;
+
                             Transition.TANF = $('#TANF').is(':checked');;
                             Transition.SSI = $('#SSI').is(':checked');
                             Transition.WIC = $('#WIC').is(':checked');
@@ -3515,26 +3523,6 @@
     </script>
 
     <script>
-        $(document).ready(function () {
-            var heightparent = $(".parent-height-common").height();
-
-            $(".parent-height-common").css({
-                height: heightparent
-            });
-
-            $(".fold-table tr.view").on("click", function () {
-                $(this).toggleClass("open").next(".fold").toggleClass("open");
-
-                if ($(this).hasClass('open')) {
-                    $(this).next('.input_smtmarg ').addClass('active');
-                    $(this).next('.input_smtmarg ').slideDown("slow");
-                }
-                else {
-                    $(this).next('.input_smtmarg ').removeClass('active');
-                    $(this).next('.input_smtmarg ').slideUp("slow");
-                }
-            });
-        });
 
         function updateHousehold() {
 
@@ -3549,8 +3537,49 @@
 }
 @section MainContentHolder{
     <link href="~/Content/css/Transition.css" rel="stylesheet" />
-<style>
+    <style>
+        /*fixed header*/
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
 
+        .scroll-thead {
+            display: table;
+            /*width: 100%;*/
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            max-height: 270px;
+            height: auto !important;
+            overflow: auto;
+            min-height: 30px;
+            overflow-x: hidden;
+        }
+
+        .table-condensed.cf.table-change.addn-table tbody tr td {
+            padding: 2px;
+        }
+
+        .sub-notes-details {
+            max-height: 300px;
+            overflow-y: auto;
+            min-height: 37px;
+            padding-top: 15px;
+            font-style: italic;
+        }
+
+        .scroll-tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
 
     .download-attachment a i {
         font-size: 25px;
@@ -4351,9 +4380,15 @@
                 -webkit-transition: all .3s ease;
                 margin-right: 32px;
                 cursor: pointer;
-                 transform: rotate(0deg);-webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
             }
-            .active .deve-td:after{transform: rotate(-180deg)!important;-webkit-transform: rotate(-180deg)!important;}
+
+        .active .deve-td:after {
+            transform: rotate(-180deg) !important;
+            -webkit-transform: rotate(-180deg) !important;
+        }
+
         div#settab .item span.active a {
             box-shadow: 0 0 7px 2px #fff;
             height: 56px;
@@ -4753,40 +4788,59 @@
         }
 
 
-        .active .bg-change{background:#f9c751!important;color:#333!important;}
+        .active .bg-change {
+            background: #f9c751 !important;
+            color: #333 !important;
+        }
+
         .active .tag-radio-btn .radio-info input[type="radio"]:checked + label::before {
-    border-color: #333!important;
-    color: #333!important;
-}
+            border-color: #333 !important;
+            color: #333 !important;
+        }
+
         .active .tag-radio-btn .radio-info input[type="radio"]:checked + label::after {
-  border-color: #333!important;
-    color: #333!important;
-}
-       .active .deve-td:after{color: #333!important;}
-       .table-badge {
-      width: 30px;
-    height: 30px;
-    color: #fff;
-    background: #e74c3c;
-    line-height: 28px;
-    display: block;
-    text-align: center;
-    border-radius: 100%;
-}
-       .role-name{width:auto;display:inline-block;margin:0;}
-       .deve-td{text-align:left!important;}
-       .tag-text-block p
-       {
-               word-break: break-all;
-    width: 90%;
-       }
-       .no-tags-text{    float: left;
-    line-height: 30px;
-    width: auto;
-    display: inline-block;
-    font-style: italic;
-    margin-left: 5px;}
-     
+            border-color: #333 !important;
+            color: #333 !important;
+        }
+
+        .active .deve-td:after {
+            color: #333 !important;
+        }
+
+        .table-badge {
+            width: 30px;
+            height: 30px;
+            color: #fff;
+            background: #e74c3c;
+            line-height: 28px;
+            display: block;
+            text-align: center;
+            border-radius: 100%;
+        }
+
+        .role-name {
+            width: auto;
+            display: inline-block;
+            margin: 0;
+        }
+
+        .deve-td {
+            text-align: left !important;
+        }
+
+        .tag-text-block p {
+            word-break: break-all;
+            width: 90%;
+        }
+
+        .no-tags-text {
+            float: left;
+            line-height: 30px;
+            width: auto;
+            display: inline-block;
+            font-style: italic;
+            margin-left: 5px;
+        }
     </style>
     <div class="row Zoom">
 
@@ -4837,7 +4891,10 @@
 
                                                 @*<a href="#" style="margin-left: 4%; text-decoration: underline;color: #db4437;" housholdid="@Model.HouseholdId" onclick="ShowCaseForHousehold(this,2)">Tags</a>*@
 
-                                                <button class="btn btn-success" type="button" onclick="updateHousehold();"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>
+                                                @*<button class="btn btn-success" type="button" onclick="updateHousehold();"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>*@
+
+                                                <button class="btn btn-success" data-toggle="modal" data-target="#HouseholdData" href="#"><i class="fa fa-pencil" aria-hidden="true"></i>	Change</button>
+
                                             </div>
 
 
@@ -5824,50 +5881,6 @@
 
 
 
-                                    <div class="modal fade" id="myModal" role="dialog">
-                                        <div class="modal-dialog">
-
-                                            <!-- Modal content-->
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h3>Change Password <span class="extra-title muted"></span></h3>
-                                                </div>
-
-                                                <div class="control-group">
-                                                    <label for="current_password" class="control-label">Current Password <span style="color:red;">*</span> </label>
-                                                    <div class="controls">
-                                                        <input type="password" class="Password" id="currentPassword" maxlength="20" placeholder="Current Password">
-                                                    </div>
-                                                </div>
-                                                <div class="control-group">
-                                                    <label for="new_password" class="control-label">New Password <span style="color:red;">*</span> </label>
-                                                    <div class="controls">
-                                                        <input type="password" class="Password" id="newPassword" maxlength="20" placeholder="New Password">
-                                                    </div>
-                                                </div>
-                                                <div class="control-group">
-                                                    <label for="confirm_password" class="control-label">Confirm Password <span style="color:red;">*</span> </label>
-                                                    <div class="controls">
-                                                        <input type="password" class="Password" id="retypePassword" maxlength="20" placeholder="Confirm Password">
-                                                        <p style="margin-left: 91px;color:red;">
-                                                            Hint: Password must be at least 7 characters including a number and an uppercase letter.
-
-                                                        </p>
-
-                                                    </div>
-
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button id="btnChangePassword" onclick="changePassword();" name="Creates" class="btnPassword" type="button">Change</button>
-                                                    <button id="btnCancelPassword" class="btnPassword" data-dismiss="modal" type="button">Exit</button>
-
-
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
 
 
 
@@ -5913,7 +5926,7 @@
                             </div>
 
                             <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
-                                <div class="modal fade" id="HouseholdData" role="dialog">
+                                <div class="modal fade" id="HouseholdData" data-backdrop="static" data-keyboard="false" role="dialog">
                                     <div class="modal-dialog income-popup width-auto">
                                         <!-- Modal content-->
                                         <div class="modal-content">
@@ -5923,19 +5936,19 @@
                                             <div class="control-group">
                                                 <div class="row">
                                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                                        <div class="add-useragform">
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                        <div class="add-useragform col-xs-12">
+                                                            <div class="col-lg-12 col-md-12 col-sm-12" style="padding:0;">
                                                                 <div class="form-group">
                                                                     <h3 class="addapplicant">Household </h3>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
                                                                 <div class="form-group">
                                                                     <label for="email">Address <sup>*</sup></label>
                                                                     @Html.TextBoxFor(m => m.Street, new { placeholder = "Address", id = "Street", maxlength = "50", @class = "form-control", tabindex = 3, @onblur = "CheckAddress(0);" })
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
                                                                 <div class="form-group">
                                                                     <label for="email">Apartment No., Lot No. </label>
                                                                     @Html.TextBoxFor(m => m.StreetName, new { placeholder = "Apartment No., Lot No.", id = "StreetName", maxlength = "100", @class = "form-control", tabindex = 4, onblur = "CheckAddress(0);" })
@@ -6136,39 +6149,38 @@
                                                                 </div>
                                                                 <div class="col-xs-6 col-sm-2">
                                                                     <label class="checkbox-inline">
-                                                                        @Html.CheckBoxFor(m => m.TANF, new { id = "TANF", Name = "TANF", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "16" })
+                                                                        @Html.CheckBoxFor(m => m.TANF, new { id = "TANF", Name = "TANF", @class = "minimal", @onchange = "uncheckdataNone2();", tabIndex = "16" })
                                                                         <span>TANF</span>
                                                                     </label>
                                                                 </div>
                                                                 <div class="col-xs-6 col-sm-2">
                                                                     <label class="checkbox-inline">
-                                                                        @Html.CheckBoxFor(m => m.SSI, new { id = "SSI", Name = "SSI", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "17" })
+                                                                        @Html.CheckBoxFor(m => m.SSI, new { id = "SSI", Name = "SSI", @class = "minimal", @onchange = "uncheckdataNone2();", tabIndex = "17" })
                                                                         <span>SSI</span>
                                                                     </label>
                                                                 </div>
                                                                 <div class="col-xs-6 col-sm-2">
                                                                     <label class="checkbox-inline">
-                                                                        @Html.CheckBoxFor(m => m.SNAP, new { id = "SNAP", Name = "SNAP", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "18" })
+                                                                        @Html.CheckBoxFor(m => m.SNAP, new { id = "SNAP", Name = "SNAP", @class = "minimal", @onchange = "uncheckdataNone2();", tabIndex = "18" })
                                                                         <span>SNAP</span>
                                                                     </label>
                                                                 </div>
                                                                 <div class="col-xs-6 col-sm-2">
                                                                     <label class="checkbox-inline">
-                                                                        @Html.CheckBoxFor(m => m.WIC, new { id = "WIC", Name = "WIC", @class = "minimal", @onchange = "uncheckdataNone();", tabIndex = "19" })
+                                                                        @Html.CheckBoxFor(m => m.WIC, new { id = "WIC", Name = "WIC", @class = "minimal", @onchange = "uncheckdataNone2();", tabIndex = "19" })
                                                                         <span>WIC</span>
                                                                     </label>
                                                                 </div>
 
                                                                 <div class="col-xs-6 col-sm-2">
                                                                     <label class="checkbox-inline">
-                                                                        @Html.CheckBoxFor(m => m.NONE, new { id = "None", Name = "None", @class = "minimal", @onchange = "uncheckdata();", tabIndex = "20" })
+                                                                        @Html.CheckBoxFor(m => m.NONE, new { id = "None", Name = "None", @class = "minimal", @onchange = "uncheckdata2();", tabIndex = "20" })
                                                                         <span>NONE</span>
                                                                     </label>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        @*</div>
-                                                            </div>*@
+
 
                                                         <div class="row col-lg-12">
                                                             <div class="col-lg-6 col-md-6 col-sm-12 adddivspace">
@@ -6228,96 +6240,6 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="row">
-                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main add-useragform1">
-
-                                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                                            <div class="form-group">
-                                                                <h3 class="addapplicant">Case Note </h3>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                            <div class="col-lg-8 col-md-6 col-sm-12">
-                                                                <div class="form-group">
-                                                                    <label for="email">Date <sup>*</sup></label>
-                                                                    <input type="text" id="CaseNoteDetails_caseNoteDate" tab-index="9" name="CaseNoteDetails.CaseNoteDate" onblur="CheckdateHouseless(this);" placeholder="MM/DD/YYYY" class="form-control">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-8 col-md-6 col-sm-12">
-                                                                <div class="form-group">
-                                                                    <label for="email">Title <sup>*</sup></label>
-                                                                    <input class="form-control" id="CaseNoteDetails_CaseNotetitle" maxlength="50" name="CaseNoteDetails.CaseNotetitle" placeholder="Case Note Title" tabindex="10" type="text">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                            <div class="col-lg-8 col-md-6 col-sm-12">
-                                                                <div class="form-group">
-                                                                    <label for="email">Note <sup>*</sup></label>
-                                                                    <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
-                                                                        <textarea id="CaseNoteDetails_Note" name="CaseNoteDetails.Note"></textarea>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-8 col-md-6 col-sm-12">
-                                                                <label for="email">Parent/Guardian <sup>*</sup></label>
-                                                                <div id="ClientDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
-
-                                                                </div>
-                                                                <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                                    <div class="col-sm-12 no-padding" style="margin-bottom:20px;">
-                                                                        <div class="form-group">
-                                                                            <label for="email">Tags <sup>*</sup></label>
-                                                                            <div class="addn-poup-div1">
-                                                                                <input type="text" id="CaseNoteDetails_CaseNotetags" name="CaseNoteDetails.CaseNotetags" class="form-control ui-autocomplete-input" />
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-sm-12 no-padding">
-                                                                        <div class="form-group">
-                                                                            <label for="email">Developmental Team <sup>*</sup></label>
-                                                                            <div id="StaffDiv" class="case-note" style="width: 65%;float: left;margin-bottom: 10px;">
-
-
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                                                                    <div class="col-sm-12 no-padding">
-                                                                        <div class="form-group">
-                                                                            <label for="email">Secure Note Level?</label>
-                                                                            <div class="addn-poup-div1" style="width: 65%;float: left;margin-bottom: 10px;">
-                                                                                <input type="checkbox" id="CaseNoteDetails_CaseNoteSecurity" value="true" name="CaseNoteDetails.CaseNoteSecurity" style="margin-left:5px;top:0;">
-                                                                                <span style="margin-top:10px;float:left;">Yes</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                            <!-- import -->
-                                                            <div class="col-sm-12 no-padding">
-                                                                <div class="form-group" id="section_attachment">
-
-                                                                    <label>Attachment</label>
-                                                                    <input name="CaseNoteAttachments[0].file" accept="image/*" capture="camera" class="form-control houseless-attach" id="CaseNoteAttachments_0_file" style="width:54%;" onchange="ValidateSingleInputpdf2(this);" tabindex="6" type="file" value="">
-                                                                    <div class="adddivspace" style="width: 8%;display:inline-block;float:right;">
-                                                                        <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMore(this);" style="padding: 0;">Add&nbsp;<i class="fa fa-plus-circle"></i></a>
-
-                                                                    </div>
-
-                                                                </div>
-                                                                <div class="import_ft_files">
-
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
 
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -7353,9 +7275,9 @@
                                                         <i class="fa fa-table" aria-hidden="true"></i><span class="spnHeading" style="padding-left: 10px;">List of Case Notes</span>
                                                     </h2>
                                                     <div class="col-sm-12 no-padding block-div" style="background: #f1f5f8;border-radius: 5px;padding:0px;padding-bottom:0;overflow: hidden;">
-                                                        <div id="no-more-tables7" class="col-xs-12 no-padding" style="margin-bottom: 20px;">
+                                                        <div id="no-more-tables7" class="col-xs-12 no-padding">
                                                             <table class="col-md-12 table-striped table-condensed cf table-change addn-table">
-                                                                <thead>
+                                                                <thead class="scroll-thead">
                                                                     <tr>
                                                                         <th>Date</th>
                                                                         <th>Title</th>
@@ -7366,158 +7288,158 @@
 
                                                                     </tr>
                                                                 </thead>
-                                                                <tbody class="addn-table-head">
+                                                                <tbody class="addn-table-head scroll-tbody">
                                                                     <tr><td colspan="5"><div style="margin-top: 10px;">No Record Found</div></td></tr>
                                                                 </tbody>
                                                             </table>
                                                         </div>
                                                     </div>
+                                                    <div class="col-xs-12" id="divCNDetails">
 
+                                                        <div class="col-xs-12 case-info">
+                                                            <h2 class="page-header page-header-change" style="border-bottom:2px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;font-size:20px;">
+                                                                <i class="fa fa-book" aria-hidden="true"></i><span class="spnHeading" style="padding-left: 10px;">Case Note</span>
+                                                            </h2>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Date <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <input type="text" id="New_CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input casenote-date">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Title <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <input type="text" maxlength="100" id="New_CaseNotetitle" name="CaseNotetitle" class="form-control ui-autocomplete-input">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
-                                                    <div class="col-xs-12 case-info">
-                                                        <h2 class="page-header page-header-change" style="border-bottom:2px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;font-size:20px;">
-                                                            <i class="fa fa-book" aria-hidden="true"></i><span class="spnHeading" style="padding-left: 10px;">Case Note</span>
-                                                        </h2>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Date <sup style="color:red">*</sup></label>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Note <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <textarea id="New_Note" name="Note" style="visibility: hidden; display: none;"></textarea>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <input type="text" id="New_CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input casenote-date">
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Appended Notes </label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Title <sup style="color:red">*</sup></label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <input type="text" maxlength="100" id="New_CaseNotetitle" name="CaseNotetitle" class="form-control ui-autocomplete-input">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Note <sup style="color:red">*</sup></label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <textarea id="New_Note" name="Note" style="visibility: hidden; display: none;"></textarea>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Appended Notes </label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-8 sub-notes-details">
-
-                                                            </div>
-                                                        </div>
-                                                           <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Clients  <sup style="color:red">*</sup></label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-8" style="padding: 0;">
-                                                                <div class="case-note New_ClientDiv">
-
+                                                                <div class="col-sm-8 sub-notes-details">
 
                                                                 </div>
                                                             </div>
                                                             <div class="col-xs-12 addn-al" style="padding: 0;">
                                                                 <div class="col-sm-4">
                                                                     <div class="addn-poup-div">
-                                                                        <label>Tags <sup style="color:red">*</sup> </label>
+                                                                        <label>Clients  <sup style="color:red">*</sup></label>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-sm-8">
-                                                                    <div class="addn-poup-div1">
+                                                                <div class="col-sm-8" style="padding: 0;">
+                                                                    <div class="case-note New_ClientDiv">
 
-                                                                        <input type="text" id="New_CaseNotetags" name="CaseNotetags" class="form-control" />
 
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
-
-                                                                <div class="col-sm-12 adddivspace">
+                                                                <div class="col-xs-12 addn-al" style="padding: 0;">
                                                                     <div class="col-sm-4">
                                                                         <div class="addn-poup-div">
-                                                                            <label>Developmental Team</label>
+                                                                            <label>Tags <sup style="color:red">*</sup> </label>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-sm-8" id="New_Divstaff" style="padding: 0;">
-                                                                        <div class="New_StaffDiv">
+                                                                    <div class="col-sm-8">
+                                                                        <div class="addn-poup-div1">
 
+                                                                            <input type="text" id="New_CaseNotetags" name="CaseNotetags" class="form-control" />
 
                                                                         </div>
-
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                                <div class="col-sm-4">
-                                                                    <div class="addn-poup-div">
-                                                                        <label>Secure Note Level?</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-sm-8">
-                                                                    <div class="addn-poup-div1">
-                                                                        <input type="checkbox" id="New_CaseNoteSecurity" value="true" name="CaseNoteSecurity" style="margin-left:5px;">
-                                                                        <span>Yes</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                      
+                                                                <div class="col-xs-12 addn-al" style="padding: 0;">
 
-                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                                <div class="col-xs-12 col-sm-12 adddivspace" id="statusattachmentsDiv">
-                                                                    <div class="col-lg-4 col-xs-5" style="padding-left: 0;">
-                                                                        <div class="enroll-sec" style="padding-left: 0;width: 100%;">
-                                                                            <div class="transition-content-desc" style="position: relative;">
-                                                                                <p style="background: none;border: none;color: #163b69;font-size: 18px;text-align: right;font-weight: 400;margin-top: 5px;margin-bottom: 3px;width: 100%;">Attachment</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-lg-8 col-sm-7">
-                                                                        <div class="col-sm-7 col-lg-6 no-padding">
-                                                                            <input type="file" id="FirstFile" name="Attachments[0].file" class="form-control">
-                                                                        </div>
-                                                                        <div class="col-sm-3 col-lg-3 adddivspace response-addicspace">
-
-                                                                            <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreStatusAtt(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
-
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="col-lg-9" id="addAttachmentDiv" style="margin-left:33%">
-
-                                                                    </div>
-
-                                                                </div>
-
-                                                                <div id="Attachments" style="display:none;">
-                                                                    <div class="col-sm-12 adddivspace" style="padding: 0;">
+                                                                    <div class="col-sm-12 adddivspace">
                                                                         <div class="col-sm-4">
                                                                             <div class="addn-poup-div">
-                                                                                <label>Download Attachment</label>
+                                                                                <label>Developmental Team</label>
                                                                             </div>
                                                                         </div>
-                                                                        <div id="New_Attach" class="col-sm-8 adddivspace">
+                                                                        <div class="col-sm-8" id="New_Divstaff" style="padding: 0;">
+                                                                            <div class="New_StaffDiv">
+
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                    <div class="col-sm-4">
+                                                                        <div class="addn-poup-div">
+                                                                            <label>Secure Note Level?</label>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-sm-8">
+                                                                        <div class="addn-poup-div1">
+                                                                            <input type="checkbox" id="New_CaseNoteSecurity" value="true" name="CaseNoteSecurity" style="margin-left:5px;">
+                                                                            <span>Yes</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                    <div class="col-xs-12 col-sm-12 adddivspace" id="statusattachmentsDiv">
+                                                                        <div class="col-lg-4 col-xs-5" style="padding-left: 0;">
+                                                                            <div class="enroll-sec" style="padding-left: 0;width: 100%;">
+                                                                                <div class="transition-content-desc" style="position: relative;">
+                                                                                    <p style="background: none;border: none;color: #163b69;font-size: 18px;text-align: right;font-weight: 400;margin-top: 5px;margin-bottom: 3px;width: 100%;">Attachment</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-8 col-sm-7">
+                                                                            <div class="col-sm-7 col-lg-6 no-padding">
+                                                                                <input type="file" id="FirstFile" name="Attachments[0].file" class="form-control">
+                                                                            </div>
+                                                                            <div class="col-sm-3 col-lg-3 adddivspace response-addicspace">
+
+                                                                                <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment" onclick="addMoreStatusAtt1(this);"><i class="fa fa-plus-circle"></i>&nbsp;Add</a>
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-xs-12 col-lg-12" id="New_addAttachmentDiv" style="margin-left:33%">
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                                    <div id="Attachments" style="display:none;">
+                                                                        <div class="col-sm-12 adddivspace" style="padding: 0;">
+                                                                            <div class="col-sm-4">
+                                                                                <div class="addn-poup-div">
+                                                                                    <label>Download Attachment</label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div id="New_Attach" class="col-sm-8 adddivspace">
 
 
                                                                         </div>
@@ -7637,37 +7559,39 @@
 
                                                                     <div class="attachments-conatiner">
 
-                                                                        <div class="form-group" style="margin-bottom:10px!important;">
-                                                                            <div style="width:87%;display:inline-block;">
-                                                                                <input type="file" name="img[]" onchange="ShowFileName(this);" class="file fileAttachments" style="display:none;">
-                                                                                <div class="input-group col-xs-12">
-                                                                                    <input type="text" class="form-control input-lg" disabled placeholder="Upload File">
-                                                                                    <span class="input-group-btn">
-                                                                                        <button class="browse btn btn-primary input-lg" style="height: 33px !important;" onclick="BrowseFile(this);" type="button"> Browse</button>
+                                                                            <div class="form-group" style="margin-bottom:10px!important;">
+                                                                                <div style="width:87%;display:inline-block;">
+                                                                                    <input type="file" name="img[]" onchange="ShowFileName(this);" class="file fileAttachments" style="display:none;">
+                                                                                    <div class="input-group col-xs-12">
+                                                                                        <input type="text" class="form-control input-lg" disabled placeholder="Upload File">
+                                                                                        <span class="input-group-btn">
+                                                                                            <button class="browse btn btn-primary input-lg" style="height: 33px !important;" onclick="BrowseFile(this);" type="button"> Browse</button>
 
-                                                                                    </span>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="AddAttachments" onclick="AddAttachments();" style="width:auto;display:inline-block;vertical-align: top;">
+                                                                                    <a href="javascript:void(0);" class="upl">
+                                                                                        <img src="~/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" style="border-radius: 5px;width: 40px;" />
+                                                                                    </a>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="AddAttachments" onclick="AddAttachments();" style="width:auto;display:inline-block;vertical-align: top;">
-                                                                                <a href="javascript:void(0);" class="upl">
-                                                                                    <img src="~/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" style="border-radius: 5px;width: 40px;" />
-                                                                                </a>
-                                                                            </div>
-                                                                        </div>
+                                                                            <div class="attachments-conatiner-append"></div>
 
 
 
                                                                     </div>
 
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="col-xs-12 bdr-popup"></div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="Status-title-addn btn-save-note" onclick="SaveSubnotes();" style="text-align: right;">
-                                                                <a style="margin-top: 0;text-transform: uppercase;margin: 0;cursor:pointer;width: auto;display: inline-block;padding: 7px 15px;margin-right: 10px;line-height:22px;">
-                                                                    Save
-                                                                </a>
+                                                            <div class="col-xs-12 bdr-popup"></div>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="Status-title-addn btn-save-note" onclick="SaveSubnotes();" style="text-align: right;">
+                                                                    <a style="margin-top: 0;text-transform: uppercase;margin: 0;cursor:pointer;width: auto;display: inline-block;padding: 7px 15px;margin-right: 10px;line-height:22px;">
+                                                                        Save
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -7676,26 +7600,24 @@
                                         </div>
                                     </div>
                                 </div>
-
                             }
-                            <script>
-                                $(".note-click").click(function () {
-                                    if ($(".case-info").is(":hidden")) {
-                                        $(".case-info").slideDown("slow");
-                                    }
-                                    else {
-                                        $(".case-info").slideUp("slow");
-                                    }
-                                });
-
-                                $(".note-click").click(function () {
-                                    if ($(".subcase-info").is(":hidden")) {
-                                        $(".subcase-info").slideDown("slow");
-                                    } else {
-                                        $(".subcase-info").slideUp("slow");
-                                    }
-                                });
-                            </script>
+                            @*<script>
+                                    $(".note-click").click(function () {
+                                        if ($(".case-info").is(":hidden")) {
+                                            $(".case-info").slideDown("slow");
+                                        }
+                                        else {
+                                            $(".case-info").slideUp("slow");
+                                        }
+                                    });
+                                    $(".note-click").click(function () {
+                                        if ($(".subcase-info").is(":hidden")) {
+                                            $(".subcase-info").slideDown("slow");
+                                        } else {
+                                            $(".subcase-info").slideUp("slow");
+                                        }
+                                    });
+                                </script>*@
 
 }
 
