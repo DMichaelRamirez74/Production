@@ -22,6 +22,7 @@ namespace Fingerprints.Controllers
          roleid=9ad1750e-2522-4717-a71b-5916a38730ed(Health Manager)
          roleid=7c2422ba-7bd4-4278-99af-b694dcab7367(executive)
          roleid=c352f959-cfd5-4902-a529-71de1f4824cc(Social Services Manager)
+         roleid=4b77aab6-eed1-4ac3-b498-f3e80cf129c0(education manager)
          */
         LoginData LoginData = new LoginData();
         public ActionResult Login()
@@ -185,8 +186,9 @@ namespace Fingerprints.Controllers
         public ActionResult Loginagency()
       {
 
+
             if (Session["UserID"] != null && Session["EmailID"] != null && Session["RoleName"] != null)
-            {
+           {
                 string newLocation = string.Empty; 
                 if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5")&& Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
                     newLocation = "~/Home/AgencyAdminDashboard";
@@ -224,6 +226,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/AgencyFacilitiesManagerDashboard";
                 else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
                     newLocation = "~/Home/FacilityWorkerDashboard";
+                else if (Session["Roleid"].ToString() == "4b77aab6-eed1-4ac3-b498-f3e80cf129c0")
+                    newLocation = "~/EducationManager/EducationManagerDashboard";               
                 else
                     newLocation = "~/Home/Dashboard";
                 if (!string.IsNullOrEmpty(newLocation))
@@ -307,8 +311,8 @@ namespace Fingerprints.Controllers
                     {
                        Session["AgencyID"] = UserInfo.AgencyId;
                         isCoreTeam = new LoginData().IsDevelopmentTeam(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                      //  isDemographic= new LoginData().IsDemographic(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
-                      //  isAcceptance = new LoginData().IsAcceptance(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
+                       // isDemographic= new LoginData().IsDemographic(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
+                       // isAcceptance = new LoginData().IsAcceptance(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
                         List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
                         AccessList = new LoginData().GetAccessPageByUserId(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
 
@@ -378,6 +382,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/AgencyFacilitiesManagerDashboard";
                 else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
                     newLocation = "~/Home/FacilityWorkerDashboard";
+                else if (Session["Roleid"].ToString() == "4b77aab6-eed1-4ac3-b498-f3e80cf129c0")
+                    newLocation = "~/EducationManager/EducationManagerDashboard";
                 else
                     newLocation = "~/Home/Dashboard";
                 return Redirect(newLocation);
@@ -433,7 +439,6 @@ namespace Fingerprints.Controllers
             }
             catch (Exception Ex)
             {
-
                 return Json(Ex.Message);
             }
         }
