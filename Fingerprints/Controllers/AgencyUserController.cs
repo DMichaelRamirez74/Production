@@ -2039,7 +2039,7 @@ namespace Fingerprints.Controllers
 
                     else
                     {
-                        ViewBag.message = "Error occoured please try again.";
+                        ViewBag.message = "Error occurred please try again.";
                     }
 
                 }
