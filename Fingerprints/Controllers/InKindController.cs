@@ -39,7 +39,7 @@ namespace Fingerprints.Controllers
         /// allows the Users: Teacher, Agency Admin,GenesisEarth Administrator, Center Manager,ERSEA Manager
         /// </summary>
         /// <returns></returns>
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+
         public ActionResult PublicAssetEntry()
         {
             Inkind inkind = new Inkind();
@@ -68,7 +68,7 @@ namespace Fingerprints.Controllers
         /// <param name="searchName"></param>
         /// <returns>JsonResult list</returns>
 
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+     
 
         public JsonResult GetParentCompanyDonorsBySearch(string searchName = "")
         {
@@ -92,7 +92,7 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <param name="Centerid"></param>
         /// <returns></returns>
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+    
 
         public JsonResult GetClassRoomsForInkind(string Centerid = "0")
         {
@@ -111,7 +111,7 @@ namespace Fingerprints.Controllers
         /// Gets the InKind Activities Page.
         /// </summary>
         /// <returns></returns>
-        [CustAuthFilter("3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+      
         public ActionResult InKindActivities()
         {
             try
@@ -242,7 +242,7 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <returns></returns>
 
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+      
 
         public JsonResult GetDetailsByActivityType(string activityCode, int reqDetails, string hours = "0", string minutes = "0", string miles = "0")
         {
@@ -331,7 +331,7 @@ namespace Fingerprints.Controllers
         /// 
         [JsonMaxLength]
         [ValidateInput(false)]
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106,82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+    
 
         public JsonResult InsertInkindTransactions(string modelString = "")
             //public JsonResult InsertInkindTransactions(Inkind _inkind)
@@ -411,7 +411,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-        [CustAuthFilter("5ac211b2-7d4a-4e54-bd61-5c39d67a1106")]
+     
         public ActionResult ParentParticipation()
         {
             ParentParticipation parentParticipation = new FingerprintsModel.ParentParticipation();
@@ -427,7 +427,7 @@ namespace Fingerprints.Controllers
             return View(parentParticipation);
         }
 
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,b65759ba-4813-4906-9a69-e180156e42fc")]
+       
         public JsonResult CheckaddressForInKind(int Zipcode, string Address = "", string HouseHoldId = "0")
         {
             try
