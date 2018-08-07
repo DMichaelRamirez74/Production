@@ -29,7 +29,7 @@ namespace FingerprintsData
         DataTable familydataTable = null;
         DataSet _dataset = null;
         DataTable _dataTable = null;
-        public List<DissabilityManagerDashboard> GetDissabilityStaffDashboard(ref int yakkrcount, ref int appointment, string Agencyid, string userid)
+        public List<DissabilityManagerDashboard> GetDissabilityStaffDashboard(ref DisabilityCumulative DisabilityCumulative ,ref int yakkrcount, ref int appointment, string Agencyid, string userid)
         {
             List<DissabilityManagerDashboard> centerList = new List<DissabilityManagerDashboard>();
             List<HrCenterInfo> centerList1 = new List<HrCenterInfo>();
@@ -56,29 +56,22 @@ namespace FingerprintsData
                             info.TotalChildren = dr["totalchildren"].ToString();
                             info.DisabilityPercentage = dr["TotalDisablePercentage"].ToString();
                             info.Indicated = dr["Indicated"].ToString();
-                            info.Pending = dr["pending"].ToString();
+                            info.Pending = (Convert.ToString(dr["pending"].ToString()));// + Convert.ToInt32(dr["WithdrawnPending"].ToString())).ToString();
+                            info.Indicated = (Convert.ToString(dr["Indicated"].ToString()));// + Convert.ToInt32(dr["WithdrawnIndicated"].ToString())).ToString();
                             info.Qualified = dr["Qualified"].ToString();
                             info.Released = dr["Released"].ToString();
+                            info.Completed = dr["Completed"].ToString();
                             centerList.Add(info);
                         }
                     }
-                    //if (_dataset.Tables[1].Rows.Count > 0)
-                    //{
-                    //    foreach (DataRow dr in _dataset.Tables[1].Rows)
-                    //    {
-                    //        HrCenterInfo info = new HrCenterInfo();
-                    //        info.CenterId = dr["center"].ToString();
-                    //        info.Name = dr["centername"].ToString();
-                    //        info.Address = dr["address"].ToString();
-                    //        info.Zip = dr["Zip"].ToString();
-                    //        info.SeatsAvailable = dr["AvailSeats"].ToString();
-                    //        centerList1.Add(info);
-                    //    }
-                    //    if (centerList.Count > 0 && centerList1.Count > 0)
-                    //    {
-                    //        centerList.FirstOrDefault().AllCentersList = centerList1;
-                    //    }
-                    //}
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        DisabilityCumulative.TotalAcivePercent = Convert.ToDouble(_dataset.Tables[1].Rows[0]["ActivePercent"]);
+                        DisabilityCumulative.TotalActiveClient = Convert.ToInt32(_dataset.Tables[1].Rows[0]["TotalActive"]);
+                        DisabilityCumulative.TotalCumulativeClient = Convert.ToInt32(_dataset.Tables[1].Rows[0]["TotalCumulative"]);
+                        DisabilityCumulative.TotalCumulativePercent = Convert.ToDouble(_dataset.Tables[1].Rows[0]["cumulativePercent"]);
+                    }
 
 
 
@@ -98,11 +91,11 @@ namespace FingerprintsData
             return centerList;
         }
 
-        public List<DissabilityManagerDashboard> GetDissabilityManagerDashboard(ref int yakkrcount, ref int appointment, string Agencyid, string userid)
+        public List<DissabilityManagerDashboard> GetDissabilityManagerDashboard(ref DisabilityCumulative DisabilityCumulative, ref int yakkrcount, ref int appointment, string Agencyid, string userid)
         {
             List<DissabilityManagerDashboard> centerList = new List<DissabilityManagerDashboard>();
             List<HrCenterInfo> centerList1 = new List<HrCenterInfo>();
-           // var ista = EncryptDecrypt.Decrypt64("NzQ=");
+         
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
@@ -125,13 +118,22 @@ namespace FingerprintsData
                             info.TotalChildren = dr["totalchildren"].ToString();
                             info.DisabilityPercentage = dr["TotalDisablePercentage"].ToString();
                             info.Indicated = dr["Indicated"].ToString();
-                            info.Pending = dr["pending"].ToString();
+                            info.Pending = (Convert.ToString(dr["pending"].ToString()));// + Convert.ToInt32(dr["WithdrawnPending"].ToString())).ToString();
+                            info.Indicated = (Convert.ToString(dr["Indicated"].ToString()));// + Convert.ToInt32(dr["WithdrawnIndicated"].ToString())).ToString();
                             info.Qualified = dr["Qualified"].ToString();
                             info.Released = dr["Released"].ToString();
+                            info.Completed = dr["Completed"].ToString();
                             centerList.Add(info);
                         }
                     }
 
+                    if (_dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        DisabilityCumulative.TotalAcivePercent = Convert.ToDouble(_dataset.Tables[1].Rows[0]["ActivePercent"]);
+                        DisabilityCumulative.TotalActiveClient = Convert.ToInt32(_dataset.Tables[1].Rows[0]["TotalActive"]);
+                        DisabilityCumulative.TotalCumulativeClient = Convert.ToInt32(_dataset.Tables[1].Rows[0]["TotalCumulative"]);
+                        DisabilityCumulative.TotalCumulativePercent =Convert.ToDouble( _dataset.Tables[1].Rows[0]["cumulativePercent"]);
+                    }
                 }
                 DataAdapter.Dispose();
                 command.Dispose();
@@ -192,7 +194,7 @@ namespace FingerprintsData
                             info.IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]);//.ToString() //Added on 30Dec2016
                             info.RosterYakkr= DBNull.Value==(dr["yakkrcode"]) ? "0" : Convert.ToString(dr["yakkrcode"]);//.ToString() //Added on 30Dec2016
                             info.classroomid = DBNull.Value == (dr["classroomid"]) ? "0" : Convert.ToString(dr["classroomid"]);//.ToString() //Added on 30Dec2016
-
+                            info.IsWithdrawn = dr["status"].ToString() == "3" ? 1 : 0;
 
                             //  info.Dayscount = dr["dayscount"].ToString();
                             //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
@@ -277,7 +279,7 @@ namespace FingerprintsData
                             info.Teacher = dr["teacher"].ToString();//DBNull.Value.Equals(dr["ChildTransport"])
                             info.IsPresent = DBNull.Value.Equals(dr["IsPresent"]) ? 0 : Convert.ToInt32(dr["IsPresent"]);//.ToString() //Added on 30Dec2016
                             //  info.Dayscount = dr["dayscount"].ToString();
-                          //  info.Picture = dr["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["ProfilePic"]);
+                            info.IsWithdrawn = dr["status"].ToString() == "3" ? 1 : 0;
                             info.District = Convert.ToString(dr["District"]);
                             info.classroomid = dr["classroomid"].ToString();
                             if (dr["recordCreated"] != DBNull.Value)
@@ -648,7 +650,8 @@ namespace FingerprintsData
 
 
         public string SavePendingDisableUseInfo(string Clientid, string ClassroomID, string centerid
-         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "",string primaryDistype="")
+         , string StartDate, string agencyid, string userid, string Programid, string Notes, string Mode, DataTable documentTable, string disabilitytype, string ddlqualifiedreleased, string DocumentDate, string txtdocdesc, string recService = "",string primaryDistype="",bool IsCompleted=false
+            ,string IsWithdrawn="")
         {
             try
             {
@@ -658,7 +661,15 @@ namespace FingerprintsData
                     Connection.Close();
                 Connection.Open();
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SaveYakarPendingDisable";
+                //if(IsWithdrawn=="1")
+                //{
+                //    command.CommandText = "SP_SaveWithdrawnDisableClient";
+                //}
+                //else
+                //{
+                    command.CommandText = "SaveYakarPendingDisable";
+                //}
+               
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@Clientid", EncryptDecrypt.Decrypt64(Clientid)));
                 command.Parameters.Add(new SqlParameter("@ClassroomID", ClassroomID));
@@ -671,7 +682,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters.Add(new SqlParameter("@DocumentDescription", txtdocdesc));
                 command.Parameters.Add(new SqlParameter("@ReceivedService", recService));
+                command.Parameters.Add(new SqlParameter("@IsCompleted", IsCompleted));
                 command.Parameters.Add(new SqlParameter("@PrimaryDisabilityType", primaryDistype));
+
                 if (Mode == "QualifyReleased")
                 {
                     Mode = ddlqualifiedreleased;

@@ -617,6 +617,7 @@ namespace Fingerprints.Controllers
             return Json(JSONString);
         }
 
+      [CustAuthFilter()]
         public ActionResult GetCentersByUserId(string Date)
         {
             string JSONString = string.Empty;
@@ -681,7 +682,9 @@ namespace Fingerprints.Controllers
                 TempData["userrole"] = FingerprintsModel.EncryptDecrypt.Encrypt64(Session["Roleid"].ToString());
                 int yakkrcount = 0;
                 int appointment = 0;
-                ViewBag.Centerlist = _DisabilityManagerData.GetDissabilityManagerDashboard(ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                DisabilityCumulative DisabilityCumulative=new DisabilityCumulative();
+                ViewBag.Centerlist = _DisabilityManagerData.GetDissabilityManagerDashboard(ref DisabilityCumulative,ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.CumulativeList = DisabilityCumulative;
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 return View();
@@ -806,6 +809,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
+                bool IsCompleted = false;
 
                 DataTable dt = new DataTable();
                 dt.Columns.AddRange(new DataColumn[2] {
@@ -813,7 +817,7 @@ namespace Fingerprints.Controllers
                     new DataColumn("DisableDocumentName",typeof(string))
                           });
 
-                string DISABLETYPEID = "";
+                string DISABLETYPEID = "", IsWithdrawn="";
                 string result = "";
                 string primaryDisabilityType = "";
 
@@ -821,6 +825,16 @@ namespace Fingerprints.Controllers
                 {
                     DISABLETYPEID = Request.Form["disabilitytype"].ToString();
                     primaryDisabilityType = Request.Form["primarydisabilitytype"].ToString();
+                }
+                if (Request.Form["IsCompleted"] != null)
+                {
+                     IsCompleted = Convert.ToBoolean(Request.Form["IsCompleted"].ToString());
+                   
+                }
+                if (Request.Form["IsWithdrawn"] != null)
+                {
+                    IsWithdrawn = Convert.ToString(Request.Form["IsWithdrawn"].ToString());
+
                 }
                 if (Request.Files.Count > 0)
                 {
@@ -846,12 +860,12 @@ namespace Fingerprints.Controllers
 
                     }
 
-                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc, primaryDisabilityType);
+                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc,"", primaryDisabilityType, IsCompleted, IsWithdrawn);
                 }
 
                 else
                 {
-                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc, receivedService, primaryDisabilityType);
+                    result = _DisabilityManagerData.SavePendingDisableUseInfo(ClientId, classroomid, Request.Form["CenterID"].ToString(), "", Session["AgencyID"].ToString(), Session["UserID"].ToString(), Request.Form["Programid"].ToString(), Request.Form["Notes"].ToString(), Request.Form["Mode"].ToString(), dt, DISABLETYPEID, ddlqualifiedreleased, DocumentDate, txtdocdesc, receivedService, primaryDisabilityType, IsCompleted, IsWithdrawn);
                 }
 
                 return Json(result);
@@ -882,7 +896,9 @@ namespace Fingerprints.Controllers
                 TempData["userrole"] = FingerprintsModel.EncryptDecrypt.Encrypt64(Session["Roleid"].ToString());
                 int yakkrcount = 0;
                 int appointment = 0;
-                ViewBag.Centerlist = _DisabilityManagerData.GetDissabilityStaffDashboard(ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                DisabilityCumulative DisabilityCumulative = new DisabilityCumulative();
+                ViewBag.Centerlist = _DisabilityManagerData.GetDissabilityStaffDashboard(ref DisabilityCumulative,ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.CumulativeList = DisabilityCumulative;
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 return View();

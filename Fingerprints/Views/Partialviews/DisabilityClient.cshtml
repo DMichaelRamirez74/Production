@@ -15,7 +15,14 @@
         line-height: 25px;
         border: 1px solid black;
     }
-
+        .withdrawn-color a
+    {
+        color:red!important;
+    }
+     .withdrawn-color td
+    {
+        color:red!important;
+    }
 
         .child_name .tooltiptext::after {
             content: " ";
@@ -53,6 +60,41 @@
             text-decoration: none !important;
             color: #fff !important;
         }
+
+
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            /*width: 100%;*/
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td, .scroll-tbody1 tr td {
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            max-height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+              #ModalPending h3{margin-top: 0;}
+            #ModalPending .table-main{margin:0;}
+            #ModalPending .qualifierdiv {
+                    margin: 0!important;
+    width: 100%!important;
+            }
 </style>
 
 
@@ -63,11 +105,11 @@
             <div class="modal-header">
 
                 <h3 id="CenterName" class="text-center"> Disabled Roster</h3>
-                <div class="col-sm-5" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
+                <div class="col-sm-9" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
                     <span style="float:left;">Center Name:</span>
                     <span id="centernameSpan" style="font-weight:normal;float:left;margin-left:10px; "></span>
                 </div>
-                <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                <div class="col-sm-3 col-xs-12 pull-right" style="padding-right:0;">
                     <div class="btnwrp_subcal" style="padding:0; margin:0;">
                         <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
 
@@ -84,9 +126,10 @@
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                     <div class="table-responsive">
                                         <table class="table table_size" id="DivPossibledisable">
-                                            <thead style="cursor:pointer;">
+                                            <thead style="cursor:pointer;" class="scroll-thead">
                                                 <tr>
-                                                    <th style="width: 18%;">Name</th>
+                                                    <th>Name</th>
+                                                    <th style="width:116px;">Profile Picture</th>
                                                     <th>Gender</th>
                                                     <th>DOB</th>
                                                     <th>District</th>
@@ -95,13 +138,15 @@
                                                     <th class="divtwo doc-date">Document Date <input type="hidden" value="DESC" id="directionDate" /> </th>
                                                 </tr>
                                             </thead>
-                                            <tbody></tbody>
+                                            <tbody class="scroll-tbody"></tbody>
                                         </table>
                                         <div id="div1" style="text-align:center;display:none;">
 
                                             <label>No result found.</label>
                                         </div>
                                     </div>
+
+                                    <input type="hidden" id="IsWithdrawn" value="0"/>
                              
                                     <div class="row" id="divChangeStatus" >
                                         <div class="col-sm-12">
@@ -137,101 +182,110 @@
                                                            </table>
                                                         </div>
                                                     </div>
-                                                    <div class="col-sm-10 adddivspace">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Notes</label>
+                                                    <div id="divCompleted" style="display:block">
+                                                        <div class="col-sm-10 adddivspace">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Notes</label>
+                                                            </div>
+                                                            <div class="col-sm-9">
+                                                                <input name="txtappnotes" type="text" id="txtappnotes" class="form-control" />
+                                                            </div>
                                                         </div>
+                                                        <div class="col-sm-10 adddivspace" id="divDocumentDate">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Document Date </label>
+                                                            </div>
+                                                            <div class="col-sm-5">
+                                                                <input type="text" maxlength="20" placeholder="MM/DD/YYYY" name="DocumentDate" id="DocumentDate" onblur="return validatedate(this);" class="form-control" />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-sm-10 adddivspace" id="divDocument" style="display:block">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Document </label>
+                                                            </div>
+                                                            <div class="col-sm-5">
+                                                                <input type="file" name="FileUpload1" id="FileUpload1" class="form-control file-upload" />
+                                                            </div>
+                                                            <div class="col-sm-2">
+                                                                <a href="javascript:void(0);" class="upl upl-ch">
+                                                                    +
+                                                                    @*<img src="/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" id="add-atachment-image" onclick="addNewAttachment(this);" style="border-radius:5px;height: 34px;margin-left: -15px;">*@
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-10 adddivspace" id="divDocumentDescription">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Document Description</label>
+                                                            </div>
+                                                            <div class="col-sm-5">
+                                                                <input name="txtdocdesc" type="text" id="txtdocdesc" class="form-control" />
+                                                            </div>
+                                                        </div>
+
+                                                        <div id="divddlpending" style="display:none" class="col-sm-10 adddivspace">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Disability Status</label>
+                                                            </div>
+                                                            <div class="col-sm-5">
+                                                                <select id="ddlqualifiedreleased" name="ddlqualifiedreleased" onchange="showDisabilityType(this);" class="form-control">
+                                                                    <option> </option>
+                                                                    <option>Qualified</option>
+                                                                    <option>Released</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div id="divddlDisabilityType" class="col-sm-10 adddivspace" style="display:none;">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Disability Type </label>
+                                                            </div>
+                                                            <div class="col-sm-10" style="width: 137%;margin:15px 0px 15px 0px">
+
+                                                                <label class="checkbox-inline" id="pchechkbox"> </label>
+
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div id="divdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;"> Primary Disability Type <sup>*</sup></label>
+                                                            </div>
+                                                            <div class="col-sm-5">
+                                                                <select id="primaryDisabilitySelect" name="primaryDisabilitySelect" class="form-control"></select>
+                                                                <label style="width: 100%;font-size: 15px;color:#333;font-weight:normal;" id="primaryDisabilityLbl"></label>
+                                                            </div>
+
+                                                        </div>
+                                                        <div id="divdPrimaryDisabilityCompleted" style="" class="col-sm-10 adddivspace">
+                                                            <div class="col-sm-3">
+                                                                <label style="width: 100%;">Completed</label>
+                                                            </div>
+                                                            <div class="col-sm-5">
+                                                                <input type="checkbox" id="chkCompleted" value="true" />
+                                                            </div>
+
+                                                        </div>
+
                                                         <div class="col-sm-9">
-                                                            <input name="txtappnotes" type="text" id="txtappnotes" class="form-control" />
+                                                            <div class="col-sm-2">
+
+
+                                                                <button type="button" class="my-btn" style="margin-top: 20%;" id="savechild" margin-bottom 20%;" onclick="return SavePending();">
+                                                                    Save
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-sm-2">
+
+                                                                <button type="button" class="my-btn" id="cancelForm" style="margin-top: 20%; margin-bottom: 20%;" onclick="Cancelform()">
+                                                                    Cancel
+                                                                </button>
+
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-sm-10 adddivspace" id="divDocumentDate">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Document Date </label>
-                                                        </div>
-                                                        <div class="col-sm-5">
-                                                            <input type="text" maxlength="20" placeholder="MM/DD/YYYY" name="DocumentDate" id="DocumentDate" onblur="return validatedate(this);" class="form-control" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-10 adddivspace" id="divDocument">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Document </label>
-                                                        </div>
-                                                        <div class="col-sm-5">
-                                                            <input type="file" name="FileUpload1" id="FileUpload1" class="form-control file-upload" />
-                                                        </div>
-                                                        <div class="col-sm-2">
-                                                            <a href="javascript:void(0);" class="upl upl-ch">
-                                                                +
-                                                                @*<img src="/Content/EducationMaterial/images/upload.png" class="AddAttachments-1" id="add-atachment-image" onclick="addNewAttachment(this);" style="border-radius:5px;height: 34px;margin-left: -15px;">*@
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-10 adddivspace" id="divDocumentDescription">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Document Description</label>
-                                                        </div>
-                                                        <div class="col-sm-5">
-                                                            <input name="txtdocdesc" type="text" id="txtdocdesc" class="form-control" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div id="divddlpending" style="display:none" class="col-sm-10 adddivspace">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Disability Status</label>
-                                                        </div>
-                                                        <div class="col-sm-5">
-                                                            <select id="ddlqualifiedreleased" name="ddlqualifiedreleased" onchange="showDisabilityType(this);" class="form-control">
-                                                                <option> </option>
-                                                                <option>Qualified</option>
-                                                                <option>Released</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div id="divddlDisabilityType" class="col-sm-10 adddivspace" style="display:none;">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Disability Type </label>
-                                                        </div>
-                                                        <div class="col-sm-10" style="width: 137%;margin:15px 0px 15px 0px">
-
-                                                            <label class="checkbox-inline" id="pchechkbox"> </label>
-
-                                                        </div>
-                                                    </div>
-
-
-                                                    <div id="divdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
-                                                        <div class="col-sm-3">
-                                                            <label style="width: 100%;"> Primary Disability Type <sup>*</sup></label>
-                                                        </div>
-                                                        <div class="col-sm-5">
-                                                            <select id="primaryDisabilitySelect" name="primaryDisabilitySelect" class="form-control"></select>
-                                                            <label style="width: 100%;font-size: 15px;color:#333;font-weight:normal;" id="primaryDisabilityLbl"></label>
-                                                        </div>
-                                                        
-                                                    </div>
-
-
-                                                    <div class="col-sm-9">
-                                                        <div class="col-sm-2">
-
-
-                                                            <button type="button" class="my-btn" style="margin-top: 20%;" id="savechild" margin-bottom: 20%;" onclick="return SavePending();">
-                                                                Save
-                                                            </button>
-                                                        </div>
-                                                        <div class="col-sm-2">
-
-                                                            <button type="button" class="my-btn" id="cancelForm" style="margin-top: 20%; margin-bottom: 20%;" onclick="Cancelform()">
-                                                                Cancel
-                                                            </button>
-
-                                                        </div>
-                                                    </div>
-
                                                 </div>
                                            
 
@@ -405,6 +459,10 @@
             $('#ModalPending').find('#specialServicesDiv').show();
             $('#ModalPending').find('h3').append(' Qualified Disability Client');
         }
+        else if (heading == 'Completed') {
+            $('#ModalPending').find('#specialServicesDiv').show();
+            $('#ModalPending').find('h3').append(' Completed Disability Client');
+        }
         else if (heading == 'Released') {
             $('#ModalPending').find('h3').append('Released Disability Client');
         }
@@ -485,19 +543,28 @@
 
             $('#DivPossibledisable > tbody > tr').remove();
 
-            if (heading == "Qualified") {
+            if (heading == "Qualified" || heading == "Completed") {
 
 
                 for (var i = 0; i < data.list.Rosters.length; i++) {
                     var tr = "";
-                    tr += '<tr style="border:1px solid #cfcfcf;">';
+
+                    if (data.list.Rosters[i].IsWithdrawn == 1) {
+                        tr += "<tr style='border:1px solid #cfcfcf;' class='withdrawn-color'>";
+                    }
+                    else {
+                        tr += '<tr style="border:1px solid #cfcfcf;">';
+                    }
+                   
 
 
-                    tr += '<td height="70"  class="child_name"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"  special-service="' + data.list.Rosters[i].SpecialService + '"  onmouseover="getProfilePicture(this);"  clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a><span class="tooltiptext"></span></td>';
-
-
+                    tr += '<td height="70"  class="child_name"  IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"  special-service="' + data.list.Rosters[i].SpecialService + '"   IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a></td>';
 
                     tr += '<td height="70" style="text-align:center;width:11%;">';
+                    tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
+                    tr += '</td>';
+
+                    tr += '<td height="70" style="text-align:center;">';
                     if (data.list.Rosters[i].Gender == "2") {
                         tr += 'Female';
                     }
@@ -508,26 +575,21 @@
                         tr += 'Other';
                     }
                     tr += '</td>';
-                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
-                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].District + '</td>';
-                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].FSW + '</td>';
+                    tr += '<td height="70" style="">' + data.list.Rosters[i].DOB + '</td>';
+                    tr += '<td height="70" style="">' + data.list.Rosters[i].District + '</td>';
+                    tr += '<td height="70" style="">' + data.list.Rosters[i].FSW + '</td>';
                     tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].ClassroomName + '">' + data.list.Rosters[i].ClassroomName + '</td>';
 
-
                     if (data.list.Rosters[i].totalday > 365) {
-                        tr += '<td title="Expired" height="70" style="width:13%; color:red" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
-
+                        tr += '<td title="Expired" height="70" style="color:red" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
                     }
                     else if (data.list.Rosters[i].totalday > 300) {
-                        tr += '<td title="Going to expire." height="70" style="width:13%; color:orange" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+                        tr += '<td title="Going to expire." height="70" style="color:orange" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
                     }
                     else {
-                        tr += '<td height="70" style="width:13%;" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+                        tr += '<td height="70" style="" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
                     }
-
-
-
-                    tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                    tr += '<td height="70" style="display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
                     $('#DivPossibledisable > tbody').append(tr);
                 }
             }
@@ -535,9 +597,17 @@
             else
                 for (var i = 0; i < data.list.Rosters.length; i++) {
                     var tr = "";
-                    tr += '<tr style="border:1px solid #cfcfcf;">';
-                    tr += '<td height="70" class="child_name"   EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"  onmouseover="getProfilePicture(this);"  Clientid="' + data.list.Rosters[i].Eclientid + '" classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a><span class="tooltiptext"></span></td>';
+                    if (data.list.Rosters[i].IsWithdrawn == 1) {
+                        tr += "<tr style='border:1px solid #cfcfcf;' class='withdrawn-color'>";
+                    }
+                    else {
+                        tr += '<tr style="border:1px solid #cfcfcf;">';
+                    }
+                    tr += '<td height="70" class="child_name" IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '"    EClientId="' + data.list.Rosters[i].Eclientid + '" ><a onclick="showdiv(this)"   IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" Clientid="' + data.list.Rosters[i].Eclientid + '" classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: underline; cursor: pointer;"> ' + data.list.Rosters[i].Name + ' </a></td>';
                     tr += '<td height="70" style="text-align:center;width:11%;">';
+                    tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
+                    tr += '</td>';
+                    tr += '<td height="70" style="text-align:center;">';
                     if (data.list.Rosters[i].Gender == "2") {
                         tr += 'Female';
                     }
@@ -548,12 +618,12 @@
                         tr += 'Other';
                     }
                     tr += '</td>';
-                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
-                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].District + '</td>';
-                    tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].FSW + '</td>';
+                    tr += '<td height="70">' + data.list.Rosters[i].DOB + '</td>';
+                    tr += '<td height="70">' + data.list.Rosters[i].District + '</td>';
+                    tr += '<td height="70">' + data.list.Rosters[i].FSW + '</td>';
                     tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].ClassroomName + '">' + data.list.Rosters[i].ClassroomName + '</td>';
-                    tr += '<td height="70" style="width:13%;" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
-                    tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                    tr += '<td height="70" class="divtwo doc-date">' + data.list.Rosters[i].recordCreated + '</td>';
+                    tr += '<td height="70" style="display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
                     $('#DivPossibledisable > tbody').append(tr);
                 }
 
@@ -601,15 +671,16 @@
         $('#tblNotesList').show();
         $('#disableheader').show();
         $('#ClientNameAccept').text($(Aobject).closest("tr").find("td:first").text());
+        $('#IsWithdrawn').val($(_Object).attr('IsWithdrawn'));
      
         $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
         LoadNotes(_Object);
-
+        $('#divdPrimaryDisabilityCompleted').hide();
         $('#tblDocumentsList').show();
         $('#divChangeStatus').show();
 
         $('#dvscroll').scrollTop($('#DivPossibledisable')[0].scrollHeight);
-
+        $('#divCompleted').show();
 
         var heading = $('#hdnTypeOfCountData').val();
 
@@ -621,7 +692,19 @@
             $('#divDocumentDescription').hide();
             $('#divddlpending').hide();
             $('#fieldsetid').show();
-
+            $('#divdPrimaryDisabilityCompleted').show();
+            $('#ModalPending').find('input[name=specialRadio][value="' + $(Aobject).attr('special-service') + '"]').prop('checked', true);
+            $('#ModalPending').find('#specialServicesDiv').show();
+        }
+        else if (heading == 'Completed')
+        {
+            $('#divCompleted').hide();
+            $('#divDocumentDate').hide();
+            $('#divDocument').hide();
+            $('#divDocumentDescription').hide();
+            $('#divddlpending').hide();
+            $('#fieldsetid').show();
+            //$('#divdPrimaryDisabilityCompleted').show();
             $('#ModalPending').find('input[name=specialRadio][value="' + $(Aobject).attr('special-service') + '"]').prop('checked', true);
             $('#ModalPending').find('#specialServicesDiv').show();
         }
@@ -630,6 +713,7 @@
             $('#divDocumentDate').hide();
             $('#divDocument').hide();
             $('#divDocumentDescription').hide();
+            $('#divdPrimaryDisabilityCompleted').hide();
             $('#divddlpending').hide();
             $('#fieldsetid').show();
         }
@@ -637,12 +721,24 @@
             $('#fieldsetid').show();
             $('#disabilitySelectedDiv').hide();
             $('#divdPrimaryDisabilityType').hide();
+            $('#divdPrimaryDisabilityCompleted').hide();
             
         }
         else if (heading == 'Indicated') {
+           
             $('#disabilitySelectedDiv').hide();
+            $('#divddlpending').hide();
             $('#divdPrimaryDisabilityType').hide();
+            $('#divdPrimaryDisabilityCompleted').hide();
             $('#fieldsetid').show();
+            if ($(_Object).attr('iswithdrawn') == "1")
+            {
+                $('#divddlpending').show();
+               // $('#divdPrimaryDisabilityCompleted').show();
+                $('#divChangeStatus').show();
+             
+            }
+       
         }
 
     }
@@ -680,16 +776,21 @@
         if ($(val).val() == "Qualified") {
             $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
             $('#divddlDisabilityType').show();
+            if ($('#IsWithdrawn').val() == "1")
+            {
+                $('#divdPrimaryDisabilityCompleted').show();
+            }
+           
             $('#divdPrimaryDisabilityType').hide();
         }
 
         else if ($(val).val() == "Released") {
             $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
-            $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
+            $('#divddlDisabilityType,#divdPrimaryDisabilityType,#divdPrimaryDisabilityCompleted').hide();
         }
         else {
             $('#pchechkbox').find('input[type=checkbox]').prop('checked', false);
-            $('#divddlDisabilityType,#divdPrimaryDisabilityType').hide();
+            $('#divddlDisabilityType,#divdPrimaryDisabilityType,#divdPrimaryDisabilityCompleted').hide();
         }
 
     }
@@ -710,16 +811,17 @@
         isValid = true;
         var checked = $("input[type=checkbox]:checked").length;
 
+       
         //Indicated Client Validation//
 
-        if ($('#FileUpload1')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#DocumentDate')[0].value.trim() != "") {
+        if ($('#FileUpload1')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#DocumentDate')[0].value.trim() != "" && $('#IsWithdrawn').val() == "0") {
             customAlert("Please select document.");
             plainValidation('#FileUpload1');
             isValid = false;
             return isValid;
         }
 
-        else if ($('#FileUpload1')[0].value.trim() != "" && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#DocumentDate')[0].value.trim() == "") {
+        else if ($('#FileUpload1')[0].value.trim() != "" && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#DocumentDate')[0].value.trim() == "" && $('#IsWithdrawn').val() == "0") {
             customAlert("Please enter document date.");
             plainValidation('#DocumentDate');
             isValid = false;
@@ -727,41 +829,82 @@
         }
 
 
-        else if (txtAppNotes.val().trim() == '' && txtdocumentDate.val().trim() == '' && txtfileUpLoad1.val().trim() == '' && $('#txtdocdesc').val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated") {
+        else if (txtAppNotes.val().trim() == '' && txtdocumentDate.val().trim() == '' && txtfileUpLoad1.val().trim() == '' && $('#txtdocdesc').val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Indicated" && $('#IsWithdrawn').val() == "0") {
             $('#divChangeStatus').hide();
             return false;
         }
 
 
+
+            // validation for withdrawn client
+        
+
+        else if ($('#divDocument').is(':visible') && $('#FileUpload1')[0].value.trim() != "" && $('#IsWithdrawn').val() == "1" && $('#DocumentDate')[0].value.trim() == "") {
+            customAlert("Please enter document date.");
+            plainValidation('#DocumentDate');
+            isValid = false;
+            return isValid;
+        }
+
+
+        else if ($('#divDocument').is(':visible') && $('#FileUpload1')[0].value.trim() == "" && $('#IsWithdrawn').val() == "1") {
+            customAlert("Please select document.");
+            plainValidation('#FileUpload1');
+            isValid = false;
+            return isValid;
+        }
+
+
+        else if ($('#divddlpending').is(':visible') && $('#ddlqualifiedreleased').val() == "" && $('#IsWithdrawn').val() == "1")
+        {
+            customAlert("Please select disability status.");
+            plainValidation('#ddlqualifiedreleased');
+            isValid = false;
+            return isValid;
+        }
+        else if($('#divddlDisabilityType').is(':visible') &&  !$('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]').is(':checked')  && $('#IsWithdrawn').val() == "1")
+        {
+            customAlert("Please select disability Type.");
+            $('#pchechkbox').find('input:checkbox:first').focus();
+            isValid = false;
+            return isValid;
+        }
+        else if ($('#primaryDisabilitySelect').is(':visible') == true && $('#primaryDisabilitySelect').val() == '0' && $('#IsWithdrawn').val() == "1") {
+            customAlert("Please select Primary Disability Type.");
+            plainValidation('#primaryDisabilitySelect');
+            isValid = false;
+            return isValid;
+        }
+            //end
             //Pending Client Validation//
 
-        else if (txtAppNotes.val().trim() == '' && txtdocumentDate.val().trim() == '' && txtfileUpLoad1.val().trim() == '' && txtDoc.val().trim() == '' && selectedDisability.val() == '' && $('#ddlqualifiedreleased')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending") {
+        else if (txtAppNotes.val().trim() == '' && txtdocumentDate.val().trim() == '' && txtfileUpLoad1.val().trim() == '' && txtDoc.val().trim() == '' && selectedDisability.val() == '' && $('#ddlqualifiedreleased')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#IsWithdrawn').val() == "0") {
             $('#divChangeStatus').hide();
             return false;
         }
 
 
-        else if ($('#FileUpload1')[0].value.trim() != "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#DocumentDate')[0].value.trim() == "") {
+        else if ($('#FileUpload1')[0].value.trim() != "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#DocumentDate')[0].value.trim() == "" && $('#IsWithdrawn').val() == "0") {
             customAlert("Please enter document date.");
             plainValidation('#DocumentDate');
             isValid = false;
             return isValid;
         }
 
-        else if ($('#FileUpload1')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#DocumentDate')[0].value.trim() != "") {
+        else if ($('#FileUpload1')[0].value.trim() == "" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#DocumentDate')[0].value.trim() != "" && $('#IsWithdrawn').val() == "0") {
             customAlert("Please select document.");
             plainValidation('#FileUpload1');
             isValid = false;
             return isValid;
         }
 
-        else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && !$('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]').is(':checked')) {
+        else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && !$('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]').is(':checked') && $('#IsWithdrawn').val() == "0") {
             customAlert("Please select disability Type.");
             isValid = false;
             return isValid;
         }
        // else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]').is(':checked').length>1 && $('#primaryDisabilitySelect').is(':visible')==true && $('#primaryDisabilitySelect').val()=='0') {
-        else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]:checked').length > 1  && $('#primaryDisabilitySelect').is(':visible') == true && $('#primaryDisabilitySelect').val() == '0') {
+        else if ($('#ddlqualifiedreleased')[0].value.trim() == "Qualified" && $('#hdnTypeOfCountData')[0].value.trim() == "Pending" && $('#divddlDisabilityType').find('#pchechkbox').find('input[name=disabilitytype]:checked').length > 1 && $('#primaryDisabilitySelect').is(':visible') == true && $('#primaryDisabilitySelect').val() == '0' && $('#IsWithdrawn').val() == "0") {
 
             customAlert("Please select Primary Disability Type.");
             plainValidation('#primaryDisabilitySelect');
@@ -770,20 +913,20 @@
         }
 
             //Qualified Client Validation//
-        else if (!$('#specialServiceTbody').find('input[class=dis-radio]').is(':checked') && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified") {
+        else if (!$('#specialServiceTbody').find('input[class=dis-radio]').is(':checked') && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified" && $('#IsWithdrawn').val() == "0") {
             customAlert("Please select special services received or not.");
             isValid = false;
             return isValid;
         }
 
-        else if ($('#divdPrimaryDisabilityType').find('#primaryDisabilitySelect').is(':visible') && $('#divdPrimaryDisabilityType').find('#primaryDisabilitySelect').val() === '0' && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified") {
+        else if ($('#divdPrimaryDisabilityType').find('#primaryDisabilitySelect').is(':visible') && $('#divdPrimaryDisabilityType').find('#primaryDisabilitySelect').val() === '0' && $('#hdnTypeOfCountData')[0].value.trim() == "Qualified" && $('#IsWithdrawn').val() == "0") {
 
             customAlert("Please select Primary Disability Type.");
             plainValidation('#primaryDisabilitySelect');
             isValid = false;
             return isValid;
         }
-        else if (txtAppNotes.val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Released") {
+        else if (txtAppNotes.val().trim() == '' && $('#hdnTypeOfCountData')[0].value.trim() == "Released" && $('#IsWithdrawn').val() == "0") {
             $('#divChangeStatus').hide();
             return false;
         }
@@ -793,15 +936,34 @@
         if (_Object != null) {
             var mode = '';
             var yakkrmode = $('#hdnModeType').val();
-
-            if (yakkrmode == 'QualifyReleased') {
-                mode = $('#ddlqualifiedreleased').val();
-                if (mode == '')
+            if ($('#IsWithdrawn').val() == "0")
+            {              
+                if (yakkrmode == 'QualifyReleased') {
+                    mode = $('#ddlqualifiedreleased').val();
+                    if (mode == '')
+                        mode = 'Qualified';
+                }
+                else {
+                    mode = yakkrmode;
+                }
+            }
+            else
+            {
+                if($('#ddlqualifiedreleased').val()=="Qualified")
+                {
                     mode = 'Qualified';
+                }
+                else if($('#ddlqualifiedreleased').val()=="Released")
+                {
+                    mode = "Released"
+                }
+                else 
+                {
+                    mode = yakkrmode;
+                }
+
             }
-            else {
-                mode = yakkrmode;
-            }
+          
 
             var data = new FormData();
             $('.file-upload').each(function (i, vak) {
@@ -854,9 +1016,11 @@
             data.append("Programid", $(_Object).attr("Programid"));
             data.append("Notes", txtAppNotes.val().trim());
             data.append("Mode", mode);
+            data.append("IsCompleted", $("#chkCompleted").is(':checked'));
             data.append("DocumentDate", txtdocumentDate.val().trim());
             data.append("disabilitytype", checkedDisType);
             data.append("primarydisabilitytype", primaryDisId);
+            data.append("IsWithdrawn", $(_Object).attr('isWithdrawn'));
             data.append("ddlqualifiedreleased", $('#ddlqualifiedreleased').val());
             data.append("receivedService", serviceReceived);
             $.ajax({
@@ -868,7 +1032,7 @@
                 secureuri: false,
                 async: false,
                 success: function (response) {
-
+                    debugger;
                     if (response == '1') {
 
                         if (txtdocumentDate.val().trim() != '' && txtfileUpLoad1.val() != '') {
@@ -950,8 +1114,18 @@
                                 }
                             }
 
-                            if ($('#hdnTypeOfCountData')[0].value.trim() == 'Qualified' || $('#hdnTypeOfCountData')[0].value.trim() == 'Released') {
+                            if ($('#hdnTypeOfCountData')[0].value.trim() == 'Qualified') {
+                                if ($("#chkCompleted").is(':checked') == true)
+                                {
+                                    $(_Object).closest("tr").remove();
+                                    $("#fieldsetid").hide();
+                                }
                                 $("#fieldsetid").hide();
+                            }
+                            if ($('#hdnTypeOfCountData')[0].value.trim() == 'Released')
+                            {
+                                $("#fieldsetid").hide();
+                                $(_Object).closest("tr").remove();
                             }
 
                             $('#form1').trigger("reset");

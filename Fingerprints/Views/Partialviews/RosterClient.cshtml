@@ -1,4 +1,17 @@
 ﻿<style>
+   
+    .zoomed{
+        position:absolute!important;
+    }
+    
+     .withdrawn-color a
+    {
+        color:red!important;
+    }
+     .withdrawn-color td
+    {
+        color:red!important;
+    }
     .child_name .tooltiptext {
         visibility: hidden;
         width: 120px;
@@ -49,22 +62,67 @@
     .child_name:not( :hover ) .tooltiptext {
         visibility: hidden;
     }
+    
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            /*width: 100%;*/
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td{
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            max-height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+          #Modalclientenrolled .control-group {
+    overflow: hidden !important;
+}
+          table#DivclientenrolledList {
+    border: 0;
+}
+          .zoomify.zoomed {
+    cursor: -webkit-zoom-out;
+    cursor: zoom-out;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: fixed!important;
+    z-index: 1501;
+    transform: scale(7) translate(51.2567px, -3.10938px)!important;
+    top: 300px;
+    z-index: 9999999!important;transition: all 200ms linear;
+}
 </style>
-
-
-
 <div class="modal fade scroll-modal" id="Modalclientenrolled" role="dialog">
     <div class="modal-dialog income-popup width-auto">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="CenterName" class="text-center">List of Children with Possible Disabilities<span class="extra-title muted"></span></h3>
-                <div class="col-sm-5" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
+                <div class="col-sm-5 col-md-8 col-xs-12" style="line-height: 30px;font-weight: bolder;font-size: 16px; ">
                     <span style="float:left;">Center Name:</span>
                     <span id="centernameSpan" style="font-weight:normal;float:left;margin-left:10px; "></span>
                 </div>
 
-                <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                <div class="col-sm-5 col-md-4 col-xs-12 pull-right" style="padding-right:0;">
                     <div class="btnwrp_subcal" style="padding:0; margin:0;">
                         <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
                         <div class="clear"></div>
@@ -90,9 +148,10 @@
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                     <div class="table-responsive">
                                         <table class="table table_size" id="DivclientenrolledList">
-                                            <thead style="cursor:pointer;">
+                                            <thead style="cursor:pointer;" class="scroll-thead">
                                                 <tr>
-                                                    <th style="width: 18%;">Name</th>
+                                                    <th>Name</th>
+                                                    <th>Profile Picture</th>
                                                     <th>Gender</th>
                                                     <th>DOB</th>
                                                     <th>District</th>
@@ -102,7 +161,7 @@
                                                     <th>Services </th>
                                                 </tr>
                                             </thead>
-                                            <tbody></tbody>
+                                            <tbody class="scroll-tbody"></tbody>
                                         </table>
                                         <div id="div1" style="text-align:center;display:none;">
                                             <label>No result found.</label>
@@ -128,7 +187,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                              <div id="EditdivdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
+                                        <div id="EditdivdPrimaryDisabilityType" style="" class="col-sm-10 adddivspace">
                                                         <div class="col-sm-3">
                                                             <label style="width: 100%;"> Primary Disability Type<sup>*</sup></label>
                                                         </div>
@@ -350,7 +409,48 @@
            }
         });
     }
+    function showImage(ele) {
+        $('#spinner').show();
+        var enc_id = $(ele).attr('EClientId');
+        $.ajax({
+            url: '/Roster/GetChildrenImage',
+            dataType: 'json',
+            type: 'post',
+            data: { enc_clientId: enc_id },
+            success: function (data) {
 
+                var image = '';
+                if (data.Text == "" && data.Value == "2") {
+                    image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                }
+                else if (data.Text == "" && data.Value == "1") {
+                    image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                }
+                else if (data.Text == "" && ata.Text == "3") {
+                    image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                }
+                else if (data.Text != "") {
+                    image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                }
+                else {
+                    image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                }
+
+                //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                //$(pic).parent('td').find('.roundimage').zoomify();
+
+                $(ele).parent('td').append(image);
+                $(ele).parent('td').find('.roundimage').zoomify();
+                $(ele).remove();
+                $('#spinner').hide();
+            },
+            error: function (data) {
+                $('#spinner').hide();
+            }
+        });
+    }
+
+ 
     //method to bind the enrolled client to modal popup//
     function BindClientenrolled(data, clsId) {
       
@@ -367,10 +467,21 @@
 
             for (var i = 0; i < data.list.Rosters.length; i++) {
                 var tr = "";
-                tr += "<tr>";
-                tr += '<td height="70" class="child_name"   EClientId="' + data.list.Rosters[i].Eclientid + '"  ><a href="#" onmouseover="getProfilePicture(this);"  clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: none;">' + data.list.Rosters[i].Name + '</a><span class="tooltiptext"></span></td>';
+                if (data.list.Rosters[i].IsWithdrawn == 1)
+                {
+                    tr += "<tr class='withdrawn-color'>";                  
+                }
+                else
+                {
+                    tr += "<tr>";                  
+                }
+                tr += '<td height="70" class="child_name"  EClientId="' + data.list.Rosters[i].Eclientid + '"  ><a href="#"  IsWithdrawn="' + data.list.Rosters[i].IsWithdrawn + '" clientid=' + data.list.Rosters[i].Eclientid + ' classroomid=' + data.list.Rosters[i].classroomid + '  CenterID="' + data.list.Rosters[i].CenterId + '"  Programid=' + data.list.Rosters[i].ProgramId + ' style="text-decoration: none;">' + data.list.Rosters[i].Name + '</a></td>';
 
                 tr += '<td height="70" style="text-align:center;width:11%;">';
+                tr += '<a href="javascript:void(0)" onclick="showImage(this);" EClientId="' + data.list.Rosters[i].Eclientid + '" >View</a>';
+                tr += '</td>';
+
+                tr += '<td height="70" style="text-align:center;">';
                 if (data.list.Rosters[i].Gender == "2") {
                     tr += 'Female';
                 }
@@ -382,20 +493,19 @@
                 }
                 tr += '</td>';
                 //End
-
-                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
-                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].District + '</td>';
-                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].FSW + '</td>';
+               
+                tr += '<td height="70">' + data.list.Rosters[i].DOB + '</td>';
+                tr += '<td height="70">' + data.list.Rosters[i].District + '</td>';
+                tr += '<td height="70">' + data.list.Rosters[i].FSW + '</td>';
                 tr += '<td height="70" style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
-                tr += '<td height="70" style="width:13%;">' + data.list.Rosters[i].Teacher + '</td>';
-                tr += '<td height="70" style="width:13%;display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
-                tr += '<td height="70" style="width:23%;">';
+                tr += '<td height="70">' + data.list.Rosters[i].Teacher + '</td>';
+                tr += '<td height="70" style="display:none;" class="divOne">' + data.list.Rosters[i].CenterId + '</td>'
+                tr += '<td height="70">';
                 tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
                 tr += '<a title="Click here to open Referals" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/Roster/ReferralService/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '&ClientName=' + data.list.Rosters[i].Name + '">REF </a> &nbsp';
-                tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here to write case notes" href="#">nREF </a>  &nbsp ';
-                if (data.list.Rosters[i].RosterYakkr == "302") {
+                tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+                if (data.list.Rosters[i].RosterYakkr == "1") {
                     tr += '<a style="text-decoration:underline;cursor:pointer;"  data-ClientName="' + data.list.Rosters[i].Name + '" data-EClientid="' + data.list.Rosters[i].Eclientid + '" onclick="DisablityTypeByClientid(this)" title="Click here to change disablity types" href="#EditDisablityType">DIS </a>  &nbsp ';
-
                 }
                 tr += '</td>';
              
@@ -857,3 +967,5 @@
     }
     //end
 </script>
+
+

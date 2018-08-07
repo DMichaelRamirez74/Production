@@ -55,11 +55,89 @@
 
         @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
-        <div class="col-lg-12">
-            <h2 class="page-header">Center Overview</h2>
+        
+    </div>
+<div class="col-lg-12" style="padding:0;">
+    <h2 class="page-header" style="">Cumulative Details</h2>
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" style="margin:0 !important;">
+            <div class="table-responsive" style="margin:0 !important;">
+                <table class="table table_size" style="margin:0 !important;" id="gridViewAgency">
+                    <thead style="cursor: pointer;">
+                        <tr>
+                            <th>Title Name</th>
+                            <th>Total Clients</th>
+
+                            <th>Total  %</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.CumulativeList != null)
+                        {
+                            FingerprintsModel.DisabilityCumulative cumulatve = ViewBag.CumulativeList;
+                            <tr>
+                                <td style="text-align:left;"><a style="text-align:right;" typeofdatacount="Indicated" mode="Pending">Cumulative Details</a></td>
+                                <td style="text-align:left;"><a style="text-align:right;" typeofdatacount="Pending" mode="QualifyReleased">@cumulatve.TotalCumulativeClient</a></td>
+                                <td style="text-align:left;"><a style="text-align:right;" typeofdatacount="Released" mode="All">@cumulatve.TotalCumulativePercent</a></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;"><a style="text-align:right;" typeofdatacount="Indicated" mode="Pending">Active Clients</a></td>
+                                <td style="text-align:left;"><a style="text-align:right;" typeofdatacount="Pending" mode="QualifyReleased">@cumulatve.TotalActiveClient</a></td>
+                                <td style="text-align:left;"><a style="text-align:right;" typeofdatacount="Released" mode="All">@cumulatve.TotalAcivePercent</a></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="row">
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header">Center Overview</h2>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main" style="margin-top:0 !important;">
+        <div class="table-responsive">
+            <table class="table table_size" style="margin-bottom: 0;" id="gridViewAgency">
+                <thead style="cursor: pointer;">
+                    <tr>
+                        <th>Center Name</th>
+                        <th>Enrolled Children</th>
+                        <th>Disability %</th>
+                        <th>Indicated</th>
+                        <th>Pending</th>
+                        <th>Qualified</th>
+                        <th>Completed</th>
+                        <th>Released</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Centerlist != null)
+                    {
+                        foreach (FingerprintsModel.DissabilityManagerDashboard center in ViewBag.Centerlist)
+                        {
+                            <tr>
+                                <td><a style="text-decoration: underline;" onclick="Loadallenrolled(this);" accesskey="@center.CenterId" href="#">@center.Name</a></td>
+                                <td style="text-align: right;">@center.TotalChildren</td>
+                                <td style="text-align: right;">@center.DisabilityPercentage</td>
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Indicated" mode="Pending" accesskey="@center.CenterId">@center.Indicated</a></td>
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Pending" mode="QualifyReleased" accesskey="@center.CenterId">@center.Pending</a></td>
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Qualified" mode="Released" accesskey="@center.CenterId">@center.Qualified</a></td>
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Completed" mode="Released" accesskey="@center.CenterId">@center.Completed</a></td>
+
+                                <td style="text-align:right;"><a style="text-align:right; text-decoration: underline; cursor:pointer" onclick="LoadPendingDisable(this,false);" typeofdatacount="Released" mode="All" accesskey="@center.CenterId">@center.Released</a></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    @*<div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
             <div class="table-responsive">
                 <table class="table table_size" id="gridViewAgency">
@@ -95,7 +173,7 @@
                 </table>
             </div>
         </div>
-    </div>
+    </div>*@
 
 
     <div class="row qualifierdiv" id="MainDiv">

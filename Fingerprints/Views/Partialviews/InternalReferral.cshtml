@@ -1,4 +1,390 @@
-﻿
+﻿<script type="text/javascript">
+
+    // for nREF internal referral
+    var cid;
+    function SetDataForNREF() {
+        cleanValidation();
+        var isValid = true;
+      //  $('#ClientId').val(clientid);
+
+        var Tags = '';
+        $('#nREF_status_CaseNotetags_tagsinput .tag span').each(function () {
+            Tags = Tags + $(this).text().trim() + ',';
+        });
+        $('#nREF_Tags').val(Tags);
+        Tags = '';
+
+        $('#RolesDiv').css("background-color", "");
+
+
+        //Case Note Section//
+        if ($('.roletype:checked').length == 0) {
+            isValid = false;
+            plainValidation('#RolesDiv');
+            customAlert('Please select development team role');
+
+        }
+        if ($('#txtNotes').val() == "") {
+            isValid = false;
+            plainValidation('#txtNotes');
+            customAlert('Please enter notes');
+
+        }
+        if ($('#txtStatusCaseNoteDate').val() == '') {
+            isValid = false;
+            plainValidation('#txtStatusCaseNoteDate');
+            customAlert('Please enter Case Note Date');
+
+        }
+
+        if ($('#txtStatusCaseNoteTitle').val() == '') {
+            isValid = false;
+            plainValidation('#txtStatusCaseNoteTitle');
+            customAlert('Please enter Case Note Title');
+
+        }
+
+        //if ($('#nREFNote').val().trim() == '') {
+        //    isValid = false;
+        //    customAlert("Please enter Note");
+        //    plainValidation('#statusNote');
+
+        //}
+        if ($('#nREF_statusclientsDiv').find('input[type=checkbox]:checked').length === 0) {
+
+            isValid = false;
+            customAlert('Please select Clients');
+
+        }
+
+        if ($('#nREF_status_CaseNotetags').val().trim() == "") {
+            isValid = false;
+            customAlert("Tags are  required.");
+            plainValidation('#status_CaseNotetags');
+
+        }
+        if (isValid && $('#yakkrcode').val() == "700") {
+            saveTransportation();
+        }
+
+        return isValid;
+
+    }
+
+    function OnSelectRoles(arg) {
+        $('#transportation').modal('hide');
+        $('.check1').prop('checked', false);
+        $('#nREF_status_CaseNotetags_tagsinput').find('.tag').remove();
+        $('#nREF_status_CaseNotetags').importTags("nREF,,;");
+        $("#txtStatusCaseNoteTitle").val("Internal Referral")
+        $('#chkYakkrDiv').show();
+      //  $('#disablity').hide();
+        Closetransportaion();
+        if ($('.roletype:checked').val() == '699168ac-ad2d-48ac-b9de-9855d5dc9af8') {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("310");
+            $('#lblyakkrcode').text("Yakkr - 310 (Child has suspected mental health issue)");
+            $('#nREF_status_CaseNotetags').addTag('Y310');
+            $("#txtStatusCaseNoteTitle").val("Mental Health Referral")
+        }
+
+        else if ($('.roletype:checked').val() == '6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba') {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("700");
+            $('#lblyakkrcode').text("Yakkr - 700 (Child request transportation)");
+            $('#nREF_status_CaseNotetags').addTag('Y700');
+            $('#transportation').modal('show');
+            TransportationNeeded();
+            //  $('#ModalAddCasenote').modal('hide');
+        }
+        else if ($('.roletype:checked').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80') {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("304");
+            $('#lblyakkrcode').text("Yakkr - 304 (Child has an indicated disability after Enrollment)");
+            $('#nREF_status_CaseNotetags').addTag('Y304');
+           // $('#disablity').show();
+        }
+        else {
+            $('#yakkrcode').prop('checked', true);
+            $('#yakkrcode').val("292");
+            $('#lblyakkrcode').text("Yakkr - 292 (Internal Referral)");
+            $('#nREF_status_CaseNotetags').addTag('Y292');
+        }
+    }
+    function AddTags(arg) {
+        if ($(arg).prop('checked') == true) {
+            $('#nREF_status_CaseNotetags').addTag($(arg).val());
+        }
+        else {
+            $('#nREF_status_CaseNotetags').removeTag($(arg).val());
+        }
+    }
+
+    function AddCaseNote(arg) {
+        $('.divReferTo').hide();
+        $('#Modalclientenrolled').modal('hide');
+        $('.internal_reference').css("overflow", 'auto');
+        $('#lblClientName').text($(arg).attr('data-CName'));
+        $('#lblCenterName').text($(arg).attr('data-centername'));
+        $('#lblClassroom').text($(arg).attr('data-classroom'));
+        cid = $(arg).attr('EClientId');
+        $('#ClassroomId').val($(arg).attr('data-classroomid'));
+        $('#CaseNoteCenterId').val($(arg).attr('data-centerid'));
+        $('#nREF_CaseNoteClientId').val($(arg).attr('eclientid'));
+        $('#HouseholdId').val($(arg).attr('data-householdid'));
+        $('#CaseNoteProgramId').val($(arg).attr('data-programid'));
+        $.ajax({
+            url: HostedDir + "/Home/GetInternalRefDetails",
+            type: "POST",
+            dataType: "json",
+            data: {
+                ClientId: $(arg).attr('eclientid')
+            },
+            secureuri: false,
+            async: false,
+            success: function (data) {
+                console.log(data);
+                // customAlert("Record saved successfully");
+                if (data != null) {
+                    debugger;
+                    $('#DivAppendRoles').empty();
+
+                    var divContent = '  <div class=" col-lg-6 col-xs-12 internal_reference_radiobtn no-padding">\
+                                                            <div class="radio radio-info">\
+                                                                <input type="radio" name="RoleId"  onchange="OnSelectRoles(this);" class="roletype" value="NewValue">\
+                                                                <label>LabelContent</label>\
+                                                            </div>\
+                                                        </div>';
+                    for (var i = 0; i < data.RoleList.length; i++) {
+                        var result = "";
+                        result = result + divContent;
+                        result = result.replace("LabelContent", data.RoleList[i].RoleName);
+                        result = result.replace("NewValue", data.RoleList[i].RoleId);
+                        $('#DivAppendRoles').append(result);
+                    }
+                    if (data.AssignedRoles != null && data.AssignedRoles != "") {
+                        $('.divReferTo').show();
+                        $('#spnReferTo').text('This client already refered to ' + data.AssignedRoles)
+                    }
+                    //bindClients//
+                    var clientAppend = '';
+                    if (data.ClientList != null && data.ClientList.length > 0) {
+                        $.each(data.ClientList, function (k, clients) {
+                            clientAppend += '<div class="col-sm-12 adddivspace">\
+                                                    <input type="checkbox" name="ClientIds" value=' + clients.Id + '>\
+                                                    <span style="color:#295b8f;">' + clients.Name + '</span>\
+                                                </div>';
+                        });
+                    }
+                    $('#nREF_statusclientsDiv').html(clientAppend);
+
+                }
+            }
+   , error: function (data) {
+       customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+   }
+        });
+        $('#ModalAddCasenote').modal('show');
+        // $('#Modalclientenrolled').modal('toggle');
+    }
+
+
+    function addMoreStatusAtt(ele) {
+        var index = $(ele).closest('#section_attachment').parent('div').find('.houseless-attach').length;
+
+
+
+        var appendDiv = '<div class="col-lg-9 col-sm-7 no-padding adddivspace">\
+                                                   <div class="col-sm-7 col-lg-8 no-padding">\
+                                                       <input type="file" id="FirstFile" name="Attachments"  class="form-control">\
+                                                   </div>\
+                                                   <div class="col-sm-3 col-lg-3 adddivspace">\
+                                                       <a href="javascript:void(0)"  title="Remove Attachment" onclick="removeStatusAtt(this);"><i class="fa fa-minus-circle"></i>&nbsp;Remove</a>\
+                                                   </div>\
+                                               </div>';
+
+        $(ele).parent('div').parent('div').siblings("#addAttachmentDiv").append(appendDiv);
+
+
+    }
+
+
+    function removeStatusAtt(ele) {
+        $(ele).parent('div').parent('div').remove();
+    }
+
+    function UpdateCaseNoteContent(arg) {
+        CKEDITOR.instances['nREFNote'].setData($(arg).val());
+    }
+
+    // nREF End
+
+    //transpotation
+
+    function TransportationNeeded() {
+        //if (arg.value == "True") {
+
+        //}
+        $.ajax({
+            dataType: 'json',
+            type: "POST",
+            async: false,
+            url: "/AgencyUser/GetTransportationDetails",
+            data: { 'ClientId': cid },
+            success: function (data) {
+                console.log(data);
+                var result = JSON.parse(data);
+                if (result.length > 0) {
+                    $('.transportation-id').val(result[0].Id);
+                    if (result[0].PickupStatus == true) {
+                        $('.pickup-details').hide();
+                        $('#rdEmailYes').prop('checked', true);
+                        $('#txtPickupAddress').val("");
+                        $('#txtPickupZipcode').val("");
+                    }
+                    else {
+                        $('.pickup-details').show();
+                        $('#rdEmailNo').prop('checked', true);
+                        $('#txtPickupAddress').val(result[0].PickupAddress);
+                        $('#txtPickupZipcode').val(result[0].PickupZipcode);
+                    }
+                    if (result[0].DropStatus == true) {
+                        $('.drop-details').hide();
+                        $('#rdPrintYes').prop('checked', true);
+                        $('#txtDropAddress').val("");
+                        $('#txtDropZipcode').val("");
+                    }
+                    else {
+                        $('.drop-details').show();
+                        $('#rdPrintNo').prop('checked', true);
+                        $('#txtDropAddress').val(result[0].DropAddress);
+                        $('#txtDropZipcode').val(result[0].DropZipcode);
+                    }
+                }
+                $('#transportation').modal('show');
+            },
+            error: function (data) {
+            }
+        });
+    }
+
+    function Pickup(arg) {
+        if (arg.value == "0")
+            $('.pickup-details').show();
+        else
+            $('.pickup-details').hide();
+        $('#txtPickupAddress').val("");
+        $('#txtPickupZipcode').val("");
+    }
+
+    function Drop(arg) {
+        if (arg.value == "0")
+            $('.drop-details').show();
+        else
+            $('.drop-details').hide();
+        $('#txtDropAddress').val("");
+        $('#txtDropZipcode').val("");
+    }
+    function Closetransportaion() {
+
+        $('#transportation').modal('hide');
+        $('#txtPickupAddress').val("");
+        $('#txtPickupZipcode').val("");
+        $('#txtDropAddress').val("");
+        $('#txtDropZipcode').val("");
+        $('#rdEmailYes').prop('checked', true);
+        $('#rdPrintYes').prop('checked', true);
+        $('#divTransportation').hide();
+    }
+
+    function SetAddress() {
+        var isAllow = true;
+        if ($('.Pickup:checked').val() == undefined) {
+            isAllow = false;
+            customAlert("Select pickup option");
+
+        }
+        else if ($('.Pickup:checked').val() == "0") {
+            if ($('#txtPickupAddress').val() == "") {
+                isAllow = false;
+                customAlert("Enter pickup address");
+            }
+            else if ($('#txtPickupZipcode').val() == "") {
+                isAllow = false;
+                customAlert("Enter pickup zipcode");
+            }
+        }
+        if ($('.Drop:checked').val() == undefined && isAllow) {
+            isAllow = false;
+            customAlert("Select drop off option");
+        }
+        else if ($('input[type=radio][name=Drop]:checked').val() == "0") {
+            if ($('#txtDropAddress').val() == "") {
+                isAllow = false;
+                customAlert("Enter drop off address");
+            }
+            else if ($('#txtDropZipcode').val() == "") {
+                isAllow = false;
+                customAlert("Enter drop off zip code");
+            }
+        }
+        else if ($('.Drop:checked').val() == "2" && $('.Pickup:checked').val() == "2") {
+            isAllow = false;
+            customAlert("Both should not be Not Needed");
+        }
+        if (isAllow) {
+            $('#divTransportation').show();
+            $('#txtPickup').val($('.Pickup:checked').val() == "1" ? "Pick child up from home" : $('#txtPickupAddress').val() + ' , ' + $('#txtPickupZipcode').val())
+            $('#txtDrop').val($('.Drop:checked').val() == "1" ? "Drop off child to home" : $('#txtDropAddress').val() + ' , ' + $('#txtDropZipcode').val())
+
+            $('.internal_reference').css("overflow", 'auto');
+            $('#transportation').modal('hide');
+            //$('#txtPickupAddress').val("");
+            //$('#txtPickupZipcode').val("");
+            //$('#txtDropAddress').val("");
+            //$('#txtDropZipcode').val("");
+            //$('#rdEmailYes').prop('checked', true);
+            //$('#rdPrintYes').prop('checked', true);
+        }
+
+    }
+    function saveTransportation() {
+
+
+        var Trasportation = {};
+        if ($('.transportation-id').val().trim() != "")
+            Trasportation.Id = $('.transportation-id').val().trim();
+        Trasportation.ClientId = cid;
+        Trasportation.PickupStatus = $('.Pickup:checked').val() == "1" ? true : false;
+        Trasportation.PickupAddress = $('#txtPickupAddress').val();
+        Trasportation.PickupZipcode = $('#txtPickupZipcode').val();
+        Trasportation.DropStatus = $('.Drop:checked').val() == "1" ? true : false;
+        Trasportation.DropAddress = $('#txtDropAddress').val();
+        Trasportation.DropZipcode = $('#txtDropZipcode').val();
+        Trasportation = JSON.stringify({ 'objTransportation': Trasportation });
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            type: "POST",
+            async: false,
+            url: "/AgencyUser/SaveTransportation",
+            data: Trasportation,
+            success: function (data) {
+                if (data) {
+                    // customAlertSuccess("Record Saved Successfully");
+
+
+                }
+                else
+                    customAlertSuccess("Sorry,Unable to save details");
+            },
+            error: function (data) {
+            }
+        });
+
+    }
+    //end
+</script>
 <style type="text/css">
       .billing-inner-label label, .billing-inner-label span {
              color: #333;
@@ -442,7 +828,7 @@
     <div class="modal-dialog income-popup width-auto">
         <div class="modal-content">
             <div class="modal-header">
-                @*<h3 class="text-center">Internal Reference<span class="extra-title muted"></span></h3>*@
+               
                 <div class="col-xs-12 ersea-detl-title">
                     <h3>Internal Referral</h3>
                     <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
@@ -515,10 +901,10 @@
                                         </div>
                                         <div class="col-lg-8 col-sm-7" style="padding:0;">
                                             <div class="col-xs-12" id="RolesDiv" style="border: 1px solid #ddd;padding: 10px 0;margin-left: 15px;width: 85%;">
-                                             <input type="hidden" name="CaseClientId" id="CaseNoteClientId" />
+                                             <input type="hidden" name="CaseClientId" id="nREF_CaseNoteClientId" />
                                                 <input type="hidden" name="CaseCenterId" id="CaseNoteCenterId" />
                                                 <input type="hidden" name="CaseClassroomId" id="ClassroomId" />
-                                                <input type="hidden" name="Tags" id="Tags" />
+                                                <input type="hidden" name="Tags" id="nREF_Tags" />
                                                 <input type="hidden" name="CaseHouseholdId" id="HouseholdId" />
                                                 <input type="hidden" name="CaseProgramId" id="CaseNoteProgramId" />
                                                 <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
@@ -560,7 +946,43 @@
                                            
                                         </div>
                                     </div> 
-                                    
+                                    @*<div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;margin-top:10px;display:none;" id="disablity">
+                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
+                                            <div class="enroll-sec" style="padding-left: 0;">
+                                                <div class="transition-content-desc" style="position: relative;">
+                                                    <p style="background: none;border: none;">Disablity</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8 col-sm-7" style="padding:0;">
+
+                                            <div class="col-lg-12 col-xs-12">
+
+                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
+                                                    <div class="col-xs-12 no-padding" style="width:auto;display:inline-block;margin-right: 15px;">
+
+                                                        <div class="fa-checkbox">
+                                                            <input type="checkbox" value="" name="IsIEP" id="IsIEP" style="display:none;" onclick="IEPorIFSP_Checked()" />
+                                                             <label for="IsIEP" id="IsIEP" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;">IEP</label>
+                                                        </div>
+                                                        <div class="fa-checkbox">
+                                                            <input type="checkbox" value="" name="IsIFSP" id="IsIFSP" style="display:none;"  onclick="IEPorIFSP_Checked()" />
+                                                            <label for="IsIFSP" id="IsIFSP" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;">IFSP</label>
+                                                        </div>
+                                                        <div class="fa-checkbox">
+                                                            <input type="checkbox" value="" name="IsExpired" id="IsExpired" style="display:none;"  onclick="IEPorIFSP_Checked()" />
+                                                            <label for="IsExpired" id="IsExpired" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;">Expired</label>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>*@ 
+                        
                                     <div class="col-xs-12 col-sm-12 adddivspace">
                                         <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
                                             <div class="enroll-sec" style="padding-left: 0;">
@@ -654,7 +1076,7 @@
                                             </div>
 
                                             <div class="col-lg-5 col-sm-7">
-                                                <input type="text" id="status_CaseNotetags" name="Tags" class="form-control ui-autocomplete-input" />
+                                                <input type="text" id="nREF_status_CaseNotetags" name="Tags" class="form-control ui-autocomplete-input" />
                                               </div>
                                         </div>    
 
@@ -667,7 +1089,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-5 col-sm-7 no-padding" id="statusclientsDiv">
+                                            <div class="col-lg-5 col-sm-7 no-padding" id="nREF_statusclientsDiv">
 
 
                                             </div>
