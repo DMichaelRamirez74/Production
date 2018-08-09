@@ -1090,8 +1090,10 @@
                         url: '/Roster/SaveHeadStartTransition',
                         contentType: false,
                         processData: false,
+                        beforeSend:function(){$('#spinner').show()},
                         data: fileData,
                         success: function (data) {
+                            $('#spinner').hide();
                             if (data == 1 || data == 3) {
                                 $("#lblSeatsAvailability").text("Record updated successfully.");
                                 $('#SeatsAvailability').modal('show');
@@ -1103,6 +1105,11 @@
                             else {
                                 customAlert('Error Occured. Please, try again later.');
                             }
+                        },
+                        error:function(data)
+                        {
+                            $('#spinner').hide();
+                            customAlert('Error occurred. Please, try again later.');
                         }
                     });
                 }
@@ -1441,7 +1448,10 @@
 
             $('#divHSProgramType,#divEHSProgramType').hide('slow');
             $('#divHSProgramType,#divEHSProgramType').find('input[type=radio]').prop('checked', false);
-
+            $('#Centers').val(0)
+            $('#Classroom').text("")
+            $('.divCenter').hide();
+            $('.divClassRoomName').hide();
 
             $('#hsProgramTypeRadioDiv,#ehsProgramTypeRadioDiv').css('background-color', '');
 
@@ -1519,6 +1529,9 @@
             else if (transType == 6 || transType == 7 || transType == 8 || transType == 9) {
 
                 // $('#insurancequestionDiv').show();
+
+                //$('.divCenter').hide('slow');
+                //$('.divClassRoomName').hide('slow');
             }
 
 
@@ -1545,19 +1558,7 @@
         <div class="row">
             <div class="right-side-container-ch">
                 <div class="col-xs-12 no-padding">
-                    @*<div class="col-xs-12 top-header-background no-padding">
-                            <div class="top-header" style="margin-top:20px;">
-                                <div class="nav-icon1">
-                                    <img src="images/nav-bar.png">
-                                </div>
-                                <div class="col-xs-12 no-padding">
-                                    <div class="top-header-title-transportation">
-                                        <h1>Early Head Start Transition</h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>*@
-
+                  
                     <div class="col-xs-12" style="padding:0px 15px;margin-bottom:20px;">
 
 
@@ -1589,7 +1590,6 @@
                                     <div class="col-lg-7 col-xs-7">
                                         <div class="transition-inner" style="position: relative;">
                                             <label class="ed-primary-color">@Model.Name</label>
-                                            @* @Html.TextBoxFor(m => m.Name,new { @class="form-control",placeholder="Client Name",@readonly=true})*@
                                             @Html.HiddenFor(m => m.HouseholdId)
                                             @Html.HiddenFor(m => m.EClientID)
                                             @Html.HiddenFor(m => m.Enc_ProgID)
@@ -1783,8 +1783,10 @@
 
                                                     @if (Model.TypeOfTransition == 5) //Mandatory Transition from HS to Kindergarden >=5
                                                     {
-                                                        <option value="1">Enroll in “OUR” Head Start Program</option>
                                                         <option value="6">Transition to Kindergarden</option>
+                                                        <option value="1">Enroll in “OUR” Head Start Program</option>
+                                                        <option value="3">Enrolled in “OTHER” Childhood Program</option>
+
                                                     }
 
                                                 </select>
