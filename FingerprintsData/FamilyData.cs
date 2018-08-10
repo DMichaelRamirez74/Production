@@ -3005,7 +3005,7 @@ namespace FingerprintsData
                         addhouseholdRow.clientIdnew = EncryptDecrypt.Encrypt64(familydataTable.Rows[i]["ClientId"].ToString());
                         addhouseholdRow.ClientFname = familydataTable.Rows[i]["name"].ToString();
                         addhouseholdRow.RPhoneno = familydataTable.Rows[i]["PHONENO"].ToString();
-                        addhouseholdRow.CreatedOn = Convert.ToDateTime(familydataTable.Rows[i]["DateEntered"]).ToString("MM/dd/yyyy");
+                        addhouseholdRow.CreatedOn = Convert.ToString(familydataTable.Rows[i]["DateEntered"]);
                         addhouseholdRow.Encrypthouseholid = EncryptDecrypt.Encrypt64(familydataTable.Rows[i]["HouseholdID"].ToString());
                         addhouseholdRow.ApplicationStatusChild = familydataTable.Rows[i]["ApplicationStatus"].ToString();
                         addhouseholdRow.IsFutureApplication = familydataTable.Rows[i]["IsFutureIntake"].ToString()=="1"?true:false;
@@ -4697,6 +4697,7 @@ namespace FingerprintsData
                         obj.Cfirstname = _dataset.Tables[0].Rows[0]["Firstname"].ToString();
                         obj.Cmiddlename = _dataset.Tables[0].Rows[0]["Middlename"].ToString();
                         obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
+                        obj.IsFutureApplication = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["IsFutureIntake"].ToString())?false:Convert.ToString(_dataset.Tables[0].Rows[0]["IsFutureIntake"])=="1"?true:false;
                         if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
                             obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
                         obj.DOBverifiedBy = _dataset.Tables[0].Rows[0]["Dobverifiedby"].ToString();
@@ -8131,8 +8132,8 @@ namespace FingerprintsData
                             info.Name = dr["name"].ToString();
                             info.Choice = dr["centerchoice"].ToString();
                             info.Option = dr["Option"].ToString();
-                            info.DateOnList = dr["dateentered"].ToString() != "" ? Convert.ToDateTime(dr["dateentered"]).ToString("MM/dd/yyyy") : "";
-                            info.DOB = dr["dob"].ToString() != "" ? Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy") : "";
+                            info.DateOnList = !string.IsNullOrEmpty(dr["dateentered"].ToString()) ? Convert.ToString(dr["dateentered"]) : "";
+                            info.DOB = !string.IsNullOrEmpty(dr["dob"].ToString()) ? Convert.ToString(dr["dob"]) : "";
                             info.Gender = dr["gender"].ToString();
                             info.ProgramType = dr["programtype"].ToString();
                             info.SelectionPoints = dr["Selectionpoint"].ToString();
@@ -8150,7 +8151,12 @@ namespace FingerprintsData
                             obj.Name = dr["Name"].ToString();
                             _userlist.Add(obj);
                         }
-                        ClientList.FirstOrDefault().UserList = _userlist;
+
+                        if (ClientList.Count > 0)
+                        {
+                            ClientList.FirstOrDefault().UserList = _userlist;
+
+                        }
                     }
                     if (_dataset.Tables[2].Rows.Count > 0 && ClientList.Count > 0)
                     {
@@ -8163,7 +8169,12 @@ namespace FingerprintsData
                             obj.ReferenceId = dr["ReferenceId"].ToString();
                             Programs.Add(obj);
                         }
-                        ClientList.FirstOrDefault().ProgramsList = Programs;
+
+                        if (ClientList.Count > 0)
+                        {
+                            ClientList.FirstOrDefault().ProgramsList = Programs;
+
+                        }
                     }
                 }
                 DataAdapter.Dispose();

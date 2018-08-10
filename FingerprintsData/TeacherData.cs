@@ -1262,10 +1262,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@AgencyID", objMonitoring.AgencyID));
                 command.Parameters.Add(new SqlParameter("@ImageId", objMonitoring.ImageId));
                 command.Parameters.Add(new SqlParameter("@PassFailCode", objMonitoring.PassFailCode));
-                if (objMonitoring.CenterId != null)
-                {
-                    command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
-                }
+                command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
                 command.Parameters.Add(new SqlParameter("@UserId", objMonitoring.UserID));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
