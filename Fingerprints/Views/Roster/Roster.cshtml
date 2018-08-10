@@ -62,7 +62,7 @@
                 {
                     message='<p><strong>' + cName + '</strong> has been transitioned to new program year.</p><p>If you would like to change, Click OK to proceed.</p>';
                 }
-                
+
                 else if ($(ele).attr('isr') == '0')
                 {
                     message = '<p><strong>' + cName + '</strong> has indicated as not planning on returning to our program.</p><p>If you would like to change, Click OK to proceed.</p>';
@@ -115,8 +115,8 @@
         //     var yakkr = $(ele).attr('st');
 
 
-         
-            
+
+
         //     BootstrapDialog.show({
         //         title:'Pregnant Mother Transition Confirmation',
         //         message: '<p>Is <strong>' + cName + '</strong> ready for transition?. Click OK to start transition or Cancel to exit</p>',
@@ -136,7 +136,7 @@
         //         }]
         //     });
 
-            
+
 
         //}
 
@@ -155,7 +155,7 @@
                 type: 'post',
                 data: { clientId: cId, followup: fup },
                 success: function (data) {
-                  
+
 
                     var $scrModal = $('#screeningFollowupModal');
 
@@ -657,7 +657,7 @@
                 beforeSend: function () { $('#spinner').show() },
                 success: function (data) {
 
-               
+
                     $('#spinner').hide();
 
                     var houselessModal = $('#Houselessmodal');
@@ -1120,8 +1120,8 @@
                     GetClassrooms('#Centers', true);
                 }
 
-              
-               
+
+
 
             }
 
@@ -1227,7 +1227,7 @@
 
             $('#btnsearch').on('click', function () {
 
-               
+
                 cleanValidation();
 
                 if ($('#Centers').val() == '0' || $('#Centers').val() == null || $('#Centers').val() == '') {
@@ -1306,7 +1306,7 @@
                 format: 'm/d/Y',
                 validateOnBlur: false
             });
-           
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -1991,7 +1991,7 @@
                 datatype: 'json',
                 data: { requestedPage: 1, pageSize: parseInt($('#ddlpagetodisplay').val()), centerId: $('#Centers').val(), classroomId: $('#Classroom').val(), filter: filtervalue, searchText: searchText, sortOrder: sortOrder, sortDirection: sortDirection },
                 success: function (data) {
-                   
+
                 },
                 error: function (data) {
 
@@ -2147,7 +2147,7 @@
                 $('#ddlpagetodisplay').prop('disabled', false);
 
                 var tbody = $('#GridRoster > tbody');
-                
+
                 for (var i = 0; i < data.list.Rosters.length; i++) {
 
                     var tr = "";
@@ -2374,7 +2374,7 @@
                             tr += '<td height="70" style="width:26%;">';
                             tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
                             tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>&nbsp;';
-
+                            tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
                             if (data.list.Rosters[i].IsScreeningFollowUpReq) {
                                 tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
 
@@ -2385,15 +2385,19 @@
                             }
                             tr += '</td>';
                         }
-                        tr += '<td height="70" style="width:26%;">';
-                        tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
-                        tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                        tr += '</td>'
+                        else
+                        {
+                            tr += '<td height="70" style="width:26%;">';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
+                            tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
+                            tr += '</td>'
+                        }
+
                         tr += '</tr>';
 
                     }
 
-                   
+
                     $('#GridRoster > tbody').append(tr);
 
 
@@ -2844,10 +2848,10 @@
 
 
 
-        .bootstrap-dialog-title
-        {
-            margin-top:15px;
+        .bootstrap-dialog-title {
+            margin-top: 15px;
         }
+
         .no-padding {
             padding: 0;
         }
@@ -3377,7 +3381,7 @@
                                 <th id="thSN" style="width: 10%;">Date of Last Case Note</th>
                                 <th id="thSN" style="width: 10%;">Date of Last FPA</th>
                                 <th id="thSN" style="width: 10%;">Date of Last Referral</th>
-                               
+
                                 if (Session["RoleId"] != null && (Session["RoleId"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26"))
                                 {
                                     <th id="thSN" style="width: 24%;">Services</th>
@@ -4259,7 +4263,7 @@
 
         </div>
     </div>
-@Html.Partial("~/Views/Partialviews/InternalReferral.cshtml");
+    @Html.Partial("~/Views/Partialviews/InternalReferral.cshtml");
     <!-- Modal popup -->
 
 }
