@@ -26,11 +26,11 @@ namespace FingerprintsModel
         /// </summary>
         public StaffDetails()
         {
-            this.AgencyId = (HttpContext.Current.Session["AgencyID"] == null) ? (Guid?)null : new Guid(HttpContext.Current.Session["AgencyID"].ToString());
-            this.UserId = (string.IsNullOrEmpty(HttpContext.Current.Session["UserID"].ToString())? new Guid():   new Guid(HttpContext.Current.Session["UserID"].ToString()));
-            this.RoleId = (string.IsNullOrEmpty(HttpContext.Current.Session["RoleID"].ToString())? new Guid(): new Guid(HttpContext.Current.Session["RoleID"].ToString()));
-            this.FullName = HttpContext.Current.Session["FullName"].ToString();
-            this.EmailID = HttpContext.Current.Session["EmailID"].ToString();
+            this.AgencyId = ((HttpContext.Current.Session["AgencyID"]==null) ? (Guid?)null : new Guid(HttpContext.Current.Session["AgencyID"].ToString()));
+            this.UserId = ((HttpContext.Current.Session["UserID"]==null)? (Guid?)null :   new Guid(HttpContext.Current.Session["UserID"].ToString()));
+            this.RoleId = ((HttpContext.Current.Session["RoleID"]==null)? (Guid?)null : new Guid(HttpContext.Current.Session["RoleID"].ToString()));
+            this.FullName =((HttpContext.Current.Session["FullName"]==null)?string.Empty: HttpContext.Current.Session["FullName"].ToString());
+            this.EmailID = ((HttpContext.Current.Session["EmailID"]==null)?string.Empty:HttpContext.Current.Session["EmailID"].ToString());
                 
 
         }
@@ -44,8 +44,8 @@ namespace FingerprintsModel
         //    this.AgencyId = agencyId;
         //}
         public string FullName { get; set; }
-        public Guid UserId { get; set; }
-        public Guid RoleId { get; set; }
+        public Guid? UserId { get; set; }
+        public Guid? RoleId { get; set; }
         public Guid? AgencyId { get; set; }
 
         public string EmailID { get; set; }
