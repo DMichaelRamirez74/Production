@@ -10612,7 +10612,13 @@ namespace FingerprintsData
 
                             foreach (DataRow dr in _dataset.Tables[5].Rows)
                             {
-                                if (Convert.ToInt32(dr["ParentRole"]) == 1)
+
+
+                                //Father Figure -1
+                                //Grandparents-3
+                                //Foster Parent - Not including relative -5
+
+                                if (Convert.ToInt32(dr["ParentRole"]) == 1 || Convert.ToInt32(dr["ParentRole"]) == 3 || Convert.ToInt32(dr["ParentRole"]) == 5)
                                 {
                                     trans.JobTrainingSchool = string.IsNullOrEmpty(dr["JobTrainingSchool"].ToString()) ? false : Convert.ToInt32(dr["JobTrainingSchool"]) == 1 ? true : false;
                                     trans.JobTrainingFinished = string.IsNullOrEmpty(dr["JobTrainingFinished"].ToString()) ? false : Convert.ToBoolean(dr["JobTrainingFinished"]);
@@ -10623,10 +10629,27 @@ namespace FingerprintsData
                                     trans.HighSchool = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "4") ? true : false;
                                     trans.ParentRole = Convert.ToInt32(dr["ParentRole"]);
                                     trans.ParentID = EncryptDecrypt.Encrypt64(dr["ParentID"].ToString());
-                                    trans.ParentName = Convert.ToString(dr["ParentName"]) + " " + "(Father)";
+
+                                    switch (Convert.ToInt32(dr["ParentRole"]))
+                                    {
+                                        case 1:
+                                            trans.ParentName = Convert.ToString(dr["ParentName"]) + " " + "(Father)";
+                                            break;
+                                        case 3:
+                                            trans.ParentName = Convert.ToString(dr["ParentName"]) + " " + "(Grandparents)";
+                                            break;
+                                        case 5:
+                                            trans.ParentName = Convert.ToString(dr["ParentName"]) + " " + "(Foster Parent - Not including relative)";
+                                            break;
+                                    }
                                 }
 
-                                if (Convert.ToInt32(dr["ParentRole"]) == 2)
+
+
+                                //Mother Figure -2
+                                //Relatives other than grandparents-4
+                                //Other -6
+                                if (Convert.ToInt32(dr["ParentRole"]) == 2 || Convert.ToInt32(dr["ParentRole"]) == 4 || Convert.ToInt32(dr["ParentRole"]) == 6)
                                 {
                                     trans.JobTrainingSchool2 = string.IsNullOrEmpty(dr["JobTrainingSchool"].ToString()) ? false : Convert.ToInt32(dr["JobTrainingSchool"]) == 1 ? true : false;
                                     trans.JobTrainingFinished2 = string.IsNullOrEmpty(dr["JobTrainingFinished"].ToString()) ? false : Convert.ToBoolean(dr["JobTrainingFinished"]);
@@ -10636,7 +10659,20 @@ namespace FingerprintsData
                                     trans.HighSchool2 = string.IsNullOrEmpty(dr["Educationlevel"].ToString()) ? false : (dr["Educationlevel"].ToString() == "4") ? true : false;
                                     trans.ParentRole2 = Convert.ToInt32(dr["ParentRole"]);
                                     trans.ParentID2 = EncryptDecrypt.Encrypt64(dr["ParentID"].ToString());
-                                    trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Mother)";
+
+                                    switch (Convert.ToInt32(dr["ParentRole"]))
+                                    {
+                                        case 2:
+                                            trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Father)";
+                                            break;
+                                        case 4:
+                                            trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Relatives other than grandparents)";
+                                            break;
+                                        case 6:
+                                            trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Other)";
+                                            break;
+                                    }
+
                                 }
                             }
                             //  trans.JobTrainingFinished = string.IsNullOrEmpty(_dataset.Tables[5].Rows[0]["JobTrainingFinished"].ToString()) ? false : (_dataset.Tables[5].Rows[0]["JobTrainingFinished"].ToString() == "1") ? true : false;
@@ -14559,7 +14595,10 @@ namespace FingerprintsData
 
                                     foreach (DataRow dr in _dataset.Tables[0].Rows)
                                     {
-                                        if (Convert.ToInt32(dr["ParentRole"]) == 1)
+                                        //Father Figure -1
+                                        //Grandparents-3
+                                        //Foster Parent - Not including relative -5
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 1 || Convert.ToInt32(dr["ParentRole"]) == 3 || Convert.ToInt32(dr["ParentRole"]) == 5)
                                         {
 
                                             transWithdrawal.EducationQ8Start = Convert.ToString(dr["EducationLevel"]);
@@ -14567,7 +14606,10 @@ namespace FingerprintsData
                                             transWithdrawal.ParentName = Convert.ToString(dr["ParentName"]);
                                         }
 
-                                        if (Convert.ToInt32(dr["ParentRole"]) == 2)
+                                        //Mother Figure -2
+                                        //Relatives other than grandparents-4
+                                        //Other -6
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 2 || Convert.ToInt32(dr["ParentRole"]) == 4 || Convert.ToInt32(dr["ParentRole"]) == 6)
                                         {
                                             transWithdrawal.EducationQ8Start1 = Convert.ToString(dr["EducationLevel"]);
                                             transWithdrawal.ParentID1 = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ParentID"]));
@@ -14591,7 +14633,11 @@ namespace FingerprintsData
 
                                     foreach (DataRow dr in _dataset.Tables[0].Rows)
                                     {
-                                        if (Convert.ToInt32(dr["ParentRole"]) == 1)
+
+                                        //Father Figure -1
+                                        //Grandparents-3
+                                        //Foster Parent - Not including relative -5
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 1 || Convert.ToInt32(dr["ParentRole"]) == 3 || Convert.ToInt32(dr["ParentRole"]) == 5)
                                         {
 
                                             transWithdrawal.JobTrainingCompletedQ9Start = Convert.ToString(dr["JobTrainingFinished"]);
@@ -14599,7 +14645,12 @@ namespace FingerprintsData
                                             transWithdrawal.ParentName = Convert.ToString(dr["ParentName"]);
                                         }
 
-                                        if (Convert.ToInt32(dr["ParentRole"]) == 2)
+
+
+                                        //Mother Figure -2
+                                        //Relatives other than grandparents-4
+                                        //Other -6
+                                        if (Convert.ToInt32(dr["ParentRole"]) == 2 || Convert.ToInt32(dr["ParentRole"]) == 4 || Convert.ToInt32(dr["ParentRole"]) == 6)
                                         {
                                             transWithdrawal.JobTrainingCompletedQ9Start1 = Convert.ToString(dr["JobTrainingFinished"]);
                                             transWithdrawal.ParentID1 = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ParentID"]));
