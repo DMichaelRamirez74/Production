@@ -10663,7 +10663,7 @@ namespace FingerprintsData
                                     switch (Convert.ToInt32(dr["ParentRole"]))
                                     {
                                         case 2:
-                                            trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Father)";
+                                            trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Mother)";
                                             break;
                                         case 4:
                                             trans.ParentName2 = Convert.ToString(dr["ParentName"]) + " " + "(Relatives other than grandparents)";
