@@ -35,14 +35,14 @@ namespace Fingerprints.Utilities
             return Count;
         }
 
-        public static List<SelectListItem> GetCentersByUserId(string UserId, string AgencyId, string RoleId, bool isReqAdminSite = false, bool isCenterBasedOnly = false, bool isHomebasedonly = false)
+        public static List<SelectListItem> GetCentersByUserId(string UserId, string AgencyId, string RoleId, bool isReqAdminSite = false, bool isCenterBasedOnly = false, bool isHomebasedonly = false,bool isEndOfYear=false)
         {
             List<SelectListItem> lstCenters = new List<SelectListItem>();
             try
             {
                 DataTable dtCenters = new DataTable();
                 lstCenters.Add(new SelectListItem { Text = "-Select Center-", Value = "0" });
-                new CenterData().GetCentersByUserId(ref dtCenters, UserId, AgencyId, RoleId,isReqAdminSite,isCenterBasedOnly,isHomebasedonly);
+                new CenterData().GetCentersByUserId(ref dtCenters, UserId, AgencyId, RoleId,isReqAdminSite,isCenterBasedOnly,isHomebasedonly,isEndOfYear);
                 if (dtCenters != null)
                 {
                     if (dtCenters.Rows.Count > 0)

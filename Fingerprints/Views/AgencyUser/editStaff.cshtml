@@ -33,6 +33,10 @@
 
 @section Script{
     <script type="text/javascript">
+
+
+        var isEndOfYear = '@ViewBag.IsEndOfYear';
+
         var isValid = true;
         $(document).ready(function () {
             $('.lang-req').change(function () {
@@ -68,8 +72,7 @@
                 $('.DivHide').show();
 
             }
-            if(value=="82b862e6-1a0f-46d2-aad4-34f89f72369a" || value=="2adfe9c6-0768-4a35-9088-e0e6ea91f709")
-            {
+            if (value == "82b862e6-1a0f-46d2-aad4-34f89f72369a" || value == "2adfe9c6-0768-4a35-9088-e0e6ea91f709") {
                 $('#DivCenter input:checked').each(function () {
                     if ($(this).prop('checked')) {
                         var value = $(this).val();
@@ -485,6 +488,17 @@
                 }
 
             }
+
+
+            if ($('#ProgramYear').val() == undefined || $('#ProgramYear').val() == null || $('#ProgramYear').val() == '')
+            {
+                isValid = false;
+                plainValidattion('#ProgramYear');
+                customAlert("Please select Start PIR Program Year.");
+                return isValid;
+
+            }
+
             var check = 0;
             var count = 0;
             $("#DivCenter input[type=checkbox]").each(function () {
@@ -701,7 +715,7 @@
             });
         }
         function Agencyadmin() {
-            window.location.href = HostedDir + "/Agency/viewagencystaff";
+            window.location.href = HostedDir + "/Agency/viewagencystaff?ak="+isEndOfYear+"";
 
         }
         function EnableDisable() {
@@ -792,12 +806,18 @@
         <div class="col-lg-12">
             <h2 class="page-header">
                 @ViewData["Title"].ToString()
+                
+                @if(ViewBag.IsEndOfYear=="1")
+                {
+                    <i style="font-size:18px;">for Next Program Year (@Model.ProgramYear)</i>
+                }
+
                 <span style="float:right;">
 
 
                     @if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
                     {
-                        <a href="~/Agency/viewagencystaff" style="padding: 5px 33px; background-color: #295b8f; color: #fff; font-size: 14px; border-style: none; ">Back to list</a>
+                        <a href="~/Agency/viewagencystaff?ak=@ViewBag.IsEndOfYear" style="padding: 5px 33px; background-color: #295b8f; color: #fff; font-size: 14px; border-style: none; ">Back to List</a>
                     }
                     else
                     {
@@ -1187,6 +1207,32 @@
                                                 @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", tabIndex = "33" })
                                             </div>
                                         </div>
+
+
+                                        if (ViewBag.IsEndOfYear == "1")
+                                        {
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="pwd">Start PIR Program Year</label>
+                                                   <label id="ProgramYearLbl" name="ProgramYearLbl">@Model.ProgramYearList[0].Text</label>
+                                                    @Html.Hidden("ProgramYear",Model.ProgramYearList[0].Value);
+                                                </div>
+                                            </div>
+
+                                        }
+                                        else
+                                        {
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="form-group">
+                                                    <label for="pwd">Start PIR Program Year<sup>*</sup></label>
+                                                    @Html.DropDownListFor(m => m.ProgramYear, new SelectList(Model.ProgramYearList, "Value", "Text", Model.ProgramYear), new { @class = "form-control", tabIndex = "34" })
+                                                </div>
+                                            </div>
+                                        }
+
+
+
+
                                         <div class="col-lg-6 col-md-6 col-sm-12" style="min-height:45px">
                                             <div class="form-group">
                                                 <label for="loginallowed">Is Login allowed ?</label>
@@ -1428,6 +1474,9 @@
                         <div class="row">
                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                 <div class="btnwrp_subcal">
+
+                                    <input type="hidden" id="endOfYear" name="endOfYear" value="@ViewBag.IsEndOfYear"/>
+
                                     <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();" class="my-btn" tabindex="35">Submit</button>
                                     <button id="btnCancel" type="button" class="my-btn" tabindex="36">Exit</button>
                                     <div class="clear"></div>

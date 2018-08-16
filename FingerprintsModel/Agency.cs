@@ -231,6 +231,8 @@ namespace FingerprintsModel
         public string SlotAllocated { get; set; }
         public string Slots { get; set; }
         public bool MenuEnabled { get; set; }
+
+        public string ProgramYear{get;set;}
     }
 
    

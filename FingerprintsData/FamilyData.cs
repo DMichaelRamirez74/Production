@@ -6770,14 +6770,15 @@ namespace FingerprintsData
                 command.Dispose();
             }
         }
-        public List<HrCenterInfo> getagencyid(string agencyid, string roleid)
+        public List<HrCenterInfo> getagencyid(string agencyid, string roleid, string programYear = "")
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             try
             {
 
                 command.Parameters.Add(new SqlParameter("@Agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@roleid", roleid));
+                command.Parameters.Add(new SqlParameter("@roleid", string.IsNullOrEmpty(roleid) ? (Guid?)null : new Guid(roleid)));
+                command.Parameters.Add(new SqlParameter("@ProgramYear", programYear));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "Sp_getcenter";
@@ -8651,7 +8652,7 @@ namespace FingerprintsData
                     obj.GenderParent1 = _dataset.Tables[1].Rows[0]["GenderText"].ToString();
                     obj.PGender = _dataset.Tables[1].Rows[0]["gender"].ToString();
                     obj.IsPreg = Convert.ToInt32(_dataset.Tables[1].Rows[0]["IsPreg"]);
-                    obj.PDOB = _dataset.Tables[1].Rows[0]["dob"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[1].Rows[0]["dob"]).ToString("MM/dd/yyy");
+                    obj.PDOB = _dataset.Tables[1].Rows[0]["dob"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["dob"]);
                     obj.PImagejson = _dataset.Tables[1].Rows[0]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[1].Rows[0]["ProfilePic"]);
                     obj.RPhoneno = _dataset.Tables[1].Rows[0]["ParentPhoneNo"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[0]["ParentPhoneNo"]);
                     obj.PPhoneList = obj.RPhoneno.Split(',').ToList();
@@ -8665,17 +8666,18 @@ namespace FingerprintsData
                         obj.PMDentalExam = Convert.ToInt32(_dataset.Tables[1].Rows[0]["PMDentalExam"]);
                         obj.PMDentalEntered = Convert.ToBoolean(_dataset.Tables[1].Rows[0]["DentalEntered"]);
                         obj.ProgramTypeID = Convert.ToString(EncryptDecrypt.Encrypt64(_dataset.Tables[1].Rows[0]["ProgramID"].ToString()));
-                        
+
                     }
 
                     if (_dataset.Tables[1].Rows.Count > 1)
                     {
+                        //Parent2
                         obj.ParentID1 = Convert.ToInt32(_dataset.Tables[1].Rows[1]["clientid"]);
                         obj.P1firstname = _dataset.Tables[1].Rows[1]["name"].ToString();
                         obj.IsPreg1 = Convert.ToInt32(_dataset.Tables[1].Rows[1]["IsPreg"]);
                         obj.GenderParent2 = _dataset.Tables[1].Rows[1]["GenderText"].ToString();
                         obj.P1Gender = _dataset.Tables[1].Rows[1]["gender"].ToString() == "0" ? 0 : Convert.ToInt32(_dataset.Tables[1].Rows[1]["gender"]);
-                        obj.P1DOB = _dataset.Tables[1].Rows[1]["dob"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[1].Rows[1]["dob"]).ToString("MM/dd/yyy");
+                        obj.P1DOB = _dataset.Tables[1].Rows[1]["dob"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["dob"]);
                         obj.P1Imagejson = _dataset.Tables[1].Rows[1]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[1].Rows[1]["ProfilePic"]);
                         obj.P1phoneno = _dataset.Tables[1].Rows[1]["ParentPhoneNo"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[1].Rows[1]["ParentPhoneNo"]);
                         obj.P1PhoneList = obj.P1phoneno.Split(',').ToList();
@@ -8702,7 +8704,7 @@ namespace FingerprintsData
                         familyinfo = new FamilyHousehold();
                         familyinfo.ChildId = Convert.ToInt32(_dataset.Tables[2].Rows[i]["clientid"]);
                         familyinfo.Cfirstname = _dataset.Tables[2].Rows[i]["name"].ToString();
-                        familyinfo.CDOB = Convert.ToDateTime(_dataset.Tables[2].Rows[i]["dob"]).ToString("MM/dd/yyyy");
+                        familyinfo.CDOB = Convert.ToString(_dataset.Tables[2].Rows[i]["dob"]);
                         familyinfo.Gender = _dataset.Tables[2].Rows[i]["GenderText"].ToString();
                         familyinfo.CGender = _dataset.Tables[2].Rows[i]["gender"].ToString();
                         familyinfo.Imagejson = _dataset.Tables[2].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[2].Rows[i]["ProfilePic"]);
@@ -8734,7 +8736,7 @@ namespace FingerprintsData
                         familyinfo = new FamilyHousehold();
                         familyinfo.OthersId = Convert.ToInt32(_dataset.Tables[3].Rows[i]["clientid"]);
                         familyinfo.Ofirstname = _dataset.Tables[3].Rows[i]["name"].ToString();
-                        familyinfo.ODOB = _dataset.Tables[3].Rows[i]["dob"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[3].Rows[i]["dob"]).ToString("MM/dd/yyy");
+                        familyinfo.ODOB = _dataset.Tables[3].Rows[i]["dob"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[3].Rows[i]["dob"]);
                         familyinfo.Gender = _dataset.Tables[3].Rows[i]["GenderText"].ToString();
                         familyinfo.OGender = _dataset.Tables[3].Rows[i]["gender"].ToString();
                         familyinfo.OtherEligible = Convert.ToBoolean(_dataset.Tables[3].Rows[i]["age"]);
@@ -8754,7 +8756,7 @@ namespace FingerprintsData
                         familyinfo = new FamilyHousehold();
                         familyinfo.EmegencyId = Convert.ToInt32(_dataset.Tables[4].Rows[i]["ClientID"]);
                         familyinfo.Efirstname = _dataset.Tables[4].Rows[i]["name"].ToString();
-                        familyinfo.EDOB = _dataset.Tables[4].Rows[i]["dob"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[4].Rows[i]["dob"]).ToString("MM/dd/yyy");
+                        familyinfo.EDOB = _dataset.Tables[4].Rows[i]["dob"].ToString() == "" ? "" : Convert.ToString(_dataset.Tables[4].Rows[i]["dob"]);
                         familyinfo.Gender = _dataset.Tables[4].Rows[i]["GenderText"].ToString();
                         familyinfo.EGender = _dataset.Tables[4].Rows[i]["gender"].ToString();
                         familyinfo.EImagejson = _dataset.Tables[4].Rows[i]["FileAttachment"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[4].Rows[i]["FileAttachment"]);

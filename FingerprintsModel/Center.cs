@@ -30,6 +30,8 @@ namespace FingerprintsModel
          public string DateEntered { get; set; }
          public string status { get; set; }
 
+        public string ProgramYear { get; set; }
+
         public long TotalSeats { get; set; }
         public long OccupiedSeats { get; set; }
         public long AvailableSeats { get; set; }

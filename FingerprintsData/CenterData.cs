@@ -24,7 +24,7 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataTable _dataTable = null;
         DataSet _dataset = null;
-        public string addeditcenter(Center info, List<Center.ClassRoom> Classroom)
+        public string addeditcenter(Center info, List<Center.ClassRoom> Classroom , bool isEndOfYear=false)
         {
             try
             {
@@ -42,7 +42,8 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@TimeZoneID", info.TimeZoneID);
                 command.Parameters.AddWithValue("@AdminSite", info.AdminSite);
                 command.Parameters.AddWithValue("@Homebased", info.HomeBased);
-                if (Classroom != null && Classroom.Count > 0)
+                command.Parameters.AddWithValue("@IsEndOfYear", isEndOfYear);
+                    if (Classroom != null && Classroom.Count > 0)
                 {
                     DataTable dt = new DataTable();
                     dt.Columns.AddRange(new DataColumn[29] {
@@ -188,7 +189,7 @@ namespace FingerprintsData
             return per;
         }
 
-        public Center editcentre(string id, string agencyid)
+        public Center editcentre(string id, string agencyid , bool isEndOfYear=false)
         {
 
             Center _centre = new Center();
@@ -208,7 +209,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@centerid", id));
                 if (!string.IsNullOrEmpty(agencyid))
                     command.Parameters.Add(new SqlParameter("@agencyID", agencyid));
-                //  command.Parameters.Add(new SqlParameter("@agencyid",agencyid));
+                command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getcentreinfo";
@@ -248,7 +249,7 @@ namespace FingerprintsData
                         _centre.AgencyId = _dataset.Tables[1].Rows[0]["AgencyId"].ToString();
                         _centre.AreaID = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["AreaID"].ToString()) ? 0 : (long)_dataset.Tables[1].Rows[0]["AreaID"];
                         _centre.DivisionID = string.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["DivisionID"].ToString()) ? 0 : (long)_dataset.Tables[1].Rows[0]["DivisionID"];
-
+                        _centre.ProgramYear = String.IsNullOrEmpty(_dataset.Tables[1].Rows[0]["ActiveProgramYear"].ToString()) ? string.Empty : Convert.ToString(_dataset.Tables[1].Rows[0]["ActiveProgramYear"]);
                     }
                     // if (_dataset.Tables[2].Rows.Count > 0)
                     if ((_dataset.Tables[2].Rows.Count > 0) && (Convert.ToString(_centre.CenterId) != "0"))
@@ -412,6 +413,12 @@ namespace FingerprintsData
                         _centre.IsShowArea = Convert.ToBoolean(_dataset.Tables[5].Rows[0]["IsShowArea"]);
                         _centre.IsShowDivision = Convert.ToBoolean(_dataset.Tables[5].Rows[0]["IsShowDivision"]);
                     }
+
+                    if(isEndOfYear==true && id=="0")
+                    {
+                        _centre.ProgramYear = Convert.ToString(_dataset.Tables[6].Rows[0]["ActiveProgramYear"]);
+                    }
+
                 }
                 return _centre;
             }
@@ -427,7 +434,7 @@ namespace FingerprintsData
                 _dataset.Dispose();
             }
         }
-        public List<Center> centerList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string agencyid)
+        public List<Center> centerList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string agencyid, bool isEndOfYear=false)
         {
             List<Center> _centerlist = new List<Center>();
             try
@@ -448,6 +455,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@skip", skip));
                 command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
                 command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
+                command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 if (!string.IsNullOrEmpty(agencyid))
                     command.Parameters.Add(new SqlParameter("@agencyID", agencyid));
                 // command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
@@ -467,8 +475,9 @@ namespace FingerprintsData
                         addCenter.CenterName = _dataTable.Rows[i]["CenterName"].ToString();
                         addCenter.City = _dataTable.Rows[i]["City"].ToString();
                         addCenter.State = _dataTable.Rows[i]["State"].ToString();
-                        addCenter.DateEntered = Convert.ToDateTime(_dataTable.Rows[i]["DateEntered"]).ToString("MM/dd/yyyy");
+                        addCenter.DateEntered = Convert.ToString(_dataTable.Rows[i]["DateEntered"]);
                         addCenter.status = _dataTable.Rows[i]["Status"].ToString();
+                        addCenter.ProgramYear = Convert.ToString(_dataTable.Rows[i]["ActiveProgramYear"]);
                         if (!string.IsNullOrEmpty(_dataTable.Rows[i]["AgencyName"].ToString()))
                         {
                             addCenter.AgencyName = _dataTable.Rows[i]["AgencyName"].ToString();
@@ -496,7 +505,7 @@ namespace FingerprintsData
                 _dataTable.Dispose();
             }
         }
-        public int UpdateCenter(string id, int mode, Guid userId)
+        public int UpdateCenter(string id, int mode, Guid userId, bool isEndOfYear=false)
         {
             try
             {
@@ -508,6 +517,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CenterId", id));
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters.Add(new SqlParameter("@userid", userId));
+                command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.CommandText = "Sp_Update_center";
                 return command.ExecuteNonQuery();
             }
@@ -840,7 +850,7 @@ namespace FingerprintsData
             }
         }
         //Changes
-        public string DeleteClassroom(string classId, string Agencyid)
+        public string DeleteClassroom(string classId, string Agencyid, bool isEndOfYear =false)
         {
 
             try
@@ -855,8 +865,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ClassId", classId));
                 if (!string.IsNullOrEmpty(Agencyid))
                     command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                //   command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.ExecuteNonQuery();
                 return command.Parameters["@result"].Value.ToString();
@@ -948,7 +958,7 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId,bool isreqAdminSite=false,bool isCenterBasedOnly=false,bool isHomeBasedOnly=false,bool isEndOfYear=false)
         {
             dtCenters = new DataTable();
             try
@@ -967,6 +977,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ReqAdminSite", isreqAdminSite));
                     command.Parameters.Add(new SqlParameter("@ReqCenterBasedOnly", isCenterBasedOnly));
                     command.Parameters.Add(new SqlParameter("@Homebased", isHomeBasedOnly));
+                    command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_GetCentersByuserId";

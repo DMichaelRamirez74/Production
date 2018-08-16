@@ -959,7 +959,7 @@ namespace FingerprintsData
             }
             return RefList;
         }
-        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid)
+        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid,bool isEndOfYear=false)
         {
             List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
 
@@ -973,6 +973,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getclassrooms";
@@ -1021,7 +1022,7 @@ namespace FingerprintsData
                    // new DataColumn("Category",typeof(Int32))
                     });
 
-
+                command.Parameters.Clear();
                 command.Connection = Connection;
                 command.CommandText = "SP_addFPA";
                 command.Parameters.AddWithValue("@mode", mode);
@@ -1047,7 +1048,7 @@ namespace FingerprintsData
                     command.Parameters.AddWithValue("@SignatureData", null);
                 }
 
-                if (info.GoalSteps== null && info.GoalSteps.Count == 0)
+                if (info.GoalSteps!= null && info.GoalSteps.Count > 0)
                 {
                     
 
@@ -2315,8 +2316,8 @@ namespace FingerprintsData
                     //  FPAinfo.FPAID = Convert.ToInt64(item["FPAID"]);
                     FPAinfo.GoalStatus = Convert.ToInt32(item["Status"]);
                     FPAinfo.EncriptedFPAID = FingerprintsModel.EncryptDecrypt.Encrypt64(Convert.ToInt32(item["FPAID"]).ToString());
-                    FPAinfo.GoalDate = Convert.ToDateTime(item["GoalDate"]).ToString("MM/dd/yyyy");
-                    FPAinfo.CompletionDate = Convert.ToDateTime(item["CompletionDate"]).ToString("MM/dd/yyyy");
+                    FPAinfo.GoalDate = Convert.ToString(item["GoalDate"]);
+                    FPAinfo.CompletionDate = Convert.ToString(item["CompletionDate"]);
                     //Changes
                     FPAinfo.GoalFor = Convert.ToInt32(item["GoalForParent"].ToString());
                     FPAinfo.ParentName1 = item["Parentname1"].ToString();
@@ -2459,9 +2460,9 @@ namespace FingerprintsData
                     obj.Category = ds.Tables[0].Rows[0]["Category"].ToString();
                     obj.GoalFor = Convert.ToInt32(ds.Tables[0].Rows[0]["GoalForParent"].ToString());
                     obj.Goal = ds.Tables[0].Rows[0]["GoalTopic"].ToString();
-                    obj.GoalDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]).ToString("MM/dd/yyyy");
+                    obj.GoalDate = Convert.ToString(ds.Tables[0].Rows[0]["Date"]);
                     obj.CategoryDesc = ds.Tables[0].Rows[0]["CategoryName"].ToString();
-                    obj.CompletionDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["CompletionDate"]).ToString("MM/dd/yyyy");
+                    obj.CompletionDate = Convert.ToString(ds.Tables[0].Rows[0]["CompletionDate"]);
                     obj.GoalStatus = Convert.ToInt32(ds.Tables[0].Rows[0]["Status"].ToString());
                     obj.ClientId = Convert.ToInt32(ds.Tables[0].Rows[0]["ClientId"]);
                     obj.ParentName1 = ds.Tables[0].Rows[0]["Parentname1"].ToString();
@@ -2479,7 +2480,7 @@ namespace FingerprintsData
                     }
                     if (!string.IsNullOrEmpty(ds.Tables[0].Rows[0]["ActualGoalCompletionDate"].ToString()))
                     {
-                        obj.ActualGoalCompletionDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["ActualGoalCompletionDate"]).ToString("MM/dd/yyyy");
+                        obj.ActualGoalCompletionDate = Convert.ToString(ds.Tables[0].Rows[0]["ActualGoalCompletionDate"]);
                     }
 
                 }
@@ -2492,13 +2493,13 @@ namespace FingerprintsData
                     objstep.Reminderdays = Convert.ToInt32((item["DaysForReminder"] != DBNull.Value ? item["DaysForReminder"].ToString() : null));
                     if (!string.IsNullOrEmpty(item["CompletionDate"].ToString()))
                     {
-                        objstep.StepsCompletionDate = Convert.ToDateTime(item["CompletionDate"]).ToString("MM/dd/yyyy");
+                        objstep.StepsCompletionDate = Convert.ToString(item["CompletionDate"]);
                     }
                     objstep.StepID = Convert.ToInt32(item["StepID"].ToString());
                     objstep.Comments = item["Comments"].ToString();
                     if (!string.IsNullOrEmpty(item["ActualCompletionDate"].ToString()))
                     {
-                        objstep.ActualCompletionDate = Convert.ToDateTime(item["ActualCompletionDate"].ToString()).ToString("MM/dd/yyyy");
+                        objstep.ActualCompletionDate = Convert.ToString(item["ActualCompletionDate"]);
                     }
                     objstep.FPAID = obj.FPAID;
                     obj.GoalSteps.Add(objstep);
@@ -5105,7 +5106,7 @@ namespace FingerprintsData
                     Connection.Close();
                 }
 
-                if(_dataset!=null && _dataset.Tables[0].Rows.Count>0)
+                if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     tagsList = (from DataRow dr1 in _dataset.Tables[0].Rows
                                 select new SelectListItem

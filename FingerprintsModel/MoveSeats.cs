@@ -60,6 +60,9 @@ namespace FingerprintsModel
 
         public int TotalRecord { get; set; }
 
+        public string ProgramYear { get; set; }
+
+        public bool IsEndOfYear { get; set; }
 
 
     }

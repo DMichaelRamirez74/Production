@@ -1026,6 +1026,7 @@
         }
 
     </script>
+    <script src="~/Scripts/sketch.js"></script>
 
 
     <script type="text/javascript">
@@ -1078,14 +1079,21 @@
                 //imgCapture
             });
             $("a.mybtnclear").bind("click", function () {
-                $('#colors_sketch').click(function () {
+                //$('#colors_sketch').click(function () {
 
-                });
+                //});
                 //imgCapture
+                var Canvas = document.getElementById('colors_sketch');
+                var myCanvasContext = Canvas.getContext('2d');
+                clearCanvas(Canvas, myCanvasContext);
+                return true;
             });
 
         });
 
+        function clearCanvas(canvas, context) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
 
         function loadCanvas(dataURL) {
             var canvas = document.getElementById('#colors_sketch');
@@ -1117,7 +1125,7 @@
                 <span>Family Partnership Agreement (FPA)- @TempData["clientName"].ToString()</span>
 
                 <span class="view-btn backto_listspan" id="BackToList">
-                    <button id="btnExit" class="backto_list" type="button">Back To List</button>
+                    <button id="btnExit" class="backto_list" type="button">Back to List</button>
 
                 </span>
             </h2>
@@ -1380,43 +1388,52 @@
 
                         </div>
                         @Html.HiddenFor(model => model.GoalFor)
-                        @if (!Model.IsSingleParent)
-                        {
-                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                <div class="form-group">
-                                    <label>Goal For <sup>*</sup></label>
-                                    <div class="cont-sz">
 
 
-                                        @if (!string.IsNullOrEmpty(Model.ParentName1) && !string.IsNullOrEmpty(Model.ParentName2))
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label>Goal For <sup>*</sup></label>
+                                <div class="cont-sz">
+
+
+                                    @if (!string.IsNullOrEmpty(Model.ParentName1))
+                                    {
+                                        if (Model.GoalFor == 1 || Model.GoalFor == 3)
                                         {
-                                            if (Model.GoalFor == 1 || Model.GoalFor == 3)
-                                            {
-                                              
+
                                             <label style="width: 100%">
-                                                <input id="parent1" onchange="setGoalfor(this)" type="checkbox" value="true" checked />@Model.ParentName1</label>
-                                            }
-                                            else
-                                            {
-                                            <label style="width: 100%">
-                                                <input id="parent1" onchange="setGoalfor(this)" type="checkbox" value="false" />@Model.ParentName1</label>
-                                            }
-                                            if (Model.GoalFor == 2 || Model.GoalFor == 3)
-                                            {
-                                            <label style="width: 100%">
-                                                <input id="parent2" onchange="setGoalfor(this)" type="checkbox" value="true" checked />@Model.ParentName2</label>
-                                            }
-                                            else
-                                            {
-                                            <label style="width: 100%">
-                                                <input id="parent2" onchange="setGoalfor(this)" type="checkbox" value="false" />@Model.ParentName2</label>
-                                            }
+                                                <input id="parent1" onchange="setGoalfor(this)" type="checkbox" value="true" checked />@Model.ParentName1
+                                            </label>
                                         }
-                                    </div>
+                                        else
+                                        {
+                                            <label style="width: 100%">
+                                                <input id="parent1" onchange="setGoalfor(this)" type="checkbox" value="false" />@Model.ParentName1
+                                            </label>
+                                        }
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ParentName2))
+                                    {
+
+                                      if (Model.GoalFor == 2 || Model.GoalFor == 3)
+                                         {
+                                            <label style="width: 100%">
+                                                <input id="parent2" onchange="setGoalfor(this)" type="checkbox" value="true" checked />@Model.ParentName2
+                                            </label>
+                                        }
+                                        else
+                                        {
+                                            <label style="width: 100%">
+                                                <input id="parent2" onchange="setGoalfor(this)" type="checkbox" value="false" />@Model.ParentName2
+                                            </label>
+                                        }
+                                    }
+
                                 </div>
                             </div>
-                        }
-                       
+                        </div>
+
+
 
 @* @if ((Model.IsEmail1 == true || Model.IsEmail1 == true) && Model.GoalFor == 3)
                         {
@@ -1468,7 +1485,7 @@
                         </div>
                         <div class="col-lg-12 col-md-6 col-sm-12" id="AddStepsplus">
                             <div class="form-group">
-                                <a href="javascript:void(0)" title="Add Services" onclick="AddSteps();">Add Steps<i class="fa fa-plus-square"></i> </a>
+                                <a href="javascript:void(0)" title="Add Services" onclick="AddSteps();">Add Steps&nbsp;<i class="fa fa-plus-square"></i> </a>
                             </div>
                         </div>
                         <div class="clearfix"></div>
@@ -1479,13 +1496,14 @@
                         @{
                             if (Model.GoalSteps.Count == 0)
                             {
-                            <div class="Steps">
-                                <div class="col-lg-12">
-                                    <h5 class="page-header Step">Steps
-                                                 <span class="view-btn backto_listspan" id="BackToList">
-                                                     <a onclick="DeleteStep(this);" style="cursor: pointer;" class="backto_list">Delete</a>
-                                                 </span>
-                                    </h5>
+                                <div class="Steps">
+                                    <div class="col-lg-12">
+                                        <h5 class="page-header Step">
+                                            Steps
+                                            <span class="view-btn backto_listspan" id="BackToList">
+                                                <a onclick="DeleteStep(this);" style="cursor: pointer;" class="backto_list">Delete</a>
+                                            </span>
+                                        </h5>
 
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12">
@@ -1533,30 +1551,31 @@
                             }
                             else
                             {
-                            <div>
-                                @{
-                                int i = 0;
-                                }
-                                @if (@ViewBag.mode == 1)
-                                {
-                                    foreach (var item in Model.GoalSteps)
+                                <div>
+                                    @{
+                                        int i = 0;
+                                    }
+                                    @if (@ViewBag.mode == 1)
                                     {
-                                    <div id="EditDIv_@i"  class="Steps">
-                                        <div class="col-lg-12">
-                                            <h5 class="page-header fundservice">Steps
-                                      <span class="view-btn backto_listspan" id="BackToList">
-                                          <a onclick="DeleteStepView(this,'@i','@item.StepID');" style="cursor:pointer;" class="backto_list">Delete</a>
-                                      </span>
-                                            </h5>
-                                        </div>
-                                        <div class="col-lg-6 col-md-6 col-sm-12">
-                                            <div class="form-group">
-                                                <label for="email">Description<sup>*</sup></label>
-                                                @* @Html.TextBoxFor(m => m.GoalSteps[@i].Description, new { placeholder = "Description", id = "Description", name = "Description", maxlength = "50", @class = "form-control" })*@
-                                                <input type="text" name="GoalSteps[@i].Description" class="form-control" onblur="isabletosign()" value="@item.Description" id="Description" placeholder="Description" maxlength="50">
-                                                @Html.HiddenFor(m => m.GoalSteps[@i].StepID)
-                                            </div>
-                                        </div>
+                                        foreach (var item in Model.GoalSteps)
+                                        {
+                                            <div id="EditDIv_@i" class="Steps">
+                                                <div class="col-lg-12">
+                                                    <h5 class="page-header fundservice">
+                                                        Steps
+                                                        <span class="view-btn backto_listspan" id="BackToList">
+                                                            <a onclick="DeleteStepView(this,'@i','@item.StepID');" style="cursor:pointer;" class="backto_list">Delete</a>
+                                                        </span>
+                                                    </h5>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                                    <div class="form-group">
+                                                        <label for="email">Description<sup>*</sup></label>
+                                                        @* @Html.TextBoxFor(m => m.GoalSteps[@i].Description, new { placeholder = "Description", id = "Description", name = "Description", maxlength = "50", @class = "form-control" })*@
+                                                        <input type="text" name="GoalSteps[@i].Description" class="form-control" onblur="isabletosign()" value="@item.Description" id="Description" placeholder="Description" maxlength="50">
+                                                        @Html.HiddenFor(m => m.GoalSteps[@i].StepID)
+                                                    </div>
+                                                </div>
 
 
 

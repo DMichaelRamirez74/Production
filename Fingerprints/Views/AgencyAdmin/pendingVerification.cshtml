@@ -282,7 +282,7 @@
         function openAgencyUserPendingVerificationuserById(value) {         // by atul 29-03-2017
             $('#spinner').show();
             var Id = $(value).attr("Id");
-            var url = HostedDir + '/agencyuser/pendingVerificationuser/' + Id;
+            var url = HostedDir + '/agencyuser/pendingVerificationuser?id=' + Id + '&ak=' + $(value).attr('ak');
             window.location.href = url;
             //$('#spinner').hide();
         }
@@ -296,16 +296,20 @@
                 $('#divPaging').show();
                 $('#div1').hide();
                 var tbody = $('#gridViewAgency > tbody');
+                var isendYear=0;
                 for (var i = 0; i < data.list.length; i++) {
                     var tr = "";
+                    isendYear=(data.list[i].IsEndOfYear==true)?1:0;
                     tr += "<tr>";
                     // by atul 29-03-2017 
-                    tr += '<td><a class="custom" style="text-decoration: underline;"  Id="' + data.list[i].Id + '" onclick="openAgencyUserPendingVerificationuserById(this);" href="#">' + ((typeof (data.list[i].Email) != 'undefined') && (data.list[i].Email != null) ? data.list[i].Email : '') + '</a></td>';
+                    tr += '<td><a class="custom" style="text-decoration: underline;"  ak="' + isendYear + '" Id="' + data.list[i].Id + '" onclick="openAgencyUserPendingVerificationuserById(this);" href="#">' + ((typeof (data.list[i].Email) != 'undefined') && (data.list[i].Email != null) ? data.list[i].Email : '') + '</a></td>';
                     //tr += '<td><a class="custom" style="text-decoration: underline;"  href="' + HostedDir + '/agencyuser/pendingVerificationuser/' + data.list[i].Id + '">' + ((typeof (data.list[i].Email) != 'undefined') && (data.list[i].Email != null) ? data.list[i].Email : '') + '</a></td>';
                     tr += "<td>" + ((typeof (data.list[i].EnrollmentCode) != 'undefined') && (data.list[i].EnrollmentCode != null) ? data.list[i].EnrollmentCode : '') + "</td>";
                     tr += "<td>" + ((typeof (data.list[i].name) != 'undefined') && (data.list[i].name != null) ? data.list[i].name : '') + "</td>"; 
                     tr += "<td>" + ((typeof (data.list[i].MobileNo) != 'undefined') && (data.list[i].MobileNo != null) ? data.list[i].MobileNo : '') + "</td>";
+                    tr += "<td>" + ((typeof (data.list[i].ActiveProgramYear) != 'undefined') && (data.list[i].ActiveProgramYear != null) ? data.list[i].ActiveProgramYear : '') + "</td>";
                     tr += "<td>" + ((typeof (data.list[i].rolename) != 'undefined') && (data.list[i].rolename != null) ? data.list[i].rolename : '') + "</td>";
+
                     $('#gridViewAgency > tbody').append(tr);
                 }
             }
@@ -358,6 +362,7 @@
                             <th id="thCust">Enrollment Code<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN"  /></th>
                             <th id="thRN">Name<img id="imgthRN" style="visibility:hidden" /> <input type="hidden" id="directionRN" /></th>
                             <th id="thCN">Mobile No<img id="imgthCN" style="visibility:hidden" /> <input type="hidden" id="directionCN" /></th>
+                            <th id="">Active Program Year<img id="" style="visibility:hidden" /><input type="hidden" id="" /></th>
                             <th id="thMN">Role<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
                         </tr>
                     </thead>

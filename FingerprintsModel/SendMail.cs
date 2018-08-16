@@ -700,6 +700,39 @@ namespace FingerprintsModel
         }
 
 
+        public static string SendEmailForChangeInAgencySlots(string message,string agencyName)
+        {
+            try
+            {
+
+
+                string emailId = Convert.ToString(ConfigurationManager.AppSettings["FinancialManagerEmailID"]);
+
+
+                MailMessage mailMessage = new MailMessage(Convert.ToString(ConfigurationManager.AppSettings["FromAddress"]), emailId);
+                mailMessage.Body = message;
+                mailMessage.Subject = "Change in Slots for Agency - "+agencyName;
+                mailMessage.IsBodyHtml = true;
+                SmtpClient Client = new SmtpClient();
+                Client.Host = Convert.ToString(ConfigurationManager.AppSettings["MailServer"]);
+                Client.Port = Convert.ToInt32(ConfigurationManager.AppSettings["MailServerPort"]);
+                NetworkCredential basicCredential = new NetworkCredential(Convert.ToString(ConfigurationManager.AppSettings["MailServerUserName"]), Convert.ToString(ConfigurationManager.AppSettings["MailserverPwd"]));
+                Client.UseDefaultCredentials = true;
+                Client.EnableSsl = ConfigurationManager.AppSettings["EnableSSl"].ToString().ToLower() == "true" ? true : false;
+                Client.Credentials = basicCredential;
+                Client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                Client.Send(mailMessage);
+                //System.Threading.Thread thread = new System.Threading.Thread(() => Client.Send(mailMessage));
+                //thread.Start();
+                return "1";
+
+            }
+            catch (Exception Ex)
+            {
+                return Ex.Message;
+
+            }
+        }
         public static string SendMailForQuotation(string path,AssignFacilityStaff AssignWork, AssignFacilityStaff ToAddressDetails)
         {
             try
