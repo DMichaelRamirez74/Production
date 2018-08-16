@@ -20,6 +20,9 @@ namespace FingerprintsModel
         public string datemodified { get; set; }
         public string rolename { get; set; }
 
+        public bool IsEndOfYear { get; set; }
+
+        public string ActiveProgramYear { get; set; }
     }
 
     public class Enrolementcode

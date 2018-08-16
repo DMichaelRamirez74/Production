@@ -49,7 +49,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                if (Session["RoleName"] != null && Session["RoleName"].ToString().ToUpper().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
+                if (Session["RoleID"] != null && Session["RoleID"].ToString().ToUpper().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5"))
                     return Redirect("~/login/loginagency");
                 return View();
             }
@@ -199,7 +199,7 @@ namespace Fingerprints.Controllers
             //}
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult pendingVerificationuser(string id = "0")
+        public ActionResult pendingVerificationuser(string id = "0",string ak="0")
         {
 
             AgencyStaff _staffList = null;
@@ -208,7 +208,12 @@ namespace Fingerprints.Controllers
 
                 ViewData["Title"] = "Approve/Reject User";
                 ViewBag.mode = 1;
-                _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, Guid.Parse(id));
+                bool isEndYear = string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
+
+                ViewBag.IsEndOfYear= string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
+
+
+                _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, Guid.Parse(id),null,isEndYear);
 
 
             }
@@ -222,11 +227,14 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [CustAuthFilter()]
         [HttpPost]
-        public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages)
+        public ActionResult pendingVerificationuser(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages,string endOfYear="")
         {
             AgencyStaff _staffList = new AgencyStaff();
             try
             {
+
+                bool isEndYear = endOfYear == "1" ? true : false;
+
                 StringBuilder _string = new StringBuilder();
                 if (Centers.CenterID != null)
                 {
@@ -252,7 +260,7 @@ namespace Fingerprints.Controllers
                 string message = "";
                 ViewBag.mode = 1;
                 agencystaff.LangList = PrimaryLanguages;
-                UpdatependingverificationUser(agencystaff, collection, out message);
+                UpdatependingverificationUser(agencystaff, collection, out message,isEndYear);
                 if (message == "0")
                 {
                     ViewBag.message = "User reject successfully.";
@@ -269,7 +277,7 @@ namespace Fingerprints.Controllers
                 else if (message == "1")
                 {
                     TempData["message"] = "Record approved successfully.";
-                    return Redirect("~/AgencyUser/pendingVerificationuser/" + agencystaff.AgencyStaffId);
+                    return Redirect("~/AgencyUser/pendingVerificationuser?id=" + agencystaff.AgencyStaffId+"&ak="+endOfYear+"");
                 }
                 else if (message == "2")
                     ViewBag.message = "Email already exist.";
@@ -287,7 +295,7 @@ namespace Fingerprints.Controllers
                     //});
                     //thread.Start();
                     TempData["message"] = "User verified successfully.";
-                    return Redirect("~/Agency/viewagencystaff");
+                    return Redirect("~/Agency/viewagencystaff?ak="+endOfYear+"");
                 }
                 else if (message == "4")
                 {
@@ -314,7 +322,7 @@ namespace Fingerprints.Controllers
             }
             return View(_staffList);
         }
-        public void UpdatependingverificationUser(AgencyStaff agencystaff, FormCollection collection, out string res)
+        public void UpdatependingverificationUser(AgencyStaff agencystaff, FormCollection collection, out string res, bool isEndOfYear=false)
         {
             res = "";
             try
@@ -539,12 +547,12 @@ namespace Fingerprints.Controllers
                 string message = string.Empty;
                 if (collection["ddlapprovereject"] != null && collection["ddlapprovereject"].ToString().Contains("0"))
                 {
-                    message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "3", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode);
+                    message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "3", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode, isEndOfYear);
                     //message = agencyData.approverejectrequestagencyHR(agencystaff.AgencyStaffId.ToString(), Convert.ToString(Session["UserID"]));
                 }
                 else
                 {
-                    message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "2", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode);
+                    message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "2", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode, isEndOfYear);
                 }
                 res = message;
                 // return View(agencystaff);
@@ -558,7 +566,7 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public ActionResult editStaff(string id = "0")
+        public ActionResult editStaff(string id = "0", string ak="0")
         {
             AgencyStaff _staffList = null;
             try
@@ -566,7 +574,11 @@ namespace Fingerprints.Controllers
                 //if (Session["RoleName"] != null && (Session["RoleName"].ToString().ToUpper().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5")))
                 ViewData["Title"] = "Edit Staff";
                 ViewBag.mode = 1;
-                _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, Guid.Parse(id));
+                ViewBag.IsEndOfYear = "0";
+                ViewBag.IsEndOfYear = ak;
+                bool endYear = string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
+
+                _staffList = agencyData.GetData_AllDropdown(Session["AgencyID"].ToString(), 1, Guid.Parse(id),null, endYear);
                 Session["oldemailid"] = _staffList.EmailAddress;
 
             }
@@ -579,11 +591,16 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("2d9822cd-85a3-4269-9609-9aabb914d792,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult editStaff(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist,List<PrimaryLanguages> PrimaryLanguages)
+        public ActionResult editStaff(AgencyStaff agencystaff, FormCollection collection, FamilyHousehold.Center Centers, FamilyHousehold.Role Rolelist, List<PrimaryLanguages> PrimaryLanguages, string endOfYear="0")
         {
             AgencyStaff _staffList = new AgencyStaff();
             try
             {
+
+                ViewBag.IsEndOfYear = endOfYear;
+
+                bool isEndOfYear = string.IsNullOrEmpty(endOfYear) ? false : endOfYear == "1" ? true : false;
+
                 StringBuilder _string = new StringBuilder();
                 if (Centers.CenterID != null)
                 {
@@ -607,7 +624,8 @@ namespace Fingerprints.Controllers
                 string message = "";
                 ViewBag.mode = 1;
                 agencystaff.LangList = PrimaryLanguages;
-                Updatestaff(agencystaff, collection, out message);
+                Updatestaff(agencystaff, collection, out message, isEndOfYear);
+
                 if (message == "1")
                 {
                     TempData["message"] = "Record updated successfully. ";
@@ -627,7 +645,7 @@ namespace Fingerprints.Controllers
                             Session["oldemailid"] = agencystaff.EmailAddress;
                         }
                     }
-                    return Redirect("~/Agency/viewagencystaff");
+                    return Redirect("~/Agency/viewagencystaff?ak="+endOfYear+"");
                     //return Redirect("~/AgencyUser/editStaff/" + agencystaff.AgencyStaffId);
                 }
                 else if (message == "2")
@@ -651,7 +669,7 @@ namespace Fingerprints.Controllers
             return View(_staffList);
 
         }
-        public void Updatestaff(AgencyStaff agencystaff, FormCollection collection, out string res)
+        public void Updatestaff(AgencyStaff agencystaff, FormCollection collection, out string res, bool isEndOfYear=false)
         {
             res = "";
             try
@@ -872,7 +890,7 @@ namespace Fingerprints.Controllers
 
                 string StaffID = "", AgencyCode = "";
                 string message = string.Empty;
-                message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "1", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode);
+                message = agencyData.Add_Edit_AgencyStaffInfo(agencystaff, "1", DdlAgencyList, DdlRoleList, out StaffID, out AgencyCode,isEndOfYear);
                 res = message;
                 // return View(agencystaff);
             }
@@ -3012,11 +3030,11 @@ namespace Fingerprints.Controllers
             }
         }
         [JsonMaxLengthAttribute]
-        public JsonResult getagencyid(string Agencyid = "0", string roleid = "")
+        public JsonResult getagencyid(string Agencyid = "0", string roleid = "",string programYear="")
         {
             try
             {
-                return Json(familyData.getagencyid(Agencyid, roleid));
+                return Json(familyData.getagencyid(Agencyid, roleid,programYear));
             }
             catch (Exception Ex)
             {

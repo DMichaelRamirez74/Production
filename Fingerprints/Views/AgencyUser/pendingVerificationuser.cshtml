@@ -24,6 +24,7 @@
 @section Script{
     <script type="text/javascript">
         var isValid = true;
+        var isEndOfYear = '@ViewBag.IsEndOfYear';
         $(document).ready(function () {
 
 
@@ -397,6 +398,16 @@
                     return isValid;
                 }
 
+                if($('select[name=ProgramYear]').val()==undefined || $('select[name=ProgramYear]').val()==null || $('select[name=ProgramYear]').val()=='')
+                {
+                    isValid = false;
+                    customAlert("Please select start PIR program year.");
+                    plainValidation('#ProgramYear');
+                    return isValid;
+                }
+
+
+
             }
             if ($('#ddlapprovereject')[0].value.trim() == "") {
                 isValid = false;
@@ -667,7 +678,8 @@
                 type: "POST",
                 data: {
                     CenterId: Id,
-                    AgencyId: ''
+                    AgencyId: '',
+                    programYear: $('select[name=ProgramYear]').val()
                 },
                 dataType: "json",
                 secureuri: false,
@@ -717,6 +729,13 @@
         <div class="col-lg-12">
             <h2 class="page-header">
               Pending Verification
+
+                @if (ViewBag.IsEndOfYear == "1")
+                {
+                    <i id="spanHeading" style="font-size:18px;">for Next Program Year (@Model.ProgramYear) </i>
+
+                }
+
                 <span style="float:right;">                    
                         <a href="~/AgencyAdmin/pendingVerification" style="padding: 5px 33px; background-color: #295b8f; color: #fff; font-size: 14px; border-style: none; ">Back to list</a>                    
                 </span>
@@ -1102,10 +1121,17 @@
                                             @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", tabIndex = "33" })
                                         </div>
                                     </div>
-                                  
-                                }
-                                else
-                                {
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Start PIR Program Year <sup>*</sup></label>
+                                            @Html.DropDownListFor(m => m.ProgramYear, new SelectList(Model.ProgramYearList, "Value", "Text", Model.ProgramYear), new { @class = "form-control", tabIndex = "34" })
+                                        </div>
+                                    </div>
+
+                                                }
+                                                else
+                                                {
                                     @Html.HiddenFor(m => m.AccessDays)
                                     @Html.HiddenFor(m => m.AccessStartDate)
                                     @Html.HiddenFor(m => m.AccessStart)
@@ -1224,7 +1250,7 @@
                                             </div>
                                             }
 
-                                            else if (Model.SelectedRoleId.ToUpper() == "A31B1716-B042-46B7-ACC0-95794E378B26")
+                                            else if (Model.SelectedRoleId!=null && Model.SelectedRoleId!="" && Model.SelectedRoleId.ToUpper() == "A31B1716-B042-46B7-ACC0-95794E378B26")
                                             {
                                                 
                                                 <div id="DivCenter" class="input_wd1">
@@ -1361,6 +1387,9 @@
                             <div class="row">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="btnwrp_subcal">
+
+                                        <input type="hidden" id="endOfYear" name="endOfYear" value="@ViewBag.IsEndOfYear" />
+
                                         <button id="btnSubmit" type="submit" onclick="return isValidagencyInfo();" class="my-btn" tabindex="36">Submit</button>
                                         <button id="btnCancel" type="button" class="my-btn" tabindex="37">Exit</button>
                                         <div class="clear"></div>

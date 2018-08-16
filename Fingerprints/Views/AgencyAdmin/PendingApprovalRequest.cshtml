@@ -18,6 +18,55 @@
         var isValid = true;
         $(document).ready(function () {
 
+
+
+            $('select[name=ProgramYear]').on('change', function () {
+
+                if($(this).val()!=undefined && $(this).val()!=null && $(this).val()!='')
+                {
+                    //$.ajax({
+                    //    url: HostedDir + '/AgencyAdmin/GetCentersBy',
+                    //    type: 'post',
+                    //    dataType: 'json',
+                    //    beforeSend:function(){$('#spinner').show()},
+                    //    data: { programYear: $(this).val() },
+                    //    success:function(data)
+                    //    {
+                    //        var appendDiv = '';
+                    //        if(data!=null && data.length>0)
+                    //        {
+                    //            $.each(data, function (i, center) {
+                    //                appendDiv += '<div class="centerinhorizontal">\
+                    //                                                <input type="checkbox" name="Centers.CenterID" id='+center.CenterId+' value='+center.CenterId+'>\
+                    //                                                <label class="chk_1" for="chk_1">'+center.Name+'</label>\
+                    //                                            </div>';
+                    //            });
+                    //        }
+                    //        else {
+                    //            appendDiv = '<label>No center found</label>';
+                    //        }
+                    //        $('#DivCenter').html('').html(appendDiv);
+                    //    },
+                    //    error:function(data)
+                    //    {
+                    //        customAlert('Error occurred. Please, try again later.');
+                    //    },
+                    //    complete:function(data)
+                    //    {
+                    //        $('#spinner').hide();
+                    //    }
+                    //});
+
+                    //  BindCenter('@Session["AgencyID"].ToString()', $('#DdlRoleList').val(),$(this).val())
+
+                    ToggleVisible($('select[name=DdlRoleList]')[0]);
+
+                }
+            
+            });
+
+
+
             $('.lang-req').change(function () {
                 if ($(this).attr('data-langid') == 12 && $(this).is(':checked') == true) {
                     $('#OtherLanguage12').show();
@@ -397,6 +446,14 @@
                     return isValid;
                 }
 
+                if ($('select[name=ProgramYear]').val() == undefined || $('select[name=ProgramYear]').val() == null || $('select[name=ProgramYear]').val() == '') {
+                    isValid = false;
+                    plainValidation('#ProgramYear');
+                    customAlert("Please select start PIR program year.");
+                    return isValid;
+
+                }
+
             }
             if ($('#ddlapprovereject')[0].value.trim() == "") {
                 isValid = false;
@@ -487,6 +544,7 @@
             //    $('#DivCenter').focus();
             //    return isValid;
             //}
+
             if ($('.lang-req').is(':checked') == false) {
                 isValid = false;
                 customAlert("Please select anyone Language ");
@@ -527,6 +585,9 @@
                 }
             }
 
+            
+
+
 
             isValid = true;
             return isValid;
@@ -547,14 +608,15 @@
                 reader.readAsDataURL(f);
             }
         }
-        function BindCenter(Id, Roleid) {
-
+        function BindCenter(Id, Roleid,progYear) {
+            debugger;
             $.ajax({
                 url: HostedDir + "/Agencyuser/getagencyid",
                 type: "POST",
                 data: {
                     Agencyid: Id,
-                    Roleid: Roleid
+                    Roleid: Roleid,
+                    programYear: progYear
                 },
                 dataType: "json",
                 secureuri: false,
@@ -586,8 +648,9 @@
             });
         }
         function ToggleVisible(ddl) {
+            debugger;
             if ('@Session["AgencyID"]' != "")
-                BindCenter('@Session["AgencyID"]', $('#DdlRoleList').val());
+                BindCenter('@Session["AgencyID"]', $('#DdlRoleList').val(),$('select[name=ProgramYear]').val());
             var value = ddl.options[ddl.selectedIndex].value;
             $("#DivRoles input[type=checkbox]").each(function () {
                 if ($(this).val() == $('#DdlRoleList').val()) {
@@ -683,7 +746,8 @@
                 type: "POST",
                 data: {
                     CenterId: Id,
-                    AgencyId: ''
+                    AgencyId: '',
+                    programYear:$('select[name=ProgramYear]').val()
                 },
                 dataType: "json",
                 secureuri: false,
@@ -1087,6 +1151,14 @@
                                             @Html.DropDownListFor(m => m.TimeZoneID, new SelectList(Model.TimeZonelist, "TimZoneId", "TimZoneName", Model.TimeZoneID), new { @class = "form-control", tabIndex = "33" })
                                         </div>
                                     </div>
+
+                                    <div class="col-lg-6 col-md-6 col-sm-12">
+                                        <div class="form-group">
+                                            <label for="pwd">Start PIR Program Year<sup>*</sup></label>
+                                            @Html.DropDownListFor(m => m.ProgramYear, new SelectList(Model.ProgramYearList, "Value", "Text", Model.ProgramYear), "--Select PIR Program Year--", new { @class = "form-control", tabIndex = "34" })
+                                        </div>
+                                    </div>
+
                                     <div class="col-lg-6 col-md-6 col-sm-12 ">
                                         <div class="form-group">
                                             <label for="pwd">Status <sup>*</sup></label>

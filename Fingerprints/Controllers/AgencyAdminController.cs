@@ -30,10 +30,11 @@ namespace Fingerprints.Controllers
         Center _center = new Center();
         RaceSubcategoryData _raceSubcategoryData = new RaceSubcategoryData();
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult enrollmentcodeGeneration()
+        public ActionResult enrollmentcodeGeneration(string ak="0")
         {
             try
             {
+                ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : (ak == "1") ? "1" : "0";
                 return View();
             }
             catch (Exception Ex)
@@ -210,14 +211,16 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public JsonResult listEnrolementmentcode(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
+        public JsonResult listEnrolementmentcode(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1,string isEndOfYear="0")
         {
             try
             {
                 string totalrecord;
                 int skip = pageSize * (requestedPage - 1);
-                var list = agencyData.enrollmentcode(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString()).ToList();
-                return Json(new { list, totalrecord });
+                string programYear = string.Empty;
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                var list = agencyData.enrollmentcode(out totalrecord,ref programYear, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString(),isEndYear).ToList();
+                return Json(new { list, totalrecord, programYear });
             }
             catch (Exception Ex)
             {
@@ -580,9 +583,11 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
 
-        public ActionResult SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles)
+        public ActionResult SaveAcceptancePrirorityRoles(List<AcceptanceRole> Roles, string isEndOfYear="0")
         {
-            agencyData.SaveAcceptancePrirorityRoles(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Roles);
+            bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+
+            agencyData.SaveAcceptancePrirorityRoles(Session["AgencyId"].ToString(), Session["UserID"].ToString(), Roles, isEndYear);
             return Json("");
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
@@ -880,7 +885,7 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult Center(string id = "0")
+        public ActionResult Center(string id = "0", string ak = "0")
         {
             try
             {
@@ -896,8 +901,10 @@ namespace Fingerprints.Controllers
                     ViewBag.mode = 1;
                     ViewData["Title"] = "Edit Center";
                 }
-                _center = new CenterData().editcentre(id, Session["AgencyID"].ToString());
+                bool isEndOfYear = string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
+                _center = new CenterData().editcentre(id, Session["AgencyID"].ToString(), isEndOfYear);
                 ViewBag.Classroom = _center.Classroom;
+                ViewBag.IsEndOfYear = ak;
                 TempData["Classroom"] = _center.Classroom;
                 TempData["timezonelist"] = _center.TimeZonelist;
 
@@ -911,7 +918,7 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult Center(string Command, Center info, FormCollection collection, List<FingerprintsModel.Center.ClassRoom> Classroom)
+        public ActionResult Center(string Command, Center info, FormCollection collection, List<FingerprintsModel.Center.ClassRoom> Classroom, string endOfYear="0")
         {
             try
             {
@@ -927,9 +934,12 @@ namespace Fingerprints.Controllers
                     info.mode = 1;
                     ViewData["Title"] = "Edit Center";
                 }
+
+                bool isEndOfYear = string.IsNullOrEmpty(endOfYear) ? false : endOfYear == "1" ? true : false;
+
                 info.AgencyId = Session["AgencyID"].ToString();
                 info.CreatedBy = Session["UserID"].ToString();
-                string message = new CenterData().addeditcenter(info, Classroom);
+                string message = new CenterData().addeditcenter(info, Classroom, isEndOfYear);
 
 
 
@@ -940,12 +950,12 @@ namespace Fingerprints.Controllers
                     if (message == "1")
                     {
                         TempData["message"] = "Record added successfully.";
-                        return Redirect("~/AgencyAdmin/centerlist");
+                        return Redirect("~/AgencyAdmin/centerlist?ak="+endOfYear+"");
                     }
                     else if (message == "2")
                     {
                         TempData["message"] = "Record updated successfully.";
-                        return Redirect("~/AgencyAdmin/centerlist");
+                        return Redirect("~/AgencyAdmin/centerlist?ak=" + endOfYear + "");
 
                     }
                     else if (message == "3")
@@ -960,7 +970,7 @@ namespace Fingerprints.Controllers
                 else
                 {
 
-                    if(Command =="SubmitCommand")
+                    if (Command == "SubmitCommand")
                     {
                         if (message == "1")
                         {
@@ -1032,12 +1042,12 @@ namespace Fingerprints.Controllers
 
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult centerlist()
+        public ActionResult centerlist(string ak="")
         {
             try
             {
                 ViewData["Title"] = "Center list";
-
+                ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
             }
             catch (Exception Ex)
             {
@@ -1045,14 +1055,15 @@ namespace Fingerprints.Controllers
             }
             return View();
         }
+
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public JsonResult listcenter(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1)
+        public JsonResult listcenter(string sortOrder, string sortDirection, string search, int pageSize, int requestedPage = 1,bool isEndOfYear=false)
         {
             try
             {
                 string totalrecord;
                 int skip = pageSize * (requestedPage - 1);
-                var list = new CenterData().centerList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString());
+                var list = new CenterData().centerList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Session["AgencyID"].ToString(), isEndOfYear);
                 return Json(new { list, totalrecord });
             }
             catch (Exception Ex)
@@ -1062,11 +1073,11 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public JsonResult updatecenter(string id, int mode)
+        public JsonResult updatecenter(string id, int mode,bool isEndOfYear=false)
         {
             try
             {
-                return Json(new CenterData().UpdateCenter(id, mode, Guid.Parse(Convert.ToString(Session["UserID"]))));
+                return Json(new CenterData().UpdateCenter(id, mode, Guid.Parse(Convert.ToString(Session["UserID"])), isEndOfYear),JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {
@@ -1152,7 +1163,7 @@ namespace Fingerprints.Controllers
         //    catch (Exception Ex)
         //    {
         //        clsError.WriteException(Ex);
-        //        return Json("Error occurred please try again.");
+        //        return Json("Error occured please try again.");
         //    }
         //}
         //[CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
@@ -1747,14 +1758,15 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public JsonResult Deleteclass(string classId = "0")
+        public JsonResult Deleteclass(string classId = "0",string isEndOfYear="0")
         {
             CenterData obj = new CenterData();
             try
             {
 
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
 
-                return Json(obj.DeleteClassroom(classId, Convert.ToString(Session["AgencyID"])));
+                return Json(obj.DeleteClassroom(classId, Convert.ToString(Session["AgencyID"]), isEndYear));
             }
             catch (Exception Ex)
             {
@@ -1882,8 +1894,12 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult AcceptanceRole()
+        public ActionResult AcceptanceRole(string ak="0")
         {
+
+
+            ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
+
             RoleData rd = new RoleData();
             AcceptanceRole AR = new FingerprintsModel.AcceptanceRole();
             AR.RoleList = rd.RoleList();
@@ -1905,9 +1921,12 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter()]
-        public JsonResult GetAcceptanceRole()
+        public JsonResult GetAcceptanceRole(string isEndofYear="0")
         {
-            return Json(agencyData.GetAcceptanceProcess(Session["AgencyID"].ToString()));
+            bool isEndYear = string.IsNullOrEmpty(isEndofYear) ? false : isEndofYear == "1" ? true : false;
+
+
+            return Json(agencyData.GetAcceptanceProcess(Session["AgencyID"].ToString(), isEndYear));
 
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
@@ -1972,14 +1991,17 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        public ActionResult Slots()
+        public ActionResult Slots(string ak="0")
         {
             AgencySlots agencySlot = new AgencySlots();
             try
             {
-                agencySlot = agencyData.GetRefProgram(Session["AgencyID"].ToString());
+                bool isEndYear = string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
+                agencySlot = agencyData.GetRefProgram(Session["AgencyID"].ToString(), isEndYear);
                 TempData["AgencySlot"] = agencySlot;
                 Session["MenuEnable"] = agencySlot.MenuEnabled;
+                ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
+
                 return View(agencySlot);
             }
             catch (Exception Ex)
@@ -1990,12 +2012,17 @@ namespace Fingerprints.Controllers
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         [HttpPost]
-        public ActionResult Slots(AgencySlots Slot, List<ClassRoom> ClassSlot)
+        public ActionResult Slots(AgencySlots Slot, List<ClassRoom> ClassSlot,string isEndOfYear="")
         {
 
             try
             {
-                string message = agencyData.AddSlots(ref Slot, ClassSlot, Session["UserID"].ToString(), Session["AgencyID"].ToString());
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+
+                ViewBag.IsEndOfYear = isEndYear == true ? "1" : "0";
+
+
+                string message = agencyData.AddSlots(ref Slot, ClassSlot, Session["UserID"].ToString(), Session["AgencyID"].ToString(), isEndYear);
                 if (message == "1")
                 {
                     ViewBag.message = "Program total slots must be equal to purchase slots. ";
@@ -2141,34 +2168,35 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
-        public ActionResult MoveSeats()
+        public ActionResult MoveSeats(string ak="")
         {
-
+            ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak) ? "0" : ak == "1" ? "1" : "0";
 
             MoveSeats moveSeats = new FingerprintsModel.MoveSeats();
-            
+            moveSeats.IsEndOfYear= string.IsNullOrEmpty(ak) ? false : ak == "1" ? true : false;
             moveSeats = new agencyData().GetCenterandClassRoomSeats(moveSeats);
             return View(moveSeats);
 
         }
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
-        public JsonResult GetClassroomsByCenter(string centerId = "0")
+        public JsonResult GetClassroomsByCenter(string centerId = "0",string isEndOfYear="0")
         {
             try
             {
                 centerId = EncryptDecrypt.Decrypt64(centerId);
-                return Json(new RosterData().Getclassrooms(centerId, Session["AgencyID"].ToString()), JsonRequestBehavior.AllowGet);
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                return Json(new RosterData().Getclassrooms(centerId, Session["AgencyID"].ToString(),isEndYear), JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
         [CustAuthFilter()]
-        public JsonResult GetAvailSeatsByClassroom(dynamic center, dynamic clsroom, dynamic agency)
+        public JsonResult GetAvailSeatsByClassroom(dynamic center, dynamic clsroom, dynamic agency,string isEndOfYear="0")
         {
 
             try
@@ -2177,13 +2205,14 @@ namespace Fingerprints.Controllers
                 center = Convert.ToInt64(EncryptDecrypt.Decrypt64(center[0]));
                 clsroom = Convert.ToInt64(EncryptDecrypt.Decrypt64(clsroom[0]));
                 agency = new Guid(agency[0]);
-                return Json(new agencyData().GetSeatsBy(center, clsroom, agency, 1), JsonRequestBehavior.AllowGet);
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                return Json(new agencyData().GetSeatsBy(center, clsroom, agency, 1, isEndYear), JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
-                return Json("Error Occured. Please,try again later.", JsonRequestBehavior.AllowGet);
+                return Json("Error Occurred. Please,try again later.", JsonRequestBehavior.AllowGet);
             }
 
         }
@@ -2230,12 +2259,14 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter()]
-        public ActionResult GetCenterWithSeats(string agencyId,int reqPage,int skip,int take, string searchText)
+        public ActionResult GetCenterWithSeats(string agencyId,int reqPage,int skip,int take, string searchText,string isEndOfYear="0")
         {
             MoveSeats seatsDis = new FingerprintsModel.MoveSeats();
             try
             {
-                skip= (take * (reqPage - 1));
+
+                seatsDis.IsEndOfYear= string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                skip = (take * (reqPage - 1));
 
                 seatsDis.AgencyID = new Guid(agencyId);
                 seatsDis.SearchTerm = searchText;
@@ -2368,5 +2399,117 @@ namespace Fingerprints.Controllers
         }
 
 
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult CenterListEndOftheYear()
+        {
+            ViewBag.IsEndOfYear = true;
+
+            return RedirectToAction("centerlist", "AgencyAdmin");
+        }
+
+        [HttpPost]
+        [CustAuthFilter("65bb7c2-e320-42a2-aed4-409a321c08a5,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        public JsonResult GetCentersBy(string programYear)
+        {
+
+
+            List<HrCenterInfo> hrCenterList = new List<HrCenterInfo>();
+
+            agencyData.GetCentersByProgramYear(hrCenterList,programYear);
+
+            return Json(hrCenterList, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [CustAuthFilter("65bb7c2-e320-42a2-aed4-409a321c08a5,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+
+        public JsonResult ChangeAgencySlots(string slotNumber,string changeType)
+        {
+            string result = "0";
+            
+            try
+            {
+                String EMailTemplate = string.Empty;
+                string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
+                System.Data.DataSet ds = new System.Data.DataSet();
+                agencyData.ChangeAgencySlots(ref result, ref ds, slotNumber, changeType,true);
+
+                if(result=="1" && changeType!="0")
+                {
+                  
+                     
+                   
+                      
+                        string siteURI = Request.Url.OriginalString;
+                        Uri uriResource = new Uri(siteURI);
+                        StreamReader reader = new StreamReader(Server.MapPath("~/MailTemplate/ChangeAgencySlotsTemplate.xml"));
+                        EMailTemplate = reader.ReadToEnd();
+                        if (ds.Tables[0].Rows.Count > 0)
+                        {
+                            string imagePath = "http://" + uriResource.Authority + "/Content/img/ge_logo_banner_left2.png";
+                            EMailTemplate = EMailTemplate.Replace("{image}", imagePath);
+                            string Email = "", cc = "";
+                           
+                            if (ds.Tables[0].Rows.Count > 0)
+                            {
+                            string content = string.Empty;
+                            string agencyEmail = string.Empty;
+                            string subject = string.Empty;
+
+                            if(changeType == "1")
+                            {
+                                content = ds.Tables[0].Rows[0]["AgencyName"].ToString() + " " + "incremented their slots count from " +
+                                    ds.Tables[0].Rows[0]["SlotNumberold"].ToString() + " " + "to" + " " + ds.Tables[0].Rows[0]["SlotNumber"].ToString()+". ";
+
+                                agencyEmail = "Kindly, send an invoice to " + ds.Tables[0].Rows[0]["PrimaryEmail"].ToString() + "(" + ds.Tables[0].Rows[0]["AgencyAdminName"].ToString() + ")";
+                                subject = "Increment of Agency Slots";
+                            }
+                            else
+                            {
+                                content = ds.Tables[0].Rows[0]["AgencyName"].ToString() + " " + "decremented their slots count from " +
+                                  ds.Tables[0].Rows[0]["SlotNumberold"].ToString() + " " + "to" + " " + ds.Tables[0].Rows[0]["SlotNumber"].ToString()+". ";
+
+                                agencyEmail = "Kindly, follow-up with " + ds.Tables[0].Rows[0]["AgencyAdminName"].ToString() + "(" + ds.Tables[0].Rows[0]["PrimaryEmail"].ToString() + ")";
+                                subject = "Decrement of Agency Slots";
+                            }
+
+                            EMailTemplate = EMailTemplate.Replace("$BodyHeading$", (changeType=="1")?"Increment of Agency Slots":"Decrement of Agency Slots");
+                                EMailTemplate = EMailTemplate.Replace("$SlotInformation$", content);
+                                EMailTemplate = EMailTemplate.Replace("$agencyEmail$", agencyEmail);
+                                //EMailTemplate = EMailTemplate.Replace("$SubjectContent$", subject);
+                                //EMailTemplate = EMailTemplate.Replace("{URLNote}", !string.IsNullOrEmpty(ds.Tables[2].Rows[0]["URLNote"].ToString()) ? ds.Tables[2].Rows[0]["URLNote"].ToString() : "");
+                                //EMailTemplate = EMailTemplate.Replace("{AssignedBy}", Session["EmailID"].ToString());
+                            }
+                           
+                           
+                            string isSent = SendMail.SendEmailForChangeInAgencySlots(EMailTemplate, ds.Tables[0].Rows[0]["AgencyName"].ToString());
+                                
+                           
+
+
+                        }
+
+                        if(ds.Tables.Count>1 && ds.Tables[1].Rows.Count>0)
+                    {
+                        slotNumber = ds.Tables[1].Rows[0]["SlotNumber"].ToString();
+                    }
+
+                   
+                }
+
+                
+                
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(new{ result,slotNumber}, JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }
+
+

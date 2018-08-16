@@ -15,6 +15,8 @@
 @section Script{
 
     <script type="text/javascript">
+        
+        var isEndOfYear = '@ViewBag.IsEndOfYear';
 
         var lengthTd = 0;
 
@@ -45,7 +47,7 @@
                 url: '/AgencyAdmin/GetClassroomsByCenter',
                 datatype: 'json',
                 type: 'post',
-                data: { centerId: $(ele).val() },
+                data: { centerId: $(ele).val(), isEndOfYear:isEndOfYear },
                 beforeSend: function () { $('#spinner').show(); },
                 success: function (data) {
                     //   console.log(data);
@@ -106,7 +108,7 @@
                 type: 'post',
                 datatype: 'json',
                 beforeSend: function () { $('#spinner').show() },
-                data: { AgncyID: agId },
+                data: { AgncyID: agId, isEndOfYear:isEndOfYear},
                 success: function (data) {
                     debugger;
                     var appendCenter = '';
@@ -238,7 +240,8 @@
                 var centerPair = {
 
                     'AgencyID': $('#agId').val(),
-                    'CenterClassPairList': CenterClassPairList
+                    'CenterClassPairList': CenterClassPairList,
+                    'IsEndOfYear':(isEndOfYear=="1")?true:false
                 }
                 console.log(centerPair);
 
@@ -348,7 +351,7 @@
 
             $('#spinner').show();
 
-            $("#table_body").load('@Url.Action("GetCenterWithSeats", "AgencyAdmin")', { agencyId: $('#agId').val(), reqPage: _reqPage, skip: skip, take: _pageSize, searchText: searchItem }, function () {
+            $("#table_body").load('@Url.Action("GetCenterWithSeats", "AgencyAdmin")', { agencyId: $('#agId').val(), reqPage: _reqPage, skip: skip, take: _pageSize, searchText: searchItem,isEndOfYear:isEndOfYear }, function () {
 
                 $('#spinner').hide();
                 resetEvents();
@@ -555,7 +558,7 @@
                 url: '/AgencyAdmin/GetAvailSeatsByClassroom',
                 type: 'post',
                 datatype: 'json',
-                data: { center: cId, clsroom: clsId, agency: agID },
+                data: { center: cId, clsroom: clsId, agency: agID,isEndOfYear:isEndOfYear },
                 success: function (data) {
 
                     if (mode == 1) {
@@ -660,6 +663,18 @@
 
   
     <style>
+
+        .back_link
+        {
+            padding:10px;
+            float: right;
+            color: #fff;
+            margin-right:0px;
+            background-color:#9b59b6;
+            border-radius: 4px;
+            text-decoration:none;
+        }
+
         /*transport*/
         .gr-color {
             color: #009688;
@@ -1218,10 +1233,25 @@
                     <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
                         <i class="fa fa-group"></i> Move Seats
 
-                        <span class="view-btn backto_listspan">
-                            <a href="/Home/AgencyAdminDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back To Dashboard</a>
+                        @if(ViewBag.IsEndOfYear=="1")
+                        {
+                            <i id="spanHeading" style="font-size:18px;">for Next Program Year(@Model.ProgramYear)</i>
+                        }
 
-                        </span>
+                        @if (ViewBag.IsEndOfYear == "1")
+                        {
+                            <span class="view-btn backto_listspan">
+
+                                @Html.ActionLink("Back to List", "EndOfProgramYear", "AgencyAdmin",new {@class= "backto_list back_link" })
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="view-btn backto_listspan">
+                                <a href="/Home/AgencyAdminDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                            </span>
+                        }
+                        
                     </h2>
                 </div>
 
@@ -1250,7 +1280,7 @@
 
                 </div>
                 <div class="col-xs-12" style="border-radius: 10px;background: #f1f5f8;padding: 10px;width: 98%;margin:20px 1%;">
-                    <table class="col-md-12 table-striped table-condensed cf table-change transportation-table fold-table" id="GridRoster">
+                    <table class="col-md-12 table-striped table-condensed cf table-change transportation-table fold-table" id="GridRoster" style="border:1px solid #cbcbcc">
                         <thead style="cursor:pointer;">
                             <tr>
                                 <th id="thIN" style="border-right:1px solid #ddd;">Center Name<img id="imgthIN" style="visibility:hidden"> <input type="hidden" id="directionNA" value="Desc"></th>

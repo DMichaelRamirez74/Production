@@ -47,6 +47,8 @@ namespace FingerprintsModel
 
         public EndOfYearSlotsSeats Slots { get; set; }
 
+        public string ProgramYearStartDate { get; set; }
+
     }
 
     public class NewProgramYearTransitionCounts

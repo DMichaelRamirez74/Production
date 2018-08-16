@@ -723,7 +723,7 @@ namespace Fingerprints.Controllers
             {
                 string totalrecord, agencyId = string.Empty;
                 int skip = pageSize * (requestedPage - 1);
-                var list = new CenterData().centerList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, agencyId);
+                var list = new CenterData().centerList(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, agencyId,false);
                 return Json(new { list, totalrecord });
             }
             catch (Exception Ex)
@@ -769,7 +769,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(new CenterData().UpdateCenter(id, mode, Guid.Parse(Convert.ToString(Session["UserID"]))));
+                return Json(new CenterData().UpdateCenter(id, mode, Guid.Parse(Convert.ToString(Session["UserID"])),false),JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {

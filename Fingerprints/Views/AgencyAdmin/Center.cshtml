@@ -12,6 +12,7 @@
 @section Script{
 
     <script type="text/javascript">
+        var isEndOfYear = '@ViewBag.IsEndOfYear';
         var isValid = true;
         var rounds = 0;
         var count = null;
@@ -64,23 +65,24 @@
                 $('#TimeZoneID').val('');
                 $('#AdminSite').val('');
                 $('#ClassSession').val('');
+
             }
 
 
 
             var numItems = $('.fundservice').length - 1;
             for (var i = 0; i <= numItems; i++) {
-                $("[name='Classroom[" + i + "].StartTime']").timepicker({ 'timeFormat': 'h:i A','minTime':'06:00 AM','maxTime':'06:00 PM' });
+                $("[name='Classroom[" + i + "].StartTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
                 $("[name='Classroom[" + i + "].StopTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
 
                 $("[name='Classroom[" + i + "].BreakfastFromTime']").timepicker({ 'timeFormat': 'h:i A', interval: 60, 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].BreakfastToTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].LunchFromTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].LunchToTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].SnackFromTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].SnackToTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].DinnerFromTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
-                $("[name='Classroom[" + i + "].DinnerToTime']").timepicker({ 'timeFormat': 'h:i A','minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].BreakfastToTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].LunchFromTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].LunchToTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].SnackFromTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].SnackToTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].DinnerFromTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
+                $("[name='Classroom[" + i + "].DinnerToTime']").timepicker({ 'timeFormat': 'h:i A', 'minTime': '06:00 AM', 'maxTime': '06:00 PM' });
             }
 
 
@@ -123,6 +125,7 @@
                 $('#divclass').hide();
             });
         });
+
         //function isValidagencyInfo() {
         //    cleanValidation();
         //    if ($('#CenterName')[0].value.trim() == "") {
@@ -185,10 +188,7 @@
         //        var y = new Date().getFullYear();
         //        for (var i = 0; i < $('#StopTime').length; i++) {
         //            var currentStopDate = new Date(m + '/' + d + '/' + y + ' ' + $('#StopTime')[i].value);
-
         //        }
-
-
         //    }
         //    if ($('#AdminSite').val() == "0") {
         //        var numItems = $('.fundservice').length - 1;
@@ -293,6 +293,14 @@
                 plainValidation('#CenterName');
                 return isValid;
             }
+
+            else if ($('#AdminSite')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("AdminSite is required.");
+                plainValidation('#AdminSite');
+                return isValid;
+            }
+
             else if ($('#qualityStarsDiv').is(':visible') &&  $('#StepUpToQualityStars')[0].value.trim() == "") {
                 isValid = false;
                 customAlert("Quality Stars is required.");
@@ -329,12 +337,7 @@
                 plainValidation('#State');
                 return isValid;
             }
-            else if ($('#AdminSite')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("AdminSite is required.");
-                plainValidation('#AdminSite');
-                return isValid;
-            }
+          
 
             else if ($('#areaDiv').is(':visible') &&  $('#AreaID').length > 0 && $('#AreaID').val() == '') {
                 isValid = false;
@@ -963,7 +966,7 @@
                                 $('#City').find('option').remove().end();
                                 $('#City').val('');
                                 $('#State').val('');
-                                $('#ZipCode').val('');
+                                $('#Zip').val('');
                                 //  $('#County').val('');
                                 customAlert("Could not find zipcode details.");
 
@@ -1637,7 +1640,8 @@
                             url: HostedDir + "/AgencyAdmin/Deleteclass",
                             type: "POST",
                             data: {
-                                classId: ClassroomId
+                                classId: ClassroomId,
+                                isEndOfYear:isEndOfYear
                             },
                             dataType: "json",
                             secureuri: false,
@@ -1815,14 +1819,19 @@
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
+
                 @ViewData["Title"].ToString()
 
 
+                @if (ViewBag.IsEndOfYear == "1")
+                {
+                       <i style="font-size:18px;">for Next Program Year(@Model.ProgramYear)</i>
+                }
 
                 @if (Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
                 {
                     <span class="view-btn backto_listspan" id="BackToList">
-                        <a href="~/AgencyAdmin/centerlist" class="backto_list">Back to list</a>
+                        <a href="~/AgencyAdmin/centerlist?ak=@ViewBag.IsEndOfYear" class="backto_list">Back to list</a>
                     </span>
 
                 }
@@ -2935,6 +2944,8 @@
 
                                 <button class="my-btn" onclick="CheckforCenters();" type="button" name="Command" value="NextCommand" tabindex="22">Next</button>
                             }
+
+                                   <input type="hidden" value="@ViewBag.IsEndOfYear" name="endOfYear"/>
 
                             <div class="clear"></div>
                         </div>	<!--btnwrp_subcal--->

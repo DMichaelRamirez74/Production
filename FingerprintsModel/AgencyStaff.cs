@@ -108,6 +108,11 @@ namespace FingerprintsModel
             set;
         }
         public string AgencyName { get; set; }
+
+        public string ProgramYear { get; set; }
+
+        public List<SelectListItem> ProgramYearList { get; set; }
+
     }
 
     public class RefInfo

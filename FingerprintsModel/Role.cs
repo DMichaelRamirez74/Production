@@ -113,5 +113,6 @@ namespace FingerprintsModel
         public Guid RoleID { get; set; }
         public string RoleName { get; set; }
         public bool isAllowIncome { get; set; }
+        public string ActiveProgramYear { get; set; }
     }
 }

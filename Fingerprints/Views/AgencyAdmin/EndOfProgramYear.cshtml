@@ -25,6 +25,178 @@
 
         }
 
+        function redirectToCenterClassRooms(ele) {
+            $('#spinner').show();
+            window.location.href = HostedDir + "/AgencyAdmin/centerlist?ak=1";
+
+
+        }
+
+        function redirectToStaffInformation(ele) {
+            $('#spinner').show();
+
+            window.location.href = HostedDir + "/Agency/viewagencystaff?ak=1";
+        }
+
+        function showNextPrgYearDate(ele)
+        {
+            $('#addNextPrgYearModal').modal({
+
+                backdrop:'static',
+                keyboard:false,
+                show:true
+            });
+        }
+
+        function showAcceptanceProcess()
+        {
+            $('#spinner').show();
+
+            window.location.href = HostedDir + "/AgencyAdmin/AcceptanceRole?ak=1";
+        }
+
+        function redirectSlotsSeats()
+        {
+             
+            BootstrapDialog.show({
+                title: 'Confirmation',
+                message: 'Any change on Slots/Seats count ?',
+                closable: true,
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                buttons: [{
+                    label: 'Yes',
+                    action: function (dialog) {
+                        $('#spinner').show();
+
+                        window.location.href = HostedDir + "/AgencyAdmin/Slots?ak=1";
+                    }
+                }, {
+                    label: 'No',
+                    action: function (dialog) {
+                        $('#spinner').show();
+
+                        window.location.href = HostedDir + "/AgencyAdmin/MoveSeats?ak=1";
+                    }
+                }]
+            });
+
+            
+
+           
+        }
+
+        function isDate(txtDate) {
+            var currVal = txtDate;
+            if (currVal == '')
+                return false;
+
+            var rxDatePattern = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/; //Declare Regex
+            var dtArray = currVal.match(rxDatePattern); // is format OK?
+
+            if (dtArray == null)
+                return false;
+
+            //Checks for mm/dd/yyyy format.
+            dtMonth = dtArray[1];
+            dtDay = dtArray[3];
+            dtYear = dtArray[5];
+
+            if (dtMonth < 1 || dtMonth > 12)
+                return false;
+            else if (dtDay < 1 || dtDay > 31)
+                return false;
+            else if ((dtMonth == 4 || dtMonth == 6 || dtMonth == 9 || dtMonth == 11) && dtDay == 31)
+                return false;
+            else if (dtMonth == 2) {
+                var isleap = (dtYear % 4 == 0 && (dtYear % 100 != 0 || dtYear % 400 == 0));
+                if (dtDay > 29 || (dtDay == 29 && !isleap))
+                    return false;
+            }
+            return true;
+        }
+
+        $(function () {
+
+            $("input:text[name='txtProgStartDate']").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+
+            $("input:text[name='txtProgStartDate']").datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    minDate: new Date()
+                
+            });
+
+            $('#btnNxtPrgYear').on('click', function () {
+
+                cleanValidation();
+
+                var prgStrtDate = $('#txtProgStartDate').val();
+
+                if(prgStrtDate==null || prgStrtDate=='' || prgStrtDate==undefined)
+                {
+                    plainValidation('#txtProgStartDate');
+                    customAlert('Please enter next program Year start date');
+                }
+
+                else if(!isDate(prgStrtDate.trim()))
+                {
+                    plainValidation('#txtProgStartDate');
+                    customAlert('Please enter valid date');
+                }
+
+                else if(new Date(new Date(prgStrtDate.trim()).setHours(0,0,0,0)) <=new Date(new Date().setHours(0,0,0,0)))
+                {
+                    plainValidation('#txtProgStartDate');
+                    customAlert('Entered date should be greater than today\'s date');
+                }
+                else {
+
+                    $.ajax({
+
+                        url: HostedDir + '/Agency/SetNextProgramYearDate',
+                        type: 'post',
+                        datatype: 'json',
+                        data: { programDate: prgStrtDate },
+                        success:function(data)
+                        {
+                            if(data==true)
+                            {
+                                customAlert('Record saved successfully.');
+                                $('.program-link5').find('#spanDate').html(prgStrtDate);
+                            }
+                            else {
+                                customAlert('Error occurred. Please, try again later.');
+                            }
+
+                            $('#addNextPrgYearModal').modal('hide');
+
+                        },
+                        error:function(data)
+                        {
+
+                        },
+                        complete:function(data)
+                        {
+
+                        }
+
+
+                    });
+
+
+                }
+
+
+
+
+
+
+            });
+
+        });
+
     </script>
 
 
@@ -33,6 +205,10 @@
 
 @section  MainContentHolder{
     <style>
+
+        .bootstrap-dialog-title{
+            padding-top:15px;
+        }
         #page-wrapper {
             padding-left: 0;
             padding-right: 0;
@@ -89,7 +265,7 @@
                             </a>
                         </div>
                         <div class="col-lg-3 col-sm-6 col-xs-12">
-                            <a href="javascript:void(0);" class="col-xs-12 no-padding program-link1 program-link-common">
+                            <a href="javascript:void(0);" onclick="redirectToCenterClassRooms(this);" class="col-xs-12 no-padding program-link1 program-link-common">
                                 <div class="dashboard-sec col-xs-12">
                                     <div class="dashboard-info col-xs-12">
                                         <div class="dashboard-count">
@@ -114,7 +290,7 @@
                             </a>
                         </div>
                         <div class="col-lg-3 col-sm-6 col-xs-12">
-                            <a href="javascript:void(0);" class="col-xs-12 no-padding program-link2 program-link-common">
+                            <a href="javascript:void(0);" onclick="redirectToStaffInformation(this);" class="col-xs-12 no-padding program-link2 program-link-common">
                                 <div class="dashboard-sec col-xs-12">
                                     <div class="dashboard-info col-xs-12">
                                         <div class="dashboard-count">
@@ -136,16 +312,17 @@
                                 </div>
                             </a>
                         </div>
+
                         <div class="col-lg-3 col-sm-6 col-xs-12">
-                            <a href="javascript:void(0);" class="col-xs-12 no-padding program-link3 program-link-common">
+                            <a href="javascript:void(0);" onclick="redirectSlotsSeats(this);" class="col-xs-12 no-padding program-link3 program-link-common">
                                 <div class="dashboard-sec col-xs-12">
                                     <div class="dashboard-info col-xs-12">
                                         <div class="dashboard-count">
-                                            <h2 style="color:#3598db;">Seats/Slots</h2>
+                                            <h2 style="color:#3598db;">Slots/Seats</h2>
 
                                             <div class="col-xs-12" style="padding: 0;">
                                                 <ul class="listof_acitve">
-                                                    <li><span>Total</span><b>@Model.EndOfProgramYearDashboard.Seats.Total</b></li>
+                                                    <li><span>Total</span><b>@Model.EndOfProgramYearDashboard.Slots.Total</b></li>
                                                 </ul>
                                             </div>
 
@@ -161,26 +338,52 @@
                         </div>
 
 
+                        
+
                         <div class="col-lg-3 col-sm-6 col-xs-12">
-                            <a href="javascript:void(0);" class="col-xs-12 no-padding program-link3 program-link-common">
+                            <a href="javascript:void(0);" onclick="showAcceptanceProcess(this);" class="col-xs-12 no-padding program-link4 program-link-common">
+
                                 <div class="dashboard-sec col-xs-12">
                                     <div class="dashboard-info col-xs-12">
                                         <div class="dashboard-count">
-                                            <h2 style="color:#3598db;">Acceptance Process</h2>
+                                            <h2 style="color:#FF9800;">Acceptance Process</h2>
 
-                                            @*<div class="col-xs-12" style="padding: 0;">
-                                                    <ul class="listof_acitve">
-                                                        <li><span>Total</span><b>@Model.EndOfProgramYearDashboard.Seats.Total</b></li>
-                                                    </ul>
-                                                </div>*@
+                                            
 
                                         </div>
                                         <div class="dashboard-ic">
-                                            <i class="fa fa-users" aria-hidden="true" style="color:#3598db;"></i>
+                                            <i class="fa fa-android" aria-hidden="true" style="color:#FF9800;"></i>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="dashboard-info2 col-xs-12" style="background:#3598db;height: 5px;width: 100%;">
+                                <div class="dashboard-info2 col-xs-12" style="background:#FF9800;height: 5px;width: 100%;">
+                                </div>
+                            </a>
+                        </div>
+
+
+
+                        <div class="col-lg-3 col-sm-6 col-xs-12">
+                            <a href="javascript:void(0);" onclick="showNextPrgYearDate(this);" class="col-xs-12 no-padding program-link5 program-link-common">
+
+                                <div class="dashboard-sec col-xs-12">
+                                    <div class="dashboard-info col-xs-12">
+                                        <div class="dashboard-count">
+                                            <h2 style="color:#5c8412;">Next Program Year Start Date</h2>
+
+                                            <div class="col-xs-12" style="padding: 0;">
+                                                <ul class="listof_acitve" style="color:#5c8412;">
+                                                    <li><span id="spanDate">@Model.EndOfProgramYearDashboard.ProgramYearStartDate</span></li>
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                        <div class="dashboard-ic">
+                                            <i class="fa fa-calendar" aria-hidden="true" style="color:#5c8412;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dashboard-info2 col-xs-12" style="background:#5c8412;height: 5px;width: 100%;">
                                 </div>
                             </a>
                         </div>
@@ -195,6 +398,47 @@
 
 
 
+
+    <div class="modal fade program-add-date-popup2" id="addNextPrgYearModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content program-add-date-popup">
+
+                <div class="modal-body">
+                    <div class="program-popup-title">
+                        <h2>Next Program Year Start Date</h2>
+                    </div>
+                    <div class="program-popup-content">
+                        <div class="">
+
+                            <div class="">
+
+                                <div class="input-group date col-xs-6 date-picker" style="padding-left:0px;padding-right:0px;margin-left:25%;">
+                                    <input type="text" class="form-control" name="txtProgStartDate" value="@Model.EndOfProgramYearDashboard.ProgramYearStartDate" id="txtProgStartDate" placeholder="MM/DD/YYYY">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+
+                                    <div class="col-xs-6">
+                                        <button type="button" name="" id="btnNxtPrgYear" class="btn btn-success">Save</button>
+                                    </div>
+                                </div>
+                                
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-default cancel-bt" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 
 

@@ -24,6 +24,7 @@ namespace FingerprintsModel
             //    this.Clientlist = new List<RosterNew.User>();
             //    this.UserList = new List<RosterNew.User>();
             //}
+            public List<User> SecurityRolesList { get; set; }
             public List<User> Clientlist { get; set; }
             public List<User> UserList { get; set; }
         }
@@ -64,6 +65,7 @@ namespace FingerprintsModel
 
             public string[] AttachmentIdArray { get; set; }
 
+            public string[] SecurityRoles { get; set; }
 
         }
 

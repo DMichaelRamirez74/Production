@@ -8,6 +8,8 @@
 }
 @section Script{
     <script type="text/javascript">
+
+        var isEndOfYear = '@ViewBag.IsEndOfYear';
         var sortOrder = '';
         var sortDirection = '';
         var imgID = '';
@@ -157,17 +159,24 @@
                     sortDirection: sortDirection,
                     search: $("#txtsearch").val(),
                     pageSize: $('#ddlpagetodisplay').val(),
-                    requestedPage: requestedPage
+                    requestedPage: requestedPage,
+                    isEndOfYear:isEndOfYear
                 },
                 dataType: "json",
                 secureuri: false,
                 async: false,
                 success: function (data) {
+
+                    //if (data != null && data.programYear != null && isEndOfYear == "1") {
+                    //    $('#spanNextPrgYr').html('for Next Program Year (' + data.programYear + ')');
+                    //}
+
                     getData(data);
-                    getTotalRecord(data.totalrecord)
+                    getTotalRecord(data.totalrecord);
+                   
                 }
                 , error: function (response) {
-                       customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                 }
             });
 
@@ -443,6 +452,11 @@
         <div class="col-lg-12">
             <h2 class="page-header">
                 Enrollment Request
+                
+              @*@if(ViewBag.IsEndOfYear=="1")
+                {
+                    <i style="font-size:18px;" id="spanNextPrgYr"></i>
+                }*@
             </h2>
         </div>
     </div>

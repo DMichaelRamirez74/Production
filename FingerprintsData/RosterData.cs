@@ -959,7 +959,7 @@ namespace FingerprintsData
             }
             return RefList;
         }
-        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid)
+        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid,bool isEndOfYear=false)
         {
             List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
 
@@ -973,6 +973,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getclassrooms";

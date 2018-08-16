@@ -1290,6 +1290,8 @@ namespace FingerprintsModel
     {
         public DataTable CustomScreenings { get; set; }
 
+        public Screening screening { get; set; }
+
     }
     public class CustomScreeningAllowed
     {

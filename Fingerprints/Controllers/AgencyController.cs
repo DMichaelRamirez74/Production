@@ -1094,10 +1094,11 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public JsonResult LoadCenterByAgency(string AgncyID)
+        public JsonResult LoadCenterByAgency(string AgncyID,string isEndOfYear="0")
         {
 
-            var CenterList = agencyData.CenterListByAgency(AgncyID);
+            bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+            var CenterList = agencyData.CenterListByAgency(AgncyID,isEndYear);
             return Json(CenterList, JsonRequestBehavior.AllowGet);
         }
         public JsonResult AutoCompleteAgency(string term, string Active = "0")
@@ -1106,7 +1107,7 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public ActionResult viewagencystaff(string id = "0")
+        public ActionResult viewagencystaff(string id = "0",string ak="0")
         {
             if (id == "1")
             {
@@ -1136,10 +1137,15 @@ namespace Fingerprints.Controllers
 
             }
 
+            ViewBag.IsEndOfYear = string.IsNullOrEmpty(ak)?"0":ak=="1"?"1":"0";
+
+            
+
+
             return View();
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public JsonResult listagencystaff(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1)
+        public JsonResult listagencystaff(string sortOrder, string sortDirection, string search, int pageSize, string clear, int requestedPage = 1, string isEndOfYear="0")
         {
             try
             {
@@ -1147,7 +1153,9 @@ namespace Fingerprints.Controllers
                 string totalrecord;
                 //if (clear.Contains("0"))
                 TempData["status"] = clear;
-                var list = agencyData.getagencystaffList(out totalrecord, Session["AgencyID"].ToString(), sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, TempData["status"].ToString());
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+
+                var list = agencyData.getagencystaffList(out totalrecord, Session["AgencyID"].ToString(), sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, TempData["status"].ToString(), isEndYear);
                 TempData.Keep();
                 return Json(new { list, totalrecord });
             }
@@ -1157,11 +1165,12 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,2d9822cd-85a3-4269-9609-9aabb914d792")]
-        public JsonResult updateagencyStaff(Guid id, int mode)
+        public JsonResult updateagencyStaff(Guid id, int mode,string isEndOfYear="0")
         {
             try
             {
-                return Json(agencyData.updateagencystaff(id, mode, Guid.Parse(Convert.ToString(Session["UserID"]))));
+                bool isEndYear = string.IsNullOrEmpty(isEndOfYear) ? false : isEndOfYear == "1" ? true : false;
+                return Json(agencyData.updateagencystaff(id, mode, Guid.Parse(Convert.ToString(Session["UserID"])), isEndYear));
             }
             catch (Exception Ex)
             {
@@ -1370,86 +1379,86 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-         [JsonMaxLengthAttribute]
-         public JsonResult getClassroom(string CenterId = "0",string AgencyId="0")
-         {
-             try
-             {
-                 if (string.IsNullOrEmpty(AgencyId))
-                 {
-                     if (Session["AgencyID"] != null)
-                         AgencyId = Session["AgencyID"].ToString();
-                 }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [JsonMaxLengthAttribute]
+        public JsonResult getClassroom(string CenterId = "0", string AgencyId = "0",string programYear="")
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(AgencyId))
+                {
+                    if (Session["AgencyID"] != null)
+                        AgencyId = Session["AgencyID"].ToString();
+                }
 
-                 return Json(agencyData.getclassroominfo(CenterId, AgencyId));//Convert.ToString(Session["AgencyID"])
-             }
-             catch (Exception Ex)
-             {
-                 clsError.WriteException(Ex);
-                 return Json("Error occured please try again.");
-             }
-         }
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-         [JsonMaxLengthAttribute]
-         public JsonResult getManager(string RoleId = "0")
-         {
-             try
-             {
-                 return Json(agencyData.getmanagerinfo(RoleId, Convert.ToString(Session["AgencyID"])));
-             }
-             catch (Exception Ex)
-             {
-                 clsError.WriteException(Ex);
-                 return Json("Error occured please try again.");
-             }
-         }
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-         [JsonMaxLengthAttribute]
-         public JsonResult getFSWUsers(string AgencyId = "0")
-         {
-             try
-             {
-                 return Json(agencyData.getusersinfo(AgencyId));
-             }
-             catch (Exception Ex)
-             {
-                 clsError.WriteException(Ex);
-                 return Json("Error occured please try again.");
-             }
-         }
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-         [JsonMaxLengthAttribute]
-         public JsonResult getagencyid(string AgencyId, string Type)
-         {
-             try
-             {
-                 if(String.IsNullOrWhiteSpace(AgencyId))
-                 {
-                     AgencyId=Convert.ToString(Session["AgencyID"]);
-                 }
-                 return Json(agencyData.getagencyid(AgencyId, Type));//UserId,AgencyId
-             }
-             catch (Exception Ex)
-             {
-                 clsError.WriteException(Ex);
-                 return Json("Error occured please try again.");
-             }
-         }
-         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-         [JsonMaxLengthAttribute]
-         public JsonResult getClassroomCenter(string CenterId = "0")
-         {
-             try
-             {
-                 return Json(agencyData.getclassroomdetails(CenterId));//Convert.ToString(Session["AgencyID"])
-             }
-             catch (Exception Ex)
-             {
-                 clsError.WriteException(Ex);
-                 return Json("Error occured please try again.");
-             }
-         }
+                return Json(agencyData.getclassroominfo(CenterId, AgencyId,programYear));//Convert.ToString(Session["AgencyID"])
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+        }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [JsonMaxLengthAttribute]
+        public JsonResult getManager(string RoleId = "0")
+        {
+            try
+            {
+                return Json(agencyData.getmanagerinfo(RoleId, Convert.ToString(Session["AgencyID"])));
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+        }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [JsonMaxLengthAttribute]
+        public JsonResult getFSWUsers(string AgencyId = "0")
+        {
+            try
+            {
+                return Json(agencyData.getusersinfo(AgencyId));
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+        }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [JsonMaxLengthAttribute]
+        public JsonResult getagencyid(string AgencyId, string Type)
+        {
+            try
+            {
+                if (String.IsNullOrWhiteSpace(AgencyId))
+                {
+                    AgencyId = Convert.ToString(Session["AgencyID"]);
+                }
+                return Json(agencyData.getagencyid(AgencyId, Type));//UserId,AgencyId
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+        }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [JsonMaxLengthAttribute]
+        public JsonResult getClassroomCenter(string CenterId = "0")
+        {
+            try
+            {
+                return Json(agencyData.getclassroomdetails(CenterId));//Convert.ToString(Session["AgencyID"])
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+        }
         //29Aug2016
          [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
          [JsonMaxLengthAttribute]
@@ -1458,19 +1467,19 @@ namespace Fingerprints.Controllers
              try
              {
 
-                 if (String.IsNullOrEmpty(Agencyid))
-                 {
-                     if (Session["AgencyID"]!=null)
-                     Agencyid = Convert.ToString(Session["AgencyID"]);
-                 }
-                 return Json(agencyData.getclassroomdetailsassign(CenterId, Type, Agencyid));
-             }
-             catch (Exception Ex)
-             {
-                 clsError.WriteException(Ex);
-                 return Json("Error occured please try again.");
-             }
-         }
+                if (String.IsNullOrEmpty(Agencyid))
+                {
+                    if (Session["AgencyID"] != null)
+                        Agencyid = Convert.ToString(Session["AgencyID"]);
+                }
+                return Json(agencyData.getclassroomdetailsassign(CenterId, Type, Agencyid));
+            }
+            catch (Exception Ex)
+            {
+                clsError.WriteException(Ex);
+                return Json("Error occurred please try again.");
+            }
+        }
 
 
 
@@ -1669,7 +1678,26 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
-       
+        [HttpPost]
+
+        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+
+        public JsonResult SetNextProgramYearDate(string programDate)
+        {
+            bool isResult = false;
+            try
+            {
+                isResult = agencyData.SetNextProgramYearDate(programDate);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+        }
+
+
+
 
     }
   

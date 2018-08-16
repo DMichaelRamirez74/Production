@@ -10,6 +10,11 @@
 }
 @section Script{
     <script type="text/javascript">
+
+        var isEndOfYear='@ViewBag.IsEndOfYear';
+
+     
+
         var sortOrder = '';
         var sortDirection = '';
         var imgID = '';
@@ -69,7 +74,7 @@
             $('#ddlpaging').change(function () {
                 getListafterupdation();
             });
-            
+
 
         });
         function getListafterupdation() {
@@ -120,12 +125,16 @@
                     sortDirection: sortDirection,
                     search: $("#txtsearch").val(),
                     pageSize: $('#ddlpagetodisplay').val(),
-                    requestedPage: requestedPage
+                    requestedPage: requestedPage,
+                    isEndOfYear: (isEndOfYear=="1")?true:false
                 },
                 dataType: "json",
                 secureuri: false,
                 async: false,
                 success: function (data) {
+
+
+
                     getData(data);
                     getTotalRecord(data.totalrecord)
                 }
@@ -273,13 +282,25 @@
                 $('#divPaging').show();
                 $('#div1').hide();
                 var tbody = $('#gridViewAgency > tbody');
+
+               
+                if (data.list.length > 0 && isEndOfYear=='1')
+                {
+                    $('#spanHeading').html('for  Next Program Year' + '(' + data.list[0].ProgramYear + ')');
+                }
+                else
+                {
+                    $('#spanHeading').html('');
+                }
+
                 for (var i = 0; i < data.list.length; i++) {
                     var tr = "";
                     tr += "<tr>";
-                    tr += '<td><a  style="text-decoration: underline;" href="' + HostedDir + '/AgencyAdmin/Center/' + data.list[i].CenterId + '" accesskey="' + data.list[i].CenterId + '" >' + ((typeof (data.list[i].CenterName) != 'undefined') && (data.list[i].CenterName != null) ? data.list[i].CenterName : '') + '</a></td>';
+                    tr += '<td><a  style="text-decoration: underline;" href="' + HostedDir + '/AgencyAdmin/Center?id=' + data.list[i].CenterId + '&ak='+isEndOfYear+'" accesskey="' + data.list[i].CenterId + '" >' + ((typeof (data.list[i].CenterName) != 'undefined') && (data.list[i].CenterName != null) ? data.list[i].CenterName : '') + '</a></td>';
                     tr += "<td>" + ((typeof (data.list[i].City) != 'undefined') && (data.list[i].City != null) ? data.list[i].City : '') + " </td>";
                     tr += "<td>" + ((typeof (data.list[i].State) != 'undefined') && (data.list[i].State != null) ? data.list[i].State : '') + "</td>";
                     tr += "<td>" + ((typeof (data.list[i].DateEntered) != 'undefined') && (data.list[i].DateEntered != null) ? data.list[i].DateEntered : '') + "</td>";
+
                     if (data.list[i].status != null && data.list[i].status == 1)
                         tr += "<td  align='center'>" +
                             "<a href='#' onclick='deactivatecenter(this);' accesskey=" + data.list[i].CenterId + "><img src='" + HostedDir + "/Images/active.png' /></a> </td>";
@@ -318,7 +339,8 @@
                         type: "POST",
                         data: {
                             id: $(value).attr("accesskey"),
-                            mode: 1
+                            mode: 1,
+                            isEndOfYear: (isEndOfYear == "1") ? true : false
                         },
                         dataType: "json",
                         secureuri: false,
@@ -345,7 +367,8 @@
                         type: "POST",
                         data: {
                             id: $(value).attr("accesskey"),
-                            mode: 0
+                            mode: 0,
+                            isEndOfYear: (isEndOfYear == "1") ? true : false
                         },
                         dataType: "json",
                         secureuri: false,
@@ -392,7 +415,7 @@
                            }
             });
 
-           
+
         }
 
 
@@ -403,9 +426,11 @@
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
+
                 Center List
+                <i id="spanHeading" style="font-size: 18px;color: #285b8f;"></i>
                 <span class="view-btn">
-                    <a href="~/AgencyAdmin/Center"><button type="button">Add New Center</button> </a>
+                    <a href="~/AgencyAdmin/Center?ak=@ViewBag.IsEndOfYear"><button type="button">Add New Center</button> </a>
                     @if (Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
                     {
                          <a href="#" onclick="Gotoslots();"><button type="button">Next</button> </a>
