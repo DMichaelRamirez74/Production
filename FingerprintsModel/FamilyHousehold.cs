@@ -443,6 +443,9 @@ namespace FingerprintsModel
         public bool AllowCurrentYearApplication { get; set; }
         public bool IsFutureApplication { get; set; }
         public string FutureProgramYear { get; set; }
+
+        public string ProgramYear { get; set; }
+
         public List<Programdetail> SelectedProgram { get; set; }
         public PostedProgram PostedPostedPrograms { get; set; }
         public List<SelectPoints.CustomQuestion> CustomQues = new List<SelectPoints.CustomQuestion>();

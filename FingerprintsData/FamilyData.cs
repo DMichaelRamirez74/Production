@@ -7300,6 +7300,7 @@ namespace FingerprintsData
                         command.Connection = Connection;
                         command.CommandText = "AutoComplete_familyList";
                         command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Clear();
                         command.Parameters.AddWithValue("@Name", term);
                         command.Parameters.AddWithValue("@Active", active);
                         command.Parameters.AddWithValue("@agencyid", agencyid);
@@ -7307,6 +7308,7 @@ namespace FingerprintsData
                         command.Parameters.AddWithValue("@RoleID", roleId);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
+                        
                     }
                 }
                 if (ds.Tables[0].Rows.Count > 0)
@@ -7334,6 +7336,11 @@ namespace FingerprintsData
             {
                 clsError.WriteException(ex);
 
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
             }
             return _householdlist;
         }
