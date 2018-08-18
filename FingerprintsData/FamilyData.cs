@@ -179,7 +179,7 @@ namespace FingerprintsData
             return result;
 
         }
-        public FamilyHousehold GetData_AllDropdown(string HouseHoldid, int parentid, string agencyid, string userid,string roleID, int i = 0, FamilyHousehold familyInfo = null)
+        public FamilyHousehold GetData_AllDropdown(string HouseHoldid, int parentid, string agencyid, string userid, string roleID, int i = 0, FamilyHousehold familyInfo = null)
         {
             //  List<AgencyStaff> _agencyStafflist = new List<AgencyStaff>();
             FamilyHousehold Info = new FamilyHousehold();
@@ -292,7 +292,7 @@ namespace FingerprintsData
                         {
                             FamilyHousehold.Programdetail obj = new FamilyHousehold.Programdetail();
                             obj.Id = Convert.ToInt32(dr["programtypeid"]);
-                            obj.Name = dr["programtype"].ToString()+" "+"("+dr["ReferenceName"].ToString()+")";
+                            obj.Name = dr["programtype"].ToString() + " " + "(" + dr["ReferenceName"].ToString() + ")";
                             obj.ReferenceId = dr["ReferenceId"].ToString();
                             Programs.Add(obj);
                         }
@@ -598,8 +598,8 @@ namespace FingerprintsData
                             Info.PRole = ds.Tables[26].Rows[0]["ParentRole"].ToString();
                             if (ds.Tables[26].Rows[0]["PCurrentlyWorking"].ToString() != "")
                                 Info.PCurrentlyWorking = ds.Tables[26].Rows[0]["PCurrentlyWorking"].ToString();
-                          //  if (ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString() != "")
-                           //     Info.PPolicyCouncil = ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString();
+                            //  if (ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString() != "")
+                            //     Info.PPolicyCouncil = ds.Tables[26].Rows[0]["PPolicyCouncil"].ToString();
                             if (ds.Tables[26].Rows[0]["ParentId"].ToString() != "")
                                 Info.ParentID = Convert.ToInt32(ds.Tables[26].Rows[0]["ParentId"]);
                             if (ds.Tables[26].Rows[0]["IsPreg"].ToString() != "")
@@ -825,7 +825,7 @@ namespace FingerprintsData
 
                     //Gets, whether User is allowed to review the family income//
                     int tableCount = ds.Tables.Count;
-                    if(ds.Tables[tableCount-1]!=null && ds.Tables[tableCount-1].Rows.Count>0)
+                    if (ds.Tables[tableCount - 1] != null && ds.Tables[tableCount - 1].Rows.Count > 0)
                     {
                         Info.IsStaffReviewIncome = Convert.ToBoolean(ds.Tables[tableCount - 1].Rows[0]["IsReviewIncome"]);
                     }
@@ -1026,7 +1026,7 @@ namespace FingerprintsData
         }
         public string addParentInfo(ref FamilyHousehold obj, int mode, Guid ID, List<FamilyHousehold.Parentphone1> ParentPhoneNos,
            List<FamilyHousehold.Parentphone2> ParentPhoneNos1, List<FamilyHousehold.calculateincome> Income, List<FamilyHousehold.calculateincome1> Income1,
-            List<FamilyHousehold.ImmunizationRecord> Imminization, List<FamilyHousehold.phone> PhoneNos, Screening _screen, string Roleid, FormCollection collection, HttpFileCollectionBase Files,bool isIncome=false)
+            List<FamilyHousehold.ImmunizationRecord> Imminization, List<FamilyHousehold.phone> PhoneNos, Screening _screen, string Roleid, FormCollection collection, HttpFileCollectionBase Files, bool isIncome = false)
         {
 
             //string pol = obj.PPolicyCouncil;
@@ -2117,7 +2117,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
                 command.Parameters.Add(new SqlParameter("@mode", mode));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
-                command.Parameters.Add(new SqlParameter("@IsFutureIntake", (obj.IsFutureApplication)?"1":"0"));
+                command.Parameters.Add(new SqlParameter("@IsFutureIntake", (obj.IsFutureApplication) ? "1" : "0"));
                 command.Parameters.Add(new SqlParameter("@IsIncomeEntry", isIncome));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
@@ -2956,7 +2956,7 @@ namespace FingerprintsData
 
             }
         }
-        public List<FamilyHousehold> getHouseholdList(out string totalrecord, out string IncompleteApplication, string sortOrder, string sortDirection, string search, string search1, int skip, int pageSize, string userid, int centerid, int option, int housholdid, bool Applicationstatus,int applicationByYear)
+        public List<FamilyHousehold> getHouseholdList(out string totalrecord, out string IncompleteApplication, string sortOrder, string sortDirection, string search, string search1, int skip, int pageSize, string userid, int centerid, int option, int housholdid, bool Applicationstatus, int applicationByYear)
         {
             List<FamilyHousehold> _householdlist = new List<FamilyHousehold>();
             try
@@ -3008,7 +3008,7 @@ namespace FingerprintsData
                         addhouseholdRow.CreatedOn = Convert.ToString(familydataTable.Rows[i]["DateEntered"]);
                         addhouseholdRow.Encrypthouseholid = EncryptDecrypt.Encrypt64(familydataTable.Rows[i]["HouseholdID"].ToString());
                         addhouseholdRow.ApplicationStatusChild = familydataTable.Rows[i]["ApplicationStatus"].ToString();
-                        addhouseholdRow.IsFutureApplication = familydataTable.Rows[i]["IsFutureIntake"].ToString()=="1"?true:false;
+                        addhouseholdRow.IsFutureApplication = familydataTable.Rows[i]["IsFutureIntake"].ToString() == "1" ? true : false;
                         _householdlist.Add(addhouseholdRow);
                     }
                     totalrecord = command.Parameters["@totalRecord"].Value.ToString();
@@ -4697,7 +4697,7 @@ namespace FingerprintsData
                         obj.Cfirstname = _dataset.Tables[0].Rows[0]["Firstname"].ToString();
                         obj.Cmiddlename = _dataset.Tables[0].Rows[0]["Middlename"].ToString();
                         obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
-                        obj.IsFutureApplication = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["IsFutureIntake"].ToString())?false:Convert.ToString(_dataset.Tables[0].Rows[0]["IsFutureIntake"])=="1"?true:false;
+                        obj.IsFutureApplication = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["IsFutureIntake"].ToString()) ? false : Convert.ToString(_dataset.Tables[0].Rows[0]["IsFutureIntake"]) == "1" ? true : false;
                         if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
                             obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
                         obj.DOBverifiedBy = _dataset.Tables[0].Rows[0]["Dobverifiedby"].ToString();
@@ -6206,7 +6206,7 @@ namespace FingerprintsData
             }
             return _racelist;
         }
-        public string AddClientAjax(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, string mode, bool Enrollpregnantmother, string Roleid,string futureIntake="")
+        public string AddClientAjax(string HouseholdId, string Street, string StreetName, string ZipCode, string City, string State, string County, string Pfirstname, string Plastname, string Cfirstname, string Clastname, string CDOB, string CGender, string userId, string AgencyId, string mode, bool Enrollpregnantmother, string Roleid, string futureIntake = "")
         {
             try
             {
@@ -7285,7 +7285,7 @@ namespace FingerprintsData
             }
 
         }
-        public List<FamilyHousehold> AutoCompletefamilyList(string term, string agencyid, string userid,string roleId,string active = "0")
+        public List<FamilyHousehold> AutoCompletefamilyList(string term, string agencyid, string userid, string roleId, string active = "0")
         {
             List<FamilyHousehold> _householdlist = new List<FamilyHousehold>();
             try
@@ -7308,7 +7308,7 @@ namespace FingerprintsData
                         command.Parameters.AddWithValue("@RoleID", roleId);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
-                        
+
                     }
                 }
                 if (ds.Tables[0].Rows.Count > 0)
@@ -7639,7 +7639,7 @@ namespace FingerprintsData
                     if (_dataset.Tables[0].Rows[1]["EnrollforPregnant"].ToString() != "")
                         obj.PregnantmotherenrolledP1 = Convert.ToBoolean(_dataset.Tables[0].Rows[1]["EnrollforPregnant"]);
 
-                    
+
 
 
                     if (_dataset.Tables[0].Rows[1]["motherinsurance"].ToString() != "")
@@ -8107,7 +8107,7 @@ namespace FingerprintsData
             }
             catch
             {
-                centerid =Convert.ToInt32( EncryptDecrypt.Decrypt64(CenterId));
+                centerid = Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
             }
             List<ClientWaitingList> ClientList = new List<ClientWaitingList>();
             List<UserInfo> _userlist = new List<UserInfo>();
@@ -8149,7 +8149,7 @@ namespace FingerprintsData
                             ClientList.Add(info);
                         }
                     }
-                    if (_dataset.Tables[1].Rows.Count > 0  && ClientList.Count>0)
+                    if (_dataset.Tables[1].Rows.Count > 0 && ClientList.Count > 0)
                     {
                         UserInfo obj = null;
                         foreach (DataRow dr in _dataset.Tables[1].Rows)
@@ -8238,7 +8238,7 @@ namespace FingerprintsData
                             info.ProgramType = dr["programtype"].ToString();
                             info.SelectionPoints = dr["Selectionpoint"].ToString();
                             info.Notes = dr["notes"].ToString();
-                            info.IsReviewed= dr["IsReviewed"].ToString();
+                            info.IsReviewed = dr["IsReviewed"].ToString();
                             ClientList.Add(info);
                         }
                     }
@@ -8295,14 +8295,14 @@ namespace FingerprintsData
 
         }
 
-        public List<UserInfo> GetFSWListByClient(string clientid,string CenterId,  string AgencyId,int type)
+        public List<UserInfo> GetFSWListByClient(string clientid, string CenterId, string AgencyId, int type)
         {
             List<UserInfo> FSWList = new List<UserInfo>();
-           
+
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
-                command.Parameters.Add(new SqlParameter("@CenterId",  CenterId));
+                command.Parameters.Add(new SqlParameter("@CenterId", CenterId));
                 command.Parameters.Add(new SqlParameter("@clientid", clientid));
                 command.Parameters.Add(new SqlParameter("@Type", type));
                 command.Connection = Connection;
@@ -8312,7 +8312,7 @@ namespace FingerprintsData
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
 
-             
+
                 if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
                     UserInfo obj = null;
@@ -8328,7 +8328,7 @@ namespace FingerprintsData
                 DataAdapter.Dispose();
                 command.Dispose();
             }
-                            
+
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
@@ -8480,7 +8480,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@ChildDis", ChildDis));
                 command.Parameters.Add(new SqlParameter("@ChildBMI", ChildBMI));
                 command.Parameters.Add(new SqlParameter("@ChildFood", ChildFood));
-             
+
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
                 command.ExecuteNonQuery();
@@ -8568,7 +8568,7 @@ namespace FingerprintsData
             }
             return "0";
         }
-        public void FamilySummary(FamilyHousehold FamilyObject, string id, string Agencyid, string userid,string RoleId)
+        public void FamilySummary(FamilyHousehold FamilyObject, string id, string Agencyid, string userid, string RoleId)
         {
 
             try
@@ -8581,8 +8581,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@UserId", userid));
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));
-                command.Parameters.Add(new SqlParameter("@HasFamilyAdvocate", string.Empty));
-                command.Parameters["@HasFamilyAdvocate"].Direction = ParameterDirection.Output;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getfamilysummarry";
@@ -8590,7 +8588,6 @@ namespace FingerprintsData
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
-                FamilyObject.HasFamilyAdvocate = Convert.ToInt32(command.Parameters["@HasFamilyAdvocate"].Value);
                 Connection.Close();
                 FamilySummaryinfo(FamilyObject, _dataset);
 
@@ -8843,7 +8840,10 @@ namespace FingerprintsData
                 obj.staffList = new List<AgencyStaff>();
                 if (_dataset.Tables[11] != null && _dataset.Tables[11].Rows.Count > 0)
                 {
-                    if (obj.HasFamilyAdvocate == 0)
+
+                    obj.FamilyAdovateList = new List<SelectListItem>();
+                    obj.staffList = new List<AgencyStaff>();
+                    if (_dataset.Tables[11].Columns.Contains("familyadvocate"))
                     {
                         obj.FamilyAdovateList = (from DataRow dr in _dataset.Tables[11].Rows
                                                  select new SelectListItem
@@ -8854,7 +8854,7 @@ namespace FingerprintsData
                                                  }
                                    ).ToList();
                     }
-                    else
+                    else if (_dataset.Tables[11].Columns.Contains("FSWName"))
                     {
                         obj.staffList = _dataset.Tables[11].AsEnumerable().Select(x => new AgencyStaff
                         {
@@ -9623,7 +9623,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@PGender", obj.PGender));
                 command.Parameters.Add(new SqlParameter("@PMilitaryStatus", obj.PMilitaryStatus));
                 command.Parameters.Add(new SqlParameter("@PCurrentlyWorking", obj.PCurrentlyWorking));
-               // command.Parameters.Add(new SqlParameter("@PPolicyCouncil", obj.PPolicyCouncil));
+                // command.Parameters.Add(new SqlParameter("@PPolicyCouncil", obj.PPolicyCouncil));
                 command.Parameters.Add(new SqlParameter("@PEnrollment", obj.PEnrollment));
                 command.Parameters.Add(new SqlParameter("@PDegreeEarned", obj.PDegreeEarned));
                 command.Parameters.Add(new SqlParameter("@PGuardiannotes", obj.PGuardiannotes));
@@ -11656,9 +11656,9 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@OGender", obj.OGender);
                 command.Parameters.AddWithValue("@ODOB", obj.ODOB);
                 command.Parameters.AddWithValue("@OthersId", obj.OthersId);
-                  command.Parameters.Add(new SqlParameter("@FileName", obj.HouseHoldFileName));
-                 command.Parameters.Add(new SqlParameter("@FileExtension", obj.HouseHoldFileExtension));
-                  command.Parameters.Add(new SqlParameter("@FileInBytes", obj.HouseHoldImageByte));
+                command.Parameters.Add(new SqlParameter("@FileName", obj.HouseHoldFileName));
+                command.Parameters.Add(new SqlParameter("@FileExtension", obj.HouseHoldFileExtension));
+                command.Parameters.Add(new SqlParameter("@FileInBytes", obj.HouseHoldImageByte));
                 // command.Parameters.AddWithValue("@Isemergency", IsEmer);
                 if (obj.IsEmergency != null)
                     command.Parameters.Add(new SqlParameter("@Isemergency", obj.IsEmergency));
@@ -13844,8 +13844,8 @@ namespace FingerprintsData
                 if (ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
 
-                    per.AfricanLang =(DBNull.Value==ds.Tables[0].Rows[0]["AfricanLanguages"])?0: Convert.ToInt32(ds.Tables[0].Rows[0]["AfricanLanguages"]);
-                    per.AttendanceIssue = (DBNull.Value == ds.Tables[0].Rows[0]["ClientAttendanceIssue"])?0:Convert.ToInt32(ds.Tables[0].Rows[0]["ClientAttendanceIssue"]);
+                    per.AfricanLang = (DBNull.Value == ds.Tables[0].Rows[0]["AfricanLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["AfricanLanguages"]);
+                    per.AttendanceIssue = (DBNull.Value == ds.Tables[0].Rows[0]["ClientAttendanceIssue"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["ClientAttendanceIssue"]);
                     per.AttendIssuePercent = (DBNull.Value == ds.Tables[0].Rows[0]["AttendIssuePercent"]) ? 0 : Convert.ToDecimal(ds.Tables[0].Rows[0]["AttendIssuePercent"]);
                     per.CaribbeanLang = (DBNull.Value == ds.Tables[0].Rows[0]["CaribbeanLanguages"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["CaribbeanLanguages"]);
                     per.ClientDental = (DBNull.Value == ds.Tables[0].Rows[0]["ClientDental"]) ? 0 : Convert.ToInt32(ds.Tables[0].Rows[0]["ClientDental"]);
@@ -13886,23 +13886,23 @@ namespace FingerprintsData
                         switch (dr["racename"].ToString())
                         {
                             case "American Indian or Alaska Native":
-                                per.AmericanIndian =  Convert.ToInt32(dr["racecount"]);
+                                per.AmericanIndian = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Asian":
-                                per.Asian =  Convert.ToInt32(dr["racecount"]);
+                                per.Asian = Convert.ToInt32(dr["racecount"]);
                                 break;
 
                             case "Biracial/Multi-racial":
-                                per.BiracialOrMulti =  Convert.ToInt32(dr["racecount"]);
+                                per.BiracialOrMulti = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Black or African American":
-                                per.BlackOrAfrican =  Convert.ToInt32(dr["racecount"]);
+                                per.BlackOrAfrican = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Native Hawaiian or other Pacific Islander":
                                 per.NativeHawaiian = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Other":
-                                per.Other =  Convert.ToInt32(dr["racecount"]);
+                                per.Other = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "White":
                                 per.White = Convert.ToInt32(dr["racecount"]);
@@ -13921,26 +13921,26 @@ namespace FingerprintsData
                         switch (dr["racename"].ToString())
                         {
                             case "American Indian or Alaska Native":
-                                per.StaffAmericanIndian =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffAmericanIndian = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Asian":
-                                per.StaffAsian =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffAsian = Convert.ToInt32(dr["racecount"]);
                                 break;
 
                             case "Biracial/Multi-racial":
-                                per.StaffBiracialOrMulti =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffBiracialOrMulti = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Black or African American":
-                                per.StaffBlackOrAfrican =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffBlackOrAfrican = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Native Hawaiian or other Pacific Islander":
-                                per.StaffNativeHawaiian =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffNativeHawaiian = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "Other":
-                                per.StaffOther =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffOther = Convert.ToInt32(dr["racecount"]);
                                 break;
                             case "White":
-                                per.StaffWhite =  Convert.ToInt32(dr["racecount"]);
+                                per.StaffWhite = Convert.ToInt32(dr["racecount"]);
                                 break;
 
                         }
@@ -14127,7 +14127,7 @@ namespace FingerprintsData
         }
 
 
-        public Agency.ProgramType GetProgramByProgramID(long programID,int mode=0)
+        public Agency.ProgramType GetProgramByProgramID(long programID, int mode = 0)
         {
             Agency.ProgramType program = new Agency.ProgramType();
             try
@@ -14149,11 +14149,11 @@ namespace FingerprintsData
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
 
-                if(_dataset!=null)
+                if (_dataset != null)
                 {
-                    if(_dataset.Tables[0].Rows.Count>0)
+                    if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        foreach(DataRow dr in _dataset.Tables[0].Rows)
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
                             program.ProgramID = Convert.ToInt32(dr["programTypeID"]);
                             program.ProgramTypes = dr["ProgramType"].ToString();
@@ -14165,12 +14165,12 @@ namespace FingerprintsData
                             program.FutureProgramYear = dr["NextProgramYear"].ToString();
                         }
                     }
-            
+
                 }
-                
+
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -14181,12 +14181,12 @@ namespace FingerprintsData
             FamilyHousehold family = new FamilyHousehold();
             try
             {
-               
+
                 Agency.ProgramType progType = new Agency.ProgramType();
 
-                progType= this.GetProgramByProgramID(0, 1);
+                progType = this.GetProgramByProgramID(0, 1);
 
-                if(progType.AllowFutureApplication && progType.AllowCurrentApplication)
+                if (progType.AllowFutureApplication && progType.AllowCurrentApplication)
                 {
                     family.AllowFutureApplication = true;
                     family.FutureProgramYear = progType.FutureProgramYear;
@@ -14202,7 +14202,7 @@ namespace FingerprintsData
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -14338,10 +14338,10 @@ namespace FingerprintsData
             }
             return householdDetails;
         }
-        public List<ClassRoom> GetClassRoomWithSeats(long centerId,List<ClassRoom>clasroom)
+        public List<ClassRoom> GetClassRoomWithSeats(long centerId, List<ClassRoom> clasroom)
         {
 
-          
+
             try
             {
                 StaffDetails staff = StaffDetails.GetInstance();
@@ -14410,7 +14410,7 @@ namespace FingerprintsData
                     Connection.Close();
 
 
-                using (Connection=connection.returnConnection())
+                using (Connection = connection.returnConnection())
                 {
                     command.Connection = Connection;
                     command.Parameters.Clear();
@@ -14430,7 +14430,7 @@ namespace FingerprintsData
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -14478,7 +14478,7 @@ namespace FingerprintsData
             }
             return isResult;
         }
-      
+
 
         public WithdrawalQuestions GetAnswerForPIRQuestions(out List<Tuple<int, string, int>> tuples, string ClientId, string QuestionNumber, bool ispregmon, long programID)
         {
@@ -14507,7 +14507,7 @@ namespace FingerprintsData
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_GetAnswerForWithdrawQuestion";
                     Connection.Open();
-                    
+
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
@@ -14757,7 +14757,7 @@ namespace FingerprintsData
             }
             return isResult;
         }
- public AgencyStaff SaveFamilyAdvocate(string HouseholdId, string FamilyAdvocateID)
+        public AgencyStaff SaveFamilyAdvocate(string HouseholdId, string FamilyAdvocateID)
         {
             AgencyStaff familystaff = new AgencyStaff();
             try
