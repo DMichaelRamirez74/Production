@@ -1155,7 +1155,7 @@ namespace FingerprintsData
                     if (_dataset.Tables[5].Rows[0]["RecievedDentalTreatment"].ToString() != "")
                         obj.HsChildRecievedDentalTreatment = Convert.ToString(_dataset.Tables[5].Rows[0]["RecievedDentalTreatment"]);
                     if (_dataset.Tables[5].Rows[0]["ChildEverHadProfExam"].ToString() != "")
-                        obj.ChildProfessionalDentalExam = _dataset.Tables[0].Rows[0]["ChildEverHadProfExam"].ToString();
+                        obj.ChildProfessionalDentalExam = _dataset.Tables[5].Rows[0]["ChildEverHadProfExam"].ToString();
 
                     //HS Nutrition Questions
                     obj.RestrictFood = _dataset.Tables[5].Rows[0]["ChildRestrictFood"].ToString();
