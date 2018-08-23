@@ -49,11 +49,11 @@
                 $('.selAssignHV').val('');
                 $('#Acceptancediv').hide();
                 multipleArr = [];
-               
+
             });
 
             $("#ModalWaitingList").on("hidden.bs.modal", function () {
-             
+
                 $('#dvClientName').html("");
 
                 $('.AssignFSW').hide();
@@ -322,28 +322,37 @@
             }
         }
         function ShowHealthstaff() {
-          //  _Object = Aobject;
+            //  _Object = Aobject;
             var clientname = $(_Object).closest("tr").find("td:eq(0)").text();
-            debugger;
-            if ($('#ModalWaitingListAll').is(':visible') && $('#ModalWaitingListAll').find('.selAssignFSW').val() == "0")
-            {
+
+            if ($('#ModalWaitingListAll').is(':visible') && ($('#ModalWaitingListAll').find('.selAssignFSW').val() == "0"|| $('#ModalWaitingListAll').find('.selAssignHV').val()=="0")) {
                 customAlert("Please select family advocate");
                 return false;
             }
-           else if ($('#ModalWaitingList').is(':visible') && $('#ModalWaitingList').find('.selAssignFSW').val() == "0") {
+            else if ($('#ModalWaitingList').is(':visible') && ($('#ModalWaitingList').find('.selAssignFSW').val() == "0" || $('#ModalWaitingList').find('.selAssignHV').val() == "0")) {
                 customAlert("Please select family advocate");
                 return false;
             }
+
             else {
                 BootstrapDialog.confirm('Click OK to move ' + clientname + ' to acceptance process', function (result) {
                     if (result) {
+                        debugger;
+                        var familyAdvocateId;
+                        if ($('.DivForHV').is(':visible') ) {
+                            familyAdvocateId = $('.selAssignHV :selected').val();
+                        }
+                        else
+                        {
+                            familyAdvocateId = $('.selAssignFSW :selected').val();
+                        }
 
                         $.ajax({
                             url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
                             type: "POST",
                             data: {
                                 Clientid: $(_Object).attr("clientid"),
-                                UserFSWId: $('.selAssignFSW :selected').val(),
+                                UserFSWId: familyAdvocateId,
                                 householdid: $(_Object).attr("householdid"),
                                 centerid: $(_Object).attr("centerid"),
                                 Programid: $(_Object).attr("programid"),
@@ -389,7 +398,7 @@
                 $('#Acceptancediv').focus();
             }
 
-        
+
         }
 
         function GetUserList() {
@@ -478,26 +487,26 @@
                 }
             });
 
-            var i = -1, j = 0;          
+            var i = -1, j = 0;
             for (var a = 0 ; a < householdids.length; a++)
             {
-                var cls = '.household' + householdids[a];               
+                var cls = '.household' + householdids[a];
                 $(cls).each(function () {
                     var comp = $(this).val();
                     j = 0;
                     $(cls).each(function () {
-                      
+
                         if ($(this).val() != comp && i >= j) {
                             //customAlert("One household can have one family advocate.");
                           //  planValidation(cls);
-                            isValid = false;                          
+                            isValid = false;
                         }
                         j++;
                     });
                     i++;
                 });
             }
-          
+
             if (count == 0) {
                 isValid = false;
                 customAlert("Please select client.");
@@ -514,7 +523,7 @@
                customAlert("One household can have one family advocate.");
                return isValid;
            }
-         
+
             else {
                 if (_Object != null && _centerid != null) {
 
@@ -530,7 +539,7 @@
                                 data: {
                                     // Clientid: $(_Object).attr("clientid"),
                                     ClientList: clientarray,
-                                  
+
                                     Usernurseid: $('#ddlnurse').val(),
                                     householdid: $(_Object).attr("householdid"),
                                     centerid: $(_Object).attr("CenterID"),
@@ -587,7 +596,7 @@
             $('#Acceptancediv').hide();
             $('#dvClientName').html("");
             $('.chckClient').prop('checked', false);
-            
+
             multipleArr = [];
         }
         function loadclientPendinglist(Object, Centerid) {
@@ -1133,8 +1142,8 @@
                 if (check == hid && multipleArr[a].split(',')[1] != "")
                 {
                     BootstrapDialog.confirm('You are trying to change the advocate for this family. Please click OK to confirm', function (result) {
-                        if (!result) {                           
-                            $('.household'+hid).val(multipleArr[a].split(',')[1]);                          
+                        if (!result) {
+                            $('.household'+hid).val(multipleArr[a].split(',')[1]);
                         }
                         else
                         {
@@ -1143,10 +1152,10 @@
                     });
                     break;
                 }
-             
-                
+
+
             }
-         
+
         }
         var CenterType = 0;
         var advocate = "";
@@ -1236,7 +1245,7 @@
             advocate = "";
             CenterType = $(arg).attr("IsHomeBased") === 'true' ? 2 : 1;
 
-   
+
             $('.AssignFSW').hide();
             $('.DivHide').hide();
             $.ajax({
@@ -1253,7 +1262,7 @@
                 success: function (data) {
                     console.log(data);
                     if (data != null && data.length > 0) {
-                       
+
                         var option = '<select class="form-control households household' + $(arg).attr("householdid") + '" householdid="' + $(arg).attr("householdid") + '" onchange="AskForAlert1(this)" > ';
                         if (CenterType == 1)
                             option = option + '<option  value="0">Select FSW</option>';
@@ -1267,24 +1276,24 @@
                         }
                           option = option + '</select> ';
 
-                        
-                          
+
+
                           $('#dvClientName').append('<div class="listmulti-client divMultiClient' + $(_Object).attr("clientid") + '"><span style="margin-bottom:0px;"  id=' + $(_Object).attr("clientid") + ' class="SpnSelectedClient">' + $(arg).attr("name") + '</span>' + option + '</div>');
                             if (index == -1)
                             {
                                 $('.household' + $(arg).attr("householdid")).val('0');
                                 multipleArr.push($(arg).attr("householdid") + ',' +'');
                             }
-                              
+
                             else {
                                 multipleArr.push($(arg).attr("householdid") + ',' + data[index].userId);
                                 $('.household' + $(arg).attr("householdid")).val(data[index].userId);
                             }
-               
+
 
                     }
                     else {
-                      
+
                     }
                 }
     , error: function (data) {
@@ -1294,7 +1303,7 @@
         }
 
         //end
-     
+
         function showdiv(Aobject, BMIStatus, Disability) {
             // alert($(Aobject).attr('transport'));
             _Object = Aobject;
@@ -1757,7 +1766,7 @@
             _Nurse1 = 0;
             _option1 = 0;
             $('#CenterNameAll').text('All waiting for ' + $(Object).closest("tr").find("td:first a").text());
-          
+
             $('#ddlProgramtypeAll').val('');
             $('#ddlnurseAll').val('');
             $.ajax({
@@ -1892,7 +1901,7 @@
         }
 
         function GetUserListAll() {
-         
+
             if (_centerid != null) {
                 $.ajax({
                     url: HostedDir + "/Home/GetclientWaitingList",
@@ -1916,7 +1925,7 @@
             }
         }
         function ClearUserListAll() {
-         
+
             $('#ddlProgramtypeAll').val('');
             if (_centerid != null) {
                 $.ajax({
@@ -2000,7 +2009,7 @@
             });
         }
         function CancelWaitingAll() {
-      
+
         }
         function SaveWaitingall() {
             cleanValidation();
@@ -2031,7 +2040,7 @@
                                 success: function (response) {
                                     if (response == 1) {
                                         customAlert("Record saved successfully.");
-                                     
+
                                         $('#ddlnurseAll').val('');
                                         $(_Object).closest('tr').remove();
                                         if ($('#DivWaitingListAllPopup > tbody tr').length < 1) {
@@ -2730,43 +2739,50 @@
         #gridViewAgency > thead > tr > th {
             white-space: nowrap;
         }
-        .listmulti-client {
-    width:  100%;
-    float:  left;
-}
-        div#dvClientName h4 {
-    color: #295b8f;
-}
-        .edulist_centeryur {
-        border: 1px solid #285b90;
-    margin-bottom: 15px;
-    padding-top: 5px;
-        }
-        .edulist_centeryur .form-group label:first-child {
-    text-align: right;
-    padding-right: 20px;
-}
-        .edulist_centeryur .DivHide select {
-            width: 30% !important;
-        }
-        .edulist_centeryur .DivHide label {
-    text-align: right !important;
-    padding-right: 16px !important;
-}
-.listmulti-client span {
-    padding:  17px;
-    color: #295b8f;
-    background:  transparent;
-    text-transform:  capitalize;
-    font-weight:  600;
-    width:  25%;
-    float:  left;
-}
 
-.listmulti-client select {
-    width: 40%;
-    float:  left;
-}
+        .listmulti-client {
+            width: 100%;
+            float: left;
+        }
+
+        div#dvClientName h4 {
+            color: #295b8f;
+        }
+
+        .edulist_centeryur {
+            border: 1px solid #285b90;
+            margin-bottom: 15px;
+            padding-top: 5px;
+        }
+
+            .edulist_centeryur .form-group label:first-child {
+                text-align: right;
+                padding-right: 20px;
+            }
+
+            .edulist_centeryur .DivHide select {
+                width: 30% !important;
+            }
+
+            .edulist_centeryur .DivHide label {
+                text-align: right !important;
+                padding-right: 16px !important;
+            }
+
+        .listmulti-client span {
+            padding: 17px;
+            color: #295b8f;
+            background: transparent;
+            text-transform: capitalize;
+            font-weight: 600;
+            width: 25%;
+            float: left;
+        }
+
+        .listmulti-client select {
+            width: 40%;
+            float: left;
+        }
     </style>
 
     <div class="row">
@@ -3085,11 +3101,11 @@
                                                 <div class="col-sm-12" style="border: 1px solid #295b8f;margin-bottom: 10px;padding: 10px;">
                                                     <h4 style="color:#285b90;">Assign Family Advocate For Clients</h4>
                                                     <div id="dvClientName" style="width:82%" class="col-sm-5">
-                                                       
+
                                                     </div>
                                                 </div>
-                                          
-                                              
+
+
                                             </fieldset>
                                         </div>
                                         <div class="col-xs-12" style="text-align:center">
@@ -3557,7 +3573,7 @@
                                         <div class="col-sm-12">
                                             <div class="col-sm-12 edulist_centeryur divposition">
                                                 <div class="form-group">
-                                                    <label for="email" style="font-weight:600" >Client :</label>
+                                                    <label for="email" style="font-weight:600">Client :</label>
                                                     <label for="email" style="text-align:left;font-weight:600" class="lblClientName">ClientName <sup>*</sup></label>
                                                 </div>
                                                 <div class="form-group DivHide DivForFSW">
@@ -3575,37 +3591,37 @@
                                             <button type="button" class="my-btn" onclick="CancelWaiting();">Cancel</button>
                                         </div>
                                     </div>
-                                        @*<div class="col-sm-12" id="Acceptancedivall" style="display: none;">
-                <div class="col-sm-12">
-                    <fieldset style="border: 1px solid #295b8f;">
-                        <legend class="legend1"></legend>
-                        <div class="col-sm-9">
-                            <div class="col-sm-2">
-                                <label style="width: 100%;">Client Name</label>
-                            </div>
-                            <div class="col-sm-5">
-                                <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
-                            </div>
-                        </div>
-                        @*<div class="col-sm-9">
-                            <div class="col-sm-2">
-                                <label style="width: 100%;">Assign To <sup>*</sup></label>
-                            </div>
-                            <div class="col-sm-5">
-                                <select id="ddlnurseAll" style="width: 100%;" class="form-control"></select>
-                            </div>
-                            <div class="col-sm-2">
-                                <button type="button" class="my-btn" style="background: #4caf50!important;" onclick="return SaveWaitingall();">Save</button>
-                            </div>
-                            <div class="col-sm-2">
-                                <button type="button" class="my-btn" onclick="CancelWaitingAll();">Cancel</button>
-                            </div>
-                        </div>
+                                    @*<div class="col-sm-12" id="Acceptancedivall" style="display: none;">
+                                            <div class="col-sm-12">
+                                                <fieldset style="border: 1px solid #295b8f;">
+                                                    <legend class="legend1"></legend>
+                                                    <div class="col-sm-9">
+                                                        <div class="col-sm-2">
+                                                            <label style="width: 100%;">Client Name</label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <label style="width: 100%; font-size: 15px; color: #337ab7;" id="ClientNameAll"></label>
+                                                        </div>
+                                                    </div>
+                                                    @*<div class="col-sm-9">
+                                                        <div class="col-sm-2">
+                                                            <label style="width: 100%;">Assign To <sup>*</sup></label>
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <select id="ddlnurseAll" style="width: 100%;" class="form-control"></select>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <button type="button" class="my-btn" style="background: #4caf50!important;" onclick="return SaveWaitingall();">Save</button>
+                                                        </div>
+                                                        <div class="col-sm-2">
+                                                            <button type="button" class="my-btn" onclick="CancelWaitingAll();">Cancel</button>
+                                                        </div>
+                                                    </div>
 
-                    </fieldset>
-                </div>
-            </div>*@
-                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>*@
+                                </div>
                             </div>
                         </div>
                     </div>
