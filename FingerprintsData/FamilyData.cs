@@ -6899,6 +6899,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@Programid", Programid));
+                if (UserFSWId == "0")
+                    UserFSWId = userid;
                 command.Parameters.Add(new SqlParameter("@AssignedFSW", UserFSWId));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
