@@ -25,6 +25,11 @@
 
 @section MainContentHolder{
     <style>
+
+        .grn-color
+        {
+            color:green!important;
+        }
         #caseNoteNotes p {
             max-height: 200px;
             overflow: auto;
@@ -246,6 +251,42 @@
             width: 5 60%;
         }
 
+            #EventCancelledInfo {
+            /*background: rgba(0,0,0,0.6);*/
+            background:rgba(0, 0, 0, 0);
+        }
+
+            #EventCancelledInfo .modal-body {
+                background: #34495e none repeat scroll 0 0;
+                border: 6px solid #ffffff;
+                border-radius: 3px;
+                /* color: #ffffff; */
+                float: left;
+                padding: 15px 3%;
+                position: relative;
+                width: 100%;
+            }
+
+            #EventCancelledInfo .close {
+                opacity: 1;
+                position: absolute;
+                right: -14px;
+                top: -15px;
+            }
+
+            #EventCancelledInfo .modal-body > h2 {
+                margin-top: 0px;
+                float: left;
+                font-size: 24px;
+                font-weight: 600;
+                text-align: center;
+                width: 100%;
+                margin-bottom: 10px;
+                color: #fff;
+            }
+
+            /*end*/
+
         #Casenotedevelopement {
             /*background: rgba(0,0,0,0.6);*/
             background:rgba(0, 0, 0, 0);
@@ -457,16 +498,16 @@ YakkrExcludeFromFacility.Add(282);
 
                             <tbody>
                                 @if (Model.Count() > 0)
-                                            {
-        foreach (FingerprintsModel.YakkrClientDetail detail in Model)
-        {
-            if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
-            {
-                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                {
+                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                    {
+                                        if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
+                                        {
+                                            <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }"><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>}    href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
                                         }
                                         else if (ViewBag.YakkrCode == "100")
                                         {
-                                            <tr><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                            <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }"><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a  @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>}        href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
                                         }
                                         else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
                                         {
@@ -1932,8 +1973,7 @@ YakkrExcludeFromFacility.Add(282);
                             var caseNoteModal = $('#Casenotedevelopement');
                             var attachmentDiv = '';
                             if (data != null) {
-                                if ($('.yakkr-code').text().trim() == "292")
-                                {
+                                if ($('.yakkr-code').text().trim() == "292") {
                                     $('#CaseNoteHeading').text("Internal Referral Details");
                                     caseNoteModal.find('#caseNoteReferredBy').html(data.ReferredBy);
                                     caseNoteModal.find('#caseNoteCenter').html(data.CenterName);

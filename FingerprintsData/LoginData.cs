@@ -418,56 +418,7 @@ namespace FingerprintsData
             return AccessList;
         }
 
-        public bool IsAcceptance(Guid userId, Guid? AgencyId, Guid RoleId)
-        {
-            bool isRowAffected = false;
-           
-            try
-            {
-                if (Connection.State == ConnectionState.Open)
-                {
-                    Connection.Close();
-                }
-
-                Connection.Open();
-                Command.Connection = Connection;
-                Command.CommandType = CommandType.StoredProcedure;
-                Command.Parameters.Clear();
-                Command.Parameters.Add(new SqlParameter("@AgencyId", (AgencyId)));
-                Command.Parameters.Add(new SqlParameter("@UserId", (userId)));
-                Command.Parameters.Add(new SqlParameter("@RoleId", (RoleId)));
-               
-                Command.CommandText = "USP_CheckAcceptanceProcess";
-                var obj = Command.ExecuteScalar();
-               
-                if (string.IsNullOrEmpty(obj.ToString()))
-                {
-                    isRowAffected = false;
-                }
-                else
-                {
-
-                    if (Convert.ToBoolean(obj))
-                    {
-                        isRowAffected = true;
-                    }
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-                //  return ex.Message;
-            }
-            finally
-            {
-                Connection.Close();
-                Command.Dispose();
-                Command.Dispose();
-            }
-            return isRowAffected;
-        }
+   
 
         //Changes on 4jan2017
         public string CheckPassword(string Email, string Password)

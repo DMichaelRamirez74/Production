@@ -6899,8 +6899,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
                 command.Parameters.Add(new SqlParameter("@Programid", Programid));
-                if (UserFSWId == "0")
-                    UserFSWId = userid;
                 command.Parameters.Add(new SqlParameter("@AssignedFSW", UserFSWId));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
@@ -7347,7 +7345,7 @@ namespace FingerprintsData
             return _householdlist;
         }
 
-        public List<string> AutoCompleteWithdrawnList(string term, string agencyid, string userid, string trans = "0")
+        public List<string> AutoCompleteWithdrawnList(string term, string agencyid, string userid, string trans = "0",string programYear="")
         {
             List<string> NameList = new List<string>();
             try
@@ -7366,6 +7364,7 @@ namespace FingerprintsData
                         command.Parameters.AddWithValue("@trans", trans);
                         command.Parameters.AddWithValue("@agencyid", agencyid);
                         command.Parameters.AddWithValue("@userid", userid);
+                        command.Parameters.AddWithValue("@ProgramYear", programYear);
                         SqlDataAdapter da = new SqlDataAdapter(command);
                         da.Fill(ds);
                     }
@@ -8100,7 +8099,7 @@ namespace FingerprintsData
                 command.Dispose();
             }
         }
-        public List<ClientWaitingList> GetclientWaitingList(string CenterId, string Option, string ProgramType, string AgencyId, string UserId)
+        public List<ClientWaitingList> GetclientWaitingList(ref Dictionary<string, Int32> dictionarySlots, string CenterId, string Option, string ProgramType, string AgencyId, string UserId)
         {
             int centerid = 0;
             try
@@ -8150,6 +8149,8 @@ namespace FingerprintsData
                             info.TotalChoice = dr["SumChoice"].ToString();
                             ClientList.Add(info);
                         }
+
+                        ClientList = ClientList.OrderByDescending(x => Convert.ToInt32(x.SelectionPoints)).ToList();
                     }
                     if (_dataset.Tables[1].Rows.Count > 0 && ClientList.Count > 0)
                     {
@@ -8186,6 +8187,31 @@ namespace FingerprintsData
 
                         }
                     }
+
+                    if (Option == "4" && _dataset.Tables.Count>2 && _dataset.Tables[3].Rows.Count>0)
+                    {
+
+
+                        dictionarySlots.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[3].Rows[0]["SlotPurchased"]));
+
+
+                        dictionarySlots.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[3].Rows[0]["ClientsReturningAgency"]));
+
+
+                        dictionarySlots.Add("ClientsReturningCenter", Convert.ToInt32(_dataset.Tables[3].Rows[0]["ClientsReturningCenter"]));
+
+
+                        dictionarySlots.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[3].Rows[0]["AvailableSeats"]));
+
+
+                        dictionarySlots.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[3].Rows[0]["OpenSeats"]));
+
+
+
+                        
+
+                    }
+
                 }
                 DataAdapter.Dispose();
                 command.Dispose();
@@ -8863,7 +8889,7 @@ namespace FingerprintsData
 
                             Username = x.Field<string>("FSWName"),
                             CellNumber = string.IsNullOrEmpty(x.Field<string>("CellNumber")) ? "N/A" : x.Field<string>("CellNumber"),
-                            AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? "/Content/img/ic_female.png" : "/" + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
+                            AvatarUrl = string.IsNullOrEmpty(x.Field<string>("Avatar")) ? x.Field<string>("GenderText").ToLower()=="female"?"~/Images/female-adult.png" :"~/Images/adult-image.png": " / " + ConfigurationManager.AppSettings["Avtar"].ToString() + "/" + x.Field<string>("Avatar"),
                             Gender = x.Field<string>("GenderText"),
                             ServiceYears = x.Field<int>("ServiceYears").ToString()
 
@@ -14482,7 +14508,7 @@ namespace FingerprintsData
         }
 
 
-        public WithdrawalQuestions GetAnswerForPIRQuestions(out List<Tuple<int, string, int>> tuples, string ClientId, string QuestionNumber, bool ispregmon, long programID)
+        public WithdrawalQuestions GetAnswerForPIRQuestions(out List<Tuple<int, string, int>> tuples, string ClientId, string QuestionNumber, bool ispregmon, long programID,string programYear="")
         {
             string Result = "";
             tuples = new List<Tuple<int, string, int>>();
@@ -14505,7 +14531,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@Question", QuestionNumber));
                     command.Parameters.Add(new SqlParameter("@IsPreg", ispregmon));
                     command.Parameters.Add(new SqlParameter("@ProgramTypeID", programID));
-
+                    command.Parameters.Add(new SqlParameter("@ProgramYear", programYear));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_GetAnswerForWithdrawQuestion";
                     Connection.Open();
@@ -14744,6 +14770,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ParentID2", transition.ParentID2));
                     command.Parameters.Add(new SqlParameter("@SchoolAchievement2", transition.ShoolAchievement2));
                     command.Parameters.Add(new SqlParameter("@JobTrainingFinished2", transition.JobTrainingFinished2));
+                    command.Parameters.Add(new SqlParameter("@ProgramYear", transition.ProgramYear));
 
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "SP_UpdateWithdrawQuestion";
@@ -14810,5 +14837,99 @@ namespace FingerprintsData
             }
             return familystaff;
         }
+
+
+        public List<ClientWaitingList> GetAcceptedFutureClients(ref List<ClassRoom> classroomList,ref Dictionary<string,int> seatsCount, string centerid,string age)
+        {
+
+            List<ClientWaitingList> acceptedList = new List<ClientWaitingList>();
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@CenterID", centerid));
+                    command.Parameters.Add(new SqlParameter("@Age", age));
+                    command.Parameters.Add(new SqlParameter("IsEndOfYear", true));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetAcceptedFutureClients";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                    if(_dataset!=null && _dataset.Tables.Count>0)
+                    {
+
+                        if(_dataset.Tables[0]!=null && _dataset.Tables[0].Rows.Count>0)
+                        {
+                            acceptedList = (from DataRow dr0 in _dataset.Tables[0].Rows
+                                            select new ClientWaitingList
+                                            {
+                                                ClientId = EncryptDecrypt.Encrypt64(Convert.ToString(dr0["ClientID"])),
+                                                CenterId = Convert.ToString(dr0["CenterID"]),
+                                                DateOnList = Convert.ToString(dr0["DateOnList"]),
+                                                Age = Convert.ToString(dr0["Age"]).Replace(" Years", "Y").Replace(" Months", "M").Replace(" Days", "D"),
+                                                ProgramType = Convert.ToString(dr0["ProgramType"]),
+                                                Name = Convert.ToString(dr0["ClientName"]),
+                                                Gender = Convert.ToString(dr0["Gender"]),
+                                                SelectionPoints = Convert.ToString(dr0["SelectionPoint"]),
+                                                DOB = Convert.ToString(dr0["DOB"]),
+                                                ClassroomName = Convert.ToString(dr0["ClassroomName"]),
+                                                ClassroomConfirmed = Convert.ToBoolean(dr0["IsConfirmedClassroom"])
+                                            }).ToList();
+                        }
+
+                        if(_dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                        {
+                            classroomList = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                             select new ClassRoom
+                                             {
+                                                 ClassName = Convert.ToString(dr1["ClassroomName"]),
+                                                 Enc_ClassRoomId = EncryptDecrypt.Encrypt64(Convert.ToString(dr1["ClassroomID"])),
+                                                 ClassroomID = Convert.ToInt32(dr1["ClassroomID"])
+                                             }
+                                            ).ToList();
+                        }
+
+                        if(_dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
+                        {
+                            seatsCount.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[2].Rows[0]["SlotPurchased"]));
+                            seatsCount.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[2].Rows[0]["ClientsReturningAgency"]));
+                            seatsCount.Add("ClientsReturningCenter", Convert.ToInt32(_dataset.Tables[2].Rows[0]["ClientsReturningCenter"]));
+                            seatsCount.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[2].Rows[0]["AvailableSeats"]));
+                            seatsCount.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[2].Rows[0]["OpenSeats"]));
+                            seatsCount.Add("CenterID", Convert.ToInt32(_dataset.Tables[2].Rows[0]["CenterID"]));
+                        }
+
+                       
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return acceptedList;
+
+        }
+
     }
 }

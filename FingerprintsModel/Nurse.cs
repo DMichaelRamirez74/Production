@@ -14,6 +14,10 @@ namespace FingerprintsModel
         public bool IsAllowIncome { get; set; }
         public string IsFinalReviwer { get; set; }
         public FamilyHousehold FamilyHousehold = new FamilyHousehold();
+
+        public Dictionary<string,int> DictionarySlotsSeats { get; set; }
+
+        public List<FingerprintsModel.Center> CenterList { get; set; }
         public string CAge { get; set; }
         public int SingleParent { get; set; }
         public int TwoParent { get; set; }

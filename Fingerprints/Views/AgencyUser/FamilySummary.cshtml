@@ -49,16 +49,14 @@
         }
 
 
-        function CarouselOpen(arg1)
-        {
+        function CarouselOpen(arg1) {
             var arg = $(arg1).closest('tr');
             $(arg).addClass('active');
             var val = $(arg).next('tr');
             $('.taglist').prop('checked', false);
             $('#settab_edu').find('.active').removeClass('active');
             $(arg).next('.input_smtmarg').removeClass('active');
-            if($(arg).next('.input_smtmarg').hasClass('active'))
-            {
+            if ($(arg).next('.input_smtmarg').hasClass('active')) {
                 //if($(arg).find(".edu_next").is(":checked")==false)
                 //{
 
@@ -67,23 +65,19 @@
                 //}
 
             }
-            else
-            {
+            else {
                 $(arg).next('.input_smtmarg').addClass('active');
                 $(arg).next('.input_smtmarg').slideDown("slow");
             }
 
         }
 
-        function CheckAll(arg,value)
-        {
-        
-            if ($(arg).is(":checked"))
-            {
+        function CheckAll(arg, value) {
+
+            if ($(arg).is(":checked")) {
                 $('.tag' + value).prop('checked', true);
             }
-            else
-            {
+            else {
                 $('.tag' + value).prop('checked', false);
             }
         }
@@ -665,13 +659,23 @@
         function SaveFamilyAdvocate(arg) {
 
 
+            var faId = $(arg).parent('#divFamilyAdvSelec').find('#FamilyAdvocateId').val()
+
+            $('#FamilyAdvocateId').css({ 'background-color': '' });
+
+            if (faId == undefined || faId == null || faId == '' || faId == '0') {
+                plainValidation('#FamilyAdvocateId');
+                customAlert('Please select family advocate');
+                return false;
+            }
+
             $.ajax({
                 url: '/Roster/SaveFamilyAdvocate',
                 type: 'post',
                 datatype: 'json',
                 data: {
                     HouseholdID: $('#HouseholdId').val(),
-                    FamilyAdvocate: $('#FamilyAdvocateId').val()
+                    FamilyAdvocate: faId
                 },
                 success: function (response) {
                     location.reload();
@@ -686,15 +690,13 @@
 
         function LoadCasenoteDetails(arg) {
             $('.case-info').hide();
-           
-            if ($('#selHouseholdList').val() == "0")
-            {
+
+            if ($('#selHouseholdList').val() == "0") {
                 plainValidation('#selHouseholdList');
                 customAlert('Please select household member');
                 return false;
             }
-            else
-            {
+            else {
                 var householdid = $(arg).attr('householdid');
                 var clientid = $('#selHouseholdList').val();
                 $('#HouseholdId').val(householdid);
@@ -734,8 +736,8 @@
 
             $('.txt-role').val(data.Role);
             $('.addn-table-head').html("");
-            if (data.CaseNoteList != null && data.CaseNoteList.length > 0)
-            {
+         
+            if (data.CaseNoteList != null && data.CaseNoteList.length > 0) {
                 $((data.CaseNoteList)).each(function (i, val) {
 
                     var row = '<tr casenoteid="{casenoteid}">\
@@ -743,13 +745,26 @@
                                                         <div class="addn-content-desc" style="position: relative;">\
                                                             <p>{Date}</p>\
                                                         </div>\
-                                                    </td>\
-                                                    <td data-title="Title">\
+                                                    </td>';
+
+                    if (val.IsEditable == true) {
+
+
+                        row += '<td data-title="Title">\
                                                         <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
                                                            <p> <a style="text-decoration: underline;" href="#divCNDetails"  onclick="{function}({Id},this)">{Title}</a></p>\
                                                         </div>\
-                                                    </td>\
-                                                    <td data-title="By">\
+                                                    </td>';
+                    }
+                    else {
+
+                        row += '<td data-title="Title">\
+                                                        <div class="addn-content-desc" style="position: relative;">\
+                                                           <p>{Title}</p>\
+                                                        </div>\
+                                                    </td>';
+                    }
+                    row += ' <td data-title="By">\
                                                         <div class="addn-content-desc" style="position: relative;">\
                                                             <p>{BY}</p>\
                                                         </div>\
@@ -777,7 +792,7 @@
 
 
                     row = row.replace('{casenoteid}', val.CaseNoteid);
-                   var subnote1 = subnote.replace('{AppendId}', val.CaseNoteid);
+                    var subnote1 = subnote.replace('{AppendId}', val.CaseNoteid);
                     row = row.replace('{Date}', val.Date);
                     row = row.replace('{Id}', val.CaseNoteid);
                     if (val.IsAllowSecurityCN == true) {
@@ -802,16 +817,15 @@
                     $('.addn-table-head').append(row);
                 });
             }
-            else
-            {
+            else {
                 $('.addn-table-head').html("<tr><td colspan='6' style='padding:20px;'>No record found</td></tr>")
             }
-           
+
 
 
             $('.New_ClientDiv').empty();
             $('.New_StaffDiv').empty();
-           
+
             for (var i = 0; i < data.Clientlist.length; i++) {
                 var item = '<div class="col-sm-12"><input type="checkbox" name="ClientIds.IDS" value="' + data.Clientlist[i].Id + '"><span>' + data.Clientlist[i].Name + '</span></div>';
                 $('.New_ClientDiv').append(item);
@@ -820,7 +834,7 @@
             for (var i = 0; i < data.UserList.length; i++) {
                 var item = '<div class="col-sm-12"><input type="checkbox" name="TeamIds.IDS" value="' + data.UserList[i].Id + '"><span>' + data.UserList[i].Name + '</span></div>';
                 $('.New_StaffDiv').append(item);
-            }                    
+            }
             $('#New_CaseNotetags_tagsinput .tag ').each(function () {
                 $(this).remove();
             });
@@ -845,8 +859,7 @@
             TagNames += $('.SecurityRoles:checked').val();
 
             $('.taglist').each(function () {
-                if($(this).val()!='' && $(this).is(':checked'))
-                {
+                if ($(this).val() != '' && $(this).is(':checked')) {
                     var tg = $(this).val().replace("(Append Tag)", "").trim();
                     TagNames += "," + tg;
                 }
@@ -883,9 +896,9 @@
                     success: function (data) {
                         var option = '';
                         console.log(data);
-                      
+
                         BindTagValues(data);
-                       // $('#selTagList').empty();
+                        // $('#selTagList').empty();
                         //option = option + '<option value="0">Select Tag</option>';
 
                         //if (data != null) {
@@ -923,8 +936,7 @@
                 });
             }
         }
-        function BindTagValues(data)
-        {
+        function BindTagValues(data) {
 
             var appendRoles = '';
             for (var i = 0; i < data.length; i++) {
@@ -967,11 +979,10 @@
                 
                 start = start.replace('$arg$', i);
                 start = start.replace('$value1$', data[i].TagName);
-                start = start.replace('$selectall$', 'selectall'+i);
-                var appendAssociate='';
-                for(var j=0;j<data[i].AssociatedTags.length;j++)
-                {
-                    var ass=associate;
+                start = start.replace('$selectall$', 'selectall' + i);
+                var appendAssociate = '';
+                for (var j = 0; j < data[i].AssociatedTags.length; j++) {
+                    var ass = associate;
                     ass = ass.replace('$AssociateTags$', data[i].AssociatedTags[j].TagName);
                     ass = ass.replace('$value2$', data[i].AssociatedTags[j].TagName);
                     ass=ass.replace('$tag$','tag'+i)
@@ -1039,6 +1050,73 @@
             return isAllow;
         }
 
+
+
+        function CheckCaseNotedate(value) {
+            isValid = true;
+            if (!$(value).attr("readonly")) {
+
+                if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                    var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                    var regex = new RegExp(dateformat);
+                    if (!regex.test($(value).val())) {
+                        customAlert("Invalid date format. ");
+                        $(value).val('');
+                        return false;
+                    }
+                    else {
+                        var text = $(value).val();
+                        var comp = text.split('/');
+                        var m = parseInt(comp[0], 10);
+                        var d = parseInt(comp[1], 10);
+                        var y = parseInt(comp[2], 10);
+                        var date = new Date(y, m - 1, d);
+                        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d) {
+
+                        } else {
+                            customAlert("Invalid date. ");
+                            $(value).val('');
+                            return false;
+                        }
+
+
+
+                    }
+                }
+                var txtdate = $(value).val();
+                var selectedTimestampequal = new Date();
+                var year = selectedTimestampequal.getFullYear();
+                var month = selectedTimestampequal.getMonth() + 1;
+                var day = selectedTimestampequal.getDate();
+                today1 = month + '/' + day + '/' + year;
+                var newinput = today1.split("/");
+                var newday = newinput[1];
+                var str = newday.substr(0, 1);
+                var newdaynew = ('0' + newday).slice(-2);
+                var newmonth = newinput[0];
+                var str1 = newmonth.substr(0, 1);
+                var newmonthnew = ('0' + newmonth).slice(-2);
+                today = newmonthnew + '/' + newdaynew + '/' + year;
+                if (today == txtdate) {
+                    return true;
+                }
+                var testdatelocalinput = new Date(txtdate);
+                var selectedTimestamp = new Date().getTime();
+                var testdatelocalinputTS = testdatelocalinput.getTime();
+                var timestamp = new Date().getTime() - (30 * 24 * 60 * 60 * 1000)
+                if (testdatelocalinputTS > selectedTimestamp) {
+                    customAlert("Case Note date must be less than or equal to today's date.");
+                    $(value).val('');
+                    return false;
+                }
+                else if (timestamp > testdatelocalinputTS) {
+                    customAlert("Case Note date cannot be less than 30 days from today's date.");
+                    $(value).val('');
+                    return false;
+                }
+            }
+            return true;
+        }
 
 
         function getFormattedDate(date) {
@@ -1251,6 +1329,14 @@
         }
 
         $(document).ready(function () {
+
+
+
+            $('#txtCaseNoteDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('#txtSubCaseNote').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            
 
             $('#New_CaseNotetags,#AppendCaseNotetags').tagsInput({
                 width: 'auto',
@@ -4901,13 +4987,13 @@
                                         </div>
                                     </div>
 
-                                    @if (Model.staffList != null && Model.staffList.Count() > 0 && Model.HasFamilyAdvocate == 1)
+                                    @if (Model.staffList != null && Model.staffList.Count() > 0)
                                     {
 
                                         <div class="col-md-7 col-lg-7 col-sm-1  2 col-xs-12">
                                             <div class="house-hold household-main-ch" style="padding: 15px 10px;margin:0;height:auto;">
                                                 <div class="hld-img">
-                                                    <img height="110" width="108" src="@Model.staffList[0].AvatarUrl" style="margin-top:2px;" class="zoomify">
+                                                    <img height="110" width="108" src="@Url.Content(Model.staffList[0].AvatarUrl)" style="margin-top:2px;" class="zoomify">
                                                 </div>
                                                 <div class="det-cont" style="width:70%;">
                                                     <h4 style="padding-left:10px;float:left;width:100%;">
@@ -4940,12 +5026,12 @@
                                             </div>
                                         </div>
                                     }
-                                    else if (Model.FamilyAdovateList != null && Model.HasFamilyAdvocate == 0)
+                                    else if (Model.FamilyAdovateList != null && Model.FamilyAdovateList.Count>0)
                                     {
                                         <div class="col-md-7 col-lg-7 col-sm-1  2 col-xs-12">
                                             <div class="house-hold household-main-ch" style="padding: 15px 10px;margin:0;height:auto;">
 
-                                                <div class="det-cont" style="width:100%;">
+                                                <div class="det-cont" style="width:100%;" id="divFamilyAdvSelec">
 
                                                     <div class="col-xs-7 col-lg-4">
                                                         <label style="color:#333;"><i class="fa fa-user" style="padding-right:10px;width:20px;"></i><strong>Family Advocate</strong></label>
@@ -7308,7 +7394,7 @@
                                                                 </div>
                                                                 <div class="col-sm-8">
                                                                     <div class="addn-poup-div1">
-                                                                        <input type="text" id="New_CaseNoteDate" name="CaseNoteDate" onblur="Checkdate(this);" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input casenote-date">
+                                                                        <input type="text" id="New_CaseNoteDate" name="CaseNoteDate" onblur="CheckCaseNotedate(this);" placeholder="MM/DD/YYYY" class="form-control ui-autocomplete-input casenote-date">
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -7458,66 +7544,66 @@
                                                     </div>
 
 
-                                                    <div class="col-xs-12 subcase-info" style="display:none;">
-                                                        <h2 class="page-header page-header-change" style="border-bottom:2px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;font-size:20px;">
-                                                            <i class="fa fa-book" aria-hidden="true"></i><span class="spnHeading" style="padding-left: 10px;">Append Case Note</span>
-                                                        </h2>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Date <sup style="color:red">*</sup></label>
+                                                        <div class="col-xs-12 subcase-info" style="display:none;">
+                                                            <h2 class="page-header page-header-change" style="border-bottom:2px solid #f9c751!important;margin:8px 0 12px !important;color:#1b5c96;font-size:20px;">
+                                                                <i class="fa fa-book" aria-hidden="true"></i><span class="spnHeading" style="padding-left: 10px;">Append Case Note</span>
+                                                            </h2>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Date <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <input class="form-control ui-autocomplete-input casenote-date subcasenoteDate" id="txtSubCaseNote" onblur="CheckCaseNotedate(this);" type="text" placeholder="MM/DD/YYYY" value="@DateTime.Now.ToString("MM/dd/yyyy")">
+                                                                        <input type="hidden" class="hdn-casenoteid" />
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <input class="form-control ui-autocomplete-input casenote-date subcasenoteDate" type="text" placeholder="MM/DD/YYYY" value="@DateTime.Now.ToString("MM/dd/yyyy")">
-                                                                    <input type="hidden" class="hdn-casenoteid" />
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Name of the Staff <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <input class="form-control ui-autocomplete-input txt-name" readonly="readonly" type="text" placeholder="Enter the name" value="@Session["FullName"].ToString()">
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Name of the Staff <sup style="color:red">*</sup></label>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Role <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <input class="form-control ui-autocomplete-input txt-role" type="text" readonly="readonly" placeholder="Enter the role" value="@ViewBag.Role">
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <input class="form-control ui-autocomplete-input txt-name" readonly="readonly" type="text" placeholder="Enter the name" value="@Session["FullName"].ToString()">
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Original Notes  <sup style="color:red">*</sup></label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="addn-poup-div1">
+                                                                        <div id="mainnotes" name="mainnotes" class="form-control ui-autocomplete-input txt-main-note" readonly="readonly" style="height:100px;overflow:auto;"></div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Role <sup style="color:red">*</sup></label>
+                                                            <div class="col-xs-12 addn-al" style="padding: 0;">
+                                                                <div class="col-sm-4">
+                                                                    <div class="addn-poup-div">
+                                                                        <label>Appended Notes  </label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <input class="form-control ui-autocomplete-input txt-role" type="text" readonly="readonly" placeholder="Enter the role" value="@ViewBag.Role">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Original Notes  <sup style="color:red">*</sup></label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-8">
-                                                                <div class="addn-poup-div1">
-                                                                    <div id="mainnotes" name="mainnotes" class="form-control ui-autocomplete-input txt-main-note" readonly="readonly" style="height:100px;overflow:auto;"></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-xs-12 addn-al" style="padding: 0;">
-                                                            <div class="col-sm-4">
-                                                                <div class="addn-poup-div">
-                                                                    <label>Appended Notes  </label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-8 sub-notes-details">
+                                                                <div class="col-sm-8 sub-notes-details">
 
                                                             </div>
                                                         </div>

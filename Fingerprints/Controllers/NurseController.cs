@@ -193,7 +193,7 @@ namespace Fingerprints.Controllers
             Nurse.PostedProgram PostedPostedPrograms, Nurse.PostedDisease PostedPostedDisease,
            Nurse.PostedDiagnosedDisease PostedPostedDiagnosedDisease, Nurse.PostedChildEHS PostedPostedMedicalEHS,
             Nurse.PostedChildEHS PostedPostedEHS, Nurse.PostedChildVitamin PostedPostedChildVitamin, Nurse.PostedChildDiet PostedPostedChildDietFull,
-          Nurse.PostedChildDrink PostedPostedChildDrink, string Command, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization)
+          Nurse.PostedChildDrink PostedPostedChildDrink, string Command, Screening _screen, List<FamilyHousehold.ImmunizationRecord> Imminization,string selectedCenter)
         {
             Nurse _familyinfo = new Nurse();
 
@@ -542,10 +542,21 @@ namespace Fingerprints.Controllers
                     {
                         info.ClientID = info.ChildId;
                     }
+
+                    if(!string.IsNullOrEmpty(selectedCenter) && selectedCenter!="0")
+                    {
+                        info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter);
+                    }
+
                     message = _nurse.addAcceptInfo(out pendingcount, info, 0, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), (Session["RoleID"].ToString()));
                 }
                 else
                 {
+                    if (!string.IsNullOrEmpty(selectedCenter) && selectedCenter != "0")
+                    {
+                        info.CenterID = EncryptDecrypt.Encrypt64(selectedCenter); 
+                    }
+
                     message = _nurse.addAcceptInfo(out pendingcount, info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()), (Session["RoleID"].ToString()));
                 }
                 _familyinfo = info;

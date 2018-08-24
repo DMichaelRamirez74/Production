@@ -200,20 +200,20 @@ namespace Fingerprints.Utilities
         /// method to get, whether Logged in user having access to PIR and Section B
         /// </summary>
         /// <returns></returns>
-        public static bool GetUserAccessPIR(string mode = "1")
+        public static bool GetUserAccessPIR(string mode="1")
         {
             bool isAccess = false;
             try
             {
                 isAccess = new agencyData().GetUserAccessPIR(mode);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 clsError.WriteException(ex);
             }
             return isAccess;
         }
-
+      
 
         //public static List<SelectListItem> GetChildDetails(string AgencyId)
         //{

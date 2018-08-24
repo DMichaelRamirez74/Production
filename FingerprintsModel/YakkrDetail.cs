@@ -28,5 +28,7 @@ namespace FingerprintsModel
         public string HouseHoldId { get; set; }
         public string FromUserID { get; set; }
         public string _EncCenterId { get; set; }
+
+        public bool IsFutureApplication { get; set; }
     }
 }

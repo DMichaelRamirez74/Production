@@ -260,7 +260,13 @@
                 beforeSend: function () { $('#spinner').show() },
                 success: function (Data) {
                     $('#spinner').hide();
-                    BindClientlist(Data);
+
+                   
+                    BindClientlist(Data,Option);
+
+                  
+
+
                 }
 			   , error: function (Data) {
 			       $('#spinner').hide();
@@ -271,8 +277,11 @@
 			   }
             });
         }
-        function BindClientlist(Data) {
+        function BindClientlist(Data,option) {
 
+          
+            var seatCount = Data.slotsDictionary;
+            Data=Data._clientWaitingList;
             if (Data != null && Data.length > 0) {
                 $('#div1').hide();
                 var tbody = "";
@@ -305,7 +314,7 @@
                         for (var i = 0; i < Data[0].ProgramsList.length; i++) {
                             option = option + '<option value="' + Data[0].ProgramsList[i].Id + '">' + Data[0].ProgramsList[i].Name + '</option>';
                         }
-                        $('#ddlProgramtype').find('option').remove().end().append(option);
+                        $('#ModalWaitingList').find('#ddlProgramtype').find('option').remove().end().append(option);
                         $('#ddlProgramtype').val('');
                     }
                     else {
@@ -318,13 +327,40 @@
             }
             else {
                 $('#DivWaitingListPopup > tbody > tr').remove();
-                $('#div1').show();
+                $('#DivWaitingListPopup').find('#div1').show();
+            }
+
+
+            //$('#ModalWaitingList').find('#')
+            var $countDiv = $('#ModalWaitingList').find('#slotsCountDiv');
+            if (seatCount != null) {
+
+
+                $countDiv.find('#spanAgencyCount').html(seatCount.TotalSlots);
+                $countDiv.find('#spanRetClientAgency').html(seatCount.ClientsReturningAgency);
+                $countDiv.find('#spanRetClientCenter').html(seatCount.ClientsReturningCenter);
+                $countDiv.find('#spanAvailCenter').html(seatCount.AvailableSeats);
+                $countDiv.find('#spanOpenCenter').html(seatCount.OpenSeats);
+
+
+                $countDiv.show();
+
+            }
+            else {
+                $countDiv.hide();
             }
         }
+
+
+      
+
+
+
+
         function ShowHealthstaff() {
             //  _Object = Aobject;
             var clientname = $(_Object).closest("tr").find("td:eq(0)").text();
-
+           
             if ($('#ModalWaitingListAll').is(':visible') && ($('#ModalWaitingListAll').find('.selAssignFSW').val() == "0"|| $('#ModalWaitingListAll').find('.selAssignHV').val()=="0")) {
                 customAlert("Please select family advocate");
                 return false;
@@ -337,16 +373,23 @@
             else {
                 BootstrapDialog.confirm('Click OK to move ' + clientname + ' to acceptance process', function (result) {
                     if (result) {
-                        debugger;
+                     
                         var familyAdvocateId;
-                        if ($('.DivForHV').is(':visible') ) {
-                            familyAdvocateId = $('.selAssignHV :selected').val();
+                        var parent;
+                        if ($('#ModalWaitingList').is(':visible')) {
+                            parent = '#ModalWaitingList';
                         }
-                        else
-                        {
-                            familyAdvocateId = $('.selAssignFSW :selected').val();
+                        else if ($('#ModalWaitingListAll').is(':visible')) {
+                            parent = '#ModalWaitingListAll';
                         }
 
+
+                        if ($('.DivForHV').is(':visible')) {
+                            familyAdvocateId = $(parent).find('.selAssignHV :selected').val();
+                        }
+                        else {
+                            familyAdvocateId = $(parent).find('.selAssignFSW :selected').val();
+                        }
                         $.ajax({
                             url: HostedDir + "/Agencyuser/SaveAcceptanceprocess",
                             type: "POST",
@@ -401,8 +444,8 @@
 
         }
 
-        function GetUserList() {
-            $('#Acceptancediv').hide();
+        function GetUserList(ele) {
+            $(ele).find('#Acceptancediv').hide();
             if (_centerid != null && _option != null) {
                 $.ajax({
                     url: HostedDir + "/Home/GetclientWaitingList",
@@ -410,7 +453,7 @@
                     data: {
                         Centerid: _centerid,
                         Option: _option,
-                        Programtype: $('#ddlProgramtype').val()
+                        Programtype: $(ele).find('#ddlProgramtype').val()
                     },
                     dataType: "json",
                     secureuri: false,
@@ -419,7 +462,11 @@
                     success: function (Data) {
                         $('#spinner').hide();
 
-                        BindClientlist(Data);
+                       
+                            BindClientlist(Data,_option);
+
+                      
+
                     }
 				, error: function (Data) {
 				    $('#spinner').hide();
@@ -429,9 +476,9 @@
 
             }
         }
-        function ClearUserList() {
-            $('#Acceptancediv').hide();
-            $('#ddlProgramtype').val('');
+        function ClearUserList(ele) {
+            $(ele).find('#Acceptancediv').hide();
+            $(ele).find('#ddlProgramtype').val('');
             if (_centerid != null && _option != null) {
                 $.ajax({
                     url: HostedDir + "/Home/GetclientWaitingList",
@@ -445,7 +492,10 @@
                     secureuri: false,
                     async: false,
                     success: function (Data) {
-                        BindClientlist(Data);
+
+                        BindClientlist(Data._clientWaitingList,_option);
+                       
+                   
                     }
 				, error: function (Data) {
 				    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
@@ -471,8 +521,8 @@
                 if ($(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked")) {
                     count = count + 1;
                     clientid = ($(this).find('td:eq(0)').find('input[type="checkbox"]').attr("clientid"));
-                     userid = $('#dvClientName').find('span[id=' + clientid + ']').next('select').val();
-                     clientarray.push(clientid + ',' + userid);
+                    userid = $('#dvClientName').find('span[id=' + clientid + ']').next('select').val();
+                    clientarray.push(clientid + ',' + userid);
 
 
                     hid = ($(this).find('td:eq(0)').find('input[type="checkbox"]').attr("householdid"));
@@ -488,8 +538,7 @@
             });
 
             var i = -1, j = 0;
-            for (var a = 0 ; a < householdids.length; a++)
-            {
+            for (var a = 0 ; a < householdids.length; a++) {
                 var cls = '.household' + householdids[a];
                 $(cls).each(function () {
                     var comp = $(this).val();
@@ -498,7 +547,7 @@
 
                         if ($(this).val() != comp && i >= j) {
                             //customAlert("One household can have one family advocate.");
-                          //  planValidation(cls);
+                            //  planValidation(cls);
                             isValid = false;
                         }
                         j++;
@@ -512,17 +561,16 @@
                 customAlert("Please select client.");
                 return isValid;
             }
-            else if (count1==0 || count1 != householdids.length)
-            {
+            else if (count1 == 0 || count1 != householdids.length) {
                 isValid = false;
                 customAlert("Please select family advocate for selected clients");
                 return isValid;
-           }
-           else if (isValid == 0) {
-               isValid = false;
-               customAlert("One household can have one family advocate.");
-               return isValid;
-           }
+            }
+            else if (isValid == 0) {
+                isValid = false;
+                customAlert("One household can have one family advocate.");
+                return isValid;
+            }
 
             else {
                 if (_Object != null && _centerid != null) {
@@ -1136,17 +1184,14 @@
         function AskForAlert1(arg) {
             debugger;
             var hid = $(arg).attr('householdid');
-            for (var a = 0; multipleArr.length > 0; a++)
-            {
+            for (var a = 0; multipleArr.length > 0; a++) {
                 var check = multipleArr[a].split(',')[0];
-                if (check == hid && multipleArr[a].split(',')[1] != "")
-                {
+                if (check == hid && multipleArr[a].split(',')[1] != "") {
                     BootstrapDialog.confirm('You are trying to change the advocate for this family. Please click OK to confirm', function (result) {
                         if (!result) {
-                            $('.household'+hid).val(multipleArr[a].split(',')[1]);
+                            $('.household' + hid).val(multipleArr[a].split(',')[1]);
                         }
-                        else
-                        {
+                        else {
                             $('.household' + hid).val($(arg).val());
                         }
                     });
@@ -1274,21 +1319,20 @@
                                 index = i;
                             option = option + '<option value="' + data[i].userId + '">' + data[i].Name + '</option>';
                         }
-                          option = option + '</select> ';
+                        option = option + '</select> ';
 
 
 
-                          $('#dvClientName').append('<div class="listmulti-client divMultiClient' + $(_Object).attr("clientid") + '"><span style="margin-bottom:0px;"  id=' + $(_Object).attr("clientid") + ' class="SpnSelectedClient">' + $(arg).attr("name") + '</span>' + option + '</div>');
-                            if (index == -1)
-                            {
-                                $('.household' + $(arg).attr("householdid")).val('0');
-                                multipleArr.push($(arg).attr("householdid") + ',' +'');
-                            }
+                        $('#dvClientName').append('<div class="listmulti-client divMultiClient' + $(_Object).attr("clientid") + '"><span style="margin-bottom:0px;"  id=' + $(_Object).attr("clientid") + ' class="SpnSelectedClient">' + $(arg).attr("name") + '</span>' + option + '</div>');
+                        if (index == -1) {
+                            $('.household' + $(arg).attr("householdid")).val('0');
+                            multipleArr.push($(arg).attr("householdid") + ',' + '');
+                        }
 
-                            else {
-                                multipleArr.push($(arg).attr("householdid") + ',' + data[index].userId);
-                                $('.household' + $(arg).attr("householdid")).val(data[index].userId);
-                            }
+                        else {
+                            multipleArr.push($(arg).attr("householdid") + ',' + data[index].userId);
+                            $('.household' + $(arg).attr("householdid")).val(data[index].userId);
+                        }
 
 
                     }
@@ -1789,6 +1833,7 @@
             });
         }
         function BindClientlistAll(Data) {
+            Data = Data._clientWaitingList
             if (Data != null && Data.length > 0) {
                 $('#div4').hide();
                 var tbody = "";
@@ -2719,7 +2764,7 @@
 
                 $('#Acceptancediv').show();
                 $('#Acceptancediv').focus(Aobject);
-               LoadMultipleFSWorHVList(Aobject);
+                LoadMultipleFSWorHVList(Aobject);
             }
             else {
 
@@ -2783,6 +2828,27 @@
             width: 40%;
             float: left;
         }
+
+        .little-block-text{ 
+               width: 350px;
+
+               /*width:350px;*/
+    /*border: 1px solid #ddd;*/
+    padding: 10px 0;
+    float: right;
+   
+
+        }
+
+        .little-block-text > div
+        {
+            border:1px solid  #ddd;
+        }
+           .little-block-text label strong{
+               /*width:130px;*/
+               width:250px;
+               padding-top:6px;
+               display:inline-block;}
     </style>
 
     <div class="row">
@@ -3015,6 +3081,13 @@
 
 
     </div>
+
+
+
+
+
+
+
     <div class="row qualifierdiv">
         <div class="modal fade scroll-modal" id="ModalWaitingList" role="dialog">
             <div class="modal-dialog income-popup width-auto">
@@ -3033,20 +3106,49 @@
                         <div class="add-useragform">
                             <div class="row qualifierdiv">
                                 <div class="row" style="margin-bottom: 3%;">
-                                    <div class="col-sm-9">
-                                        <div class="col-sm-2">
-                                            <label style="width: 100%;">Program Type</label>
+                                    <div class="col-sm-8">
+                                        <div class="col-lg-2 col-sm-4">
+                                            <label style="width: 100%!important;">Program Type</label>
                                         </div>
-                                        <div class="col-sm-3">
+                                        <div class="col-lg-3 col-sm-8">
                                             <select id="ddlProgramtype" style="width: 100%;" class="form-control"></select>
                                         </div>
-                                        <div class="col-sm-2">
-                                            <button type="button" onclick="GetUserList();" class="my-btn">Search</button>
+                                        <div class="col-lg-2 col-sm-3">
+                                            <button type="button" onclick="GetUserList('#ModalWaitingList');" class="my-btn">Search</button>
                                         </div>
-                                        <div class="col-sm-2">
-                                            <button type="button" onclick="ClearUserList();" class="my-btn">Clear</button>
+                                        <div class="col-lg-2 col-sm-3">
+                                            <button type="button" onclick="ClearUserList('#ModalWaitingList');" class="my-btn">Clear</button>
                                         </div>
                                     </div>
+
+                                    <div class="col-sm-4" id="slotsCountDiv" style="display:none;padding-right:32px;">
+
+                                        <div class="col-sm-12 little-block-text">
+
+                                            <div class="col-sm-12">
+                                                <label style="width: 100%!important;"><strong>Total Slots (Agency)</strong>&nbsp;<span id="spanAgencyCount" style="color:#337ab7;"></span></label>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <label style="width: 100%!important;"><strong>Accepted Clients (Agency)</strong>&nbsp;<span id="spanRetClientAgency" style="color:#337ab7;"></span></label>
+                                            </div>
+
+                                            <div class="col-sm-12">
+                                                <label style="width: 100%!important;"><strong>Alloted Seats to this Center</strong>&nbsp;<span id="spanAvailCenter" style="color:#337ab7;"></span></label>
+                                            </div>
+
+                                            <div class="col-sm-12">
+                                                <label style="width: 100%!important;"><strong>Accepted Clients to this Center</strong>&nbsp;<span id="spanRetClientCenter" style="color:#337ab7;"></span></label>
+                                            </div>
+
+                                          
+
+                                            <div class="col-sm-12">
+                                                <label style="width: 100%!important;"><strong>Open Seats in this Center</strong>&nbsp;<span id="spanOpenCenter" style="color:#337ab7;"></span></label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
                                     <div class="col-sm-12">
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                                             <div class="table-responsive">

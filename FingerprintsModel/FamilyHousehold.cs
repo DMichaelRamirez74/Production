@@ -1303,7 +1303,7 @@ namespace FingerprintsModel
         public string ScreeningAllowed { get; set; }
 
     }
-
+   
     public class WellBabyExamModel
     {
         public string Month { get; set; }

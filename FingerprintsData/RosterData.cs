@@ -134,6 +134,8 @@ namespace FingerprintsData
                         info.SecurityLevel = Convert.ToBoolean(dr["SecurityLevel"]);
                         info.IsAllowSecurityCN = Convert.ToBoolean(dr["isAllowSecurityCN"]);
                         info.WrittenBy = Convert.ToString(dr["WrittenBy"]);
+                        info.IsEditable = Convert.ToBoolean(dr["Editable"]);
+
                         CaseNoteList.Add(info);
                     }
                 }
@@ -4597,7 +4599,7 @@ namespace FingerprintsData
             return AvailabilityList;
         }
 
-        public Roster GetCenterList(string userid, string agencyid)
+        public Roster GetCenterList(string userid, string agencyid,string programYear="")
         {
             Roster _roster = new Roster();
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
@@ -4605,6 +4607,7 @@ namespace FingerprintsData
             {
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
+                command.Parameters.Add(new SqlParameter("@ProgramYear", programYear));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetAllCenterByAgencyID";
@@ -4619,6 +4622,7 @@ namespace FingerprintsData
                         info = new HrCenterInfo();
                         info.CenterId = dr["center"].ToString();
                         info.Name = dr["centername"].ToString();
+                        info.Enc_CenterID = EncryptDecrypt.Encrypt64(Convert.ToString(dr["center"]));
                         centerList.Add(info);
                     }
                     _roster.Centers = centerList;

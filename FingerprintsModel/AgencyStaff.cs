@@ -12,7 +12,6 @@ namespace FingerprintsModel
 {
     public class AgencyStaff
     {
-
         public Guid AgencyStaffId { get; set; }
         public string enrollid { get; set; }
         public string Username { get; set; }
@@ -305,6 +304,7 @@ namespace FingerprintsModel
         public bool IsAllowSecurityCN { get; set; }
         public string GroupCaseNote  { get; set; }
         public string SecurityRoles { get; set; }
+        public bool IsEditable { get; set; }
     }
 
 
@@ -497,8 +497,12 @@ namespace FingerprintsModel
         public string Option { get; set; }
         public string Notes { get; set; }
         public string IsReviewed { get; set; }
+        public string Age { get; set; }
         public List<UserInfo> UserList { get; set; }
+        public string ClassroomName { get; set; }
         public List<FamilyHousehold.Programdetail> ProgramsList { get; set; }
+
+        public bool ClassroomConfirmed { get; set; }
 
 
         

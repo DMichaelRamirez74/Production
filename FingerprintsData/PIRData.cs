@@ -432,8 +432,7 @@ namespace FingerprintsData
                    
                     }
 
-            }
-            
+                }
 
             }
 
