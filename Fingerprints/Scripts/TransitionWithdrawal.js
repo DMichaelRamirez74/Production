@@ -16,7 +16,39 @@ var search = '';
 
 var transitionClients = {
 
-   
+
+
+    getCenters: function (ele) {
+        debugger;
+        $.ajax({
+
+            url: HostedDir + '/Roster/GetCenterByAgency',
+            datatype: 'json',
+            type: 'post',
+            beforeSend: function () { $('#spinner').show() },
+            data: { programYear: $(ele).val() },
+            success: function (data) {
+                debugger;
+                var appendCenter = '';
+                if (data.list != null && data.list.Centers.length > 0) {
+
+                    appendCenter += '<option value="0">-Select Center-</option>';
+                    $.each(data.list.Centers, function (i, center) {
+                        appendCenter += '<option value=' + center.Enc_CenterID + '>' + center.Name + '</option>';
+                    });
+                }
+                $('#widCenter').html(appendCenter);
+            },
+            error: function (data) {
+                customAlert('Error Occurred. Please, try again later.');
+            },
+            complete: function (data) {
+                $('#spinner').hide();
+            }
+
+        });
+    },
+
     getClassrooms: function (ele) {
 
         $.ajax({
@@ -169,14 +201,25 @@ var transitionClients = {
                 "ClassRoomID": classroomid,
                 "FSWId": fswid,
                 "SearchText": searchtext,
+                "programYear":$('#selPrgYear').val(),
                 "reqPage": requestedPage,
-                "pgSize": pageSize
+                "pgSize": pageSize,
+
             },
             beforeSend: function () { $('#spinner').show() },
             success: function (response) {
 
                 $("#partialDiv").html("");
                 $("#partialDiv").html(response);
+
+                if ($('#partialDiv').find('tbody').find('.view').length > 0)
+                {
+                    $('#ddlpagetodisplay').prop('disabled', false);
+                }
+                else {
+                    $('#ddlpagetodisplay').prop('disabled', true);
+
+                }
                 transitionClients.getTotalRecord($("#clientCount").text());
                 if (type == 1) {
                     $('#widCenter').val(centerid);
@@ -376,7 +419,7 @@ var transitionClients = {
             //mother//
             Transition.ShoolAchievement2 = ($('#parent1EduDiv').is(':visible')) ? $('#parent1EduDiv').find('input:radio[name=passed-code1]:checked').val() : '0';
             Transition.JobTrainingFinished2 = ($('#parent1JobDiv').is(':visible')) ? $('#parent1JobDiv').find('input:radio[name=passed-code1]:checked').val() == '1' ? true : false : false;
-
+            Transition.ProgramYear = $('#selPrgYear').val();
 
             console.log(JSON.stringify(Transition));
             $.ajax({
@@ -414,6 +457,13 @@ var transitionClients = {
     },
 
     fnChangePage: function (val) {
+
+        var rowlen = $('#partialDiv').find('.fold-table').children('tbody').find('.view').length;
+
+        if (rowlen == 0) {
+            return false;
+        }
+
         pageLoadedFirst = false;
         pageSize = $('#paginationDiv').find('#ddlpagetodisplay').val();
 
@@ -489,7 +539,7 @@ var transitionClients = {
                         url: HostedDir + "/AgencyUser/AutoCompleteWithdrawnList",
                         type: "POST",
                         dataType: "json",
-                        data: { term: request.term, trans: (isTransition==1)?1:0 },
+                        data: { term: request.term, trans: (isTransition == 1) ? 1 : 0, progYear: $('#selPrgYear').val() },
                         success: function (data) {
                             response($.map(data, function (item) {
                                 return { label: item, id: item };
@@ -532,16 +582,22 @@ var transitionClients = {
                 url: HostedDir + '/AgencyUser/GetPIRQuestionAnswer',
                 type: "POST",
                 datatype: 'json',
+                beforeSend:function(){$('#spinner').show()},
                 data: {
                     "ClientId": clientid,
                     "QuestionNumber": questionNumber,
                     "IsPregMom": ispreg,
-                    "programTypeID": enc_prgID
+                    "programTypeID": enc_prgID,
+                    "prgYear": $('#selPrgYear').val()
                 },
                 success: function (response) {
                     transitionClients.AssignValue(arg, response, qnvalue, ispreg);
                 },
                 error: function () {
+                },
+                complete:function()
+                {
+                    $('#spinner').hide();
                 }
             });
 
@@ -555,8 +611,7 @@ var transitionClients = {
         var questions = transitionClients.WithdrawalQuestions;
 
 
-        if (res.ResponseStatus==true)
-        {
+        if (res.ResponseStatus == true) {
             switch (qnvalue) {
                 case "Q1":
                     newList.children('.question-edu').html(questions.WQ1);
@@ -1047,6 +1102,32 @@ $(document).ready(function () {
     //    }
     //    $(this).parent('tr').toggleClass("open").next(".fold").toggleClass("open");
     //});
+
+
+    $('#selPrgYear').on('change', function () {
+
+        debugger;
+       // $('#widCenter').find('option').remove();
+
+       // $('#widClassroomSelect').find('option').remove();
+
+       // $('#fswHvselect').find('option').remove();
+
+       // $('#SearchName').val('');
+
+        $('#clientCount').html(0);
+
+       // $("#partialDiv").find('tbody').html('<tr><td colspan="2" style="padding: 25px;text-align:center;font-weight:bold;color: black;">Search by Center and Classroom <sup style="color:red;">*</sup></td></tr>');
+
+        $('#ddlpaging').find('option').remove();
+
+        $('#ddlpagetodisplay').prop('disabled', true);
+
+        //transitionClients.getCenters(this);
+
+        transitionClients.SearchByCenter(1);
+    });
+
 
     $('#widCenter').on('change', function () {
         cleanValidation();

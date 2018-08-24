@@ -18,6 +18,8 @@ namespace FingerprintsModel
 
         public string TransProgramTypeID { get; set; }
 
+        public string ProgramYear { get; set; }
+
         public int FamilyType { get; set; }
         public string Enc_ProgID { get; set; }
         public string ParentID { get; set; }
@@ -33,7 +35,7 @@ namespace FingerprintsModel
         public string IsWaiting { get; set; }
         public int? EnrollmentStatus { get; set; }
         public int? InsuranceType { get; set; }
-
+     
         public int? BirthType { get; set; }
         public bool IsEHS { get; set; }
         public bool IsHS { get; set; }
@@ -76,10 +78,10 @@ namespace FingerprintsModel
         public int? OtherIns_E { get; set; }
         public string Description_S { get; set; }
         public string Description_E { get; set; }
-        public int? NoIns_S { get; set; }
+        public int?  NoIns_S { get; set; }
         public int? NoIns_E { get; set; }
 
-        public bool? JobTrainingSchool { get; set; }
+        public bool? JobTrainingSchool   { get;set; }
 
         public int? ParentRole { get; set; }
 
@@ -123,7 +125,7 @@ namespace FingerprintsModel
         public bool? DentalServices { get; set; }
 
         public bool? NewProgramYearTransition { get; set; }
-
+      
         public bool? MedicalServices { get; set; }
         public int? MedicalServiceTypes { get; set; }
         public int? DentalCare { get; set; }
@@ -142,7 +144,7 @@ namespace FingerprintsModel
         public string DateOfWithdrawn { get; set; }
 
         public string PregnantMotherInsurance { get; set; }
-
+      
 
         public bool? PregnantMotherEnrollment { get; set; }
 
@@ -160,13 +162,13 @@ namespace FingerprintsModel
 
         public string LDAAge { get; set; }
 
-        public string ReferenceProgram { get; set; }
+        public string ReferenceProgram { get; set; } 
         public int TypeOfTransition { get; set; }
 
         public int Returning { get; set; }
 
-        public int PregMomTransitionReady { get; set; }
-
+        public int PregMomTransitionReady{get;set;}
+        
         public string SchoolDistrictDate { get; set; }
 
         public int EHSHSEnrolled { get; set; }
@@ -205,7 +207,7 @@ namespace FingerprintsModel
     }
 
 
-
+ 
     public class SeatAvailability
     {
         public int SloatAvailable { get; set; }

@@ -10,7 +10,7 @@ namespace FingerprintsModel
 
         public Role()
         {
-            this.UserList = new List<UserDetails>();
+            //this.UserList = new List<UserDetails>();
         }
         public List<Role> RoleList { get; set; }
         public List<FingerprintsModel.RosterNew.User> ClientList { get; set; }
@@ -102,6 +102,7 @@ namespace FingerprintsModel
         public string UserId { get; set; }
         public string StaffName { get; set; }
         public bool IsAllow { get; set; }
+        public string RoleName { get; set; }
         public string RoleId { get; set; }
 
     }

@@ -151,12 +151,15 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_family.GetclientWaitingList(Centerid, Option, Programtype, Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                List<ClientWaitingList> _clientWaitingList = new List<ClientWaitingList>();
+                Dictionary<string, Int32> slotsDictionary = new Dictionary<string, int>();
+                _clientWaitingList= _family.GetclientWaitingList(ref slotsDictionary,  Centerid, Option, Programtype, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                return Json(new { _clientWaitingList, slotsDictionary }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26")]
@@ -206,7 +209,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -219,7 +222,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
@@ -232,23 +235,10 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
-        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")]
-        //public JsonResult DeleteRejectedRecord(string Id)
-        //{
-        //    try
-        //    {
 
-        //        return Json(_family.DeleteRejectedRecord(Id, Session["UserID"].ToString()));
-        //    }
-        //    catch (Exception Ex)
-        //    {
-        //        clsError.WriteException(Ex);
-        //        return Json("Error occured please try again.");
-        //    }
-        //}
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
         public JsonResult GetFSWOrHVList(string ClientId,string Centerid, int ListType)
         {
@@ -259,7 +249,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")]
@@ -287,7 +277,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
@@ -669,7 +659,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         // shambhu changes 21 Feb
@@ -750,7 +740,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -767,7 +757,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -873,7 +863,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -922,7 +912,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [JsonMaxLengthAttribute]
@@ -937,7 +927,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [JsonMaxLengthAttribute]
@@ -952,7 +942,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         

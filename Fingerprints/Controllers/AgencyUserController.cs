@@ -2149,7 +2149,7 @@ namespace Fingerprints.Controllers
                     }
                     else
                     {
-                        ViewBag.message = "Error occoured please try again. ";
+                        ViewBag.message = "Error occurred please try again. ";
                     }
                     _familyinfo.RestrictedId = Convert.ToInt32(info.HouseholdId);
                 }
@@ -3128,11 +3128,11 @@ namespace Fingerprints.Controllers
                 return Json(Ex.Message);
             }
         }
-        public JsonResult AutoCompleteWithdrawnList(string term, string trans)
+        public JsonResult AutoCompleteWithdrawnList(string term, string trans,string progYear="")
         {
             try
             {
-                var result = familyData.AutoCompleteWithdrawnList(term, Session["AgencyID"].ToString(), Session["UserID"].ToString(), trans);
+                var result = familyData.AutoCompleteWithdrawnList(term, Session["AgencyID"].ToString(), Session["UserID"].ToString(), trans,progYear);
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
@@ -6597,7 +6597,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult GetWithdrawnListByCenter(string CenterId, string ClassRoomID, string FSWId,string SearchText="", int reqPage=1,int pgSize=10)
+        public ActionResult GetWithdrawnListByCenter(string CenterId, string ClassRoomID, string FSWId, string SearchText = "",string programYear="", int reqPage = 1, int pgSize = 10)
         {
 
             TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
@@ -6606,12 +6606,12 @@ namespace Fingerprints.Controllers
                 int _centerid = 0;
                 int _classroomid = 0;
 
-                 _centerid = string.IsNullOrEmpty(CenterId) || CenterId == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
-                 _classroomid = string.IsNullOrEmpty(ClassRoomID) || ClassRoomID == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(ClassRoomID));
+                _centerid = string.IsNullOrEmpty(CenterId) || CenterId == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(CenterId));
+                _classroomid = string.IsNullOrEmpty(ClassRoomID) || ClassRoomID == "0" ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(ClassRoomID));
 
                 transwithdrawal.ProcessMode = Mode.Withdrawal;
 
-                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText, reqPage, pgSize);
+                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText, programYear, reqPage, pgSize);
                 transwithdrawal.IsWithdrawal = true;
             }
             catch (Exception ex)
@@ -6624,7 +6624,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        public ActionResult GetTransitionListByCenter(string CenterId, string ClassRoomID, string FSWId, string SearchText = "", int reqPage = 1, int pgSize = 10)
+        public ActionResult GetTransitionListByCenter(string CenterId, string ClassRoomID, string FSWId, string SearchText = "",string programYear="", int reqPage = 1, int pgSize = 10)
         {
 
             TransitionWithdrawal transwithdrawal = TransitionWithdrawal.Instance;
@@ -6638,7 +6638,7 @@ namespace Fingerprints.Controllers
 
                 transwithdrawal.ProcessMode = Mode.Transition;
 
-                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText, reqPage, pgSize);
+                transwithdrawal = new agencyData().GetTransitionWithDrawalClients((int)transwithdrawal.ProcessMode, _centerid, _classroomid, FSWId, SearchText,programYear, reqPage, pgSize);
 
                 transwithdrawal.IsWithdrawal = false;
             }
@@ -6720,7 +6720,7 @@ namespace Fingerprints.Controllers
 
             List<SeatAvailability> results = new List<SeatAvailability>();
             JavaScriptSerializer serializer = new JavaScriptSerializer();
-            
+
             TransitionDetails transitionDetails = new TransitionDetails();
 
             List<PregMomChilds> pregChilds = new List<FingerprintsModel.PregMomChilds>();
@@ -6777,9 +6777,9 @@ namespace Fingerprints.Controllers
 
         [HttpPost]
         [CustAuthFilter()]
-        public JsonResult GetPIRQuestionAnswer(string ClientId, string QuestionNumber, bool IsPregMom,string programTypeID)
+        public JsonResult GetPIRQuestionAnswer(string ClientId, string QuestionNumber, bool IsPregMom, string programTypeID,string prgYear="")
         {
-           // string result = "";
+            // string result = "";
 
             FamilyData fdata = new FamilyData();
             List<Tuple<int, string, int>> tuples = new List<Tuple<int, string, int>>();
@@ -6790,7 +6790,7 @@ namespace Fingerprints.Controllers
                 _progID = Int64.TryParse(programTypeID, out _progID) ? _progID : Convert.ToInt64(EncryptDecrypt.Decrypt64(programTypeID));
 
 
-                transWithdrawal = fdata.GetAnswerForPIRQuestions(out tuples,ClientId, QuestionNumber, IsPregMom, _progID);
+                transWithdrawal = fdata.GetAnswerForPIRQuestions(out tuples, ClientId, QuestionNumber, IsPregMom, _progID,prgYear);
 
             }
             catch (Exception ex)
@@ -6830,5 +6830,101 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
     
+        [CustAuthFilter()]
+        public ActionResult ClassRoomAssignment()
+        {
+
+
+            Dictionary<string, int> seatsDictionary = new Dictionary<string, int>();
+
+
+
+            try
+            {
+                new CenterData().GetSeatsCountByCenter(ref seatsDictionary, "0","0", true);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return View(seatsDictionary);
+        }
+
+
+        public JsonResult GetSeatsCountByCenter(string centerid,string classroomId="0")
+        {
+
+            Dictionary<string, int> dictionarySeats = new Dictionary<string, int>();
+
+           
+
+            try
+            {
+                classroomId = EncryptDecrypt.Decrypt64(classroomId);
+
+                new CenterData().GetSeatsCountByCenter(ref dictionarySeats, centerid, classroomId, true);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(dictionarySeats, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public JsonResult GetAcceptedFutureClients(string centerid, string age)
+        {
+            List<ClientWaitingList> acceptedClients = new List<ClientWaitingList>();
+            List<ClassRoom> classRoomList = new List<ClassRoom>();
+            Dictionary<string, int> seatsCountDictionary = new Dictionary<string, int>();
+            try
+            {
+                acceptedClients = new FamilyData().GetAcceptedFutureClients(ref classRoomList, ref seatsCountDictionary,centerid, age);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            //  return PartialView("~/Views/Partialviews/FutureAcceptedClientsPartial.cshtml", acceptedClients);
+
+            return Json(new { acceptedClients, classRoomList, seatsCountDictionary }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public JsonResult AssignClassroomFutureClients(string clientIds,string classroomId,string centerId,string clsStartDate)
+        {
+            string result = "0";
+            Dictionary<string, Int32> dictionraySeats = new Dictionary<string, int>();
+            try
+            {
+                clientIds = string.Join(",", clientIds.Split(',').ToArray().Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
+                classroomId = EncryptDecrypt.Decrypt64(classroomId);
+                result = new CenterData().AssignClassroomFutureClients(ref dictionraySeats,clientIds, classroomId,centerId, clsStartDate);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(new { result,dictionraySeats },JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult AcceptClassroomAssignment(string clientIds, string classroomId, string centerId, string clsStartDate)
+        {
+            string result = "0";
+            try
+            {
+                clientIds = string.Join(",", clientIds.Split(',').ToArray().Select(x => EncryptDecrypt.Decrypt64(x)).ToArray());
+                classroomId =(classroomId=="0" || classroomId=="")?"0": EncryptDecrypt.Decrypt64(classroomId);
+                result = new CenterData().AcceptClassroomAssignmentClients(clientIds, centerId,classroomId);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

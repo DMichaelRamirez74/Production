@@ -1,6 +1,4 @@
-﻿
-
-@model FingerprintsModel.Nurse
+﻿@model FingerprintsModel.Nurse
 @{
     @section Title
 {
@@ -27,7 +25,7 @@
 
 
         </script>*@
-
+   
     <script type="text/javascript">
     var round = 1;
     var rounds = 1;
@@ -160,6 +158,50 @@
         else {
 
         }
+    }
+
+
+    function getavailSeats(ele)
+    {
+        $.ajax({
+            url:HostedDir+'/AgencyUser/GetSeatsCountByCenter',
+            type:'post',
+            datatype:'json',
+            data:{centerid: $(ele).val()},
+            beforeSend:function(){$('#spinner').show()},
+            success:function(data)
+            {
+                if(data!=null)
+                {
+                    $('#spanAgencyCount').html(data.TotalSlots);
+
+                    $('#spanRetClientAgency').html(data.ClientsReturningAgency);
+
+                    $('#spanRetClientCenter').html(data.ClientsReturningCenter);
+                    
+                    $('#spanAvailCenter').html(data.AvailableSeats);
+
+                    $('#spanOpenCenter').html(data.OpenSeats);
+                }
+                else{
+                    $('#spanRetClientAgency').html(0);
+
+                    $('#spanRetClientCenter').html(0);
+                    
+                    $('#spanAvailCenter').html(0);
+
+                    $('#spanOpenCenter').html(0);
+                }
+            },
+            error:function(data)
+            {
+
+            },
+            complete:function(data)
+            {
+                $('#spinner').hide();
+            }
+        });
     }
 
 
@@ -4630,7 +4672,7 @@
             return isValid;
         }
         else if ($("#AcceptApplicant1").is(':checked')===true) {
-
+           
             if(@(Model.IsFinalReviwer)==1)
             {
                 if (!$("input:radio[name='AcceptReason']").is(":checked")) {
@@ -8189,11 +8231,15 @@
         {
             $('#TextAreaAcceptReason').hide();
             $('#AcceptReason').show();
+            $('#assignCenterDiv').show();
+            $('#slotsCountDiv').show();
         }
         else
         {
             $('#TextAreaAcceptReason').show();
             $('#AcceptReason').hide();
+            $('#assignCenterDiv').hide();
+            $('#slotsCountDiv').hide();
         }
 
     }
@@ -8921,42 +8967,62 @@
     </script>
 }
 @section MainContentHolder{
-    <style>
-        #AcceptanceDivAppend .panel-sec-title {
-            color: #fff;
-        }
+<style>
 
-        #AcceptanceDivAppend .panel-body {
-            background: #f1f5f8;
-        }
+    .little-block-text {
+    width: 350px;
+    /* width: 350px; */
+    /* border: 1px solid #ddd; */
+    padding: 10px 0;
+    float: right;
+}
+    .little-block-text > div {
+    border: 1px solid #ddd;
+}
 
-        #AcceptanceDivAppend .panel-title a {
-            font-weight: bold;
-            color: #f1f5f8;
-            background: #009688;
-            border-top-right-radius: 5px;
-            border-top-left-radius: 5px;
-        }
+    .little-block-text label strong {
+    /* width: 130px; */
+    width: 250px;
+    display: inline-block;
+    padding-top:6px;
+}
 
-        #AcceptanceDivAppend .panel-default > .panel-heading {
-            color: #34495e;
-            background-color: #f1f5f8;
-            border-color: transparent;
-            /* border-radius: 5px; */
-            /* overflow: hidden; */
-        }
 
-        #AcceptanceDivAppend .panel-title span {
-            /*font-weight: normal;*/
-            color: #f1f5f8;
-        }
+    #AcceptanceDivAppend .panel-sec-title {
+        color: #fff;
+    }
 
-        #AcceptanceDivAppend .panel-default {
-            border: none;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-    </style>
+    #AcceptanceDivAppend .panel-body {
+        background: #f1f5f8;
+    }
+
+    #AcceptanceDivAppend .panel-title a {
+        font-weight: bold;
+        color: #f1f5f8;
+        background: #009688;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+    }
+
+    #AcceptanceDivAppend .panel-default > .panel-heading {
+        color: #34495e;
+        background-color: #f1f5f8;
+        border-color: transparent;
+        /* border-radius: 5px; */
+        /* overflow: hidden; */
+    }
+
+    #AcceptanceDivAppend .panel-title span {
+        /*font-weight: normal;*/
+        color: #f1f5f8;
+    }
+
+    #AcceptanceDivAppend .panel-default {
+        border: none;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+</style>
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
@@ -9163,7 +9229,7 @@
 
                                 }
                             }
-
+                           
 
                         </ul>
                     </div>
@@ -18114,10 +18180,10 @@
                                         <div class="col-sm-2">
                                             <ul style="list-style:none;" id="familydetailsId">
                                                 <li><a style="text-decoration:underline;font-size:17px;" id="familyHouseHold">Household</a></li>
-                                                @if (Model.IsAllowIncome == true)
+                                            @if (Model.IsAllowIncome == true)
                                                 {
-                                                    <li><a style="text-decoration:underline;font-size:17px;" id="Guardian">Guardian </a></li>
-                                                }
+                                                <li><a style="text-decoration:underline;font-size:17px;" id="Guardian">Guardian </a></li>
+                                                 }
                                                 <li><a href="#" style="text-decoration:underline;font-size:17px;">Child </a></li>
                                                 <li><a href="#" style="text-decoration:underline;font-size:17px;">Screening</a></li>
                                             </ul>
@@ -18514,6 +18580,85 @@
 
                                             </div>
                                         </div>
+
+
+                                        @if (Model.IsFinalReviwer == "1")
+                                        {
+                                            <div id="assignCenterDiv" class="com-sm-12" style="display:none;">
+
+                                                <div class="col-sm-10 adddivspace" style="float: left; margin-left: 7%;">
+                                                    <div class="col-sm-9" style="padding: 0 6px;">
+                                                        <div class="col-sm-4" style="padding:0;">
+                                                            <label style="width: 100%;">Select Center <sup>*</sup></label>
+                                                        </div>
+
+                                                        <div class="col-sm-6">
+
+                                                            @if (Model.HrcenterList != null && Model.HrcenterList.Count > 0)
+                                                            {
+                                                                <select class="form-control" onchange="getavailSeats(this);" name="selectedCenter">
+
+                                                                    @foreach (var item in Model.CenterList)
+                                                                    {
+
+                                                                        if (item.CenterId == Convert.ToInt32(Model.DictionarySlotsSeats["CenterID"]))
+                                                                        {
+                                                                            <option value="@item.CenterId" selected="selected">@item.CenterName</option>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <option value="@item.CenterId">@item.CenterName</option>
+                                                                        }
+
+                                                                    }
+
+
+                                                                </select>
+                                                            }
+
+
+
+                                                        </div>
+
+
+                                                    </div>
+
+
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4 text-left pull-right" id="slotsCountDiv" style="padding-right: 32px;display:none;">
+
+                                                <div class="col-sm-12 little-block-text">
+
+                                                    <div class="col-sm-12">
+                                                        <label style="width: 100%!important;"><strong>Total Slots (Agency)</strong>&nbsp;<span id="spanAgencyCount" style="color:#337ab7;">@Model.DictionarySlotsSeats["TotalSlots"]</span></label>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <label style="width: 100%!important;"><strong>Accepted Clients (Agency)</strong>&nbsp;<span id="spanRetClientAgency" style="color:#337ab7;">@Model.DictionarySlotsSeats["ClientsReturningAgency"]</span></label>
+                                                    </div>
+
+                                                    <div class="col-sm-12">
+                                                        <label style="width: 100%!important;"><strong>Accepted Clients to this Center</strong>&nbsp;<span id="spanRetClientCenter" style="color:#337ab7;">@Model.DictionarySlotsSeats["ClientsReturningCenter"]</span></label>
+                                                    </div>
+
+                                                    <div class="col-sm-12">
+                                                        <label style="width: 100%!important;"><strong>Alloted Seats to this Center</strong>&nbsp;<span id="spanAvailCenter" style="color:#337ab7;">@Model.DictionarySlotsSeats["AvailableSeats"]</span></label>
+                                                    </div>
+
+                                                    <div class="col-sm-12">
+                                                        <label style="width: 100%!important;"><strong>Open Seats in this Center</strong>&nbsp;<span id="spanOpenCenter" style="color:#337ab7;">@Model.DictionarySlotsSeats["OpenSeats"]</span></label>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        }
+
+                                      
+                                        
+
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                 <div class="btnwrp_subcal">
@@ -18572,10 +18717,12 @@
                                             <div class="panel-group" id="accordion">
                                                 <div id="AcceptanceDivAppend">
 
+
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

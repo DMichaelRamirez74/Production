@@ -50,7 +50,9 @@ namespace FingerprintsModel
         public int TotalRecord { get; set; }
 
         public Mode ProcessMode;
-     
+
+        public List<SelectListItem> ProgramYears { get; set; }
+
     }
 
     public class TranWithClients

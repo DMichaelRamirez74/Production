@@ -5172,7 +5172,7 @@ namespace FingerprintsData
 
 
 
-        public TransitionWithdrawal GetTransitionWithDrawalClients(int mode, int centerid = 0, int classroomid = 0, string fswid = "", string searchText = "", int reqPage = 0, int pgSize = 10)
+        public TransitionWithdrawal GetTransitionWithDrawalClients(int mode, int centerid = 0, int classroomid = 0, string fswid = "", string searchText = "",string progYear="", int reqPage = 0, int pgSize = 10)
 
         {
 
@@ -5207,6 +5207,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@sortcolumn", ""));
                     command.Parameters.Add(new SqlParameter("@sortorder", ""));
                     command.Parameters.Add(new SqlParameter("@ClientID", 0));
+                    command.Parameters.Add(new SqlParameter("@ProgramYear", progYear));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = (mode == 1) ? "USP_GetWithdrawalClientList" : "USP_GetTransitionClientList";
                     Connection.Open();
@@ -5253,6 +5254,18 @@ namespace FingerprintsData
                                                                           ProgramType = Convert.ToString(dr["ProgramType"])
 
                                                                       }).ToList();
+                    }
+
+                    if(_dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                    {
+                        transWithdrawal.ProgramYears = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                        select new SelectListItem
+                                                        {
+                                                            Text = Convert.ToString(dr1["ActiveProgramYear"]),
+                                                            Value = Convert.ToString(dr1["ActiveProgramYear"]),
+                                                            Selected = Convert.ToBoolean(dr1["Selected"])
+                                                        }
+                                                      ).ToList();
                     }
                 }
 
@@ -5390,8 +5403,8 @@ namespace FingerprintsData
                         DataTable dt = new DataTable();
                         dt.Columns.AddRange(new DataColumn[7]
                         {
-                            new DataColumn("UserID",typeof(string)),
-                            new DataColumn("RoleID",typeof(string)),
+                            new DataColumn("RoleId",typeof(string)),
+                            new DataColumn("UserId",typeof(string)),
                             new DataColumn("ColorCode",typeof(string)),
                               new DataColumn("MasterId",typeof(int)),
                              new DataColumn("ToView",typeof(bool)),

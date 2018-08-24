@@ -468,17 +468,17 @@ namespace FingerprintsData
                             {
                                 YakkrCode = !string.IsNullOrEmpty(dr["YakkrCode"].ToString()) ? dr["YakkrCode"].ToString() : "",
                                 ClientName = !string.IsNullOrEmpty(dr["ClientName"].ToString()) ? dr["ClientName"].ToString() : "",
-                                DOB = !string.IsNullOrEmpty(dr["DOB"].ToString()) ? Convert.ToDateTime(dr["DOB"]).ToString("MM/dd/yyyy") : "N/A",
+                                DOB = !string.IsNullOrEmpty(dr["DOB"].ToString()) ? Convert.ToString(dr["DOB"]) : "N/A",
                                 CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "",
                                 FromUser = !string.IsNullOrEmpty(dr["FromUser"].ToString()) ? dr["FromUser"].ToString() : "",
-                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToDateTime(dr["Date"]).ToString("MM/dd/yyyy") : "N/A",
+                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToString(dr["Date"]) : "N/A",
                                 HouseHoldId = !string.IsNullOrEmpty(dr["HouseHoldId"].ToString()) ? dr["HouseHoldId"].ToString() : "",
                                 ClientId = !string.IsNullOrEmpty(dr["ClientId"].ToString()) ? dr["ClientId"].ToString() : "",
                                 FromUserID = !string.IsNullOrEmpty(dr["FromUserID"].ToString()) ? dr["FromUserID"].ToString() : "",
                                 YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",
                                 CenterId = !string.IsNullOrEmpty(dr["CenterId"].ToString()) ? dr["CenterId"].ToString() : "",
                                 _EncCenterId = !string.IsNullOrEmpty(dr["CenterId"].ToString()) ? EncryptDecrypt.Encrypt64(dr["CenterId"].ToString()) : "",
-
+                                IsFutureApplication = !string.IsNullOrEmpty(dr["IsFutureApplication"].ToString()) ? Convert.ToBoolean(dr["IsFutureApplication"]) : false
                             });
                         }
                     }
@@ -491,7 +491,7 @@ namespace FingerprintsData
                                 YakkrCode = !string.IsNullOrEmpty(dr["YakkrCode"].ToString()) ? dr["YakkrCode"].ToString() : "",
                                 YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",
                                 Slots = !string.IsNullOrEmpty(dr["Slots"].ToString()) ? dr["Slots"].ToString() : "",
-                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToDateTime(dr["Date"]).ToString("MM/dd/yyyy") : "N/A",
+                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToString(dr["Date"]) : "N/A",
 
                             });
                         }

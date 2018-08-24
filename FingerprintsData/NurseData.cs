@@ -392,9 +392,11 @@ namespace FingerprintsData
             }
             return Info;
         }
-        public Nurse EditFamilyInfo(string id, int yakkrid, string Agencyid, string userid,string RoleID)
+        public Nurse EditFamilyInfo(string id, int yakkrid, string Agencyid, string userid, string RoleID)
         {
             Nurse obj = new Nurse();
+            obj.DictionarySlotsSeats = new Dictionary<string, int>();
+        
             //obj.income1 = new FamilyHousehold.calculateincome();
 
             try
@@ -1308,6 +1310,32 @@ namespace FingerprintsData
                         obj.IsFinalReviwer = Convert.ToString(_dataset.Tables[18].Rows[0]["IsFinalReviwer"]);
 
                 }
+
+                if(_dataset.Tables.Count > 18 && _dataset.Tables[19]!=null && _dataset.Tables[19].Rows.Count>0)
+                {
+                    obj.DictionarySlotsSeats.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[19].Rows[0]["SlotPurchased"]));
+                    obj.DictionarySlotsSeats.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningAgency"]));
+                    obj.DictionarySlotsSeats.Add("ClientsReturningCenter", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningCenter"]));
+                    obj.DictionarySlotsSeats.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["AvailableSeats"]));
+                    obj.DictionarySlotsSeats.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["OpenSeats"]));
+                    obj.DictionarySlotsSeats.Add("CenterID", Convert.ToInt32(_dataset.Tables[19].Rows[0]["CenterID"]));
+
+                }
+
+                obj.CenterList = new List<Center>(); 
+
+                if(_dataset.Tables.Count > 19 && _dataset.Tables[20]!=null && _dataset.Tables[20].Rows.Count>0)
+                {
+                    obj.CenterList = (from DataRow dr in _dataset.Tables[20].Rows
+                                      select new Center
+                                      {
+                                          CenterId = Convert.ToInt32(dr["CenterID"]),
+                                          CenterName = Convert.ToString(dr["CenterName"])
+                                      }
+                                    ).ToList();
+                }
+
+
             }
             return obj;
 

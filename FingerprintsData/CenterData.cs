@@ -24,7 +24,7 @@ namespace FingerprintsData
         SqlDataAdapter DataAdapter = null;
         DataTable _dataTable = null;
         DataSet _dataset = null;
-        public string addeditcenter(Center info, List<Center.ClassRoom> Classroom , bool isEndOfYear=false)
+        public string addeditcenter(Center info, List<Center.ClassRoom> Classroom, bool isEndOfYear = false)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@AdminSite", info.AdminSite);
                 command.Parameters.AddWithValue("@Homebased", info.HomeBased);
                 command.Parameters.AddWithValue("@IsEndOfYear", isEndOfYear);
-                    if (Classroom != null && Classroom.Count > 0)
+                if (Classroom != null && Classroom.Count > 0)
                 {
                     DataTable dt = new DataTable();
                     dt.Columns.AddRange(new DataColumn[29] {
@@ -1818,6 +1818,151 @@ namespace FingerprintsData
             return closedList;
         }
 
+
+        public void GetSeatsCountByCenter(ref Dictionary<string, int> centerSeatsDictionary, string centerId, string classroomID, bool isEndOfYear)
+        {
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    if (Connection.State == ConnectionState.Open)
+                        Connection.Close();
+
+                    Connection.Open();
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetCenterSeatsCountByProgramYear";
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@CenterId", centerId));
+                    command.Parameters.Add(new SqlParameter("@ClassroomID", classroomID));
+                    command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                    if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        centerSeatsDictionary.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[0].Rows[0]["SlotPurchased"]));
+                        centerSeatsDictionary.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[0].Rows[0]["ClientsReturningAgency"]));
+                        centerSeatsDictionary.Add("ClientsReturningCenter", Convert.ToInt32(_dataset.Tables[0].Rows[0]["ClientsReturningCenter"]));
+                        centerSeatsDictionary.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[0].Rows[0]["AvailableSeats"]));
+                        centerSeatsDictionary.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[0].Rows[0]["OpenSeats"]));
+                        centerSeatsDictionary.Add("CenterID", Convert.ToInt32(_dataset.Tables[0].Rows[0]["CenterID"]));
+                        centerSeatsDictionary.Add("ClassroomID", Convert.ToInt32(_dataset.Tables[0].Rows[0]["ClassroomID"]));
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+        }
+
+
+        public string AssignClassroomFutureClients(ref Dictionary<string, Int32> seatsDictionary, string clientIds, string classroomId, string centerId, string classStartDate)
+        {
+            string result = "0";
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@Clientids", clientIds));
+                    command.Parameters.Add(new SqlParameter("@ClassroomID", classroomId));
+                    command.Parameters.Add(new SqlParameter("@IsEndOfYear", true));
+                    command.Parameters.Add(new SqlParameter("@CenterID", centerId));
+                    command.Parameters.Add(new SqlParameter("@ClassStartDate", classStartDate));
+                    command.Parameters.Add(new SqlParameter("@result", 0)).Direction = ParameterDirection.Output;
+                    command.Connection = Connection;
+                    command.CommandText = "USP_AssignClassroomByProgramYear";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    command.ExecuteNonQuery();
+                    result = command.Parameters["@result"].Value.ToString();
+                    Connection.Close();
+                }
+
+                this.GetSeatsCountByCenter(ref seatsDictionary, centerId, classroomId, true);
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return result;
+        }
+
+        public string AcceptClassroomAssignmentClients(string clientIds,string centerId,string classroomID)
+        {
+            string result = "0";
+
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@Clientids", clientIds));
+                    command.Parameters.Add(new SqlParameter("@ClassroomID", classroomID));
+                    command.Parameters.Add(new SqlParameter("@IsEndOfYear", true));
+                    command.Parameters.Add(new SqlParameter("@CenterID", centerId));
+                    command.Parameters.Add(new SqlParameter("@result", 0)).Direction = ParameterDirection.Output;
+                    command.Connection = Connection;
+                    command.CommandText = "USP_ConfirmClassroomAssignment";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    command.ExecuteNonQuery();
+                    result = command.Parameters["@result"].Value.ToString();
+                    Connection.Close();
+                }
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return result;
+
+        }
 
     }
 }

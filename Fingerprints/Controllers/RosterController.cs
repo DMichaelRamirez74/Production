@@ -2270,10 +2270,10 @@ namespace Fingerprints.Controllers
 
 
         [HttpPost]
-        public ActionResult GetCenterByAgency()
+        public ActionResult GetCenterByAgency(string programYear="")
         {
-            var list = RosterData.GetCenterList(Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString());
-            return Json(new { list });
+            var list = RosterData.GetCenterList(Convert.ToString(Session["UserID"]), Session["AgencyID"].ToString(), programYear);
+            return Json(new { list },JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         [ValidateInput(false)]
@@ -2336,9 +2336,6 @@ namespace Fingerprints.Controllers
                 name = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, attach, AgencyId, UserId, 0);
                 result = 3;
             }
-
-
-
             return Json(result,JsonRequestBehavior.AllowGet);
         }
 
