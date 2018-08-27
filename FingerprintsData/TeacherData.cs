@@ -1997,7 +1997,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@IsHistorical", ishistorical));
                     command.Parameters.Add(new SqlParameter("@AttendanceDate", attendanceDate));
                     command.CommandType = CommandType.StoredProcedure;
-                    command.CommandTimeout = 240; //timeout 3mins
+                    command.CommandTimeout = 500; //timeout 3mins
                     command.CommandText = "USP_GetWeeklyAttendanceList";
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
@@ -2024,7 +2024,7 @@ namespace FingerprintsData
                                       ClientID = Convert.ToString(dr1["ClientID"]),
                                       Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
                                       CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
-                                      CDOB = Convert.ToDateTime(dr1["DOB"]).ToString("MM/dd/yyyy"),
+                                      CDOB = Convert.ToString(dr1["DOB"]),
                                       CenterID = dr1["CenterId"].ToString(),
                                       Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterID"].ToString()),
                                       ClassID = dr1["ClassRoomId"].ToString(),
@@ -2033,8 +2033,8 @@ namespace FingerprintsData
                                       Parent2ID = dr1["MotherId"].ToString(),
                                       Parent1Name = dr1["FatherName"].ToString(),
                                       Parent2Name = dr1["MotherName"].ToString(),
-                                      AccessDateString = dr1["AccessDateString"].ToString(),
-                                      RestrictedDateString = dr1["RestrictedDateString"].ToString()
+                                      AccessDateString = dr1["AccessDateString"].ToString()
+                                      //RestrictedDateString = dr1["RestrictedDateString"].ToString()
                                   }
 
 
@@ -2197,7 +2197,7 @@ namespace FingerprintsData
                                          Parent1Name = dr1["FatherName"].ToString(),
                                          Parent2Name = dr1["MotherName"].ToString(),
                                          AccessDateString = dr1["AccessDateString"].ToString(),
-                                         RestrictedDateString = dr1["RestrictedDateString"].ToString()
+                                         //RestrictedDateString = dr1["RestrictedDateString"].ToString()
                                      }
 
 

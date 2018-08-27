@@ -1847,7 +1847,7 @@ namespace FingerprintsData
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
                     Connection.Close();
-                    if (_dataset != null && _dataset.Tables[0].Rows.Count > 0)
+                    if (_dataset != null && _dataset.Tables.Count>0 && _dataset.Tables[0].Rows.Count > 0)
                     {
 
                         centerSeatsDictionary.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[0].Rows[0]["SlotPurchased"]));
