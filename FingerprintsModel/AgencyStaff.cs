@@ -504,6 +504,8 @@ namespace FingerprintsModel
 
         public bool ClassroomConfirmed { get; set; }
 
+        public string IsFutureApplication { get; set; }
+
 
         
     }

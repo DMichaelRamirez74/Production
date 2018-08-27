@@ -990,6 +990,7 @@ namespace FingerprintsData
 
                     obj.ImmunizationFileName = _dataset.Tables[5].Rows[0]["ImmunizationFileName"].ToString();
                     obj.Raceother = _dataset.Tables[5].Rows[0]["OtherRace"].ToString();
+                    obj.IsFutureIntake = Convert.ToString(_dataset.Tables[5].Rows[0]["IsFutureIntake"]);
 
 
                 }
@@ -1311,7 +1312,7 @@ namespace FingerprintsData
 
                 }
 
-                if(_dataset.Tables.Count > 18 && _dataset.Tables[19]!=null && _dataset.Tables[19].Rows.Count>0)
+                if(_dataset.Tables.Count > 19 && _dataset.Tables[19]!=null && _dataset.Tables[19].Rows.Count>0)
                 {
                     obj.DictionarySlotsSeats.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[19].Rows[0]["SlotPurchased"]));
                     obj.DictionarySlotsSeats.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[19].Rows[0]["ClientsReturningAgency"]));
@@ -1320,11 +1321,23 @@ namespace FingerprintsData
                     obj.DictionarySlotsSeats.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[19].Rows[0]["OpenSeats"]));
                     obj.DictionarySlotsSeats.Add("CenterID", Convert.ToInt32(_dataset.Tables[19].Rows[0]["CenterID"]));
 
+                   
+                }
+                else
+                {
+
+                    obj.DictionarySlotsSeats.Add("TotalSlots", 0);
+                    obj.DictionarySlotsSeats.Add("ClientsReturningAgency", 0);
+                    obj.DictionarySlotsSeats.Add("ClientsReturningCenter", 0);
+                    obj.DictionarySlotsSeats.Add("AvailableSeats",0);
+                    obj.DictionarySlotsSeats.Add("OpenSeats",0);
+                    obj.DictionarySlotsSeats.Add("CenterID", 0);
+
                 }
 
                 obj.CenterList = new List<Center>(); 
 
-                if(_dataset.Tables.Count > 19 && _dataset.Tables[20]!=null && _dataset.Tables[20].Rows.Count>0)
+                if(_dataset.Tables.Count > 20 && _dataset.Tables[20]!=null && _dataset.Tables[20].Rows.Count>0)
                 {
                     obj.CenterList = (from DataRow dr in _dataset.Tables[20].Rows
                                       select new Center

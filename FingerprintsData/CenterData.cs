@@ -189,7 +189,7 @@ namespace FingerprintsData
             return per;
         }
 
-        public Center editcentre(string id, string agencyid , bool isEndOfYear=false)
+        public Center editcentre(string id, string agencyid, bool isEndOfYear = false)
         {
 
             Center _centre = new Center();
@@ -414,7 +414,7 @@ namespace FingerprintsData
                         _centre.IsShowDivision = Convert.ToBoolean(_dataset.Tables[5].Rows[0]["IsShowDivision"]);
                     }
 
-                    if(isEndOfYear==true && id=="0")
+                    if (isEndOfYear == true && id == "0")
                     {
                         _centre.ProgramYear = Convert.ToString(_dataset.Tables[6].Rows[0]["ActiveProgramYear"]);
                     }
@@ -434,7 +434,7 @@ namespace FingerprintsData
                 _dataset.Dispose();
             }
         }
-        public List<Center> centerList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string agencyid, bool isEndOfYear=false)
+        public List<Center> centerList(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string agencyid, bool isEndOfYear = false)
         {
             List<Center> _centerlist = new List<Center>();
             try
@@ -505,7 +505,7 @@ namespace FingerprintsData
                 _dataTable.Dispose();
             }
         }
-        public int UpdateCenter(string id, int mode, Guid userId, bool isEndOfYear=false)
+        public int UpdateCenter(string id, int mode, Guid userId, bool isEndOfYear = false)
         {
             try
             {
@@ -850,7 +850,7 @@ namespace FingerprintsData
             }
         }
         //Changes
-        public string DeleteClassroom(string classId, string Agencyid, bool isEndOfYear =false)
+        public string DeleteClassroom(string classId, string Agencyid, bool isEndOfYear = false)
         {
 
             try
@@ -958,7 +958,7 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId,bool isreqAdminSite=false,bool isCenterBasedOnly=false,bool isHomeBasedOnly=false,bool isEndOfYear=false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false)
         {
             dtCenters = new DataTable();
             try
@@ -1858,6 +1858,16 @@ namespace FingerprintsData
                         centerSeatsDictionary.Add("CenterID", Convert.ToInt32(_dataset.Tables[0].Rows[0]["CenterID"]));
                         centerSeatsDictionary.Add("ClassroomID", Convert.ToInt32(_dataset.Tables[0].Rows[0]["ClassroomID"]));
                     }
+                    else
+                    {
+                        centerSeatsDictionary.Add("TotalSlots", 0);
+                        centerSeatsDictionary.Add("ClientsReturningAgency", 0);
+                        centerSeatsDictionary.Add("ClientsReturningCenter", 0);
+                        centerSeatsDictionary.Add("AvailableSeats", 0);
+                        centerSeatsDictionary.Add("OpenSeats", 0);
+                        centerSeatsDictionary.Add("CenterID", 0);
+                        centerSeatsDictionary.Add("ClassroomID", 0);
+                    }
 
                 }
             }
@@ -1921,7 +1931,7 @@ namespace FingerprintsData
             return result;
         }
 
-        public string AcceptClassroomAssignmentClients(string clientIds,string centerId,string classroomID)
+        public string AcceptClassroomAssignmentClients(string clientIds, string centerId, string classroomID)
         {
             string result = "0";
 
@@ -1951,7 +1961,7 @@ namespace FingerprintsData
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }

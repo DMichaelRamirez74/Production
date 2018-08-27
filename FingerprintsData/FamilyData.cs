@@ -6965,8 +6965,6 @@ namespace FingerprintsData
             }
             return "0";
         }
-
-
         public List<HrCenterInfo> Getcenters(ref int yakkrcount, ref int appointment, string Agencyid, string userid)
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
@@ -14886,7 +14884,8 @@ namespace FingerprintsData
                                                 SelectionPoints = Convert.ToString(dr0["SelectionPoint"]),
                                                 DOB = Convert.ToString(dr0["DOB"]),
                                                 ClassroomName = Convert.ToString(dr0["ClassroomName"]),
-                                                ClassroomConfirmed = Convert.ToBoolean(dr0["IsConfirmedClassroom"])
+                                                ClassroomConfirmed = Convert.ToBoolean(dr0["IsConfirmedClassroom"]),
+                                                IsFutureApplication=Convert.ToString(dr0["IsFutureApplication"])
                                             }).ToList();
                         }
 

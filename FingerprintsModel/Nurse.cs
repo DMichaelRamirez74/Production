@@ -410,6 +410,8 @@ namespace FingerprintsModel
             public List<Childcustomscreening> _childscreenings { get; set; }
             public List<CustomScreeningAllowed> _CustomScreeningAlloweds { get; set; }
 
+            public string IsFutureIntake { get; set;  }
+
 
             public class NationalityInfo
             {
