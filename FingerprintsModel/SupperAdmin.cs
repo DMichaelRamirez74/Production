@@ -39,14 +39,19 @@ namespace FingerprintsModel
         public string ScreeningFor { get; set; }
         public string CreatedOn { get; set; }
 
+        public string ScreeningOrder { get; set; }
         public string status { get; set; }
         public List<Questions> Questionlist { get; set; }
+
+        public string ProgramTypes { get; set; }
     }
     public class Options
     {
         public int OptionId { get; set; }
         public string Option { get; set; }
-     
+
+        public bool IsChecked { get; set; }
+
 
     }
     public class Questions
@@ -57,7 +62,9 @@ namespace FingerprintsModel
         public bool Required { get; set; }
         public List<Options> OptionList { get; set; }
 
-        public int QuestionOrder { get; set; }
+        public double QuestionOrder { get; set; }
+
+        public string OptionValue { get; set; }
 
     }
 
