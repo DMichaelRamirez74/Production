@@ -2100,7 +2100,7 @@ namespace Fingerprints.Controllers
 
             }
         }
-
+        [ValidateInput(false)]
         public ActionResult SaveCaseNotes(FormCollection collection)
         {
             string id = collection.Get("childid");
@@ -2122,7 +2122,7 @@ namespace Fingerprints.Controllers
             CaseNote.CaseNotetags = CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Trim().Length - 1);
             CaseNote.CaseNotetitle = Convert.ToString(collection.Get("CaseNotetitle"));
             CaseNote.CaseNoteDate = Convert.ToString(collection.Get("CaseNoteDate"));
-
+            CaseNote.ClientIds = CaseNote.ClientId;
             CaseNote.IsLateArrival = true;
             string message = RosterData.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, Session["AgencyID"].ToString(), Session["UserID"].ToString());
 
