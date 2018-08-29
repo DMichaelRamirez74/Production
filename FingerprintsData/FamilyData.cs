@@ -14901,7 +14901,7 @@ namespace FingerprintsData
                                             ).ToList();
                         }
 
-                        if(_dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
+                        if(_dataset.Tables.Count>2  && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
                         {
                             seatsCount.Add("TotalSlots", Convert.ToInt32(_dataset.Tables[2].Rows[0]["SlotPurchased"]));
                             seatsCount.Add("ClientsReturningAgency", Convert.ToInt32(_dataset.Tables[2].Rows[0]["ClientsReturningAgency"]));
@@ -14909,6 +14909,15 @@ namespace FingerprintsData
                             seatsCount.Add("AvailableSeats", Convert.ToInt32(_dataset.Tables[2].Rows[0]["AvailableSeats"]));
                             seatsCount.Add("OpenSeats", Convert.ToInt32(_dataset.Tables[2].Rows[0]["OpenSeats"]));
                             seatsCount.Add("CenterID", Convert.ToInt32(_dataset.Tables[2].Rows[0]["CenterID"]));
+                        }
+                        else
+                        {
+                            seatsCount.Add("TotalSlots", 0);
+                            seatsCount.Add("ClientsReturningAgency", 0);
+                            seatsCount.Add("ClientsReturningCenter", 0);
+                            seatsCount.Add("AvailableSeats", 0);
+                            seatsCount.Add("OpenSeats", 0);
+                            seatsCount.Add("CenterID", 0);
                         }
 
                        
