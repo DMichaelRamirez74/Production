@@ -1,12 +1,559 @@
-﻿@{
+﻿@model FingerprintsModel.StaffEventCreation
+@{
     ViewBag.Title = "StaffEventCreation";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
 
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            Event.InitialLoad();
+        });
+        var Event = {
+            BindUserList: function (data) {
+                $('.tblUserList').empty();
+                if (data != null && data.length > 0) {
+                    var row = '';
+                    for (var i=0;i<data.length;i++) {
+                        row = '';
+                        row += '<tr>';
+                        row += '     <td class="table-ellips text-center" title=""> <input type="checkbox"  class="edu_next UsersList" data-roles="' + data[i].RoleName + '" onchange="Event.Unselect(this,3)" name="UsersList" value="' + data[i].UserId + '" /></td>';
+                        row += '     <td class="table-ellips" title="">' + data[i].StaffName + '</td>';
+                        row +=    '      <td class="table-ellips" title="">' + data[i].RoleName + '</td>';
+                        row += '       </tr>';
+                        $('.tblUserList').append(row);
+                    }
+
+                }
+                else {
+                    row += '<tr> <td colspan="5">No record found</td></tr>';
+                    $('.tblUserList').append(row);
+                }
+
+            },
+            OnEventTypeChange:function(arg)
+            {
+            
+                if($(arg).val()=="2")
+                {
+                    $('#EventDatetimePicker').datetimepicker('destroy');
+                    $('#EventDatetimePicker').datetimepicker({
+                       
+                        maxDate:'+1d',
+                        timepicker: false,
+                        format: 'm/d/Y',
+                        validateOnBlur: false
+                    });
+                    $('.divUserList').show();
+                }
+                else
+                {
+                    $('#EventDatetimePicker').datetimepicker('destroy');
+                    $('#EventDatetimePicker').datetimepicker({
+                        minDate: 0,
+                        timepicker: false,
+                        format: 'm/d/Y',
+                        validateOnBlur: false
+                    });
+                    $('.UserList').prop('checked', false);
+                    $('.divUserList').hide();
+                }
+            },
+            SubmitEventCancel:function()
+            {
+                debugger;
+                if($('[name="event"]:checked').val() != "2" && $('#CancelReason').val()=="")
+                {
+                    customAlert("Please enter reason");
+                    return false;
+                } else if ($('[name="event"]:checked').val() == "2") { //if select no
+                    $("#ModalEventCancelled").modal("hide");
+                    $("#IsEventCancelled").prop("checked", false);
+                }
+                else
+                {
+                    $('#form2').submit();
+                }
+
+            },
+            OnChangeCancelEvent:function(arg)
+            {
+                if($(arg).val()==1)
+                {
+                    $('.divCancelReason').show();
+
+                }
+                else
+                {
+                    $('.divCancelReason').hide();
+                }
+
+            },
+            OnEditEvent:function()
+            {
+                var isValid = true;
+                var alertInfo="";
+                $('.mandatory').each(function () {
+                    if ($(this).val() == "") {
+                        var placeholder = $(this).attr('placeholder');
+                        customAlert("Please enter " + placeholder);
+                        isValid = false;
+                    }
+                    if (isValid == false) {
+                        return false;
+                    }
+                });
+
+                if (!isValid) return false;
+
+                if ($('#IsEventCancelled').is(':checked') == false)
+                {
+                    if ($('#EventDatetimePicker').val() != "@Model.EventDate" && $('#StartTime').val() != "@Model.StartTime") {
+                        alertInfo = "You have changed the event date and time. Are you sure want to continue?"
+                    }
+
+                    else if ($('#StartTime').val() != "@Model.StartTime") {
+                        alertInfo = "You have changed the event time. Are you sure want to continue?"
+                    }
+                    else if ($('#EventDatetimePicker').val() != "@Model.EventDate") {
+                        alertInfo = "You have changed the event date. Are you sure want to continue?";
+                    }
+
+                    if (alertInfo != "") {
+
+                        BootstrapDialog.show({
+                            title: 'Confirmation',
+                            message: alertInfo,
+
+                            buttons: [{
+                                label: 'Yes',
+                                action: function (dialog) {
+                                    $('#form2').submit();
+                                    dialog.close();
+                                }
+                            }, {
+                                label: 'No',
+                                action: function (dialog) {
+                                    $('#EventDatetimePicker').val("@Model.EventDate");
+                                    $('#StartTime').val("@Model.StartTime");
+                                    isValid = false;
+                                    dialog.close();
+                                }
+                            }]
+                        });
+
+                    } else {  //form submit without cancel or datetime changing
+                        $('#form2').submit();
+                    }
+                }
+                else {
+
+                    $('#ModalEventCancelled').modal({
+                        backdrop: 'static',
+                        keyboard: false,
+                        show: true,
+
+                    });
+
+
+                }
+
+            },
+
+            GetCenterAddress:function(arg)
+            {
+                $("#EvenitAddress").prop("readonly", true);
+                if ($(arg).val() != "0") {
+                    $.ajax({
+
+                        type: "POST",
+                        async: true,
+                        url: "/Events/GetCenterAddress",
+                        data: { 'Id': $(arg).val() },
+                        success: function (data) {
+
+                            $('#EvenitAddress').val(data);
+                            $('.divAddress').show();
+                        },
+                        error: function (data) {
+                        }
+                    });
+                }
+                else {
+                    $('#EvenitAddress').val("");
+                }
+
+            },
+            SiteChange:function(arg)
+            {
+                if($(arg).val()=="1")
+                {
+                    $('#EvenitAddress').val("");
+                    $('.divAddress').hide();
+                    $("#selectCenterAddress").val(0);
+                  //  $("#selectCenterAddress").empty();
+                    //$("#selectCenterAddress").append('<option value="0">Select Center for event address </option>')
+                    //$('.CenterList').each(function ()
+                    //{
+                    //    if($(this).is(':checked'))
+                    //        $("#selectCenterAddress").append('<option value="' + $(this).val() + '">' + $(this).attr('data-roles') + '</option>');
+                    //});
+                    $('.divCenterAddress').show();
+
+                }
+                else
+                {
+                    $("#EvenitAddress").prop("readonly", false);
+                    $('.divCenterAddress').hide();
+                    $('#EvenitAddress').val("");
+                    $('.divAddress').show();
+                }
+
+            },
+            isNumber: function (evt) {
+
+                evt = (evt) ? evt : window.event;
+                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    return false;
+                }
+                if (charCode == 67 && charCode == 88 && charCode == 86) {
+                    return true;
+                }
+                return true;
+            },
+            SelectAll: function (arg, type) {
+                switch(type)
+                {
+                    case 1:
+                        select = ".CenterList";
+                        break;
+                    case 2:
+                        select = ".RolesList";
+                        break;
+                    case 3:
+                        select = ".UsersList";
+                        break;
+                }
+                if ($(arg).is(':checked')) {
+                    $(select).prop('checked', true);
+                }
+                else {
+                    $(select).prop('checked', false);
+                }
+
+            },
+            Unselect: function (arg, type) {
+                switch (type) {
+                    case 1:
+                        select = ".allcenterlist";
+                        break;
+                    case 2:
+                        select = ".allRolesList";
+                        break;
+                    case 3:
+                        select = ".allUserList";
+                        break;
+                }
+     
+                if (!$(arg).is(':checked')) {
+                    $(select).prop('checked', false);
+                }
+
+            },
+            RedirectToDashboard: function () {
+                location.href = "/EducationManager/EventsList";
+            },
+            ValidateInput: function () {
+                cleanValidation();
+                var isValid = true;
+                if ($('#selEventType').val() == "0")
+                {
+                    customAlert("Please select event type");
+                    isValid = false;
+                }
+
+                $('.mandatory').each(function () {
+                    if ($(this).val() == "") {
+                        var placeholder = $(this).attr('placeholder');
+                        customAlert("Please enter " + placeholder);
+                        isValid = false;
+                    }
+                    if (isValid == false) {
+                        return false;
+                    }
+                });
+                if (!isValid) return false;
+
+                if ($('.CenterList:checked').length == 0) { 
+                    customAlert("Please select center(s) for event");
+                    isValid = false;
+                }
+                else if ($('.RolesList:checked').length == 0) {
+                    customAlert("Please select role(s) for event");
+                    isValid = false;
+                }
+                else if ($('.divUserList').is(':visible') && $('.UsersList:checked').length == 0) {
+                    customAlert("Please select User(s) for event");
+                    isValid = false;
+                }
+                else if (parseInt($('#TotalHours').val()) < parseInt($('#ContinuingEdu').val()))
+                {
+                    customAlert("Number of hours should be greater than Continuing Education Hours ");
+                    isValid = false;
+                }
+
+                return isValid;
+            },
+            InitialLoad: function () {
+                $('#StartTime').timepicker({ 'timeFormat': 'h:i A', 'minTime': '08:00 AM', 'maxTime': '05:00 PM' });
+
+                $('#EventDatetimePicker').datetimepicker({
+                    minDate : 0,
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    validateOnBlur: false
+                });
+
+
+
+                $("#ModalEventCancelled").on("hidden.bs.modal", function () {
+                    $('[name="event"]').prop("checked", "");
+                    $("#CancelReason").val('');
+                    $(".divCancelReason").css("display", 'none');
+                });
+
+
+            },
+            ShowPopup: function (type) {
+                if(type == 1)
+                    $('#ModalRolesList').modal('show')
+                else if (type == 3)
+                    $('#ModalUserList').modal('show')
+                else
+                    $('#ModalCenterList').modal('show');
+
+            },
+            CloseSelectRoles: function () {
+                if ($('.RolesList:checked').length == 0) {
+                    customAlert("Please select roles for event");
+                    return;
+                }
+                else {
+                    var RolesList = [];
+                    $('.RolesList').each(function () {
+                        if ($(this).is(':checked') == true)
+                            RolesList.push($(this).val());
+                    });
+                   
+                   
+                        $.ajax({
+
+                            type: "POST",
+
+                            contentType: "application/json; charset=utf-8",
+                            url: "/EducationManager/GetUsersforMultipleRoles",
+                            data: JSON.stringify(RolesList),
+                            success: function (data) {
+                                Event.BindUserList(data);
+                            },
+                            error: function (data) {
+                            }
+                        });
+                    
+                   
+
+                    $('#roleListUI').empty();
+                    $('.RolesList').each(function () {
+                        if ($(this).is(':checked')) {
+                            $('#roleListUI').append("<li>" + $(this).attr('data-roles') + "</li>");
+                        }
+                    });
+                    $('#roleListUI').show();
+                    $('#ModalRolesList').modal('hide');
+                }
+
+            },
+            CloseSelectCenters: function () {
+                if ($('.CenterList:checked').length == 0) {
+                    customAlert("Please select centers for event");
+                    return;
+                }
+                else {
+                  //  $("#selectCenterAddress").empty();
+                   // $("#selectCenterAddress").append('<option value="0">Select Center for event address </option>')
+                    $('#centerListUI').empty();
+                    $('.CenterList').each(function () {
+                        if ($(this).is(':checked')) {
+                            $('#centerListUI').append("<li>" + $(this).attr('data-roles') + "</li>");
+                         //   $("#selectCenterAddress").append('<option value="' + $(this).val() + '">' + $(this).attr('data-roles') + '</option>');
+                        }
+                    });
+                    $('#centerListUI').show();
+                    $('#ModalCenterList').modal('hide');
+                }
+            }
+        }
+    </script>
+}
 
 
 @section MainContentHolder{
     <style>
+        .tuser_label {
+            font-weight: 300 !important;color: #fff !important;
+        }
+span.sys_note_edu.inkind_color {
+    width: 100%;
+    float: left;    padding: 10px 0 5px;
+    text-align: left;
+    font-weight: 300;
+    font-style: italic;
+}
+            .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            /*width: 100%;*/
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td{
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            max-height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+               .ersea-table thead tr th {
+    border-bottom: 0!important;
+    text-align: left;
+    text-transform: capitalize;
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 25px;
+}
+.ersea-table thead tr {
+    background: #9B58B4!important;
+    color: #fff;
+    text-align: left;
+}
+.ersea-table-head p {
+    background: #fff;
+    padding: 5px 5px;
+    color: #337ab7;
+    text-align: left;
+    font-size: 14px;
+    margin: 0;
+    border-right: 0;
+}
+.ersea-table-head p strong {
+    font-size: 12px;
+}
+.ersea-table-sz tr th{font-size:14px!important;}
+tbody.ersea-table-head tr td {
+    background: #fff !important;
+    border: solid 1px #e7e7e7;
+}
+        sup{
+            color:red;
+        }
+        .icc_staffs > a {
+            display: inline-block;
+            margin-top: 14px;
+        }
+
+        .icc_staffs ul {
+            width: 100%;
+            float: left;
+            text-decoration: none;
+            list-style: none;
+            margin-top: 10px;
+                overflow-y: scroll;
+    max-height: 100px;
+        }
+  .divCenterList label {
+    float: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 215px !important;
+    white-space: nowrap;
+}
+
+            .icc_staffs ul li {
+                width: 100%;
+                float: left;
+                position: relative;
+                padding-left: 15px;
+                color:#7e11ab;
+            }
+
+                .icc_staffs ul li::before {
+                    position: absolute;
+                    content: "\2713";
+                    left: 0;
+                    color: #25dc25;
+                }
+
+
+        div#ModalRolesList .modal-header h3 {
+            width: auto;
+            display: inline;
+        }
+
+        .smt-footer {
+            width: 100%;
+            display: inline-block;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 15px;
+            border-top: 1px solid #ccc;
+        }
+        .divCenterList input.edu_next[type="checkbox"] {
+    float: left;
+}
+        input.edu_next[type="checkbox"]::before {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #fff;
+            border: 1px solid #174472;
+            left: 0px;
+        }
+        #form2 .modal-header h3 {
+    width: auto;
+    display: inline-block;
+}
+        input.edu_next[type="checkbox"] {
+            position: relative;
+            outline: none;
+            margin-right: 10px;
+        }
+
+            input.edu_next[type="checkbox"]:checked::after {
+                content: "\2713";
+                position: absolute;
+                color: #174472;
+                font-size: 15px;
+                font-weight: 600;
+                border-color: #174472;
+                top: -3px;
+                left: 1px;
+            }
+
         .import_totalcount ul li a {
             color: #000;
             font-weight: 600;
@@ -150,7 +697,7 @@
             width: 100%;
             float: left;
             margin-top: 0px;
-            background-color: rgba(4, 24, 46, 0.5);
+            background-color: #f1f5f8;
             border-radius: 7px;
             margin-bottom: 20px;
         }
@@ -160,6 +707,13 @@
             padding: 6px 12px;
         }
 
+        .divRolesList label,.divCenterList label {
+            display: inline;
+            max-width: 100%;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #152e48;
+        }
 
         #facility_scroll legend {
             font-size: 14px;
@@ -373,6 +927,7 @@
             width: 100% !important;
             float: left !important;
             margin: 0 0 15px !important;
+            padding-left: 10px;
         }
 
         .radio.radio-info label {
@@ -384,7 +939,7 @@
             height: 80px;
             color: #333;
             width: 100%;
-            border: 0;
+            border: 1px solid #ccc;
             padding: 10px 12px;
             outline: none;
         }
@@ -463,195 +1018,570 @@
             margin-bottom: 15px;
             border: 0;
         }
-        .inkind_color
-        {
-                color: #fff;
-    font-weight: bold;
-        font-family: "Arial" !important;
-    padding-top: 8px;
+
+        .inkind_color {
+            color: #2f608b;
+            font-weight: bold;
+            font-family: "Arial" !important;
+            padding-top: 8px;
         }
-        .icc_fac{background:none;}
-        .icc_textarea textarea{font-family: "Arial" !important;resize:none;border-radius:5px!important; }
-        .icc_textarea textarea:focus{box-shadow:none;outline:none;}
+
+        .icc_fac {
+            background: none;
+        }
+
+        .icc_textarea textarea {
+            font-family: "Arial" !important;
+            resize: none;
+            border-radius: 5px !important;
+        }
+
+            .icc_textarea textarea:focus {
+                box-shadow: none;
+                outline: none;
+            }
         /*.icc_fac{border-radius:5px; padding: 3px 12px;}*/
-        .icc_input input,.icc_input select,.icc_input textarea {
-    border: 0;
-    width: 100%;
-    height: 30px;border-radius:5px!important; 
-    color: #333;
-    outline: none;
-    font-size: 14px;
-    padding: 0 10px;
+        .icc_input input, .icc_input select, .icc_input textarea {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 30px;
+            border-radius: 5px !important;
+            color: #333;
+            outline: none;
+            font-size: 14px;
+            padding: 0 10px;
+        }
+
+        .icc_input input, .import_facility button, #page-wrapper h2 {
+            font-family: "Arial" !important;
+        }
+
+        #page-wrapper h2 {
+            padding-bottom: 3px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .icc_input p, .icc_textarea p {
+            margin: 0;
+            color: #2f608b;
+            line-height: 22px !important;
+        }
+
+        #facility_scroll fieldset {
+            padding: 30px 0 10px;
+        }
+
+        .event-radio-btn .radio.radio-info {
+            float: left;
+            margin-top: 10px;
+            width: 100%;
+            margin-right: 30px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .event-radio-btn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .event-radio-btn .radio-info input[type="radio"]:checked + label {
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            font-weight: normal;
+            color: #163b69;
+            font-size: 15px;
+        }
+
+        .event-radio-btn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #163b69;
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .event-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .event-radio-btn .radio input[type="radio"]:checked + label::after {
+            -webkit-transform: scale(1, 1);
+            -ms-transform: scale(1, 1);
+            -o-transform: scale(1, 1);
+            transform: scale(1, 1);
+        }
+
+        .event-radio-btn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #163b69;
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio-info input[type="radio"] + label::after {
+            background-color: #163b69;
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio label::after {
+            display: inline-block;
+            position: absolute;
+            content: " ";
+            width: 8px;
+            height: 8px;
+            left: 4px;
+            top: 6px;
+            margin-left: -20px;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transform: scale(0, 0);
+            -ms-transform: scale(0, 0);
+            -o-transform: scale(0, 0);
+            transform: scale(0, 0);
+            -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        }
+        .icc_kindfac .radio-info.event-type-check {
+            display: inline-block;
+            width: 100px !important;
+        }
+         .ersea-table-sz tbody.ersea-table-head tr td
+         {
+             background:none!important;
+         }
+        .ersea-table-sz tbody.ersea-table-head tr:nth-child(even) {
+    background-color: #f5f5f5!important;
 }
-        .icc_input input,.import_facility button,#page-wrapper h2{font-family: "Arial" !important;}
-    #page-wrapper h2 {
-    padding-bottom: 3px;
-    display: inline-block;
-    width: 100%;
+
+           .ersea-table-sz tbody.ersea-table-head tr:nth-child(odd) {
+    background-color: #fff!important;
 }
     </style>
-    <div class="container-fuild" style="padding: 0;">
-     
-        <div class="row">
-            <div class="fact_wrapper">
+    <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
+        <div class="container-fuild" style="padding: 0;">
 
-                <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
-                    <i class="fa fa-briefcase" aria-hidden="true"></i>&nbsp;Event Creation
+            <div class="row">
+                <div class="fact_wrapper">
 
-                    <span class="view-btn backto_listspan">
+                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                        <i class="fa fa-briefcase" aria-hidden="true"></i>&nbsp;@Model.Heading
 
-                        <a href="/EducationManager/EducationManagerDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
-                    </span>
-                </h2>
+                        <span class="view-btn backto_listspan">
+
+                            <a href="/EducationManager/EducationManagerDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                        </span>
+                    </h2>
 
 
-                <div class="col-lg-12 col-xs-12 inkind-entry-div import_legend" id="facility_scroll">
-                    <form id="inkind-info-form">
+                    <div class="col-lg-12 col-xs-12 inkind-entry-div import_legend" id="facility_scroll">
+
                         <fieldset>
-
-                            <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
-
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Event Name</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Event Name" />
-                                    </div>
-                                </div>
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Event Status</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <select class="billing-select1 form-control" id="CenterId" name="CenterId">
-                                            <option selected="selected" value="0">-Select Status-</option>
-                                            <option value="75">Pending</option>
-                                            <option value="76">Open</option>
-
-                                        </select>
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Event Description</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Event Description" />
-                                    </div>
-                                </div>
-
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Event Date</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Event Date" />
-                                    </div>
-                                </div>
-
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Speaker</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Speaker" />
-                                    </div>
-                                </div>
-
-
-
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Time</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Time" />
-                                    </div>
-                                </div>
-
-
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Duration</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Duration" />
-                                    </div>
-                                </div>     
-                                <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">No of Seats</label>
-                                    <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="No of Seats" />
-                                    </div>
-                                </div>               
-                            </div>
+                            @Html.HiddenFor(m => m.InitialEventDate)
+                            @Html.HiddenFor(m => m.InitialEventTime)
+                        
                             <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Center</label>
+                                    <label class="col-lg-4 inkind_color">Event Type <sup>*</sup></label>
                                     <div class="col-lg-8 icc_fac icc_input">
-                                        <select class="billing-select1 form-control" id="CenterId" name="CenterId">
-                                            <option selected="selected" value="0">-Select Center-</option>
-                                            <option value="75">GLENWOOD CENTER for EARLY CHILDHOOD</option>
-                                            <option value="76">Little Tites</option>
-                                            <option value="77">Home Based</option>
-                                            <option value="96">Home Based 2</option>
+                                     @if (Model.Eventid > 0)
+                                     {
+       <p style="color:#333;font-weight:bold;">Upcoming Event</p>
+        <input type="hidden" name="EventType" value="1"/>
+                                     }
+                                     else
+                                     {
+                                        <select class="form-control mandatory" onchange="Event.OnEventTypeChange(this);" name="EventType" id="selEventType">
+                                            <option value="0">Select Event Type</option>
+                                            <option value="1"> Upcoming Event</option>
+                                            <option value="2">Historical Event</option>
                                         </select>
+                                     }
+
+                                        @*<select class="form-control mandatory" @(Model.Eventid > 0 ? "disabled" : "")  onchange="Event.OnEventTypeChange(this);" name="EventType" id="selEventType">
+                                            <option value="0">Select Event Type</option>
+                                             <option value="1"  @(Model.Eventid > 0 ? "selected" :"")> Upcoming Event</option>
+                                            <option value="2">Historical Event</option>
+                                        </select>*@
+                                     
                                     </div>
                                 </div>
+
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Event for (Staff)</label>
+                                    <label class="col-lg-4 inkind_color">Event Name <sup>*</sup></label>
                                     <div class="col-lg-8 icc_fac icc_input">
-                                        <select class="billing-select1 form-control" id="CenterId" name="CenterId">
-                                            <option selected="selected" value="0">-Select Roles-</option>
-                                            <option value="75">Nurse</option>
-                                            <option value="76">Teacher</option>
-                                            <option value="77">Family Service Worker</option>
-                                          
-                                        </select>
+                                        @Html.TextBoxFor(m => m.EventName, new { @class = "form-control mandatory", placeholder = "Event Name", id = "EventName", onblur = "" })
+
                                     </div>
                                 </div>
-
-
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">RSVP cut off date</label>
+                                    <label class="col-lg-4 inkind_color">Event Description <sup>*</sup></label>
                                     <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="RSVP cut off date" />
+                                        @Html.TextBoxFor(m => m.EventDescription, new { @class = "form-control mandatory", placeholder = "Event Description", id = "EventDescription" })
                                     </div>
                                 </div>
-
-
-
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">RSVP Points</label>
+                                    <label class="col-lg-4 inkind_color">Event Date <sup>*</sup></label>
                                     <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="RSVP Points" />
+                                        @Html.TextBoxFor(m => m.EventDate, new { @class = "form-control mandatory", placeholder = "Event Date", id = "EventDatetimePicker" })
                                     </div>
                                 </div>
 
+                           
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Attendance Points</label>
+                                    <label class="col-lg-4 inkind_color">Event Start Time <sup>*</sup></label>
                                     <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Attendance Points" />
+                                        @Html.TextBoxFor(m => m.StartTime, new { @class = "form-control mandatory", placeholder = "Start Time", id = "StartTime" })
                                     </div>
                                 </div>
 
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Miles Driven</label>
+                                    <label class="col-lg-4 inkind_color">Number of Hours <sup>*</sup></label>
                                     <div class="col-lg-8 icc_fac icc_input">
-                                        <input type="text" id="milesdriven" placeholder="Miles Driven" />
+                                        @Html.TextBoxFor(m => m.TotalHours, new { @class = "form-control mandatory", placeholder = "Number of Hours", onkeypress= "return Event.isNumber(event);", id = "TotalHours", minlength = "1", maxlength = "2"})
                                     </div>
                                 </div>
-
                                 <div class="form-group row icc_kindfac">
-                                    <label class="col-lg-4 inkind_color">Address</label>
-                                    <div class="col-lg-8 icc_fac icc_textarea">
-
-                                        <textarea id="notes" class="form-control" placeholder="Notes"></textarea>
+                                    <label class="col-lg-4 inkind_color">Continuing Education Hours </label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        @Html.TextBoxFor(m => m.ContinuingEdu, new { @class = "form-control", placeholder = "Continuing Education Hours", id = "ContinuingEdu" , onkeypress = "return Event.isNumber(event);", minlength = "1", maxlength = "2" })
                                     </div>
                                 </div>
+                                @if (Model.IsEditMode)
+                                {
+                                    <div class="form-group row icc_kindfac">
+                                        <label class="col-lg-4 inkind_color" style="color:red;">Cancel Event </label>
+                                        <div class="col-lg-8 icc_fac icc_input">
+                                            @Html.CheckBoxFor(m => m.IsEventCancelled, new { @class = "form-control", id = "IsEventCancelled",@style= "width: 20px;box-shadow: none;" })
+                                        </div>
+                                    </div>
+                                }
                           
 
+                            </div>
+                            <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Center <sup>*</sup></label>
+                                    <div class="col-lg-8 icc_fac icc_input icc_staffs">
+                                        @if (Model.IsEditMode)
+                                        {
+                                            <ul>
+                                                @foreach(var list in Model.CenterList)
+                                                {
+                                                    <li style="margin-top: 0;">@list.Text</li>
+                                                }
+
+                                            </ul>
+
+                                        }
+                                        else
+                                        {
+                                            <a href="#" onclick="Event.ShowPopup(2)" style="text-decoration:underline;color:#275d89;margin-top: 12px;display: block;">Click here to select center(s) for Event</a>
+                                            <ul id="centerListUI" style="display:none"></ul>
+                                        }
+                                      
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Event for (Role) <sup>*</sup></label>
+                                    <div class="col-lg-8 icc_fac icc_input icc_staffs">
+                                        @if (Model.IsEditMode)
+                                        {
+                                            <ul>
+                                                @foreach (var list in Model.ActiveRoles)
+                                                {
+                                                    <li style="margin-top: 0;">@list.Text</li>
+                                                }
+
+                                            </ul>
+
+                                        }
+                                        else
+                                        {
+                                            <a href="#" onclick="Event.ShowPopup(1)" style="text-decoration:underline;color:#275d89">Click here to select role(s) for Event</a>
+                                            <ul id="roleListUI" style="display:none"></ul>
+                                        }
+                                       
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac divUserList" style="display:none;">
+                                    <label class="col-lg-4 inkind_color">Select Participated Users <sup>*</sup></label>
+                             
+                                    <div class="col-lg-8 icc_fac icc_input icc_staffs">
+                                        @if (!Model.IsEditMode)
+                                        {
+                                            <a href="#" onclick="Event.ShowPopup(3)" style="text-decoration:underline;color:#275d89;line-height:23px;margin-top:0;">Click here to select user(s) who participated in Event</a>
+
+                                        }
+                                       
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Trainer <sup>*</sup></label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        @Html.TextBoxFor(m => m.Trainer, new { @class = "form-control mandatory", placeholder = "Event Trainer", id = "Trainer" })
+                                    </div>
+                                </div>
+
+                                @if (Model.IsEditMode)
+                                {
+                                    <div class="form-group row icc_kindfac divAddress">
+                                        <label class="col-lg-4 inkind_color">Address <sup>*</sup></label>
+                                        <div class="col-lg-8 icc_fac icc_textarea">
+                                            @Html.TextAreaFor(m => m.EvenitAddress, new { @class = "form-control mandatory", placeholder = "Event Address", id = "EvenitAddress" })
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <div class="form-group row icc_kindfac">
+                                        <label class="col-lg-4 inkind_color">Event Place <sup>*</sup></label>
+                                        <div class="col-lg-8 icc_fac icc_input event-radio-btn">
+                               
+                                            <span class="radio radio-info event-type-check">
+                                                <input type="radio" name="site" onchange="Event.SiteChange(this)" class="site" value="1" />
+
+                                                <label>Onsite</label>
+                                            </span>
+                                            <span class="radio radio-info event-type-check">
+                                                <input type="radio" name="site" onchange="Event.SiteChange(this)" class="site" value="2" />
+                                                <label>Offsite</label>
+                                            </span>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group row icc_kindfac divCenterAddress" style="display:none">
+                                        <label class="col-lg-4 inkind_color">Select Center for Event Address <sup>*</sup></label>
+                                        <div class="col-lg-8 icc_fac icc_textarea">
+                                            <select class="form-control" onchange="Event.GetCenterAddress(this);" id="selectCenterAddress">
+                                                <option value="0">Select Center for event address </option>
+@for(int i = 0; i < Model.CenterList.Count; i++)
+{
+    if (@Model.CenterList[i].HomeBased != true)
+    {
+    <option value="@Model.CenterList[i].Value">@Model.CenterList[i].Text </option>
+    }
+}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row icc_kindfac divAddress" style="display:none">
+                                        <label class="col-lg-4 inkind_color">Address <sup>*</sup></label>
+                                        <div class="col-lg-8 icc_fac icc_textarea">
+                                            @Html.TextAreaFor(m => m.EvenitAddress, new { @class = "form-control mandatory", placeholder = "Event Address", id = "EvenitAddress" })
+                                        </div>
+                                    </div>
+
+                                }
 
                             </div>
-                            
+
                             <div class="form-group import_facility" id="import_facility">
-                                <button class="btn btn-success" onclick="return AddImages()" type="button">Submit</button>
-                                <button class="btn btn-danger" onclick="RedirectToDashboard()" type="button">Cancel</button>
+                                @if (Model.IsEditMode)
+                                {
+                                    <button class="btn btn-success" onclick="return Event.OnEditEvent();" type="button">Submit</button>  
+                                }
+                                else
+                                {
+                                    <button class="btn btn-success" onclick="return Event.ValidateInput();" type="submit">Submit</button>
+                                }
+                                
+                                <button class="btn btn-danger" onclick="Event.RedirectToDashboard()" type="button">Cancel</button>
                             </div>
                         </fieldset>
-                    </form>
+
+                    </div>
+
+
+                
                 </div>
             </div>
         </div>
-    </div>
 
+        <div id="ModalCenterList" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Select Center(s) for Events</h3>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                    </div>
+                    <div class="modal-body">
+                        <div class="divCenterList col-lg-12">
+                            <div class="col-lg-4 col-sm-6">
+                                <input type="checkbox" class="edu_next allcenterlist" onclick="Event.SelectAll(this,1)" value="" />
+                                <label style="color:#c7416f">Select All</label>
+                            </div>
+
+                            @foreach (var center in Model.CenterList)
+                            {
+                                <div class="col-lg-4 col-sm-6">
+                                    <input type="checkbox" class="edu_next CenterList"  data-roles="@center.Text"  onchange="Event.Unselect(this,1)" name="CenterIds" value="@center.Value" />
+                                    <label title="@center.Text">@center.Text</label>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                    <div class="smt-footer">
+                        <button type="button" class="btn btn-success" onclick="Event.CloseSelectCenters();">Submit</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="ModalRolesList" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Select Roles for Events</h3>
+                      
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                    </div>
+                    <div class="modal-body">
+                        <div class="divRolesList col-lg-12">
+                            <div class="col-lg-4 col-sm-6">
+                                <input type="checkbox" class="edu_next allRolesList" onclick="Event.SelectAll(this,2)" value="" />
+                                <label style="color:#c7416f">Select All</label>
+                            </div>
+                            @foreach (var role in Model.ActiveRoles)
+                            {
+                                <div class="col-lg-4 col-sm-6">
+                                    <input type="checkbox" class="edu_next RolesList" data-roles="@role.Text" onchange="Event.Unselect(this,2)" name="RolesList" value="@role.Value" />
+                                    <label title="@role.Text">@role.Text</label>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                    <div class="smt-footer">
+                        <button type="button" class="btn btn-success" onclick="Event.CloseSelectRoles();">Submit</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div id="ModalEventCancelled" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-md">
+
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 style="margin:0;">Event Cancel Confirmation</h3>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                    </div>
+                    <div class="modal-body">
+                        <div class="col-lg-12">
+                            <div class="form-group row icc_kindfac">
+                                <label class="col-lg-6 inkind_color">Do you want to cancel the event?</label>
+                                <div class="col-lg-6 icc_fac icc_input event-radio-btn">
+                                    <div class="radio radio-info" style="width:auto!important;display:inline-block;">
+                                        <input type="radio" name="event" onchange="Event.OnChangeCancelEvent(this)" value="1" />
+
+                                        <label>Yes</label>
+                                    </div>
+                                    <div class="radio radio-info" style="width:auto!important;display:inline-block;margin-left:20px!important;">
+                                        <input type="radio"  name="event"  onchange="Event.OnChangeCancelEvent(this)"  value="2" />
+                                        <label>No</label>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="form-group row icc_kindfac divCancelReason" style="display:none;">
+                                <label class="col-lg-6 inkind_color">Reason <sup>*</sup></label>
+                                <div class="col-lg-6 icc_fac icc_textarea">
+                                    @Html.TextAreaFor(m => m.CancelReason, new { @class = "form-control", placeholder = "Cancel Reason", id = "CancelReason" })
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="smt-footer">
+                        <button type="button" class="btn btn-success" onclick="return Event.SubmitEventCancel();">Submit</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div id="ModalUserList" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Select Participated Users</h3>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <span class="sys_note_edu inkind_color"><b>Note:</b> Kindly select role(s) to view the participated users on the list <sup>*</sup></span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="divRolesList col-lg-12">
+                            <table class="col-md-12 table-striped table-condensed cf table-change ersea-table ersea-table-sz" style="margin-bottom:24px;padding:16px;width:100%;">
+                                <thead class="table-hd scroll-thead">
+                                    <tr>
+                                        <th><input type="checkbox" id="tuser" class="allUserList edu_next" onclick="Event.SelectAll(this,3)" /><label for="tuser" class="tuser_label">Select All</label></th>
+                                        <th>Staff Name</th>
+                                        <th>Role Name</th>
+                                  
+                                    </tr>
+
+                                </thead>
+                                <tbody class="ersea-table-head tblUserList scroll-tbody"></tbody>
+                            </table>
+                          
+                        </div>
+
+                    </div>
+                    <div class="smt-footer">
+                        <button type="button" class="btn btn-success" onclick="Event.CloseSelectUsers();">Submit</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
 }

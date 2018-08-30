@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "StaffEventCheckin";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+@model FingerprintsModel.EventReportDetails
+
+
+@section MainContentHolder{
+
+
+
+    <style type="text/css">
+
+          .candidate-sign {
+        background: #ddd;
+        border-color: #fff;
+           width: 400px;
+    height: 200px;
+
+
+    }
+          .page-wrapper-change {
+    background: url(../../Images/body-bg.png) center no-repeat #1f4873 !important;
+    background-size: cover !important;
+    background-position: 100% 100% !important;
+}
+          .fb_headscale .page-header {
+    border-bottom: 4px solid #f9c751 !important;
+    color: #fff;
+}
+    .clear-btn,.accept-btn{background-color: #295b8f!important;border-radius: 0;}
+
+        .title-clr {
+        color:#fff;
+        }
+            .title-clr span {
+            font-weight:bold;
+            }
+    </style>
+
+    <div style="padding:30px 15px;margin:0;">
+
+        <div class="container-fuild">
+
+            <div class="row">
+                <div class="col-md-12">
+
+                    <a href="/EducationManager/OnSpotEventCheckIn?EventId=@Model.Eventid" style="padding:20px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list mb10">Back to Check-In List</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 fb_headscale">
+                    <h2 class="page-header" style="margin-top:0px !important;">
+                        <i class="fa fa-users" aria-hidden="true"></i>
+                        Staff Event Check-In
+                    </h2>
+                </div>
+            </div>
+
+                <div class="row" style="margin:0px;">
+
+
+                    <div class="row" style="height:80px;">
+                        <div class="col-md-6">
+                            <label class="title-clr mb10"><span>Event Name : </span>@Model.EventName</label>
+                            <label class="title-clr mb10"><span>Event Date : </span>@Model.EventDate</label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="title-clr mb10"><span>Name : </span>@Model.ParticipantDetails[0].ParticipantName</label>
+                            <label class="title-clr mb10"><span>Role : </span>@Model.ParticipantDetails[0].ParticipantRoleName</label>
+
+
+                        </div></div>
+
+                        <div class="panel panel-info" style="border-radius:0;">
+                            @*<div class="panel-heading"> <h2 class="panel-title">Staff Event Checkin</h2></div>*@
+                            <div class="panel-body">
+
+                                <form name="signsubmit" method="post" action="@Url.Action("SubmitEventSignature","EducationManager")">
+
+                                    <input type="hidden" name="UserId" value="@Model.ParticipantDetails[0].ParticipantId" />
+                                    <input type="hidden" name="Signature" value="" />
+                                    <input type="hidden" name="EventId" value="@Model.Eventid" />
+                                </form>
+
+
+
+                            <div class="row" style="">
+                                @*<div class="col-md-12 mb10">  <div class="col-md-12" style="border-bottom:2px solid"></div></div>*@
+
+
+
+                                <div class="col-md-3">
+                                    <p style="font-weight:bold;color:#184879;">Profile Picture</p>
+                                    @{
+                                    var defaultUrl ="";
+                                    if(Model.ParticipantDetails[0].Gender == 1){
+                                    defaultUrl=Url.Content("~/Images/adult-image.png");
+                                    }else if (Model.ParticipantDetails[0].Gender == 0){
+                                    defaultUrl=Url.Content("~/Images/female-adult.png");
+                                    }else{
+                                    defaultUrl= Url.Content("~/content/img/ic_male_default.png");
+                                    }
+                                    }
+                                    <img width="180" height="180"
+                                         src="@(Model.ParticipantDetails[0].Avatar == "" ? defaultUrl : Fingerprints.ViewModel.UrlExtensions.ToAvtarImages(Model.ParticipantDetails[0].Avatar))" />
+
+                                </div>
+                                <div class="col-md-8">
+                                    <p style="font-weight:bold;color:#184879;">Add Signature</p>
+                                    <div class="candidate-sign kbw-signature mb20" id="sign">
+                                    </div>
+
+                                    <p>
+                                        <button type="button" class="btn btn-default clear-btn">Clear</button>
+                                        <button type="button" class="btn btn-default accept-btn">Submit Signature</button>
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $('#menu-head').hide(); $('#side-menu').hide();
+            $(".navbar-brand").prop('href', 'javascript:void(0)');
+
+
+            $(".candidate-sign").signature({ color: '#333' });
+
+            $(document).on('click', '.clear-btn', function (e) {
+              //  var _index = $(this).closest('tr').data('index');
+                // var _sign = $('#sign_' + _index).signature('toJSON');
+
+                $('#sign').signature('clear');
+            });
+
+            $(document).on('click', '.accept-btn', function (e) {
+                e.preventDefault();
+
+                var _sign = $('#sign').signature('toJSON');  // value of sign div
+                if (!JSON.parse(_sign).lines.length) {
+
+                    customAlert("Signature is required");
+                    return false;
+                }
+                $('[name="Signature"]').val($('#sign').signature('toJSON'));
+                $('[name="signsubmit"]').submit();
+
+
+
+            });
+
+        });
+
+
+    </script>
+
+
+
+}
+
+

@@ -1,0 +1,869 @@
+﻿@model FingerprintsModel.StaffEventCreation
+@{
+    ViewBag.Title = "StaffEventInfo";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+    <script type="text/javascript">
+        $(document).ready(function () {
+           // EventInfo.InitialLoad();
+        });
+        var EventInfo = {
+
+
+            Validation: function () {
+
+                if ($('.plan:checked').length == 0) {
+                    customAlert("Please select RSVP ");
+                    return false;
+                }
+
+
+            },
+            RedirectToDashboard: function () {
+                location.href = "/EducationManager/EducationManagerDashboard";
+            }
+
+        };
+
+    </script>
+}
+@section MainContentHolder{
+    <style>
+        .icc_staffs > a {
+            display: inline-block;
+            margin-top: 14px;
+        }
+
+        .icc_staffs ul {
+            width: 100%;
+            float: left;
+            text-decoration: none;
+            list-style: none;
+            margin-top: 15px;
+        }
+
+            .icc_staffs ul li {
+                width: 100%;
+                float: left;
+                position: relative;
+                padding-left: 15px;
+            }
+
+                .icc_staffs ul li::before {
+                    position: absolute;
+                    content: "\2713";
+                    left: 0;
+                    color: #25dc25;
+                }
+
+
+        div#ModalRolesList .modal-header h3 {
+            width: auto;
+            display: inline;
+        }
+
+        .smt-footer {
+            width: 100%;
+            display: inline-block;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 15px;
+            border-top: 1px solid #ccc;
+        }
+
+        input.edu_next[type="checkbox"]::before {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #fff;
+            border: 1px solid #174472;
+            left: 0px;
+        }
+
+        input.edu_next[type="checkbox"] {
+            position: relative;
+            outline: none;
+            margin-right: 10px;
+        }
+
+            input.edu_next[type="checkbox"]:checked::after {
+                content: "\2713";
+                position: absolute;
+                color: #174472;
+                font-size: 15px;
+                font-weight: 600;
+                border-color: #174472;
+                top: -3px;
+                left: 1px;
+            }
+
+        .import_totalcount ul li a {
+            color: #000;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .import_totalcount ul li {
+            float: right;
+            margin: 0 9px;
+            text-decoration: none;
+            list-style: none;
+        }
+
+        .import_totalcount {
+            width: 100%;
+            float: left;
+            background-color: #f9c751;
+            padding: 14px 0;
+        }
+
+        thead.set-bggm th {
+            color: #000 !important;
+        }
+
+        .set-square label {
+            margin-left: 0 !important;
+        }
+
+        .no-padding {
+            padding: 0px;
+        }
+
+        thead.set-bggm {
+            background-color: #f9c751 !important;
+        }
+
+            thead.set-bggm tr th {
+                border-right: 1px solid;
+            }
+
+        td.innc-con {
+            text-align: center;
+        }
+
+        .wht_bgm {
+            background-color: #fff;
+            color: #333;
+        }
+
+        span#TotalCost {
+            /*letter-spacing: 3px;*/
+        }
+
+        .split-browser {
+            background-color: #16a086 !important;
+            outline: none !important;
+            cursor: pointer;
+        }
+
+        .split1-browser {
+            background-color: #d64035 !important;
+            outline: none !important;
+            cursor: pointer;
+        }
+
+            .split1-browser:hover {
+                background-color: #d64035 !important;
+                outline: none;
+            }
+
+        .split-browser:hover {
+            background-color: #3aaf99 !important;
+            outline: none;
+        }
+
+        .gud_sport {
+            float: right;
+        }
+
+        td.tb-spikit {
+            text-align: center;
+        }
+
+            td.tb-spikit img {
+                border: 1px solid #333;
+                border-radius: 3px;
+            }
+
+        .slot-heading1 h2 {
+            color: #fff;
+            width: auto !important;
+            text-align: right;
+            float: right;
+            font-weight: bold;
+            margin: 0;
+            margin-top: 30px;
+            background: #e91e63;
+            color: #fff;
+            font-size: 15px;
+            padding: 9px !important;
+            margin-bottom: 12px;
+            border-radius: 5px;
+        }
+
+            .slot-heading1 h2 span {
+                color: #fff;
+            }
+
+        .slot-heading h2 {
+            color: #fff;
+            width: auto !important;
+            text-align: right;
+            float: right;
+            font-weight: bold;
+            margin: 0;
+            margin-top: 30px;
+            background: #673ab7;
+            color: #fff;
+            font-size: 15px;
+            padding: 9px !important;
+            margin-bottom: 12px;
+            border-radius: 5px;
+        }
+
+            .slot-heading h2 span {
+                color: #fff;
+            }
+
+        .zoomify.zoomed {
+            position: relative !important;
+            z-index: 999999 !important;
+        }
+
+        .import_facility {
+            width: 100%;
+            float: left;
+            text-align: center;
+        }
+
+        div#facility_scroll {
+            width: 100%;
+            float: left;
+            margin-top: 0px;
+            background-color: #f1f5f8;
+            border-radius: 7px;
+            margin-bottom: 20px;
+        }
+
+        .icc_fac {
+            background-color: #fff;
+            padding: 6px 12px;
+        }
+
+        .divRolesList label {
+            display: inline;
+            max-width: 100%;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #152e48;
+        }
+
+        #facility_scroll legend {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 0px;
+            width: 100%;
+            position: absolute;
+            top: -14px;
+            border: 1px solid #e66770;
+            border-radius: 4px;
+            padding: 5px 5px 5px 10px;
+            background-color: #e66760;
+            line-height: 30px;
+            margin: auto;
+            color: #fff;
+        }
+
+        .transition-radio-btn .radio.radio-info {
+            float: left;
+            margin-top: 10px;
+            width: auto;
+            margin-right: 30px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .transition-radio-btn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"]:checked + label {
+            color: #fff;
+        }
+
+        .transition-radio-btn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #fff;
+            color: #fff;
+        }
+
+
+        .transition-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .transition-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .transition-radio-btn .radio input[type="radio"]:checked + label::after {
+            -webkit-transform: scale(1, 1);
+            -ms-transform: scale(1, 1);
+            -o-transform: scale(1, 1);
+            transform: scale(1, 1);
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #fff;
+            color: #fff;
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"] + label::after {
+            background-color: #fff;
+            color: #fff;
+        }
+
+        .transition-radio-btn .radio label::after {
+            display: inline-block;
+            position: absolute;
+            content: " ";
+            width: 8px;
+            height: 8px;
+            left: 4px;
+            top: 6px;
+            margin-left: -20px;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transform: scale(0, 0);
+            -ms-transform: scale(0, 0);
+            -o-transform: scale(0, 0);
+            transform: scale(0, 0);
+            -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        }
+
+        .import_legend legend {
+            width: 30% !important;
+        }
+
+        .import_legend {
+            color: #fff;
+        }
+
+        #facility_scroll fieldset {
+            margin: 0;
+            min-width: 0;
+            padding: 50px 0 10px;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .inkind_color {
+            color: #fff;
+            font-weight: 300;
+        }
+
+        .icc_kindfac {
+            margin-bottom: 15px !important;
+            display: inline-block;
+            font-family: Verdana;
+        }
+
+        .header_key h2 {
+            margin: 0;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .header_key {
+            width: 100%;
+            float: left;
+            background-color: #f9c751;
+            color: #fff;
+            padding: 15px;
+            border-radius: 7px;
+            margin-top: 34px;
+            text-align: center;
+        }
+
+        .import_facility button:first-child {
+            margin-right: 18px;
+        }
+
+        .import_facility button {
+            border-radius: 0px;
+        }
+
+        .fact_wrapper {
+            width: 100%;
+            float: left;
+            padding: 0 20px;
+            background-image: url('../../Images/body-bg.jpg');
+            background: url('../../Images/body-bg.jpg') center no-repeat #000 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+
+        .icc_input input {
+            border: 0;
+            width: 100%;
+            height: 28px;
+            color: #333;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .page-wrapper-change {
+            background-image: url('../../Images/body-bg.jpg');
+            background: url('../../Images/body-bg.jpg') center no-repeat #000 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+
+        .icc_img img {
+            width: 100%;
+            border: 1px solid #fff;
+            float: left;
+            height: 200px;
+            max-height: 100%;
+        }
+
+        .icc_kindfac .radio-info {
+            width: 100% !important;
+            float: left !important;
+            margin: 0 0 15px !important;
+            padding-left: 10px;
+        }
+
+        .radio.radio-info label {
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        .icc_textarea textarea {
+            height: 80px;
+            color: #333;
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px 12px;
+            outline: none;
+        }
+
+        #page-wrapper {
+            padding: 30px 15px 0;
+        }
+
+        .addfun {
+            text-align: right;
+        }
+
+        .gud_sport {
+            float: right;
+            background-color: #16a086 !important;
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+            .gud_sport:hover {
+                float: right;
+                background-color: #16a086 !important;
+                color: #fff !important;
+            }
+
+        .addfun a i {
+            color: #333;
+            padding: 0 0 0 4px;
+        }
+
+        .addfun a {
+            color: #fff;
+            background-color: #16a086;
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .import_facility button {
+            border: 1px solid #fff;
+            text-transform: uppercase;
+        }
+
+        .icc_dedworker {
+            width: 100%;
+            float: left;
+            background-color: #fff;
+            border-radius: 4px;
+            padding: 15px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+            .icc_dedworker label {
+                width: 40%;
+                float: left;
+            }
+
+            .icc_dedworker label {
+                color: #1b5c96;
+            }
+
+            .icc_dedworker input {
+                width: 60%;
+                float: left;
+            }
+
+        div#AppendPartDetails {
+            background-color: #fff;
+            width: 100%;
+            float: left;
+            border-radius: 5px;
+            margin-top: 20px;
+            color: #fff;
+            margin-bottom: 15px;
+            border: 0;
+        }
+
+        .inkind_color {
+            color: #2f608b;
+            font-weight: bold;
+            font-family: "Arial" !important;
+            padding-top: 8px;
+        }
+
+        .icc_fac {
+            background: none;
+        }
+
+        .icc_textarea textarea {
+            font-family: "Arial" !important;
+            resize: none;
+            border-radius: 5px !important;
+        }
+
+            .icc_textarea textarea:focus {
+                box-shadow: none;
+                outline: none;
+            }
+        /*.icc_fac{border-radius:5px; padding: 3px 12px;}*/
+        .icc_input input, .icc_input select, .icc_input textarea {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 30px;
+            border-radius: 5px !important;
+            color: #333;
+            outline: none;
+            font-size: 14px;
+            padding: 0 10px;
+        }
+
+        .icc_input input, .import_facility button, #page-wrapper h2 {
+            font-family: "Arial" !important;
+        }
+
+        #page-wrapper h2 {
+            padding-bottom: 3px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .icc_input p, .icc_textarea p {
+            margin: 0;
+            color: #2f608b;
+            line-height: 22px !important;
+        }
+
+        #facility_scroll fieldset {
+            padding: 30px 0 10px;
+        }
+
+        .event-radio-btn .radio.radio-info {
+            float: left;
+            margin-top: 10px;
+            width: 100%;
+            margin-right: 30px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .event-radio-btn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .event-radio-btn .radio-info input[type="radio"]:checked + label {
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            font-weight: normal;
+            color: #163b69;
+            font-size: 15px;
+        }
+
+        .event-radio-btn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #163b69;
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .event-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .event-radio-btn .radio input[type="radio"]:checked + label::after {
+            -webkit-transform: scale(1, 1);
+            -ms-transform: scale(1, 1);
+            -o-transform: scale(1, 1);
+            transform: scale(1, 1);
+        }
+
+        .event-radio-btn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #163b69;
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio-info input[type="radio"] + label::after {
+            background-color: #163b69;
+            color: #163b69;
+        }
+
+        .event-radio-btn .radio label::after {
+            display: inline-block;
+            position: absolute;
+            content: " ";
+            width: 8px;
+            height: 8px;
+            left: 4px;
+            top: 6px;
+            margin-left: -20px;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transform: scale(0, 0);
+            -ms-transform: scale(0, 0);
+            -o-transform: scale(0, 0);
+            transform: scale(0, 0);
+            -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        }
+    </style>
+    <form method="post" role="form" id="form2" enctype="multipart/form-data" autocomplete="off">
+        <div class="container-fuild" style="padding: 0;">
+
+            <div class="row">
+                <div class="fact_wrapper">
+
+                    <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                        <i class="fa fa-briefcase" aria-hidden="true"></i>&nbsp;Event Information
+
+                        <span class="view-btn backto_listspan">
+
+                            <a href="/EducationManager/EducationManagerDashboard" style="padding:10px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                        </span>
+                    </h2>
+                    <input type="hidden" id="EventId" name="EventId" value="@Model.Eventid" />
+                    <input type="hidden" id="YakkrId" name="YakkrId" value="@Request.QueryString["YakkrId"]" />
+                    <div class="col-lg-12 col-xs-12 inkind-entry-div import_legend" id="facility_scroll">
+                        <fieldset>
+                            <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Event Name</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <p>@Model.EventName</p>
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Event Date</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        @if (( Model.EventChangesOn == 1 || Model.EventChangesOn == 3))
+                                        {
+                                            <p>
+                                                <b>
+                                                    @Model.EventDate
+                                                </b>
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <p>
+                                                @Model.EventDate
+                                            </p>
+                                        }
+
+
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Event Description</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <p>
+                                            @Model.EventDescription
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Event RSVP</label>
+                                    <div class="col-lg-8 icc_fac icc_input event-radio-btn">
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="RSVP" class="plan" value="1"
+                                                   @if (Model.RSVPStatus==1) { <text> checked="checked" </text>    } />
+                                            <label>Attending</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="RSVP" class="plan" value="0"
+                                                   @if (Model.RSVPStatus==0) { <text> checked="checked" </text>    } /> />
+                                            <label>Not Attending</label>
+                                        </div>
+                                        <div class="radio radio-info">
+                                            <input type="radio" name="RSVP" class="plan" value="2"
+                                                   @if (Model.RSVPStatus==2) { <text> checked="checked" </text>    } /> />
+                                            <label>Not Decided</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
+
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Trainer</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <p>
+                                            @Model.Trainer
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Start Time</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                     @if ( (Model.EventChangesOn == 2 || Model.EventChangesOn == 3))
+                                     {
+                                        <p>
+                                            <b>
+                                                @Model.StartTime
+                                            </b>
+                                        </p>
+                                      }
+                                      else
+                                      {
+                                        <p>
+                                            @Model.StartTime
+                                        </p>
+                                      }
+
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Number of Hours</label>
+                                    <div class="col-lg-8 icc_fac icc_input">
+                                        <p>
+                                            @Model.TotalHours
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <div class="form-group row icc_kindfac">
+                                    <label class="col-lg-4 inkind_color">Address</label>
+                                    <div class="col-lg-8 icc_fac icc_textarea">
+                                        <p>
+                                            @Model.EvenitAddress
+                                        </p>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group import_facility" id="import_facility">
+                                <button class="btn btn-success" onclick="return EventInfo.Validation()" type="submit">Submit</button>
+                                <button class="btn btn-danger" onclick="EventInfo.RedirectToDashboard()" type="button">Cancel</button>
+                            </div>
+                        </fieldset>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+
+
+}

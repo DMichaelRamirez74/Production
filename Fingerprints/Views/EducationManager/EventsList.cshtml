@@ -1,58 +1,16 @@
-﻿@{
+﻿@model FingerprintsModel.StaffEventCreation
+
+@{
     ViewBag.Title = "EventsList";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
 
 @section Script{
-    <script src="~/Content/ckeditor/ckeditor.js"></script>
-    <script src="~/Content/ckeditor/config.js"></script>
     <script type="text/javascript">
-
-        function ClearInput()
+        function EditEvent(eventid)
         {
-
-            $('#YakkrList').val('');
-            $('#Subject').val('');
-            CKEDITOR.instances['CaseNoteDetails_Note'].setData('');
-            $('.my-fieldset').empty();
+            location.href = "/EducationManager/StaffEventCreation?Eventid=" + eventid;
         }
-        function ValidateInput()
-        {
-
-            editor = CKEDITOR.instances.CaseNoteDetails_Note;
-            var mytext = editor.getData();
-
-            cleanValidation();
-            var isValid = true;
-            if ($('#YakkrList').val() == null || $('#YakkrList').val() == "") {
-                customAlert("Please select yakkr code");
-                planValidation("#YakkrList");
-                isValid = false;
-            }
-            if ($('#Subject').val() == null || $('#Subject').val() == "") {
-                customAlert("Please enter subject");
-                planValidation("#YakkrList");
-                isValid = false;
-            }
-            else if (CKEDITOR.instances['CaseNoteDetails_Note'].getData() == "") {
-                isValid = false;
-                customAlert("Note is required.");
-                isValid = false;
-
-            }
-            return isValid;
-        }
-
-        function EditEmailContent(arg)
-        {
-            location.href = "/EducationManager/StaffEventCreation";
-            return;
-        }
-
-
-   
-
-
 
     </script>
 
@@ -254,7 +212,7 @@
             }
 
                 .yarkk-ttable table thead tr {
-                    background-color: #2d3e50;
+                    background-color: #9B58B4;
                     color: #fff;
                 }
 
@@ -399,84 +357,133 @@
         .hidden {
             display: none;
         }
+               .page-wrapper-change {
+            background-image: url('../../Images/body-bg.jpg');
+            background: url('../../Images/body-bg.jpg') center no-repeat #000 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+.table-scroll-block{padding:0;}
+          .page-header {
+    margin: 0px 0px 20px !important;
+}
+            @@media (min-width: 768px) and (max-width: 991px)
+            {
+               .table-scroll-block{padding:0 15px;padding-left:0;overflow:auto;}
+         
+            }
     </style>
 
-    <div id="page-wrapper" class="page-wrapper-change" style="padding:30px 15px;background: #163d6d;margin:0">
-        <div class="container-fuild">
-            <div class="row" style="margin:0px;">
-                <div class="edu_class_room">
-                    <span class="view-btn backto_listspan">
+    
+<div  style="padding:30px 15px;margin:0;">
 
-                        <a href="/EducationManager/EducationManagerDashboard" style="padding:20px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
-                    </span>
-                    <div class="col-lg-12 fb_headscale">
+    <div class="container-fuild">
+        <div class="row" style="margin:0px;">
 
-                        <h2 class="page-header"><i class="fa fa-envelope" aria-hidden="true"></i> List of Events</h2>
+            <div class="edu_class_room">
+                <span class="view-btn backto_listspan">
+
+                    <a href="/EducationManager/EducationManagerDashboard" style="padding:20px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                </span>
+                <div class="col-lg-12 fb_headscale">
+
+                    <h2 class="page-header">
+<i class="fa @(ViewBag.EventType == "completed" ? "fa-calendar-check-o" : ViewBag.EventType == "cancel" ? "fa-calendar-times-o" : "fa-list" )" aria-hidden="true"></i>
+                        
+
+                        @(ViewBag.EventType == "completed" ? "Completed Events" : ViewBag.EventType == "cancel" ? "Cancelled Events" : "List of Events" )
+
+                    </h2>
 
 
-                    </div>
-             
-                    <div class="yarkk-ttable">
+                </div>
+
+                <div class="yarkk-ttable">
+                    <div class="col-xs-12 table-scroll-block">
                         <table class="table table-responsive table-bordered" id="DivSelfAssignedPopup">
                             <thead>
                                 <tr>
                                     <th style="width: 30%;">Event Name</th>
-                                    <th style="width: 30%;">Event for</th>
-                                    <th>Date</th>                                   
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th style="width: 30%;">Event Description</th>
+                                    <th>Event Date</th>
+                                    @if (ViewBag.EventType == "cancel")
+                                {
+                                        <th>Date Cancelled</th>
+                                        <th>Reason</th>
+                                }
+                                    @if (ViewBag.EventType == "future")
+                                {
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                }
                                 </tr>
                             </thead>
                             <tbody class="appendImages">
-                                <tr>
-                                    <td class="table-ellips" title="Facility Manager Quotation Request">Global 2018</td>
-                                    <td class="table-ellips" title="Quotation">Teacher</td>
-                                    <td class="table-ellips" title="">07-30-2018</td>
-                                    <td><img style="width:28px;" src="/Content/img-tick.png"></td>
-                                    <td><img style="cursor:pointer;" onclick="EditEmailContent(this)" src="/Content/CaseNote/images/edit_icon.png"> </td>
-                                </tr>
-                         
-                                <tr>
-                                    <td class="table-ellips" title="Facility Manager Quotation Request">Education Development</td>
-                                    <td class="table-ellips" title="Quotation">Teacher</td>
-                                    <td class="table-ellips" title="">08-03-2018</td>
-                                    <td><img style="width:28px;" src="/Content/img-tick.png"></td>
-                                    <td><img style="cursor:pointer;" onclick="EditEmailContent(this)" src="/Content/CaseNote/images/edit_icon.png"> </td>
-                                </tr>
+                                @if (Model.events != null && Model.events.Count > 0)
+                            {
+                                foreach (var item in Model.events)
+                                {
+                                        <tr style="@(item.IsTodayEvent == 1 ? "background:#a0de9457" : "")">
+                                            <td class="table-ellips" title="">@item.EventName</td>
+                                            <td class="table-ellips" title="">@item.EventDescription</td>
+                                            <td class="table-ellips" title="">@item.EventDate</td>
+                                            @if (ViewBag.EventType == "cancel")
+                                        {
+                                                <td class="table-ellips" title="">@item.ModifiedDate</td>
+                                                <td class="table-ellips" title="">@item.CancelReason</td>
+                                        }
+                                            @if (ViewBag.EventType == "future")
+                                        {
+                                                <td><img style="width:28px;" src="/Content/img-tick.png"></td>
 
-                                <tr>
-                                    <td class="table-ellips" title="Facility Manager Quotation Request">International Conference 2018</td>
-                                    <td class="table-ellips" title="Quotation">Family Service Worker</td>
-                                    <td class="table-ellips" title="">07-30-2018</td>
-                                    <td><img style="width:28px;" src="/Content/img-tick.png"></td>
-                                    <td><img style="cursor:pointer;" onclick="EditEmailContent(this)" src="/Content/CaseNote/images/edit_icon.png"> </td>
-                                </tr>
 
-                                <tr>
-                                    <td class="table-ellips" title="Facility Manager Quotation Request">Staff Training 2018</td>
-                                    <td class="table-ellips" title="Quotation">Teacher</td>
-                                    <td class="table-ellips" title="">07-30-2018</td>
-                                    <td><img style="width:28px;" src="/Content/img-tick.png"></td>
-                                    <td><img style="cursor:pointer;" onclick="EditEmailContent(this)" src="/Content/CaseNote/images/edit_icon.png"> </td>
-                                </tr>
+
+
+
+                                                <td style="text-align:center;">
+                                                    @*<img style="cursor:pointer;" onclick="EditEvent(@item.Eventid)" src="/Content/CaseNote/images/edit_icon.png">*@
+
+
+                                                    @if (@item.IsTodayEvent == 1)
+                                                {
+                                                        @*<a href="@Url.Action("OnSpotEventCheckIn","EducationManager")?EventId=@item.Eventid">Check-In</a>*@
+                                                        <a title="Check-In" class="ml-5" href="@Url.Action("OnSpotEventCheckIn", "EducationManager")?EventId=@item.Eventid"><span class="fa fa-sign-in" style="vertical-align: middle;font-size:30px;color: #34495e;"></span></a>
+                                                }
+                                                else
+                                                {
+                                                        <img style="cursor:pointer;" onclick="EditEvent(@item.Eventid)" src="/Content/CaseNote/images/edit_icon.png">
+                                                }
+
+
+                                                </td>
+
+                                                }
+
+                                        </tr>
+
+                                        }
+
+                            }
+                            else
+                            {
+                                    <tr> <td colspan="5">No record found</td></tr>
+                            }
+
+
+
                             </tbody>
 
                         </table>
                     </div>
+                     </div>
 
-
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <div id="noteClass" style="display:none;">
-        <div class="alert alert-info col-xs-12" role="alert" style="border-radius:unset;line-height:25px;">
-            <div class="col-lg-12 col-xs-12" style="font-weight:bold;margin-top:0px;">Note!&nbsp;</div>
-            <div class="col-lg-12 col-xs-12">
-                Providing merge fields will improve the user's readability and also enrich the email content.
 
             </div>
         </div>
     </div>
-}
+                                
+</div>
+
+                                
+                            }
+                            

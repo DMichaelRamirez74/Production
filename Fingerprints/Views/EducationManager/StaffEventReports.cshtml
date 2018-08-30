@@ -1,0 +1,1424 @@
+﻿@model FingerprintsModel.StaffEventCreation
+
+@{
+    ViewBag.Title = "StaffEventReports";
+    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+}
+
+@section Script{
+<script type="text/javascript">
+    $(document).ready(function () {
+
+      //  var tableht = $(".report-table").height();
+       // $(".report-table-text h2").css("line-height", tableht + "px");
+        EventReport.init();
+    });
+    </script>
+
+    <script type="text/javascript">
+        function EditEvent(eventid) {
+            location.href = "/EducationManager/StaffEventCreation?Eventid=" + eventid;
+        }
+        EventReport = {
+            init: function () {
+                var self = this;
+                self.initEvents();
+            },
+            initEvents:function(){
+                var self = this;
+
+
+                $(document).on("click", "#btnclear", function (e) {
+                    e.preventDefault();
+
+                    $("#Centers").val("0"); $("#roledrop").val("0");
+
+                });
+
+                $(document).on("click", ".staffdetail-link", function (e) { //staff summary
+
+                    var _uid = $(this).data('userid');
+                    var _uname = $(this).data('username');
+                    var _urole = $(this).data('role');
+
+                    $.ajax({
+                        dataType: 'json',
+                        type: "GET",
+                        url: '@Url.Action("GetStaffBasedEventsSummary", "EducationManager")?UserId='+_uid,
+                        contentType: "application/json;",
+                        success: function (data) {
+                            console.log(data);
+                            if (data != null && data.length > 0) {
+                                self.BindStaffBasedEventsSummaryDetails(data,_uname,_urole);
+                            }
+                        }, fail: function () {
+
+
+                        }
+
+                    });
+
+                });
+
+                $(document).on("click", "#fetchreport-btn", function (e) { //
+                    var _userIds = [];
+                    $.each($(".user-slctbox"), function (i, ele) {
+
+                        if ($(ele).prop("checked")) {
+                            _userIds.push($(ele).val());
+                        }
+                    });
+
+                    if (!_userIds.length) {
+                        customAlert("Please Select Staff");
+                        return false;
+                    }
+
+                   
+                    $.ajax({
+                        dataType: 'json',
+                        type: "POST",
+                        url: '@Url.Action("GetStaffsEventReport", "EducationManager")',
+                        data: JSON.stringify({ UserIds: _userIds }),
+                        contentType: "application/json;",
+                        beforeSend:function(){
+                            $('#spinner').show();
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            if (data != null && data.length > 0) {
+                                $("#StaffListModal").modal("hide");
+                                self.BindStaffBasedEventDetails(data);
+                                $('#spinner').hide();
+                            }
+                        }, fail: function () {
+
+                            
+                        }
+
+                    });
+
+
+                });
+
+
+                $(document).on("change", "#selectallstaff", function (e) {
+                    var isSelectAll = $(this).prop("checked");
+                    if (isSelectAll) {
+                        $(".user-slctbox").prop("checked", true);
+                    } else {
+                        $(".user-slctbox").prop("checked", false);
+                    }
+
+                });
+
+                $(document).on("change", ".user-slctbox", function (e) {
+                    var _isAllCheck = true;
+
+                    $.each($(".user-slctbox"), function (i, ele) {
+                        if (!$(ele).prop("checked")) {
+                            _isAllCheck = false;
+                            return false;
+                        }
+                    });
+
+                    $("#selectallstaff").prop("checked", _isAllCheck);
+                });
+
+
+                $(document).on("click", "#searchstaff-btn", function () {
+                
+                    $("#staffList-table tbody").html("");
+                    $("#selectallstaff").prop("checked", false);
+
+
+                    if (parseInt($("#Centers").val()) == 0 && parseInt($("#roledrop").val()) == 0) {
+
+                       // if (parseInt($("#Centers").val()) == 0) {
+                            customAlert("Please select Center or Role");
+
+                            return false;
+                        
+
+                    }
+                    $('#spinner').show();
+                    $.ajax({
+                        dataType: 'json',
+                        type: "POST",
+                        url: '@Url.Action("GetStaffListForEventReport", "EducationManager")',
+                        data: { Center: $('#Centers').val(), role: $('#roledrop').val() },
+                        success: function (data) {
+                            console.log(data);
+                            if (data != null && data.length > 0) {
+
+                                //data.forEach(function (obj, ind) {
+                                //    var name = "";
+                                //    name += '<div class="fa-checkbox col-xs-12" style="width:auto;display:inline-block;float:left;margin-right:10px;"> ';
+                                //    name += '<input type="checkbox" id="center2" name="checkbox-type" data-center="Little Tites" value="' + obj.UserId + '" class="abtCheckbox CenterChange">';
+                                //    name += '<label for="center2" style="color:#333;font-size:16px;text-align:left;margin-bottom:0px;">' + obj.UserName + '</label>';
+                                //    $("#staffList-div").append(name);
+
+                                //});
+
+                                data.forEach(function (obj, ind) {
+                                    var row = '';
+                                    row += '<tr>';
+                                    row += '<td style="width:150px;" class="text-center"><input class="user-slctbox" type="checkbox" value="' + obj.UserId + '"</td>';
+                                    row += '<td>' + obj.UserName + '</td>';
+                                    row += '<td>' + obj.RoleName + '</td>';
+                                    row += '</tr>';
+
+                                    $("#staffList-table tbody").append(row);
+                                });
+                            } else {
+                                
+
+                                    var row = '';
+                                    row += '<tr class="text-center"><td colspan="3"> No records found</td></tr>';
+
+                                    $("#staffList-table tbody").append(row);
+                                
+                            }
+
+                            $('#spinner').hide();
+                            $("#StaffListModal").modal("show");
+
+    }, fail: function (res) {
+
+       
+
+
+    }
+
+
+});
+                  
+                });
+
+            },
+            ShowPopUpByEventId:function(EventId)
+            {
+                if ($('#EventType').val() == "0")
+                {
+
+                }
+                else
+                {
+                    $.ajax({
+                        dataType: 'json',
+                        type: "POST",
+                        url: "/EducationManager/GetEventReportByID",
+                        data: { 'eventId': EventId, 'eventType': $('#EventType').val() },
+                        success: function (data) {
+                            if (data != null) {
+                           
+                                $('#lblEventName').text(data.EventName);
+                                $('#lblTrainer').text(data.Trainer);
+                                $('#lblEventDate').text(data.EventDate);
+                                $('#lblTotalEnroll').text(data.ParticipantDetails.length);
+                                $('#lblEventAddress').text(data.EventAddress);
+                                $('#ActualEnroll').text(data.ParticipantCount);
+                                EventReport.BindRSVP(data.ParticipantDetails);
+                                $('#EventDetailsModal').modal('show');
+                            }
+
+
+                        },
+                        error: function (data) {
+                        }
+                    });
+                }
+               
+            },
+            BindRSVP: function (data) {
+                $('.enrolledModalBody').empty();
+                if (data != null && data.length > 0) {
+                    var row = '';
+                    for (var i=0;i<data.length;i++) {
+                        row = '';
+                        row += '<tr>';
+                             row +=    '     <td class="table-ellips" title="">' + data[i].ParticipantName + '</td>';
+                             row +=    '      <td class="table-ellips" title="">' + data[i].ParticipantRoleName + '</td>';
+                             row += '              <td class="table-ellips" title="">' + data[i].RSVPStatusModifiedDate + '</td>';
+                             row += '     <td class="table-ellips" title=""  style="" >' + data[i].RSVPStatusName + '</td>';
+                         
+
+                             row += '       </tr>';
+                        $('.enrolledModalBody').append(row);
+                    }
+
+                }
+                else {
+                    row += '<tr> <td colspan="5">No record found</td></tr>';
+                    $('.enrolledModalBody').append(row);
+                }
+
+            },
+            BindUpcomingEventDetails: function (data) {
+                if (data != null && data.length > 0) {
+                    var row = '';
+                    for (var i=0;i<data.length;i++) {
+                        row = '';
+                        row += '<tr>\
+                                     <td class="table-ellips" style="text-decoration: underline;"  title="click here to view event participation"><a href="#" onclick="EventReport.ShowPopUpByEventId(' + data[i].Eventid + ')" >' + data[i].EventName + '</a></td>\
+                                     <td class="table-ellips" title="">' + data[i].EventDescription + '</td>\
+                                     <td class="table-ellips" title="">' + data[i].EventDate + '</td>\
+                                     </tr>';
+                        $('#tblUpcomingList tbody').append(row);
+                    }
+
+                }
+                else {
+                    row += '<tr> <td colspan="5">No record found</td></tr>';
+                    $('#tblUpcomingList tbody').append(row);
+                }
+                $('#tblUpcomingList').show();
+            },
+            BindCompletedEventDetails: function (data) {
+
+                if (data != null && data.length > 0) {
+                    var row = '';
+                    for (var i = 0; i < data.length; i++) {
+                        row = '';
+                        row += '<tr>\
+                                     <td class="table-ellips" style="text-decoration: underline;"  title="click here to view event participation"><a href="#" onclick="EventReport.ShowPopUpByEventId(' + data[i].Eventid + ')" >' + data[i].EventName + '</a></td>\
+                                     <td class="table-ellips" title="">' + data[i].EventDescription + '</td>\
+                                     <td class="table-ellips" title="">' + data[i].EventDate + '</td>\
+                                     </tr>';
+
+                        $('#tblCompletedList tbody').append(row);
+                    }
+
+                }
+                else {
+                    row += '<tr> <td colspan="5">No record found</td></tr>';
+                    $('#tblCompletedList tbody').append(row);
+                }
+                $('#tblCompletedList').show();
+            },
+            BindStaffBasedEventDetails:function(data){
+                console.log(data);
+
+
+                $("#staffbasedlist-table").css("display", "block");
+                $('#staffbasedlist-table table tbody').html("");
+
+                if (data != null && data.length > 0) {
+
+                    data.forEach(function (obj, ind) {
+                        var row = '';
+                        row += '<tr>';
+                        row += '<td><a class="staffdetail-link" data-role="' + obj.RoleName + '" data-username="' + obj.UserName + '" data-userid="' + obj.UserId + '">' + obj.UserName + '</a></td>';
+                        row += '<td>' + obj.RoleName + '</td>';
+                        row += '<td>' + obj.TotalEvent + '</td>';
+                        row += '<td>' + obj.SumOfEventsHourPerUser + '</td>';
+                        row += '<td>' + obj.SumOfEventsCEHourPerUser + '</td>';
+                        row += '</tr>';
+
+                        $('#staffbasedlist-table table tbody').append(row);
+                    });
+                } else {
+
+                    var row = '';
+                    row += '<tr><td colspan="4"> No records found</td></tr>';
+
+
+                }
+
+                //old table
+                /*
+                $("#staffbasedList").html('');
+
+                if (data != null && data.length > 0) {
+
+                    $("#staffbasedList").css("display", "block");
+                    
+
+                    for (var i = 0; i < data.length; i++) {
+                        var _tempStr = "";
+                        var eventDetail = "";
+                        _tempStr += '<div class="col-sm-3 report-table-text" ><h2 id="userhead_' + i + '">' + data[i].UserName + '</h2> </div>';
+                        _tempStr+='<div class="col-sm-9" style="padding:0;margin-bottom:50px;"> <table id="stafftbl_'+i+'" class="table table-responsive table-bordered report-table">'
+                        + '<thead class="scroll-thead"> <tr> <th>Event Name</th><th>Event Date</th><th>Trainer</th><th>Total Hours</th><th>CE Hours</th> </tr></thead> <tbody class="text-center scroll-tbody">';
+
+
+                        for(var j=0; j < data[i].EventDetails.length; j++){
+                        
+                            _tempStr+='<tr><td>'+data[i].EventDetails[j].EventName+'</td>'
+                                        +'<td>'+data[i].EventDetails[j].EventDate+'</td>'
+                                        +'<td>'+data[i].EventDetails[j].Trainer+'</td>'
+                                        +'<td>'+data[i].EventDetails[j].TotalHours+'</td>'
+                                        +'<td>'+data[i].EventDetails[j].ContinuingEducation+'</td>'
+                                        +'</tr>';
+                        
+                            
+                        }
+                        _tempStr += '</tbody><tfoot id="userfoot_'+i+'" class="text-center scroll-tbody"><tr style="color:#0a0a0a;text-align:center;font-weight:bold;"><td colspan="3">Total</td><td>' + data[i].SumOfEventsHourPerUser + '</td><td>' + data[i].SumOfEventsCEHourPerUser + '</td></tr></tfoot></table>'
+
+                            +'</div>';
+
+                        $("#staffbasedList").append(_tempStr);
+
+                        var tableht = $("#stafftbl_"+i).height();
+                        $("#userhead_" + i).css("line-height", tableht + "px");
+                        if (tableht > 325) {
+                            $("#userfoot_" + i).addClass("scroll-thead");
+
+                        } else {
+                            $("#stafftbl_" + i).find('thead').css('width', '100%');
+                        }
+
+                        
+                    }
+
+                }*/
+
+
+
+            },
+            BindStaffBasedEventsSummaryDetails: function (data,staffname,staffrole) {
+
+                $("#staffeventsummary-modal").modal("show");
+
+                $('#staffEventSummary-table tbody').html("");
+
+                $("#summary-staff").text(staffname);
+                $("#summary-role").text(staffrole);
+
+                if (data[0].hasOwnProperty("EventDetails") && data[0].EventDetails.length) {
+
+                    data[0].EventDetails.forEach(function (obj, ind) {
+                    var row = '';
+                    row += '<tr>';
+                    row += '<td>' + obj.EventName + '</td>';
+                    row += '<td>' + obj.EventDate + '</td>';
+                    row += '<td>' + obj.Trainer + '</td>';
+                    row += '<td>' + obj.TotalHours + '</td>';
+                    row += '<td>' + obj.ContinuingEducation + '</td>';
+                    row += '</tr>';
+
+                    $('#staffEventSummary-table tbody').append(row);
+                });
+
+            } else {
+
+                    var row = '';
+        row += '<tr><td colspan="4"> No records found</td></tr>';
+
+
+        }
+
+
+
+
+            },
+            SearchByEventType: function () {
+                $('#tblUpcomingList').hide();
+                $('#tblCompletedList').hide();
+                $("#staffbasedList").hide();
+                $('#tblCompletedList tbody').empty();
+                $('#tblUpcomingList tbody').empty();
+                $('.ersea-detl-title').hide();
+                if ($('#EventType').val() == "0") {
+
+                } else if ($('#EventType').val() == "3") {  //staff based event
+                  $("#staffbasedList").css("display", "block");
+                }
+                else {
+                    $('#eventHeading').text($("#EventType option:selected").text());
+                    $('.ersea-detl-title').show();
+                  //  var _url = $('#EventType').val() == "3" ? "/EducationManager/GetUserBasedEventReport" : '/EducationManager/GetEventListByEventType';
+                    $.ajax({
+                        dataType: 'json',
+                        type: "POST",
+                        // url: _url,
+                        url:'/EducationManager/GetEventListByEventType',
+                        data: { 'EventType': $('#EventType').val() },
+                        success: function (data) {
+                            if ($('#EventType').val() == "1") {
+
+                                EventReport.BindUpcomingEventDetails(data);
+                            }
+                            else if ($('#EventType').val() == "2") {
+                                EventReport.BindCompletedEventDetails(data);
+                            } else {
+                               // EventReport.BindStaffBasedEventDetails(data);
+                            }
+
+                        
+                        },
+                        error: function (data) {
+                        }
+                    });
+                }
+
+            }
+        };
+</script>
+
+}
+
+@section MainContentHolder{
+
+    <style>
+            
+        .scroll-thead th {
+            border: 1px solid #f1f5f8;
+        }
+
+        .scroll-thead {
+            display: table;
+            /*width: 100%;*/
+            table-layout: fixed;
+            width: calc( 100% - 17px );
+        }
+
+        .scroll-tbody tr td{
+            word-break: break-word;
+        }
+
+        .scroll-tbody {
+            display: block;
+            max-height: 250px;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+            .scroll-tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+        .totalCountSpan
+        {
+            font-weight:400;
+        }
+        .popup-label
+        {
+            display:initial;color:#1d5990;
+        }
+        /* popup design*/
+        .matrix_foster .modal-body {
+    background: #34495e none repeat scroll 0 0;
+    border: 6px solid #ffffff;
+    border-radius: 3px;
+    color: #ffffff;
+    float: left;
+    padding: 15px 3%;
+    position: relative;
+    width: 100%;
+}
+.modal-dialog-foster {
+    width: 70%;
+    margin: 5% auto;
+    margin-top: 5%;
+}
+.matrix_foster .modal-body > h2 {
+    margin-top: 10px;
+    float: left;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.matrix_foster .close {
+    opacity: 1;
+    position: absolute;
+    right: -14px;
+    top: -15px;
+}
+        .foster_items_main {
+    background: #f1f5f8 none repeat scroll 0 0;
+    border: 3px solid #ffffff;
+    float: left;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+        .ersea-table thead tr th {
+    border-bottom: 0!important;
+    text-align: left;
+    text-transform: capitalize;
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 25px;
+}
+.ersea-table thead tr {
+    background: #9B58B4!important;
+    color: #fff;
+    text-align: left;
+}
+.ersea-table-head p {
+    background: #fff;
+    padding: 5px 5px;
+    color: #337ab7;
+    text-align: left;
+    font-size: 14px;
+    margin: 0;
+    border-right: 0;
+}
+.ersea-table-head p strong {
+    font-size: 12px;
+}
+.ersea-table-sz tr th{font-size:14px!important;}
+tbody.ersea-table-head tr td {
+    background: #fff !important;
+    border: solid 1px #e7e7e7;
+}
+        /*end*/
+        .transition-radio-btn .radio.radio-info {
+            float: left;
+            margin-top: 10px;
+            width: auto;
+            margin-right: 30px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .transition-radio-btn .radio input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"]:checked + label {
+            color: #163d6d;
+        }
+
+        .transition-radio-btn .radio label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 5px;
+            color: #163d6d;
+            font-size: 15px;
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"]:checked + label::before {
+            border-color: #163d6d;
+            color: #163d6d;
+        }
+
+
+        .transition-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163b69;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .transition-radio-btn .radio label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #163d6d;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transition: border 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out;
+            top: 2px;
+        }
+
+        .transition-radio-btn .radio input[type="radio"]:checked + label::after {
+            -webkit-transform: scale(1, 1);
+            -ms-transform: scale(1, 1);
+            -o-transform: scale(1, 1);
+            transform: scale(1, 1);
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"]:checked + label::after {
+            background-color: #163d6d;
+            color: #163d6d;
+        }
+
+        .transition-radio-btn .radio-info input[type="radio"] + label::after {
+            background-color: #163d6d;
+            color: #163d6d;
+        }
+
+        .transition-radio-btn .radio label::after {
+            display: inline-block;
+            position: absolute;
+            content: " ";
+            width: 8px;
+            height: 8px;
+            left: 4px;
+            top: 6px;
+            margin-left: -20px;
+            border-radius: 50%;
+            background-color: transparent;
+            -webkit-transform: scale(0, 0);
+            -ms-transform: scale(0, 0);
+            -o-transform: scale(0, 0);
+            transform: scale(0, 0);
+            -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+            transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+        }
+
+        .split1-browser {
+            background-color: #d64035 !important;
+            outline: none !important;
+            cursor: pointer;
+        }
+
+            .split1-browser:hover {
+                background-color: #d64035 !important;
+                outline: none;
+            }
+
+        .my-fieldset li {
+            list-style: none;
+        }
+
+        .alert-info {
+            color: #31708f;
+            background-color: #d9edf7;
+            border-color: #bce8f1;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 0px;
+            border: 1px solid transparent;
+        }
+        .ersea-detl-title{
+            display:none;
+        }
+
+        .ersea-detl-title h3 {
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .edu_clrm_head.ntf_email {
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .part_edubtn {
+            width: 100%;
+            float: left;
+            text-align: center;
+        }
+
+            .part_edubtn button.btn-edu-sucess {
+                margin-right: 20px;
+            }
+
+        .btn-edu-exit {
+            background-color: #e74c3c;
+            border-radius: 0 !important;
+            color: #fff !important;
+            padding: 7px 15px !important;
+            outline: none !important;
+        }
+
+        .btn-edu-sucess {
+            background-color: #2ecc71;
+            border-radius: 0 !important;
+            color: #fff !important;
+            padding: 7px 15px !important;
+            outline: none !important;
+        }
+
+        .yarkk-nthg {
+            width: 100%;
+            float: left;
+            background: #f1f5f8;
+            padding: 15px;
+            margin-top: 24px;
+            border-radius: 7px;
+        }
+
+        .yarkk-ttable {
+            width: 100%;
+            float: left;
+            margin-top: 24px;
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 7px;
+        }
+
+            .yarkk-ttable table {
+                margin-bottom: 0;
+            }
+
+                .yarkk-ttable table thead tr {
+                    background-color: #9B58B4;
+                    color: #fff;
+                }
+
+        td.yarkk-edit i {
+            background-color: #33485d;
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group.yark-contnt {
+            width: 100%;
+            float: left;
+            margin-bottom: 25px !important;
+        }
+
+        .table-ellips {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+
+        .my-fieldset {
+            overflow-y: scroll;
+            width: 100%;
+            float: left;
+            max-height: 170px;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+            .my-fieldset span {
+                background-color: #cc4170;
+                color: #fff;
+                padding: 10px;
+                margin: 5px 10px 5px 0;
+                border-radius: 7px;
+                width: auto;
+                float: left;
+                word-break: break-word;
+                line-height: 17px;
+            }
+
+                .my-fieldset span i {
+                    padding-left: 20px;
+                    cursor: pointer;
+                }
+
+        .form-group.yark-contnt label {
+            color: #163b69;
+        }
+
+        .yarkk-ttable table tbody td {
+            color: #397ab7;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Old*/
+        #page-wrapper {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .no-padding {
+            padding: 0;
+        }
+
+        .right-side-container-ch {
+            width: 100%;
+            float: left;
+            background: url('../../Images/body-bg.jpg') center no-repeat;
+            background-size: cover;
+            min-height: 689px;
+        }
+
+        .error-notify {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            color: red;
+            font-size: 13px;
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
+        .err-message, .other-ins-err {
+            display: none;
+            color: red;
+            font-size: 12px;
+            margin: 6px;
+            height: 10px;
+        }
+
+        .addInnerChildContent {
+            border: 1px solid #ddd;
+            margin-bottom: 24px;
+        }
+
+        .err-container, irr-error {
+            width: 100%;
+            float: left;
+            margin: 6px 0;
+        }
+
+        .icr-img img {
+            margin-top: 5px;
+            float: right;
+        }
+
+        .info-heading h2 {
+            color: #000;
+            font-size: 18px;
+            text-transform: uppercase;
+            padding: 20px 10px !important;
+            text-align: center;
+            display: block;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .table-main .import_ui_bgm {
+            margin-bottom: 0;
+        }
+
+        .table-main {
+            background-color: #fff;
+            width: 100%;
+            float: left;
+            border-radius: 7px;
+            margin-bottom: 24px;
+        }
+
+        .fb_headscale .page-header {
+            border-bottom: 4px solid #f9c751 !important;
+            color: #fff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .page-wrapper-change {
+            background-image: url('../../Images/body-bg.jpg');
+            background: url('../../Images/body-bg.jpg') center no-repeat #000 !important;
+            background-size: cover !important;
+            background-position: 100% 100% !important;
+        }
+        .page-header-margin{
+            margin: 0 !important;
+    margin-top: 15px !important;
+        }
+        .backToBtn{
+            position: relative;
+            top: -46px;
+        }
+        .colorWhite{
+            color:#f9c751;
+            font-size:14px;
+        }
+        .eventTypelable{
+               
+                 width: 90px;
+        }
+        #EventType{
+        width: 290px !important;
+    display: inline;
+    background: transparent;
+    color: #fff;
+    border-radius: 6px!important;
+    margin-left: 10px;
+        }
+        #EventType option{
+            background: #fff;
+            color: #333;
+        }
+        .searchBtn{
+            margin-left:10px;
+                height: 34px;
+        }
+        .yarkk-ttable{
+            padding:0px;
+        }
+        #tblUpcomingList,#tblCompletedList{
+            padding:15px;
+        }
+        .popupTableEvents{
+            max-height: 260px !important;
+            overflow: auto !important;
+        }
+        .eventsSearch{
+             text-align: center;
+            display: inline-block;
+            width: 100%;
+         }
+        .enrolledModalBody  tr td{
+            color: #333;
+            padding: 15px !important;
+            text-align: left;
+        }
+      #eventHeading{
+          color:#164676;
+      }
+      .report-table-text{
+              border: 1px solid #ddd;
+                  border-left: 4px solid #3784d6;
+      }
+      .report-table-text h2{padding: 0!important;margin:0;text-align:center;color:#333;font-size:20px;}
+
+
+
+      tbody.totalChildBody tr td {
+    background: #fff !important;
+    border: solid 1px #e7e7e7;
+    color:black;
+    line-height: 30px;padding:0 10px;
+}
+      .totalChildBody input[type="checkbox"]
+      {
+          position: relative;
+    left: -24px;
+      }
+      #fetchreport-btn:hover{color:#fff!important;}
+      #staffList-table thead tr th {
+    border-bottom: 0!important;
+    text-align: left;
+    text-transform: capitalize;
+    font-size: 18px;
+    font-weight: normal;
+    line-height:32px;
+}
+      #staffList-table thead tr,
+      #staffEventSummary-table thead tr {
+    background: #9B58B4!important;
+    color: #fff;
+    text-align: left;
+}
+
+        .staffdetail-link {
+             text-decoration:underline;
+             cursor:pointer;
+        }
+        .yarkk-ttable table thead tr {
+    background-color: #9B58B4;
+    color: #fff;
+}
+        #staffEventSummary-table .scroll-tbody
+        {
+                max-height: 250px;
+            
+        }
+        #staffEventSummary-table button
+        {
+            border-radius: 0;
+    background-color: #295B8E!important;
+        }
+        #staffbasedlist-table{margin-top:20px;}
+        .searchform-inner
+        {
+                margin: 0;
+    border: 1px solid #bbbbbb;
+    border-radius: 25px;
+    margin-top: 6px;
+        }
+        .searchbox:focus{outline:0;}
+        #btnclear{
+                background: #bf2f2b;
+        }
+
+        #EventDetailsModal .popupTableEvents {
+     max-height: 100% !important; 
+    overflow: auto !important;
+}
+    </style>
+
+
+    <div style="padding:30px 15px;margin:0;">
+
+        <div class="container-fuild">
+            <div class="row" style="margin:0px;">
+
+                <div class="edu_class_room">
+                  
+                    <div class="col-lg-12 fb_headscale">
+
+                        <h2 class="page-header page-header-margin">
+                            <i class="fa fa-newspaper-o" aria-hidden="true"></i>
+
+                           Event Reports
+
+                        </h2>
+
+                        <span class="view-btn backto_listspan backToBtn">
+
+                            <a href="/EducationManager/EducationManagerDashboard" style="padding:20px;float: right;color: #fff;margin-right:0px;background-color:#9b59b6;border-radius: 4px;text-decoration:none;" class="backto_list">Back to Dashboard</a>
+                        </span>
+                    </div>
+                    <div class="col-xs-12 eventsSearch">
+                        <label class="colorWhite eventTypelable">Event Report</label>
+                        <select onchange="EventReport.SearchByEventType()" id="EventType" class="form-control ">
+                            <option value="0">Select Event</option>
+                            <option value="1">Open Events</option>
+                            <option value="2">Completed Events</option>
+                            <option value="3">Staff based Report</option>
+                        </select>
+                        @*<button id="btnSearch" onclick="EventReport.SearchByEventType()" class="btn btn-success searchBtn">Search</button>*@
+                    </div>
+                 
+
+
+
+
+                    <div class="yarkk-ttable">
+                        <div class="col-xs-12 ersea-detl-title">
+                            <h3 id="eventHeading"></h3>
+                        </div>
+
+                        <div id="tblUpcomingList" style="display:none">
+                        <table class="table table-responsive table-bordered"  >
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%;">Event Name</th>
+                                    <th style="width: 30%;">Event Description</th>
+                                    <th>Event Date</th>
+                                  
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                             
+                            </tbody>
+
+                        </table>
+                        </div>
+                        <div id="tblCompletedList" style="display:none">
+                        <table class="table table-responsive table-bordered " >
+                            <thead class="scroll-thead">
+                                <tr>
+                                    <th style="">Event Name</th>
+                                    <th style="">Event Description</th>
+                                    <th>Event Date</th>
+
+                                </tr>
+                            </thead>
+                            <tbody class="scroll-tbody" style="max-height:500px;overflow-y:scroll;"></tbody>
+
+                        </table>
+                            </div>
+
+
+                        <div id="staffbasedList" style="padding:20px!important;display:none;">
+
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 add-useragform">
+                                    <div class="col-sm-4 col-md-3 col-lg-3">
+                                        <label style="color:#295b8f;font-weight:bold;">Center</label>
+                                    </div>
+                                    <div class="col-sm-4 col-md-3 col-lg-3">
+                                        <label style="color:#295b8f;font-weight:bold;">Role</label>
+                                    </div>
+
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
+                                    <div class="col-sm-4 col-lg-3" style="margin-bottom: 8px;">
+                                        @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel" })
+                                    </div>
+                                    <div class="col-sm-4 col-lg-3">
+                                      
+                                        <select id="roledrop" style="height:38px !important;" class="form-control">
+                                            <option value="0">----Select Role---</option>
+                                            
+                                @if(Session["RoleID"].ToString().Trim().ToUpper() == "4B77AAB6-EED1-4AC3-B498-F3E80CF129C0") { @*Edu Manager*@
+                                    <option value="82B862E6-1A0F-46D2-AAD4-34F89F72369A">Teacher</option>
+                                    <option value="2ADFE9C6-0768-4A35-9088-E0E6EA91F709">Teacher Assistant</option>
+                                    <option value="94CDF8A2-8D81-4B80-A2C6-CDBDC5894B6D">Family Service Worker</option>
+                                    <option value="E4C80FC2-8B64-447A-99B4-95D1510B01E9">Home Visitor</option>
+
+                                }
+                                else if (Session["RoleID"].ToString().Trim().ToUpper() == "9AD1750E-2522-4717-A71B-5916A38730ED")  { @*Health Manager*@
+
+                                     <option value="A31B1716-B042-46B7-ACC0-95794E378B26">Health/Nurse</option>
+                                     <option value="699168AC-AD2D-48AC-B9DE-9855D5DC9AF8">Mental Health Specialist</option>
+                                     <option value="CE744500-7CA2-4122-B15F-686C44811A51">Nutritionist</option>
+
+                                }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-12 col-lg-3 ic-mqr">
+                                        <button id="searchstaff-btn" class="my-btn">Search</button>
+                                        <button id="btnclear" class="my-btn">Clear</button>
+                                    </div>
+                                    @*<form class="searchform-inner col-sm-12 col-lg-3">
+                                        <div class="search-box">
+                                            <input type="text" placeholder="Search by staff name" id="SearchFamily" class="searchbox ui-autocomplete-input" autocomplete="off">
+                                            <span class="searchbutton"><i class="fa fa-search"></i></span>
+                                        </div>
+                                    </form>*@
+                                </div>
+
+                            </div>
+                            
+                            @*<div class="row">
+
+                                <div class="col-sm-12" id="staffList-div">
+
+
+
+                                </div>
+
+                            </div>*@
+
+
+                            <div id="staffbasedlist-table"  style="display:none;" >
+                                <table class="table table-responsive table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 30%;">Staff Name</th>
+                                            <th style="width: 30%;">Role Name</th>
+                                            <th>Total Event</th>
+                                            <th>Total Hours</th>
+                                            <th>Total CEHours</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+
+                                </table>
+                            </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+  <!--Modal to display staff list based on Center and role-->
+<div class="modal fade matrix_foster in" id="staffeventsummary-modal" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-foster">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2 id="">Events Summary</h2>
+                <div class="foster_items_main">
+                    <div class="col-xs-12 col-lg-12" style="padding:0;margin-bottom:15px;margin-top:15px;">
+                        <label class="col-xs-6" style="color:#1d5381;padding:0;">Staff Name : <span id="summary-staff"></span></label>
+                        <label class="col-xs-6" style="color:#1d5381;padding:0;">Staff Role : <span id="summary-role"></span></label>
+
+                    </div>
+                    <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 0;">
+                        <div class="col-xs-12 no-padding">
+                            <table class="table table-striped" id="staffEventSummary-table" style="margin-bottom:24px;padding:16px;width:100%;">
+                                <thead class="table-hd scroll-thead">
+                                    <tr>
+                                        <th>Event Name </th>
+                                        <th>Event Date</th>
+                                        <th>Trainer</th>
+                                        <th>Total Hour</th>
+                                        <th>CE Hour</th>
+                                    </tr>
+
+                                </thead>
+                                <tbody class="ersea-table-head bind_modal_body1 totalChildBody scroll-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-xs-12" style="padding:0;text-align:right;">
+                       
+                        <button type="button" class="btn"  style="border-radius: 0px;color: #fff;background: #295b8f;" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+        <!--Modal to display staff list based on Center and role-->
+        <div class="modal fade matrix_foster in" id="StaffListModal" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-foster">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                        <h2 id="">Staff List</h2>
+                        <div class="foster_items_main">
+
+                            @*<div class="col-xs-12 col-lg-12" style="padding:0;margin-bottom:10px;">
+
+                                <div style="float:left;padding-top:0px;" class="col-lg-4 input-group date">
+                                    <input type="text" class="form-control searchTextAll" placeholder="Search by Name..." />
+                                    <span class="input-group-addon searchByClientName search-group" onclick="searchByClientName('#FosterDisplaymodal',this);" style="background-color: #295b8f;height:38.4px;">
+
+                                        <i class="glyphicon glyphicon-search" style="color: #fff;"></i><span class="searchName">Search</span>
+                                    </span>
+                                </div>
+
+
+                            </div>*@
+
+                            <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 0;">
+                                <div class="col-xs-12 no-padding">
+                                    <table class="col-md-12 table-striped" id="staffList-table" style="margin-bottom:24px;padding:16px;width:100%;">
+                                        <thead class="table-hd scroll-thead">
+                                            <tr>
+                                                <th style="width:150px;"><input type="checkbox" id="selectallstaff" />Select </th>
+                                                <th>Staff Name</th>
+                                                <th>Role</th>
+                                               
+                                            </tr>
+
+                                        </thead>
+                                        <tbody class="ersea-table-head bind_modal_body1 totalChildBody scroll-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Pagination -->
+                            @*<div class="col-xs-12 poppage-slot" style="padding:0px;">
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 pagination-file">
+                                    <div class="pages_display">
+                                        <ul>
+                                            <li>Display</li>
+                                            <li>
+                                                <select id="ddlpagetodisplay" onchange="drawgrid('#FosterDisplaymodal',this);">
+                                                    <option value="10" selected="selected">10</option>
+                                                    <option value="25">25</option>
+                                                    <option value="50">50</option>
+                                                    <option value="100">100</option>
+                                                </select>
+                                            </li>
+                                            <li>Records Per Page</li>
+                                        </ul>
+                                        <div class="clear"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                    <div id="divPaging" class="pagination_wrp">
+                                        <ul id="ulPaging" class="pagination">
+                                            <li><input id="First" type="image" src="/Images/previousarrow.png" style="cursor:pointer;" onclick="fnChangePage('#FosterDisplaymodal', 'First'); return false;" disabled="disabled"></li>
+                                            <li title="Back"><input id="Back" type="image" src="/Images/prevarrow.png" style="cursor:pointer;" onclick="fnChangePage('#FosterDisplaymodal', 'Back'); return false;" disabled="disabled"></li>
+                                            <li title="Select">
+                                                <select class="select_cl" id="ddlpaging" onchange="getListafterupdation('#FosterDisplaymodal', this)"><option value="1">1</option></select>
+                                            </li>
+                                            <li title="Next"><input id="Next" type="image" src="/Images/nextarrow1.png" style="cursor:pointer;" onclick="fnChangePage('#FosterDisplaymodal', 'Next'); return false;" disabled="disabled"></li>
+                                            <li title="Last"><input id="Last" type="image" src="/Images/nextarrow.png" style="cursor:pointer;" onclick="fnChangePage('#FosterDisplaymodal', 'Last'); return false;" disabled="disabled"></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                            <div class="col-xs-12" style="padding:0;text-align:right;">
+                                <button type="button" class="btn" style="background:#295b8f; border-radius:0px;" id="fetchreport-btn">Submit</button>
+                                @*<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>*@
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+<div class="modal fade matrix_foster in" id="EventDetailsModal" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-foster">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2> Event Details</h2>
+                <div class="foster_items_main">
+
+                    <div class="col-xs-12 col-lg-12" style="padding:0;margin-bottom:10px;">
+                        <div style="float:left;margin-top:10px;" class="col-lg-6 col-xs-6">
+                            <label class="popup-label">Event Name</label>&nbsp;<span class="totalCountSpan" id="lblEventName" style="color:#333;">00</span>
+                        </div>
+                        <div style="float:left;margin-top:10px;" class="col-lg-6 col-xs-6">
+                            <label class="popup-label">Trainer:</label>&nbsp;<span class="totalCountSpan" id="lblTrainer" style="color:#333;">00</span>
+                        </div>      
+                    </div>
+                    <div class="col-xs-12 col-lg-12" style="padding:0;margin-bottom:10px;">
+                        <div style="float:left;margin-top:10px;" class="col-lg-6 col-xs-12">
+                            <label class="popup-label">Event Date:</label>&nbsp;<span class="totalCountSpan" id="lblEventDate" style="color:#333;">00</span>
+                        </div>
+                        <div style="float:left;margin-top:10px;" class="col-lg-6 col-xs-6">
+                            <label class="popup-label">Expected Participation:</label>&nbsp;<span class="totalCountSpan" id="lblTotalEnroll" style="color:#333;">00</span>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-12" style="padding:0;margin-bottom:10px;">
+                        <div style="float:left;margin-top:10px;" class="col-lg-6 col-xs-12">
+                            <label class="popup-label">Event Address:</label>&nbsp;<span class="totalCountSpan" id="lblEventAddress" style="color:#333;">00</span>
+                        </div>
+                        <div style="float:left;margin-top:10px;" class="col-lg-6 col-xs-6">
+                            <label class="popup-label">Actual Participation:</label>&nbsp;<span class="totalCountSpan" id="ActualEnroll" style="color:#333;">00</span>
+                        </div>
+                    </div>           
+                    <div id="no-more-tables8" class="col-xs-12 no-padding" style="margin-bottom: 0;">
+                        <div class="col-xs-12 no-padding  popupTableEvents">
+                            <table class="col-md-12 table-striped table-condensed cf table-change ersea-table ersea-table-sz" style="margin-bottom:24px;padding:16px;width:100%;">
+                                <thead class="table-hd scroll-thead">
+                                    <tr>
+                                        <th>Staff Name</th>
+                                        <th>Role</th>
+                                        <th>Date</th>
+                                        <th>Status</th>                                                                            
+                                    </tr>
+
+                                </thead>
+                                <tbody class="ersea-table-head enrolledModalBody scroll-tbody">
+                                  
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-xs-12" style="padding:0;text-align:right;">
+                        <button type="button" class="btn" style="border-radius: 0px;color: #fff;background: #295b8f;" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+}
