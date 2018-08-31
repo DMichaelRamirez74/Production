@@ -8232,7 +8232,8 @@
         {
             $('#TextAreaAcceptReason').hide();
             $('#AcceptReason').show();
-            if(@(Model.IsFutureIntake)=='1')
+                //if(@(Model.IsFutureIntake)=='1')
+                if('@(String.IsNullOrEmpty(Model.IsFutureIntake) ? "" : Model.IsFutureIntake)'=='1')
             {
                 $('#assignCenterDiv').show();
                 $('#slotsCountDiv').show();
@@ -9042,7 +9043,14 @@
                 }
 
                 <span class="view-btn backto_listspan" id="BackToList">
-                    <a href="#" class="backto_list">Back to list</a>
+                    @if (ViewBag.BacktolistUrl == "yakkar100")
+                    {
+                    <a href="@Url.Action("YakkrList","Yakkr")?YakkrCode=100" class="backto_list">Back to list</a>
+                    }
+                    else if (ViewBag.BacktolistUrl == "CenterDetails" && !string.IsNullOrEmpty(ViewBag.Centerid) && !string.IsNullOrEmpty(ViewBag.Centername))
+                    {
+                         <a href="@Url.Action("ViewCenterDetails","Nurse")?id=@ViewBag.Centerid&Name=@ViewBag.Centername" class="backto_list">Back to list</a>
+                    }
                 </span>
 
 

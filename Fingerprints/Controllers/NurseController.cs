@@ -60,10 +60,15 @@ namespace Fingerprints.Controllers
             }
         }
         // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public ActionResult ChildDetails(string id = "0")
+        public ActionResult ChildDetails(string id = "0", string bklistUrl="" )
         {
             try
             {
+
+                ViewBag.BacktolistUrl = bklistUrl;
+                ViewBag.Centerid = Request.QueryString["Centerid"].ToString();
+                ViewBag.Centername = Request.QueryString["centername"].ToString();
+
                 if (Session["AgencyID"] == null)
                 {
                     return Redirect("~/Login/Loginagency");

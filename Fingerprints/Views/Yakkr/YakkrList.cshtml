@@ -433,6 +433,51 @@ YakkrExcludeFromFacility.Add(282);
 
                             </tbody>
                         }
+                        @if (ViewBag.YakkrCode == "710" || ViewBag.YakkrCode == "711" || ViewBag.YakkrCode == "712")
+                        {
+                            <thead style="cursor:pointer;">
+                                <tr>
+                                    <th></th>
+                                    
+                                    <th id="thMN">From<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @if (Model.Count() > 0)
+                                {
+                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                    {
+                                        <tr class="Client">
+                                            @if (ViewBag.YakkrCode == "712")
+                                            {
+                                                <td>
+                                                    <a href="#" onclick="GetEventByEventId(@detail.YakkrID)">Select</a>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td >
+                                                    <a @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>} href="/EducationManager/StaffEventInfo?YakkrId=@detail.YakkrID">Select</a>
+                                                </td>
+
+                                            }
+                                           
+                                           
+                                            <td>@detail.FromUser</td>
+                                            <td>@detail.Date</td>
+                                        </tr>
+
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="5">No Result Found</td></tr>
+                                }
+
+                            </tbody>
+                        }
                         else if (!YakkrExcludeFromFacility.Contains(int.Parse((ViewBag.YakkrCode).ToString().Trim())) && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
                         {
                             <thead style="cursor:pointer;">
@@ -503,11 +548,11 @@ YakkrExcludeFromFacility.Add(282);
                                     {
                                         if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "100" || ViewBag.YakkrCode == "151"))
                                         {
-                                            <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }"><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>}    href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                            <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }"><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>}    href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)&bklistUrl=yakkar100">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
                                         }
                                         else if (ViewBag.YakkrCode == "100")
                                         {
-                                            <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }"><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a  @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>}        href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
+                                            <tr class="@if (detail.IsFutureApplication == true) { <text>grn-color</text> }"><td class="ClientName"><span class="YakkrID" style="display:none;">@detail.YakkrID</span><span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span><span class="ClientId" style="display:none;">@detail.ClientId</span><span class="FromUserID" style="display:none;">@detail.FromUserID</span><a  @if (detail.IsFutureApplication == true) { <text>style="color:green;"</text>}        href="/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@detail.CenterName)&bklistUrl=yakkar100">Select</a></td><td>@detail.ClientName</td><td>@detail.DOB</td><td>@detail.CenterName</td><td>@detail.FromUser</td><td>@detail.Date</td></tr>
                                         }
                                         else if ((Session["Roleid"].ToString() == "b4d86d72-0b86-41b2-adc4-5ccce7e9775b" || Session["Roleid"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d" || Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9" || Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc") && (ViewBag.YakkrCode == "500"))
                                         {
@@ -1141,6 +1186,94 @@ YakkrExcludeFromFacility.Add(282);
 
         </div>
     </div>
+<div class="modal fade scroll-modal in" id="EventCancelledInfo" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-ch">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
+                <h2  class="extra-title muted">Event Cancelled Information</h2>
+                <div class="max_items_addn popup-addn-scroll">
+                    <input type="hidden" id="event_yakkrid" />
+                  
+
+                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                        <div class="col-sm-4">
+                            <div class="addn-poup-div">
+                                <label>Event Name :</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="addn-poup-div1">
+                                <p id="EventName"></p>
+                            </div>
+                        </div>
+                    </div>
+                 
+                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                        <div class="col-sm-4">
+                            <div class="addn-poup-div">
+                                <label>Event Description :</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="addn-poup-div1">
+                                <p id="EventDescrip"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                        <div class="col-sm-4">
+                            <div class="addn-poup-div">
+                                <label>Event Date & Time:</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="addn-poup-div1">
+                                <p id="EventDateTime"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                        <div class="col-sm-4">
+                            <div class="addn-poup-div">
+                                <label>Cancelled By :</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="addn-poup-div1">
+                                <p id="CancelledBy"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                        <div class="col-sm-4">
+                            <div class="addn-poup-div">
+                                <label>Reason for Cancelled :</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="addn-poup-div1">
+                                <p id="EventReason"></p>
+                            </div>
+                        </div>
+                    </div>
+             
+                </div>
+
+                <div class="col-xs-12" style="margin-top:10px;margin-bottom:0px;padding:0;">
+                    <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                        <button type="button" class="my-btn pull-right btn-success" data-dismiss="modal">Save</button>
+                        <button type="button" class="my-btn pull-right btn-danger" id="btnRemoveYakkr712">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
 
     <div class="modal fade scroll-modal in" id="Casenotedevelopement" role="dialog" aria-hidden="false">
         <div class="modal-dialog modal-dialog-ch">
@@ -2051,6 +2184,34 @@ YakkrExcludeFromFacility.Add(282);
                 });
             });
 
+            $('#EventCancelledInfo').find('#btnRemoveYakkr712').on('click', function () {
+
+                var EventYakkrid =   $('#EventCancelledInfo').find('#event_yakkrid').val();
+
+                $.ajax({
+                    url: '/Yakkr/DeleteYakkrByYakkrId',
+                    type: 'post',
+                    datatype: 'json',
+                    data: { clientId: 0, yakkrId: parseInt(EventYakkrid) },
+                    success: function (data) {
+                        if (data) {
+                            customAlert("Record deleted successfully.");
+                            setTimeout(function () {
+                                $('#EventCancelledInfo').modal('hide');
+                                window.location.reload(true);
+                            }, 1500);
+
+                        }
+                        else {
+                            customAlert("Some error occured.Please,try again later.");
+                        }
+                    },
+                    error: function (data) {
+                        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+
+                });
+            });
 
             $('#Casenotedevelopement').find('#btnRemoveYakkr').on('click', function () {
 
@@ -2085,6 +2246,40 @@ YakkrExcludeFromFacility.Add(282);
 
         });
 
+        function GetEventByEventId(Yakkrid)
+        {
+            $.ajax({
+                url: '/EducationManager/GetEventByYakkrid',
+                datatype: 'json',
+                type: 'post',
+                data: {  YakkrId: Yakkrid },
+                success: function (data) {
+
+                    var event1 = $('#EventCancelledInfo');
+                    debugger;
+                    if (data != null) {                            
+                          event1.find('#CancelledBy').html(data.CreatedBy);
+                         event1.find('#EventDateTime').html(data.EventDate);
+                        event1.find('#EventName').html(data.EventName);
+                        event1.find('#EventDescrip').html(data.EventDescription);
+                         event1.find('#EventReason').html(data.CancelReason);
+                                
+                    }
+
+                    $('#EventCancelledInfo').modal('show');
+
+
+                    $('#EventCancelledInfo').find('#event_yakkrid').val(Yakkrid);
+
+                   
+
+                },
+                error: function (data) {
+
+                }
+            });
+
+        }
         function getFormattedDate(date) {
             date = new Date(date);
             var year = date.getFullYear();
