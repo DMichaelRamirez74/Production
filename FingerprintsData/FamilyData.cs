@@ -8603,7 +8603,7 @@ namespace FingerprintsData
                     Connection.Close();
 
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Householdid", EncryptDecrypt.Decrypt64(id)));
+                command.Parameters.Add(new SqlParameter("@Householdid", (string.IsNullOrEmpty(id) || id=="0")?"0":EncryptDecrypt.Decrypt64(id)));
                 command.Parameters.Add(new SqlParameter("@agencyid", Agencyid));
                 command.Parameters.Add(new SqlParameter("@UserId", userid));
                 command.Parameters.Add(new SqlParameter("@RoleId", RoleId));

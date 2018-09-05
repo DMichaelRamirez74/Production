@@ -336,7 +336,7 @@ namespace FingerprintsData
 
             _TeacherM.ClosedDetails = new ClosedInfo();
 
-            if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count>0)
+            if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
             {
                 // _TeacherM.TodayClosed = Convert.ToInt32(_dataset.Tables[3].Rows[0]["TodayClosed"]);
 
@@ -681,7 +681,7 @@ namespace FingerprintsData
                 minutes.Add(new TeacherModel { minID = "45", minDes = "45" });
                 _TeacherM.Minutes = minutes;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -1281,7 +1281,7 @@ namespace FingerprintsData
                         ToSataffId = objMonitoring.ToSataffId,
                         RouteCode = objMonitoring.RouteCode,
                         Imageid = objMonitoring.ImageId,
-                        
+
                     }, "Delete");
                 }
             }
@@ -1420,8 +1420,13 @@ namespace FingerprintsData
                     yakkrRouting.RouteCode = "73";
                     if (!string.IsNullOrEmpty(CenterId))
                         yakkrRouting.CenterId = Convert.ToInt64(CenterId);
-                    Int64 YakkrId = InsertYakkrRoutingForDSCClosedRequest(yakkrRouting);
-                    isUpdated = UpdateOpenCloseRequest(Message, isClosed, isCenter, isClassRoom, UserId, objMonitoring, CenterId, YakkrId);
+
+                    long YakkrId = InsertYakkrRoutingForDSCClosedRequest(yakkrRouting);
+
+                    if (YakkrId > 0)
+                    {
+                        isUpdated = UpdateOpenCloseRequest(Message, isClosed, isCenter, isClassRoom, UserId, objMonitoring, CenterId, YakkrId);
+                    }
                 }
                 else
                 {
@@ -1629,7 +1634,7 @@ namespace FingerprintsData
         public bool InsertWorkOrderDetail(Monitoring objMonitoring)
         {
             bool isInserted = false;
-            string result="";
+            string result = "";
             try
             {
                 command = new SqlCommand();
@@ -1652,10 +1657,10 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_WorkOrder";
                 if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();          
+                Connection.Open();
                 string RowsAffected = Convert.ToString(command.ExecuteScalar());
-               
-                if (RowsAffected!="")
+
+                if (RowsAffected != "")
                 {
                     isInserted = InsertYakkrRouting(new YakkrRouting
                     {
@@ -1665,7 +1670,7 @@ namespace FingerprintsData
                         UserID = objMonitoring.UserID,
                         ToSataffId = objMonitoring.ToSataffId,
                         RouteCode = objMonitoring.RouteCode,
-                         MonitorId = RowsAffected
+                        MonitorId = RowsAffected
 
                     }, "TeacherRole");
                 }
@@ -2337,7 +2342,7 @@ namespace FingerprintsData
                                            CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
                                            ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
                                            AttendanceType = dr["AttendanceType"].ToString(),
-                                           AttendanceDate =Convert.ToString(dr["AttendanceDate"]),
+                                           AttendanceDate = Convert.ToString(dr["AttendanceDate"]),
                                            TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
                                            TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
                                            BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
