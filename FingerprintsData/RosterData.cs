@@ -961,7 +961,7 @@ namespace FingerprintsData
             }
             return RefList;
         }
-        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid,bool isEndOfYear=false)
+        public List<ClassRoom> Getclassrooms(string Centerid, string Agencyid, bool isEndOfYear = false, bool isInkind = false)
         {
             List<ClassRoom> _ClassRoomlist = new List<ClassRoom>();
 
@@ -976,6 +976,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", staffDetails.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
                 command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
+                command.Parameters.Add(new SqlParameter("@IsInkind", isInkind));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getclassrooms";
@@ -4599,14 +4600,16 @@ namespace FingerprintsData
             return AvailabilityList;
         }
 
-        public Roster GetCenterList(string userid, string agencyid,string programYear="")
+        public Roster GetCenterList(string programYear = "")
         {
             Roster _roster = new Roster();
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             try
             {
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@ProgramYear", programYear));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;

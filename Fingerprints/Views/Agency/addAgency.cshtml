@@ -35,6 +35,7 @@
 @section Script{
 
     <script type="text/javascript">
+
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -1307,6 +1308,15 @@
                 return isValid;
             }
 
+
+            else if ($('#AttendanceIssueStartDay').val().trim() == "") {
+                isValid = false;
+                customAlert("Minimum enrollment days to check attendance issue is required.");
+                plainValidation('#AttendanceIssueStartDay');
+                return isValid;
+            }
+
+
             else if(!$('input[name=AcceptanceProcess]').is(":checked"))
             {
                 isValid = false;
@@ -2367,13 +2377,11 @@
                     customAlert("Program type grid can't be blank.");
             }
             else {
-                if ($(value).closest('table').find('tbody > tr').length > 1) {
+                if ($(value).closest('table').find('tbody > tr').length >1) {
                     rounds = 0;
                     $(value).closest('tr').remove();
-
-
-
                     var show = 0;
+
                     $(table).find("tr td:nth-child(5)").each(function () {
                         if ($(this).find('select').val() == "1" || $(this).find('select').val() == "2")
                             show = 1;
@@ -3067,6 +3075,7 @@
 
 
         var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+
         function ValidateSingleInput(oInput) {
             if (oInput.type == "file") {
                 var sFileName = oInput.value;
@@ -3430,9 +3439,9 @@
                 { @ViewData["Title"].ToString()}
                 @if (Session["AgencyID"] == null)
                 {
-                    <span class="view-btn backto_listspan" id="BackToList">
-                        <a href="~/Agency/Viewagency" class="backto_list">Back to list</a>
-                    </span>
+                <span class="view-btn backto_listspan" id="BackToList">
+                    <a href="~/Agency/Viewagency" class="backto_list">Back to list</a>
+                </span>
                 }
             </h2>
 
@@ -3665,6 +3674,16 @@
                                 @Html.TextBoxFor(m => m.Yakkr601, new { @class = "form-control", placeholder = "Yakkr 601 Attendance %", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
                             </div>
                         </div>
+
+                       
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="AttendanceIssueStartDay">Minimum Enrollment Days to Check Attendance Issue<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AttendanceIssueStartDay, new { @class = "form-control", placeholder = "Minimum enrollment days in number", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>
+
 
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">

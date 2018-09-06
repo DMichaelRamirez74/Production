@@ -98,7 +98,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(new RosterData().Getclassrooms(Centerid, Session["AgencyID"].ToString()));
+                return Json(new RosterData().Getclassrooms(Centerid, Session["AgencyID"].ToString(), isEndOfYear: false, isInkind: true));
             }
             catch (Exception Ex)
             {
@@ -111,7 +111,7 @@ namespace Fingerprints.Controllers
         /// Gets the InKind Activities Page.
         /// </summary>
         /// <returns></returns>
-       [CustAuthFilter()]
+        [CustAuthFilter()]
        
         public ActionResult InKindActivities()
         {

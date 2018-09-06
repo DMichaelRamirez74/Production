@@ -21,7 +21,7 @@
             padding-right: 0;
         }
 
-        #ddlProgramType option {
+        #ddlProgramYear option {
             background: #1f4f7d;
         }
 
@@ -140,8 +140,8 @@
                             </div>
                             <div class="col-md-8 col-lg-8 col-sm-8 col-xs-12">
                                 <div class="billing-inner">
-                                   
-                                    @Html.DropDownList("ddlProgramType", Fingerprints.Utilities.Helper.GetActiveAndFutureYears(Session["AgencyID"].ToString()), new { @class = "billing-select1 ddlProgramYear" })
+
+                                    @Html.DropDownList("ddlProgramYear", Fingerprints.Utilities.Helper.GetActiveAndFutureYears(Session["AgencyID"].ToString()), new { @class = "billing-select1 ddlProgramYear" })
                                     <input type="hidden" class="inkind-id" />
                                 </div>
                             </div>
@@ -194,15 +194,12 @@
                             <tr>
                                 <th>Program Year</th>
                                 <th>Hours</th>
-                                <th>Dollars</th>                               
+                                <th>Dollars</th>
                                 <th>Edit</th>
                                 <th>Delete</th>
                             </tr>
                         </thead>
-                        <tbody class="bill-table-head">
-                            
-
-                        </tbody>
+                        <tbody class="bill-table-head"></tbody>
                     </table>
                 </div>
                 <div style="margin-bottom: 50px;height: 2px;"></div>
@@ -210,7 +207,7 @@
         </div>
     </div>
 
-   
+
 
 
     <script src="~/Content/scriptchild/jquery.js"></script>
@@ -223,24 +220,48 @@
             $('.btn-submit').click(function () {
                 //  if (ValidateAddressChange()) {
                 var allow = true;
+                cleanValidation();
+                debugger;
                 if ($('#ddlProgramYear').val() == "0") {
+                    plainValidation('#ddlProgramYear');
                     customAlert("Program Year is mandatory");
                     allow = false;
+                    return false;
                 }
-                else if ($('#txtHours').val() == "") {
+
+                 if ($('#txtHours').val() == "") {
+                    plainValidation('#txtHours');
                     customAlert("Hours is mandatory");
                     allow = false;
+                    return false;
                 }
-                else if ($('#txtDollars').val() == "") {
+
+                 if(parseFloat($('#txtHours').val()).toString()=="NaN")
+                {
+                    plainValidation('#txtHours');
+                    customAlert("Please enter valid hours");
+                    allow = false;
+                    return false;
+                }
+                 if ($('#txtDollars').val() == "") {
+                    plainValidation('#txtDollars');
                     customAlert("Dollars is mandatory");
                     allow = false;
+                    return false;
                 }
-                
+                if (parseFloat($('#txtDollars').val()).toString() == "NaN") {
+                    plainValidation('#txtHours');
+                    customAlert("Please enter valid dollars");
+                    allow = false;
+                    return false;
+                }
+
+
                 if (allow) {
                     var Inkind = {};
                     if ($('.inkind-id').val().trim() != "")
                         Inkind.Id = $('.inkind-id').val().trim();
-                    Inkind.ProgramYear = $('.ddlProgramYear').val();
+                    Inkind.ProgramYear = $('#ddlProgramYear').val();
                     Inkind.Hours = $('#txtHours').val() == undefined || $('#txtHours').val() == "" ? "0" : $('#txtHours').val();
                     Inkind.Dollers = $('#txtDollars').val() == undefined || $('#txtDollars').val() == "" ? "0" : $('#txtDollars').val();
                     Inkind = JSON.stringify({ 'inkind': Inkind });
@@ -272,10 +293,10 @@
                 $('.ddlProgramYear').val(currentrow.find('td').eq(0).text().replace('$', '').trim());
                 $('#txtHours').val(currentrow.find('td').eq(1).text().replace('$', '').trim());
                 $('#txtDollars').val(currentrow.find('td').eq(2).text().replace('$', '').trim());
-                              
+
                 $('.inkind-id').val(currentrow.attr('inkindid'));
                 $('.ddlProgramYear').attr('disabled', true);
-                
+
             });
             $('body').on('click', '.dropdown', function () {
                 setTimeout(function ()
@@ -322,7 +343,7 @@
                     url: "/Home/GetInkindByUserId",
                     success: function (data) {
                         $('.bill-table-head').empty();
-                        
+
                         var Template = '<tr inkindid="##ID##">\
                                  <td data-title="ProgramYear">\
                                      <div class="">\
@@ -376,7 +397,7 @@
                                 $('.bill-table-head').append(input);
                             }
                         }
-                       
+
                     },
                     error: function (data) {
                         console.log('Error');
@@ -384,7 +405,7 @@
                 });
             }
         });
-            
+
     </script>
 }
 

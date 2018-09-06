@@ -1413,6 +1413,13 @@
                 return isValid;
             }
 
+            else if ($('#AttendanceIssueStartDay').val().trim() == "") {
+                isValid = false;
+                customAlert("Minimum enrollment days to check attendance issue is required.");
+                plainValidation('#AttendanceIssueStartDay');
+                return isValid;
+            }
+
             else if(!$('input[name=AcceptanceProcess]').is(":checked"))
             {
                 isValid = false;
@@ -3354,9 +3361,10 @@
 
 
     <style>
-        body{
-        padding:0!important;
+        body {
+            padding: 0 !important;
         }
+
         .bootstrap-dialog .bootstrap-dialog-title {
             margin-top: 13px;
         }
@@ -3893,6 +3901,17 @@
                                 @Html.TextBoxFor(m => m.Yakkr601, new { @class = "form-control", placeholder = "Yakkr 601 Attendance %", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
                             </div>
                         </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                                <label for="pwd">Minimum Enrollment Days to Check Attendance Issue<sup>*</sup></label>
+                                @Html.TextBoxFor(m => m.AttendanceIssueStartDay, new { @class = "form-control", placeholder = "Minimum enrollment days in number", maxlength = "2", tabIndex = "21", @onblur = "return checkNumeric(this);" })
+                            </div>
+                        </div>
+
+
+
+
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="RaceSubCatDesc">Acceptance Process<sup>*</sup></label>
@@ -4014,7 +4033,7 @@
                                         @Html.RadioButtonFor(m => m.Areabreakdown, 2, new { id = "Areabreakdown2", tabIndex = "25" })
                                         <span>No</span>
                                     </div>
-                                    <a title="Add/Update area breakdowns" @if (Model.Areabreakdown == "" || Model.Areabreakdown == "2") { <text> style="display:none;" </text>    } id="areadropAnchor" href="javascript:void(0)">Areas&nbsp;<i class="fa fa-arrow-up"></i></a>
+                                    <a title="Add/Update area breakdowns" @if (Model.Areabreakdown == "" || Model.Areabreakdown == "2") { <text> style="display:none;" </text>      } id="areadropAnchor" href="javascript:void(0)">Areas&nbsp;<i class="fa fa-arrow-up"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -4031,7 +4050,7 @@
                                         @Html.RadioButtonFor(m => m.DivisionBreakDown, 2, new { id = "Areabreakdown2", tabIndex = "25" })
                                         <span>No</span>
                                     </div>
-                                    <a title="Add/Update division breakdowns" @if (Model.DivisionBreakDown == "" || Model.DivisionBreakDown == "2") { <text> style="display:none;" </text>    } href="javascript:void(0)" id="divisiondropAnchor">Divisions&nbsp;<i class="fa fa-arrow-up"></i></a>
+                                    <a title="Add/Update division breakdowns" @if (Model.DivisionBreakDown == "" || Model.DivisionBreakDown == "2") { <text> style="display:none;" </text>      } href="javascript:void(0)" id="divisiondropAnchor">Divisions&nbsp;<i class="fa fa-arrow-up"></i></a>
 
                                 </div>
                             </div>
@@ -4403,429 +4422,430 @@
                         </div>
 
 
-                                            <div class="col-lg-12">
-                                                <h2 class="page-header program-end-date program-div">
-                                                    Program Types <sup>*</sup>
-
-                                                    <span class="view-btn" id="BackToList">
-                                                        <a href="javascript:void(0)" title="Add Program Types" class="backto_list" onclick="AddProgram(this);">Add Program Types</a>
-                                                    </span>
-
-                                                </h2>
-                                            </div>
-
-                                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
-                                                <div class="table-responsive">
-                                                    <table class="table table_size " id="gridprogram">
-                                                        <thead style="cursor:pointer;">
-                                                            <tr id='header00'>
-                                                                <th id="thIN">Program Type</th>
-                                                                <th id="thIN">Description</th>
-                                                                <th id="thSN">PIR</th>
-                                                                <th id="thnt">Funded Slots</th>
-                                                                <th id="thCust">Reference Program</th>
-                                                                <th id="thCust">DIV</th>
-                                                                <th id="thCust">Age Min</th>
-                                                                <th id="thCust">Age Max</th>
-                                                                <th id="thCust" style="width:10%;">Program Date(s)</th>
-                                                                <th id="thCust" style="width: 10%;">Fund</th>
-                                                                <th id="thCust" style="width: 10%;">Program Type Association</th>
-                                                                <th id="thCust">Status</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-
-
-                                                            @foreach (var item1 in Model.ProgramTypeList)
-                                                            {
-                                                                if (@item1.ReferenceProg == "1" || @item1.ReferenceProg == "2")
-                                                                {
-                                                                    Showfundquestion = 1;
-                                                                }
-                                                                if (@item1.ReferenceProg == "4")
-                                                                {
-                                                                    disabledhealth = 1;
-                                                                }
-                                                                if (@item1.ReferenceProg == "1")
-                                                                {
-                                                                    showfundq10 = 1;
-                                                                }
-
-                                                                <tr id='@j'>
-                                                                    <td><input id="ProgType_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].ProgramTypes" value="@item1.ProgramTypes" type="text"></td>
-                                                                    <td><input id="Desc_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].Description" value="@item1.Description" type="text"></td>
-                                                                    @if (item1.PIRReport == true)
-                                                                    {
-                                                                        <td><input id="PIRReport_@j" type="checkbox" value="true" checked="checked" name="ProgramTypeList[@j].pirreport" data-val="true" class="chcktbl" style="width:70%;" /></td>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <td><input id="PIRReport_@j" type="checkbox" value="true" name="ProgramTypeList[@j].pirreport" data-val="true" class="chcktbl" style="width:70%;" /></td>
-                                                                    }
-
-                                                                    <td><input id="Slots_@j" style="width:100%;" onblur="checkNumeric(this);" class="form-control" type="text" data-val="true" name="ProgramTypeList[@j].Slots" value="@item1.Slots" maxlength="100"></td>
-                                                                    <td class="empty_setpro">
-                                                                        @{
-                                                                            List<SelectListItem> prog = new List<SelectListItem>();
-                                                                            foreach (var item2 in ViewBag.RefList)
-                                                                            {
-                                                                                prog.Add(new SelectListItem() { Text = item2.Name, Value = item2.Id });
-                                                                            }
-                                                                        }
-
-
-                                                                        @Html.DropDownListFor(m => Model.ProgramTypeList[j].ReferenceProg, new SelectList(prog, "Value", "Text", @item1.ReferenceProg), new { @class = "form-control", @style = "width:80px;", onchange = "showCheckbox(this);" })
-
-                                                                    </td>
-                                                                    <td class="process_art">
-
-                                                                        @if (Model.DivisionsList.Count() > 0 && Model.DivisionsList.Count() == 1)
-                                                                        {
-                                                                            <input maxlength="50" style="width:100%;" id="Area_@j" class="form-control" name="ProgramTypeList[@j].DivisionID" value="@Model.DivisionsList[0].Text" type="text" disabled />
-
-                                                                        }
-
-                                                                        else if (Model.DivisionsList.Count > 1)
-                                                                        {
-                                                                            @Html.DropDownListFor(m => m.ProgramTypeList[j].DivisionID, new SelectList(Model.DivisionsList, "Value", "Text", @item1.DivisionID), new { style = "width:100%;height:34px;" })
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <input maxlength="50" style="width:100%;" id="Area_@j" class="form-control" name="ProgramTypeList[@j].DivisionID" value="@(item1.DivisionID == "" ? "1" : item1.DivisionID)" type="text" />
-
-                                                                        }
-                                                                    </td>
-                                                                    @if (item1.ReferenceProg == "4")
-                                                                    {
-                                                                        <td class="process_art"><input id="Minage_@j" style="width:100%;" readonly class="form-control" name="ProgramTypeList[@j].minage" onblur="checkage(this);" type="text"></td>
-                                                                        <td class="process_art"><input id="Maxage_@j" style="width:100%;" readonly class="form-control" name="ProgramTypeList[@j].maxage" onblur="checkagemax(this);" type="text"></td>
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <td class="process_art"><input id="Minage_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].minage" value="@item1.MinAge" onblur="checkage(this);" type="text"></td>
-                                                                        <td class="process_art"><input id="Maxage_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].maxage" value="@item1.MaxAge" onblur="checkagemax(this);" type="text"></td>
+                        <div class="col-lg-12">
+                            <h2 class="page-header program-end-date program-div">
+                                Program Types <sup>*</sup>
+
+                                <span class="view-btn" id="BackToList">
+                                    <a href="javascript:void(0)" title="Add Program Types" class="backto_list" onclick="AddProgram(this);">Add Program Types</a>
+                                </span>
+
+                            </h2>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                            <div class="table-responsive">
+                                <table class="table table_size " id="gridprogram">
+                                    <thead style="cursor:pointer;">
+                                        <tr id='header00'>
+                                            <th id="thIN">Program Type</th>
+                                            <th id="thIN">Description</th>
+                                            <th id="thSN">PIR</th>
+                                            <th id="thnt">Funded Slots</th>
+                                            <th id="thCust">Reference Program</th>
+                                            <th id="thCust">DIV</th>
+                                            <th id="thCust">Age Min</th>
+                                            <th id="thCust">Age Max</th>
+                                            <th id="thCust" style="width:10%;">Program Date(s)</th>
+                                            <th id="thCust" style="width: 10%;">Fund</th>
+                                            <th id="thCust" style="width: 10%;">Program Type Association</th>
+                                            <th id="thCust">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+
+                                        @foreach (var item1 in Model.ProgramTypeList)
+                                        {
+                                            if (@item1.ReferenceProg == "1" || @item1.ReferenceProg == "2")
+                                            {
+                                                Showfundquestion = 1;
+                                            }
+                                            if (@item1.ReferenceProg == "4")
+                                            {
+                                                disabledhealth = 1;
+                                            }
+                                            if (@item1.ReferenceProg == "1")
+                                            {
+                                                showfundq10 = 1;
+                                            }
+
+                                            <tr id='@j'>
+                                                <td><input id="ProgType_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].ProgramTypes" value="@item1.ProgramTypes" type="text"></td>
+                                                <td><input id="Desc_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].Description" value="@item1.Description" type="text"></td>
+                                                @if (item1.PIRReport == true)
+                                                {
+                                                    <td><input id="PIRReport_@j" type="checkbox" value="true" checked="checked" name="ProgramTypeList[@j].pirreport" data-val="true" class="chcktbl" style="width:70%;" /></td>
+                                                }
+                                                else
+                                                {
+                                                    <td><input id="PIRReport_@j" type="checkbox" value="true" name="ProgramTypeList[@j].pirreport" data-val="true" class="chcktbl" style="width:70%;" /></td>
+                                                }
+
+                                                <td><input id="Slots_@j" style="width:100%;" onblur="checkNumeric(this);" class="form-control" type="text" data-val="true" name="ProgramTypeList[@j].Slots" value="@item1.Slots" maxlength="100"></td>
+                                                <td class="empty_setpro">
+                                                    @{
+                                                        List<SelectListItem> prog = new List<SelectListItem>();
+                                                        foreach (var item2 in ViewBag.RefList)
+                                                        {
+                                                            prog.Add(new SelectListItem() { Text = item2.Name, Value = item2.Id });
+                                                        }
+                                                    }
+
+
+                                                    @Html.DropDownListFor(m => Model.ProgramTypeList[j].ReferenceProg, new SelectList(prog, "Value", "Text", @item1.ReferenceProg), new { @class = "form-control", @style = "width:80px;", onchange = "showCheckbox(this);" })
+
+                                                </td>
+                                                <td class="process_art">
+
+                                                    @if (Model.DivisionsList.Count() > 0 && Model.DivisionsList.Count() == 1)
+                                                    {
+                                                        <input maxlength="50" style="width:100%;" id="Area_@j" class="form-control" name="ProgramTypeList[@j].DivisionID" value="@Model.DivisionsList[0].Text" type="text" disabled />
+
+                                                    }
+
+                                                    else if (Model.DivisionsList.Count > 1)
+                                                    {
+                                                        @Html.DropDownListFor(m => m.ProgramTypeList[j].DivisionID, new SelectList(Model.DivisionsList, "Value", "Text", @item1.DivisionID), new { style = "width:100%;height:34px;" })
+                                                    }
+                                                    else
+                                                    {
+                                                        <input maxlength="50" style="width:100%;" id="Area_@j" class="form-control" name="ProgramTypeList[@j].DivisionID" value="@(item1.DivisionID == "" ? "1" : item1.DivisionID)" type="text" />
+
+                                                    }
+                                                </td>
+                                                @if (item1.ReferenceProg == "4")
+                                                {
+                                                    <td class="process_art"><input id="Minage_@j" style="width:100%;" readonly class="form-control" name="ProgramTypeList[@j].minage" onblur="checkage(this);" type="text"></td>
+                                                                    <td class="process_art"><input id="Maxage_@j" style="width:100%;" readonly class="form-control" name="ProgramTypeList[@j].maxage" onblur="checkagemax(this);" type="text"></td>
+
+                                                }
+                                                else
+                                                {
+                                                    <td class="process_art"><input id="Minage_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].minage" value="@item1.MinAge" onblur="checkage(this);" type="text"></td>
+                                                                    <td class="process_art"><input id="Maxage_@j" style="width:100%;" class="form-control" name="ProgramTypeList[@j].maxage" value="@item1.MaxAge" onblur="checkagemax(this);" type="text"></td>
 
-                                                                    }
+                                                }
 
-                                                                    <td>
+                                                <td>
 
 
-                                                                        <input type="hidden" id="ProgramTypeList[@j].programstartdate" value="@item1.programstartDate" class="program-start-date" name="ProgramTypeList[@j].programstartdate" />
-                                                                        <input type="hidden" id="ProgramTypeList[@j].programenddate" value="@item1.programendDate" class="program-end-date" name="ProgramTypeList[@j].programenddate" />
-                                                                        <input type="hidden" id="ProgramTypeList[@j].LastDateCurrentApplication" value="@item1.LastDateCurrentApplication" class="date-current-app" name="ProgramTypeList[@j].LastDateCurrentApplication" />
-                                                                        <input type="hidden" id="ProgramTypeList[@j].DateFutureApplication" value="@item1.DateFutureApplication" class="date-future-app" name="ProgramTypeList[@j].DateFutureApplication" />
-                                                                        <input type="hidden" id="ProgramTypeList[@j].TransitionDate" value="@item1.TransitionDate" class="trans-date" name="ProgramTypeList[@j].TransitionDate" />
+                                                    <input type="hidden" id="ProgramTypeList[@j].programstartdate" value="@item1.programstartDate" class="program-start-date" name="ProgramTypeList[@j].programstartdate" />
+                                                    <input type="hidden" id="ProgramTypeList[@j].programenddate" value="@item1.programendDate" class="program-end-date" name="ProgramTypeList[@j].programenddate" />
+                                                    <input type="hidden" id="ProgramTypeList[@j].LastDateCurrentApplication" value="@item1.LastDateCurrentApplication" class="date-current-app" name="ProgramTypeList[@j].LastDateCurrentApplication" />
+                                                    <input type="hidden" id="ProgramTypeList[@j].DateFutureApplication" value="@item1.DateFutureApplication" class="date-future-app" name="ProgramTypeList[@j].DateFutureApplication" />
+                                                    <input type="hidden" id="ProgramTypeList[@j].TransitionDate" value="@item1.TransitionDate" class="trans-date" name="ProgramTypeList[@j].TransitionDate" />
 
 
-                                                                        <a style="color:#295b8f;cursor:pointer;text-decoration:underline;" href="javascript:void(0);" onclick="addProgDatesConfirm(this);">Add Date(s)</a>
+                                                    <a style="color:#295b8f;cursor:pointer;text-decoration:underline;" href="javascript:void(0);" onclick="addProgDatesConfirm(this);">Add Date(s)</a>
 
-                                                                    </td>
-                                                                    <td style="text-align:center;">
-                                                                        <a style="color:#295b8f;cursor:pointer;text-decoration:underline;" href="javascript:void(0);" accesskey="@item1.FundID" onclick="addFunds(this);">Fund(s)</a>
-                                                                        @Html.HiddenFor(m => m.ProgramTypeList[j].FundID, new { @class = "fund-id" })
-                                                                    </td>
-                                                                    <td style="text-align:center;">
+                                                </td>
+                                                <td style="text-align:center;">
+                                                    <a style="color:#295b8f;cursor:pointer;text-decoration:underline;" href="javascript:void(0);" accesskey="@item1.FundID" onclick="addFunds(this);">Fund(s)</a>
 
-                                                                        @{
-                                                                            List<SelectListItem> progAssList = new List<SelectListItem>();
+                                                    @Html.HiddenFor(m => m.ProgramTypeList[j].FundID, new { @class = "fund-id" })
+                                                </td>
+                                                <td style="text-align:center;">
 
-                                                                            progAssList = Model.ProgramTypeList.Where(x => x.ProgramID != item1.ProgramID).Select(x => new SelectListItem
-                                                                            {
+                                                    @{
+                                                        List<SelectListItem> progAssList = new List<SelectListItem>();
 
-                                                                                Text = x.ProgramTypes.ToString(),
-                                                                                Value = x.ProgramID.ToString()
-                                                                            }).ToList();
-                                                                        }
+                                                        progAssList = Model.ProgramTypeList.Where(x => x.ProgramID != item1.ProgramID).Select(x => new SelectListItem
+                                                        {
 
+                                                            Text = x.ProgramTypes.ToString(),
+                                                            Value = x.ProgramID.ToString()
+                                                        }).ToList();
+                                                    }
 
-                                                                        @Html.DropDownListFor(m => m.ProgramTypeList[j].ProgramTypeAssociation, new SelectList(progAssList, "Value", "Text", item1.ProgramTypeAssociation), "", new { @class = "form-control", style = "width:100%;" })
 
-                                                                    </td>
+                                                    @Html.DropDownListFor(m => m.ProgramTypeList[j].ProgramTypeAssociation, new SelectList(progAssList, "Value", "Text", item1.ProgramTypeAssociation), "", new { @class = "form-control", style = "width:100%;" })
 
-                                                                    <td class="process_sec" style="text-align:center;">
-                                                                        <select class="form-control" accesskey="@item1.ProgramID" id="ProgramTypeList[@j].ProgStatus" name="ProgramTypeList[@j].ProgStatus" onchange="changestatus(this);" style="width:80px;">
-                                                                            @if (item1.ProgStatus.ToString() == "0")
-                                                                            {
-                                                                                <option value="0" selected="selected">Active</option>
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <option value="0">Active</option>
-                                                                            }
-                                                                            @if (item1.ProgStatus.ToString() == "1")
-                                                                            {
-                                                                                <option value="1" selected="selected">Inactive</option>
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <option value="1">Inactive</option>
-                                                                            }
-                                                                            @if (item1.ProgStatus.ToString() == "2")
-                                                                            {
-                                                                                <option value="2" selected="selected">Suspended</option>
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <option value="2">Suspended</option>
-                                                                            }
-                                                                        </select>
-                                                                    </td>
+                                                </td>
 
+                                                <td class="process_sec" style="text-align:center;">
+                                                    <select class="form-control" accesskey="@item1.ProgramID" id="ProgramTypeList[@j].ProgStatus" name="ProgramTypeList[@j].ProgStatus" onchange="changestatus(this);" style="width:80px;">
+                                                        @if (item1.ProgStatus.ToString() == "0")
+                                                        {
+                                                            <option value="0" selected="selected">Active</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="0">Active</option>
+                                                        }
+                                                        @if (item1.ProgStatus.ToString() == "1")
+                                                        {
+                                                            <option value="1" selected="selected">Inactive</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="1">Inactive</option>
+                                                        }
+                                                        @if (item1.ProgStatus.ToString() == "2")
+                                                        {
+                                                            <option value="2" selected="selected">Suspended</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="2">Suspended</option>
+                                                        }
+                                                    </select>
+                                                </td>
 
-                                                                    <td style="display:none;">
 
+                                                <td style="display:none;">
 
-                                                                        <input type="hidden" value="@item1.ProgramID" id="hdnProgID" name="ProgramTypeList[@j].ProgramID">
-                                                                        <input type="hidden" value="@item1.FundID" id="hdnFundID" name="ProgramTypeList[@j].FundID">
-                                                                    </td>
-                                                                </tr>
-                                                                                j++;
-                                                                                disabledhealth = 0;
-                                                                            }
 
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
+                                                    <input type="hidden" value="@item1.ProgramID" id="hdnProgID" name="ProgramTypeList[@j].ProgramID">
+                                                    <input type="hidden" value="@item1.FundID" id="hdnFundID" name="ProgramTypeList[@j].FundID">
+                                                </td>
+                                            </tr>
+                                                            j++;
+                                                            disabledhealth = 0;
+                                                        }
 
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
-                                            <div class="fundquestion" @if (Showfundquestion == 0) { <text> style="display:none;" </text>            }>
-                                                <div class="col-lg-12 "><h4 class="page-header">Funded Enrollment by Program Options  </h4>  </div><div class="row" id="FundQuestion">
 
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>1.</strong> Center-based option (5 days per week) Full-day Enrollment </label>
+                        <div class="fundquestion" @if (Showfundquestion == 0) { <text> style="display:none;" </text>              }>
+                            <div class="col-lg-12 "><h4 class="page-header">Funded Enrollment by Program Options  </h4>  </div><div class="row" id="FundQuestion">
 
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @*<input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ1" value="@Model._FundedEnrollment.FundQ1" class="form-control" style="width:100%;" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>1.</strong> Center-based option (5 days per week) Full-day Enrollment </label>
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ1, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full-day Enrollment" })
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        @*<input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ1" value="@Model._FundedEnrollment.FundQ1" class="form-control" style="width:100%;" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
 
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ1, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full-day Enrollment" })
 
 
 
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <label class="lablewidth fund-label" for="email"><strong>1.a</strong> Number available as full-working-day enrollment of children  </label>
 
-                                                    </div> <div class="col-lg-3 col-md-3 col-sm-3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <label class="lablewidth fund-label" for="email"><strong>1.a</strong> Number available as full-working-day enrollment of children  </label>
 
-                                                        @* <input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ2" value="@Model._FundedEnrollment.FundQ2" class="form-control" style="width:104%;" maxlength="10" placeholder="Full Working Day" type="text">*@
+                                </div> <div class="col-lg-3 col-md-3 col-sm-3">
 
-                                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ2, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Working Day" })
+                                    @* <input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ2" value="@Model._FundedEnrollment.FundQ2" class="form-control" style="width:104%;" maxlength="10" placeholder="Full Working Day" type="text">*@
 
+                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ2, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Working Day" })
 
 
 
-                                                    </div><div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <label class="lablewidth fund-label1" for="email"><strong>1.a.1</strong> Number available for the full-calendar-year of children</label>
 
-                                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                        @* <input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ3" value="@Model._FundedEnrollment.FundQ3" class="form-control" maxlength="10" style="width:104%;" placeholder="Full Calendar Year" type="text">*@
+                                </div><div class="col-lg-6 col-md-6 col-sm-6">
+                                    <label class="lablewidth fund-label1" for="email"><strong>1.a.1</strong> Number available for the full-calendar-year of children</label>
 
-                                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ3, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Calender Year" })
+                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                    @* <input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ3" value="@Model._FundedEnrollment.FundQ3" class="form-control" maxlength="10" style="width:104%;" placeholder="Full Calendar Year" type="text">*@
 
+                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ3, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Calender Year" })
 
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>2.</strong> Center-based option (5 days per week) Part-day Enrollment of children </label>
 
-                                                        </div> <div class="col-lg-3 col-md-3 col-sm-3">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>2.</strong> Center-based option (5 days per week) Part-day Enrollment of children </label>
 
-                                                            @* <input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ4" value="@Model._FundedEnrollment.FundQ4" style="width:100%;" class="form-control" maxlength="10" placeholder="Part Day Enrollment" type="text">*@
+                                    </div> <div class="col-lg-3 col-md-3 col-sm-3">
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ4, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Part Day Enrollment" })
+                                        @* <input onblur="return checkNumeric(this);" name="_FundedEnrollment.FundQ4" value="@Model._FundedEnrollment.FundQ4" style="width:100%;" class="form-control" maxlength="10" placeholder="Part Day Enrollment" type="text">*@
 
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ4, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Part Day Enrollment" })
 
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <label class="lablewidth fund-label" for="email"><strong>2.a</strong> Number in double sessions of children</label>
 
-                                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                        @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ5" value="@Model._FundedEnrollment.FundQ5" class="form-control" style="width:104%;" maxlength="10" placeholder="Double Sessions" type="text">*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <label class="lablewidth fund-label" for="email"><strong>2.a</strong> Number in double sessions of children</label>
 
-                                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ5, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Double Sessions" })
+                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                    @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ5" value="@Model._FundedEnrollment.FundQ5" class="form-control" style="width:104%;" maxlength="10" placeholder="Double Sessions" type="text">*@
 
+                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ5, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Double Sessions" })
 
-                                                    </div><div class="row">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>3.</strong> Center-based option (4 days per week) Full-day Enrollment of children</label>
 
-                                                        </div>  <div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ6" value="@Model._FundedEnrollment.FundQ6" class="form-control" style="width:100%;" maxlength="10" placeholder="Full Day Enrollment" type="text">*@
+                                </div><div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>3.</strong> Center-based option (4 days per week) Full-day Enrollment of children</label>
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ6, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full Day Enrollment" })
-                                                        </div>
+                                    </div>  <div class="col-lg-3 col-md-3 col-sm-3">
+                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ6" value="@Model._FundedEnrollment.FundQ6" class="form-control" style="width:100%;" maxlength="10" placeholder="Full Day Enrollment" type="text">*@
 
-                                                    </div>
-                                                </div><div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>4.</strong> Center-based option (4 days per week) Part-day Enrollment  of children </label>
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ6, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full Day Enrollment" })
+                                    </div>
 
-                                                        </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ7" value="@Model._FundedEnrollment.FundQ7" class="form-control" style="width:100%;" maxlength="10" placeholder="Part Day Enrollment" type="text">*@
+                                </div>
+                            </div><div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>4.</strong> Center-based option (4 days per week) Part-day Enrollment  of children </label>
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ7, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Part Day Enrollment" })
+                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ7" value="@Model._FundedEnrollment.FundQ7" class="form-control" style="width:100%;" maxlength="10" placeholder="Part Day Enrollment" type="text">*@
 
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ7, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Part Day Enrollment" })
 
-                                                        </div>
 
-                                                    </div>
-                                                </div> <div class="col-lg-12">
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <label class="lablewidth fund-label" for="email"><strong>4.a</strong> Number in double sessions of children </label>
+                                    </div>
 
-                                                    </div> <div class="col-lg-3 col-md-3 col-sm-3">
+                                </div>
+                            </div> <div class="col-lg-12">
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <label class="lablewidth fund-label" for="email"><strong>4.a</strong> Number in double sessions of children </label>
 
-                                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ8" value="@Model._FundedEnrollment.FundQ8" class="form-control" style="width:104%;" maxlength="10" placeholder="Double sessions" type="text">*@
+                                </div> <div class="col-lg-3 col-md-3 col-sm-3">
 
-                                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ8, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Double Sessions" })
+                                    @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ8" value="@Model._FundedEnrollment.FundQ8" class="form-control" style="width:104%;" maxlength="10" placeholder="Double sessions" type="text">*@
 
+                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ8, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Double Sessions" })
 
 
 
-                                                    </div>
-                                                </div><div class="row">
-                                                    <div class="col-lg-12">
 
-                                                        <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>5.</strong> Home-based option of children </label></div><div class="col-lg-3 col-md-3 col-sm-3">
+                                </div>
+                            </div><div class="row">
+                                <div class="col-lg-12">
 
-                                                            @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ9" value="@Model._FundedEnrollment.FundQ9" class="form-control" maxlength="10" style="width:100%;" placeholder="Home Based Option" type="text">*@
+                                    <div class="col-lg-6 col-md-6 col-sm-6"><label class="lablewidth" for="email"><strong>5.</strong> Home-based option of children </label></div><div class="col-lg-3 col-md-3 col-sm-3">
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ9, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Home Based Option" })
+                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ9" value="@Model._FundedEnrollment.FundQ9" class="form-control" maxlength="10" style="width:100%;" placeholder="Home Based Option" type="text">*@
 
-                                                        </div>
-                                                    </div>
-                                                </div><div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ9, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Home Based Option" })
 
-                                                            <label class="lablewidth" for="email"><strong>6.</strong> Combination option of children</label>
-                                                        </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ10" value="@Model._FundedEnrollment.FundQ10" style="width:100%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ10, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full-day Enrollment" })
+                                    </div>
+                                </div>
+                            </div><div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
 
+                                        <label class="lablewidth" for="email"><strong>6.</strong> Combination option of children</label>
+                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                        @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ10" value="@Model._FundedEnrollment.FundQ10" style="width:100%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ10, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Full-day Enrollment" })
 
 
 
-                                                        </div>
-                                                    </div>
-                                                </div><div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>7.</strong> Family child care option of children </label>
 
-                                                        </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @* <input onblur="return checkNumeric(this);" value="@Model._FundedEnrollment.FundQ11" name="FundSourcedata[@i].FundQ11" class="form-control" style="width:100%;" maxlength="10" placeholder="Child Care Option" type="text">*@
+                                    </div>
+                                </div>
+                            </div><div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>7.</strong> Family child care option of children </label>
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ11, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Child Care Option" })
+                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                        @* <input onblur="return checkNumeric(this);" value="@Model._FundedEnrollment.FundQ11" name="FundSourcedata[@i].FundQ11" class="form-control" style="width:100%;" maxlength="10" placeholder="Child Care Option" type="text">*@
 
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ11, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Child Care Option" })
 
 
 
-                                                        </div>
-                                                    </div>
-                                                </div><div class="col-lg-12">
 
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <label class="lablewidth fund-label" for="email"><strong>7.a</strong> Number available as full-working-day enrollment of children  </label>
+                                    </div>
+                                </div>
+                            </div><div class="col-lg-12">
 
-                                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                        @* <input onblur="return checkNumeric(this);" value="@Model._FundedEnrollment.FundQ12" name="FundSourcedata[@i].FundQ12" style="width:104%;" class="form-control" maxlength="10" placeholder="Full Working Day Enrollment" type="text">*@
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <label class="lablewidth fund-label" for="email"><strong>7.a</strong> Number available as full-working-day enrollment of children  </label>
 
-                                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ12, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Working Day Enrollment" })
+                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                    @* <input onblur="return checkNumeric(this);" value="@Model._FundedEnrollment.FundQ12" name="FundSourcedata[@i].FundQ12" style="width:104%;" class="form-control" maxlength="10" placeholder="Full Working Day Enrollment" type="text">*@
 
+                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ12, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full Working Day Enrollment" })
 
 
 
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <label class="lablewidth fund-label1" for="email"><strong>7.a.1</strong> Number available for the full-calendar-year of children </label>
 
-                                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ13" value="@Model._FundedEnrollment.FundQ13" style="width:104%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
-                                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ13, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full-day Enrollment" })
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <label class="lablewidth fund-label1" for="email"><strong>7.a.1</strong> Number available for the full-calendar-year of children </label>
 
+                                </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                    @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ13" value="@Model._FundedEnrollment.FundQ13" style="width:104%;" class="form-control" maxlength="10" placeholder="Full-day Enrollment" type="text">*@
+                                    @Html.TextBoxFor(m => m._FundedEnrollment.FundQ13, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:104%;", maxlength = "10", placeholder = "Full-day Enrollment" })
 
 
 
-                                                    </div>
-                                                </div><div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>8.</strong> Locally designed option of children </label>
 
-                                                        </div><div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ14" value="@Model._FundedEnrollment.FundQ14" style="width:100%;" class="form-control" maxlength="10" placeholder="Locally Designed option" type="text">*@
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ14, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Locally Designed Option" })
-                                                        </div>
+                                </div>
+                            </div><div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>8.</strong> Locally designed option of children </label>
 
-                                                    </div>
-                                                </div><div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>9.</strong> Funded enrollment at child care partners in the center-based program option of children </label>
+                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                        @* <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ14" value="@Model._FundedEnrollment.FundQ14" style="width:100%;" class="form-control" maxlength="10" placeholder="Locally Designed option" type="text">*@
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ14, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Locally Designed Option" })
+                                    </div>
 
-                                                        </div> <div class="col-lg-3 col-md-3 col-sm-3">
-                                                            @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ15" value="@Model._FundedEnrollment.FundQ15" style="width:100%;" class="form-control" maxlength="10" placeholder="Center Based Program Option" type="text">*@
+                                </div>
+                            </div><div class="row">
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>9.</strong> Funded enrollment at child care partners in the center-based program option of children </label>
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ15, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Center Based Program Option" })
-                                                        </div>
+                                    </div> <div class="col-lg-3 col-md-3 col-sm-3">
+                                        @*<input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ15" value="@Model._FundedEnrollment.FundQ15" style="width:100%;" class="form-control" maxlength="10" placeholder="Center Based Program Option" type="text">*@
 
-                                                    </div>
-                                                </div>
-                                                <div class="row  Ehsshow" @if (showfundq10 == 0) { <text> style="display:none;" </text>               }>
-                                                    <div class="col-lg-12">
-                                                        <div class="col-lg-6 col-md-6 col-sm-6">
-                                                            <label class="lablewidth" for="email"><strong>10.</strong>Total number of pregnant women positions in funded enrollment of pregnant women </label>
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ15, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Center Based Program Option" })
+                                    </div>
 
-                                                        </div><div class="col-lg-3 col-md-3 col-sm-3">
+                                </div>
+                            </div>
+                            <div class="row  Ehsshow" @if (showfundq10 == 0) { <text> style="display:none;" </text>                 }>
+                                <div class="col-lg-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                        <label class="lablewidth" for="email"><strong>10.</strong>Total number of pregnant women positions in funded enrollment of pregnant women </label>
 
-                                                            @Html.TextBoxFor(m => m._FundedEnrollment.FundQ16, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Funded Enrollment of Pregnant Women" })
+                                    </div><div class="col-lg-3 col-md-3 col-sm-3">
 
-                                                            @*  <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ16" value="@Model._FundedEnrollment.FundQ16" style="width:100%;" class="form-control" maxlength="10" placeholder="Funded Enrollment Of Pregnant Women" type="text">*@
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        @Html.TextBoxFor(m => m._FundedEnrollment.FundQ16, new { @class = "form-control", onblur = "return checkNumeric(this);", style = "width:100%;", maxlength = "10", placeholder = "Funded Enrollment of Pregnant Women" })
 
+                                        @*  <input onblur="return checkNumeric(this);" name="FundSourcedata[@i].FundQ16" value="@Model._FundedEnrollment.FundQ16" style="width:100%;" class="form-control" maxlength="10" placeholder="Funded Enrollment Of Pregnant Women" type="text">*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                                                            }
+
+                                                        }
 
                 </div>
 
 
                 <div class="col-lg-6 col-md-12 col-sm-12">
                 </div>
-        </div><!--row-->
+            </div><!--row-->
 
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="btnwrp_subcal">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
 
                         <button id="btnSubmit" type="submit" class="my-btn" onclick="return isValidagencyInfo();" tabindex="21">Submit</button>
                         <button id="btnExit" class="my-btn" type="button" tabindex="22">Exit</button>
 
-                    @if (Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
-                    {
-                        <button class="my-btn" onclick="CheckforProgramtype();" type="button" tabindex="22">Next</button>
-                    }
-                    <div class="clear"></div>
-                </div>	<!--btnwrp_subcal--->
+                        @if (Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
+                        {
+                            <button class="my-btn" onclick="CheckforProgramtype();" type="button" tabindex="22">Next</button>
+                        }
+                        <div class="clear"></div>
+                    </div>	<!--btnwrp_subcal--->
+                </div>
             </div>
-        </div>
         </form>
 
 

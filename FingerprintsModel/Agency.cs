@@ -60,6 +60,8 @@ namespace FingerprintsModel
         public string FSWYearlyVisit { get; set; }
         public string Yakkr600 { get; set; }
         public string Yakkr601 { get; set; }
+
+        public string AttendanceIssueStartDay { get; set; }
         public string Areabreakdown { get; set; }
         public string DivisionBreakDown { get; set; }
         public HttpPostedFileBase logo { get; set; }
@@ -80,8 +82,8 @@ namespace FingerprintsModel
 
         public List<ProgramType> ProgramTypeList { get; set; }
 
-       public List<SelectListItem> ReferenceProgramList { get; set; }
-      
+        public List<SelectListItem> ReferenceProgramList { get; set; }
+
         public class FundSource
         {
             public Int32 FundID { get; set; }
@@ -102,7 +104,7 @@ namespace FingerprintsModel
             public int FundStatus { get; set; }
             public List<ProgramType> progtypelist { get; set; }
 
-           public Guid AgencyID { get; set; }
+            public Guid AgencyID { get; set; }
 
             public bool IsReferredByProgram { get; set; }
 
@@ -155,7 +157,7 @@ namespace FingerprintsModel
             public string ReferenceProg { get; set; }
             public string programstartDate { get; set; }
             public string programendDate { get; set; }
-            public string ProgramTypeAssociation { get;set;}
+            public string ProgramTypeAssociation { get; set; }
             public string LastDateCurrentApplication { get; set; }
             public string DateFutureApplication { get; set; }
             public string TransitionDate { get; set; }
@@ -195,7 +197,7 @@ namespace FingerprintsModel
             public string FundQ14 { get; set; }
             public string FundQ15 { get; set; }
             public string FundQ16 { get; set; }
-           
+
         }
 
     }
@@ -232,16 +234,16 @@ namespace FingerprintsModel
         public string Slots { get; set; }
         public bool MenuEnabled { get; set; }
 
-        public string ProgramYear{get;set;}
+        public string ProgramYear { get; set; }
     }
 
-   
+
 
     public class AgencyAdditionalSlots
     {
         public int SlotId { get; set; }
         public int SlotsCount { get; set; }
-       public string ProgramType { get; set; }
+        public string ProgramType { get; set; }
         public string Slot { get; set; }
         public string ExistingSlot { get; set; }
         public string AgencyId { get; set; }
@@ -256,6 +258,45 @@ namespace FingerprintsModel
         public string ClientName { get; set; }
         public bool Absent { get; set; }
         public bool Present { get; set; }
+    }
+
+    public class StaffRoleMapping
+    {
+
+        public List<RoleList> RolesList { get; set; }
+
+        public class RoleList
+        {
+            public string RoleName { get; set; }
+            public string RoleId { get; set; }
+            public bool Checked { get; set; }
+
+        }
+
+        public List<ManagerRoleTable> ManagerRoleTableList { get; set; }
+        public class ManagerRoleTable
+        {
+            public string RoleName { get; set; }
+            public string RoleId { get; set; }
+            public List<StaffRole> StaffRoles { get; set; }
+        }
+
+        public class StaffRole
+        {
+            // public string MRoleId { get; set; }
+            public string RoleId { get; set; }
+            //public string MRoleName { get; set; }
+            public string RoleName { get; set; }
+        }
+
+        public bool Updated { get; set; }
+    }
+
+
+    public class SelectObject
+    {
+        public string id { get; set; }
+        public string text { get; set; }
     }
 
 

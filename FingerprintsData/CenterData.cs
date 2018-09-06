@@ -958,7 +958,7 @@ namespace FingerprintsData
             }
         }
 
-        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false)
+        public void GetCentersByUserId(ref DataTable dtCenters, string UserID, string Agencyid, string RoleId, bool isreqAdminSite = false, bool isCenterBasedOnly = false, bool isHomeBasedOnly = false, bool isEndOfYear = false, bool allCenters = false)
         {
             dtCenters = new DataTable();
             try
@@ -978,6 +978,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ReqCenterBasedOnly", isCenterBasedOnly));
                     command.Parameters.Add(new SqlParameter("@Homebased", isHomeBasedOnly));
                     command.Parameters.Add(new SqlParameter("@IsEndOfYear", isEndOfYear));
+                    command.Parameters.Add(new SqlParameter("@AllAgencyCenters", allCenters));
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_GetCentersByuserId";

@@ -35,14 +35,14 @@ namespace Fingerprints.Utilities
             return Count;
         }
 
-        public static List<SelectListItem> GetCentersByUserId(string UserId, string AgencyId, string RoleId, bool isReqAdminSite = false, bool isCenterBasedOnly = false, bool isHomebasedonly = false,bool isEndOfYear=false)
+        public static List<SelectListItem> GetCentersByUserId(string UserId, string AgencyId, string RoleId, bool isReqAdminSite = false, bool isCenterBasedOnly = false, bool isHomebasedonly = false, bool isEndOfYear = false, bool allCenters = false)
         {
             List<SelectListItem> lstCenters = new List<SelectListItem>();
             try
             {
                 DataTable dtCenters = new DataTable();
                 lstCenters.Add(new SelectListItem { Text = "-Select Center-", Value = "0" });
-                new CenterData().GetCentersByUserId(ref dtCenters, UserId, AgencyId, RoleId,isReqAdminSite,isCenterBasedOnly,isHomebasedonly,isEndOfYear);
+                new CenterData().GetCentersByUserId(ref dtCenters, UserId, AgencyId, RoleId, isReqAdminSite, isCenterBasedOnly, isHomebasedonly, isEndOfYear, allCenters);
                 if (dtCenters != null)
                 {
                     if (dtCenters.Rows.Count > 0)
@@ -200,20 +200,20 @@ namespace Fingerprints.Utilities
         /// method to get, whether Logged in user having access to PIR and Section B
         /// </summary>
         /// <returns></returns>
-        public static bool GetUserAccessPIR(string mode="1")
+        public static bool GetUserAccessPIR(string mode = "1")
         {
             bool isAccess = false;
             try
             {
                 isAccess = new agencyData().GetUserAccessPIR(mode);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
             return isAccess;
         }
-      
+
 
         //public static List<SelectListItem> GetChildDetails(string AgencyId)
         //{

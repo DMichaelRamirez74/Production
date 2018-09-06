@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
+
 namespace FingerprintsModel
 {
     public class Inkind
@@ -22,6 +23,8 @@ namespace FingerprintsModel
 
         public InKindTransactions InKindTransactions { get; set; }
         public InKindDonarsContact InKindDonarsContact { get; set; }
+
+
 
         public int HomeActivityCount { get; set; }
     }
@@ -71,7 +74,7 @@ namespace FingerprintsModel
         public bool IsSignatureRequired { get; set; }
         public bool IsActive { get; set; }
 
-        public int IsAllowDocumentUpload { get;set; }
+        public int IsAllowDocumentUpload { get; set; }
 
         public string ActivityCode { get; set; }
         public bool Volunteer { get; set; }
@@ -121,7 +124,7 @@ namespace FingerprintsModel
         public decimal InKindAmount { get; set; }
         public decimal MilesDriven { get; set; }
 
-        public bool ParentType{get;set;}
+        public bool ParentType { get; set; }
 
         public List<InkindAttachments> InkindAttachmentsList { get; set; }
     }
@@ -173,7 +176,7 @@ namespace FingerprintsModel
     {
         public long InkindAttachmentID { get; set; }
         public HttpPostedFileBase InkindAttachmentFile { get; set; }
-        public string InkindAttachmentJson{ get; set; }
+        public string InkindAttachmentJson { get; set; }
         public string InkindAttachmentFileName { get; set; }
         public string InkindAttachmentFileExtension { get; set; }
         public string InkindAttachmentFileUrl { get; set; }
