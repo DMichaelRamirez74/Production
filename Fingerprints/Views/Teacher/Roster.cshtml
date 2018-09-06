@@ -27,12 +27,12 @@
     $(document).ready(function () {
 
 
-        $('#myModal').on('show.bs.modal', function () {
+        $('#myModalAb').on('show.bs.modal', function () {
 
                    // $('#myModal').find('#AbsentType').val(0);
 
-            $('#myModal').find('#divAbsenceReasonList').find('#ReasonList').val('');
-            $('#myModal').find('#divAbsenceReasonList').hide();
+            $('#myModalAb').find('#divAbsenceReasonList').find('#ReasonList').val('');
+            $('#myModalAb').find('#divAbsenceReasonList').hide();
             // do something when the modal is shown
         });
 
@@ -64,7 +64,7 @@
         });
 
 
-        $("#myModal").on("hidden.bs.modal", function () {
+        $("#myModalAb").on("hidden.bs.modal", function () {
             $('#divAbsenceReasonList').hide();
             $('#divNewReason').hide();
             $('#divAbsenceNoShow').hide();
@@ -174,7 +174,7 @@
         $('a[href=' + anchor + ']').tab('show');
     });
 
-    $(document).on("click", ".open-myModal", function () {
+    $(document).on("click", ".open-myModalAb", function () {
 
         // $('.clear-popup').val(0);
 
@@ -568,12 +568,12 @@
 
                                         @if (Model.ClosedDetails.ClosedToday > 0)
                                         {
-                                            <a href="#" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModal" data-id="@j.ClientID-@j.CName">ATN</a>
+                                            <a href="#" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN</a>
 
                                         }
                                         else
                                         {
-                                            <a href="#myModal" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" data-toggle="modal" class="open-myModal" data-id="@j.ClientID-@j.CName">ATN</a>
+                                            <a href="#myModalAb" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" data-toggle="modal" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN</a>
 
                                         }
 
@@ -601,19 +601,19 @@
     </div>
     @using (Html.BeginForm("CheckIn", "Teacher"))
     {
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    @*<input type="hidden" name="childid" id="childid" value="" />
-                    <input type="hidden" name="childname" id="childname" value="" />*@
-                    <h3>Attendance for <label id="childlbl" text="" /> </h3>
-                </div>
+        <div class="modal fade" id="myModalAb" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @*<input type="hidden" name="childid" id="childid" value="" />
+                            <input type="hidden" name="childname" id="childname" value="" />*@
+                        <h3>Attendance for <label id="childlbl" text="" /> </h3>
+                    </div>
 
-                        <div class="form-group">
-                            <label class="control-label" for="current_password">Attendance Type <span style="color:red;">*</span> </label>
-                            @*<select name="AbsentType" id="AbsentType" class="form-control clear-popup" style="width:45%;" placeholder="Select" required>
+                    <div class="form-group">
+                        <label class="control-label" for="current_password">Attendance Type <span style="color:red;">*</span> </label>
+                        @*<select name="AbsentType" id="AbsentType" class="form-control clear-popup" style="width:45%;" placeholder="Select" required>
                                 <option value="0">Choose...</option>
                                 <option value="1">Present</option>
                                 <option value="2">Absent Excused</option>
@@ -621,36 +621,36 @@
                                 <option value="4">Present Other</option>
 
                             </select>*@
-                            @Html.DropDownListFor(m => m.AttendanceTypeId, Model.AttendanceTypeList, "Select Type", new { id = "AbsentType", Name = "AbsentType", style = "width: 45%;", @class = "form-control clear-popup" })
+                        @Html.DropDownListFor(m => m.AttendanceTypeId, Model.AttendanceTypeList, "Select Type", new { id = "AbsentType", Name = "AbsentType", style = "width: 45%;", @class = "form-control clear-popup" })
 
 
-                        </div>
-                        <div class="form-group" id="divAbsenceReasonList" style="display:none;">
-                            <label class="control-label">Absent Reason <span style="color:red;">*</span> </label>
-                            @Html.DropDownListFor(m => m.AbsenceReasonId, Model.AbsenceReasonList, "Select Reason", new { id = "ReasonList", Name = "ReasonList", style = "width: 45%;", @class = "form-control clear-popup" })
-                        </div>
-                        <div class="form-group" id="divNewReason" style="display:none;">
-                            <label class="control-label">Other Reason <span style="color:red;">*</span></label>
-                            <input type="text" name="txtNewReason" id="txtNewReason" class="form-control" style="width:45%;"/>
-                        </div>
-                        @*<div class="form-group" id="divNewReason" style="display:none;">
+                    </div>
+                    <div class="form-group" id="divAbsenceReasonList" style="display:none;">
+                        <label class="control-label">Absent Reason <span style="color:red;">*</span> </label>
+                        @Html.DropDownListFor(m => m.AbsenceReasonId, Model.AbsenceReasonList, "Select Reason", new { id = "ReasonList", Name = "ReasonList", style = "width: 45%;", @class = "form-control clear-popup" })
+                    </div>
+                    <div class="form-group" id="divNewReason" style="display:none;">
+                        <label class="control-label">Other Reason <span style="color:red;">*</span></label>
+                        <input type="text" name="txtNewReason" id="txtNewReason" class="form-control" style="width:45%;" />
+                    </div>
+                    @*<div class="form-group" id="divNewReason" style="display:none;">
                             <label class="control-label">Other Reason <span style="color:red;">*</span></label>
                             <input type="text" name="txtNewReason" class="form-control" style="width: 45%;" id="txtNewReason" required="" />
 
                         </div>*@
-                        <div class="modal-footer">
+                    <div class="modal-footer">
 
 
-                    <button class="btnPassword" id="submit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
+                        <button class="btnPassword" id="submit" type="submit" value="Submit" onclick="return isValidInfo();">Submit</button>
 
-                    <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
+                        <button class="btnPassword" id="btnCancelPassword" type="button" data-dismiss="modal">Exit</button>
 
 
 
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     }
 
 </form>
