@@ -139,7 +139,7 @@ namespace FingerprintsData
                         CaseNoteList.Add(info);
                     }
                 }
-                if (_dataset.Tables[1].Rows.Count > 0)
+               if(_dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
                 {
 
                         foreach (DataRow dr in _dataset.Tables[1].Rows)
@@ -149,8 +149,8 @@ namespace FingerprintsData
 
                         }
                     }
-                    if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
-                    {
+                if (_dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
+                {
 
                         List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
                         FingerprintsModel.RosterNew.User obj = null;
@@ -175,8 +175,8 @@ namespace FingerprintsData
 
 
                     }
-                    if (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
-                    {
+                if (_dataset.Tables.Count > 2 && _dataset.Tables[3].Rows.Count > 0)
+                {
                         List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
                         FingerprintsModel.RosterNew.User obj = null;
                         foreach (DataRow dr in _dataset.Tables[3].Rows)
