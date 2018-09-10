@@ -112,16 +112,6 @@ namespace FingerprintsData
                     if (_dataset.Tables[5].Rows.Count > 0)
                     {
                         decimal IncomePercentage = !string.IsNullOrEmpty(_dataset.Tables[5].Rows[0][0].ToString()) ? Convert.ToDecimal(_dataset.Tables[5].Rows[0][0].ToString()) : 0;
-                        //decimal Count = _dataset.Tables[5].Rows.Count;
-                        //decimal OverIncomeCount = 0;
-                        //foreach (DataRow dr in _dataset.Tables[5].Rows)
-                        //{
-                        //    decimal IncomePercentage = Convert.ToInt32(dr["IncomePercentage"].ToString());
-                        //    if (IncomePercentage > 100)
-                        //        OverIncomeCount++;
-                        //}
-                        //decimal Remaining = OverIncomeCount;
-                        //Count = (Remaining * 100) / Count;
                         executive.FamilyOverIncome = Math.Round(IncomePercentage, 1).ToString();
                     }
                     if (string.IsNullOrEmpty(executive.FamilyOverIncome))
@@ -130,19 +120,6 @@ namespace FingerprintsData
                     //Disability
                     if (_dataset.Tables[6].Rows.Count > 0)
                     {
-                        //decimal Count = _dataset.Tables[6].Rows.Count;
-                        //decimal Disabilities = 0;
-
-                        //foreach (DataRow dr in _dataset.Tables[6].Rows)
-                        //{
-                        //    int NoOfDisable = Convert.ToInt32(dr["ParentDisable"].ToString());
-                        //    if (NoOfDisable == 1)
-                        //        Disabilities++;
-                        //}
-                        //decimal Remaining = Disabilities;
-                        //Count = (Remaining * 100) / Count;
-                        //executive.DisabilityPercentage = Math.Round(Count, 1).ToString();
-
                         executive.DisabilityPercentage = _dataset.Tables[6].Rows[0]["DisabilityPercentage"].ToString();
                     }
                     if (string.IsNullOrEmpty(executive.DisabilityPercentage))
