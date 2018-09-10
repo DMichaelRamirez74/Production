@@ -1990,7 +1990,7 @@ namespace FingerprintsData
                 {
                     Connection.Close();
                 }
-                using (Connection)
+                using (Connection=connection.returnConnection())
                 {
                     Connection.Open();
                     command.Connection = Connection;
@@ -2038,7 +2038,8 @@ namespace FingerprintsData
                                       Parent2ID = dr1["MotherId"].ToString(),
                                       Parent1Name = dr1["FatherName"].ToString(),
                                       Parent2Name = dr1["MotherName"].ToString(),
-                                      AccessDateString = dr1["AccessDateString"].ToString()
+                                      AccessDateString = dr1["AccessDateString"].ToString(),
+                                      Dateofclassstartdate=Convert.ToString(dr1["DateOfClassStartDate"])
                                       //RestrictedDateString = dr1["RestrictedDateString"].ToString()
                                   }
 
@@ -2203,11 +2204,14 @@ namespace FingerprintsData
                                          Parent2Name = dr1["MotherName"].ToString(),
                                          AccessDateString = dr1["AccessDateString"].ToString(),
                                          //RestrictedDateString = dr1["RestrictedDateString"].ToString()
+                                       Dateofclassstartdate=Convert.ToString(dr1["DateOfClassStartDate"])
+
+                                       //Dateofclassstartdate=string.Join(",",_dataset.Tables[1].AsEnumerable().
+                                       //                      Where(x=>x.Field<long>("ClientID")==Convert.ToInt64(dr1["ClientID"])).
+                                       //                      Select(x=>x.Field<string>("DateOfClassStartDate")).ToArray())
                                      }
 
-
-
-                            ).ToList();
+                            ).Distinct().ToList();
                 }
 
                 model.WeeklyAttendance = teacherList;

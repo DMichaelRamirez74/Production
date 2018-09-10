@@ -269,8 +269,7 @@ $(document).ready(function () {
                         arr.push(time);
                     }
                     t = t + 15 + ((start % parseInt(start)) * 60);
-                    if((parseInt(start)+(convTimes/12))>end )
-                    {
+                    if ((parseInt(start) + (convTimes / 12)) > end) {
                         break;
                     }
                 }
@@ -464,15 +463,12 @@ $(document).ready(function () {
             }
             return childInfoList;
         },
-        ShowBusy:function(stat)
-        {
+        ShowBusy: function (stat) {
 
-            if(stat)
-            {
+            if (stat) {
                 $('#spinner').show();
             }
-            else
-            {
+            else {
                 $('#spinner').hide();
             }
         },
@@ -510,36 +506,35 @@ $(document).ready(function () {
                 weeklyAttendance.ShowBusy(false);
                 //customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
             }
-        });
-},
-    GetFSWandTeacher: function () {
-        var centerClass = this.getCenterClassId();
-        $.ajax({
-            url: '/Teacher/GetFSWNameandTeacherName',
-            type: 'post',
-            datatype: 'json',
-            async: true,
-            beforeSend:function(){ weeklyAttendance.ShowBusy(true);},
-            data: { centerId: centerClass.enc_CenterId, classroomId: centerClass.enc_ClassRoomId },
-            success: function (data) {
-                if (off_hist_div.is(':visible'))
-                {
-                  weeklyAttendance.ShowBusy(false);
+            });
+        },
+        GetFSWandTeacher: function () {
+            var centerClass = this.getCenterClassId();
+            $.ajax({
+                url: '/Teacher/GetFSWNameandTeacherName',
+                type: 'post',
+                datatype: 'json',
+                async: true,
+                beforeSend: function () { weeklyAttendance.ShowBusy(true); },
+                data: { centerId: centerClass.enc_CenterId, classroomId: centerClass.enc_ClassRoomId },
+                success: function (data) {
+                    if (off_hist_div.is(':visible')) {
+                        weeklyAttendance.ShowBusy(false);
+                    }
+
+                    $('#teacherName_div').show();
+                    var teacherName = (data.TeacherName == null || data.TeacherName == '') ? '' : data.TeacherName;
+                    var fswName = (data.FSWName == null || data.FSWName == '') ? '' : data.FSWName;
+                    $('#teacherNameSpan').text(teacherName);
+                    $('#teacherTimeDiff').val(data.TeacherTimeZoneDiff);
+                    $('#fswTimeDiff').val(data.FSWTimeZoneDiff);
+                    $('#fswName_div').show();
+                    $('#fswNameSpan').text(fswName);
+                    $('#userId').val(data.UserId);
+                },
+                error: function (data) {
+                    weeklyAttendance.ShowBusy(false);
                 }
-           
-                $('#teacherName_div').show();
-                var teacherName = (data.TeacherName == null || data.TeacherName == '') ? '' : data.TeacherName;
-                var fswName = (data.FSWName == null || data.FSWName == '') ? '' : data.FSWName;
-                $('#teacherNameSpan').text(teacherName);
-                $('#teacherTimeDiff').val(data.TeacherTimeZoneDiff);
-                $('#fswTimeDiff').val(data.FSWTimeZoneDiff);
-                $('#fswName_div').show();
-                $('#fswNameSpan').text(fswName);
-                $('#userId').val(data.UserId);
-            },
-            error: function (data) {
-                weeklyAttendance.ShowBusy(false);
-            }
 
         });
     },
@@ -991,115 +986,120 @@ function loadWeeklyDailyAttendance() {
                 childAttendAppend = '';
 
 
-                if (childList.length > 0) {
-                    $.each(childList, function (k, dayChild) {
-                          
-                        var rowindex = j + '' + k;
-                        var accessDaysArray = [];
-                        var isShowDetails = false;
-                        var iterativeDate = '';
-                        var display = '';
-                        //var childDetailJson = $.grep(childInfo, function (n, m) {
-                        //    return (n.ClientID == dayChild.ClientID);
-                        //});
-                        //var accessDaysjson = [];
+                    if (childList.length > 0) {
+                        $.each(childList, function (k, dayChild) {
 
-                        //if (childDetailJson.length > 0) {
-                        //    $.each(chilDetailsJson, function (o, p) {
-                        //        accessDaysjson = o.AccessDateString.split(',');
-                        //    });
-                        //}
-                        //else
-                        //{
-                        //    accessDaysjson = [];
-                        //}
+                            var rowindex = j + '' + k;
+                            var accessDaysArray = [];
+                            var isShowDetails = false;
+                            var iterativeDate = '';
+                            var display = '';
 
-                        accessDaysArray = dayChild.AccessDateString.split(',');
-                        //console.log(weekAttendance_div.find('#day-heading-row').find('td[day="0"]').attr('date'));
-                        if (weeklyAttendance.isHistorical()) {
 
-                            iterativeDate = weeklyAttendance.getFormattedDate(getDates($('#datetimepicker1').val())[parseInt($(daytab).attr('day'))]);
-                            //iterativeDate = weekAttendance_div.find('#day-heading-row').find('td[day=' +  + ']').attr('date');
-                            //console.log(iterativeDate);
-                        }
-                        else {
-                            //  iterativeDate = getDates($('#datetimepicker1').val())[parseInt($(daytab).attr('day'))];
+                            accessDaysArray = dayChild.AccessDateString.split(',');
+                            if (weeklyAttendance.isHistorical()) {
 
-                        }
+                                iterativeDate = weeklyAttendance.getFormattedDate(getDates($('#datetimepicker1').val())[parseInt($(daytab).attr('day'))]);
+                            }
+                            else {
 
-                        isShowDetails = (accessDaysArray.indexOf(iterativeDate) > -1) ? true : false;
-                        display = (isShowDetails) ? 'block' : 'none';
-                       
-                        childAttendAppend += '<tr class="att-tr" clientid=' + dayChild.Enc_ClientId + ' day=' + j + ' row-index=' + rowindex + ' >' +
-                                                                '<td class="weekly-table-text-al1 time-td in-time-td" client-id=' + dayChild.Enc_ClientId + '>';
-                        if (isShowDetails) {
-                            childAttendAppend +='<div class="weekly-div-radio-btn3  in-time-div col-xs-12 no-padding">'+
-                     '<div class="radio radio-info">' +
-                         '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="1">' +
-                        '<label>P</label>' +
-                     '</div>' +
-                     '<div class="radio radio-info">' +
-                         '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="2">' +
-                         '<label>A</label>' +
-                     '</div>' +
-                     '<div class="radio radio-info">' +
-                         '<input type="radio" name="intimeradio_' + rowindex + '"  id="presentin_' + dayChild.ClientID + '" value="3">' +
-                         '<label>N</label>' +
-                     '</div>' +
-                 '</div>' ;
-                        }
-                        else {
-                            childAttendAppend += '<div class="weekly-div-radio-btn3  in-time-div col-xs-12 no-padding">' +
-                  '<div class="radio radio-info" style="display:none;">' +
-                      '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="1">' +
-                     '<label>P</label>' +
-                  '</div>' +
-                  '<div class="radio radio-info" style="display:none;">' +
-                      '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="2">' +
-                      '<label>A</label>' +
-                  '</div>' +
-                  '<div class="radio radio-info" style="display:none;">' +
-                      '<input type="radio" name="intimeradio_' + rowindex + '"  id="presentin_' + dayChild.ClientID + '" value="3">' +
-                      '<label>N</label>' +
-                  '</div>' +
-              '</div>';
-                        }
+                            }
 
-                         
-                        childAttendAppend += '<input in-attr=' + dayChild.Enc_ClientId + ' id="' + rowindex + 'DayIn_' + dayChild.ClientID + '" type="text" class="in-time time-text"  value="'+ inTimeDefault +'"  placeholder="HH:mm" style="">' +
-                  '<button style="display:none;" id="firstDayReasonIn_' + rowindex + dayChild.ClientID + '" onclick="bindReasonSourceBtn(this);" reason-id="0"  class="btn-reason btn-reason-normal" data-toggle="modal" data-target="#addReasonModal">Add Reason</button>' +
+                            isShowDetails = (accessDaysArray.indexOf(iterativeDate) > -1) ? true : false;
+                            display = (isShowDetails) ? 'block' : 'none';
+
+                            childAttendAppend += '<tr class="att-tr" clientid=' + dayChild.Enc_ClientId + ' day=' + j + ' row-index=' + rowindex + ' >' +
+                                                                    '<td class="weekly-table-text-al1 time-td in-time-td" client-id=' + dayChild.Enc_ClientId + '>';
+                            if (isShowDetails) {
+                                childAttendAppend += '<div class="weekly-div-radio-btn3  in-time-div col-xs-12 no-padding">' +
+                         '<div class="radio radio-info">' +
+                             '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="1">' +
+                            '<label>P</label></div>';
+
+
+                                if (dayChild.Dateofclassstartdate.split(',').indexOf(iterativeDate) > -1) {
+
+                                    childAttendAppend += '<div class="radio radio-info" style="display:none;">' +
+                             '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="2">' +
+                             '<label>A</label>' +
+                         '</div>' +
+                         '<div class="radio radio-info"  style="display:none;">' +
+                             '<input type="radio" name="intimeradio_' + rowindex + '"  id="presentin_' + dayChild.ClientID + '" value="3">' +
+                             '<label>N</label>' +
+                         '</div>';
+
+
+
+                                }
+                                else {
+
+
+                                    childAttendAppend += '<div class="radio radio-info">' +
+                 '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="2">' +
+                 '<label>A</label>' +
+             '</div>' +
+             '<div class="radio radio-info">' +
+                 '<input type="radio" name="intimeradio_' + rowindex + '"  id="presentin_' + dayChild.ClientID + '" value="3">' +
+                 '<label>N</label>' +
+             '</div>';
+                                }
+
+
+
+                                childAttendAppend+=  '</div>';
+                            }
+                            else {
+                                childAttendAppend += '<div class="weekly-div-radio-btn3  in-time-div col-xs-12 no-padding">' +
+                      '<div class="radio radio-info" style="display:none;">' +
+                          '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="1">' +
+                         '<label>P</label>' +
+                      '</div>' +
+                      '<div class="radio radio-info" style="display:none;">' +
+                          '<input type="radio" name="intimeradio_' + rowindex + '" id="presentin_' + dayChild.ClientID + '" value="2">' +
+                          '<label>A</label>' +
+                      '</div>' +
+                      '<div class="radio radio-info" style="display:none;">' +
+                          '<input type="radio" name="intimeradio_' + rowindex + '"  id="presentin_' + dayChild.ClientID + '" value="3">' +
+                          '<label>N</label>' +
+                      '</div>' +
+                  '</div>';
+                            }
+
+
+                            childAttendAppend += '<input in-attr=' + dayChild.Enc_ClientId + ' id="' + rowindex + 'DayIn_' + dayChild.ClientID + '" type="text" class="in-time time-text"  value="' + inTimeDefault + '"  placeholder="HH:mm" style="">' +
+                      '<button style="display:none;" id="firstDayReasonIn_' + rowindex + dayChild.ClientID + '" onclick="bindReasonSourceBtn(this);" reason-id="0"  class="btn-reason btn-reason-normal" data-toggle="modal" data-target="#addReasonModal">Add Reason</button>' +
+                    '</td>' +
+                    '<td class="weekly-table-text-al1 time-td out-time-td" client-id=' + dayChild.Enc_ClientId + '>' +
+                        '<input type="text" id="' + rowindex + 'DayOut_' + dayChild.ClientID + '" out-attr=' + dayChild.Enc_ClientId + ' class="out-time time-text"  value="' + outTimeDefault + '"   placeholder="HH:mm" style="">' +
+                    '</td>' +
+                    '<td style="width:87px;" class="meals-td weekly-table-text-al1">';
+                            if (isShowDetails) {
+                                childAttendAppend += '<table width="100%" border="0" cellspacing="0" cellpadding="0"><tbody>';
+                            }
+                            else {
+                                childAttendAppend += '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="display:none;"><tbody>';
+                            }
+
+
+                            childAttendAppend += '<tr class="meals-row"><td><p><input type="checkbox" name="" value="1" class="meals-check break-check"   style="position: relative;top: 2px;margin-right:2px;" id="fveDayB_' + dayChild.ClientID + '">B</p></td>' +
+                                '<td><p><input type="checkbox" name="" value="2" class="meals-check lunch-check"    style="position: relative;top: 2px;margin-right:2px;" id="fveDayL_' + dayChild.ClientID + '">L</p></td>' +
+                                '<td><p><input type="checkbox" name="" value="3" class="meals-check snack-check"  style="position: relative;top: 2px;margin-right:2px;" id="fveDayS_' + dayChild.ClientID + '">S</p></td>' +
+                            '</tr>' +
+                       '</tbody>' +
+                    '</table>' +
                 '</td>' +
-                '<td class="weekly-table-text-al1 time-td out-time-td" client-id=' + dayChild.Enc_ClientId + '>' +
-                    '<input type="text" id="' + rowindex + 'DayOut_' + dayChild.ClientID + '" out-attr=' + dayChild.Enc_ClientId + ' class="out-time time-text"  value="'+outTimeDefault+'"   placeholder="HH:mm" style="">' +
-                '</td>' +
-                '<td style="width:87px;" class="meals-td weekly-table-text-al1">';
-                        if (isShowDetails) {
-                            childAttendAppend += '<table width="100%" border="0" cellspacing="0" cellpadding="0"><tbody>';
-                        }
-                        else {
-                            childAttendAppend += '<table width="100%" border="0" cellspacing="0" cellpadding="0" style="display:none;"><tbody>';
-                        }
+            '</tr>';
 
+                        });
 
-                        childAttendAppend += '<tr class="meals-row"><td><p><input type="checkbox" name="" value="1" class="meals-check break-check"   style="position: relative;top: 2px;margin-right:2px;" id="fveDayB_' + dayChild.ClientID + '">B</p></td>' +
-                            '<td><p><input type="checkbox" name="" value="2" class="meals-check lunch-check"    style="position: relative;top: 2px;margin-right:2px;" id="fveDayL_' + dayChild.ClientID + '">L</p></td>' +
-                            '<td><p><input type="checkbox" name="" value="3" class="meals-check snack-check"  style="position: relative;top: 2px;margin-right:2px;" id="fveDayS_' + dayChild.ClientID + '">S</p></td>' +
-                        '</tr>' +
-                   '</tbody>' +
-                '</table>' +
-            '</td>' +
-        '</tr>';
+                        $(daytab).children('#day-body').html(childAttendAppend);
+                        $(daytab).children('#day-body').find('.meals-check').on('change', function () { weeklyAttendance.onCheckMeals(this); })
+                    }
 
-                    });
+                });
 
-                    $(daytab).children('#day-body').html(childAttendAppend);
-                    $(daytab).children('#day-body').find('.meals-check').on('change', function () { weeklyAttendance.onCheckMeals(this); })
-                }
-
-            });
-
-            //method to set the date for week days//
-            setWeekDays($('#datetimepicker1').val());
+                //method to set the date for week days//
+                setWeekDays($('#datetimepicker1').val());
 
             //method to bind the attendance data for week clients//
             DataBaseManager.GetAllClient(setTableOnDateChange);
