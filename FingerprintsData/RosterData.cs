@@ -139,11 +139,8 @@ namespace FingerprintsData
                         CaseNoteList.Add(info);
                     }
                 }
-<<<<<<< HEAD
-               if(_dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
-=======
                 if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
->>>>>>> 7de677028e8d3b428c3b91b0b641672621110172
+
                 {
 
                     foreach (DataRow dr in _dataset.Tables[1].Rows)
@@ -152,12 +149,11 @@ namespace FingerprintsData
                         Name = dr["Name"].ToString();
 
                     }
-<<<<<<< HEAD
-                if (_dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
-=======
+
                 }
+
                 if( _dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
->>>>>>> 7de677028e8d3b428c3b91b0b641672621110172
+
                 {
 
                     List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
@@ -182,8 +178,9 @@ namespace FingerprintsData
 
 
 
-<<<<<<< HEAD
+
                     }
+
                 if (_dataset.Tables.Count > 2 && _dataset.Tables[3].Rows.Count > 0)
                 {
                         List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
@@ -196,8 +193,9 @@ namespace FingerprintsData
                             _userlist.Add(obj);
                         }
                         Userlist.UserList = _userlist;
-=======
+
                 }
+
                 if (_dataset.Tables.Count > 2 && _dataset.Tables[3] != null &&  _dataset.Tables[3].Rows.Count > 0)
                 {
                     List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
@@ -208,7 +206,7 @@ namespace FingerprintsData
                         obj.Id = (dr["UserId"]).ToString();
                         obj.Name = dr["Name"].ToString();
                         _userlist.Add(obj);
->>>>>>> 7de677028e8d3b428c3b91b0b641672621110172
+
                     }
                     Userlist.UserList = _userlist;
                 }
