@@ -570,7 +570,7 @@ namespace Fingerprints.Controllers
         }
 
 
-
+        [CustAuthFilter()]
         public ActionResult ReferralCategorycompany(string id, string clientName = "")
         {
             ViewBag.Id = id;
@@ -605,6 +605,7 @@ namespace Fingerprints.Controllers
 
         }
 
+        [CustAuthFilter()]
         public ActionResult ReferralCategory(ReferralList ReferralCategory)
         {
             ViewBag.ClientName = ReferralCategory.clientName;
@@ -797,6 +798,8 @@ namespace Fingerprints.Controllers
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
+
         public ActionResult MatchProviders(ListRoster MatchProvider, string CommunityIds, string stepId = "")
         {
             ViewBag.ReferralClientId = 0;
@@ -867,6 +870,8 @@ namespace Fingerprints.Controllers
             obj_MPM.OrganizationList = OrganizationList;
             return Json(obj_MPM, JsonRequestBehavior.AllowGet);
         }
+
+        [CustAuthFilter()]
         public ActionResult ReferralService(string id, string ClientName = "")
         {
             ViewBag.ClientName = ClientName;
@@ -2269,7 +2274,8 @@ namespace Fingerprints.Controllers
         }
 
 
-        public ActionResult GetCenterByAgency(string programYear = "")
+        [HttpPost]
+        public ActionResult GetCenterByAgency(string programYear="")
         {
             var list = RosterData.GetCenterList(programYear);
             return Json(new { list }, JsonRequestBehavior.AllowGet);

@@ -2126,15 +2126,18 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
-        public ActionResult AccessRoles()
+
+       [HttpGet]
+        public ActionResult AccessRoles(string id="7")
         {
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
             try
             {
-               
-                accessRoles = new agencyData().SP_AccessRole(7,Session["AgencyID"].ToString());
-                accessRoles.TitleId = 7;
-                ViewBag.Titleid = 7;
+                int titleID = 0;
+                titleID = int.TryParse(id, out titleID) == true ? titleID : 7;
+                accessRoles = new agencyData().SP_AccessRole(titleID, Session["AgencyID"].ToString());
+                
+                ViewBag.Titleid = titleID;
             }
             catch (Exception ex)
             {
@@ -2161,7 +2164,9 @@ namespace Fingerprints.Controllers
                 clsError.WriteException(ex);
             }
             ViewBag.Titleid = TitleId;
-            return View(accessRoles);
+            //return View(accessRoles);
+            return RedirectToAction("AccessRoles", "AgencyAdmin", new { @id = TitleId.ToString() });
+           // return RedirectToAction(Request.Url.AbsoluteUri);
         }
 
 

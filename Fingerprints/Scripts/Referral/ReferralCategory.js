@@ -62,6 +62,10 @@ $('#Save').click(function (e) {
         $('.setfamily').addClass('setcolor');
         $('.setreferral').addClass('setcolor');
 
+        $('html,body').animate({
+            scrollTop: $('.setfamily').offset().top
+        },
+      'slow');
 
     }
     else if ($('#ClientID:checked').val() == undefined) {
@@ -70,6 +74,10 @@ $('#Save').click(function (e) {
         $('.validation2').hide();
         $('.setfamily').addClass('setcolor');
         $('.setreferral').removeClass('setcolor');
+        $('html,body').animate({
+            scrollTop: $('.setfamily').offset().top
+        },
+  'slow');
 
     }
     else if ($('.chk_all:checked').val() == undefined) {
@@ -78,6 +86,12 @@ $('#Save').click(function (e) {
         $('.validation1').hide();
         $('.setfamily').removeClass('setcolor');
         $('.setreferral').addClass('setcolor');
+
+        $('html,body').animate({
+            scrollTop: $('.setreferral').offset().top
+        },
+  'slow');
+
 
     }
 
@@ -95,13 +109,23 @@ $('#Save').click(function (e) {
         SaveReferral.referralClientId = parseInt($('#referralClientId').val());
 
         $.ajax({
-            url: "/Roster/SaveReferralClient",
+            url: HostedDir+"/Roster/SaveReferralClient",
             type: "POST",
             data: SaveReferral,
+            beforeSend: function () { $('#spinner').show() },
             success: function (data) {
+
+                $('#spinner').hide();
                 $('#myModal').modal('show');
 
+            },
+            error: function (data) {
+
+            },
+            complete: function (data) {
+                $('#spinner').hide();
             }
+
         });
 
 

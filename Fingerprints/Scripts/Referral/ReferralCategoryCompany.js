@@ -113,38 +113,60 @@
             $('#errspan').text("Enter Organization Name");
             $('#errnewspan').css("display", "inline-block");
             $('#errnewspan').text("Select Referral Type");
+
+            $('html,body').animate({
+                scrollTop: $('#familymembersSpan').offset().top
+            },
+    'slow');
+
             return false;
         }
 
         else if ($('#ClientID:checked').val() == undefined) {
             $('#errshow').css("display", "inline-block");
             $('#errshow').text("Select Family Members");
+
+            $('html,body').animate({
+                scrollTop: $('#familymembersSpan').offset().top
+            },
+  'slow');
+
             return false;
         }
         else if ($('#txtSearch').val() == "") {
             $('#errshow').hide();
             $('#errspan').css("display", "inline-block");
             $('#errspan').text("Enter Organization Name");
-            //$('#referralError').html('Please select organization name');
-            //$('#referralCompanyModal').modal('show');
+
+            $('html,body').animate({
+                scrollTop: $('#txtSearch').offset().top
+            },
+ 'slow');
             return false;
         }
-            //else if ($('#FFReferral').hasClass('hidden')) {
         else if ($('#FFReferralSelect').is(':visible') && $('#FFReferralSelect').val() == 0) {
             $('#errspan').hide();
             $('#errnewspan').css("display", "inline-block");
             $('#errnewspan').text("Select Referral Type");
-            //$('#referralCompanyModal').modal('show');
+
+            $('html,body').animate({
+                scrollTop: $('#FFReferralSelect').offset().top
+            },
+ 'slow');
             return false;
         }
-            //    }
         else if ($('#datepicker').val() == "") {
             $('#errshow').hide();
             $('#errspan').hide();
             $('#errnewspan').hide();
             $('#errdate').css("display", "inline-block");
             $('#errdate').text("Please Enter referral date");
-            // $('#referralCompanyModal').modal('show');
+
+
+            $('html,body').animate({
+                scrollTop: $('#datepicker').offset().top
+            },
+ 'slow');
             return false;
         }
         else if (!isDate($('#datepicker').val().trim())) {
@@ -153,7 +175,11 @@
             $('#errnewspan').hide();
             $('#errdate').css("display", "inline-block");
             $('#errdate').text("Please Enter Valid date");
-            // $('#referralCompanyModal').modal('show');
+
+            $('html,body').animate({
+                scrollTop: $('#datepicker').offset().top
+            },
+'slow');
             return false;
 
         }
@@ -187,7 +213,7 @@
         AddReferral.HouseHoldId = parseInt(HouseHoldId);
 
         $.ajax({
-            url: "/Roster/SaveReferral",
+            url: HostedDir+"/Roster/SaveReferral",
             type: "POST",
             data: AddReferral,
             success: function (data) {
