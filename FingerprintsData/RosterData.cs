@@ -139,55 +139,55 @@ namespace FingerprintsData
                         CaseNoteList.Add(info);
                     }
                 }
-                if (_dataset.Tables[1].Rows.Count > 0)
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
                 {
 
-                        foreach (DataRow dr in _dataset.Tables[1].Rows)
-                        {
-
-                            Name = dr["Name"].ToString();
-
-                        }
-                    }
-                    if (_dataset != null && _dataset.Tables[2].Rows.Count > 0)
+                    foreach (DataRow dr in _dataset.Tables[1].Rows)
                     {
 
-                        List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[2].Rows)
-                        {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = dr["clientid"].ToString();
-                            obj.Name = dr["Name"].ToString();
-                            Clientlist.Add(obj);
-                        }
-                        Userlist.Clientlist = Clientlist;
-
-                        //selectList.Clientlist = (from DataRow dr1 in _dataset.Tables[2].Rows
-                        //                     where (Convert.ToInt32(dr1["IsFamily"]) == 1 || Convert.ToInt32(dr1["IsChild"]) == 1)
-                        //                     select new RosterNew.User
-                        //                     {
-                        //                         Id = Convert.ToString(dr1["clientid"]),
-                        //                         Name = Convert.ToString(dr1["Name"]).Split('(')[0]
-                        //                     }
-                        //                   ).ToList();
-
-
+                        Name = dr["Name"].ToString();
 
                     }
-                    if (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
+                }
+                if( _dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
+                {
+
+                    List<FingerprintsModel.RosterNew.User> Clientlist = new List<FingerprintsModel.RosterNew.User>();
+                    FingerprintsModel.RosterNew.User obj = null;
+                    foreach (DataRow dr in _dataset.Tables[2].Rows)
                     {
-                        List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
-                        {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = (dr["UserId"]).ToString();
-                            obj.Name = dr["Name"].ToString();
-                            _userlist.Add(obj);
-                        }
-                        Userlist.UserList = _userlist;
+                        obj = new FingerprintsModel.RosterNew.User();
+                        obj.Id = dr["clientid"].ToString();
+                        obj.Name = dr["Name"].ToString();
+                        Clientlist.Add(obj);
                     }
+                    Userlist.Clientlist = Clientlist;
+
+                    //selectList.Clientlist = (from DataRow dr1 in _dataset.Tables[2].Rows
+                    //                     where (Convert.ToInt32(dr1["IsFamily"]) == 1 || Convert.ToInt32(dr1["IsChild"]) == 1)
+                    //                     select new RosterNew.User
+                    //                     {
+                    //                         Id = Convert.ToString(dr1["clientid"]),
+                    //                         Name = Convert.ToString(dr1["Name"]).Split('(')[0]
+                    //                     }
+                    //                   ).ToList();
+
+
+
+                }
+                if (_dataset.Tables.Count > 2 && _dataset.Tables[3] != null &&  _dataset.Tables[3].Rows.Count > 0)
+                {
+                    List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
+                    FingerprintsModel.RosterNew.User obj = null;
+                    foreach (DataRow dr in _dataset.Tables[3].Rows)
+                    {
+                        obj = new FingerprintsModel.RosterNew.User();
+                        obj.Id = (dr["UserId"]).ToString();
+                        obj.Name = dr["Name"].ToString();
+                        _userlist.Add(obj);
+                    }
+                    Userlist.UserList = _userlist;
+                }
 
 
 
@@ -1136,7 +1136,7 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 Connection.Open();
                 command.CommandText = "SP_ReferralCategory_Services";
-
+                command.Parameters.Clear();
                 if (ReferralClientId > 0)
                 {
                     command.Parameters.AddWithValue("@ReferralClientId", ReferralClientId);
@@ -1162,11 +1162,10 @@ namespace FingerprintsData
                         matchProvider.ServiceId = Convert.ToInt32(dr["ServiceID"]);
                         matchProvider.Services = dr["Services"].ToString();
                         matchProvider.Notes = dr["Notes"].ToString();
-                       // matchProvider.OrganizationName = dr["OrganizationName"].ToString();
-                       // matchProvider.Address = dr["Address"].ToString();
                         matchProvider.AgencyId = dr["AgencyId"].ToString();
                         matchProvider.IsFunction = Convert.ToBoolean(dr["IsFunction"]);
                         matchProvider.CommunityId = Convert.ToInt32(dr["CommunityId"]);
+                        matchProvider.ReferralDate = Convert.ToString(dr["ReferralDate"]);
 
                         if (ReferralClientId > 0)
                         {
@@ -1175,7 +1174,7 @@ namespace FingerprintsData
                             matchProvider.ZipCode = dr["ZipCode"].ToString();
                             matchProvider.Email = dr["Email"].ToString();
                             matchProvider.Phone = dr["PhoneNo"].ToString();
-                            matchProvider.ReferralDate = (dr["ReferralDate"].ToString() == "") ? DateTime.Now.ToString("MM/dd/yyyy") : dr["ReferralDate"].ToString();
+                            matchProvider.ReferralDate = Convert.ToString(dr["ReferralDate"]);
                             matchProvider.ReferralClientServiceId = Convert.ToInt64(dr["ReferralClientServiceId"]);
                             matchProvider.ClientId = Convert.ToInt64(dr["ClientId"]);
                         }
@@ -1440,10 +1439,10 @@ namespace FingerprintsData
                     ReferralServiceModel referralService = new ReferralServiceModel();
                     referralService.ServiceId = Convert.ToInt32(dr["ServiceID"]);
                     referralService.ServiceName = dr["Services"].ToString();
-                    referralService.ReferralDate = Convert.ToDateTime(dr["ReferralDate"]);
-                    referralService.ConvReferralDate = Convert.ToDateTime(dr["ReferralDate"]).ToString("MM/dd/yyyy");
-                    referralService.CreatedDate = Convert.ToDateTime(dr["CreatedDate"]);
-                    referralService.ConvCreatedDate = Convert.ToDateTime(dr["CreatedDate"]).ToString("MM/dd/yyyy");
+                    referralService.ReferralDate =string.IsNullOrEmpty(Convert.ToString(dr["ReferralDate"]))?(DateTime?)null: Convert.ToDateTime(dr["ReferralDate"]);
+                    referralService.ConvReferralDate = Convert.ToString(dr["ReferralDate"]);
+                    referralService.CreatedDate = string.IsNullOrEmpty(Convert.ToString(dr["CreatedDate"]))? (DateTime?)null : Convert.ToDateTime(dr["CreatedDate"]);
+                    referralService.ConvCreatedDate = Convert.ToString(dr["CreatedDate"]);
                     referralService.Step = Convert.ToInt32(dr["Step"]);
                     referralService.ClientId = Convert.ToInt32(dr["ClientId"]);
                     referralService.ReferralClientServiceId = Convert.ToInt32(dr["ReferralClientServiceId"]);
@@ -3110,26 +3109,39 @@ namespace FingerprintsData
             }
         }
 
-        public List<SelectListItem> FamilyServiceList(Int32 ServiceId, string AgencyId)
+        public List<SelectListItem> FamilyServiceList(int ServiceId, string AgencyId)
         {
             try
             {
                 DataSet ds = null;
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
                 Connection.Open();
                 command.Parameters.Clear();
                 List<MatchProviderModel> matchProviderModels = new List<MatchProviderModel>();
                 List<SelectListItem> organizationList = new List<SelectListItem>();
                 ds = new DataSet();
-                command.Connection = Connection;
+                using (Connection = connection.returnConnection())
+                {
 
-                command.CommandText = "sp_FamilyNeeds";
-                command.Parameters.AddWithValue("@CommunityId", ServiceId);
-                command.Parameters.AddWithValue("@AgencyID", AgencyId);
-                command.CommandType = CommandType.StoredProcedure;
-                SqlDataAdapter da = new SqlDataAdapter(command);
-                Connection.Close();
-                da.Fill(ds);
-                if (ds.Tables[0].Rows.Count > 0)
+                    command.Connection = Connection;
+
+                    command.CommandText = "sp_FamilyNeeds";
+                    command.Parameters.Clear();
+                    command.Parameters.AddWithValue("@CommunityId", ServiceId);
+                    command.Parameters.AddWithValue("@AgencyID", AgencyId);
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    SqlDataAdapter da = new SqlDataAdapter(command);
+                    Connection.Close();
+                    da.Fill(ds);
+                }
+
+                if (ds != null && ds.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
@@ -3151,7 +3163,14 @@ namespace FingerprintsData
             }
             catch (Exception ex)
             {
+                clsError.WriteException(ex);
                 throw ex;
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+
             }
         }
 
