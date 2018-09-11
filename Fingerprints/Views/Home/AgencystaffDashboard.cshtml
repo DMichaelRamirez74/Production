@@ -16,8 +16,10 @@
 @section Script{
 
     <script src="~/Scripts/amcharts.js"></script>
+<script src="~/Scripts/serial.js"></script>
     <script src="~/Scripts/gauge.js"></script>
-    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+<script src="~/Scripts/light.js"></script>
+<script src="~/Content/Select2-3.5.3/select2.js"></script>
     <script type="text/javascript">
         var dbevents = [];
         var _centerid = null;
@@ -35,8 +37,6 @@
         var reloadPage = false;
 
         $(document).ready(function () {
-
-
 
             $("#ModalWaitingList,#ModalWaitingListAll").on("hide.bs.modal", function () {
 
@@ -2778,8 +2778,19 @@
 }
 
 @section MainContentHolder{
-
+<link href="~/Content/Select2-3.5.3/select2.css" rel="stylesheet" />
     <link href="~/Content/css/agencystaffdashboard.css" rel="stylesheet" />
+<style>
+    .select2-container {
+        width: 300px;
+    }
+
+    .select2-choice {
+        height: 35px !important;
+    }
+</style>
+
+
     <style>
         #gridViewAgency > thead > tr > th {
             white-space: nowrap;
@@ -2849,6 +2860,11 @@
                width:250px;
                padding-top:6px;
                display:inline-block;}
+
+        .amcharts-chart-div {
+         margin-left:50px;
+        
+        }
     </style>
 
     <div class="row">
@@ -2976,6 +2992,7 @@
             </div>
         </div>
     </div>
+
     <div class="row" id="Hideattchart" style="display: none;">
 
 
@@ -3081,6 +3098,12 @@
 
 
     </div>
+
+
+@if (Session["RoleId"].ToString() == "94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"){   @* For FSW *@
+
+    @Html.Partial("~/Views/Partialviews/_AbsenceReport.cshtml")
+}
 
 
 

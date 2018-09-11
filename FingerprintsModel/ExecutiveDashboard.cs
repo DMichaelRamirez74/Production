@@ -8,6 +8,12 @@ namespace FingerprintsModel
 {
     public class ExecutiveDashBoard
     {
+        public List<AbsenceByWeek> AbsenceReport { get; set; }
+        public string AttendanceIssuePercentage { get; set; }
+        public class AbsenceByWeek {
+            public string week { get; set; }
+            public string value { get; set; }
+        }
         public string AvailablePercentage { get; set; }
         public string AvailableSeat { get; set; }
         public string YesterDayAttendance { get; set; }
