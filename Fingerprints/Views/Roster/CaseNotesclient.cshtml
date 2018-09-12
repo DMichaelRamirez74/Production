@@ -199,8 +199,8 @@
                                                         </div>\
                                                     </td>\
                                                     <td data-title="Title">\
-                                                        <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
-                                                            <p style="text-decoration: underline;" onclick="{function}({Id})">{Title}</p>\
+                                                        <div  class="addn-content-desc" style="position: relative;cursor: pointer;">\
+                                                            <p data-editable="' + val.IsEditable + '" style="text-decoration: underline;" onclick="{function}({Id})">{Title}</p>\
                                                         </div>\
                                                     </td>\
                                                     <td data-title="By">\
@@ -292,8 +292,9 @@
         }
 
 
-        function Getcasenote(Casenoteid,clientId) {
+        function Getcasenote(Casenoteid,clientId,ele) {
 
+            var isEditable = $(ele).data("editable");
             $('#CaseNoteid').val(Casenoteid);
             $.ajax({
                 url: HostedDir + "/Roster/Getcasenotedetails",
@@ -310,7 +311,7 @@
                     debugger;
                     $('#spinner').hide();
                     
-                    BindCaseNotelist(Data);
+                    BindCaseNotelist(Data,isEditable);
                     GetSubNotes(Casenoteid);
                   // GetSubNotes(Casenoteid);
 
@@ -447,7 +448,7 @@
 
 
 
-        function BindCaseNotelist(Data) {
+        function BindCaseNotelist(Data,iseditable) {
            
             cleanValidation();
             //$('#Attachment').hide();
@@ -653,6 +654,22 @@
                     show: true,
 
                 });
+
+                if (!iseditable) {
+                    //$("#ClientDiv").find('[type="checkbox"]').prop('disabled', true);
+                    // $("#StaffDiv").find('[type="checkbox"]').prop('disabled', true);
+                    $('[name="ClientIds.IDS"][type="checkbox"]').prop('disabled', true);
+                    $('[name="TeamIds.IDS"][type="checkbox"]').prop('disabled', true);
+                    $(".addn-poup-div1").find('[type="checkbox"]').prop('disabled', true);
+                    $('#FirstFile[type="file"]').prop("disabled", true);
+                    $(".add-attach-btn, #SaveNoteSubmit").css("display", "none");
+                    $("#CaseNotetags_tag").prop("disabled", true);
+
+                } else {
+                    $('#FirstFile[type="file"]').prop("disabled", false);
+                    $(".add-attach-btn, #SaveNoteSubmit").css("display", "inline-block");
+                }
+
             }
         }
         function BindCaseNotelist1(Data) {
@@ -1298,7 +1315,7 @@
                                                                                                     {
                                                                                                         <td data-title="Title">
                                                                                                           
-                                                                                                                @if (item1.IsEditable)
+                                                                                                                @*@if (item1.IsEditable)
                                                                                                                 {
                                                                                                                     <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
                                                                                                                         <p style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</p>
@@ -1312,8 +1329,12 @@
                                                                                                                         <p>@item1.Title</p>
                                                                                                                     </div>
 
-                                                                                                                }
+                                                                                                                }*@
 
+                                                                                                            <div class="addn-content-desc" style="position: relative;    cursor: pointer;">
+                                                                                                                <p data-editable="@(item1.IsEditable ? "true":"false")" style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid,null,this)">@item1.Title</p>
+
+                                                                                                            </div>
 
 </td>
                                                                                                     }
@@ -1322,7 +1343,7 @@
                                                                                                         <td data-title="Title">
                                                                                                             
 
-                                                                                                                @if (item1.IsEditable)
+                                                                                                                @*@if (item1.IsEditable)
                                                                                                                 {
                                                                                                                     <div class="addn-content-desc" style="position: relative;cursor: pointer;">
                                                                                                                         <p style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid)">@item1.Title</p>
@@ -1333,8 +1354,11 @@
                                                                                                                     <div class="addn-content-desc" style="position: relative;">
                                                                                                                         <p>@item1.Title</p>
                                                                                                                     </div>
-                                                                                                                }
+                                                                                                                }*@
 
+                                                                                                            <div data-editable="@(item1.IsEditable ? "true":"false")" class="addn-content-desc" style="position: relative;cursor: pointer;">
+                                                                                                                <p style="text-decoration: underline;" onclick="Getcasenote(@item1.CaseNoteid,null,this)">@item1.Title</p>
+                                                                                                            </div>
 
 
 </td>
@@ -2204,7 +2228,7 @@
                                             <div class="col-sm-5">
                                                 <input type="file" id="FirstFile" name="Attachments[0].file" onchange="ValidateSingleInputpdf2(this)" class="form-control" />
                                             </div>
-                                            <div class="col-sm-3 adddivspace">
+                                            <div class="col-sm-3 adddivspace add-attach-btn">
                                                 <span>Add Attachment </span>
                                                 <a href="javascript:void(0)" id="Attachmectstag" title="Add Attachment"><i class="fa fa-plus-square"></i></a>
 

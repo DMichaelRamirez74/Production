@@ -398,7 +398,7 @@
 
         function Getcasenote(Casenoteid,arg) {
 
-
+            var isEditable = $(arg).data('editable');
             var target = $(arg.getAttribute('href'));
 
             if (target.length) {
@@ -425,7 +425,7 @@
                 //  async: false,
                 success: function (Data) {
                     console.log(Data);
-                    BindCaseNotelist(Data);
+                    BindCaseNotelist(Data, isEditable);
                     BindSubNotes(Casenoteid);
                 }
             , error: function (Data) {
@@ -433,7 +433,7 @@
             }
             });
         }
-        function BindCaseNotelist(Data) {
+        function BindCaseNotelist(Data, isEditable) {
             cleanValidation();
 
 
@@ -653,6 +653,20 @@
                     show: true,
 
                 });
+
+                if (!isEditable) {
+                    $(".New_ClientDiv").find('[type="checkbox"]').prop('disabled', true);
+                    $(".New_StaffDiv").find('[type="checkbox"]').prop('disabled', true);
+                    $(".addn-poup-div1").find('[type="checkbox"]').prop('disabled', true);
+                    $('#FirstFile[type="file"]').prop("disabled", true);
+                    $("a#Attachmectstag, #SaveNoteSubmit").css("display", "none");
+                    $("#New_CaseNotetags_tag").prop("disabled", true);
+
+                } else {
+                    $('#FirstFile[type="file"]').prop("disabled", false);
+                   $("a#Attachmectstag, #SaveNoteSubmit").css("display", "block");
+                }
+
             }
         }
 
@@ -747,23 +761,31 @@
                                                         </div>\
                                                     </td>';
 
-                    if (val.IsEditable == true) {
+                    //if (val.IsEditable == true) {
 
 
+                    //    row += '<td data-title="Title">\
+                    //                                    <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
+                    //                                       <p> <a style="text-decoration: underline;" href="#divCNDetails"  onclick="{function}({Id},this)">{Title}</a></p>\
+                    //                                    </div>\
+                    //                                </td>';
+                    //}
+                    //else {
+
+                    //    row += '<td data-title="Title">\
+                    //                                    <div class="addn-content-desc" style="position: relative;">\
+                    //                                       <p>{Title}</p>\
+                    //                                    </div>\
+                    //                                </td>';
+                    //}
+                    //code0643 
                         row += '<td data-title="Title">\
                                                         <div class="addn-content-desc" style="position: relative;cursor: pointer;">\
-                                                           <p> <a style="text-decoration: underline;" href="#divCNDetails"  onclick="{function}({Id},this)">{Title}</a></p>\
+                                                           <p> <a style="text-decoration: underline;" data-editable="' + val.IsEditable + '" href="#divCNDetails"  onclick="{function}({Id},this)">{Title}</a></p>\
                                                         </div>\
                                                     </td>';
-                    }
-                    else {
 
-                        row += '<td data-title="Title">\
-                                                        <div class="addn-content-desc" style="position: relative;">\
-                                                           <p>{Title}</p>\
-                                                        </div>\
-                                                    </td>';
-                    }
+
                     row += ' <td data-title="By">\
                                                         <div class="addn-content-desc" style="position: relative;">\
                                                             <p>{BY}</p>\
