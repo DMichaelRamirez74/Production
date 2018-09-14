@@ -154,6 +154,7 @@ namespace FingerprintsData
                             executive.TotalDollars = dr["Budget"].ToString();
                         }
                     }
+
                 }
             }
             catch (Exception ex)
@@ -353,5 +354,138 @@ namespace FingerprintsData
                     Connection.Close();
             }
         }
-    }
+
+
+
+        public ExecutiveDashBoard GetAbsenceReport(int? centerid,int? classid,int? clientid, string search="" ) {
+
+
+            ExecutiveDashBoard executive = new ExecutiveDashBoard();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                var stf = StaffDetails.GetInstance();
+
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+
+                command.Parameters.Add(new SqlParameter("@CenterId", centerid));
+                command.Parameters.Add(new SqlParameter("@ClassRoomId", classid));
+                command.Parameters.Add(new SqlParameter("@ClientId", clientid));
+                command.Parameters.Add(new SqlParameter("@Command", "Report"));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_AbsenceReport";
+                command.CommandTimeout = 120;
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    // absence report
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        executive.AbsenceReport = new List<ExecutiveDashBoard.AbsenceByWeek>();
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            //  executive.AbsenceReport.Add( dr["Percentage"].ToString());
+                            executive.AbsenceReport.Add(new ExecutiveDashBoard.AbsenceByWeek()
+                            {
+
+                                week = dr["weekdate"].ToString(),
+                                value = dr["Percentage"].ToString()
+                            });
+
+                        }
+                    }
+
+                    if (_dataset.Tables[1].Rows.Count > 0)
+                    {
+
+                        executive.AttendanceIssuePercentage = _dataset.Tables[1].Rows[0]["attendanceIssuePercentage"].ToString();
+
+                    }
+
+
+                }
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+
+            }
+
+            return executive;
+
+            }
+
+
+
+        public List<SelectObject> GetClientByCenterAndClass(int? centerid, int? classid, string search = "")
+        {
+
+
+            var data = new List<SelectObject>();
+            try
+            {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                var stf = StaffDetails.GetInstance();
+
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+
+                command.Parameters.Add(new SqlParameter("@CenterId", centerid));
+                command.Parameters.Add(new SqlParameter("@ClassRoomId", classid));
+                command.Parameters.Add(new SqlParameter("@Command", "search"));
+                command.Parameters.Add(new SqlParameter("@Search", search));
+
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_AbsenceReport";
+                command.CommandTimeout = 120;
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    // absence report
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                       
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+
+                            data.Add(new SelectObject()
+                            {
+                                id = dr["Id"].ToString(),
+                                text = dr["Text"].ToString()
+                            });
+                          
+                           
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex) { }
+
+            return data;
+        }
+       
+
+                    }
+
+
 }

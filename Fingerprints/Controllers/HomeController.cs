@@ -1545,5 +1545,25 @@ namespace Fingerprints.Controllers
             return RedirectToAction("AgencyDisabilityManagerDashboard");
 
         }
+
+        #region Absence Report
+        public JsonResult GetAbsenceReport(int? centerid, int? classid,int? clientid, string search = "")
+        {
+
+            var result = new ExecutiveData().GetAbsenceReport(centerid, classid, clientid, search);
+
+            return Json(new { AbsenceReport= result.AbsenceReport, AttendanceIssuePercentage=result.AttendanceIssuePercentage },JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetClientByCenterAndClass(int? centerid, int? classid, string search = "")
+        {
+
+            var result = new ExecutiveData().GetClientByCenterAndClass(centerid, classid, search);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion Absence Report
+
     }
 }

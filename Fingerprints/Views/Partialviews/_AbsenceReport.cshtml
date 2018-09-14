@@ -1,0 +1,353 @@
+﻿
+
+<div class="col-xs-12">
+    <div class="panel panel-info" style="border-color: #27ae60;border-radius: 0px;">
+        <div class="panel-heading" style="background:#27ae60;border-color:#27ae60;border-radius: 0px;">
+            <h4 class="panel-title" style="color:#fff;font-size:22px;"> Absence Report</h4>
+        </div>
+        <div class="panel-body" style="background:#fff;">
+
+            <div class="row">
+                <div class="col-sm-12 mb20">
+                    <div class="col-sm-4">
+                        <label>Center</label>
+                        @*<select class="form-group">
+                            <option value="0">-- Select Center --</option>
+                        </select>*@
+                     @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel" })
+                        </div>
+
+                    <div class="col-sm-4">
+                        <label>Classroom</label>
+                      
+                        <select id="Classroom" style="" class="form-control"></select>
+                    </div>
+
+                
+
+                    <div class="col-sm-4 " style="">
+                        <label>Child</label>
+                        <input width="500px" type="text" id="searchClient" />
+
+                    </div>
+
+                    <div class="col-sm-4 col-sm-offset-4">
+
+                        <button type="button" style="padding: 10px;width: 100px !important;margin-top: 20px; background: #295b8f;color:#fff;border-radius: 0px;" class="btn" id="search-center-btn">Search</button>
+                        <button type="button" style="padding: 10px;width: 100px !important;margin-top: 20px; background: #295b8f;color:#fff;border-radius: 0px;" class="btn" id="clear-report-filter">Clear</button>
+
+                    </div>
+
+                    </div>
+
+            </div>
+
+            <div id="linechart" style="height:500px;width:100%;background:#fff;"></div>
+
+        </div>
+    </div>
+
+
+
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        var dataProvider = [];
+
+
+        var chart = AmCharts.makeChart("linechart", {
+            "hideCredits": true,
+            "type": "serial",
+            //"theme": "light",
+            "theme": "absenceReportTheme", //custom theme written in light.js
+            "legend": {
+                "useGraphSettings": true
+            },
+            "dataProvider": dataProvider,
+            "valueAxes": [
+
+                {
+                    "logarithmic": false,
+                    "dashLength": 1,
+                    "guides": [
+                    ],
+                    "position": "left",
+                    "autoGridCount": false
+                }],
+            "graphs": [{
+                "bullet": "round",
+                "id": "g1",
+                "bulletBorderAlpha": 1,
+                "bulletColor": "#FFFFFF",
+                "bulletSize": 7,
+                "lineThickness": 2,
+                "title": "Actual Absence",
+                "type": "smoothedLine",
+                "useLineColorForBulletBorder": true,
+                "valueField": "value",
+            },
+                  {
+                      "valueAxis": "ohsnorm",
+                      "lineColor": "#b7072c",
+                      "lineThickness": 2,
+                      "bullet": "",
+                      "bulletBorderThickness": 1,
+                      "hideBulletsCount": 30,
+                      "title": "OHS Average",
+                      "valueField": "OHSNorm",
+                      "label": "OHS Average",
+                      "dashLength": 6,
+                      "fillAlphas": 0
+                  },
+                   {
+                       "valueAxis": "agencynorm",
+                       //"lineColor": "#FCD202",
+                       "lineColor": "#b51597",
+                       "lineThickness": 2,
+                       "bullet": "",
+                       "bulletBorderThickness": 1,
+                       "hideBulletsCount": 30,
+                       "title": "Agency Average",
+                       "valueField": "AgencyNorm",
+                       "label": "Agency Average",
+                       "dashLength": 6,
+                       "fillAlphas": 0
+                   },
+
+
+            ],
+            "chartScrollbar": {},
+            "chartCursor": {
+                "valueLineEnabled": true,
+                "valueLineBalloonEnabled": true,
+                "valueLineAlpha": 0.5,
+                "fullWidth": true,
+                "cursorAlpha": 0.05
+            },
+            // "dataDateFormat": "YYYY-MM-DD",
+            "categoryField": "week",
+            //"categoryAxis": {
+            //    "parseDates": true
+            //},
+            "export": {
+                "enabled": true
+            }
+        });
+
+
+        //chart.addListener("rendered", function (zoomChart) {
+
+        //    console.log(zoomChart);
+        //   // if (chart.zoomChart) {
+        //        //	chart.zoomChart();
+        //       // console.log(chart);
+
+        //        chart.zoomToIndexes(dataProvider.length - 8, dataProvider.length);
+        //   // }
+        //});
+
+       
+
+
+        $(document).on("click","#clear-report-filter",function(){
+        
+            $('#Centers').val("0");
+            $('#Classroom').find("option").remove();
+            $("#searchClient").select2("val","");
+            $("#searchClient").select2("disable");
+            getAbsenceData();
+
+
+        });
+
+        $(document).on("click","#search-center-btn",function(e){
+        
+            var _centrid =  $('#Centers').val();
+            var _clsid =  $('#Classroom').val();
+            var _clientId = $("#searchClient").select2("val");
+
+            if(_centrid == "0"){
+            
+                customAlert("Please choose Center");
+                return false;
+            }
+
+            getAbsenceData(_centrid,_clsid,_clientId);
+
+        
+        });
+
+       
+
+
+
+        $("#searchClient").select2({
+            placeholder: "Search Child",
+          //  disabled:true,
+            minimumInputLength: 1,
+            ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                url:  HostedDir + "/Home/GetClientByCenterAndClass", 
+                dataType: 'json',
+                quietMillis: 250,
+                data: function (term, page) {
+                    return {
+                        search: term, // search term
+                        centerid: $('#Centers').val() == "0" ? null : $('#Centers').val(),
+                        classid:   $('#Classroom').val() == "0" ? null : $('#Classroom').val()
+
+                    };
+                },
+                results: function (data, page) { // parse the results into the format expected by Select2.
+  
+
+                    
+                    return { results: data };
+
+                },
+                cache: true
+            },
+            initSelection: function(element, callback) {
+          
+            },
+              });
+
+
+
+        $("#searchClient").select2("disable");
+        $('#Centers').on('change', function () {
+
+            if ($(this).val() == '0') {
+                $('#Classroom').find('option').remove();
+                $("#searchClient").select2("disable")
+                return false;
+            } else {
+                $("#searchClient").select2("enable")
+            }
+            $("#searchClient").select2("val", "");
+
+            GetClassrooms(this, false);
+
+        });
+
+
+      //  $("#searchClient").select2("disable")
+        $(document).on("change", "#Classroom", function () {
+            //var _clid = $("#Classroom").val();
+            //if (_clid == null || _clid == "0") {
+            //    $("#searchClient").select2("disable")
+            //} else {
+            //    $("#searchClient").select2("enable")
+            //}
+            $("#searchClient").select2("val", "");
+        });
+
+        function getAbsenceData(_centrid,_clsid,_clientId){
+        
+        
+            $.ajax({
+                url: HostedDir + "/Home/GetAbsenceReport",
+                type: "POST",
+                data: {
+                    centerid: _centrid == "0" ? null : _centrid,
+                    classid:_clsid == "0" ? null : _clsid,
+                    clientid:_clientId ==""?null :_clientId
+                },
+                dataType: "json",
+                secureuri: false,
+                async: true,
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                success: function (data) {
+
+                    if(data.hasOwnProperty("AbsenceReport") && data.AbsenceReport.length){
+                    
+                        var dp=[];
+                        data.AbsenceReport.forEach(function (obj, ind) {
+                            dp.push({
+                                "week": AmCharts.formatDate(new Date(obj.week.split("|")[0]), "MMM-DD"),
+                                "value": obj.value,
+                                "OHSNorm": 10,
+                                "AgencyNorm": data.AttendanceIssuePercentage
+
+                            })
+                        });
+
+
+                        chart.dataProvider = dp;
+                        chart.validateData();
+                        //control dragger
+                        chart.zoomToIndexes(dp.length - 8, dp.length);
+                    }
+
+                        
+                },
+                fail: function (res) {
+                    customAlert("Something went wrong, Please try again");
+                },
+                complete:function(){
+                    $('#spinner').hide();
+                }
+
+            });
+
+
+        
+        }
+
+
+
+        function GetClassrooms(Select) {
+
+            $.ajax({
+                url: HostedDir + "/Roster/Getclassrooms",
+                type: "POST",
+                data: {
+                    Centerid: $(Select).val()
+                },
+                dataType: "json",
+                secureuri: false,
+                async: true,
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                success: function (response) {
+                    $('#Classroom').find('option').remove();
+
+                    if (response.length > 0) {
+                        //var option = (response.length > 1) ? '<option value="0"></option>' : '';
+                        var option ='<option value="0"></option>';
+                        for (var i = 0; i < response.length; i++) {
+                            option = option + '<option value="' + response[i].ClassroomID + '">' + response[i].ClassName + '</option>';
+                        }
+
+                        $('#Classroom').append(option);
+
+
+                    }
+                },
+                fail: function (res) {
+                    customAlert("Something went wrong, Please try again");
+                },
+                complete: function () {
+
+                    $('#spinner').hide();
+                }
+
+            });
+
+        };
+
+
+        //init Chart
+        getAbsenceData();
+
+    });
+
+
+</script>
