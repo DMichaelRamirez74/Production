@@ -31,7 +31,7 @@ $(document).ready(function () {
     var enc_CenterId = '';
     var enc_ClassRoomId = '';
     var historicalRoleArray = [];
-    historicalRoleArray = ['b4d86d72-0b86-41b2-adc4-5ccce7e9775b', 'a65bb7c2-e320-42a2-aed4-409a321c08a5', '3b49b025-68eb-4059-8931-68a0577e5fa2'];
+    historicalRoleArray = ['b4d86d72-0b86-41b2-adc4-5ccce7e9775b', 'a65bb7c2-e320-42a2-aed4-409a321c08a5', '3b49b025-68eb-4059-8931-68a0577e5fa2', 'b65759ba-4813-4906-9a69-e180156e42fc', 'c352f959-cfd5-4902-a529-71de1f4824cc'];
 
     if (class_para.children('select').length === 0) {
         working_days_div.show();
@@ -692,6 +692,12 @@ $('#back-to-roster').on('click', function () {
         if (historicalRoleArray.indexOf(roleId.val()) > -1) {
             if (roleId.val() == 'b4d86d72-0b86-41b2-adc4-5ccce7e9775b') {
                 window.location.href = '/Home/Dashboard';
+            }
+            else if (roleId.val() == 'b65759ba-4813-4906-9a69-e180156e42fc') {
+                window.location.href = '/ERSEA/ERSEADashboard';
+            }
+            else if (roleId.val() == 'c352f959-cfd5-4902-a529-71de1f4824cc') {
+                window.location.href = '/Home/Agencyuserdashboard';
             }
             else {
                 window.location.href = '/Home/AgencyAdminDashboard';
