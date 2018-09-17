@@ -1028,7 +1028,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter()]
         public ActionResult WeeklyAttendance()
         {
             try
@@ -1057,7 +1057,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter()]
 
 
         public JsonResult GetChildListForCenterBased(string centerId,string classroomId,bool isHistorical,string attendanceDate="")
@@ -1086,7 +1086,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter()]
 
         public JsonResult GetChildAttendanceDetailsByDate(string centerId,string classroomId,string attendaneDate,bool isHistorical)
         {
@@ -1109,7 +1109,7 @@ namespace Fingerprints.Controllers
             return Json(model, JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter()]
 
         public JsonResult GetClassRoomsByCenterHistorical(string centerId)
         {
