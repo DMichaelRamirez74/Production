@@ -78,6 +78,9 @@ namespace FingerprintsModel
         // public Center CenterDetails { get; set; }
 
 
+        public string ProgramYearStartDate { get; set; }
+
+
     }
 
     public class ParentDetails

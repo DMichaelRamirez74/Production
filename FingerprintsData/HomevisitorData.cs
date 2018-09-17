@@ -253,6 +253,7 @@ namespace FingerprintsData
                 command = new SqlCommand();
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@AgencyID", scheduler.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", scheduler.StaffRoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", scheduler.StaffId));
                 command.Parameters.Add(new SqlParameter("@MeetingId", scheduler.MeetingId));
                 command.Parameters.Add(new SqlParameter("@ClientId", scheduler.ClientId));
@@ -482,7 +483,12 @@ namespace FingerprintsData
                                                        select new ParentDetails
                                                        {
                                                            ParentName = dr1["ParentName"].ToString(),
-                                                           ParentRole = (dr1["ParentRole"].ToString() == "1") ? "Father" : "Mother",
+                                                           ParentRole = (dr1["ParentRole"].ToString() == "1") ? "Father" :
+                                                                        (dr1["ParentRole"].ToString() == "2") ?"Mother":
+                                                                        (dr1["ParentRole"].ToString() == "3") ? "Grandparents" :
+                                                                        (dr1["ParentRole"].ToString() == "4") ? "Relatives other than grandparents" :
+                                                                          (dr1["ParentRole"].ToString() == "5")? "Foster Parent - Not including relative":"Other",
+
                                                            ClientId = dr1["ClientId"].ToString()
                                                        }
                                                      ).ToList();
@@ -503,6 +509,11 @@ namespace FingerprintsData
                                          MeetingId = Convert.ToInt64(dr2["ID"])
                                      }
                                    ).ToList()[0];
+                    }
+
+                    if(_dataset.Tables.Count>3 && _dataset.Tables[3].Rows.Count>0)
+                    {
+                        schedular.ProgramYearStartDate = Convert.ToString(_dataset.Tables[3].Rows[0]["ProgramYearStartDate"]);
                     }
                 }
 
