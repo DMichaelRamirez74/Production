@@ -479,7 +479,9 @@ namespace FingerprintsData
                     }
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
 
             return data;
         }

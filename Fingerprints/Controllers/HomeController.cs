@@ -1547,14 +1547,16 @@ namespace Fingerprints.Controllers
         }
 
         #region Absence Report
-        public JsonResult GetAbsenceReport(int? centerid, int? classid,int? clientid, string search = "")
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        public JsonResult GetAbsenceReport(int? centerid, int? classid, int? clientid, string search = "")
         {
 
             var result = new ExecutiveData().GetAbsenceReport(centerid, classid, clientid, search);
 
-            return Json(new { AbsenceReport= result.AbsenceReport, AttendanceIssuePercentage=result.AttendanceIssuePercentage },JsonRequestBehavior.AllowGet);
+            return Json(new { AbsenceReport = result.AbsenceReport, AttendanceIssuePercentage = result.AttendanceIssuePercentage }, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
         public JsonResult GetClientByCenterAndClass(int? centerid, int? classid, string search = "")
         {
 
