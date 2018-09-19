@@ -2128,16 +2128,16 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
 
        [HttpGet]
-        public ActionResult AccessRoles(string id="7")
+        public ActionResult AccessRoles(string id="0")
         {
             AccessRoles accessRoles = new FingerprintsModel.AccessRoles();
             try
             {
                 int titleID = 0;
-                titleID = int.TryParse(id, out titleID) == true ? titleID : 7;
+                titleID = int.TryParse(id, out titleID) == true ? titleID : 0;
                 accessRoles = new agencyData().SP_AccessRole(titleID, Session["AgencyID"].ToString());
-                
-                ViewBag.Titleid = titleID;
+
+                ViewBag.Titleid = titleID ==0 ? accessRoles.TitleList[0].TitleId : titleID;
             }
             catch (Exception ex)
             {

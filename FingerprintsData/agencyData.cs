@@ -94,9 +94,9 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.Transaction = tranSaction;
                 command.CommandType = CommandType.StoredProcedure;
-                 command.CommandText = "Sp_addeditagency_withfunds";//Sp_addeditagency_withfunds   Sp_addeditagency
+                command.CommandText = "Sp_addeditagency_withfunds";//Sp_addeditagency_withfunds   Sp_addeditagency
 
-               
+
 
                 command.Parameters.Add(new SqlParameter("@agencyId", agencyDetails.agencyId));
                 command.Parameters.Add(new SqlParameter("@Transport", agencyDetails.Transportation));//Changes
@@ -277,7 +277,7 @@ namespace FingerprintsData
                             dt1.Rows.Add(prog.ProgramTypes, prog.Description, prog.PIRReport,
                                 prog.Slots, prog.ReferenceProg, prog.DivisionID, prog.MinAge, prog.MaxAge,
                                 prog.programstartDate, prog.programendDate, prog.ProgramID,
-                                prog.FundID, prog.OldFund, prog.HealthReview, prog.LastDateCurrentApplication, prog.DateFutureApplication, prog.TransitionDate, prog.ProgramTypeAssociation,prog.ProgStatus);//changes
+                                prog.FundID, prog.OldFund, prog.HealthReview, prog.LastDateCurrentApplication, prog.DateFutureApplication, prog.TransitionDate, prog.ProgramTypeAssociation, prog.ProgStatus);//changes
 
                         }
                     }
@@ -446,7 +446,7 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getagencyinfo";
-             
+
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -1320,7 +1320,7 @@ namespace FingerprintsData
             return obj;
 
         }
-        public List<SelectListItem> CenterListByAgency(string id,bool isEndOfYear=false)
+        public List<SelectListItem> CenterListByAgency(string id, bool isEndOfYear = false)
         {
             List<SelectListItem> centerlist = new List<SelectListItem>();
             try
@@ -1901,7 +1901,7 @@ namespace FingerprintsData
                 {
                     if (lang.LanguageId != 0 && lang.IsSpoken)
                     {
-                        dt.Rows.Add(lang.LanguageId, lang.IsSpoken,lang.OtherLanguage);
+                        dt.Rows.Add(lang.LanguageId, lang.IsSpoken, lang.OtherLanguage);
 
                     }
                 }
@@ -3005,7 +3005,7 @@ namespace FingerprintsData
                 agencydataTable.Dispose();
             }
         }
-        public List<ClassRoom> getclassroominfo(string centerId, string agencyid,string programYear)
+        public List<ClassRoom> getclassroominfo(string centerId, string agencyid, string programYear)
         {
             List<ClassRoom> classList = new List<ClassRoom>();
             AgencyStaff _staff = new AgencyStaff();
@@ -3037,7 +3037,7 @@ namespace FingerprintsData
                 //}
 
 
-                if(_dataset!=null && _dataset.Tables.Count>0 && _dataset.Tables[0].Rows.Count>0)
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0)
                 {
                     classList = (from DataRow dr0 in _dataset.Tables[0].Rows
                                  select new ClassRoom
@@ -3677,7 +3677,7 @@ namespace FingerprintsData
             return _AcceptanceProcessList;
         }
 
-        public AgencySlots GetRefProgram(string Agencyid,bool isEndOfYear)
+        public AgencySlots GetRefProgram(string Agencyid, bool isEndOfYear)
         {
             AgencySlots agencySlot = new AgencySlots();
             List<SelectListItem> prog = new List<SelectListItem>();
@@ -3736,7 +3736,7 @@ namespace FingerprintsData
                     agencySlot._Centerprogram = ds.Tables[3];
                 }
 
-                if(ds.Tables[4]!=null && ds.Tables[4].Rows.Count>0)
+                if (ds.Tables[4] != null && ds.Tables[4].Rows.Count > 0)
                 {
                     agencySlot.ProgramYear = Convert.ToString(ds.Tables[4].Rows[0]["ActiveProgramYear"]);
                 }
@@ -3808,7 +3808,7 @@ namespace FingerprintsData
                     Connection.Close();
             }
         }
-        public string AddSlots(ref AgencySlots Slot, List<ClassRoom> ClassSlot, string UserId, string agencyid,bool isEndOfYear=false)
+        public string AddSlots(ref AgencySlots Slot, List<ClassRoom> ClassSlot, string UserId, string agencyid, bool isEndOfYear = false)
         {
             string result = string.Empty;
             List<SelectListItem> prog = new List<SelectListItem>();
@@ -3878,7 +3878,7 @@ namespace FingerprintsData
                     Slot._Centerprogram = _dataset.Tables[3];
                 }
 
-                if(_dataset.Tables[4]!=null && _dataset.Tables[4].Rows.Count>0)
+                if (_dataset.Tables[4] != null && _dataset.Tables[4].Rows.Count > 0)
                 {
                     Slot.ProgramYear = Convert.ToString(_dataset.Tables[4].Rows[0]["ActiveProgramYear"]);
                 }
@@ -4451,7 +4451,7 @@ namespace FingerprintsData
         /// <param name="rowsAffected"></param>
         /// <param name="incomeReviewRolesList"></param>
         /// <returns></returns>
-        public List<IncomeReviewRoles>InsertIncomeReviewRoles(out int isRowsAffected, List<IncomeReviewRoles>incomeReviewRolesList)
+        public List<IncomeReviewRoles> InsertIncomeReviewRoles(out int isRowsAffected, List<IncomeReviewRoles> incomeReviewRolesList)
         {
             List<IncomeReviewRoles> incomeReviewList = new List<IncomeReviewRoles>();
 
@@ -4847,7 +4847,7 @@ namespace FingerprintsData
                     command.Connection = Connection;
 
 
-                    command.Parameters.Add(new SqlParameter("@AgencyId", (mode == 0)?fund.AgencyID:staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@AgencyId", (mode == 0) ? fund.AgencyID : staff.AgencyId));
                     command.Parameters.Add(new SqlParameter("@LoginAgencyId", staff.AgencyId));
                     command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
@@ -4984,7 +4984,7 @@ namespace FingerprintsData
                     }
 
 
-                    if(_dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
+                    if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
                     {
                         moveSeats.ProgramYear = Convert.ToString(_dataset.Tables[2].Rows[0]["ActiveProgramYear"]);
                     }
@@ -5006,7 +5006,7 @@ namespace FingerprintsData
         /// <param name="classRoomId"></param>
         /// <param name="agencyID"></param>
         /// <returns></returns>
-        public int GetSeatsBy(long centerId, long classRoomId, Guid agencyID, int reqOpen = 0,bool isEndOfYear=false)
+        public int GetSeatsBy(long centerId, long classRoomId, Guid agencyID, int reqOpen = 0, bool isEndOfYear = false)
         {
 
             int seatCount = 0;
@@ -5090,7 +5090,7 @@ namespace FingerprintsData
                     }
                 }
 
-                int availCount = this.GetSeatsBy(Convert.ToInt64(centerpair.CenterClassPairList[0].FromCenter), Convert.ToInt64(centerpair.CenterClassPairList[0].FromClassRoom), centerpair.AgencyID, 1,centerpair.IsEndOfYear);
+                int availCount = this.GetSeatsBy(Convert.ToInt64(centerpair.CenterClassPairList[0].FromCenter), Convert.ToInt64(centerpair.CenterClassPairList[0].FromClassRoom), centerpair.AgencyID, 1, centerpair.IsEndOfYear);
 
 
                 if (movedSeats > availCount)
@@ -5173,7 +5173,7 @@ namespace FingerprintsData
 
 
 
-        public TransitionWithdrawal GetTransitionWithDrawalClients(int mode, int centerid = 0, int classroomid = 0, string fswid = "", string searchText = "",string progYear="", int reqPage = 0, int pgSize = 10)
+        public TransitionWithdrawal GetTransitionWithDrawalClients(int mode, int centerid = 0, int classroomid = 0, string fswid = "", string searchText = "", string progYear = "", int reqPage = 0, int pgSize = 10)
 
         {
 
@@ -5257,7 +5257,7 @@ namespace FingerprintsData
                                                                       }).ToList();
                     }
 
-                    if(_dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
                     {
                         transWithdrawal.ProgramYears = (from DataRow dr1 in _dataset.Tables[1].Rows
                                                         select new SelectListItem
@@ -5974,7 +5974,7 @@ namespace FingerprintsData
             {
                 StaffDetails staff = StaffDetails.GetInstance();
 
-                if(Connection.State==ConnectionState.Open)
+                if (Connection.State == ConnectionState.Open)
                 {
                     Connection.Close();
 
@@ -5995,16 +5995,16 @@ namespace FingerprintsData
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
 
-                    if(_dataset!=null && _dataset.Tables.Count>0)
+                    if (_dataset != null && _dataset.Tables.Count > 0)
                     {
-                        if(_dataset.Tables[0].Rows.Count>0)
+                        if (_dataset.Tables[0].Rows.Count > 0)
                         {
                             hrCenterList = (from DataRow dr0 in _dataset.Tables[0].Rows
                                             select new HrCenterInfo
                                             {
                                                 CenterId = Convert.ToString(dr0["CenterID"]),
                                                 Enc_CenterID = EncryptDecrypt.Encrypt64(dr0["CenterID"].ToString()),
-                                                Name=Convert.ToString(dr0["CenterName"])
+                                                Name = Convert.ToString(dr0["CenterName"])
 
                                             }
 
@@ -6012,11 +6012,11 @@ namespace FingerprintsData
                                           ).ToList();
                         }
                     }
-                    
+
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -6028,14 +6028,14 @@ namespace FingerprintsData
 
         }
 
-        public void ChangeAgencySlots(ref string result,ref DataSet des, string slotNumber,string slotChangeType,bool isEndOfYear=false)
+        public void ChangeAgencySlots(ref string result, ref DataSet des, string slotNumber, string slotChangeType, bool isEndOfYear = false)
         {
 
             try
             {
                 StaffDetails staff = StaffDetails.GetInstance();
 
-                if(Connection.State==ConnectionState.Open)
+                if (Connection.State == ConnectionState.Open)
                 {
                     Connection.Close();
                 }
@@ -6058,7 +6058,7 @@ namespace FingerprintsData
                     DataAdapter = new SqlDataAdapter(command);
                     des = new DataSet();
                     DataAdapter.Fill(des);
-                    result=command.Parameters["@Result"].Value.ToString();
+                    result = command.Parameters["@Result"].Value.ToString();
                     Connection.Close();
                 }
 
@@ -6078,7 +6078,7 @@ namespace FingerprintsData
                 //}
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
@@ -6089,8 +6089,43 @@ namespace FingerprintsData
 
             }
 
-            
+
         }
 
+    
+    public Boolean GetSingleAccessStatus(int type) {
+
+        bool _access = false;
+
+        try
+        {
+
+            StaffDetails stf = StaffDetails.GetInstance();
+
+            if (Connection.State == ConnectionState.Open)
+                Connection.Close();
+
+            command.Parameters.Clear();
+            command.Connection = Connection;
+            command.CommandType = CommandType.Text;
+            command.CommandText = "select top 1 id from  AccessRoleList where MasterId =" + type + "  and UserId = '" + stf.UserId + "' and RoleId ='" + stf.RoleId + "'";
+            Connection.Open();
+            DataAdapter = new SqlDataAdapter(command);
+            _dataset = new DataSet();
+            DataAdapter.Fill(_dataset);
+            Connection.Close();
+            if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0) {
+                _access = true;
+            }
+
+        }
+        catch (Exception ex) {
+            clsError.WriteException(ex);
+
+        }
+        return _access;
     }
+
+
+}
 }

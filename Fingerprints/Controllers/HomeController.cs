@@ -1547,16 +1547,30 @@ namespace Fingerprints.Controllers
         }
 
         #region Absence Report
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
-        public JsonResult GetAbsenceReport(int? centerid, int? classid, int? clientid, string search = "")
+        //executive,edu Mg, Agency Admin,GenesisEarth Admin,FSW, Center Mg , Area Mg 
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        public ActionResult AbsenceReport() {
+            if (agencydata.GetSingleAccessStatus(14))
+            {
+                return View();
+            }
+            else {
+                return new RedirectResult("~/login/Loginagency");
+            }
+        }
+
+        //executive,edu Mg, Agency Admin,GenesisEarth Admin,FSW, Center Mg , Area Mg 
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        public JsonResult GetAbsenceReport(int? centerid, int? classid,int? clientid, string search = "")
         {
 
             var result = new ExecutiveData().GetAbsenceReport(centerid, classid, clientid, search);
 
-            return Json(new { AbsenceReport = result.AbsenceReport, AttendanceIssuePercentage = result.AttendanceIssuePercentage }, JsonRequestBehavior.AllowGet);
+            return Json(new { AbsenceReport= result.AbsenceReport, AttendanceIssuePercentage=result.AttendanceIssuePercentage },JsonRequestBehavior.AllowGet);
         }
 
-        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
+        //executive,edu Mg, Agency Admin,GenesisEarth Admin,FSW, Center Mg , Area Mg 
+        [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
         public JsonResult GetClientByCenterAndClass(int? centerid, int? classid, string search = "")
         {
 

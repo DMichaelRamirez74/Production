@@ -60,7 +60,8 @@ namespace Fingerprints.Controllers
             }
         }
         // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public ActionResult ChildDetails(string id = "0", string bklistUrl="" )
+        [CustAuthFilter()]
+        public ActionResult ChildDetails(string id = "0", string bklistUrl = "")
         {
             try
             {
@@ -194,6 +195,7 @@ namespace Fingerprints.Controllers
         }
         // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         [HttpPost]
+        [CustAuthFilter()]
         public ActionResult ChildDetails(Nurse info, Nurse.PostedPMProblems PostedPostedPrblms, Nurse.PostedPMService PostedPostedService,
             Nurse.PostedProgram PostedPostedPrograms, Nurse.PostedDisease PostedPostedDisease,
            Nurse.PostedDiagnosedDisease PostedPostedDiagnosedDisease, Nurse.PostedChildEHS PostedPostedMedicalEHS,
@@ -719,6 +721,7 @@ namespace Fingerprints.Controllers
             return View(_familyinfo);
         }
         // [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public ActionResult ScreeningIntake()
         {
             return View();
@@ -768,6 +771,7 @@ namespace Fingerprints.Controllers
             return IncomeList;
         }
         // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         [JsonMaxLengthAttribute]
         public JsonResult listParentPhoneDetails1(string HouseHoldId = "0", string ParentID = "0")
         {
@@ -785,6 +789,7 @@ namespace Fingerprints.Controllers
             }
         }
         //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         [JsonMaxLengthAttribute]
         public JsonResult listParentPhoneDetails2(string HouseHoldId = "0", string ParentID = "0")
         {
@@ -802,6 +807,7 @@ namespace Fingerprints.Controllers
             }
         }
         // [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         [JsonMaxLengthAttribute]
         public JsonResult SaveNotes(string HouseHoldId = "0", string Notes = "", string mode = "")
         {
@@ -820,6 +826,7 @@ namespace Fingerprints.Controllers
 
 
         //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         [JsonMaxLengthAttribute]
         public JsonResult GetHschild(string Childid = "0")
         {
@@ -862,7 +869,8 @@ namespace Fingerprints.Controllers
             }
         }
         //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
-        public ActionResult ScreeningClient(string id)
+        [CustAuthFilter()]
+	    public ActionResult ScreeningClient(string id)
         {
             try
             {
@@ -996,6 +1004,7 @@ namespace Fingerprints.Controllers
         }
         [HttpPost]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public ActionResult ScreeningClient(Screening _screen, FormCollection _Collections, string screeningdate, HttpPostedFileBase ScreeningDocument, string Status)
         {
             try
@@ -1064,6 +1073,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadallenrolled(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1079,6 +1089,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadallcenterscreening(string Centerid = "0")
         {
             try
@@ -1093,6 +1104,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadchildmissingscreening(string ClassRoom, string Centerid = "0")
         {
             try
@@ -1106,6 +1118,7 @@ namespace Fingerprints.Controllers
             }
         }
         //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public ActionResult Multientryscreening(string id)
         {
 
@@ -1147,6 +1160,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadallclientscreening(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
             try
@@ -1161,6 +1175,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Saveclientscreening(List<Nurse.clients> ClientScreenings)
         {
             try
@@ -1174,6 +1189,7 @@ namespace Fingerprints.Controllers
             }
         }
         //     [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Savemultiscreening(List<Nurse.clients> multiscreenings)
         {
             try
@@ -1188,6 +1204,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //     [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadmissingclient(string Screeningid, string Centerid)
         {
             try
@@ -1202,6 +1219,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadclients(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
             try
@@ -1216,6 +1234,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //  [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Saveclientclassscreening(List<Nurse.clients> ClientScreenings)
         {
             try
@@ -1230,6 +1249,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loadsavedmissingclient(string Classroomid = "0", string Centerid = "0", string Screeningid = "0")
         {
             try
@@ -1244,6 +1264,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //    [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult Loaddeclinedscreening(string Centerid = "0")
         {
             try
@@ -1259,6 +1280,7 @@ namespace Fingerprints.Controllers
         //added on 30Dec2016
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult LoadallenrolledCleargrid(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1279,6 +1301,7 @@ namespace Fingerprints.Controllers
         //End
         [JsonMaxLengthAttribute]
         //  [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,9ad1750e-2522-4717-a71b-5916a38730ed,a31b1716-b042-46b7-acc0-95794e378b26,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter()]
         public JsonResult LoadGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1293,6 +1316,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult ViewGroupCaseNoteClient(string Centerid = "0", string Classroom = "0")
         {
             try
@@ -1307,6 +1331,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult LoadRescreening(string Centerid = "0")
         {
             try
@@ -1321,6 +1346,7 @@ namespace Fingerprints.Controllers
         }
         [JsonMaxLengthAttribute]
         //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public JsonResult LoadWithdrawn(string Centerid = "0")
         {
             try
