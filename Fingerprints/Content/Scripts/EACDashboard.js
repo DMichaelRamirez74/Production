@@ -1,16 +1,47 @@
-﻿
+﻿var prgYearMinDate = null;
+
+function getADASeatsDaily() {
+
+    $.ajax({
+        url: HostedDir + '/Home/GetADASeatsDaily',
+        type: 'post',
+        datatype: 'json',
+        success: function (result) {
+
+
+            if (result != null) {
+                if ($('.ada-p').length > 0 && result.adaPercentage != undefined && result.adaPercentage != null && result.adaPercentage != '') {
+                    $('.ada-p').html(result.adaPercentage+' %');
+                }
+
+                if ($('.seats-p').length > 0 && result.todaySeats != undefined && result.todaySeats != null && result.todaySeats != '') {
+                    $('.seats-p').html(result.todaySeats);
+                }
+            }
+
+        },
+        error: function (data) {
+            console.log(data);
+        }
+    });
+}
+
+
+
+
+
 $(function () {
     $('.slots-board').click(function () {
         $('.error-message').hide();
         $('.txtslotdate').val(getYesterdaysDate());
         GetSlotsDetails(getYesterdaysDate());
-        $('#myModalSlots').modal('show');
+
     });
     $('.seats-board').click(function () {
         $('.error-message').hide();
         $('.txtseatdate').val(getYesterdaysDate());
         GetSeatsDetail(getYesterdaysDate());
-        $('#myModalSeats').modal('show');
+
     });
 
 
@@ -20,11 +51,7 @@ $(function () {
         validateOnBlur: false
     });
 
-    $('#seatsDatetimePicker').datetimepicker({
-        timepicker: false,
-        format: 'm/d/Y',
-        validateOnBlur: false
-    });
+    
 
 
     $(document).on('click', '.slots-icon', function () {
@@ -49,17 +76,29 @@ $(function () {
             type: "POST",
             url: "/Home/GetSlotsDetailByDate",
             data: { 'Date': date },
+            beforeSend: function () { $('#spinner').show() },
             success: function (data) {
-             
-                $.each(JSON.parse(data), function (i, val) {
-                    $('.sp-slots-count').text(val["SlotCount"]);
-                    $('.sp-expiringslots-count').text(val["Expiring"]);
-                    $('.sp-emptyslots-count').text(val["EmptySlots"]);
-                });
+                try {
+
+
+                    $.each(JSON.parse(data), function (i, val) {
+                        $('.sp-slots-count').text(val["SlotCount"]);
+                        $('.sp-expiringslots-count').text(val["Expiring"]);
+                        $('.sp-emptyslots-count').text(val["EmptySlots"]);
+                    });
+
+                    $('#spinner').hide();
+                    $('#myModalSlots').modal('show');
+                }
+                catch (error) {
+                    $('#spinner').hide();
+                }
             },
             error: function (data) {
                 console.log('Error');
+                $('#spinner').hide();
             }
+
         });
     }
 
@@ -68,16 +107,41 @@ $(function () {
             type: "POST",
             url: "/Home/GetSeatsDetailByDate",
             data: { 'Date': date },
+            beforeSend:function(){$('#spinner').show()},
             success: function (data) {
+
+                try{
+
                 $.each(JSON.parse(data), function (i, val) {
                     $('.sp-seats-count').text(val["Count"]);
                     $('.sp-seatpercentage-count').text(val["Percentage"]);
                     $('.sp-seats-home-count').text(val["HomePresent"]);
                     $('.sp-seatpercentage-home-count').text(val["HomePercentage"]);
 
+                    $('#seatsDatetimePicker').datetimepicker('destroy');
+
+                    $('#seatsDatetimePicker').datetimepicker({
+                        timepicker: false,
+                        format: 'm/d/Y',
+                        validateOnBlur: false,
+                        minDate: new Date(val["ProgramYearStartDate"]),
+                        maxDate:new Date()
+                    });
+
+                    prgYearMinDate = val["ProgramYearStartDate"];
+
                 });
+
+                $('#spinner').hide();
+                $('#myModalSeats').modal('show');
+                }
+                catch(error)
+                {
+                    $('#spinner').hide();
+                }
             },
             error: function (data) {
+                $('#spinner').hide();
                 console.log('Error');
             }
         });
@@ -109,11 +173,19 @@ $(function () {
         if ($('.txtseatdate').val().trim() != "") {
             if (validDate($('.txtseatdate').val().trim())) {
                 $('.seats-invalid-date').hide();
-                if (Checkdate($('.txtseatdate').val().trim()))
+
+
+                if (new Date($('.txtseatdate').val()).setHours(0, 0, 0, 0) < new Date(prgYearMinDate).setHours(0, 0, 0, 0))
+                {
+                    $('.seats-invalid-date').show();
+                }
+                else if (Checkdate($('.txtseatdate').val().trim()))
                     GetSeatsDetail($('.txtseatdate').val().trim());
                 else
                     $('.seats-future-date').show();
             }
+
+
             else {
                 $('.seats-invalid-date').show();
             }
@@ -145,6 +217,8 @@ $(function () {
 
         $(this).parent('.input-container').find('span').hide();
     });
+
+
     function validDate(text) {
         var isValid = true;
         var comp = text.split('/');
@@ -236,6 +310,14 @@ $(function () {
         { $('.dropdown').addClass('open'); }, 100);
 
     });
+
+
+    //updates the ADA count for every 5 minutes
+    setInterval(function () {
+        getADASeatsDaily()
+    }, 300000); // this will run after every 5 minutes
+    ///3000
+    ///300000
 });
 
 

@@ -247,16 +247,27 @@ namespace FingerprintsData
             dtSeatDetails = new DataTable();
             try
             {
-                DateTime Date = Convert.ToDateTime(date);
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@Date", Date));
-                command.Parameters.Add(new SqlParameter("@RoleId", new Guid(Role)));
-                command.Parameters.Add(new SqlParameter("@userid", UserId));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_GetSeatsDetailsByDate";
-                DataAdapter = new SqlDataAdapter(command);
-                DataAdapter.Fill(dtSeatDetails);
+               
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
+                    command.Parameters.Add(new SqlParameter("@Date", date));
+                    command.Parameters.Add(new SqlParameter("@RoleId", new Guid(Role)));
+                    command.Parameters.Add(new SqlParameter("@userid", UserId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_GetSeatsDetailsByDate";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(dtSeatDetails);
+                    Connection.Close();
+                }
             }
             catch (Exception ex)
             {
@@ -479,15 +490,60 @@ namespace FingerprintsData
                     }
                 }
             }
-            catch (Exception ex) {
-                clsError.WriteException(ex);
-            }
+            catch (Exception ex) { }
 
             return data;
         }
-       
 
-                    }
+        #region Get ADA Daily Attendance percentage
+
+        public void GetADASeatsDaily(ref string adaPercentage,ref string todaySeats)
+        {
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                DataTable _dataTable = new DataTable();
+                if (Connection.State==ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetADAPercentageDaily";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(_dataTable);
+                    Connection.Close();
+                }
+
+                if(_dataTable!=null && _dataTable.Rows.Count>0)
+                {
+                    adaPercentage = Convert.ToString(_dataTable.Rows[0]["ADADailyPercentage"]);
+                    todaySeats = Convert.ToString(_dataTable.Rows[0]["AvailableSeats"]);
+                }
+
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+
+        }
+        #endregion
+
+    }
 
 
 }

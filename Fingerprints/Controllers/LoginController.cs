@@ -392,7 +392,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                ViewBag.message = "Error Occured. Please try again.";
+                ViewBag.message = "Error Occurred. Please try again.";
                 return View();
             }
         }

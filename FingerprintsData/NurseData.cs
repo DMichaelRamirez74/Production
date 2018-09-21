@@ -2623,7 +2623,7 @@ namespace FingerprintsData
             try
             {
                 command.Connection = Connection;
-
+                _dataset = new DataSet();
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@screeningid", screeningid));
                 command.Parameters.Add(new SqlParameter("@clientid",EncryptDecrypt.Decrypt64(clientid)));
@@ -2634,7 +2634,6 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Screenings";
                 DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
             }
             catch (Exception ex)

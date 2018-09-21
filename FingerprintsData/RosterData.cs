@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using System.IO;
 using System.Web;
 using System.Collections;
+using System.Globalization;
 
 namespace FingerprintsData
 {
@@ -1375,9 +1376,9 @@ namespace FingerprintsData
                 bool Status = true;
                 int CreatedBy = ClientId;
 
+                bool Success = false;
 
-
-                DateTime date = Convert.ToDateTime(PickupDate);
+            //    DateTime date = Convert.ToDateTime(PickupDate);
 
                 Connection.Open();
                 command.Connection = Connection;
@@ -1390,7 +1391,7 @@ namespace FingerprintsData
                 {
                     command.Parameters.AddWithValue("@Command", "INSERT");
                 }
-                command.Parameters.AddWithValue("@ReferralDate", date);
+                command.Parameters.AddWithValue("@ReferralDate", PickupDate);
                 command.Parameters.AddWithValue("@ClientId", ClientId);
                 command.Parameters.AddWithValue("@NotesId", NotesId);
                 command.Parameters.AddWithValue("@ServiceId", ServiceResourceId);
@@ -1405,7 +1406,12 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 var query = command.ExecuteNonQuery();
                 Connection.Close();
-                bool Success = true;
+                if(query>0)
+                {
+                     Success = true;
+                }
+
+
                 return Success;
             }
             catch (Exception ex)
@@ -1461,9 +1467,13 @@ namespace FingerprintsData
                     ReferralServiceModel referralService = new ReferralServiceModel();
                     referralService.ServiceId = Convert.ToInt32(dr["ServiceID"]);
                     referralService.ServiceName = dr["Services"].ToString();
-                    referralService.ReferralDate =string.IsNullOrEmpty(Convert.ToString(dr["ReferralDate"]))?(DateTime?)null: Convert.ToDateTime(dr["ReferralDate"]);
+                    //code0643 temp change
+                    //referralService.ReferralDate =string.IsNullOrEmpty(Convert.ToString(dr["ReferralDate"]))?(DateTime?)null: Convert.ToDateTime(dr["ReferralDate"]);
+                    referralService.ReferralDate = string.IsNullOrEmpty(Convert.ToString(dr["ReferralDate"])) ? (DateTime?)null : DateTime.Parse(dr["ReferralDate"].ToString(), new CultureInfo("en-US", true));
                     referralService.ConvReferralDate = Convert.ToString(dr["ReferralDate"]);
-                    referralService.CreatedDate = string.IsNullOrEmpty(Convert.ToString(dr["CreatedDate"]))? (DateTime?)null : Convert.ToDateTime(dr["CreatedDate"]);
+                    //  referralService.CreatedDate = string.IsNullOrEmpty(Convert.ToString(dr["CreatedDate"]))? (DateTime?)null : Convert.ToDateTime(dr["CreatedDate"]);
+                    //code0643 temp change
+                    referralService.CreatedDate = string.IsNullOrEmpty(Convert.ToString(dr["CreatedDate"])) ? (DateTime?)null : DateTime.Parse(dr["CreatedDate"].ToString(), new CultureInfo("en-US", true));
                     referralService.ConvCreatedDate = Convert.ToString(dr["CreatedDate"]);
                     referralService.Step = Convert.ToInt32(dr["Step"]);
                     referralService.ClientId = Convert.ToInt32(dr["ClientId"]);
@@ -5383,51 +5393,51 @@ namespace FingerprintsData
         }
 
 
-        public bool NextProgramYearTransition(string clientId)
-        {
-            bool isResult = false;
-            try
-            {
+        //public bool NextProgramYearTransition(string clientId)
+        //{
+        //    bool isResult = false;
+        //    try
+        //    {
 
-                StaffDetails staff = StaffDetails.GetInstance();
+        //        StaffDetails staff = StaffDetails.GetInstance();
 
-                if (Connection.State == ConnectionState.Open)
-                    Connection.Close();
-
-
-                using (Connection = connection.returnConnection())
-                {
-                    command.Connection = Connection;
-                    command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
-                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
-                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
-                    command.Parameters.Add(new SqlParameter("ClientID", Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId))));
-                    command.Parameters.Add(new SqlParameter("@mode", 0));
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.CommandText = "USP_InsertNextProgramYearTransition";
-                    Connection.Open();
-                    isResult = (Convert.ToInt32(command.ExecuteNonQuery()) > 0);
-
-                    Connection.Close();
-                }
+        //        if (Connection.State == ConnectionState.Open)
+        //            Connection.Close();
 
 
+        //        using (Connection = connection.returnConnection())
+        //        {
+        //            command.Connection = Connection;
+        //            command.Parameters.Clear();
+        //            command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+        //            command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+        //            command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+        //            command.Parameters.Add(new SqlParameter("ClientID", Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId))));
+        //            command.Parameters.Add(new SqlParameter("@mode", 0));
+        //            command.CommandType = CommandType.StoredProcedure;
+        //            command.CommandText = "USP_InsertNextProgramYearTransition";
+        //            Connection.Open();
+        //            isResult = (Convert.ToInt32(command.ExecuteNonQuery()) > 0);
+
+        //            Connection.Close();
+        //        }
 
 
-            }
 
-           catch(Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
-            finally
-            {
-                Connection.Dispose();
-                command.Dispose();
-            }
-            return isResult;
-        }
+
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+        //    finally
+        //    {
+        //        Connection.Dispose();
+        //        command.Dispose();
+        //    }
+        //    return isResult;
+        //}
 
 
         public bool UpdateReturningTransitionClient(int returnValue,string clientID)

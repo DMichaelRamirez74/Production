@@ -97,23 +97,88 @@ namespace Fingerprints.Controllers
                    List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
                         AccessList = new LoginData().GetAccessPageByUserId(new Guid(Session["UserId"].ToString()), new Guid(Session["AgencyID"].ToString()), new Guid(Session["RoleId"].ToString()));
 
-
+                    Session["AccessList"] = AccessList;
+                    //Genesis Earth Administrator alias Agency Admin- Menu Enable is false.
                     if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") && Session["MenuEnable"] != null && Convert.ToBoolean(Session["MenuEnable"]))
                         newLocation = "~/Home/AgencyAdminDashboard";
+
+                    //Genesis Earth Administrator alias Agency Admin- Menu Enable is true.
                     else if (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") && Session["MenuEnable"] != null && !Convert.ToBoolean(Session["MenuEnable"]))
                         newLocation = "~/Agency/AgencyProfile/" + Session["AgencyID"];
+
+                    //HR manager Dashboard
                     else if (Session["Roleid"].ToString().Contains("2d9822cd-85a3-4269-9609-9aabb914d792"))
                         newLocation = "~/Home/AgencyHRDashboard";
+
+                    //Family Service Worker Dashboard
                     else if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
                         newLocation = "~/Home/AgencystaffDashboard";
+
+                    //Health/ Nurse Dashboard
                     else if (Session["Roleid"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26")
                         newLocation = "~/Home/ApplicationApprovalDashboard";
+
+                    //Home Visitor Dashboard
                     else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
                         newLocation = "~/Home/AgencystaffDashboard";
+
+                    //Teacher Dashboard
                     else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
                         newLocation = "~/Home/TeacherDashBoard";
+
+                    //Social Service Manager Dashboard
                     else if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
                         newLocation = "~/Home/AgencystaffDashboard";
+
+                    // Health Manager Dashboard
+                    else if (Session["Roleid"].ToString() == "9ad1750e-2522-4717-a71b-5916a38730ed")
+                        newLocation = "~/Home/HealthManager";
+
+                    // Executive Manager Dashboard
+                    else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
+                        newLocation = "~/Home/Dashboard";
+
+                    //Disabilities Manager Dashboard
+                    else if (Session["Roleid"].ToString() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80")
+                        newLocation = "~/Home/AgencyDisabilityManagerDashboard";
+
+                    // Mental Health Specialist Dashboard
+                    else if (Session["Roleid"].ToString() == "699168ac-ad2d-48ac-b9de-9855d5dc9af8")
+                        newLocation = "~/MentalHealth/MentalHealthDashboard";
+
+                    //Disability Staff Dashboard
+                    else if (Session["Roleid"].ToString() == "9c34ec8e-2359-4704-be89-d9f4b7706e82")
+                        newLocation = "~/Home/DisabilityStaffDashboard";
+
+                    // Parent Portal Dashboard
+                    else if (Session["Roleid"].ToString().Contains("5ac211b2-7d4a-4e54-bd61-5c39d67a1106"))
+                        newLocation = "~/Parent/ParentInfo";
+
+                    // Billing Manager Dashboard
+                    else if (Session["Roleid"].ToString().ToUpper().Contains("944D3851-75CC-41E9-B600-3FA904CF951F"))
+                        newLocation = "~/Billing/FamilyOverride";
+
+                    // ERSEA Manager Dashboard
+                    else if (Session["Roleid"].ToString().ToUpper().Contains("B65759BA-4813-4906-9A69-E180156E42FC"))
+                        newLocation = "~/ERSEA/ERSEADashboard";
+
+                    // Transportation Manager Dashboard
+                    else if (Session["Roleid"].ToString() == "6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba")
+                        newLocation = "~/Transportation/Dashboard";
+
+                    // Facilities Manager Dashboard
+                    else if (Session["Roleid"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe")
+                        newLocation = "~/Home/AgencyFacilitiesManagerDashboard";
+
+                    // Facilities Worker Dashboard
+                    else if (Session["Roleid"].ToString() == "cb540cea-154c-482e-82a6-c1e0a189f611")
+                        newLocation = "~/Home/FacilityWorkerDashboard";
+
+                    // Education Manager Dashboard
+                    else if (Session["Roleid"].ToString() == "4b77aab6-eed1-4ac3-b498-f3e80cf129c0")
+                        newLocation = "~/EducationManager/EducationManagerDashboard";
+
+
                     else
                         newLocation = "~/Home/Agencyuserdashboard";
                 }

@@ -3386,13 +3386,13 @@ $(window).bind("load resize", function () {
 
     height = ((this.window.innerHeight > 0) ? this.window.innerHeight : this.screen.height) - 1;
 
-    height = height - topOffset;
-    if (height < 1) height = 1;
-    if (height > topOffset) {
-        var fileHeight = height - 25;
-
-        $('.right-side-container-ch').css('min-height', (fileHeight - 0) + 'px');
-    }
+        height = height - topOffset;
+        if (height < 1) height = 1;
+        if (height > topOffset) {
+          //  var fileHeight = height - 25;
+            var fileHeight = height;
+            $('.right-side-container-ch').css('min-height', (fileHeight - 0) + 'px');
+        }
 
     //Functionality to add the height to the child div// based on the screen size//
     var checkedDiv = $('#offline-hist-div').find('input[name=attentyperadio]:checked');

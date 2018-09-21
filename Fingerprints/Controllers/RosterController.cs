@@ -720,7 +720,12 @@ namespace Fingerprints.Controllers
 
                 string UserId = Session["UserID"].ToString();
                 Success = RosterData.SaveMatchProviders(SaveProvider.ReferralDate, SaveProvider.Description, SaveProvider.ServiceResourceId, SaveProvider.AgencyId, UserId, ClientId, SaveProvider.CommunityId, SaveProvider.ReferralClientServiceId);
-                RosterData.YakkarInsert(SaveProvider.AgencyId, UserId, ClientId);
+
+                if(Success)
+                {
+                    RosterData.YakkarInsert(SaveProvider.AgencyId, UserId, ClientId);
+
+                }
 
             }
             catch (Exception ex)
@@ -2490,18 +2495,18 @@ namespace Fingerprints.Controllers
             return RedirectToAction("Roster", "Roster");
         }
 
-        [HttpPost]
-        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        //[HttpPost]
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,a31b1716-b042-46b7-acc0-95794e378b26,82b862e6-1a0f-46d2-aad4-34f89f72369a,047c02fe-b8f1-4a9b-b01f-539d6a238d80,c352f959-cfd5-4902-a529-71de1f4824cc")]
 
-        public JsonResult NextProgramYearTransition(string clientId)
-        {
+        //public JsonResult NextProgramYearTransition(string clientId)
+        //{
 
-            bool isResult = false;
+        //    bool isResult = false;
 
-            isResult = new RosterData().NextProgramYearTransition(clientId);
+        //    isResult = new RosterData().NextProgramYearTransition(clientId);
 
-            return Json(isResult);
-        }
+        //    return Json(isResult);
+        //}
 
 
         [HttpPost]

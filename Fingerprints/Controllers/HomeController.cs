@@ -1581,5 +1581,32 @@ namespace Fingerprints.Controllers
 
         #endregion Absence Report
 
+
+        #region Get ADA Daily Percentage
+
+        [CustAuthFilter()]
+        public JsonResult GetADASeatsDaily()
+        {
+
+            string adaPercentage = string.Empty;
+            string todaySeats = string.Empty;
+            try
+            {
+                 new ExecutiveData().GetADASeatsDaily(ref adaPercentage,ref todaySeats);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(new { adaPercentage, todaySeats }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+
+
+
+
     }
 }
