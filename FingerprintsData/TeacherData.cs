@@ -1807,7 +1807,7 @@ namespace FingerprintsData
                 if (Connection.State == ConnectionState.Open) Connection.Close();
                 Connection.Open();
                 object expireDate = command.ExecuteScalar();
-                if (expireDate != null)
+                if (expireDate != DBNull.Value)
                     ExpirationDate = Convert.ToDateTime(expireDate).ToString("MM/dd/yyyy");
                 else
                     ExpirationDate = expireDate.ToString();
