@@ -3240,13 +3240,16 @@ function alertCall(data) {
     bootbox.alert(data);
 }
 
-function InsertWeeklyAttendanceSubmit(data) {
-    if (data.length > 0) {
-        DataBaseManager.GetAllMeals(callBackInsertGetAllMeals, data);
+    function InsertWeeklyAttendanceSubmit(data) {
+        if (data.length > 0) {
+            DataBaseManager.GetAllMeals(callBackInsertGetAllMeals, data);
+        }
+        else {
+            customAlert('No Changes to Save.');
+        }
+       
+        weeklyAttendance.ShowBusy(false);
     }
-    customAlert('No Changes to Save.');
-    weeklyAttendance.ShowBusy(false);
-}
 
 
 function deleteAllUsersFromDb(attendanceData, mealsData) {
