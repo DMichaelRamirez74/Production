@@ -311,32 +311,37 @@ namespace Fingerprints.Controllers
             return Json(familyList, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
         public JsonResult GetInitialAppointmentByClientId(string clientId)
         {
             Scheduler schedule = new FingerprintsModel.Scheduler();
+            List<Scheduler> scheduleList = new List<FingerprintsModel.Scheduler>();
             try
             {
                 schedule.AgencyId = new Guid(Session["AgencyId"].ToString());
                 schedule.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
-                schedule = new HomevisitorData().GetInitialAppointmentByClientId(schedule);
+                schedule.MeetingDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("MM/dd/yyyy");
+                schedule.EndDate= new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1).ToString("MM/dd/yyyy");
+                schedule = new HomevisitorData().GetInitialAppointmentByClientId(ref scheduleList,schedule);
 
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
-            return Json(schedule, JsonRequestBehavior.AllowGet);
+            return Json(new { schedule, scheduleList }, JsonRequestBehavior.AllowGet);
         }
 
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
-        public JsonResult GetHomeVisitAttendanceByFromDate(string date, string clientId)
+        public JsonResult GetHomeVisitAttendanceByFromDate(string meetingStartdate, string meetingEndDate, string clientId)
         {
             List<Scheduler> schedularList = new List<FingerprintsModel.Scheduler>();
             try
             {
                 Scheduler schedule = new FingerprintsModel.Scheduler();
-                schedule.MeetingDate = date;
+                schedule.MeetingDate = meetingStartdate;
+                schedule.EndDate = meetingEndDate;
                 schedule.Enc_ClientId = clientId;
                 schedule.ClientId =(clientId=="" ||clientId=="0")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
                 schedule.AgencyId = new Guid(Session["AgencyId"].ToString());
@@ -352,7 +357,7 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
-        public JsonResult InsertHistoricalHomeVisit(string scheuleString, string id, string homeVisitorId)
+        public JsonResult InsertHistoricalHomeVisit(string scheuleString, string homeVisitorId)
         {
             List<Scheduler> schedulerList = new List<FingerprintsModel.Scheduler>();
             bool isResult = false;
@@ -364,7 +369,7 @@ namespace Fingerprints.Controllers
                 Guid userId = new Guid(Session["UserID"].ToString());
                 Guid homevisitor = new Guid(homeVisitorId);
 
-                isResult = new HomevisitorData().InsertHistoricalHomeVisit(schedulerList, agencyId, homevisitor, userId, id);
+                isResult = new HomevisitorData().InsertHistoricalHomeVisit(schedulerList, agencyId, homevisitor, userId);
 
 
             }

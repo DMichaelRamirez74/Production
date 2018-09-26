@@ -436,85 +436,76 @@ namespace FingerprintsData
         }
 
 
-        public Scheduler GetInitialAppointmentByClientId(Scheduler schedular)
+        public Scheduler GetInitialAppointmentByClientId(ref List<Scheduler> scheduleList, Scheduler schedular)
         {
 
             ParentDetails parentDetails = new ParentDetails();
 
             try
             {
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyID", schedular.AgencyId));
-                command.Parameters.Add(new SqlParameter("@ClientId", schedular.ClientId));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_GetInitialAppointmentByClient";
                 if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();
-                _dataset = new DataSet();
-                DataAdapter = new SqlDataAdapter(command);
-                DataAdapter.Fill(_dataset);
-                Connection.Close();
-                schedular = new Scheduler();
+                using (Connection = connection.returnConnection())
+                {
+
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", schedular.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@ClientId", schedular.ClientId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetInitialAppointmentByClient";
+                    Connection.Open();
+                    _dataset = new DataSet();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                }
+
                 schedular.ScheduledAppointment = new Scheduler();
                 schedular.ParentDetailsList = new List<ParentDetails>();
+                schedular.MonthsList = new List<SelectListItem>();
+
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        schedular = (from DataRow dr in _dataset.Tables[0].Rows
-                                     select new Scheduler
-                                     {
-                                         ClientId = Convert.ToInt64(dr["ClientId"]),
-                                         MeetingDate = Convert.ToString(dr["MeetingDate"]),
-                                         StartTime = Convert.ToString(dr["StartTime"]),
-                                         EndTime = Convert.ToString(dr["EndTime"]),
-                                         Duration = Convert.ToString(dr["Duration"]),
-                                         IsRepeat = Convert.ToBoolean(dr["IsRecurring"]),
-                                         Day = Convert.ToString(dr["Day"]),
-                                         MeetingId = Convert.ToInt64(dr["ID"])
-                                     }
-                                   ).ToList()[0];
-                    }
-
-                    if (_dataset.Tables[1].Rows.Count > 0)
-                    {
-                        schedular.ParentDetailsList = (from DataRow dr1 in _dataset.Tables[1].Rows
+                        schedular.ParentDetailsList = (from DataRow dr0 in _dataset.Tables[0].Rows
                                                        select new ParentDetails
                                                        {
-                                                           ParentName = dr1["ParentName"].ToString(),
-                                                           ParentRole = (dr1["ParentRole"].ToString() == "1") ? "Father" :
-                                                                        (dr1["ParentRole"].ToString() == "2") ?"Mother":
-                                                                        (dr1["ParentRole"].ToString() == "3") ? "Grandparents" :
-                                                                        (dr1["ParentRole"].ToString() == "4") ? "Relatives other than grandparents" :
-                                                                          (dr1["ParentRole"].ToString() == "5")? "Foster Parent - Not including relative":"Other",
+                                                           ParentName = dr0["ParentName"].ToString(),
+                                                           ParentRole = (dr0["ParentRole"].ToString() == "1") ? "Father" :
+                                                                        (dr0["ParentRole"].ToString() == "2") ? "Mother" :
+                                                                        (dr0["ParentRole"].ToString() == "3") ? "Grandparents" :
+                                                                        (dr0["ParentRole"].ToString() == "4") ? "Relatives other than grandparents" :
+                                                                          (dr0["ParentRole"].ToString() == "5") ? "Foster Parent - Not including relative" : "Other",
 
-                                                           ClientId = dr1["ClientId"].ToString()
+                                                           ClientId = dr0["ClientId"].ToString()
                                                        }
                                                      ).ToList();
                     }
 
-                    if(_dataset.Tables.Count>2 && _dataset.Tables[2].Rows.Count>0)
+
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
                     {
-                        schedular.ScheduledAppointment = (from DataRow dr2 in _dataset.Tables[2].Rows
-                                     select new Scheduler
-                                     {
-                                         ClientId = Convert.ToInt64(dr2["ClientId"]),
-                                         MeetingDate = Convert.ToString(dr2["MeetingDate"]),
-                                         StartTime = Convert.ToString(dr2["StartTime"]),
-                                         EndTime = Convert.ToString(dr2["EndTime"]),
-                                         Duration = Convert.ToString(dr2["Duration"]),
-                                         IsRepeat = Convert.ToBoolean(dr2["IsRecurring"]),
-                                         Day = Convert.ToString(dr2["Day"]),
-                                         MeetingId = Convert.ToInt64(dr2["ID"])
-                                     }
-                                   ).ToList()[0];
+                        schedular.ProgramYearStartDate = Convert.ToString(_dataset.Tables[1].Rows[0]["ProgramYearStartDate"]);
                     }
 
-                    if(_dataset.Tables.Count>3 && _dataset.Tables[3].Rows.Count>0)
+                    if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
                     {
-                        schedular.ProgramYearStartDate = Convert.ToString(_dataset.Tables[3].Rows[0]["ProgramYearStartDate"]);
+                        schedular.MonthsList = (from DataRow dr2 in _dataset.Tables[2].Rows
+                                                select new SelectListItem
+                                                {
+                                                    Text = Convert.ToString(dr2["MonthName"]),
+                                                    Value = Convert.ToString(dr2["MonthDate"]),
+                                                    Selected = Convert.ToBoolean(dr2["Selected"])
+                                                }
+                                              ).ToList();
                     }
+
+
+                    scheduleList = this.GetHomeVisitAttendanceByFromDate(schedular);
+
                 }
 
             }
@@ -579,7 +570,7 @@ namespace FingerprintsData
             return usersList;
         }
 
-        public bool InsertHistoricalHomeVisit(List<Scheduler> schedulerList, Guid agencyId, Guid homeVisitorId, Guid userId, string meetingId)
+        public bool InsertHistoricalHomeVisit(List<Scheduler> schedulerList, Guid agencyId, Guid homeVisitorId, Guid userId)
         {
             int rowsAffected = 0;
             bool isResult = false;
@@ -591,7 +582,6 @@ namespace FingerprintsData
                 {
                     x.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(x.Enc_ClientId));
                     x.StaffId = homeVisitorId;
-                    x.Status = true;
                     x.CreatedDate = x.MeetingDate;
                     x.AgencyId = agencyId;
 
@@ -600,25 +590,32 @@ namespace FingerprintsData
                 schedulerList = schedulerList.Distinct().ToList();
 
                 table = GetHistoricalEntryTable(schedulerList);
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyID", agencyId));
-                command.Parameters.Add(new SqlParameter("@HomeVisitorId", homeVisitorId));
-                command.Parameters.Add(new SqlParameter("@UserId", userId));
-                command.Parameters.Add(new SqlParameter("@ScheduleTable", table));
-                command.Parameters.Add(new SqlParameter("@MeetingId", meetingId));
 
-
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_InsertHistoricalHomeVisit";
-                if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();
-                rowsAffected = command.ExecuteNonQuery();
-                Connection.Close();
-
-                if (rowsAffected > 0)
+                if (Connection.State == ConnectionState.Open)
                 {
-                    isResult = true;
+                    Connection.Close();
+
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", agencyId));
+                    command.Parameters.Add(new SqlParameter("@HomeVisitorId", homeVisitorId));
+                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+                    command.Parameters.Add(new SqlParameter("@ScheduleTable", table));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_InsertHistoricalHomeVisit";
+                    Connection.Open();
+                    rowsAffected = command.ExecuteNonQuery();
+                    Connection.Close();
+
+                    if (rowsAffected > 0)
+                    {
+                        isResult = true;
+                    }
+
                 }
 
             }
@@ -630,6 +627,7 @@ namespace FingerprintsData
             {
                 if (Connection != null)
                     Connection.Close();
+                command.Dispose();
             }
             return isResult;
         }
@@ -640,19 +638,29 @@ namespace FingerprintsData
             List<Scheduler> schedulerList = new List<Scheduler>();
             try
             {
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", scheduler.AgencyId));
-                command.Parameters.Add(new SqlParameter("@ClientId", scheduler.ClientId));
-                command.Parameters.Add(new SqlParameter("@AttendanceDate", scheduler.MeetingDate));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_HomeVisitsAttendanceDetails";
-                if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();
-                _dataset = new DataSet();
-                DataAdapter = new SqlDataAdapter(command);
-                DataAdapter.Fill(_dataset);
-                Connection.Close();
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyId", scheduler.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@ClientId", scheduler.ClientId));
+                    command.Parameters.Add(new SqlParameter("@MeetingStartDate", scheduler.MeetingDate));
+                    command.Parameters.Add(new SqlParameter("@MeetingEndDate", scheduler.EndDate));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_HomeVisitsAttendanceDetails";
+                    Connection.Open();
+                    _dataset = new DataSet();
+                    DataAdapter = new SqlDataAdapter(command);
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -664,7 +672,10 @@ namespace FingerprintsData
                                              ClientId = Convert.ToInt64(dr["ClientId"]),
                                              AttendanceTypeId = Convert.ToInt64(dr["AttendanceType"]),
                                              ParentId1 = Convert.ToString(dr["ParentId1"]),
-                                             ParentId2 = Convert.ToString(dr["ParentId2"])
+                                             ParentId2 = Convert.ToString(dr["ParentId2"]),
+                                             StartTime = string.IsNullOrEmpty(Convert.ToString(dr["TimeIn"])) ? "12:00AM" : Convert.ToString(dr["TimeIn"]),
+                                             EndTime = string.IsNullOrEmpty(Convert.ToString(dr["TimeOut"])) ? "12:00AM" : Convert.ToString(dr["TimeOut"]),
+                                             Duration = Convert.ToString(dr["Duration"])
                                          }).ToList();
                     }
                 }
@@ -676,7 +687,9 @@ namespace FingerprintsData
             }
             finally
             {
-
+                Connection.Dispose();
+                command.Dispose();
+                _dataset.Dispose();
             }
 
             return schedulerList;
@@ -720,7 +733,7 @@ namespace FingerprintsData
                     , item.EndTime
                     , item.MeetingDate
                     , item.Day
-                    , true
+                    , item.Status
                     , item.StaffId
                     , item.Date
                     , item.AgencyId

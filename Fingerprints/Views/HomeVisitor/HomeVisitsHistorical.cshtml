@@ -15,1393 +15,256 @@
 @section Script{
     <script type="text/javascript">
 
-        $(document).ready(function () {
+        var userId = '';
+        var roleId = '';
+        var selectFamily = null;
+        var familyClientId = '';
+        var appointmentDiv = null;
+        var meeting_form = null;
+        var btnMeetingSchedule = null;
+        var parentArray = [];
+        var presentArray = [];
+        var dayArray = [];
+        var prgYearStartDate = '';
+        presentArray = ['11', '13', '16', '17', '18', '19'];
+        dayArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+
+        $(function () {
+
+            selectFamily = $('#familySelect');
+            appointmentDiv = $('#appointment-div');
+            meeting_form = $("#meeting-form");
+            btnMeetingSchedule = $('#btnMeetingSchedule');
+
             $('.timeTextBox').each(function () {
 
                 $(this).mask("99:99", { placeholder: 'HH:MM' });
             });
 
-
-            $('#txtMeetingDate,#txtInitialMeetingDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
-        });
-
-
-        function testTime(time) {
-
-            var element = time;
-            var time = $(time).val();
-            var re = /[0-2]?\d[.:][0-5]\d/;
-            var matches = re.test(time);
-            if (matches == true) {
-                $(element).siblings('select').val('');
-                return true;
-
-            } else {
-                customAlert("Invalid Time Format");
-                return false;
-            }
-
-        }
-
-
-
-        function setatstart(value) {
-            if ($(value).val() == "MM/DD/YYYY") {
-                $(value).val('');
-            }
-
-        }
-
-        function Checkdate(value) {
-
-            isValid = true;
-            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
-                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
-                var regex = new RegExp(dateformat);
-                if (!regex.test($(value).val())) {
-                    customAlert("Invalid date format. ");
-                    $(value).val('');
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-    </script>
-}
-
-@section MainContentHolder{
-    <link href="~/Content/css/homeVisitHistorical.css" rel="stylesheet" />
-
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="right-side-container-ch">
-                <div class="col-xs-12">
-                    <div class="col-xs-12">
-
-                        <div class="col-xs-12 ersea-detl-title">
-                            <h3>Home Visit(s) Historical</h3>
-                            <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
-                        </div>
-
-                        <div class="form-div">
-                            <div class="row">
-                                <div class="col-xs-12" style="margin-bottom:10px;">
-                                    <div class="import-spacing">
-                                        <div class="col-xs-12 col-lg-2 col-sm-4">
-                                            <label class="label_style lbl-required">Home Visitor</label>
-                                        </div>
-
-                                        <div class="col-xs-12 col-lg-4 col-sm-8">
-                                            @Html.DropDownList("ddlHomeVisitors", Fingerprints.Utilities.Helper.GetUsersByRoleId(hvRoleId, Session["RoleId"].ToString(), Session["UserID"].ToString(), Session["AgencyID"].ToString()), new { @class = "ersa-select center-select width-select-change", @onchange = "return loadFamily(this);" })
-                                        </div>
-                                    </div>
-                                    <div class="import-spacing">
-                                        <div class="col-xs-12 col-lg-1 col-sm-4">
-                                            <label class="label_style lbl-required">Family</label>
-                                        </div>
-
-                                        <div class="col-xs-12 col-lg-5 col-sm-8">
-                                            <select class="ersa-select center-select width-select-change" id="familySelect">
-                                                <option value="0"></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <form id="meeting-form">
-                                <div class="outlet-fieldset" id="appointment-div">
-
-                                    @*<fieldset class="col-xs-12">
-                                        <legend style="width:auto!important;" id="initialLegend">Initial Appointment</legend>
-
-                                        <div class="row" style="margin-top:5px;">
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-sm-6">
-                                                    <label class="label_style lbl-required">Initial Meeting Date</label>
-                                                </div>
-                                              
-                                                <div class="col-xs-12 col-sm-6">
-                                                    <div class="input-group date" id="initialMeetingPicker">
-                                                        <input id="txtInitialMeetingDate" style="color:#fff;font-size:14px;background:transparent;width: 113px;margin-right: 0;border-top-right-radius:0;border-bottom-right-radius:0;" type="text" tabindex="2" placeholder="MM/DD/YYYY" class="ersa-select date-input">
-                                                        <span class="input-group-addon" style="width:auto;display:inline-block;vertical-align:top;">
-                                                            <span class="glyphicon glyphicon-calendar"></span>
-                                                        </span>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-lg-4 col-sm-6">
-                                                    <label class="label_style">Day</label>
-                                                </div>
-                                                <div class="col-xs-12 col-lg-8 col-sm-6">
-                                                    <label class="label_style" style="color:#fff;" id="lblInitialDay"></label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="row" style="margin-top:5px;">
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-sm-6">
-                                                    <label class="label_style lbl-required">Start Time</label>
-                                                </div>
-                                               
-                                                <div class="col-xs-12 col-sm-6">
-                                                    <select name="StartTime" id="initialStartTime" class="ersa-select center-select width-select-change" placeholder="From" style="width:152px;">
-                                                        <option value="">--Start Time--</option>
-                                                        <option value="08:00 AM">08:00 AM</option>
-                                                        <option value="08:15 AM">08:15 AM</option>
-
-                                                        <option value="08:30 AM">08:30 AM</option>
-                                                        <option value="08:45 AM">08:45 AM</option>
-
-                                                        <option value="09:00 AM">09:00 AM</option>
-                                                        <option value="09:15 AM">09:15 AM</option>
-
-                                                        <option value="09:30 AM">09:30 AM</option>
-                                                        <option value="09:45 AM">09:45 AM</option>
-
-                                                        <option value="10:00 AM">10:00 AM</option>
-                                                        <option value="10:15 AM">10:15 AM</option>
-
-                                                        <option value="10:30 AM">10:30 AM</option>
-                                                        <option value="10:45 AM">10:45 AM</option>
-
-                                                        <option value="11:00 AM">11:00 AM</option>
-                                                        <option value="11:15 AM">11:15 AM</option>
-
-                                                        <option value="11:30 AM">11:30 AM</option>
-                                                        <option value="11:45 AM">11:45 AM</option>
-
-                                                        <option value="12:00 PM">12:00 PM</option>
-                                                        <option value="12:15 PM">12:15 PM</option>
-
-                                                        <option value="12:30 PM">12:30 PM</option>
-                                                        <option value="12:45 PM">12:45 PM</option>
-
-                                                        <option value="01:00 PM">01:00 PM</option>
-                                                        <option value="01:15 PM">01:15 PM</option>
-
-                                                        <option value="01:30 PM">01:30 PM</option>
-                                                        <option value="01:45 PM">01:45 PM</option>
-
-                                                        <option value="02:00 PM">02:00 PM</option>
-                                                        <option value="02:15 PM">02:15 PM</option>
-
-                                                        <option value="02:30 PM">02:30 PM</option>
-                                                        <option value="02:45 PM">02:45 PM</option>
-
-                                                        <option value="03:00 PM">03:00 PM</option>
-                                                        <option value="03:15 PM">03:15 PM</option>
-
-                                                        <option value="03:30 PM">03:30 PM</option>
-                                                        <option value="03:45 PM">03:45 PM</option>
-
-                                                        <option value="04:00 PM">04:00 PM</option>
-                                                        <option value="04:15 PM">04:15 PM</option>
-
-                                                        <option value="04:30 PM">04:30 PM</option>
-                                                        <option value="04:45 PM">04:45 PM</option>
-
-                                                        <option value="05:00 PM">05:00 PM</option>
-                                                        <option value="05:15 PM">05:15 PM</option>
-
-                                                        <option value="05:30 PM">05:30 PM</option>
-                                                        <option value="05:45 PM">05:45 PM</option>
-
-                                                        <option value="06:00 PM">06:00 PM</option>
-                                                    </select>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-lg-4 col-sm-6">
-                                                    <label class="label_style lbl-required">Duration</label>
-                                                </div>
-                                              
-                                                <div class="col-xs-12 col-lg-8 col-sm-6">
-
-
-
-                                                    <select name="endTime" id="InitialEndTime" class="ersa-select center-select width-select-change" style="width:152px;position:absolute;background:transparent;color:#fff;border:1px solid #fff;">
-                                                        <option value=""></option>
-                                                        <option value="00:30">00:30</option>
-                                                        <option value="01:00">01:00</option>
-                                                        <option value="01:30">01:30</option>
-                                                        <option value="02:00">02:00</option>
-                                                        <option value="02:30">02:30</option>
-                                                        <option value="03:00">03:00</option>
-                                                        <option value="03:30">03:30</option>
-                                                        <option value="04:00">04:00</option>
-                                                    </select>
-
-                                                    <input class="timeTextBox" placeholder="HH:MM" id="TestInitialEndTime" style="height:30px;" name="timebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);" />
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-
-
-                                    </fieldset>*@
-
-
-
-
-
-                                    <fieldset class="col-xs-12" style="margin-top:25px;">
-                                        <legend style="width:272px!important;" id="appointmentLegend">Scheduled Appointment</legend>
-
-                                        <div class="row" style="margin-top:5px;">
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-sm-4">
-                                                    <label class="label_style lbl-required">Meeting Date</label>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6">
-                                                    <div class="input-group date" id="scheduleMeetingPicker">
-                                                        <input id="txtMeetingDate" style="color:#fff;font-size:14px;background:transparent;width: 113px;margin-right: 0;border-top-right-radius:0;border-bottom-right-radius:0;" type="text" tabindex="2" placeholder="MM/DD/YYYY" class="ersa-select date-input">
-                                                        <span class="input-group-addon" style="width:auto;display:inline-block;vertical-align:top;">
-                                                            <span class="glyphicon glyphicon-calendar"></span>
-                                                        </span>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-
-
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-lg-4 col-sm-4">
-                                                    <label class="label_style">Day</label>
-                                                </div>
-                                                <div class="col-xs-12 col-lg-8 col-sm-6">
-                                                    <label class="label_style" style="color:#fff;" id="lblAppointmentDay"></label>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <div class="row" style="margin-top:5px;">
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-sm-4">
-                                                    <label class="label_style lbl-required">Start Time</label>
-                                                </div>
-                                                <div class="col-xs-12 col-sm-6">
-                                                    <select name="StartTime" id="StartTime" class="ersa-select center-select width-select-change" placeholder="From" style="width:152px;">
-                                                        
-                                                        <option value="0">--Select--</option>
-                                                         <option value="08:00 AM">08:00 AM</option>
-                                                        <option value="08:15 AM">08:15 AM</option>
-
-                                                        <option value="08:30 AM">08:30 AM</option>
-                                                        <option value="08:45 AM">08:45 AM</option>
-
-                                                        <option value="09:00 AM">09:00 AM</option>
-                                                        <option value="09:15 AM">09:15 AM</option>
-
-                                                        <option value="09:30 AM">09:30 AM</option>
-                                                        <option value="09:45 AM">09:45 AM</option>
-
-                                                        <option value="10:00 AM">10:00 AM</option>  
-                                                        <option value="10:15 AM">10:15 AM</option>
-
-                                                        <option value="10:30 AM">10:30 AM</option>
-                                                        <option value="10:45 AM">10:45 AM</option>
-
-                                                        <option value="11:00 AM">11:00 AM</option>
-                                                        <option value="11:15 AM">11:15 AM</option>
-
-                                                        <option value="11:30 AM">11:30 AM</option>
-                                                        <option value="11:45 AM">11:45 AM</option>
-
-                                                        <option value="12:00 PM">12:00 PM</option>
-                                                        <option value="12:15 PM">12:15 PM</option>
-
-                                                        <option value="12:30 PM">12:30 PM</option>
-                                                        <option value="12:45 PM">12:45 PM</option>
-
-                                                        <option value="01:00 PM">01:00 PM</option>
-                                                        <option value="01:15 PM">01:15 PM</option>
-
-                                                        <option value="01:30 PM">01:30 PM</option>
-                                                        <option value="01:45 PM">01:45 PM</option>
-
-                                                        <option value="02:00 PM">02:00 PM</option>
-                                                        <option value="02:15 PM">02:15 PM</option>
-
-                                                        <option value="02:30 PM">02:30 PM</option>
-                                                        <option value="02:45 PM">02:45 PM</option>
-
-                                                        <option value="03:00 PM">03:00 PM</option>
-                                                        <option value="03:15 PM">03:15 PM</option>
-
-                                                        <option value="03:30 PM">03:30 PM</option>
-                                                        <option value="03:45 PM">03:45 PM</option>
-
-                                                        <option value="04:00 PM">04:00 PM</option>
-                                                        <option value="04:15 PM">04:15 PM</option>
-
-                                                        <option value="04:30 PM">04:30 PM</option>
-                                                        <option value="04:45 PM">04:45 PM</option>
-
-                                                        <option value="05:00 PM">05:00 PM</option>
-                                                        <option value="05:15 PM">05:15 PM</option>
-
-                                                        <option value="05:30 PM">05:30 PM</option>
-                                                        <option value="05:45 PM">05:45 PM</option>
-
-                                                        <option value="06:00 PM">06:00 PM</option>
-                                                    </select>
-
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
-                                                <div class="col-xs-12 col-lg-4 col-sm-4">
-                                                    <label class="label_style lbl-required">Duration</label>
-                                                </div>
-                                                <div class="col-xs-12 col-lg-8 col-sm-6">
-
-
-
-                                                    <select name="endTime" id="EndTime" class="ersa-select center-select width-select-change" style="width:152px;position:absolute;background:transparent;color:#fff;border:1px solid #fff;">
-                                                        <option value=""></option>
-                                                        <option value="00:30">00:30</option>
-                                                        <option value="01:00">01:00</option>
-                                                        <option value="01:30">01:30</option>
-                                                        <option value="02:00">02:00</option>
-                                                        <option value="02:30">02:30</option>
-                                                        <option value="03:00">03:00</option>
-                                                        <option value="03:30">03:30</option>
-                                                        <option value="04:00">04:00</option>
-                                                    </select>
-
-                                                    <input class="timeTextBox" placeholder="HH:MM" id="TestEndTime" style="height:30px;" name="timebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);" />
-
-                                                    <label class="lblDurationNote">Note! Duration is editable</label>
-
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-
-
-                                    </fieldset>
-
-
-
-
-                                    <div class="col-xs-12 no-padding" id="submit-cancel-div">
-                                        <div class="btnwrp_subcal">
-                                            <button id="btnMeetingSchedule" accesskey="0" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;white-space:nowrap;" type="button" class="my-btn dis-input">Load Form</button>
-                                            <button id="btnExit" style="background: #f9c751;color: #333;font-weight: 600;border-radius: 5px;" class="my-btn" type="button">Cancel</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-
-
-
-                            <div class="list-days-attnd table-responsive" id="table_Meeting_historical" style="display:none;margin-bottom:20px;">
-
-                                <div class="col-xs-12 col-lg-12" style="padding:10px;">
-                                    @*<div class="col-lg-6 text-left">
-                                        <label style="display:initial;color:#337ab7;">Meeting Day : </label><label id="meetingLblDay" style="display:initial;"></label>
-                                    </div>*@
-
-                                    <div class="col-lg-12 col-xs-12 text-right">
-                                        <button id="insertMeetingRecord" accesskey="0" style="font-weight: 600;border-radius: 5px;white-space:nowrap;padding:6px;" type="button" class="btn btn-success">Submit</button>
-
-                                      @*  <label style="display:initial;color:#337ab7;">Total Days : </label><label style="display:initial;" id="totalDaycountLbl">0</label>*@
-                                    </div>
-
-                                </div>
-
-                                <table class="table table-fixed">
-                                    <thead>
-                                        <tr>
-                                            <th>Meeting Date</th>
-                                            <th style="width:14%;">Start Time</th>
-                                            <th style="width:14%;">Duration</th>
-                                            <th>Attendance Type</th>
-                                            <th>Household(s) Present</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="scrollTbody"></tbody>
-                                </table>
-
-
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    @Html.Hidden("roleId", hvRoleId)
-    <input type="hidden" id="EndTimeDuration" name="EndTimeDuration" />
-
-    <div id="attendanceTypeDiv" style="display:none;">
-        @Html.DropDownList("ddlAttendanceType", Fingerprints.Utilities.Helper.GetAttendanceType(Session["AgencyID"].ToString(), Session["UserID"].ToString(), true), new { @class = "ersa-select center-select width-select-change", @onchange = "return loadFamily(this)" })
-    </div>
-
-    <script>
-
-        var userId = '';
-        var roleId = '';
-        var selectFamily = $('#familySelect');
-        var familyClientId = '';
-        var appointmentDiv = $('#appointment-div');
-        var meeting_form = $("#meeting-form");
-        var btnMeetingSchedule = $('#btnMeetingSchedule');
-        var parentArray = [];
-        var presentArray = [];
-        var dayArray = [];
-        presentArray = ['11', '13', '16', '17', '18', '19'];
-        dayArray = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-
-
-        function isDate(txtDate) {
-            var currVal = txtDate;
-            if (currVal == '')
-                return false;
-
-            var rxDatePattern = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/; //Declare Regex
-            var dtArray = currVal.match(rxDatePattern); // is format OK?
-
-            if (dtArray == null)
-                return false;
-
-            //Checks for mm/dd/yyyy format.
-            dtMonth = dtArray[1];
-            dtDay = dtArray[3];
-            dtYear = dtArray[5];
-
-            if (dtMonth < 1 || dtMonth > 12)
-                return false;
-            else if (dtDay < 1 || dtDay > 31)
-                return false;
-            else if ((dtMonth == 4 || dtMonth == 6 || dtMonth == 9 || dtMonth == 11) && dtDay == 31)
-                return false;
-            else if (dtMonth == 2) {
-                var isleap = (dtYear % 4 == 0 && (dtYear % 100 != 0 || dtYear % 400 == 0));
-                if (dtDay > 29 || (dtDay == 29 && !isleap))
-                    return false;
-            }
-            return true;
-        }
-
-        function loadFamily(ele) {
-            userId = $(ele, 'option:selected').val();
-            roleId = $('#roleId').val();
-            if (userId === '0') {
-                $('#appointment-div').hide();
-                $('#familySelect').find('option').remove();
-                return false;
-            }
-
-            $.ajax({
-                url: '/HomeVisitor/GetFamiliesUnderUser',
-                type: 'post',
-                datatype: 'json',
-                data: { userId: userId, roleId: roleId },
-                success: function (data) {
-                    var appendOption = '';
-                    if (data != null) {
-                        if (data.length > 0) {
-                            appendOption += '<option value=0>--Select Family--</option>';
-                            $.each(data, function (i, family) {
-                                appendOption += '<option value=' + family.Value + '>' + family.Text + '</option>';
-                            });
-                        }
-
-                    }
-                    selectFamily.html(appendOption);
-
-                },
-                error: function (data) {
-                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                }
-            });
-        }
-
-
-        function loadAppointmentInfo(ele) {
-
-            familyClientId = $(ele, 'option:selected').val();
-
-
-            $.ajax({
-                url: '/HomeVisitor/GetInitialAppointmentByClientId',
-                type: 'post',
-                datatype: 'json',
-                beforSend:function(){$('#spinner').show()},
-                data: { clientId: familyClientId },
-                success: function (data) {
-                    if (data != null) {
-
-                        //appointmentDiv.find('#lblInitialDay').html(dayArray[data.Day]);
-                        //appointmentDiv.find('#txtInitialMeetingDate').val(data.MeetingDate);
-                        //appointmentDiv.find('#initialStartTime').val(data.StartTime);
-                        //appointmentDiv.find('#TestInitialEndTime').val(data.Duration);
-                        //appointmentDiv.find('#btnMeetingSchedule').attr({ 'accesskey': data.MeetingId });
-                        //if (data.ScheduledAppointment != null) {
-                        //    appointmentDiv.find('#lblAppointmentDay').html(dayArray[data.ScheduledAppointment.Day]);
-                        //    appointmentDiv.find('#txtMeetingDate').val(data.ScheduledAppointment.MeetingDate);
-                        //    appointmentDiv.find('#StartTime').val(data.ScheduledAppointment.StartTime);
-                        //    appointmentDiv.find('#TestEndTime').val(data.ScheduledAppointment.Duration);
-                        //}
-
-                        $('#txtMeetingDate').datetimepicker('destroy');
-
-                        $('#txtMeetingDate').datetimepicker({
-                            timepicker: false,
-                            format: 'm/d/Y',
-                            validateOnBlur: false,
-                            minDate: new Date(data.ProgramYearStartDate),
-                            maxDate: new Date()
-                        }).on('change', function () {
-                            cleanValidation();
-
-                            $('#lblAppointmentDay').html(dayArray[new Date($(this).val()).getDay()]);
-
-                        }).on('blur', function () {
-
-                            cleanValidation();
-
-                            if ($(this).val() != null && $(this).val() != '') {
-                                if (!isDate($(this).val())) {
-                                    $(this).val('');
-                                    customAlert('Please enter valid date');
-                                }
-                                else if (new Date($(this).val()).setHours(0, 0, 0, 0) < new Date(data.ProgramYearStartDate).setHours(0, 0, 0, 0)) {
-                                    plainValidation('#txtMeetingDate');
-                                    customAlert('Meeting date should be greater than program year start date.');
-                                }
-
-                                else if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
-                                    plainValidation('#txtMeetingDate');
-                                    customAlert("Meeting date should not greater than today's date");
-                                }
-                            }
-
-                        });
-
-
-                        appointmentDiv.show();
-                        if (data.ParentDetailsList.length > 0) {
-                            parentArray = data.ParentDetailsList;
-                        }
-                    }
-                },
-                error: function (data) {
-                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                },
-                complete: function () {
-                    $('#spinner').hide();
-                }
-            });
-
-        }
-
-        function get12HoursTo24HoursTime(time) {
-            //var time = '02:05 AM';
-
-            var hours = Number(time.match(/^(\d+)/)[1]);
-            var minutes = Number(time.match(/:(\d+)/)[1]);
-            var AMPM = time.match(/\s(.*)$/)[1].toLowerCase();
-
-            if (AMPM == "pm" && hours < 12) hours = hours + 12;
-            if (AMPM == "am" && hours == 12) hours = hours - 12;
-            var sHours = hours.toString();
-            var sMinutes = minutes.toString();
-            if (hours < 10) sHours = "0" + sHours;
-            if (minutes < 10) sMinutes = "0" + sMinutes;
-            return sHours + ':' + sMinutes;
-        }
-
-
-        function getTime() {
-
-            var dateselect = $('#txtMeetingDate').val();
-            var time1 = $('#StartTime').val();
-            var time2 = $('#TestEndTime').val();
-            var am_pm = "AM";
-            var Starttimehours = time1.substring(0, 1);
-
-            //  var totalstarttime = starttime.substring(0, 5);
-            time1 = get12HoursTo24HoursTime(time1);
-            var min1 = GetMinutes(time1.toString());
-            var min2 = GetMinutes(time2.toString());
-            var totalMins = parseInt(min1 + min2);
-            var hours = parseInt((totalMins % (60 * 24)) / 60);
-            var mins = parseInt((totalMins % (60 * 24)) % 60);
-            if (mins == 0) {
-                mins = "00";
-            }
-            if (hours >= 12) {
-                am_pm = "PM";
-                if (hours > 12) {
-                    hours = (hours - 12);
-                    hours = (hours <= 9) ? '0' + hours : hours;
-                }
-            }
-
-            $('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
-        }
-
-
-        function getTimeBasedOnDuration(meetingDate, startTime, Duration) {
-
-            var dateselect = meetingDate;
-            var time1 = startTime;
-            var time2 = Duration;
-            var am_pm = "AM";
-            var Starttimehours = time1.substring(0, 1);
-
-            //  var totalstarttime = starttime.substring(0, 5);
-            time1 = get12HoursTo24HoursTime(time1);
-            var min1 = GetMinutes(time1.toString());
-            var min2 = GetMinutes(time2.toString());
-            var totalMins = parseInt(min1 + min2);
-            var hours = parseInt((totalMins % (60 * 24)) / 60);
-            var mins = parseInt((totalMins % (60 * 24)) % 60);
-            if (mins == 0) {
-                mins = "00";
-            }
-            if (hours >= 12) {
-                am_pm = "PM";
-                if (hours > 12) {
-                    hours = (hours - 12);
-                    hours = (hours <= 9) ? '0' + hours : hours;
-                }
-            }
-
-            return hours + ":" + mins + " " + am_pm;
-        }
-
-        function GetMinutes(timeStr) {
-
-            var str = timeStr.split(':');
-
-            var hours = parseInt(str[0]);
-            var mins = parseInt(str[1]);
-            //if (hours >= 12)
-            //{
-            //    hours = hours - 12;
-            //}
-            var totalMins = hours * 60 + mins;
-
-            return totalMins;
-        }
-
-        function checkInfo() {
-
-
-            var isValid = true;
-
-            cleanValidation();
-
-            //if ($('#txtInitialMeetingDate')[0].value.trim() == '') {
-            //    isValid = false;
-            //    customAlert("Please enter initial meeting date.");
-            //    plainValidation('#txtInitialMeetingDate');
-            //    return isValid;
-            //}
-            //if ($('#initialStartTime')[0].value.trim() == '') {
-            //    isValid = false;
-            //    customAlert("Please enter initial meeting start time.");
-            //    plainValidation('#initialStartTime');
-            //    return isValid;
-            //}
-            //if ($('#TestInitialEndTime')[0].value.trim() == '') {
-            //    isValid = false;
-            //    customAlert("Please enter initial meeting duration.");
-            //    plainValidation('#InitialEndTime');
-            //    return isValid;
-            //}
-
-            if ($('#txtMeetingDate')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Please enter scheduled meeting date.");
-                plainValidation('#txtMeetingDate');
-                return isValid;
-            }
-
-
-            if (new Date($('#txtMeetingDate').val()).setHours(0, 0, 0) > new Date().setHours(0, 0, 0)) {
-                isValid = false;
-                customAlert("Meeting date should not greater than today's date");
-                plainValidation('#txtMeetingDate');
-                return isValid;
-            }
-
-
-            if ($('#StartTime')[0].value.trim() == "" ||$('#StartTime')[0].value=="0") {
-                isValid = false;
-                customAlert("Please select meeting start time.");
-                plainValidation('#StartTime');
-                return isValid;
-            }
-            if ($('#TestEndTime')[0].value.trim() == "") {
-                isValid = false;
-                customAlert("Please enter Duration.");
-                plainValidation('#EndTime');
-                return isValid;
-            }
-
-
-            //if (new Date($('#txtInitialMeetingDate').val()).setHours(0, 0, 0) > new Date($('#txtMeetingDate').val()).setHours(0, 0, 0)) {
-            //    isValid = false;
-            //    customAlert("Inital meeting date should not greater than Scheduled meeting date");
-            //    plainValidation('#txtInitialMeetingDate');
-            //    plainValidation('#txtMeetingDate');
-            //    return isValid;
-            //}
-
-            return true;
-        }
-
-        function loadForm() {
-            if (checkInfo()) {
-                getTime();
-                GetAttendanceDetailsFromDate();
-
-
-            }
-
-
-
-        }
-
-        function getFormattedDate(date) {
-            date = new Date(date);
-            var year = date.getFullYear();
-
-            var month = (1 + date.getMonth()).toString();
-            month = month.length > 1 ? month : '0' + month;
-
-            var day = date.getDate().toString();
-            day = day.length > 1 ? day : '0' + day;
-
-            return month + '/' + day + '/' + year;
-        };
-
-        function LoadDates(fromDate, day) {
-
-            var daysArray = [];
-
-            var x = new Date(fromDate);
-            //set the financial year starting date
-            x.setFullYear(x.getFullYear(), x.getMonth(), x.getDate());
-            //set the next financial year starting date
-            var y = new Date();
-            y.setFullYear(y.getFullYear(), y.getMonth(), y.getDate());
-            var j = 1;
-            var count = 0;
-            //getting the all mondays in a financial year
-            for (var i = 0; x < y; i += j) {
-                if (x.getDay() === parseInt(day)) {
-
-                    daysArray.push(getFormattedDate(x));
-
-                    //document.write("Date : " + x.getDate() + "/" +
-                    //  (x.getMonth() + 1) + "<br>");
-
-                    x = new Date(x.getTime() + (7 * 24 * 60 * 60 * 1000));
-                    j = 7;
-                    count++;
-                } else {
-                    j = 1;
-                    x = new Date(x.getTime() + (24 * 60 * 60 * 1000));
-                }
-            }
-
-            return daysArray;
-        }
-
-
-        function getWeekDatesFromCurrentDate(dateEntered) {
-
-            var startDate = new Date(dateEntered)
-            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
-
-            var dates = [],
-                currentDate = startDate,
-                addDays = function (days) {
-                    var date = new Date(this.valueOf());
-                    date.setDate(date.getDate() + days);
-                    return date;
-                };
-            while (currentDate <= endDate) {
-
-                var todayDate = new Date().setHours(0, 0, 0, 0);
-                var curDate = new Date(currentDate).setHours(0, 0, 0, 0);
-
-                if (curDate <= todayDate) {
-                    dates.push(getFormattedDate(currentDate));
-                }
-
-
-                currentDate = addDays.call(currentDate, 1);
-            }
-
-
-            return dates;
-
-        }
-
-
-        function getWeekDaysByCurrentDate(dateEntered) {
-
-
-
-            var startDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay()))
-            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
-
-
-            var dates = [],
-                currentDate = startDate,
-                addDays = function (days) {
-                    var date = new Date(this.valueOf());
-                    date.setDate(date.getDate() + days);
-                    return date;
-                };
-            while (currentDate <= endDate) {
-
-
-                var todayDate = new Date().setHours(0, 0, 0, 0);
-                var curDate = new Date(currentDate).setHours(0, 0, 0, 0);
-
-                if (curDate <= todayDate) {
-                    dates.push(getFormattedDate(currentDate));
-                }
-
-                currentDate = addDays.call(currentDate, 1);
-            }
-            return dates;
-
-        }
-
-
-        function bindGrid(data, attendanceData) {
-            var bindBody = '';
-            var parentName = '';
-
-            var ini = 0;
-
-
-            if (data.length > 0) {
-
-
-                var startTime = $('#StartTime').val();
-                var duration = $('#TestEndTime').val();
-
-                $.each(data, function (i, grid) {
-
-                    //  var inc = i + 1;
-                    var inc = i;
-                    parentName = '<span class="overfill" id="parentSpan_' + inc + '" style="display:none;">';
-
-                    if (parentArray.length > 0) {
-                        $.each(parentArray, function (j, parent) {
-
-                            parentName += '<span class="overfill"><input type="checkbox" parent-id=' + parent.ClientId + '>&nbsp;<span>' + parent.ParentName + ' (' + parent.ParentRole + ')</span></span><br>'
-
-                        });
-                    }
-
-                    parentName += '</span>';
-
-                    bindBody += '<tr>\
-                                        <td class="td_date' + inc + ' date_change_td">\
-                                        <span class="datespan_master_' + inc + '">\
-                                        <span class="datespan_child_' + inc + '">' + grid + '</span>\
-                                        </span>\
-                                        </td>\
-                                        <td class="start-time-td" style="width:14%;">'+ startTime + '</td>\
-                                        <td class="imp-plus duration-td" style="width:14%;">'+ duration + '</td>\
-                                        <td class="attendancetype_td">\
-                                            <select style="width:100%;" class="ersa-select center-select width-select-change attendance_select" onchange=showParent(this); id="attendanceType_' + inc + '" name="attendanceType">' + $('#ddlAttendanceType').html() + '\
-                                       </select>\
-                                        </td>\
-                                        <td class="parent-td">' + parentName + '</td>\
-                                    </tr>';
-                });
-
-                $('#scrollTbody').html(bindBody);
-
-                $('#scrollTbody').find('.start-time-table').val($('#StartTime').val()).prop('disabled', false);
-
-                $('#scrollTbody').find('.timeTextBox,.editableBox').val($('#TestEndTime').val()).prop('disabled', false);
-
-
-                if ($('#scrollTbody').find('tr').length > 0) {
-
-                    $('#scrollTbody').find('tr').each(function (k, row) {
-                        var attendanceDates = [];
-                        var anchr = '';
-
-                       
-
-                        anchr = $(row).find('td').eq(0).find('.datespan_child_' + k + '').html();
-                        attendanceDates.push(anchr);
-
-                        var attendList = $.grep(attendanceData, function (element) { return attendanceDates.indexOf(element.MeetingDate) > -1 });
-
-
-
-                        if (attendList.length > 0) {
-
-
-                            $(row).find('td').eq(0).find('.datespan_child_' + k + '').text(attendList[0].MeetingDate);
-
-
-
-                            $(row).find('td').eq(3).find('#attendanceType_' + k + '').val(attendList[0].AttendanceTypeId).prop('disabled', false)
-
-                            if (presentArray.indexOf(attendList[0].AttendanceTypeId.toString()) > -1) {
-
-                                $(row).find('td').eq(4).find('#parentSpan_' + k + '').show();
-
-                                if (attendList[0].ParentId1 != '') {
-
-                                    $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId1 + ']').attr({ 'checked': true, 'disabled': false });
-                                    $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': false });
-                                }
-                                if (attendList[0].ParentId2 != '') {
-                                    $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId2 + ']').attr({ 'checked': true, 'disabled': false });
-                                    $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': false });
-                                }
-
-                            }
-                            else {
-                                $(row).find('td').eq(4).find('#parentSpan_' + k + '').hide();
-                            }
-
-                        }
-
-
-                    });
-
-                }
-
-
-
-                $('#table_Meeting_historical').show();
-
-                $('#submit-meeting-div').show();
-
-
-                //dynamic change of table body height//
-                var bodyHeight = 0;
-                var rowCount = 0;
-
-                $('#scrollTbody').find('tr').each(function () {
-                    bodyHeight += $(this).height();
-                    rowCount++;
-                });
-
-                if (rowCount <= 6) {
-                    $('#scrollTbody').css({ "width": "98.6%" });
-                }
-                else {
-                    $('#scrollTbody').css({ "width": "100%" });
-                }
-
-                $('#scrollTbody').find('.timeTextBox').each(function () {
+            $('.date-input').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+            $('.remove-appoint').tooltip();
+
+            $('#addAppointmentBtn').on('click', function () {
+                debugger;
+                var fieldSetlength = $('#divattachappointment').find('fieldset').length + 1;
+
+                $('#divattachappointment').append('<fieldset class="col-xs-12 attach_' + fieldSetlength + '" style="margin-top:10px;position:relative;">\
+                                            <i class="fa fa-times scheduled-close remove-appoint" title="Remove appointment" onclick="removeAppointment(this);"></i>\
+                                            <legend style="width:272px!important;">Scheduled Appointment</legend>\
+                                            <div class="row" style="margin-top:5px;">\
+                                                <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:8px;">\
+                                                    <div class="col-xs-12 col-sm-4">\
+                                                        <label class="label_style lbl-required">Meeting Date</label>\
+                                                    </div>\
+                                                    <div class="col-xs-12 col-lg-6 col-sm-8">\
+                                                        <div class="input-group date scheduleMeetingPicker">\
+                                                            <input type="text" tabindex="2" placeholder="MM/DD/YYYY" class="date-input" name="date-input">\
+                                                            <span class="input-group-addon" style="width:auto;display:inline-block;vertical-align:top;cursor:pointer;">\
+                                                                <span class="glyphicon glyphicon-calendar"></span>\
+                                                            </span>\
+                                                        </div>\
+                                                    </div>\
+                                                </div>\
+                                               <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">\
+                                                    <div class="col-xs-12 col-sm-4">\
+                                                        <label class="label_style lbl-required">Start Time</label>\
+                                                    </div>\
+                                                    <div class="col-xs-12 col-lg-6 col-sm-8">\
+                                                        <select name="StartTime"  class="ersa-select center-select width-select-change" placeholder="From">\
+                                                            <option value="0">--Select--</option>\
+                                                            <option value="08:00 AM">08:00 AM</option>\
+                                                            <option value="08:15 AM">08:15 AM</option>\
+                                                            <option value="08:30 AM">08:30 AM</option>\
+                                                            <option value="08:45 AM">08:45 AM</option>\
+                                                            <option value="09:00 AM">09:00 AM</option>\
+                                                            <option value="09:15 AM">09:15 AM</option>\
+                                                            <option value="09:30 AM">09:30 AM</option>\
+                                                            <option value="09:45 AM">09:45 AM</option>\
+                                                            <option value="10:00 AM">10:00 AM</option>\
+                                                            <option value="10:15 AM">10:15 AM</option>\
+                                                            <option value="10:30 AM">10:30 AM</option>\
+                                                            <option value="10:45 AM">10:45 AM</option>\
+                                                            <option value="11:00 AM">11:00 AM</option>\
+                                                            <option value="11:15 AM">11:15 AM</option>\
+                                                            <option value="11:30 AM">11:30 AM</option>\
+                                                            <option value="11:45 AM">11:45 AM</option>\
+                                                            <option value="12:00 PM">12:00 PM</option>\
+                                                            <option value="12:15 PM">12:15 PM</option>\
+                                                            <option value="12:30 PM">12:30 PM</option>\
+                                                            <option value="12:45 PM">12:45 PM</option>\
+                                                            <option value="01:00 PM">01:00 PM</option>\
+                                                            <option value="01:15 PM">01:15 PM</option>\
+                                                            <option value="01:30 PM">01:30 PM</option>\
+                                                            <option value="01:45 PM">01:45 PM</option>\
+                                                            <option value="02:00 PM">02:00 PM</option>\
+                                                            <option value="02:15 PM">02:15 PM</option>\
+                                                            <option value="02:30 PM">02:30 PM</option>\
+                                                            <option value="02:45 PM">02:45 PM</option>\
+                                                            <option value="03:00 PM">03:00 PM</option>\
+                                                            <option value="03:15 PM">03:15 PM</option>\
+                                                            <option value="03:30 PM">03:30 PM</option>\
+                                                            <option value="03:45 PM">03:45 PM</option>\
+                                                            <option value="04:00 PM">04:00 PM</option>\
+                                                            <option value="04:15 PM">04:15 PM</option>\
+                                                            <option value="04:30 PM">04:30 PM</option>\
+                                                            <option value="04:45 PM">04:45 PM</option>\
+                                                            <option value="05:00 PM">05:00 PM</option>\
+                                                            <option value="05:15 PM">05:15 PM</option>\
+                                                            <option value="05:30 PM">05:30 PM</option>\
+                                                            <option value="05:45 PM">05:45 PM</option>\
+                                                            <option value="06:00 PM">06:00 PM</option>\
+                                                        </select>\
+                                                    </div>\
+                                                </div>\
+                                            </div>\
+                                            <div class="row" style="margin-top:5px;">\
+                                                <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">\
+                                                    <div class="col-xs-12 col-lg-4 col-sm-4">\
+                                                        <label class="label_style lbl-required">Duration</label>\
+                                                    </div>\
+                                                    <div class="col-xs-12 col-lg-8 col-sm-8">\
+                                                        <select name="endTime"  class="ersa-select center-select width-select-change endtimeselect" style="width:152px;position:absolute;background:transparent;color:#fff;border:1px solid #fff;">\
+                                                            <option value=""></option>\
+                                                            <option value="00:30">00:30</option>\
+                                                            <option value="01:00">01:00</option>\
+                                                            <option value="01:30">01:30</option>\
+                                                            <option value="02:00">02:00</option>\
+                                                            <option value="02:30">02:30</option>\
+                                                            <option value="03:00">03:00</option>\
+                                                            <option value="03:30">03:30</option>\
+                                                            <option value="04:00">04:00</option>\
+                                                        </select>\
+                                                        <input class="timeTextBox" placeholder="HH:MM"  style="height:30px;" name="timebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);" />\
+                                                        <label class="lblDurationNote">Note! Duration is editable</label>\
+                                                    </div>\
+                                                </div>\
+                                                <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">\
+                                                    <div class="col-xs-12 col-sm-4">\
+                                                        <label class="label_style lbl-required">Attendance Type</label>\
+                                                    </div>\
+                                                    <div class="col-xs-12 col-lg-6 col-sm-8">\
+                                                        <select class="ersa-select center-select width-select-change attendance_select" onchange="showParent(this,1);"  name="attendanceType">\
+                                                            <option value="0">--Select--</option>\
+                                                            <option value="11">Home Visit Present</option>\
+                                                            <option value="12">Home Visit No Show</option>\
+                                                            <option value="13">Home Visit Field Trip</option>\
+                                                            <option value="14">Home Visit Parent Cancels</option>\
+                                                            <option value="15">Home Visit Staff Cancels</option>\
+                                                            <option value="16">Home Visit Preg Mother</option>\
+                                                            <option value="17">Home Visit Socialization</option>\
+                                                            <option value="18">Home Visit Transition</option>\
+                                                            <option value="19">Home Visit Make up</option>\
+                                                        </select>\
+                                                    </div>\
+                                                </div>\
+                                                <div class="col-lg-6 col-xs-12 col-sm-12 pd-0 home-visit-parent" style="margin-bottom:10px;">\
+                                                    <div class="col-xs-12 col-sm-4" style="padding-right:0;">\
+                                                        <label class="label_style lbl-required">Guardian Present</label>\
+                                                    </div>\
+                                                    <div class="col-xs-12 col-lg-6 col-sm-8 parent-div">\
+                                                    </div>\
+                                                </div>\
+                                            </div>\
+                                        </fieldset>');
+
+
+                $('.attach_' + fieldSetlength + '').find('.timeTextBox').each(function () {
 
                     $(this).mask("99:99", { placeholder: 'HH:MM' });
                 });
 
-                $('html, body').animate({ scrollTop: $('#table_Meeting_historical').offset().top - 50 }, 1000);
+                $('.attach_' + fieldSetlength + '').find('.date-input').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                $('.attach_' + fieldSetlength + '').find('.date-input').datetimepicker({
+                    timepicker: false,
+                    format: 'm/d/Y',
+                    validateOnBlur: false,
+                    minDate: new Date(prgYearStartDate),
+                    maxDate: new Date()
+                }).on('change', function () {
+
+
+                    $(this).css({ 'background-color': '' });
+                    debugger;
+                    if ($(this).val() != null && $(this).val() != '') {
+                        if (!isDate($(this).val())) {
+                            $(this).val('');
+                            customAlert('Please enter valid date');
+                        }
+                        else if (new Date($(this).val()).setHours(0, 0, 0, 0) < new Date(prgYearStartDate).setHours(0, 0, 0, 0)) {
+                            $(this).css({ 'background-color': 'pink' });
+                            customAlert('Meeting date should be greater than program year start date.');
+                        }
+
+                        else if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                            $(this).css({ 'background-color': 'pink' });
+                            customAlert("Meeting date should not greater than today's date");
+                        }
+                        else {
+                            GetAttendanceDetailsFromDate(this, 1);
+                        }
+                    }
+
+                }).on('blur', function () {
+
+                    $(this).css({ 'background-color': '' });
+
+                    if ($(this).val() != null && $(this).val() != '') {
+                        if (!isDate($(this).val())) {
+                            $(this).val('');
+                            customAlert('Please enter valid date');
+                        }
+                        else if (new Date($(this).val()).setHours(0, 0, 0, 0) < new Date(prgYearStartDate).setHours(0, 0, 0, 0)) {
+                            $(this).css({ 'background-color': 'pink' });
+                            customAlert('Meeting date should be greater than program year start date.');
+                        }
+
+                        else if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                            $(this).css({ 'background-color': 'pink' });
+                            customAlert("Meeting date should not greater than today's date");
+                        }
+                        else {
+                            //// GetAttendanceDetailsFromDate(this);
+                        }
+                    }
 
-            }
-        }
-
-        //function bindGrid(data, attendanceData) {
-        //    debugger;
-        //    var bindBody = '';
-        //    var parentName = '';
-
-        //    var ini = 0;
-        //    parentName = '<span class="overfill" id="parentSpan_' + ini + '" style="display:none;">';
-
-        //    if (parentArray.length > 0) {
-        //        $.each(parentArray, function (j, parent) {
-
-        //            parentName += '<span class="overfill"><input type="checkbox" parent-id=' + parent.ClientId + '>&nbsp;<span>' + parent.ParentName + ' (' + parent.ParentRole + ')</span></span><br>'
-
-        //        });
-        //    }
-
-        //    parentName += '</span>';
-
-
-        //    bindBody += '<tr>\
-        //                                <td class="td_date' + ini + ' date_change_td"><select class="dates_drop_down_' + ini + '" style="display:none;" onchange="changeDate(this,' + ini + ');" ></select><span class="datespan_master_' + ini + '"><span class="datespan_child_' + ini + '">' + $('#txtInitialMeetingDate').val() + '</span>\
-        //                                </span></td>\
-        //                                <td class="start-time-td" style="width:14%;">' + $('#initialStartTime').val() + '</td>\
-        //                                <td class="imp-plus duration-td" style="width:14%;">' + $('#TestInitialEndTime').val() + '</td>\
-        //                                <td class="attendancetype_td">\
-        //                                    <select style="width:100%;" class="ersa-select center-select width-select-change attendance_select" onchange=showParent(this); id="attendanceType_' + ini + '" name="attendanceType">' + $('#ddlAttendanceType').html() + '\
-        //                               </select>\
-        //                                </td>\
-        //                                <td class="parent-td">' + parentName + '</td>\
-        //                            </tr>';
-
-
-        //    if (data.length > 0) {
-
-
-        //        var startTime = $('#StartTime').val();
-        //        var duration = $('#TestEndTime').val();
-
-        //        $.each(data, function (i, grid) {
-
-        //            var inc = i + 1;
-        //            parentName = '<span class="overfill" id="parentSpan_' + inc + '" style="display:none;">';
-
-        //            if (parentArray.length > 0) {
-        //                $.each(parentArray, function (j, parent) {
-
-        //                    parentName += '<span class="overfill"><input type="checkbox" parent-id=' + parent.ClientId + '>&nbsp;<span>' + parent.ParentName + ' (' + parent.ParentRole + ')</span></span><br>'
-
-        //                });
-        //            }
-
-        //            parentName += '</span>';
-
-        //            bindBody += '<tr>\
-        //                                <td class="td_date' + inc + ' date_change_td"><select class="dates_drop_down_' + inc + '" style="display:none;" onchange="changeDate(this,' + inc + ');" ></select><span class="datespan_master_' + inc + '"><span class="datespan_child_' + inc + '">' + grid + '</span>&nbsp;<a href="javascript:void(0);" org-meet-date=' + grid + ' meet_date=' + grid + ' old_date=' + grid + ' onclick="editDate(this,' + inc + ');" title="Edit Meeting Date"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></span></td>\
-        //                                <td class="start-time-td" style="width:14%;">'+ startTime + '</td>\
-        //                                <td class="imp-plus duration-td" style="width:14%;">'+ duration + '</td>\
-        //                                <td class="attendancetype_td">\
-        //                                    <select style="width:100%;" class="ersa-select center-select width-select-change attendance_select" onchange=showParent(this); id="attendanceType_' + inc + '" name="attendanceType">' + $('#ddlAttendanceType').html() + '\
-        //                               </select>\
-        //                                </td>\
-        //                                <td class="parent-td">' + parentName + '</td>\
-        //                            </tr>';
-        //        });
-
-        //        $('#scrollTbody').html(bindBody);
-
-        //        $('#scrollTbody').find('.start-time-table').val($('#StartTime').val()).prop('disabled', true);
-
-        //        $('#scrollTbody').find('.timeTextBox,.editableBox').val($('#TestEndTime').val()).prop('disabled', true);
-
-
-        //        data.push($('#txtInitialMeetingDate').val());
-
-        //        if ($('#scrollTbody').find('tr').length > 0) {
-
-        //            $('#scrollTbody').find('tr').each(function (k, row) {
-        //                var attendanceDates = [];
-        //                var anchr = '';
-
-        //                if (k === 0) {
-        //                    anchr = $(row).find('td').eq(0).find('.datespan_child_' + k + '').html();
-        //                    attendanceDates.push(anchr);
-        //                }
-        //                else {
-        //                    anchr = $(row).find('td').eq(0).find('a').attr('old_date');
-
-        //                    attendanceDates = getWeekDaysByCurrentDate(anchr);
-        //                }
-
-
-
-        //                var attendList = $.grep(attendanceData, function (element) { return attendanceDates.indexOf(element.MeetingDate) > -1 });
-
-
-
-        //                if (attendList.length > 0) {
-
-        //                    $(row).find('td').eq(0).find('a').attr({ 'meet_date': attendList[0].MeetingDate, 'onclick': '' }).children('i').remove();
-
-        //                    $(row).find('td').eq(0).find('.datespan_child_' + k + '').text(attendList[0].MeetingDate);
-
-                        
-
-        //                    $(row).find('td').eq(3).find('#attendanceType_' + k + '').val(attendList[0].AttendanceTypeId).prop('disabled', true)
-
-        //                    if (presentArray.indexOf(attendList[0].AttendanceTypeId.toString()) > -1) {
-
-        //                        $(row).find('td').eq(4).find('#parentSpan_' + k + '').show();
-
-        //                        if (attendList[0].ParentId1 != '') {
-
-        //                            $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId1 + ']').attr({ 'checked': true, 'disabled': true });
-        //                            $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': true });
-        //                        }
-        //                        if (attendList[0].ParentId2 != '') {
-        //                            $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId2 + ']').attr({ 'checked': true, 'disabled': true });
-        //                            $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': true });
-        //                        }
-
-        //                    }
-        //                    else {
-        //                        $(row).find('td').eq(4).find('#parentSpan_' + k + '').hide();
-        //                    }
-
-        //                }
-
-
-        //            });
-
-        //        }
-
-
-
-        //        $('#table_Meeting_historical').show();
-
-        //        $('#submit-meeting-div').show();
-
-        //        $('#meetingLblDay').html($('#lblAppointmentDay').html());
-               
-
-        //        $('#totalDaycountLbl').html($('#scrollTbody').find('tr').length);
-
-
-        //        //dynamic change of table body height//
-        //        var bodyHeight = 0;
-        //        var rowCount = 0;
-        //        $('#scrollTbody').find('tr').each(function () {
-        //            bodyHeight += $(this).height();
-        //            rowCount++;
-        //        });
-
-        //        if (rowCount <= 6) {
-        //            $('#scrollTbody').css({ "width": "98.6%" });
-        //        }
-        //        else {
-        //            $('#scrollTbody').css({ "width": "100%" });
-        //        }
-
-        //        $('#scrollTbody').find('.timeTextBox').each(function () {
-
-        //            $(this).mask("99:99", { placeholder: 'HH:MM' });
-        //        });
-
-        //        $('html, body').animate({ scrollTop: $('#table_Meeting_historical').offset().top - 50 }, 1000);
-
-        //    }
-        //}
-
-        function showParent(ele) {
-            var spanid = '#parentSpan_' + $(ele).attr('id').split('_')[1] + '';
-            var selectValue = $(ele, 'option:selected').val();
-            $(ele).parent('td').siblings('.parent-td').children(spanid).find('input[type=checkbox]').prop('checked', false);
-            if (selectValue != '') {
-
-
-
-                if (presentArray.indexOf(selectValue) > -1) {
-
-                    $(ele).parent('td').siblings('.parent-td').children(spanid).show();
-                }
-                else {
-                    $(ele).parent('td').siblings('.parent-td').children(spanid).hide();
-                }
-
-            }
-            else {
-                $(ele).parent('td').siblings('.parent-td').children(spanid).hide();
-            }
-        }
-
-
-        function editDate(ele, index) {
-
-            var oldDate = $(ele).attr('old_date');
-            var meetDate = $(ele).attr('meet_date');
-
-
-            var weekDateArray = getWeekDaysByCurrentDate(oldDate);
-            var weekBindDay = '';
-            if (weekDateArray.length > 0) {
-                $.each(weekDateArray, function (j, weekdate) {
-
-                    weekBindDay += '<option value=' + weekdate + '>' + weekdate + '</option>';
                 });
-            }
 
-            $('.datespan_master_' + index + '').hide();
-            $('.dates_drop_down_' + index + '').html(weekBindDay);
-            $('.dates_drop_down_' + index + '').val(meetDate).show();
+                $('.attach_' + fieldSetlength + '').find('.scheduleMeetingPicker').on('click', function () {
 
-
-        }
-
-        Date.prototype.addDays = function (days) {
-            this.setDate(this.getDate() + days);
-        }
-
-        function editDate2(ele, index) {
-         
-
-            var oldDate = $(ele).attr('old_date');
-            var meetDate = $(ele).attr('meet_date');
-
-            var lasttwoweekdays = [];
-            var lastweekDay = new Date(meetDate).addDays(-7 - new Date(meetDate).getDay());
-            var lastweekday2 = new Date(lastweekDay).addDays(-7 - new Date(lastweekDay).getDay())
-
-            lasttwoweekdays.push(getWeekDaysByCurrentDate(lastweekday2));
-
-            lasttwoweekdays.push(getWeekDaysByCurrentDate(new Date(meetDate).addDays(-7 - new Date(meetDate).getDay())))
-
-
-            var weekBindDay = '';
-            if (lasttwoweekdays.length > 0) {
-                $.each(lasttwoweekdays, function (j, weekdate) {
-
-                    weekBindDay += '<option value=' + weekdate + '>' + weekdate + '</option>';
+                    $(this).children('.date-input').datetimepicker('show');
                 });
-            }
 
-            $('.datespan_master_' + index + '').hide();
-            $('.dates_drop_down_' + index + '').html(weekBindDay);
-            $('.dates_drop_down_' + index + '').val(meetDate).show();
+                bindParentInfo($('.attach_' + fieldSetlength + '').find('.home-visit-parent').find('.parent-div'));
 
 
-            //var thisSunday = new Date();
-            //thisSunday.addDays(-thisSunday.getDay());
+                $('.attach_' + fieldSetlength + '').find('.remove-appoint').tooltip();
 
-            //var lastSunday = new Date();
-            //lastSunday.addDays(-7 - lastSunday.getDay());
-
-            //var nextSunday = new Date();
-            //nextSunday.addDays(7 - nextSunday.getDay());
-        }
-        function changeDate(ele, index) {
-            var meet_date = $(ele, 'option:selected').val();
-            var date_span_master = $('.datespan_master_' + index + '');
-            $(ele).html('').hide();
-            date_span_master.find('.datespan_child_' + index + '').text(meet_date).show();
-            date_span_master.find('a').attr({ 'meet_date': meet_date });
-            date_span_master.show();
-        }
+                $('.attach_' + fieldSetlength + '').find('select[name=endTime]').on('change', function () {
+                    $(this).siblings('input:text[name=timebox]').val($(this).val());
+                    $(this).val('');
+                });
 
 
-        function editDuration(ele, index) {
-            $(ele).hide();
-            $(ele).siblings('select').prop('disabled', false);
-            $(ele).siblings('input').prop('disabled', false);
-
-        }
-
-        function editStartTime(ele, index) {
-            $(ele).hide();
-            $(ele).siblings('select').prop('disabled', false);
-        }
-
-        function disableSelect(ele, index) {
-            $(ele).prop('disabled', true);
-            $(ele).siblings('a').show();
-        }
-
-        function disableDurationSelect(ele, index) {
-            ele.size = 0;
-            $(ele).prop('disabled', true);
-            $(ele).siblings('.timeTextBox').prop('disabled', true);
-            $(ele).siblings('a').show();
-            $(ele).siblings('.timeTextBox').val($(ele, 'option:selected').val());
-        }
-
-        function hideSelectSize(ele, index) {
-
-            $('#EndTime_' + index + '').val('');
-
-        }
-
-
-        function showBusy(isshow) {
-            if (isshow) {
-                $('#spinner').show();
-            }
-            else {
-                $('#spinner').hide();
-            }
-        }
-
-        function testTime2(time) {
-
-            var element = time;
-
-            var time = $(time).val();
-            var re = /[0-2]?\d[.:][0-5]\d/;
-            var matches = re.test(time);
-            if (matches == true) {
-
-                $(element).siblings('.editableBox').val('').prop('disabled', true);
-                $(element).prop('disabled', true);
-
-                $(element).siblings('a').show();
-
-                return true;
-
-            } else {
-                customAlert("Invalid Time Format");
-                return false;
-            }
-
-        }
-
-
-        function GetAttendanceDetailsFromDate() {
-            $.ajax({
-
-                url: '/HomeVisitor/GetHomeVisitAttendanceByFromDate',
-                type: 'post',
-                datatype: 'json',
-                async:true,
-                beforSend:function(){$('#spinner').show()},
-                //   data: { date: $('#txtInitialMeetingDate').val(), clientId: $('#familySelect').val() },
-                data: { date: $('#txtMeetingDate').val(), clientId: $('#familySelect').val() },
-                success: function (data) {
-
-                    // bindGrid(LoadDates($('#txtMeetingDate').val(), dayArray.indexOf($('#lblAppointmentDay').html())), data);
-
-                    bindGrid([$('#txtMeetingDate').val()], data);
-                },
-                error: function (data) {
-                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                },
-                complete: function (data) {
-                    $('#spinner').hide();
-                }
 
             });
-        }
-
-        $(function () {
 
             selectFamily.on('change', function () {
                 $('#meeting-form').trigger('reset');
                 $('#table_Meeting_historical').find('#scrollTbody').html('');
-               // $('#meetingLblDay').html('');
+                // $('#meetingLblDay').html('');
                 $('#totalDaycountLbl').html(0);
-                $('#table_Meeting_historical').hide();
+                // $('#table_Meeting_historical').hide();
                 $('#submit-meeting-div').hide();
 
 
                 if ($(this).val() === '0') {
                     $('#appointment-div').hide();
+
+                    $('#table_Meeting_historical').find('#scrollTbody2').html('');
+                    $('#table_Meeting_historical').hide();
                     return false;
                 }
 
@@ -1411,83 +274,217 @@
             btnMeetingSchedule.on('click', function () {
 
 
+                var formDiv = $('#appointment-div');
 
-                loadForm();
+                var error = 0;
+                var error1 = 0;
+                var $fieldset = null;
+                var dateInput = null;
+                var startTimeInput = null;
+                var durationInput = null;
+                var attendanceTypeInput = null;
+                var parentDivcheck = null;
+                var Day = null;
+                var isRpt = false;
+                var Enc_ClientId = selectFamily.val();
+                var parentId1 = '';
+                var parentId2 = '';
 
-            });
-
-            $('#appointment-div').find('#EndTime').on('change', function () {
-
-                $(this).siblings('#TestEndTime').val($(this).val());
-                $(this).val('');
-            });
-
-            $('#appointment-div').find('#InitialEndTime').on('change', function () {
-
-                $(this).siblings('#TestInitialEndTime').val($(this).val());
-                $(this).val('');
-            });
-
-            $('#txtMeetingDate').datetimepicker({
-                timepicker: false,
-                format: 'm/d/Y',
-                validateOnBlur: false,
-                //value: getFormattedDate(new Date()),
-                maxDate: new Date()
-            }).on('change', function () {
                 cleanValidation();
-                if ($('#txtInitialMeetingDate').val() != '' && new Date($(this).val()).setHours(0, 0, 0) < new Date($('#txtInitialMeetingDate').val()).setHours(0, 0, 0)) {
-                    plainValidation('#txtMeetingDate');
-                    customAlert('Scheduled date should not be lesser than first meeting date');
-                    $('#lblAppointmentDay').html(dayArray[new Date($(this).val()).getDay()]);
+
+
+
+                var dateArray = [];
+                formDiv.find('fieldset').each(function () {
+
+
+                    var dateValue = $(this).find('input:text[name=date-input]').val();
+
+                    if (dateValue != null && dateValue != '') {
+                        dateArray.push(dateValue);
+                    }
+
+                });
+
+
+
+                formDiv.find('fieldset').each(function (i, fieldSet) {
+
+
+                    $fieldset = $(fieldSet);
+                    dateInput = $fieldset.find('input:text[name=date-input]');
+                    startTimeInput = $fieldset.find('select[name=StartTime]');
+                    durationInput = $fieldset.find('input:text[name=timebox]');
+                    attendanceTypeInput = $fieldset.find('select[name=attendanceType]');
+                    parentDivcheck = $fieldset.find('.parent-div');
+
+                    if (dateInput.val() == null || dateInput.val() == '') {
+                        dateInput.css('background-color', 'pink');
+                        error++;
+                    }
+
+
+                    if (dateInput.val() != null && dateInput.val() != '') {
+                        if (!isDate(dateInput.val())) {
+                            dateInput.val('');
+                            error++;
+                            error1++;
+                            customAlert('Please enter valid date');
+                            return false;
+                        }
+                        else if (new Date(dateInput.val()).setHours(0, 0, 0, 0) < new Date(prgYearStartDate).setHours(0, 0, 0, 0)) {
+                            dateInput.css('background-color', 'pink');
+                            error++;
+                            error1++;
+                            customAlert('Meeting date should be greater than program year start date.');
+                            return false;
+                        }
+
+                        else if (new Date(dateInput.val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                            dateInput.css('background-color', 'pink');
+                            error++;
+                            error1++;
+                            customAlert("Meeting date should not greater than today's date");
+                            return false;
+                        }
+                        else if (jQuery.grep(dateArray, function (a) { return a == dateInput.val() }).length > 1) {
+
+                            var attArray = [];
+                            var att = 0;
+                            formDiv.find('fieldset').each(function () {
+
+
+                                var attValue = $(this).find('select[name=attendanceType]');
+                                var attDate = $(this).find('input[name=date-input]');
+
+
+                                if (attValue.val()!='0' && attendanceTypeInput.val()!='0' && attValue.val() == attendanceTypeInput.val() && attDate.val() == dateInput.val()) {
+
+                                    if (att > 0) {
+                                        attValue.css('background-color', 'pink');
+                                        attDate.css('background-color', 'pink');
+                                        error++;
+                                        error1++;
+                                        customAlert("Meeting date(s) should be unique");
+                                        return false;
+
+                                    }
+
+                                    att++;
+                                }
+
+                            });
+
+                            if(error1>0)
+
+                            {
+                                return false;
+                            }
+                          
+
+
+                        }
+                    }
+
+
+                    if (startTimeInput.val() == null || startTimeInput.val() == '' || startTimeInput.val() == '0') {
+                        plainValidation(startTimeInput);
+                        error++;
+                    }
+
+                    if (durationInput.val() == null || durationInput.val() == '') {
+                        plainValidation(durationInput.siblings('select'));
+                        error++;
+                    }
+
+
+                    if (attendanceTypeInput.val() == null || attendanceTypeInput.val() == '0') {
+                        plainValidation(attendanceTypeInput);
+                        error++;
+                    }
+
+                    if (attendanceTypeInput.val() != null && attendanceTypeInput.val() != '0' && presentArray.indexOf(attendanceTypeInput.val().toString()) > -1) {
+                        if (parentDivcheck.find('input:checkbox:checked').length == 0) {
+                            error++;
+                        }
+
+                    }
+
+                });
+
+                if (error > 0) {
+                    if (error1 == 0) {
+                        customAlert('Mandatory fields are required.');
+                    }
                     return false;
                 }
-                else {
-                    $('#lblAppointmentDay').html(dayArray[new Date($(this).val()).getDay()]);
 
-                }
+
+
+
+                var schedulerArray = [];
+
+
+                formDiv.find('fieldset').each(function (i, fieldSet) {
+
+
+                    $fieldset = $(fieldSet);
+
+                    dateInput = $fieldset.find('input:text[name=date-input]');
+                    startTimeInput = $fieldset.find('select[name=StartTime]');
+                    durationInput = $fieldset.find('input:text[name=timebox]');
+                    attendanceTypeInput = $fieldset.find('select[name=attendanceType]');
+                    parentDivcheck = $fieldset.find('.parent-div');
+                    Day = new Date(dateInput.val()).getDay();
+                    isRpt = false;
+
+
+                    parentDivcheck.find('input[type=checkbox]:checked').each(function (j, check) {
+
+                        if (j == 0) {
+                            parentId1 = $(check).val();
+                        }
+                        if (j == 1) {
+                            parentId2 = $(check).val();
+
+                        }
+                    });
+
+
+
+                    schedulerArray.push({
+                        'MeetingId': '0',
+                        'StartTime': startTimeInput.val(),
+                        'EndTime': getTimeBasedOnDuration(dateInput.val(), startTimeInput.val(), durationInput.val()),
+                        'Duration': durationInput.val(),
+                        'MeetingDate': dateInput.val(),
+                        'Day': Day,
+                        'IsRepeat': isRpt,
+                        'ClientId': '0',
+                        'Status': true,
+                        'Enc_ClientId': Enc_ClientId,
+                        'ParentId1': parentId1,
+                        'ParentId2': parentId2,
+                        'AttendanceTypeId': attendanceTypeInput.val()
+                    });
+
+                });
+
+
+
+
+                ajaxUpdateAttendance(schedulerArray, true);
+
+
 
 
             });
-
-
-            //$('#txtInitialMeetingDate').datetimepicker({
-            //    timepicker: false,
-            //    format: 'm/d/Y',
-            //    validateOnBlur: false,
-            //    //value: getFormattedDate(new Date()),
-            //    maxDate: new Date()
-            //}).on('change', function () {
-            //    cleanValidation();
-            //    if ($(this).val() != '' && new Date($(this).val()).setHours(0, 0, 0) > new Date($('#txtMeetingDate').val()).setHours(0, 0, 0)) {
-            //        plainValidation('#txtMeetingDate');
-            //        customAlert('Initial meeting date should not be greater than scheduled meeting date.');
-            //        $('#lblInitialDay').html(dayArray[new Date($(this).val()).getDay()]);
-            //        return false;
-            //    }
-            //    else {
-            //        $('#lblInitialDay').html(dayArray[new Date($(this).val()).getDay()]);
-            //    }
-            //});
-
-
-            //$('#initialMeetingPicker').on('click', function () {
-
-            //    $('#txtInitialMeetingDate').datetimepicker('show');
-            //});
-
-
-            $('#scheduleMeetingPicker').on('click', function () {
-
-                $('#txtMeetingDate').datetimepicker('show');
-            });
-
 
             $('#btnExit').on('click', function () {
 
                 $('#meeting-form').trigger('reset');
                 $('#scrollTbody').html('');
-                $('#table_Meeting_historical').hide();
+                //$('#table_Meeting_historical').hide();
                 $('#submit-meeting-div').hide();
                 $('#familySelect').val(0);
                 $('#txtInitialMeetingDate').val('');
@@ -1495,7 +492,6 @@
                 $('#initialStartTime').val('');
                 $('#InitialEndTime').val('');
                 $('#TestInitialEndTime').val('');
-                $('#lblAppointmentDay').html('');
                 $('#appointment-div').hide();
             });
 
@@ -1614,6 +610,13 @@
 
             });
 
+
+            $('#selectMonth').on('change', function () {
+
+
+                GetAttendanceDetailsFromDate(this, 2);
+            });
+
             $(window).bind("load resize", function () {
 
                 topOffset = 50;
@@ -1638,7 +641,1957 @@
 
 
 
+        function isDate(txtDate) {
+            var currVal = txtDate;
+            if (currVal == '')
+                return false;
+
+            var rxDatePattern = /^(\d{1,2})(\/|-)(\d{1,2})(\/|-)(\d{4})$/; //Declare Regex
+            var dtArray = currVal.match(rxDatePattern); // is format OK?
+
+            if (dtArray == null)
+                return false;
+
+            //Checks for mm/dd/yyyy format.
+            dtMonth = dtArray[1];
+            dtDay = dtArray[3];
+            dtYear = dtArray[5];
+
+            if (dtMonth < 1 || dtMonth > 12)
+                return false;
+            else if (dtDay < 1 || dtDay > 31)
+                return false;
+            else if ((dtMonth == 4 || dtMonth == 6 || dtMonth == 9 || dtMonth == 11) && dtDay == 31)
+                return false;
+            else if (dtMonth == 2) {
+                var isleap = (dtYear % 4 == 0 && (dtYear % 100 != 0 || dtYear % 400 == 0));
+                if (dtDay > 29 || (dtDay == 29 && !isleap))
+                    return false;
+            }
+            return true;
+        }
+
+        function loadFamily(ele) {
+            userId = $(ele, 'option:selected').val();
+            roleId = $('#roleId').val();
+            if (userId === '0') {
+                $('#appointment-div').hide();
+                $('#familySelect').find('option').remove();
+                $('#table_Meeting_historical').find('#scrollTbody2').html('');
+                $('#table_Meeting_historical').hide();
+                return false;
+            }
+
+            $.ajax({
+                url: '/HomeVisitor/GetFamiliesUnderUser',
+                type: 'post',
+                datatype: 'json',
+                data: { userId: userId, roleId: roleId },
+                success: function (data) {
+                    var appendOption = '';
+                    if (data != null) {
+                        if (data.length > 0) {
+                            appendOption += '<option value=0>--Select Family--</option>';
+                            $.each(data, function (i, family) {
+                                appendOption += '<option value=' + family.Value + '>' + family.Text + '</option>';
+                            });
+                        }
+
+                    }
+                    selectFamily.html(appendOption);
+
+                },
+                error: function (data) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+        }
+
+
+        function loadAppointmentInfo(ele) {
+
+            familyClientId = $(ele, 'option:selected').val();
+
+            $('#divattachappointment').html('');
+
+            $.ajax({
+                url: '/HomeVisitor/GetInitialAppointmentByClientId',
+                type: 'post',
+                datatype: 'json',
+                beforSend: function () { $('#spinner').show() },
+                data: { clientId: familyClientId },
+                success: function (data) {
+
+                    try {
+                        if (data != null && data.schedule != null) {
+
+
+                            prgYearStartDate = data.schedule.ProgramYearStartDate;
+
+                            $('.date-input').datetimepicker('destroy');
+
+                            $('.date-input').datetimepicker({
+                                timepicker: false,
+                                format: 'm/d/Y',
+                                validateOnBlur: false,
+                                minDate: new Date(prgYearStartDate),
+                                maxDate: new Date()
+                            }).on('change', function () {
+                                $(this).css({ 'background-color': '' });
+                                debugger;
+                                if ($(this).val() != null && $(this).val() != '') {
+                                    if (!isDate($(this).val())) {
+                                        $(this).val('');
+                                        customAlert('Please enter valid date');
+                                    }
+                                    else if (new Date($(this).val()).setHours(0, 0, 0, 0) < new Date(prgYearStartDate).setHours(0, 0, 0, 0)) {
+                                        $(this).css({ 'background-color': 'pink' });
+                                        customAlert('Meeting date should be greater than program year start date.');
+                                    }
+
+                                    else if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                                        $(this).css({ 'background-color': 'pink' });
+                                        customAlert("Meeting date should not greater than today's date");
+                                    }
+
+                                    else {
+                                        GetAttendanceDetailsFromDate(this, 1);
+                                    }
+                                }
+
+                            }).on('blur', function () {
+
+                                $(this).css({ 'background-color': '' });
+
+                                if ($(this).val() != null && $(this).val() != '') {
+                                    if (!isDate($(this).val())) {
+                                        $(this).val('');
+                                        customAlert('Please enter valid date');
+                                    }
+                                    else if (new Date($(this).val()).setHours(0, 0, 0, 0) < new Date(prgYearStartDate).setHours(0, 0, 0, 0)) {
+                                        $(this).css({ 'background-color': 'pink' });
+                                        customAlert('Meeting date should be greater than program year start date.');
+                                    }
+
+                                    else if (new Date($(this).val()).setHours(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0)) {
+                                        $(this).css({ 'background-color': 'pink' });
+                                        customAlert("Meeting date should not greater than today's date");
+                                    }
+                                    else {
+                                        //// GetAttendanceDetailsFromDate(this);
+                                    }
+                                }
+
+                            });
+
+
+
+
+                            $('#appointment-div').find('select[name=endTime]').on('change', function () {
+
+                                $(this).siblings('input:text[name=timebox]').val($(this).val());
+                                $(this).val('');
+                            });
+
+
+                            $('.scheduleMeetingPicker').on('click', function () {
+
+                                $(this).children('.date-input').datetimepicker('show');
+                            });
+
+
+                            appointmentDiv.show();
+
+                            if (data.schedule.ParentDetailsList.length > 0) {
+                                parentArray = data.schedule.ParentDetailsList;
+
+                                bindParentInfo($('.attach_0').find('.parent-div'));
+                            }
+
+                            var monthsList = '';
+
+                            if (data.schedule.MonthsList.length > 0) {
+                                $.each(data.schedule.MonthsList, function (k, month) {
+
+                                    if (month.Selected) {
+                                        monthsList += '<option value=' + month.Value + ' selected="selected">' + month.Text + '</option>';
+
+                                    }
+                                    else {
+                                        monthsList += '<option value=' + month.Value + '>' + month.Text + '</option>';
+
+                                    }
+                                });
+
+                                $('#selectMonth').html(monthsList);
+                            }
+
+
+
+
+
+
+
+                        }
+
+                        bindAttendanceGrid(data.scheduleList);
+
+                        console.log(data.scheduleList);
+                        $('#table_Meeting_historical').show();
+                    }
+                    catch (error) {
+                        $('#spinner').hide();
+                        console.log(error);
+                    }
+
+                },
+                error: function (data) {
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                },
+                complete: function () {
+                    $('#spinner').hide();
+                }
+            });
+
+        }
+
+        function get12HoursTo24HoursTime(time) {
+            //var time = '02:05 AM';
+
+            var hours = Number(time.match(/^(\d+)/)[1]);
+            var minutes = Number(time.match(/:(\d+)/)[1]);
+            var AMPM = time.match(/\s(.*)$/)[1].toLowerCase();
+
+            if (AMPM == "pm" && hours < 12) hours = hours + 12;
+            if (AMPM == "am" && hours == 12) hours = hours - 12;
+            var sHours = hours.toString();
+            var sMinutes = minutes.toString();
+            if (hours < 10) sHours = "0" + sHours;
+            if (minutes < 10) sMinutes = "0" + sMinutes;
+            return sHours + ':' + sMinutes;
+        }
+
+        function getTime() {
+
+            var dateselect = $('#txtMeetingDate').val();
+            var time1 = $('#StartTime').val();
+            var time2 = $('#TestEndTime').val();
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+
+            //  var totalstarttime = starttime.substring(0, 5);
+            time1 = get12HoursTo24HoursTime(time1);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins == 0) {
+                mins = "00";
+            }
+            if (hours >= 12) {
+                am_pm = "PM";
+                if (hours > 12) {
+                    hours = (hours - 12);
+                    hours = (hours <= 9) ? '0' + hours : hours;
+                }
+            }
+
+            $('#EndTimeDuration').val(hours + ":" + mins + " " + am_pm);
+        }
+
+        function getTimeBasedOnDuration(meetingDate, startTime, Duration) {
+            debugger;
+            var dateselect = meetingDate;
+            var time1 = startTime;
+            var time2 = Duration;
+            var am_pm = "AM";
+            var Starttimehours = time1.substring(0, 1);
+
+            //  var totalstarttime = starttime.substring(0, 5);
+            time1 = get12HoursTo24HoursTime(time1);
+            var min1 = GetMinutes(time1.toString());
+            var min2 = GetMinutes(time2.toString());
+            var totalMins = parseInt(min1 + min2);
+            var hours = parseInt((totalMins % (60 * 24)) / 60);
+            var mins = parseInt((totalMins % (60 * 24)) % 60);
+            if (mins == 0) {
+                mins = "00";
+            }
+            if (hours >= 12) {
+                am_pm = "PM";
+                if (hours > 12) {
+                    hours = (hours - 12);
+                    hours = (hours <= 9) ? '0' + hours : hours;
+                }
+            }
+
+            return hours + ":" + mins + " " + am_pm;
+        }
+
+        function GetMinutes(timeStr) {
+
+            var str = timeStr.split(':');
+
+            var hours = parseInt(str[0]);
+            var mins = parseInt(str[1]);
+            //if (hours >= 12)
+            //{
+            //    hours = hours - 12;
+            //}
+            var totalMins = hours * 60 + mins;
+
+            return totalMins;
+        }
+
+        function checkInfo() {
+
+
+            var isValid = true;
+
+            cleanValidation();
+
+            //if ($('#txtInitialMeetingDate')[0].value.trim() == '') {
+            //    isValid = false;
+            //    customAlert("Please enter initial meeting date.");
+            //    plainValidation('#txtInitialMeetingDate');
+            //    return isValid;
+            //}
+            //if ($('#initialStartTime')[0].value.trim() == '') {
+            //    isValid = false;
+            //    customAlert("Please enter initial meeting start time.");
+            //    plainValidation('#initialStartTime');
+            //    return isValid;
+            //}
+            //if ($('#TestInitialEndTime')[0].value.trim() == '') {
+            //    isValid = false;
+            //    customAlert("Please enter initial meeting duration.");
+            //    plainValidation('#InitialEndTime');
+            //    return isValid;
+            //}
+
+            if ($('#txtMeetingDate')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter scheduled meeting date.");
+                plainValidation('#txtMeetingDate');
+                return isValid;
+            }
+
+
+            if (new Date($('#txtMeetingDate').val()).setHours(0, 0, 0) > new Date().setHours(0, 0, 0)) {
+                isValid = false;
+                customAlert("Meeting date should not greater than today's date");
+                plainValidation('#txtMeetingDate');
+                return isValid;
+            }
+
+
+            if ($('#StartTime')[0].value.trim() == "" || $('#StartTime')[0].value == "0") {
+                isValid = false;
+                customAlert("Please select meeting start time.");
+                plainValidation('#StartTime');
+                return isValid;
+            }
+            if ($('#TestEndTime')[0].value.trim() == "") {
+                isValid = false;
+                customAlert("Please enter Duration.");
+                plainValidation('#EndTime');
+                return isValid;
+            }
+
+
+            //if (new Date($('#txtInitialMeetingDate').val()).setHours(0, 0, 0) > new Date($('#txtMeetingDate').val()).setHours(0, 0, 0)) {
+            //    isValid = false;
+            //    customAlert("Inital meeting date should not greater than Scheduled meeting date");
+            //    plainValidation('#txtInitialMeetingDate');
+            //    plainValidation('#txtMeetingDate');
+            //    return isValid;
+            //}
+
+            return true;
+        }
+
+
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        };
+
+        function LoadDates(fromDate, day) {
+
+            var daysArray = [];
+
+            var x = new Date(fromDate);
+            //set the financial year starting date
+            x.setFullYear(x.getFullYear(), x.getMonth(), x.getDate());
+            //set the next financial year starting date
+            var y = new Date();
+            y.setFullYear(y.getFullYear(), y.getMonth(), y.getDate());
+            var j = 1;
+            var count = 0;
+            //getting the all mondays in a financial year
+            for (var i = 0; x < y; i += j) {
+                if (x.getDay() === parseInt(day)) {
+
+                    daysArray.push(getFormattedDate(x));
+
+                    //document.write("Date : " + x.getDate() + "/" +
+                    //  (x.getMonth() + 1) + "<br>");
+
+                    x = new Date(x.getTime() + (7 * 24 * 60 * 60 * 1000));
+                    j = 7;
+                    count++;
+                } else {
+                    j = 1;
+                    x = new Date(x.getTime() + (24 * 60 * 60 * 1000));
+                }
+            }
+
+            return daysArray;
+        }
+        function getWeekDatesFromCurrentDate(dateEntered) {
+
+            var startDate = new Date(dateEntered)
+            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
+
+            var dates = [],
+                currentDate = startDate,
+                addDays = function (days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                };
+            while (currentDate <= endDate) {
+
+                var todayDate = new Date().setHours(0, 0, 0, 0);
+                var curDate = new Date(currentDate).setHours(0, 0, 0, 0);
+
+                if (curDate <= todayDate) {
+                    dates.push(getFormattedDate(currentDate));
+                }
+
+
+                currentDate = addDays.call(currentDate, 1);
+            }
+
+
+            return dates;
+
+        }
+        function getWeekDaysByCurrentDate(dateEntered) {
+
+
+
+            var startDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay()))
+            var endDate = new Date(new Date(dateEntered).setDate(new Date(dateEntered).getDate() - new Date(dateEntered).getDay() + 6))
+
+
+            var dates = [],
+                currentDate = startDate,
+                addDays = function (days) {
+                    var date = new Date(this.valueOf());
+                    date.setDate(date.getDate() + days);
+                    return date;
+                };
+            while (currentDate <= endDate) {
+
+
+                var todayDate = new Date().setHours(0, 0, 0, 0);
+                var curDate = new Date(currentDate).setHours(0, 0, 0, 0);
+
+                if (curDate <= todayDate) {
+                    dates.push(getFormattedDate(currentDate));
+                }
+
+                currentDate = addDays.call(currentDate, 1);
+            }
+            return dates;
+
+        }
+
+
+        function bindAttendanceGrid(bindData) {
+
+
+            var $tBody = $('#scrollTbody2');
+            $tBody.html('');
+
+            if (bindData != null && bindData.length > 0) {
+
+                var bindBody = '';
+
+                console.log(bindData);
+
+
+
+
+                $.each(bindData, function (k, schedule) {
+                    debugger;
+
+
+                    var $startTime = schedule.StartTime.substring(schedule.StartTime.length - 2);
+
+                    var $startTime2 = schedule.StartTime.replace($startTime, ' ' + $startTime);
+
+                    if (parseInt($startTime2.split(':')[0]) < 10) {
+                        $startTime2 = '0' + $startTime2.split(':')[0] + ':' + $startTime2.split(':')[1];
+                    }
+
+                    var $attendanceDesc = $('#ddlAttendanceType option[value=' + schedule.AttendanceTypeId + ']').text();
+                    var $guardianPresent = [];
+
+                    if (schedule.ParentId1 != null && schedule.ParentId1 != undefined && schedule.ParentId1 != "") {
+
+                        $.each(parentArray, function (p, parent) {
+
+                            if (parent.ClientId == schedule.ParentId1) {
+                                $guardianPresent.push(parent.ParentName);
+                            }
+
+                        });
+                    }
+                    if (schedule.ParentId2 != null && schedule.ParentId2 != undefined && schedule.ParentId2 != "") {
+
+                        $.each(parentArray, function (p1, parent) {
+
+                            if (parent.ClientId == schedule.ParentId2) {
+                                $guardianPresent.push(parent.ParentName);
+                            }
+
+                        });
+                    }
+                    $guardianPresent = $guardianPresent.join(',');
+
+
+                    var parentEle = '';
+                    $.each(parentArray, function (p3, parent) {
+                        debugger;
+                        var indexkey = k.toString() + p3.toString();
+                        if ((parent.ClientId == schedule.ParentId1) || (parent.ClientId == schedule.ParentId2)) {
+                            parentEle += '<div class="guardian-checkbox">\
+                                                        <input type="checkbox" name="parentcheckbox_' + indexkey + '" id="parentcheckbox_' + indexkey + '" value=' + parent.ClientId + '  checked="checked" class="abtCheckbox">\
+                                                        <label for="parentcheckbox_'+ indexkey + '" class="guardian-label">' + parent.ParentName + ' (' + parent.ParentRole + ')</label>\
+                                                    </div>';
+
+                        }
+                        else {
+                            parentEle += '<div class="guardian-checkbox">\
+                                                        <input type="checkbox" name="parentcheckbox_'+ indexkey + '" id="parentcheckbox_' + indexkey + '" value=' + parent.ClientId + '  class="abtCheckbox">\
+                                                        <label for="parentcheckbox_'+ indexkey + '" class="guardian-label">' + parent.ParentName + ' (' + parent.ParentRole + ')</label>\
+                                                    </div>';
+                        }
+
+
+
+                    });
+
+
+
+
+                    bindBody = ' <tr>\
+                                            <td data-title="Meeting Date">'+ schedule.MeetingDate + '</td>\
+                                            <td data-title="Start Time">' + $startTime2 + '</td>\
+                                            <td data-title="Duration">'+ schedule.Duration + '</td>\
+                                            <td data-title="Attendance Type" att-id='+ schedule.AttendanceTypeId + '>' + $attendanceDesc + '</td>\
+                                            <td data-title="Guardian Present" par1='+ schedule.ParentId1 + ' par2=' + schedule.ParentId2 + ' >' + $guardianPresent + '</td>\
+                                            <td>\
+                                                <div class="edit">\
+                                                    <button type="button" class="btn btn-default btn-sm edit-item">\
+                                                        <span class="glyphicon glyphicon-pencil"></span> Edit\
+                                                    </button>\
+                                                    <button type="button" class="btn btn-danger btn-sm delete-item">\
+                                                        <span class="glyphicon glyphicon-remove"></span> Delete\
+                                                    </button>\
+                                                </div>\
+                                            </td>\
+                                        </tr>\
+                                        <tr style="display:none;" class="hidden-view">\
+                                               <td data-title="Meeting Date">'+ schedule.MeetingDate + '</td>\
+                                            <td data-title="Start Time">\
+                                                <select name="selectStartTime" class="form-control" placeholder="From">\
+                                                    <option value="0">--Select--</option>\
+                                                    <option value="08:00 AM">08:00 AM</option>\
+                                                    <option value="08:15 AM">08:15 AM</option>\
+                                                    <option value="08:30 AM">08:30 AM</option>\
+                                                    <option value="08:45 AM">08:45 AM</option>\
+                                                    <option value="09:00 AM">09:00 AM</option>\
+                                                    <option value="09:15 AM">09:15 AM</option>\
+                                                    <option value="09:30 AM">09:30 AM</option>\
+                                                    <option value="09:45 AM">09:45 AM</option>\
+                                                    <option value="10:00 AM">10:00 AM</option>\
+                                                    <option value="10:15 AM">10:15 AM</option>\
+                                                    <option value="10:30 AM">10:30 AM</option>\
+                                                    <option value="10:45 AM">10:45 AM</option>\
+                                                    <option value="11:00 AM">11:00 AM</option>\
+                                                    <option value="11:15 AM">11:15 AM</option>\
+                                                    <option value="11:30 AM">11:30 AM</option>\
+                                                    <option value="11:45 AM">11:45 AM</option>\
+                                                    <option value="12:00 PM">12:00 PM</option>\
+                                                    <option value="12:15 PM">12:15 PM</option>\
+                                                    <option value="12:30 PM">12:30 PM</option>\
+                                                    <option value="12:45 PM">12:45 PM</option>\
+                                                    <option value="01:00 PM">01:00 PM</option>\
+                                                    <option value="01:15 PM">01:15 PM</option>\
+                                                    <option value="01:30 PM">01:30 PM</option>\
+                                                    <option value="01:45 PM">01:45 PM</option>\
+                                                    <option value="02:00 PM">02:00 PM</option>\
+                                                    <option value="02:15 PM">02:15 PM</option>\
+                                                    <option value="02:30 PM">02:30 PM</option>\
+                                                    <option value="02:45 PM">02:45 PM</option>\
+                                                    <option value="03:00 PM">03:00 PM</option>\
+                                                    <option value="03:15 PM">03:15 PM</option>\
+                                                    <option value="03:30 PM">03:30 PM</option>\
+                                                    <option value="03:45 PM">03:45 PM</option>\
+                                                    <option value="04:00 PM">04:00 PM</option>\
+                                                    <option value="04:15 PM">04:15 PM</option>\
+                                                    <option value="04:30 PM">04:30 PM</option>\
+                                                    <option value="04:45 PM">04:45 PM</option>\
+                                                    <option value="05:00 PM">05:00 PM</option>\
+                                                    <option value="05:15 PM">05:15 PM</option>\
+                                                    <option value="05:30 PM">05:30 PM</option>\
+                                                    <option value="05:45 PM">05:45 PM</option>\
+                                                    <option value="06:00 PM">06:00 PM</option>\
+                                                </select>\
+                                            </td>\
+                                            <td data-title="Duration" class="duration-column">\
+                                                <select name="selectEndTime"  class="duration-select">\
+                                                    <option value=""></option>\
+                                                    <option value="00:30">00:30</option>\
+                                                    <option value="01:00">01:00</option>\
+                                                    <option value="01:30">01:30</option>\
+                                                    <option value="02:00">02:00</option>\
+                                                    <option value="02:30">02:30</option>\
+                                                    <option value="03:00">03:00</option>\
+                                                    <option value="03:30">03:30</option>\
+                                                    <option value="04:00">04:00</option>\
+                                                </select>\
+                                                <input class="timeTextBox1" title="Duration is editable" placeholder="HH:MM" value='+ schedule.Duration + '  style="height:28px;" name="texttimebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);">\
+                                            </td>\
+                                            <td data-title="Attendance Type" class="attendance-column">\
+                                                <select class="attendance-select" onchange="showParent(this,2);" name="selectattendanceType">\
+                                                    <option value="0">--Select--</option>\
+                                                    <option value="11">Home Visit Present</option>\
+                                                    <option value="12">Home Visit No Show</option>\
+                                                    <option value="13">Home Visit Field Trip</option>\
+                                                    <option value="14">Home Visit Parent Cancels</option>\
+                                                    <option value="15">Home Visit Staff Cancels</option>\
+                                                    <option value="16">Home Visit Preg Mother</option>\
+                                                    <option value="17">Home Visit Socialization</option>\
+                                                    <option value="18">Home Visit Transition</option>\
+                                                    <option value="19">Home Visit Make up</option>\
+                                                </select>\
+                                            </td>\
+                                            <td data-title="Guardian Present" class="guardian-column">'+ parentEle + '</td>\
+                                                <td>\
+                                                    <div class="edit">\
+                                                        <button type="button" class="btn btn-success btn-sm save-item"  >\
+                                                            <span class="glyphicon glyphicon-floppy-disk"></span> Save\
+                                                        </button>\
+                                                        <button type="button" class="btn btn-default btn-sm back-item">\
+                                                            <span class="glyphicon glyphicon-log-out"></span> Back\
+                                                        </button>\
+                                                    </div>\
+                                                </td>\
+                                            </tr>';
+
+
+
+                    $tBody.append(bindBody);
+
+                    var $tbodyLastchild = $tBody.find('tr:last-child');
+
+                    $tbodyLastchild.find('select[name=selectattendanceType]').val(schedule.AttendanceTypeId);
+                    $tbodyLastchild.find('select[name=selectStartTime]').val($startTime2);
+                    $tbodyLastchild.find('input[name=texttimebox]').mask("99:99", { placeholder: 'HH:MM' }).tooltip();
+
+
+
+                    $tbodyLastchild.find('select[name=selectEndTime]').on('change', function () {
+                        $(this).siblings('input:text[name=texttimebox]').val($(this).val());
+                        $(this).val('');
+                    });
+
+
+                    if (presentArray.indexOf(schedule.AttendanceTypeId) == 0) {
+
+                        $tbodyLastchild.find('td:eq(4)').find('input:checkbox').prop('checked', false);
+                        $tbodyLastchild.find('td:eq(4)').hide();
+                    }
+
+                    var $lastIndex = $tbodyLastchild.index();
+                    var $lastPrevIndex = $lastIndex - 1;
+
+
+                    var $editItem = $tBody.find('tr:eq(' + $lastPrevIndex + ')').find('td:eq(5)').find('.edit-item');
+                    var $deleteItem = $tBody.find('tr:eq(' + $lastPrevIndex + ')').find('td:eq(5)').find('.delete-item');
+
+                    $editItem.on('click', function () {
+
+                        var selectStartTime = $(this).closest('td').parent('tr').find('td:eq(1)').html();
+                        var durationSelectTime = $(this).closest('td').parent('tr').find('td:eq(2)').html();
+                        var attTypeId = $(this).closest('td').parent('tr').find('td:eq(3)').attr('att-id');
+                        $tbodyLastchild.find('select[name=selectStartTime]').val(selectStartTime);
+                        $tbodyLastchild.find('input[name=texttimebox]').val(durationSelectTime);
+                        $tbodyLastchild.find('select[name=selectattendanceType]').val(attTypeId);
+
+                        $tbodyLastchild.find('td:eq(4)').find('input:checkbox').prop('checked', false);
+
+                        if (presentArray.indexOf(attTypeId) > -1) {
+
+                            var parent1 = $(this).closest('td').parent('tr').find('td:eq(4)').attr('par1');
+                            var parent2 = $(this).closest('td').parent('tr').find('td:eq(4)').attr('par1');
+
+
+                            if (parent1 != null && parent1 != undefined && parent1 != '') {
+
+                                $tbodyLastchild.find('td:eq(4)').find('input:checkbox[value=' + parent1 + ']').prop('checked', true);
+                            }
+
+                            if (parent2 != null && parent2 != undefined && parent2 != '') {
+
+                                $tbodyLastchild.find('td:eq(4)').find('input:checkbox[value=' + parent2 + ']').prop('checked', true);
+                            }
+
+                            $tbodyLastchild.find('td:eq(4)').find('div').show();
+                        }
+                        else {
+                            $tbodyLastchild.find('td:eq(4)').find('div').hide();
+                        }
+
+                        $tBody.find('tr:eq(' + $lastPrevIndex + ')').hide();
+                        $tBody.find('tr:eq(' + $lastIndex + ')').show();
+                    });
+
+
+                    $deleteItem.on('click', function () {
+                        var attendDate = $(this).closest('td').parent('tr').find('td:eq(0)').html();
+
+                        showDeletePopup($deleteItem, attendDate);
+
+                    });
+
+                    var $saveItem = $tBody.find('tr:eq(' + $lastIndex + ')').find('.save-item');
+
+                    $saveItem.on('click', function () {
+                        cleanValidation();
+                        var $parentTr = $(this).closest('td').parent('tr');
+                        var attDate = $parentTr.find('td:eq(0)').html();
+                        var strtTime = $parentTr.find('td:eq(1)').find('select[name=selectStartTime]');
+                        var duration = $parentTr.find('td:eq(2)').find('input[name=texttimebox]');
+                        var attType = $parentTr.find('td:eq(3)').find('select[name=selectattendanceType]');
+                        var checkLength = $parentTr.find('td:eq(4)').find('input:checkbox:checked').length;
+                        var err = 0;
+                        var $p1 = null;
+                        var $p2 = null;
+                        if (strtTime.val() == null || strtTime.val() == '' || strtTime.val() == '0') {
+                            plainValidation(strtTime);
+                            customAlert('Please select  start time');
+                            err++;
+                            return false;
+                        }
+
+                        if (duration.val() == null || duration.val() == '') {
+                            plainValidation(duration.siblings('select'));
+                            customAlert('Please select/enter duration');
+                            err++;
+                            return false;
+                        }
+
+
+                        if (attType.val() == null || attType.val() == '0') {
+                            plainValidation(attType);
+                            customAlert('Please select attendance type');
+                            err++;
+                            return false;
+                        }
+
+                        if (attType.val() != null && attType.val() != '0' && presentArray.indexOf(attType.val().toString()) > -1) {
+                            if (checkLength == 0) {
+                                customAlert('Please select Guardian');
+                                err++;
+                                return false;
+                            }
+                            else {
+
+                                $.each($parentTr.find('td:eq(4)').find('input:checkbox:checked'), function (i, parent) {
+
+                                    if (i == 0) {
+                                        $p1 = $(parent).val();
+                                    }
+                                    if (i == 1) {
+                                        $p2 = $(parent).val();
+                                    }
+                                });
+                            }
+
+                        }
+
+
+
+                        if (err > 0) {
+                            customAlert('Some fields are required');
+                            return false;
+                        }
+                        else {
+                            var scheduleArry = [];
+
+
+                            scheduleArry.push({
+                                'MeetingId': '0',
+                                'StartTime': strtTime.val(),
+                                'EndTime': getTimeBasedOnDuration(attDate, strtTime.val(), duration.val()),
+                                'Duration': duration.val(),
+                                'MeetingDate': attDate,
+                                'Day': new Date(attDate).getDay(),
+                                'IsRepeat': false,
+                                'ClientId': '0',
+                                'Status': true,
+                                'Enc_ClientId': selectFamily.val(),
+                                'ParentId1': $p1,
+                                'ParentId2': $p2,
+                                'AttendanceTypeId': attType.val()
+                            });
+
+
+                            ajaxUpdateAttendance(scheduleArry, true);
+
+                            GetAttendanceDetailsFromDate('#selectMonth', 2);
+
+                        }
+
+
+                    });
+
+                    var $backItem = $tBody.find('tr:eq(' + $lastIndex + ')').find('.back-item');
+
+                    $backItem.on('click', function () {
+                        $tBody.find('tr:eq(' + $lastIndex + ')').hide();
+                        $tBody.find('tr:eq(' + $lastPrevIndex + ')').show();
+                    });
+
+
+
+                });
+
+
+
+
+
+
+
+            }
+
+
+
+        }
+
+
+
+
+        function showDeletePopup(element, attendanceDate) {
+            var clientName = $('#familySelect option:selected').text().split('-')[0];
+            var msg = '<p style="line-height:20px;">You are suppose to delete the attendance record (<strong>' + attendanceDate + '</strong>) of <strong>' + clientName + '</strong>.</p><p>Click <strong>OK</strong> to Proceed...</p>';
+
+            BootstrapDialog.show({
+                title: 'Confirmation',
+                message: msg,
+                closable: true,
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+                autospin: true,
+                buttons: [{
+                    label: 'OK',
+                    cssClass: 'btn-success',
+                    action: function (dialog) {
+                        var $button = this;
+                        //  deleteAttendanceRecord(element, attendanceDate);
+                        $button.spin();
+                        $button.disable();
+                        $($button).siblings('button').attr('disabled', true);
+                        debugger;
+
+                        var sTime = element.closest('td').parent('tr').find('td:eq(1)').html();
+                        var duTime = element.closest('td').parent('tr').find('td:eq(2)').html();
+                        var attType = element.closest('td').parent('tr').find('td:eq(3)').attr('att-id');
+                        var par1 = element.closest('td').parent('tr').find('td:eq(4)').attr('par1');
+                        var par2 = element.closest('td').parent('tr').find('td:eq(4)').attr('par2');
+                        var arrSchedule = [];
+
+                        arrSchedule.push({
+                            'MeetingId': '0',
+                            'StartTime': sTime,
+                            'EndTime': getTimeBasedOnDuration(attendanceDate, sTime, duTime),
+                            'Duration': duTime,
+                            'MeetingDate': attendanceDate,
+                            'Day': new Date(attendanceDate).getDay(),
+                            'IsRepeat': false,
+                            'ClientId': '0',
+                            'Status': false,
+                            'Enc_ClientId': selectFamily.val(),
+                            'ParentId1': par1,
+                            'ParentId2': par2,
+                            'AttendanceTypeId': attType
+                        });
+
+                        ajaxUpdateAttendance(arrSchedule, false);
+
+                        GetAttendanceDetailsFromDate('#selectMonth', 2);
+                        dialog.close();
+                    }
+                }, {
+                    label: 'Cancel',
+                    cssClass: 'btn-danger',
+                    action: function (dialog) {
+                        dialog.close();
+                    }
+                }]
+            });
+        }
+
+        function deleteAttendanceRecord(ele, attendDate) {
+
+            var sTime = ele.closest('td').parent('tr').find('td:eq(1)').html();
+            var duTime = ele.closest('td').parent('tr').find('td:eq(2)').html();
+            var attType = ele.closest('td').parent('tr').find('td:eq(3)').attr('att-id');
+            var par1 = ele.closest('td').parent('tr').find('td:eq(4)').attr('par1');
+            var par2 = ele.closest('td').parent('tr').find('td:eq(4)').attr('par2');
+            var arrSchedule = [];
+            arrSchedule.push({
+                'MeetingId': '0',
+                'StartTime': sTime,
+                'EndTime': getTimeBasedOnDuration(attendDate, sTime, duTime),
+                'Duration': duTime,
+                'MeetingDate': attendDate,
+                'Day': new Date(attendDate).getDay(),
+                'IsRepeat': false,
+                'ClientId': '0',
+                'Status': false,
+                'Enc_ClientId': selectFamily.val(),
+                'ParentId1': par1,
+                'ParentId2': par2,
+                'AttendanceTypeId': attType
+            });
+
+            ajaxUpdateAttendance(arrSchedule, false);
+
+        }
+
+        function ajaxUpdateAttendance(arraySchedule, asnyc) {
+            debugger;
+            $.ajax({
+
+                url: '/HomeVisitor/InsertHistoricalHomeVisit',
+                datatype: 'json',
+                type: 'post',
+                asyc: asnyc,
+                beforeSend: function () { showBusy(true); },
+                data: { scheuleString: JSON.stringify(arraySchedule), homeVisitorId: $('#ddlHomeVisitors').val() },
+                success: function (data) {
+                    if (data) {
+                        showBusy(false);
+                        customAlert('Record saved successfully');
+                    }
+                    else {
+                        customAlert('Error Occurred.Please,try again later');
+                        showBusy(false);
+                    }
+
+                },
+                error: function (data) {
+                    showBusy(false);
+                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                }
+            });
+
+        }
+
+
+        function bindGrid(data, attendanceData) {
+            var bindBody = '';
+            var parentName = '';
+
+            var ini = 0;
+
+
+            if (data.length > 0) {
+
+
+                var startTime = $('#StartTime').val();
+                var duration = $('#TestEndTime').val();
+
+                $.each(data, function (i, grid) {
+
+                    //  var inc = i + 1;
+                    var inc = i;
+                    parentName = '<span class="overfill" id="parentSpan_' + inc + '" style="display:none;">';
+
+                    if (parentArray.length > 0) {
+                        $.each(parentArray, function (j, parent) {
+
+                            parentName += '<span class="overfill"><input type="checkbox" parent-id=' + parent.ClientId + '>&nbsp;<span>' + parent.ParentName + ' (' + parent.ParentRole + ')</span></span><br>'
+
+                        });
+                    }
+
+                    parentName += '</span>';
+
+                    bindBody += '<tr>\
+                                        <td class="td_date' + inc + ' date_change_td">\
+                                        <span class="datespan_master_' + inc + '">\
+                                        <span class="datespan_child_' + inc + '">' + grid + '</span>\
+                                        </span>\
+                                        </td>\
+                                        <td class="start-time-td" style="width:14%;">'+ startTime + '</td>\
+                                        <td class="imp-plus duration-td" style="width:14%;">'+ duration + '</td>\
+                                        <td class="attendancetype_td">\
+                                            <select style="width:100%;" class="ersa-select center-select width-select-change attendance_select" onchange=showParent(this,1); id="attendanceType_' + inc + '" name="attendanceType">' + $('#ddlAttendanceType').html() + '\
+                                       </select>\
+                                        </td>\
+                                        <td class="parent-td">' + parentName + '</td>\
+                                    </tr>';
+                });
+
+                $('#scrollTbody').html(bindBody);
+
+                $('#scrollTbody').find('.start-time-table').val($('#StartTime').val()).prop('disabled', false);
+
+                $('#scrollTbody').find('.timeTextBox,.editableBox').val($('#TestEndTime').val()).prop('disabled', false);
+
+
+                if ($('#scrollTbody').find('tr').length > 0) {
+
+                    $('#scrollTbody').find('tr').each(function (k, row) {
+                        var attendanceDates = [];
+                        var anchr = '';
+
+
+
+                        anchr = $(row).find('td').eq(0).find('.datespan_child_' + k + '').html();
+                        attendanceDates.push(anchr);
+
+                        var attendList = $.grep(attendanceData, function (element) { return attendanceDates.indexOf(element.MeetingDate) > -1 });
+
+
+
+                        if (attendList.length > 0) {
+
+
+                            $(row).find('td').eq(0).find('.datespan_child_' + k + '').text(attendList[0].MeetingDate);
+
+
+
+                            $(row).find('td').eq(3).find('#attendanceType_' + k + '').val(attendList[0].AttendanceTypeId).prop('disabled', false)
+
+                            if (presentArray.indexOf(attendList[0].AttendanceTypeId.toString()) > -1) {
+
+                                $(row).find('td').eq(4).find('#parentSpan_' + k + '').show();
+
+                                if (attendList[0].ParentId1 != '') {
+
+                                    $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId1 + ']').attr({ 'checked': true, 'disabled': false });
+                                    $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': false });
+                                }
+                                if (attendList[0].ParentId2 != '') {
+                                    $(row).find('td').eq(4).find('#parentSpan_' + k + '').find('input[parent-id=' + attendList[0].ParentId2 + ']').attr({ 'checked': true, 'disabled': false });
+                                    $(row).find('td').eq(4).find('input[type=checkbox]').attr({ 'disabled': false });
+                                }
+
+                            }
+                            else {
+                                $(row).find('td').eq(4).find('#parentSpan_' + k + '').hide();
+                            }
+
+                        }
+
+
+                    });
+
+                }
+
+
+
+                $('#table_Meeting_historical').show();
+
+                $('#submit-meeting-div').show();
+
+
+                //dynamic change of table body height//
+                var bodyHeight = 0;
+                var rowCount = 0;
+
+                $('#scrollTbody').find('tr').each(function () {
+                    bodyHeight += $(this).height();
+                    rowCount++;
+                });
+
+                if (rowCount <= 6) {
+                    $('#scrollTbody').css({ "width": "98.6%" });
+                }
+                else {
+                    $('#scrollTbody').css({ "width": "100%" });
+                }
+
+                $('#scrollTbody').find('.timeTextBox').each(function () {
+
+                    $(this).mask("99:99", { placeholder: 'HH:MM' });
+                });
+
+                $('html, body').animate({ scrollTop: $('#table_Meeting_historical').offset().top - 50 }, 1000);
+
+            }
+        }
+
+
+        function showParent(ele, mode) {
+
+            var $parentEle = $(ele);
+            var selectValue = $(ele, 'option:selected').val();
+
+
+            if (mode == 1) {
+                if (presentArray.indexOf(selectValue) > -1) {
+                    $parentEle.parent('div').parent('div').siblings('.home-visit-parent').show('slow');
+
+                }
+                else {
+                    $parentEle.parent('div').parent('div').siblings('.home-visit-parent').find('input:checkbox').prop('checked', false);
+
+                    $parentEle.parent('div').parent('div').siblings('.home-visit-parent').hide('slow');
+                }
+            }
+            else {
+
+
+                if (presentArray.indexOf(selectValue) > -1) {
+                    $parentEle.parent('td').parent('tr').find('td:eq(4)').find('div').find('input:checkbox').prop('checked', false);
+                    $parentEle.parent('td').parent('tr').find('td:eq(4)').find('div').show();
+
+                }
+                else {
+                    $parentEle.parent('td').parent('tr').find('td:eq(4)').find('div').find('input:checkbox').prop('checked', false);
+
+                    $parentEle.parent('td').parent('tr').find('td:eq(4)').find('div').hide();
+                }
+            }
+
+
+        }
+
+
+        function editDate(ele, index) {
+
+            var oldDate = $(ele).attr('old_date');
+            var meetDate = $(ele).attr('meet_date');
+
+
+            var weekDateArray = getWeekDaysByCurrentDate(oldDate);
+            var weekBindDay = '';
+            if (weekDateArray.length > 0) {
+                $.each(weekDateArray, function (j, weekdate) {
+
+                    weekBindDay += '<option value=' + weekdate + '>' + weekdate + '</option>';
+                });
+            }
+
+            $('.datespan_master_' + index + '').hide();
+            $('.dates_drop_down_' + index + '').html(weekBindDay);
+            $('.dates_drop_down_' + index + '').val(meetDate).show();
+
+
+        }
+
+        Date.prototype.addDays = function (days) {
+            this.setDate(this.getDate() + days);
+        }
+
+        function editDate2(ele, index) {
+
+
+            var oldDate = $(ele).attr('old_date');
+            var meetDate = $(ele).attr('meet_date');
+
+            var lasttwoweekdays = [];
+            var lastweekDay = new Date(meetDate).addDays(-7 - new Date(meetDate).getDay());
+            var lastweekday2 = new Date(lastweekDay).addDays(-7 - new Date(lastweekDay).getDay())
+
+            lasttwoweekdays.push(getWeekDaysByCurrentDate(lastweekday2));
+
+            lasttwoweekdays.push(getWeekDaysByCurrentDate(new Date(meetDate).addDays(-7 - new Date(meetDate).getDay())))
+
+
+            var weekBindDay = '';
+            if (lasttwoweekdays.length > 0) {
+                $.each(lasttwoweekdays, function (j, weekdate) {
+
+                    weekBindDay += '<option value=' + weekdate + '>' + weekdate + '</option>';
+                });
+            }
+
+            $('.datespan_master_' + index + '').hide();
+            $('.dates_drop_down_' + index + '').html(weekBindDay);
+            $('.dates_drop_down_' + index + '').val(meetDate).show();
+
+        }
+        function changeDate(ele, index) {
+            var meet_date = $(ele, 'option:selected').val();
+            var date_span_master = $('.datespan_master_' + index + '');
+            $(ele).html('').hide();
+            date_span_master.find('.datespan_child_' + index + '').text(meet_date).show();
+            date_span_master.find('a').attr({ 'meet_date': meet_date });
+            date_span_master.show();
+        }
+
+
+        function editDuration(ele, index) {
+            $(ele).hide();
+            $(ele).siblings('select').prop('disabled', false);
+            $(ele).siblings('input').prop('disabled', false);
+
+        }
+
+        function editStartTime(ele, index) {
+            $(ele).hide();
+            $(ele).siblings('select').prop('disabled', false);
+        }
+
+        function disableSelect(ele, index) {
+            $(ele).prop('disabled', true);
+            $(ele).siblings('a').show();
+        }
+
+        function disableDurationSelect(ele, index) {
+            ele.size = 0;
+            $(ele).prop('disabled', true);
+            $(ele).siblings('.timeTextBox').prop('disabled', true);
+            $(ele).siblings('a').show();
+            $(ele).siblings('.timeTextBox').val($(ele, 'option:selected').val());
+        }
+
+        function hideSelectSize(ele, index) {
+            $(ele).siblings('select').val('');
+
+        }
+
+
+        function showBusy(isshow) {
+            if (isshow) {
+                $('#spinner').show();
+            }
+            else {
+                $('#spinner').hide();
+            }
+        }
+
+        function testTime2(time) {
+
+            var element = time;
+
+            var time = $(time).val();
+            var re = /[0-2]?\d[.:][0-5]\d/;
+            var matches = re.test(time);
+            if (matches == true) {
+
+                $(element).siblings('.editableBox').val('').prop('disabled', true);
+                $(element).prop('disabled', true);
+
+                $(element).siblings('a').show();
+
+                return true;
+
+            } else {
+                customAlert("Invalid Time Format");
+                return false;
+            }
+
+        }
+
+
+        function GetAttendanceDetailsFromDate(ele, mode) {
+
+            var meetingStartDate = null;
+            var meetingEndDate = null;
+
+            if (mode == 1) {
+                meetingStartDate = $(ele).val();
+                meetingEndDate = $(ele).val();
+            }
+            if (mode == 2) {
+
+                var $meetdate = new Date($(ele).val());
+                meetingStartDate = getFormattedDate(new Date($meetdate.getFullYear(), $meetdate.getMonth(), 1));
+                meetingEndDate = getFormattedDate(new Date($meetdate.getFullYear(), $meetdate.getMonth() + 1, 0));
+
+            }
+
+
+
+
+            $.ajax({
+
+                url: HostedDir + '/HomeVisitor/GetHomeVisitAttendanceByFromDate',
+                type: 'post',
+                datatype: 'json',
+                async: true,
+                beforSend: function () { $('#spinner').show() },
+                data: { meetingStartdate: meetingStartDate, meetingEndDate: meetingEndDate, clientId: $('#familySelect').val() },
+                success: function (data) {
+
+                    if (mode == 1) {
+                        try {
+                            debugger;
+                            var $clsFieldSet = $(ele).closest('fieldset');
+
+                            if (data != null && data.length > 0) {
+
+                                var startTime = data[0].StartTime.substring(data[0].StartTime.length - 2);
+
+                                var startTime2 = data[0].StartTime.replace(startTime, ' ' + startTime);
+
+                                if (parseInt(startTime2.split(':')[0]) < 10) {
+                                    startTime2 = '0' + startTime2.split(':')[0] + ':' + startTime2.split(':')[1];
+                                }
+
+                                $clsFieldSet.find('select[name=StartTime]').val(startTime2);
+                                $clsFieldSet.find('input:text[name=timebox]').val(data[0].Duration);
+                                $clsFieldSet.find('select[name=attendanceType]').val(data[0].AttendanceTypeId);
+                                $clsFieldSet.find('.home-visit-parent').find('input:checkbox').prop('checked', false);
+
+                                if (presentArray.indexOf(data[0].AttendanceTypeId.toString()) > -1) {
+                                    $clsFieldSet.find('.home-visit-parent').find('input:checkbox[value=' + data[0].ParentId1 + ']').prop('checked', true);
+                                    $clsFieldSet.find('.home-visit-parent').find('input:checkbox[value=' + data[0].ParentId2 + ']').prop('checked', true);
+                                    $clsFieldSet.find('.home-visit-parent').show('slow');
+                                }
+
+                            }
+
+                            else {
+                                $clsFieldSet.find('select[name=StartTime]').val(0);
+                                $clsFieldSet.find('input:text[name=timebox]').val('');
+                                $clsFieldSet.find('select[name=attendanceType]').val(0);
+                                $clsFieldSet.find('.home-visit-parent').find('input:checkbox').prop('checked', false);
+                                $clsFieldSet.find('.home-visit-parent').hide('slow');
+
+                            }
+                        }
+                        catch (error) {
+                            $('#spinner').hide();
+                        }
+
+                    }
+                    if (mode == 2) {
+                        bindAttendanceGrid(data);
+                    }
+
+
+
+                },
+                error: function (data) {
+                    customAlert("Session Ended Log Onto the System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
+
+            });
+        }
+
+        function create_UUID() {
+            var dt = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (dt + Math.random() * 16) % 16 | 0;
+                dt = Math.floor(dt / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            return uuid;
+        }
+
+
+        function bindParentInfo(divEle) {
+            parentName = '';
+
+            var gudRandom = '';
+            if (parentArray.length > 0) {
+                $.each(parentArray, function (j, parent) {
+                    gudRandom = create_UUID();
+
+                    parentName += '<div class="fa-checkbox">\
+                        <input type="checkbox" name="parentcheckbox_' + gudRandom + '" id="parentcheckbox_' + gudRandom + '" value=' + parent.ClientId + '  class="abtCheckbox">\
+                        <label for="parentcheckbox_' + gudRandom + '">' + parent.ParentName + ' ' + '(' + parent.ParentRole + ')</label></div>'
+                });
+            }
+            $(divEle).html(parentName);
+        }
+
+        function testTime(time) {
+
+            var element = time;
+            var time = $(time).val();
+            var re = /[0-2]?\d[.:][0-5]\d/;
+            var matches = re.test(time);
+            if (matches == true) {
+                $(element).siblings('select').val('');
+                return true;
+
+            } else {
+                customAlert("Invalid Time Format");
+                return false;
+            }
+
+        }
+
+        function setatstart(value) {
+            if ($(value).val() == "MM/DD/YYYY") {
+                $(value).val('');
+            }
+
+        }
+
+        function Checkdate(value) {
+
+            isValid = true;
+            if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(value).val())) {
+                    customAlert("Invalid date format. ");
+                    $(value).val('');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+        function backToList(ele) {
+            $('#spinner').show();
+
+            location.href = HostedDir + '/Home/AgencyAdminDashboard';
+        }
+
+        function removeAppointment(ele) {
+            var $fieldset = $(ele).parent('fieldset');
+            $fieldset.hide('slow', function () {
+
+                $fieldset.remove();
+
+
+                $('#divattachappointment').find('fieldset').each(function (i, fieldset) {
+                    debugger;
+                    var indexField = i + 1;
+                    console.log(indexField);
+                    $(fieldset).removeAttr('class');
+
+                    $(fieldset).addClass('col-xs-12 attach_' + indexField + '');
+
+                });
+
+
+            });
+
+
+
+        }
+
+
+        function getFormattedDate(date) {
+            date = new Date(date);
+            var year = date.getFullYear();
+
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+
+            return month + '/' + day + '/' + year;
+        }
+
     </script>
+}
+
+@section Style
+{
+    <link href="~/Content/css/homeVisitHistorical.css" rel="stylesheet" />
+}
+
+
+@section MainContentHolder{
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="right-side-container-ch">
+                <div class="col-xs-12">
+
+
+                    <div class="col-lg-12 nopadding">
+                        <h2 class="page-header page-header-change" style="border-bottom:5px solid #f9c751!important;color:#fff;">
+                           <span class="spanHeading"><i class="fa fa-group"></i> Home Visit(s) Historical</span>
+
+                            <span class="view-btn backto_listspan">
+
+                                <a href="javascript:void(0);" onclick="backToList(this);" class="glossy-button-button anchor_yellow">
+                                    Back to Dashboard
+
+                                    <span class="glossy-button-after"></span>
+                                    <span class="glossy-button-before"></span>
+                                </a>
+
+
+
+                            </span>
+                        </h2>
+                    </div>
+
+
+                    <div class="form-div">
+                        <div class="row">
+                            <div class="col-xs-12" style="margin-bottom:10px;margin-top:25px;">
+                                <div class="import-spacing">
+                                    <div class="col-xs-12 col-lg-2 col-sm-4">
+                                        <label class="label_style lbl-required">Home Visitor</label>
+                                    </div>
+
+                                    <div class="col-xs-12 col-lg-4 col-sm-8 glossy_main">
+                                        @Html.DropDownList("ddlHomeVisitors", Fingerprints.Utilities.Helper.GetUsersByRoleId(hvRoleId, Session["RoleId"].ToString(), Session["UserID"].ToString(), Session["AgencyID"].ToString()), new { @class = "ersa-select center-select width-select-change  glossy-select-option", @onchange = "return loadFamily(this);" })
+                                    </div>
+                                </div>
+                                <div class="import-spacing">
+                                    <div class="col-xs-12 col-lg-1 col-sm-4">
+                                        <label class="label_style lbl-required">Family</label>
+                                    </div>
+
+                                    <div class="col-xs-12 col-lg-5 col-sm-8 glossy_main">
+                                        <select class="ersa-select center-select width-select-change glossy-select-option" id="familySelect">
+                                            <option value="0"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form id="meeting-form">
+                            <div class="outlet-fieldset" id="appointment-div">
+
+                                <div class="col-xs-12 text-right">
+                                    <button class="glossy-button-button button-green" type="button" id="addAppointmentBtn">
+                                        <i class="fa fa-plus-circle" style="margin-right:4px;"></i>Add Appointment
+                                        <span class="glossy-button-before"></span>
+                                        <span class="glossy-button-after"></span>
+                                    </button>
+                                </div>
+                                <fieldset class="col-xs-12 attach_0" style="margin-top:10px;">
+                                    <legend style="width:272px!important;">Scheduled Appointment</legend>
+
+                                    <div class="row" style="margin-top:5px;">
+                                        <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:8px;">
+                                            <div class="col-xs-12 col-sm-4">
+                                                <label class="label_style lbl-required">Meeting Date</label>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-6 col-sm-8">
+                                                <div class="input-group date scheduleMeetingPicker">
+                                                    <input type="text" tabindex="2" placeholder="MM/DD/YYYY" class="date-input" name="date-input">
+                                                    <span class="input-group-addon" style="width:auto;display:inline-block;vertical-align:top;cursor:pointer;">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                            <div class="col-xs-12 col-sm-4">
+                                                <label class="label_style lbl-required">Start Time</label>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-6 col-sm-8">
+                                                <select name="StartTime" id="StartTime" class="ersa-select center-select width-select-change" placeholder="From">
+
+                                                    <option value="0">--Select--</option>
+                                                    <option value="08:00 AM">08:00 AM</option>
+                                                    <option value="08:15 AM">08:15 AM</option>
+
+                                                    <option value="08:30 AM">08:30 AM</option>
+                                                    <option value="08:45 AM">08:45 AM</option>
+
+                                                    <option value="09:00 AM">09:00 AM</option>
+                                                    <option value="09:15 AM">09:15 AM</option>
+
+                                                    <option value="09:30 AM">09:30 AM</option>
+                                                    <option value="09:45 AM">09:45 AM</option>
+
+                                                    <option value="10:00 AM">10:00 AM</option>
+                                                    <option value="10:15 AM">10:15 AM</option>
+
+                                                    <option value="10:30 AM">10:30 AM</option>
+                                                    <option value="10:45 AM">10:45 AM</option>
+
+                                                    <option value="11:00 AM">11:00 AM</option>
+                                                    <option value="11:15 AM">11:15 AM</option>
+
+                                                    <option value="11:30 AM">11:30 AM</option>
+                                                    <option value="11:45 AM">11:45 AM</option>
+
+                                                    <option value="12:00 PM">12:00 PM</option>
+                                                    <option value="12:15 PM">12:15 PM</option>
+
+                                                    <option value="12:30 PM">12:30 PM</option>
+                                                    <option value="12:45 PM">12:45 PM</option>
+
+                                                    <option value="01:00 PM">01:00 PM</option>
+                                                    <option value="01:15 PM">01:15 PM</option>
+
+                                                    <option value="01:30 PM">01:30 PM</option>
+                                                    <option value="01:45 PM">01:45 PM</option>
+
+                                                    <option value="02:00 PM">02:00 PM</option>
+                                                    <option value="02:15 PM">02:15 PM</option>
+
+                                                    <option value="02:30 PM">02:30 PM</option>
+                                                    <option value="02:45 PM">02:45 PM</option>
+
+                                                    <option value="03:00 PM">03:00 PM</option>
+                                                    <option value="03:15 PM">03:15 PM</option>
+
+                                                    <option value="03:30 PM">03:30 PM</option>
+                                                    <option value="03:45 PM">03:45 PM</option>
+
+                                                    <option value="04:00 PM">04:00 PM</option>
+                                                    <option value="04:15 PM">04:15 PM</option>
+
+                                                    <option value="04:30 PM">04:30 PM</option>
+                                                    <option value="04:45 PM">04:45 PM</option>
+
+                                                    <option value="05:00 PM">05:00 PM</option>
+                                                    <option value="05:15 PM">05:15 PM</option>
+
+                                                    <option value="05:30 PM">05:30 PM</option>
+                                                    <option value="05:45 PM">05:45 PM</option>
+
+                                                    <option value="06:00 PM">06:00 PM</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row" style="margin-top:5px;">
+
+
+                                        <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                            <div class="col-xs-12 col-lg-4 col-sm-4">
+                                                <label class="label_style lbl-required">Duration</label>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-8 col-sm-8">
+
+
+
+                                                <select name="endTime" id="EndTime" class="ersa-select center-select width-select-change endtimeselect" style="width:152px;position:absolute;background:transparent;color:#fff;border:1px solid #fff;">
+                                                    <option value=""></option>
+                                                    <option value="00:30">00:30</option>
+                                                    <option value="01:00">01:00</option>
+                                                    <option value="01:30">01:30</option>
+                                                    <option value="02:00">02:00</option>
+                                                    <option value="02:30">02:30</option>
+                                                    <option value="03:00">03:00</option>
+                                                    <option value="03:30">03:30</option>
+                                                    <option value="04:00">04:00</option>
+                                                </select>
+
+                                                <input class="timeTextBox" placeholder="HH:MM" id="TestEndTime" style="height:30px;" name="timebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);" />
+
+                                                <label class="lblDurationNote">Note! Duration is editable</label>
+
+                                            </div>
+                                        </div>
+
+
+
+
+                                        <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:10px;">
+                                            <div class="col-xs-12 col-sm-4">
+                                                <label class="label_style lbl-required">Attendance Type</label>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-6 col-sm-8">
+                                                <select class="ersa-select center-select width-select-change attendance_select" onchange="showParent(this,1);" id="attendanceType_0" name="attendanceType">
+                                                    <option value="0">--Select--</option>
+                                                    <option value="11">Home Visit Present</option>
+                                                    <option value="12">Home Visit No Show</option>
+                                                    <option value="13">Home Visit Field Trip</option>
+                                                    <option value="14">Home Visit Parent Cancels</option>
+                                                    <option value="15">Home Visit Staff Cancels</option>
+                                                    <option value="16">Home Visit Preg Mother</option>
+                                                    <option value="17">Home Visit Socialization</option>
+                                                    <option value="18">Home Visit Transition</option>
+                                                    <option value="19">Home Visit Make up</option>
+                                                </select>
+
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-6 col-xs-12 col-sm-12 pd-0 home-visit-parent" style="margin-bottom:10px;">
+                                            <div class="col-xs-12 col-sm-4" style="padding-right:0;">
+                                                <label class="label_style lbl-required">Guardian Present</label>
+                                            </div>
+                                            <div class="col-xs-12 col-lg-6 col-sm-8 parent-div">
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+
+
+                                </fieldset>
+
+                                <div class="col-xs-12 no-padding" id="divattachappointment">
+
+                                </div>
+
+
+
+
+                                <div class="col-xs-12 no-padding" id="submit-cancel-div">
+                                    <div class="btnwrp_subcal">
+                                        <button type="button" class="glossy-button-button button-green" id="btnMeetingSchedule">
+                                            Save
+
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                        </button>
+
+                                        <button type="button" class="glossy-button-button button-red" onclick="backToList(this);">
+                                            Exit
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+
+
+                        <div class="list-days-attnd table-responsive" id="table_Meeting_historical" style="margin-bottom:20px;margin-top:20px;display:none;">
+
+                            <div class="col-xs-12 col-lg-12" style="padding:10px;">
+
+
+                                <div class="col-xs-12 col-lg-2 col-sm-12 col-md-2 div-search-lbl">
+                                    <label>Search by Month</label>
+                                </div>
+                                <div class="col-xs-12 col-lg-3 col-sm-12 col-md-3">
+                                    <select class="glossy-select-option" id="selectMonth"></select>
+                                </div>
+
+                                @*<div class="col-lg-2 col-xs-12 text-right">
+                                        <button id="insertMeetingRecord" accesskey="0" type="button" class="glossy-button-button button-green">
+                                            Search
+
+                                            <span class="glossy-button-after"></span>
+                                            <span class="glossy-button-before"></span>
+                                        </button>
+                                    </div>*@
+
+                            </div>
+
+                            <table class="table table-striped ">
+                                <thead class="table-hd scroll-thead">
+                                    <tr>
+                                        <th>Meeting Date</th>
+                                        <th>Start Time</th>
+                                        <th>Duration</th>
+                                        <th>Attendance Type</th>
+                                        <th>Guardian Present</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scrollTbody2" class="scroll-tbody">
+                                    @*<tr>
+                                        <td data-title="Meeting Date">08/10/2018</td>
+                                        <td data-title="Start Time">09:30 AM</td>
+                                        <td data-title="Duration">02:30</td>
+                                        <td data-title="Attendance Type">Home Visit Present</td>
+                                        <td data-title="Guardian Present">Jessica Bella, John Fritter</td>
+                                        <td>
+                                        <div class="edit">
+                                        <button type="button" class="btn btn-default btn-sm edit-item" accesskey="5" index-id="14">
+                                        <span class="glyphicon glyphicon-pencil"></span> Edit
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm delete-item" accesskey="5" index-id="14">
+                                        <span class="glyphicon glyphicon-remove"></span> Delete
+                                        </button>
+
+                                        </div>
+                                        </td>
+
+                                        </tr>
+                                        <tr style="display:none;">
+                                        <td data-title="Meeting Date">
+
+                                        <div class="input-group date scheduleMeetingPicker">
+                                        <input type="text" tabindex="2" placeholder="MM/DD/YYYY" class="cls-meetingdate">
+                                        <span class="input-group-addon date-span" style="width:auto;display:inline-block;vertical-align:top;cursor:pointer;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                        </div>
+
+                                        </td>
+
+                                        <td data-title="Start Time">
+                                        <select name="StartTime" id="StartTime" class="form-control" placeholder="From">
+                                        <option value="0">--Select--</option>
+                                        <option value="08:00 AM">08:00 AM</option>
+                                        <option value="08:15 AM">08:15 AM</option>
+
+                                        <option value="08:30 AM">08:30 AM</option>
+                                        <option value="08:45 AM">08:45 AM</option>
+
+                                        <option value="09:00 AM">09:00 AM</option>
+                                        <option value="09:15 AM">09:15 AM</option>
+
+                                        <option value="09:30 AM">09:30 AM</option>
+                                        <option value="09:45 AM">09:45 AM</option>
+
+                                        <option value="10:00 AM">10:00 AM</option>
+                                        <option value="10:15 AM">10:15 AM</option>
+
+                                        <option value="10:30 AM">10:30 AM</option>
+                                        <option value="10:45 AM">10:45 AM</option>
+
+                                        <option value="11:00 AM">11:00 AM</option>
+                                        <option value="11:15 AM">11:15 AM</option>
+
+                                        <option value="11:30 AM">11:30 AM</option>
+                                        <option value="11:45 AM">11:45 AM</option>
+
+                                        <option value="12:00 PM">12:00 PM</option>
+                                        <option value="12:15 PM">12:15 PM</option>
+
+                                        <option value="12:30 PM">12:30 PM</option>
+                                        <option value="12:45 PM">12:45 PM</option>
+
+                                        <option value="01:00 PM">01:00 PM</option>
+                                        <option value="01:15 PM">01:15 PM</option>
+
+                                        <option value="01:30 PM">01:30 PM</option>
+                                        <option value="01:45 PM">01:45 PM</option>
+
+                                        <option value="02:00 PM">02:00 PM</option>
+                                        <option value="02:15 PM">02:15 PM</option>
+
+                                        <option value="02:30 PM">02:30 PM</option>
+                                        <option value="02:45 PM">02:45 PM</option>
+
+                                        <option value="03:00 PM">03:00 PM</option>
+                                        <option value="03:15 PM">03:15 PM</option>
+
+                                        <option value="03:30 PM">03:30 PM</option>
+                                        <option value="03:45 PM">03:45 PM</option>
+
+                                        <option value="04:00 PM">04:00 PM</option>
+                                        <option value="04:15 PM">04:15 PM</option>
+
+                                        <option value="04:30 PM">04:30 PM</option>
+                                        <option value="04:45 PM">04:45 PM</option>
+
+                                        <option value="05:00 PM">05:00 PM</option>
+                                        <option value="05:15 PM">05:15 PM</option>
+
+                                        <option value="05:30 PM">05:30 PM</option>
+                                        <option value="05:45 PM">05:45 PM</option>
+
+                                        <option value="06:00 PM">06:00 PM</option>
+                                        </select>
+
+                                        </td>
+                                        <td data-title="Duration" class="duration-column">
+
+                                        <select name="endTime" id="EndTime" class="duration-select">
+                                        <option value=""></option>
+                                        <option value="00:30">00:30</option>
+                                        <option value="01:00">01:00</option>
+                                        <option value="01:30">01:30</option>
+                                        <option value="02:00">02:00</option>
+                                        <option value="02:30">02:30</option>
+                                        <option value="03:00">03:00</option>
+                                        <option value="03:30">03:30</option>
+                                        <option value="04:00">04:00</option>
+                                        </select>
+
+                                        <input class="timeTextBox1" placeholder="HH:MM" id="TestEndTime" style="height:28px;" name="timebox" maxlength="5" oninput="hideSelectSize(this);" onblur="testTime(this);">
+
+                                        </td>
+                                        <td data-title="Attendance Type" class="attendance-column">
+
+                                        <select class="attendance-select" onchange="showParent(this);" name="attendanceType">
+                                        <option value="0">--Select--</option>
+                                        <option value="11">Home Visit Present</option>
+                                        <option value="12">Home Visit No Show</option>
+                                        <option value="13">Home Visit Field Trip</option>
+                                        <option value="14">Home Visit Parent Cancels</option>
+                                        <option value="15">Home Visit Staff Cancels</option>
+                                        <option value="16">Home Visit Preg Mother</option>
+                                        <option value="17">Home Visit Socialization</option>
+                                        <option value="18">Home Visit Transition</option>
+                                        <option value="19">Home Visit Make up</option>
+                                        </select>
+
+                                        </td>
+                                        <td data-title="Guardian Present" class="guardian-column">
+                                        <div class="guardian-checkbox">
+                                        <input type="checkbox" name="parentcheckbox_0" id="parentcheckbox_0" value="15161" class="abtCheckbox">
+                                        <label for="parentcheckbox_0" class="guardian-label">Preg Alessia (Mother)</label>
+                                        </div>
+                                        </td>
+                                        <td>
+                                        <div class="edit">
+                                        <button type="button" class="btn btn-success btn-sm edit-item" accesskey="5" index-id="14">
+                                        <span class="glyphicon glyphicon-pencil"></span> Save
+                                        </button>
+                                        <button type="button" class="btn btn-default btn-sm delete-item" accesskey="5" index-id="14">
+                                        <span class="glyphicon glyphicon-log-out"></span> Back
+                                        </button>
+
+                                        </div>
+
+                                        </td>
+                                        </tr>*@
+
+                                </tbody>
+                            </table>
+
+
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @Html.Hidden("roleId", hvRoleId)
+
+    <input type="hidden" id="EndTimeDuration" name="EndTimeDuration" />
+
+    <div id="attendanceTypeDiv" style="display:none;">
+        @Html.DropDownList("ddlAttendanceType", Fingerprints.Utilities.Helper.GetAttendanceType(Session["AgencyID"].ToString(), Session["UserID"].ToString(), true), new { @class = "ersa-select center-select width-select-change", @onchange = "return loadFamily(this)" })
+    </div>
 
 }
 

@@ -80,6 +80,8 @@ namespace FingerprintsModel
 
         public string ProgramYearStartDate { get; set; }
 
+        public List<System.Web.Mvc.SelectListItem> MonthsList { get; set; }
+
 
     }
 

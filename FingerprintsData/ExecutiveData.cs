@@ -155,6 +155,14 @@ namespace FingerprintsData
                         }
                     }
 
+                    /// shows demographic menu for Access roles if the returns 1.
+
+                    if(_dataset.Tables.Count>10 && _dataset.Tables[10].Rows.Count>0)
+                    {
+                        HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(_dataset.Tables[10].Rows[0]["ShowDemographic"].ToString())) ? false :
+                            Convert.ToString(_dataset.Tables[10].Rows[0]["ShowDemographic"]) == "1" ? true : false;
+                    }
+
                 }
             }
             catch (Exception ex)
