@@ -60,7 +60,12 @@ namespace Fingerprints.Controllers
             ViewBag.superadmindashboard = superAdmin.GetSuperAdmindashboard();
             return View();
         }
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        //   [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+
+       [CustAuthFilter(userTypeArray: new string[] {Role.agencyAdmin,Role.gEarthAdministrator, Role.superAdmin})]
+
+     
+
         public ActionResult AgencyAdminDashboard(string id = "0")
         {
             try
@@ -162,7 +167,10 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        //[CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        [CustAuthFilter()]
         public ActionResult ApplicationApprovalDashboard()
         {
             try
