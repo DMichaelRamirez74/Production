@@ -305,7 +305,7 @@ $(document).ready(function () {
                 
                
                 cleanValidation();
-                customAlert("Assessment 2 FromDate5555 is Less Than From Assessment 1 ToDate");
+                customAlert("Assessment 2 FromDate is Less Than From Assessment 1 ToDate");
                 plainValidation('#assessment2Fromdate');
                 return false;
             }
