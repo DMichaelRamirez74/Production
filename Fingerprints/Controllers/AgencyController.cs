@@ -1696,7 +1696,47 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
+        #region Staff-Mang Mapping
 
+
+        [CustAuthFilter("3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,f87b4a71-f0a8-43c3-aea7-267e5e37a59d")] //Agency Admin,GenesisEarth Admin,Super Admin
+        public ActionResult StaffRoleMapping() {
+
+            StaffDetails stf = StaffDetails.GetInstance();
+            var result = new StaffRoleMapping();
+
+            //  if (stf.AgencyId.ToString() == "3b49b025-68eb-4059-8931-68a0577e5fa2") //for Agency Admin
+            // {
+            string cmd = String.IsNullOrEmpty(stf.AgencyId.ToString()) ? "SuperAdmin" : "AgencyAdmin";
+
+            result = agencyData.GetStaffRoleMappingDetails(stf.AgencyId.ToString(), cmd);
+           // }
+
+            return View(result);
+        }
+
+        public JsonResult GetStaffRoleList(string mRoleId, string agencyId) {
+            string cmd = "StaffRoleListBymId";
+            var result = agencyData.GetStaffRoleMappingDetails(agencyId,cmd, null,mRoleId);
+                return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult UpdateStaffRoleMapping(string mRoleId, List<string> staffRoleIds,string agencyId)
+        {
+            string cmd = "Update";
+             var result = agencyData.GetStaffRoleMappingDetails(agencyId,cmd, staffRoleIds,mRoleId);
+             return Json(result, JsonRequestBehavior.AllowGet);
+           
+        }
+
+        public JsonResult GetManagerRoleMapList(string agencyId) {
+
+           var result =  agencyData.GetStaffRoleMappingDetails(agencyId);
+
+            return Json(result.ManagerRoleTableList, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion Staff-Mang Mapping
 
 
     }

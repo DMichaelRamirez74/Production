@@ -6126,6 +6126,300 @@ namespace FingerprintsData
         return _access;
     }
 
+        public StaffRoleMapping GetStaffRoleMappingDetails(string agencyId, string Command="",List<string> staffRoles=null,string mRoleId=null)
+        {
+            StaffRoleMapping SRMDetails = new StaffRoleMapping();
+            SRMDetails.RolesList = new List<StaffRoleMapping.RoleList>();
+            SRMDetails.ManagerRoleTableList = new List<StaffRoleMapping.ManagerRoleTable>();
+            try
+            {
 
-}
+                StaffDetails stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@Agencyid", String.IsNullOrEmpty(agencyId)?null:agencyId));
+                command.Parameters.Add(new SqlParameter("@Userid", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@Command", Command));
+                command.Parameters.Add(new SqlParameter("@ManagerRoleId", mRoleId));
+                //staffRoles
+                DataTable StaffRoleIds = new DataTable();
+                StaffRoleIds.Columns.AddRange(new DataColumn[1] {
+                     new DataColumn("RoleId", typeof(string))
+                });
+                if (staffRoles != null && staffRoles.Count > 0) {
+                    foreach (var item in staffRoles) {
+                        StaffRoleIds.Rows.Add(item);
+                    }
+                }
+                command.Parameters.Add(new SqlParameter("@StaffRoleIds", StaffRoleIds));
+
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetStaffRoleMappingDetails";
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+                Connection.Close();
+
+
+                if (_dataset != null && _dataset.Tables.Count > 0 && Command == "Update")
+                {
+
+             SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"] ? false : Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Updated"]);
+
+
+
+
+
+                    if (_dataset.Tables.Count > 2 )
+                    {
+
+                        //for manager list
+
+                        foreach (DataRow dr in _dataset.Tables[1].Rows)
+                        {
+                            var RoleLi = new StaffRoleMapping.RoleList();
+                            RoleLi.RoleId = dr["Id"].ToString();
+                            RoleLi.RoleName = dr["RoleName"].ToString();
+                            SRMDetails.RolesList.Add(RoleLi);
+
+                        }
+
+
+                        //for mapped staff role list
+                        var MGTable = new List<StaffRoleMapping.ManagerRoleTable>();
+
+                        foreach (var item in SRMDetails.RolesList)
+                        {
+                            var MgRole = new StaffRoleMapping.ManagerRoleTable();
+                            MgRole.StaffRoles = new List<StaffRoleMapping.StaffRole>();
+                            MgRole.RoleId = item.RoleId;
+                            MgRole.RoleName = item.RoleName;
+                            foreach (DataRow dr in _dataset.Tables[2].Rows)
+                            {
+                                var stafRole = new StaffRoleMapping.StaffRole();
+
+                                if (MgRole.RoleId == dr["MRoleId"].ToString())
+                                {
+
+                                    stafRole.RoleId = dr["MRoleId"].ToString();
+                                    stafRole.RoleName = dr["RoleName"].ToString();
+                                    MgRole.StaffRoles.Add(stafRole);
+                                }
+
+                            }
+                            MGTable.Add(MgRole);
+                        }
+
+                        SRMDetails.ManagerRoleTableList = MGTable;
+                    }
+
+                }
+
+
+                if (_dataset != null && Command == "StaffRoleListBymId" && _dataset.Tables.Count > 0) {
+
+                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                    {
+                        var RoleLi = new StaffRoleMapping.RoleList();
+                        RoleLi.RoleId = dr["Id"].ToString();
+                        RoleLi.RoleName = dr["RoleName"].ToString();
+                        RoleLi.Checked = DBNull.Value == dr["Checked"] ? false : Convert.ToBoolean(dr["Checked"]);
+                        SRMDetails.RolesList.Add(RoleLi);
+
+                    }
+
+                    //for super admin
+
+                    if (_dataset.Tables.Count > 2)
+                    {
+                        if (_dataset.Tables.Count > 1 && _dataset.Tables[1].Rows.Count > 0)
+                        {
+
+                            var MGTable = new List<StaffRoleMapping.ManagerRoleTable>();
+                            foreach (DataRow dr in _dataset.Tables[1].Rows)
+                            {
+                                var MgRole = new StaffRoleMapping.ManagerRoleTable();
+                                var stafRole = new List<StaffRoleMapping.StaffRole>();
+
+                                MgRole.RoleId = dr["Id"].ToString();
+                                MgRole.RoleName = dr["RoleName"].ToString();
+
+
+                                MGTable.Add(MgRole);
+                            }
+                            SRMDetails.ManagerRoleTableList = MGTable;
+
+                        }
+
+
+                        if (_dataset.Tables.Count > 2 && _dataset.Tables[2].Rows.Count > 0)
+                        {
+                           
+                            for (int i=0; i < SRMDetails.ManagerRoleTableList.Count;i++) {
+
+                                var stafRole = new List<StaffRoleMapping.StaffRole>();
+                                foreach (DataRow dr in _dataset.Tables[2].Rows)
+                                {
+                                    if (SRMDetails.ManagerRoleTableList[i].RoleId == dr["MRoleId"].ToString())
+                                    {
+                                        stafRole.Add(new StaffRoleMapping.StaffRole()
+                                        {
+                                            RoleId = dr["StaffRoleId"].ToString(),
+                                            RoleName = dr["RoleName"].ToString()
+                                        });
+                                    }
+
+                                }
+
+                                SRMDetails.ManagerRoleTableList[i].StaffRoles = stafRole;
+                            }
+
+                        }
+
+                    }
+
+
+                    }
+
+                if (_dataset != null && (Command == "SuperAdmin" || Command == "AgencyAdmin")  && _dataset.Tables.Count > 0)
+                {
+
+                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                    {
+                        var RoleLi = new StaffRoleMapping.RoleList();
+                        RoleLi.RoleId = dr["Id"].ToString();
+                        RoleLi.RoleName = dr["RoleName"].ToString();
+                        SRMDetails.RolesList.Add(RoleLi);
+
+                    }
+
+                    //for Agency Admin
+                    if (_dataset.Tables.Count > 1)
+                    {
+
+                        var MGTable = new List<StaffRoleMapping.ManagerRoleTable>();
+
+                        foreach (var item in SRMDetails.RolesList)
+                        {
+                            var MgRole = new StaffRoleMapping.ManagerRoleTable();
+                            MgRole.StaffRoles = new List<StaffRoleMapping.StaffRole>();
+                            MgRole.RoleId = item.RoleId;
+                            MgRole.RoleName = item.RoleName;
+                            foreach (DataRow dr in _dataset.Tables[1].Rows)
+                            {
+                                var stafRole = new StaffRoleMapping.StaffRole();
+
+                                if (MgRole.RoleId == dr["MRoleId"].ToString())
+                                {
+
+                                    stafRole.RoleId = dr["MRoleId"].ToString();
+                                    stafRole.RoleName = dr["RoleName"].ToString();
+                                    MgRole.StaffRoles.Add(stafRole);
+                                }
+
+                            }
+                            MGTable.Add(MgRole);
+                        }
+
+                        SRMDetails.ManagerRoleTableList = MGTable;
+                    }
+
+
+                }
+
+
+                /*
+                if (_dataset != null && Command == "AgencyAdmin" && _dataset.Tables.Count > 0)
+                {
+
+                    foreach (DataRow dr in _dataset.Tables[0].Rows)
+                    {
+                        var RoleLi = new StaffRoleMapping.RoleList();
+                        RoleLi.RoleId = dr["Id"].ToString();
+                        RoleLi.RoleName = dr["RoleName"].ToString();
+                        SRMDetails.RolesList.Add(RoleLi);
+
+                    }
+
+
+                }
+
+
+                if (_dataset != null && _dataset.Tables.Count > 0 && Command != "Update")
+                {
+                    //List of roles
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            var RoleLi = new StaffRoleMapping.RoleList();
+                            RoleLi.RoleId = dr["Id"].ToString();
+                            RoleLi.RoleName = dr["RoleName"].ToString();
+                            if (Command == "StaffRoleListBymId")
+                            {
+                                RoleLi.Checked = DBNull.Value == dr["Checked"] ? false : Convert.ToBoolean(dr["Checked"]);
+                            }
+
+
+                            SRMDetails.RolesList.Add(RoleLi);
+
+                        }
+                    }
+
+
+                    if (_dataset.Tables.Count > 1)
+                    {
+
+                        var MGTable = new List<StaffRoleMapping.ManagerRoleTable>();
+
+                        foreach (var item in SRMDetails.RolesList)
+                        {
+                            var MgRole = new StaffRoleMapping.ManagerRoleTable();
+                            MgRole.StaffRoles = new List<StaffRoleMapping.StaffRole>();
+                            MgRole.RoleId = item.RoleId;
+                            MgRole.RoleName = item.RoleName;
+                            foreach (DataRow dr in _dataset.Tables[1].Rows)
+                            {
+                                var stafRole = new StaffRoleMapping.StaffRole();
+
+                                if (MgRole.RoleId == dr["MRoleId"].ToString())
+                                {
+
+                                    stafRole.RoleId = dr["MRoleId"].ToString();
+                                    stafRole.RoleName = dr["RoleName"].ToString();
+                                    MgRole.StaffRoles.Add(stafRole);
+                                }
+
+                            }
+                            MGTable.Add(MgRole);
+                        }
+
+                        SRMDetails.ManagerRoleTableList = MGTable;
+                    }
+
+                }
+                else if (_dataset != null && _dataset.Tables.Count > 0 && Command == "Update") {
+SRMDetails.Updated = DBNull.Value == _dataset.Tables[0].Rows[0]["Updated"]  ? false : Convert.ToBoolean(_dataset.Tables[0].Rows[0]["Updated"]);
+                }
+                */
+
+                    }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return SRMDetails;
+        }
+
+
+
+
+            }
 }
