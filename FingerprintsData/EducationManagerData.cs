@@ -16,7 +16,10 @@ namespace FingerprintsData
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();
         DataSet _dataset = null;
-
+       
+        SqlDataAdapter DataAdapter = null;
+        DataTable _dataTable = null;
+      
         public EducationManager GetEducationDashboard()
         {
             EducationManager per = new EducationManager();
@@ -875,6 +878,83 @@ namespace FingerprintsData
             return UserList;
 
 
+        }
+     
+        public ScreeningAnalysisInfoModel ScreeningInfo(ScreeningAnalysisInfo info)
+        {
+      
+            ScreeningAnalysisInfoModel model = new ScreeningAnalysisInfoModel();
+            List<ScreeningAnalysisInfo> screeningInfoList = new List<ScreeningAnalysisInfo>();
+          //  try
+          //  {
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Parameters.Add(new SqlParameter("@AgencyId", info.AgencyId));
+                command.Parameters.Add(new SqlParameter("@Center", info.CenterId));
+                command.Parameters.Add(new SqlParameter("@ClassRoom", info.ClassRoomId));
+                command.Parameters.Add(new SqlParameter("@Filter", info.FilterType));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "EducationManagerScreening";
+                _dataset = new DataSet();
+                DataAdapter = new SqlDataAdapter(command);
+                DataAdapter.Fill(_dataset);
+                if (_dataset != null)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        screeningInfoList = (from DataRow dr in _dataset.Tables[0].Rows
+                                          select new ScreeningAnalysisInfo
+                                          {
+                                              ClientId = Convert.ToInt64(dr["clientId"]),
+                                              ChildName = dr["childname"].ToString(),
+                                              CenterId = Convert.ToInt64(dr["centerid"]),
+                                              ClassRoomId = Convert.ToInt64(dr["classroomid"]),
+                                              CenterName = dr["centername"].ToString(),
+                                              ClassroomName = dr["classroomname"].ToString(),
+                                              NumofDaysScreening = dr["numofdaysscreening"].ToString(),
+                                              ScreeningDate = dr["screeningdate"].ToString(),
+                                              DateofFirstService = dr["dateoffirstservice"].ToString(),
+                                              ScreeningResults = dr["screeningresults"].ToString(),
+                                              RescreenNumofDaysScreening = dr["numofdaysrescreen"].ToString(),
+                                              RescreenDate = dr["rescreeningdate"].ToString(),
+                                              RescreenResults = dr["rescreeningresults"].ToString(),
+                                              dob = dr["dob"].ToString()
+
+                                          }
+
+                                        ).ToList();
+                    }
+
+                    if (_dataset.Tables.Count == 2)
+                    {
+
+                        if (_dataset.Tables[1].Rows.Count > 0)
+                        {
+                            model.CenterList = (from DataRow dr1 in _dataset.Tables[1].Rows
+                                                select new Center
+                                                {
+                                                    CenterId = Convert.ToInt32(dr1["CenterId"]),
+                                                    CenterName = dr1["CenterName"].ToString(),
+                                                    Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterId"].ToString())
+                                                }
+                                              ).ToList();
+                        }
+                    }
+
+                 
+
+                  
+                    model.ScreeningAnalysisInfoList = screeningInfoList;
+                }
+        //    }
+        //    catch (Exception ex)
+        //    {
+       //         clsError.WriteException(ex);
+       //     }
+            return model;
         }
 
 

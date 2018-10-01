@@ -116,7 +116,7 @@ namespace FingerprintsModel
        
 
     }
-
+   
     public enum StaffEventListType
     {
 

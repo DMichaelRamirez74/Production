@@ -367,7 +367,37 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
 
         }
-        
+
+        public ActionResult ScreeningAnalysis()
+        {
+
+            return View();
+        }
+
+        public JsonResult GetScreeningInfoBySearch(long centerId, long classRoomId, long filterType)
+        {
+            ScreeningAnalysisInfo info = new ScreeningAnalysisInfo();
+            ScreeningAnalysisInfoModel model = new ScreeningAnalysisInfoModel();
+         //   try
+          //  {
+                info.CenterId = centerId;
+                info.ClassRoomId = classRoomId;
+                info.FilterType = filterType;
+                info.AgencyId = new Guid(Session["AgencyId"].ToString());
+                info.UserId = new Guid(Session["UserID"].ToString());
+                info.RoleId = new Guid(Session["RoleId"].ToString());
+                // model = new CenterData().GetParentInfoBySearch(info);
+                model = new EducationManagerData().ScreeningInfo(info);
+
+          //  }
+           // catch (Exception ex)
+          //  {
+
+               // clsError.WriteException(ex);
+           // }
+            return Json(model);
+
+        }
 
     }
 }
