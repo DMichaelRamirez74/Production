@@ -13,6 +13,12 @@ namespace Fingerprints.Filters
         {
             Usertype = userType.Split(',');
         }
+
+        public CustAuthFilter(string [] userTypeArray)
+        {
+            Usertype = Array.ConvertAll( userTypeArray,x=>x.ToLowerInvariant());
+            
+        }
         public CustAuthFilter()
         {
             Usertype = new string[0];

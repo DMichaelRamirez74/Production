@@ -1203,7 +1203,7 @@
                                             <td data-title="Start Time">' + $startTime2 + '</td>\
                                             <td data-title="Duration">'+ schedule.Duration + '</td>\
                                             <td data-title="Attendance Type" att-id='+ schedule.AttendanceTypeId + '>' + $attendanceDesc + '</td>\
-                                            <td data-title="Guardian Present" par1='+ schedule.ParentId1 + ' par2=' + schedule.ParentId2 + ' >' + $guardianPresent + '</td>\
+                                            <td data-title="Guardian Present" par1="'+ schedule.ParentId1 +'" par2="' + schedule.ParentId2 + '" >' + $guardianPresent + '</td>\
                                             <td>\
                                                 <div class="edit">\
                                                     <button type="button" class="btn btn-default btn-sm edit-item">\
@@ -1600,6 +1600,17 @@
                     if (data) {
                         showBusy(false);
                         customAlert('Record saved successfully');
+
+                        $('#divattachappointment').html('');
+
+                        var $fielset = $('#appointment-div').find('fieldset');
+                        $fielset.find('input[name=date-input]').val('');
+                        $fielset.find('select[name=StartTime]').val('0');
+                        $fielset.find('input[name=timebox]').val('');
+                        $fielset.find('select[name=attendanceType]').val(0);
+                        $fielset.find('.home-visit-parent').find('input:checkbox').prop('checked', false);
+                        $fielset.find('.home-visit-parent').hide();
+
                         GetAttendanceDetailsFromDate('#selectMonth', 2);
                     }
                     else {
@@ -2142,7 +2153,7 @@
                             <span class="view-btn backto_listspan">
 
                                 <a href="javascript:void(0);" onclick="backToList(this);" class="glossy-button-button anchor_yellow">
-                                    Back to Dashboard
+                                    Back
 
                                     <span class="glossy-button-after"></span>
                                     <span class="glossy-button-before"></span>
@@ -2191,7 +2202,7 @@
                                     </button>
                                 </div>
                                 <fieldset class="col-xs-12 attach_0" style="margin-top:10px;">
-                                    <legend style="width:272px!important;">Scheduled Appointment</legend>
+                                    <legend style="width:272px!important;">Record Visit</legend>
 
                                     <div class="row" style="margin-top:5px;">
                                         <div class="col-lg-6 col-xs-12 col-sm-12 pd-0" style="margin-bottom:8px;">

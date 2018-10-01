@@ -4315,7 +4315,7 @@ namespace FingerprintsData
                     {
                         
                         attendence.AttendenceDate = Convert.ToDateTime(dr["AttendanceDate"]);
-                        attendence.AttendenceStatus = dr["AttendenceType"].ToString();
+                        attendence.AttendenceStatus = dr["AttendanceType"].ToString();
                         attendence.Center = Convert.ToString(dr["CenterName"]);
                         attendence.Class = Convert.ToString(dr["FirstName"]);
 
