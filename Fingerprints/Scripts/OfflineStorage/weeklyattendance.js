@@ -2708,9 +2708,16 @@ function insertDailyDataToLocal() {
 $('#datetimepicker1').on('change', function () {
     //  clearAllInputs();
 
-    var date = $(this).val();
-    setWeekDays($('#datetimepicker1').val());
-    var formatDate = (new Date(date).getMonth() + 1) + '/' + new Date(date).getDate() + '/' + new Date(date).getFullYear();
+        var date = $(this).val();
+
+        
+        if (new Date(date).setHours(0, 0, 0, 0) < new Date($('#accessStartDate').val()).setHours(0, 0, 0, 0)) {
+            customAlert('Entered date should be greater than or equal to the current program year start date (' + $('#accessStartDate').val() + ')');
+            return false;
+        }
+
+        setWeekDays($('#datetimepicker1').val());
+        var formatDate = (new Date(date).getMonth() + 1) + '/' + new Date(date).getDate() + '/' + new Date(date).getFullYear();
 
     if (weeklyAttendance.isHistorical()) {
         var centerArray = weeklyAttendance.getCenterClassId();
