@@ -25,6 +25,7 @@ namespace FingerprintsModel
         public bool IsShowPIR { get; set; }
 
         public bool IsShowSectionB { get; set; }
+        public bool IsShowScreening { get; set; }
         
     }
 }

@@ -18,9 +18,16 @@ var singleParent = false;
 var goalFor = 0;
 var round = 1;
 
+
+//check-parent
 $(document).ready(function () {
     $('#matrix_recommendations,#matrix_fbaPopup,#matrix_referalpopup').on('shown.bs.modal', function (e) {
         $(".nano").nanoScroller();
+    });
+
+    $("#matrix_recommendations").on("hide.bs.modal", function () {
+        // put your default event here
+     
     });
    
     $('#recommClosBtn').on('click', function () {
@@ -268,8 +275,25 @@ function SetChartDetails(e) {
             $('.mat-score').html('-');
             $('.mat-score').attr('data-score', 0);
             $('.mat-score').attr('testvalue', 0);
-
+           // alert(data.groupType);
             savetype = data.groupType;
+
+            switch(savetype)
+            {
+                case 1:
+                   
+                    $('#Ass1').removeAttr('disabled');
+                    $('#Ass1').attr('checked', true);
+                    break;
+                case 2:                   
+                    $('#Ass2').removeAttr('disabled');
+                    $('#Ass2').attr('checked', true);
+                    break;
+                case 3:                   
+                    $('#Ass3').removeAttr('disabled');
+                    $('#Ass3').attr('checked', true);
+                    break;
+            }
 
             if (data.scoreList.length > 0) {
                 for (var z = 0; z < data.scoreList.length; z++) {
@@ -373,7 +397,7 @@ function SetChartDetails(e) {
                                         test1 = parseInt($('#fill_As1_' + Group_Id).attr('TestValue'));
                                         test2 = parseInt($('#fill_As2_' + Group_Id).attr('TestValue'));
                                         differnceval = test1 - test2;
-                                        finalper = Math.abs((differnceval / test1) * 100);
+                                        finalper =(test1=0)?0: Math.abs((differnceval / test1) * 100);
                                         if (finalper % 1 !== 0) {
 
                                             finalper = finalper.toFixed(1);
@@ -420,7 +444,7 @@ function SetChartDetails(e) {
 
 
                                             differnceval = test1 - test3;
-                                            finalper = Math.abs((differnceval / test1) * 100);
+                                            finalper =(test1==0)?0: Math.abs((differnceval / test1) * 100);
                                             if (finalper % 1 !== 0) {
                                                 finalper = finalper.toFixed(1);
                                             }
@@ -445,11 +469,11 @@ function SetChartDetails(e) {
                                     }
 
                                     else if (as2Count > 0) {
-                                        test1 = $('#fill_As1_' + Group_Id).attr('TestValue');
-                                        test2 = $('#fill_As2_' + Group_Id).attr('TestValue');
+                                        test1 = parseInt($('#fill_As1_' + Group_Id).attr('TestValue'));
+                                        test2 = parseInt($('#fill_As2_' + Group_Id).attr('TestValue'));
                                         // var cat_Id = data.arraylist[i][c].AssessmentCategoryId;
                                         differnceval = test1 - test2;
-                                        finalper = Math.abs((differnceval / test1) * 100);
+                                        finalper =(test1==0)?0: Math.abs((differnceval / test1) * 100);
                                         if (finalper % 1 !== 0) {
                                             finalper = finalper.toFixed(1);
                                         }
@@ -690,6 +714,20 @@ function getLabelHeight2(Height2)
 
 //On Click over the assessment group to show the description popup//
 $('.assessment-group').click(function () {
+   
+        if ($('.CheckClient').is(':checked') == false)
+        {
+            
+            customAlert("Please select any one parents.");
+            return false;
+        }
+        if ($('#yearSelect').val() == null)
+        {
+            customAlert("Please select any one parents.");
+            return false;
+        }
+    
+    
     var dropdownYear = $('#yearSelect').val();
     var parsedYear = parseInt(dropdownYear.substr(dropdownYear.length - 2));
     var currentYear = parseInt(activeYear.substr(activeYear.length - 2));

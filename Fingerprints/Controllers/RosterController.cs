@@ -17,7 +17,7 @@ using iTextSharp.tool.xml;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Web.Script.Serialization;
-
+using System.Globalization;
 
 namespace Fingerprints.Controllers
 {
@@ -63,6 +63,10 @@ namespace Fingerprints.Controllers
 
             ViewBag.IsManager = (Array.IndexOf(managerRoleArray, Session["RoleId"].ToString().ToUpper()) > -1);
 
+            if (Role.healthNurse == Convert.ToString(Session["RoleID"]).ToUpper())
+            {
+                Session["YakkrCountPending"] = new YakkrData().GetYakkrCountPending();
+            }
 
             return View();
         }
@@ -1824,7 +1828,7 @@ namespace Fingerprints.Controllers
             score.CenterId = centerid;
             score.ClientId = id;
             score.ProgramId = Programid;
-            if (score.MatrixScoreList!=null && score.MatrixScoreList.Count > 0)
+            if (score.MatrixScoreList != null && score.MatrixScoreList.Count > 0)
             {
                 score.ClassRoomId = score.MatrixScoreList[0].ClassRoomId;
                 score.ProgramType = score.MatrixScoreList[0].ProgramType;
@@ -1841,19 +1845,18 @@ namespace Fingerprints.Controllers
         {
             MatrixScore matrixscore = new MatrixScore();
             long householdID = Convert.ToInt32(EncryptDecrypt.Decrypt64(HouseHoldID));
-            Guid agencyId = new Guid(Session["AgencyID"].ToString());
             List<ShowRecommendations> recommList = new List<ShowRecommendations>();
-            matrixscore = new RosterData().GetClientDetails(out recommList, householdID, agencyId);
+            matrixscore = new RosterData().GetClientDetails(out recommList, householdID);
             return Json(new { matrixscore, recommList }, JsonRequestBehavior.AllowGet);
         }
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
         public JsonResult GetRecommendations(string HouseholdId, long assessmentNo, string activeProgramYear)
         {
-            Guid agencyId = new Guid(Session["AgencyID"].ToString());
+           
             long householdID = Convert.ToInt32(EncryptDecrypt.Decrypt64(HouseholdId));
             ArrayList recommList = new ArrayList();
-            recommList = new RosterData().GetRecommendations(householdID, assessmentNo, agencyId, activeProgramYear);
+            recommList = new RosterData().GetRecommendations(householdID, assessmentNo,activeProgramYear);
             return Json(recommList, JsonRequestBehavior.AllowGet);
         }
 
@@ -1863,9 +1866,9 @@ namespace Fingerprints.Controllers
         {
             long dec_ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientId));
             List<AssessmentResults> results = new List<AssessmentResults>();
-            Guid agencyId = new Guid(Session["AgencyID"].ToString());
+           
 
-            results = new RosterData().GetDescription(groupId, dec_ClientID, agencyId);
+            results = new RosterData().GetDescription(groupId, dec_ClientID);
 
             return Json(results, JsonRequestBehavior.AllowGet);
         }
@@ -1931,76 +1934,177 @@ namespace Fingerprints.Controllers
 
 
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        //public JsonResult GetChartDetails(string houseHoldId, string date, string clientId)
+        //{
+
+
+        //    List<MatrixScore> scoreList = new List<MatrixScore>();
+        //    List<ChartDetails> chardetailsList = new List<ChartDetails>();
+        //    System.Collections.ArrayList arraylist = new System.Collections.ArrayList();
+
+        //    int groupType = 0;
+
+        //    try
+        //    {
+        //        AnnualAssessment assessment = new AnnualAssessment();
+        //        long houseHold = Convert.ToInt64(EncryptDecrypt.Decrypt64(houseHoldId));
+        //        long ClientID = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
+
+
+        //        Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+        //        Guid? userID = (Session["UserID"] != null) ? new Guid(Session["UserID"].ToString()) : (Guid?)null;
+        //        scoreList = new RosterData().GetChartDetails(out assessment, out chardetailsList, AgencyId, userID, houseHold, date, ClientID);
+        //        long type = assessment.AnnualAssessmentType;
+        //        DateTime date1 = DateTime.Now;
+        //        DateTime date2 = DateTime.Now;
+        //        DateTime date3 = DateTime.Now;
+        //        DateTime currentDate = DateTime.Parse(DateTime.Now.ToString(), new CultureInfo("en-US", true));
+
+
+        //        if (type == 1)
+        //        {
+
+        //            date1 = DateTime.Parse(assessment.Assessment1To.ToString(), new CultureInfo("en-US", true));
+        //        }
+
+        //        if (type == 2)
+        //        {
+        //            date1 = DateTime.Parse(assessment.Assessment1To.ToString(), new CultureInfo("en-US", true));
+        //            date2 = DateTime.Parse(assessment.Assessment2To.ToString(), new CultureInfo("en-US", true));
+        //        }
+        //        if (type == 3)
+        //        {
+        //            date1 = DateTime.Parse(assessment.Assessment1To.ToString(), new CultureInfo("en-US", true));
+        //            date2 = DateTime.Parse(assessment.Assessment2To.ToString(), new CultureInfo("en-US", true));
+        //            date3 = DateTime.Parse(assessment.Assessment3To.ToString(), new CultureInfo("en-US", true));
+        //        }
+
+        //        switch (type)
+        //        {
+        //            case 1:
+        //                groupType = (date1 >= currentDate) ? 1 : 0;
+        //                break;
+        //            case 2:
+        //                groupType = (date1 >= currentDate) ? 1 : (date2 >= currentDate) ? 2 : 0;
+        //                break;
+        //            case 3:
+        //                groupType = (date1 >= currentDate) ? 1 : (date2 >= currentDate) ? 2 : (date3 >= currentDate) ? 3 : 0;
+        //                break;
+        //        }
+
+        //        List<MatrixScore> matrixscorelist = null;
+        //        List<long> categoryIdList = new List<long>();
+
+        //        categoryIdList = scoreList.Select(x => x.AssessmentCategoryId).Distinct().ToList();
+        //        if (categoryIdList != null && categoryIdList.Count > 0)
+        //        {
+        //            foreach (int categoryId in categoryIdList)
+        //            {
+        //                matrixscorelist = new List<MatrixScore>();
+        //                matrixscorelist = scoreList.OrderBy(x => x.AnnualAssessmentType).Where(x => x.AssessmentCategoryId == categoryId).ToList();
+        //                arraylist.Add(matrixscorelist);
+        //            }
+
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //    }
+        //    return Json(new { scoreList, groupType, chardetailsList, arraylist }, JsonRequestBehavior.AllowGet);
+        //}
+
+
+
+       [CustAuthFilter()]
         public JsonResult GetChartDetails(string houseHoldId, string date, string clientId)
         {
+
+
             List<MatrixScore> scoreList = new List<MatrixScore>();
             List<ChartDetails> chardetailsList = new List<ChartDetails>();
-            long houseHold = Convert.ToInt64(EncryptDecrypt.Decrypt64(houseHoldId));
-            long ClientID = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
-            AnnualAssessment assessment = new AnnualAssessment();
-            int groupType = 0;
-            Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            Guid? userID = (Session["UserID"] != null) ? new Guid(Session["UserID"].ToString()) : (Guid?)null;
-            scoreList = new RosterData().GetChartDetails(out assessment, out chardetailsList, AgencyId, userID, houseHold, date, ClientID);
-            long type = assessment.AnnualAssessmentType;
-            DateTime date1 = DateTime.Now;
-            DateTime date2 = DateTime.Now;
-            DateTime date3 = DateTime.Now;
-            DateTime currentDate = Convert.ToDateTime(DateTime.Now.ToString("MM/dd/yyyy"));
-
-            if (type == 1)
-            {
-                date1 = Convert.ToDateTime(Convert.ToDateTime(assessment.Assessment1To).ToString("MM/dd/yyyy"));
-            }
-
-            if (type == 2)
-            {
-                date1 = Convert.ToDateTime(Convert.ToDateTime(assessment.Assessment1To).ToString("MM/dd/yyyy"));
-                date2 = Convert.ToDateTime(Convert.ToDateTime(assessment.Assessment2To).ToString("MM/dd/yyyy"));
-            }
-            if (type == 3)
-            {
-                date1 = Convert.ToDateTime(Convert.ToDateTime(assessment.Assessment1To).ToString("MM/dd/yyyy"));
-                date2 = Convert.ToDateTime(Convert.ToDateTime(assessment.Assessment2To).ToString("MM/dd/yyyy"));
-                date3 = Convert.ToDateTime(Convert.ToDateTime(assessment.Assessment3To).ToString("MM/dd/yyyy"));
-            }
-
-            switch (type)
-            {
-                case 1:
-                    groupType = (date1 >= currentDate) ? 1 : 0;
-                    break;
-                case 2:
-                    groupType = (date1 >= currentDate) ? 1 : (date2 >= currentDate) ? 2 : 0;
-                    break;
-                case 3:
-                    groupType = (date1 >= currentDate) ? 1 : (date2 >= currentDate) ? 2 : (date3 >= currentDate) ? 3 : 0;
-                    break;
-            }
-
-            List<MatrixScore> matrixscorelist = null;
-            List<long> categoryIdList = new List<long>();
             System.Collections.ArrayList arraylist = new System.Collections.ArrayList();
-            categoryIdList = scoreList.Select(x => x.AssessmentCategoryId).Distinct().ToList();
-            if (categoryIdList != null && categoryIdList.Count > 0)
+
+            int groupType = 0;
+
+            try
             {
-                foreach (int categoryId in categoryIdList)
+                AnnualAssessment assessment = new AnnualAssessment();
+                long houseHold = Convert.ToInt64(EncryptDecrypt.Decrypt64(houseHoldId));
+                long ClientID = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
+                scoreList = new RosterData().GetChartDetails(out assessment, out chardetailsList,houseHold, date, ClientID);
+                long type = assessment.AnnualAssessmentType;
+
+
+                if(type==1 && Convert.ToInt32(assessment.EnrollmentDays)>0)
                 {
-                    matrixscorelist = new List<MatrixScore>();
-                    matrixscorelist = scoreList.OrderBy(x => x.AnnualAssessmentType).Where(x => x.AssessmentCategoryId == categoryId).ToList();
-                    arraylist.Add(matrixscorelist);
+                    if(Convert.ToInt32(assessment.EnrollmentDays)<= Convert.ToInt32(assessment.Assessment1To)
+
+                            && Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment1From))
+                    {
+                        groupType = 1;
+                    }
                 }
 
-            }
+                if((type==2 || type==3) && Convert.ToInt32(assessment.EnrollmentDays) > 0)
+                {
 
+                    if (Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment1To)
+
+                           && Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment1From))
+                    {
+                        groupType = 1;
+                    }
+
+                    else if(Convert.ToInt32(assessment.EnrollmentDays)>=Convert.ToInt32(assessment.Assessment2From)
+
+                         && Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment2To)
+
+                        )
+                    {
+                        groupType = 2;
+                    }
+
+                    if(type==3 && (Convert.ToInt32(assessment.EnrollmentDays) >= Convert.ToInt32(assessment.Assessment3From)
+
+                         && Convert.ToInt32(assessment.EnrollmentDays) <= Convert.ToInt32(assessment.Assessment3To)
+
+                        ))
+                    {
+                        groupType = 3;
+                    }
+                }
+
+               
+               
+                List<MatrixScore> matrixscorelist = null;
+                List<long> categoryIdList = new List<long>();
+
+                categoryIdList = scoreList.Select(x => x.AssessmentCategoryId).Distinct().ToList();
+                if (categoryIdList != null && categoryIdList.Count > 0)
+                {
+                    foreach (int categoryId in categoryIdList)
+                    {
+                        matrixscorelist = new List<MatrixScore>();
+                        matrixscorelist = scoreList.OrderBy(x => x.AnnualAssessmentType).Where(x => x.AssessmentCategoryId == categoryId).ToList();
+                        arraylist.Add(matrixscorelist);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(new { scoreList, groupType, chardetailsList, arraylist }, JsonRequestBehavior.AllowGet);
         }
 
+
+        [CustAuthFilter()]
         public JsonResult SetChart()
         {
             List<MatrixScore> scoreList = new List<MatrixScore>();
-            Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            scoreList = new RosterData().SetChart(AgencyId);
+            scoreList = new RosterData().SetChart();
             List<long> categoryList = new List<long>();
             categoryList = scoreList.Select(x => x.AssessmentCategoryId).Distinct().ToList();
             System.Collections.ArrayList arraylist = new System.Collections.ArrayList();
@@ -2392,16 +2496,19 @@ namespace Fingerprints.Controllers
             return Json(result);
         }
 
-        //public ActionResult SaveProgramInformationReport(MatrixScore matrixScore)
-        //{
-        //    matrixScore.Dec_HouseHoldId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.HouseHoldId));
-        //    matrixScore.Dec_ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.ClientId));
-        //    matrixScore.Dec_ProgramId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.ProgramId));
-        //   // matrixScore.AgencyId = new Guid(Session["AgencyID"].ToString());
-        //    //matrixScore.UserId = new Guid(Session["UserID"].ToString());
-        //    new RosterData().InsertParentDetailsMatrixScore(matrixScore, Session["AgencyID"].ToString(), Session["UserID"].ToString());
-        //    return null;
-        //}
+
+
+
+        public ActionResult SaveProgramInformationReport(MatrixScore matrixScore)
+        {
+            matrixScore.Dec_HouseHoldId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.HouseHoldId));
+            matrixScore.Dec_ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.ClientId));
+            matrixScore.Dec_ProgramId = Convert.ToInt64(EncryptDecrypt.Decrypt64(matrixScore.ProgramId));
+            matrixScore.AgencyId = new Guid(Session["AgencyID"].ToString());
+            matrixScore.UserId = new Guid(Session["UserID"].ToString());
+            new RosterData().InsertParentDetailsMatrixScore(matrixScore, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            return null;
+        }
 
         /// <summary>
         /// JsonResult Method to get the Tags Inputs while entering the Tag Name.

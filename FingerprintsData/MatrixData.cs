@@ -624,7 +624,7 @@ namespace FingerprintsData
             }
             return isRowAffected;
         }
-        public bool DeleteMatrixType(long matrixId,Guid? agencyId)
+        public bool DeleteMatrixType(long matrixId, Guid? agencyId, Guid userId)
         {
 
             bool isRowAffected = false;
@@ -639,6 +639,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@MatrixId", matrixId);
                 command.Parameters.AddWithValue("@AgencyId", agencyId);
+                command.Parameters.AddWithValue("@UserId", userId);
                 command.Parameters.Add(new SqlParameter("@Command", queryCommand));
                 command.CommandText = "SP_MatrixType";
                 int RowsAffected = command.ExecuteNonQuery();
@@ -732,7 +733,7 @@ namespace FingerprintsData
             return isRowAffected;
 
         }
-        public bool DeleteAcronym(long AcronymId,Guid? AgencyId)
+        public bool DeleteAcronym(long AcronymId, Guid? AgencyId, Guid userId)
         {
             bool isRowAffected = false;
             string queryCommand = "DELETE";
@@ -745,6 +746,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@AcronymId", AcronymId);
                 command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@UserId", userId);
                 command.Parameters.Add(new SqlParameter("@Command", queryCommand));
                 command.CommandText = "SP_Acronym";
                 int RowsAffected = command.ExecuteNonQuery();
@@ -766,7 +768,7 @@ namespace FingerprintsData
         }
 
 
-        public bool DeleteQuestionType(int id,Guid? agencyId)
+        public bool DeleteQuestionType(int id, Guid? agencyId, Guid userId)
         {
 
             bool isRowAffected = false;
@@ -781,6 +783,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@AssessmentQuestionId", id);
                 command.Parameters.AddWithValue("@AgencyId", agencyId);
+                command.Parameters.AddWithValue("@UserId", userId);
                 command.Parameters.Add(new SqlParameter("@Command", queryCommand));
                 command.CommandText = "SP_AssessmentQuestions";
                 int RowsAffected = command.ExecuteNonQuery();
@@ -879,23 +882,37 @@ namespace FingerprintsData
 
 
 
-        public AnnualAssessment GetAnnualAssessment(AnnualAssessment assessment)
+        public AnnualAssessment GetAnnualAssessment()
         {
             AnnualAssessment annualAssessment = new AnnualAssessment();
 
             try
             {
-                string queryCommand = "SELECT";
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", assessment.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", assessment.UserId));
-                command.Parameters.Add(new SqlParameter("@Command", queryCommand));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_AnnualAssessment";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    string queryCommand = "SELECT";
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@Command", queryCommand));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_AnnualAssessment";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset.Tables[0] != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -906,12 +923,15 @@ namespace FingerprintsData
                             annualAssessment.AnnualAssessmentId = Convert.ToInt64(dr["AnnualAssessmentId"]);
                             annualAssessment.AnnualAssessmentType = Convert.ToInt64(dr["AnnualAssessmentType"]);
                             annualAssessment.AgencyName = dr["AgencyName"].ToString();
-                            annualAssessment.Assessment1From = Convert.ToDateTime(dr["Assessment1FromDate"].ToString()).ToString("MM/dd/yyyy");
-                            annualAssessment.Assessment1To = Convert.ToDateTime(dr["Assessment1ToDate"].ToString()).ToString("MM/dd/yyyy");
-                            annualAssessment.Assessment2From = Convert.ToDateTime(dr["Assessment2FromDate"].ToString()).ToString("MM/dd/yyyy");
-                            annualAssessment.Assessment2To = Convert.ToDateTime(dr["Assessment2ToDate"].ToString()).ToString("MM/dd/yyyy");
-                            annualAssessment.Assessment3From = Convert.ToDateTime(dr["Assessment3FromDate"].ToString()).ToString("MM/dd/yyyy");
-                            annualAssessment.Assessment3To = Convert.ToDateTime(dr["Assessment3ToDate"].ToString()).ToString("MM/dd/yyyy");
+                            annualAssessment.Assessment1From = Convert.ToString(dr["Assessment1FromDays"]);
+                            annualAssessment.Assessment1To = Convert.ToString(dr["Assessment1ToDays"]);
+                            annualAssessment.Assessment2From = Convert.ToString(dr["Assessment2FromDays"]);
+                            annualAssessment.Assessment2To = Convert.ToString(dr["Assessment2ToDays"]);
+                            annualAssessment.Assessment3From = Convert.ToString(dr["Assessment3FromDays"]);
+                            annualAssessment.Assessment3To = Convert.ToString(dr["Assessment3ToDays"]);
+                            annualAssessment.EditAssessment1 = Convert.ToBoolean(dr["EditAssessment1"]);
+                            annualAssessment.EditAssessment2 = Convert.ToBoolean(dr["EditAssessment2"]);
+                            annualAssessment.EditAssessment3 = Convert.ToBoolean(dr["EditAssessment3"]);
                         }
                     }
 
@@ -924,6 +944,7 @@ namespace FingerprintsData
             }
             finally
             {
+                Connection.Dispose();
                 DataAdapter.Dispose();
                 command.Dispose();
             }
@@ -935,21 +956,21 @@ namespace FingerprintsData
             string queryCommand = "INSERT";
             try
             {
-
+                StaffDetails staff = StaffDetails.GetInstance();
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@UserId", annualAssement.UserId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@AssessmentType", annualAssement.AnnualAssessmentType));
-                command.Parameters.Add(new SqlParameter("@AgencyId", annualAssement.AgencyId));
-                command.Parameters.Add(new SqlParameter("@Assessment1FromDate", annualAssement.Assessment1From));
-                command.Parameters.Add(new SqlParameter("@Assessment1ToDate", annualAssement.Assessment1To));
-                command.Parameters.Add(new SqlParameter("@Assessment2FromDate", annualAssement.Assessment2From));
-                command.Parameters.Add(new SqlParameter("@Assessment2ToDate", annualAssement.Assessment2To));
-                command.Parameters.Add(new SqlParameter("@Assessment3FromDate", annualAssement.Assessment3From));
-                command.Parameters.Add(new SqlParameter("@Assessment3ToDate", annualAssement.Assessment3To));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@Assessment1FromDays", annualAssement.Assessment1From));
+                command.Parameters.Add(new SqlParameter("@Assessment1ToDays", annualAssement.Assessment1To));
+                command.Parameters.Add(new SqlParameter("@Assessment2FromDays", annualAssement.Assessment2From));
+                command.Parameters.Add(new SqlParameter("@Assessment2ToDays", annualAssement.Assessment2To));
+                command.Parameters.Add(new SqlParameter("@Assessment3FromDays", annualAssement.Assessment3From));
+                command.Parameters.Add(new SqlParameter("@Assessment3ToDays", annualAssement.Assessment3To));
                 command.Parameters.Add(new SqlParameter("@Command", queryCommand));
                 command.CommandText = "SP_AnnualAssessment";
                 int RowsAffected = command.ExecuteNonQuery();
@@ -1017,12 +1038,12 @@ namespace FingerprintsData
 
         }
 
-        public List<AssessmentCategory> GetAssessmentCategory(out int  TotalCount,string sortOrder, string sortDirection, int pageSize, int requestedPage,int skip,Guid? agencyId)
+        public List<AssessmentCategory> GetAssessmentCategory(out int TotalCount, string sortOrder, string sortDirection, int pageSize, int requestedPage, int skip, Guid? agencyId)
         {
             AssessmentCategory category = null;
             List<AssessmentCategory> categoryList = new List<AssessmentCategory>();
-             TotalCount = 0;
-            
+            TotalCount = 0;
+
             try
             {
                 string queryCommand = "SELECT";
@@ -1050,7 +1071,7 @@ namespace FingerprintsData
                             category = new AssessmentCategory();
                             category.AssessmentCategoryId = Convert.ToInt64(dr["AssessmentCategoryId"]);
                             category.Category = dr["Category"].ToString();
-                           category.CategoryPosition = Convert.ToInt64(dr["CategoryPosition"]);
+                            category.CategoryPosition = Convert.ToInt64(dr["CategoryPosition"]);
                             categoryList.Add(category);
                         }
                     }

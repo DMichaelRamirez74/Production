@@ -12,9 +12,91 @@ var LastIndex = 0;
 var search = '';
 var listAgency = null;
 var isUpdate = false;
+
+
+var assessment_1_days_to = null;
+var assessment_2_days_to = null;
+var assessment_3_days_to = null;
+
+var assessment_1_days_from = null;
+var assessment_2_days_from = null;
+var assessment_3_days_from = null;
+
+var annualAssessment = {
+
+    checkNumeric: function (inputTextObject) {
+
+        var ret = true;
+        var ex = /^[0-9]*$/;
+        if ($(inputTextObject).val().trim() != "") {
+            if (!ex.test($(inputTextObject).val())) {
+                $(inputTextObject).val('');
+                var ret = false;
+            }
+        }
+        return ret;
+    },
+
+    checkNumericOn: function (ele) {
+        if (!this.checkNumeric(ele)) {
+            return false;
+        }
+        else if (!this.checkValidDays(ele)) {
+            customAlert('Entered days should not greater than ' + this.daysOfYear(new Date().getFullYear) + '');
+            return false;
+        }
+        else {
+            return true;
+
+        }
+
+    },
+    checkNumericOnBlur: function (ele) {
+
+        if (!this.checkNumeric(ele)) {
+            plainValidation(ele);
+            customAlert("Only numeric value allowed. ");
+            return false;
+        }
+        else if (!this.checkValidDays(ele)) {
+            plainValidation(ele);
+            customAlert('Entered days should not greater than ' + this.daysOfYear(new Date().getFullYear) + '');
+            return false;
+        }
+        else {
+            return true;
+
+        }
+    },
+    checkValidDays: function (ele) {
+        return (parseInt($(ele).val()) <= this.daysOfYear(new Date().getFullYear))
+
+    },
+    daysOfYear: function (year) {
+
+        return this.isLeapYear(year) ? 366 : 365;
+    },
+
+    isLeapYear: function (year) {
+        return year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
+    }
+
+}
+
+
 $(document).ready(function () {
 
     var value = 0;
+
+
+    assessment_1_days_from = $('#assessment1Fromdate');
+    assessment_2_days_from = $('#assessment2Fromdate');
+    assessment_3_days_from = $('#assessment3Fromdate');
+
+    assessment_1_days_to = $('#assessment1Todate');
+    assessment_2_days_to = $('#assessment2Todate');
+    assessment_3_days_to = $('#assessment3Todate');
+
 
     $.ajax({
         url: "/Matrix/GetAnnualAssessment",
@@ -31,13 +113,42 @@ $(document).ready(function () {
             $('input[name=assesmentradio][value=' + assessmentValue + ']').prop('checked', true);
             $('#agencyName').html(username);
             var assessmentname = $('input[name="assesmentradio"]:checked').attr("data-text");
-            $('#assessmentName').text(assessmentname);
-            $('#assessment1Fromdate').val(data.Assessment1From);
-            $('#assessment1Todate').val(data.Assessment1To);
-            $('#assessment2Fromdate').val(data.Assessment2From);
-            $('#assessment2Todate').val(data.Assessment2To);
-            $('#assessment3Fromdate').val(data.Assessment3From);
-            $('#assessment3Todate').val(data.Assessment3To);
+            /// $('#assessmentName').text(assessmentname);
+
+            assessment_1_days_from.val(data.Assessment1From);
+            assessment_1_days_to.val(data.Assessment1To);
+            assessment_2_days_from.val(data.Assessment2From);
+            assessment_2_days_to.val(data.Assessment2To);
+            assessment_3_days_from.val(data.Assessment3From);
+            assessment_3_days_to.val(data.Assessment3To);
+
+
+            if (!data.EditAssessment1) {
+                assessment_1_days_from.prop('readonly', true);
+                assessment_1_days_to.prop('readonly', true);
+            }
+            else {
+                assessment_1_days_from.prop('readonly', false);
+                assessment_1_days_to.prop('readonly', false);
+            }
+
+            if (!data.EditAssessment2) {
+                assessment_2_days_from.prop('readonly', true);
+                assessment_2_days_to.prop('readonly', true);
+            }
+            else {
+                assessment_2_days_from.prop('readonly', false);
+                assessment_2_days_to.prop('readonly', false);
+            }
+
+            if (!data.EditAssessment3) {
+                assessment_3_days_from.prop('readonly', true);
+                assessment_3_days_to.prop('readonly', true);
+            }
+            else {
+                assessment_3_days_from.prop('readonly', false);
+                assessment_3_days_to.prop('readonly', false);
+            }
 
 
             switch (assessmentValue) {
@@ -55,324 +166,631 @@ $(document).ready(function () {
             }
         }
         , error: function (response) {
-            //  customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+              customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
         }
     });
 
 
+    //$('#btnadd').click(function () {
+    //    cleanValidation();
+    //    var GetDate = new Date();
+    //    var month = GetDate.getMonth() + 1;
+    //    var day = GetDate.getDate();
+    //    var CurrentDate = new Date((month < 10 ? '0' : '') + month + '/' + (day < 10 ? '0' : '') + day + '/' + GetDate.getFullYear());
+    //    if (!($("input:radio[name='assesmentradio']").is(":checked"))) {
+    //        customAlert("Please select assessment type");
+    //        plainValidation('assesmentradio');
+    //        return false;
+    //    }
+    //    var assessmentValue = $("input[name='assesmentradio']:checked").val();
+    //    if (assessmentValue == 1) {
+    //        if ($('#assessment1Fromdate').val().trim() == "") {
+    //            customAlert("Please select From Date");
+    //            plainValidation('#assessment1Fromdate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment1Fromdate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment1Fromdate');
+    //            return false;
+    //        }
+
+    //        else if ($('#assessment1Todate').val().trim() == "") {
+    //            customAlert("Please select To Date");
+    //            plainValidation('#assessment1Todate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment1Todate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment1Todate');
+    //            return false;
+    //        }
+    //    }
+    //    if (assessmentValue == 2) {
+    //        if ($('#assessment1Fromdate').val().trim() == "") {
+    //            customAlert("Please select From Date");
+    //            plainValidation('#assessment1Fromdate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment1Fromdate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment1Fromdate');
+    //            return false;
+
+    //        }
+
+    //        else if ($('#assessment1Todate').val().trim() == "") {
+    //            customAlert("Please select To Date");
+    //            plainValidation('#assessment1Todate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment1Todate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment1Todate');
+    //            return false;
+
+    //        }
+
+    //        else if ($('#assessment2Fromdate').val().trim() == "") {
+    //            customAlert("Please select From Date for Assessment 2");
+    //            plainValidation('#assessment2Fromdate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment2Fromdate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment2Fromdate');
+    //            return false;
+
+    //        }
+
+    //        else if ($('#assessment2Todate').val().trim() == "") {
+    //            customAlert("Please select To Date");
+    //            plainValidation('#assessment2Todate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment2Todate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment2Todate');
+    //            return false;
+
+    //        }
+    //    }
+    //    if (assessmentValue == 3) {
+    //        if ($('#assessment1Fromdate').val().trim() == "") {
+    //            customAlert("Please select From Date");
+    //            plainValidation('#assessment1Fromdate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment1Fromdate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment1Fromdate');
+    //            return false;
+
+    //        }
+    //        else if ($('#assessment1Todate').val().trim() == "") {
+    //            customAlert("Please select To Date for Assessment 1");
+    //            plainValidation('#assessment1Todate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment1Todate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment1Todate');
+    //            return false;
+
+    //        }
+    //        else if ($('#assessment2Fromdate').val().trim() == "") {
+    //            customAlert("Please select From Date for Assessment 2");
+    //            plainValidation('#assessment2Fromdate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment2Fromdate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment2Fromdate');
+    //            return false;
+
+    //        }
+    //        else if ($('#assessment2Todate').val().trim() == "") {
+    //            customAlert("Please select To Date for Assessment 2");
+    //            plainValidation('#assessment2Todate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment2Todate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment2Todate');
+    //            return false;
+
+    //        }
+
+    //        else if ($('#assessment3Fromdate').val().trim() == "") {
+    //            customAlert("Please select From Date for Assessment 3");
+    //            plainValidation('#assessment3Fromdate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment3Fromdate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment3Fromdate');
+    //            return false;
+
+    //        }
+
+    //        else if ($('#assessment3Todate').val().trim() == "") {
+    //            customAlert("Please select To Date for Assessment 3");
+    //            plainValidation('#assessment3Todate');
+    //            return false;
+    //        }
+    //        else if (!isDate($('#assessment3Todate').val())) {
+    //            cleanValidation();
+    //            customAlert("Invalid Date");
+    //            plainValidation('#assessment3Todate');
+    //            return false;
+
+    //        }
+
+    //    }
+    //    var checkvalueTodate1 = new Date($('#assessment1Todate').val());
+    //    var checkvalueTodate2 = new Date($('#assessment2Todate').val());
+    //    var checkvalueTodate3 = new Date($('#assessment3Todate').val());
+    //    var checkvalueFromdate1 = new Date($('#assessment1Fromdate').val());
+    //    var checkvalueFromdate2 = new Date($('#assessment2Fromdate').val());
+    //    var checkvalueFromdate3 = new Date($('#assessment3Fromdate').val());
+
+    //    var GetDate = new Date();
+    //    var month = GetDate.getMonth() + 1;
+    //    var day = GetDate.getDate();
+    //    var CurrentDate = (month < 10 ? '0' : '') + month + '/' + (day < 10 ? '0' : '') + day + '/' + GetDate.getFullYear();
+
+    //    if (!isUpdate) {
+    //        if ($("input:radio[name='assesmentradio']:checked").val() == 1) {
+    //            if (checkvalueFromdate1 < CurrentDate) {
+    //                customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
+    //                plainValidation('#assessment1Fromdate');
+    //                return false;
+    //            }
+    //            else if (checkvalueTodate1 < checkvalueFromdate1) {
+    //                cleanValidation();
+    //                customAlert("Assessment To Date is Greater Than  From Date");
+    //                plainValidation('#assessment1Todate');
+    //                return false;
+    //            }
+    //        }
+    //        if ($("input:radio[name='assesmentradio']:checked").val() == 2) {
+
+    //            if (checkvalueFromdate1 < CurrentDate) {
+    //                cleanValidation();
+    //                customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
+    //                plainValidation('#assessment1Fromdate');
+    //                return false;
+    //            }
+    //            else if (checkvalueTodate1 > checkvalueFromdate1) {
+    //                cleanValidation();
+    //                customAlert("Assessment To Date is Greater Than From Date");
+    //                plainValidation('#assessment1Todate');
+    //                return false;
+    //            }
+
+    //            else if (checkvalueTodate1 > checkvalueFromdate2) {
+    //                cleanValidation();
+    //                customAlert("Assessment 2 From Date is Greater Than From Assessment 1 To Date");
+    //                plainValidation('#assessment2Fromdate');
+    //                return false;
+    //            }
+
+    //            else if (checkvalueFromdate2 < checkvalueTodate2) {
+    //                cleanValidation();
+    //                customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
+    //                plainValidation('#assessment2Todate');
+    //                return false;
+    //            }
+    //        }
+
+    //        if ($("input:radio[name='assesmentradio']:checked").val() == 3) {
+
+    //            var date1 = new Date(checkvalueTodate1);
+
+    //            var date2 = new Date(checkvalueFromdate2);
+    //            if (checkvalueFromdate1 < CurrentDate) {
+    //                cleanValidation();
+    //                customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
+    //                plainValidation('#assessment1Fromdate');
+    //                return false;
+    //            }
+    //            else if (checkvalueTodate1 < checkvalueFromdate1) {
+    //                cleanValidation();
+    //                customAlert("Assessment To Date is Less Than From Date");
+    //                plainValidation('#assessment1Todate');
+    //                return false;
+    //            }
+
+    //            else if (checkvalueTodate1 > checkvalueFromdate2) {
+    //                cleanValidation();
+    //                customAlert("Assessment 2 FromDate is Less Than From Assessment 1 ToDate");
+    //                plainValidation('#assessment2Fromdate');
+    //                return false;
+    //            }
+
+    //            else if (checkvalueFromdate2 > checkvalueTodate2) {
+    //                cleanValidation();
+    //                customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
+    //                plainValidation('#assessment2Todate');
+    //                return false;
+    //            }
+    //            else if (checkvalueTodate2 > checkvalueFromdate3) {
+    //                cleanValidation();
+    //                customAlert("Assessment 3 From Date is Less Than Assessment 2 To Date");
+    //                plainValidation('#assessment3Fromdate');
+    //                return false;
+    //            }
+    //            else if (checkvalueFromdate3 > checkvalueTodate3) {
+    //                cleanValidation();
+    //                customAlert("Assessment 3 From Date is Greater Than To Date");
+    //                plainValidation('#assessment3Todate');
+    //                return false;
+    //            }
+    //        }
+    //    }
+    //    if (assessmentValue == 1) {
+    //        $('#assessment2Fromdate').val('');
+    //        $('#assessment2Todate').val('');
+    //        $('#assessment3Fromdate').val('');
+    //        $('#assessment3Todate').val('');
+
+    //    }
+    //    if (assessmentValue == 2) {
+    //        $('#assessment3Fromdate').val('');
+    //        $('#assessment3Todate').val('');
+    //    }
+
+    //    var assessment = {};
+
+    //    assessment.AnnualAssessmentType = parseInt(assessmentValue);
+
+    //    assessment.Assessment1From = $('#assessment1Fromdate').val().trim();
+    //    assessment.Assessment1To = $('#assessment1Todate').val().trim();
+    //    assessment.Assessment2From = ($('#assessment2Fromdate').val().trim() == "") ? null : $('#assessment2Fromdate').val().trim();
+    //    assessment.Assessment2To = ($('#assessment2Todate').val().trim() == "") ? null : $('#assessment2Todate').val().trim();
+    //    assessment.Assessment3From = ($('#assessment3Fromdate').val().trim() == "") ? null : $('#assessment3Fromdate').val().trim();
+    //    assessment.Assessment3To = ($('#assessment3Todate').val().trim() == "") ? null : $('#assessment3Todate').val().trim();
+
+    //    $.ajax({
+    //        url: "/Matrix/AddAnnualAssessment",
+    //        dataType: 'json',
+    //        type: "POST",
+    //        async: false,
+    //        data: assessment,
+    //        success: function (data) {
+    //            if (data) {
+    //                cleanValidation();
+    //                customAlert("Record saved successfully.");
+    //                //$('#assessmentName').html('');
+    //                //$('#assessmentName').html($('input[name="assesmentradio"]:checked').attr("data-text"));
+
+    //            }
+
+    //            else
+    //                customAlert(data);
+
+    //        },
+    //        error: function (data) { alert(data); }
+    //    });
+
+    //});
+
+
+
     $('#btnadd').click(function () {
+
+
         cleanValidation();
-        var GetDate = new Date();
-        var month = GetDate.getMonth() + 1;
-        var day = GetDate.getDate();
-        var CurrentDate =new Date( (month < 10 ? '0' : '') + month + '/' + (day < 10 ? '0' : '') + day + '/' + GetDate.getFullYear());
+
+
+        debugger;
+
         if (!($("input:radio[name='assesmentradio']").is(":checked"))) {
             customAlert("Please select assessment type");
             plainValidation('assesmentradio');
             return false;
         }
+
+
         var assessmentValue = $("input[name='assesmentradio']:checked").val();
+
+
+
+        if (assessment_1_days_from.val().trim() == "") {
+
+            customAlert("Please enter number of days");
+            plainValidation(assessment_1_days_from);
+            return false;
+        }
+        if (!annualAssessment.checkNumericOnBlur(assessment_1_days_from)) {
+            return false;
+        }
+
+        if (assessment_1_days_to.val().trim() == "") {
+            customAlert("Please enter number of days");
+            plainValidation('#assessment1Todate');
+            return false;
+        }
+        if (!annualAssessment.checkNumericOnBlur(assessment_1_days_to)) {
+            return false;
+        }
+        if (parseInt(assessment_1_days_to.val()) < parseInt(assessment_1_days_from.val())) {
+            customAlert(' "Days Enrolled To" for Assessment 1, should be greater than or equal to " Days Enrolled From"');
+            plainValidation(assessment_1_days_to);
+            return false;
+        }
+
+
+
+
+        if (assessmentValue == 2 || assessmentValue == 3) {
+
+
+
+            if (assessment_2_days_from.val().trim() == "") {
+                customAlert("Please enter number of days");
+                plainValidation(assessment_2_days_from);
+                return false;
+            }
+            if (!annualAssessment.checkNumericOnBlur(assessment_2_days_from)) {
+                return false;
+            }
+
+
+
+
+            if (parseInt(assessment_2_days_from.val()) <= parseInt(assessment_1_days_to.val())) {
+                customAlert(' "Days Enrolled From " for Assessment 2, should be greater than Assessment 1 "Days Enrolled To" Days');
+                plainValidation(assessment_2_days_from);
+                return false;
+            }
+
+
+            if (assessment_2_days_to.val().trim() == "") {
+                customAlert("Please enter number of days");
+                plainValidation(assessment_2_days_to);
+                return false;
+            }
+            if (!annualAssessment.checkNumericOnBlur(assessment_2_days_to)) {
+                return false;
+            }
+
+            if (parseInt(assessment_2_days_to.val()) < parseInt(assessment_2_days_from.val())) {
+                customAlert('"Days Enrolled To" for Assessment 2, should be greater than Assessment 2 "Days Enrolled From"');
+                plainValidation(assessment_2_days_to);
+                return false;
+            }
+
+            if (assessmentValue == 3) {
+
+                if (assessment_3_days_from.val().trim() == "") {
+                    customAlert("Please enter number of days");
+                    plainValidation(assessment_3_days_from);
+                    return false;
+                }
+
+                if (!annualAssessment.checkNumericOnBlur(assessment_3_days_from)) {
+                    return false;
+                }
+
+
+                if (parseInt(assessment_3_days_from.val()) <= parseInt(assessment_2_days_to.val())) {
+                    customAlert('"Days Enrolled From" for Assessment 3, should greater than Assessment 2 "Days Enrolled To"');
+                    plainValidation(assessment_3_days_from);
+                    return false;
+                }
+
+
+                if (assessment_3_days_to.val().trim() == "") {
+                    customAlert("Please enter number of days");
+                    plainValidation(assessment_3_days_to);
+                    return false;
+                }
+
+                if (!annualAssessment.checkNumericOnBlur(assessment_3_days_to)) {
+                    return false;
+
+                }
+
+                if (parseInt(assessment_3_days_to.val()) < parseInt(assessment_3_days_from.val())) {
+
+                    customAlert('"Days Enrolled To" for Assessment 3, should be greater than Assessment 3 "Days Enrolled From"');
+                    plainValidation(assessment_3_days_to);
+                    return false;
+                }
+
+
+
+            }
+
+        }
+
+
+
+        //if (!isUpdate) {
+        //    if ($("input:radio[name='assesmentradio']:checked").val() == 1) {
+        //        if (checkvalueFromdate1 < CurrentDate) {
+        //            customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
+        //            plainValidation('#assessment1Fromdate');
+        //            return false;
+        //        }
+        //        else if (checkvalueTodate1 < checkvalueFromdate1) {
+        //            cleanValidation();
+        //            customAlert("Assessment To Date is Greater Than  From Date");
+        //            plainValidation('#assessment1Todate');
+        //            return false;
+        //        }
+        //    }
+        //    if ($("input:radio[name='assesmentradio']:checked").val() == 2) {
+
+        //        if (checkvalueFromdate1 < CurrentDate) {
+        //            cleanValidation();
+        //            customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
+        //            plainValidation('#assessment1Fromdate');
+        //            return false;
+        //        }
+        //        else if (checkvalueTodate1 > checkvalueFromdate1) {
+        //            cleanValidation();
+        //            customAlert("Assessment To Date is Greater Than From Date");
+        //            plainValidation('#assessment1Todate');
+        //            return false;
+        //        }
+
+        //        else if (checkvalueTodate1 > checkvalueFromdate2) {
+        //            cleanValidation();
+        //            customAlert("Assessment 2 From Date is Greater Than From Assessment 1 To Date");
+        //            plainValidation('#assessment2Fromdate');
+        //            return false;
+        //        }
+
+        //        else if (checkvalueFromdate2 < checkvalueTodate2) {
+        //            cleanValidation();
+        //            customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
+        //            plainValidation('#assessment2Todate');
+        //            return false;
+        //        }
+        //    }
+
+        //    if ($("input:radio[name='assesmentradio']:checked").val() == 3) {
+
+        //        var date1 = new Date(checkvalueTodate1);
+
+        //        var date2 = new Date(checkvalueFromdate2);
+        //        if (checkvalueFromdate1 < CurrentDate) {
+        //            cleanValidation();
+        //            customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
+        //            plainValidation('#assessment1Fromdate');
+        //            return false;
+        //        }
+        //        else if (checkvalueTodate1 < checkvalueFromdate1) {
+        //            cleanValidation();
+        //            customAlert("Assessment To Date is Less Than From Date");
+        //            plainValidation('#assessment1Todate');
+        //            return false;
+        //        }
+
+        //        else if (checkvalueTodate1 > checkvalueFromdate2) {
+        //            cleanValidation();
+        //            customAlert("Assessment 2 FromDate is Less Than From Assessment 1 ToDate");
+        //            plainValidation('#assessment2Fromdate');
+        //            return false;
+        //        }
+
+        //        else if (checkvalueFromdate2 > checkvalueTodate2) {
+        //            cleanValidation();
+        //            customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
+        //            plainValidation('#assessment2Todate');
+        //            return false;
+        //        }
+        //        else if (checkvalueTodate2 > checkvalueFromdate3) {
+        //            cleanValidation();
+        //            customAlert("Assessment 3 From Date is Less Than Assessment 2 To Date");
+        //            plainValidation('#assessment3Fromdate');
+        //            return false;
+        //        }
+        //        else if (checkvalueFromdate3 > checkvalueTodate3) {
+        //            cleanValidation();
+        //            customAlert("Assessment 3 From Date is Greater Than To Date");
+        //            plainValidation('#assessment3Todate');
+        //            return false;
+        //        }
+        //    }
+        //}
+
+
         if (assessmentValue == 1) {
-            if ($('#assessment1Fromdate').val().trim() == "") {
-                customAlert("Please select From Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
-            else if (!isDate($('#assessment1Fromdate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
+            assessment_2_days_from.val('');
+            assessment_2_days_to.val('');
+            assessment_3_days_from.val('');
+            assessment_3_days_to.val('');
 
-            else if ($('#assessment1Todate').val().trim() == "") {
-                customAlert("Please select To Date");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
-            else if (!isDate($('#assessment1Todate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
         }
+
+
         if (assessmentValue == 2) {
-            if ($('#assessment1Fromdate').val().trim() == "") {
-                customAlert("Please select From Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
-            else if (!isDate($('#assessment1Fromdate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-
-            }
-
-            else if ($('#assessment1Todate').val().trim() == "") {
-                customAlert("Please select To Date");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
-            else if (!isDate($('#assessment1Todate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment1Todate');
-                return false;
-
-            }
-                    
-            else if ($('#assessment2Fromdate').val().trim() == "") {
-                customAlert("Please select From Date for Assessment 2");
-                plainValidation('#assessment2Fromdate');
-                return false;
-            }
-            else if (!isDate($('#assessment2Fromdate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment2Fromdate');
-                return false;
-
-            }
-                    
-            else if ($('#assessment2Todate').val().trim() == "") {
-                customAlert("Please select To Date");
-                plainValidation('#assessment2Todate');
-                return false;
-            }
-            else if (!isDate($('#assessment2Todate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment2Todate');
-                return false;
-
-            }
-        }
-        if (assessmentValue == 3) {
-            if ($('#assessment1Fromdate').val().trim() == "") {
-                customAlert("Please select From Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
-            else if (!isDate($('#assessment1Fromdate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-
-            }
-            else if ($('#assessment1Todate').val().trim() == "") {
-                customAlert("Please select To Date for Assessment 1");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
-            else if (!isDate($('#assessment1Todate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment1Todate');
-                return false;
-
-            }
-            else if ($('#assessment2Fromdate').val().trim() == "") {
-                customAlert("Please select From Date for Assessment 2");
-                plainValidation('#assessment2Fromdate');
-                return false;
-            }
-            else if (!isDate($('#assessment2Fromdate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment2Fromdate');
-                return false;
-
-            }
-            else if ($('#assessment2Todate').val().trim() == "") {
-                customAlert("Please select To Date for Assessment 2");
-                plainValidation('#assessment2Todate');
-                return false;
-            }
-            else if (!isDate($('#assessment2Todate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment2Todate');
-                return false;
-
-            }
-
-            else if ($('#assessment3Fromdate').val().trim() == "") {
-                customAlert("Please select From Date for Assessment 3");
-                plainValidation('#assessment3Fromdate');
-                return false;
-            }
-            else if (!isDate($('#assessment3Fromdate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment3Fromdate');
-                return false;
-
-            }
-
-            else if ($('#assessment3Todate').val().trim() == "") {
-                customAlert("Please select To Date for Assessment 3");
-                plainValidation('#assessment3Todate');
-                return false;
-            }
-            else if (!isDate($('#assessment3Todate').val())) {
-                cleanValidation();
-                customAlert("Invalid Date");
-                plainValidation('#assessment3Todate');
-                return false;
-
-            }
-
-        }
-        var checkvalueTodate1 = new Date($('#assessment1Todate').val());
-        var checkvalueTodate2 = new Date($('#assessment2Todate').val());
-        var checkvalueTodate3 = new Date($('#assessment3Todate').val());
-        var checkvalueFromdate1 = new Date($('#assessment1Fromdate').val());
-        var checkvalueFromdate2 = new Date($('#assessment2Fromdate').val());
-        var checkvalueFromdate3 = new Date($('#assessment3Fromdate').val());
-
-        var GetDate = new Date();
-        var month = GetDate.getMonth() + 1;
-        var day = GetDate.getDate();
-        var CurrentDate = (month < 10 ? '0' : '') + month + '/' + (day < 10 ? '0' : '') + day + '/' + GetDate.getFullYear();
-
-        if (!isUpdate) {
-        if ($("input:radio[name='assesmentradio']:checked").val() == 1) {
-            if (checkvalueFromdate1 < CurrentDate) {
-                customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
-            else if (checkvalueTodate1 < checkvalueFromdate1) {
-                cleanValidation();
-                customAlert("Assessment To Date is Greater Than  From Date");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
-        }
-        if ($("input:radio[name='assesmentradio']:checked").val() == 2) {
-
-            if (checkvalueFromdate1 < CurrentDate) {
-                cleanValidation();
-                customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
-            else if (checkvalueTodate1 > checkvalueFromdate1) {
-                cleanValidation();
-                customAlert("Assessment To Date is Greater Than From Date");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
-
-            else if (checkvalueTodate1 > checkvalueFromdate2) {
-                cleanValidation();
-                customAlert("Assessment 2 From Date is Greater Than From Assessment 1 To Date");
-                plainValidation('#assessment2Fromdate');
-                return false;
-            }
-
-            else if (checkvalueFromdate2 < checkvalueTodate2) {
-                cleanValidation();
-                customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
-                plainValidation('#assessment2Todate');
-                return false;
-            }
-        }
-
-        if ($("input:radio[name='assesmentradio']:checked").val() == 3) {
-           
-            var date1 = new Date(checkvalueTodate1);
-           
-            var date2 = new Date(checkvalueFromdate2);
-            if (checkvalueFromdate1 < CurrentDate) {
-                cleanValidation();
-                customAlert("Assessment From Date Must Be is Greater Than Or Equal Current Date");
-                plainValidation('#assessment1Fromdate');
-                return false;
-            }
-            else if (checkvalueTodate1 < checkvalueFromdate1) {
-                cleanValidation();
-                customAlert("Assessment To Date is Less Than From Date");
-                plainValidation('#assessment1Todate');
-                return false;
-            }
-
-            else if (checkvalueTodate1 > checkvalueFromdate2) {
-                
-               
-                cleanValidation();
-                customAlert("Assessment 2 FromDate is Less Than From Assessment 1 ToDate");
-                plainValidation('#assessment2Fromdate');
-                return false;
-            }
-
-            else if (checkvalueFromdate2 > checkvalueTodate2) {
-                cleanValidation();
-                customAlert("Assessment 2 To Date is Less Than Assessment 2 From Date");
-                plainValidation('#assessment2Todate');
-                return false;
-            }
-            else if (checkvalueTodate2 > checkvalueFromdate3) {
-                cleanValidation();
-                customAlert("Assessment 3 From Date is Less Than Assessment 2 To Date");
-                plainValidation('#assessment3Fromdate');
-                return false;
-            }
-            else if (checkvalueFromdate3 > checkvalueTodate3) {
-                cleanValidation();
-                customAlert("Assessment 3 From Date is Greater Than To Date");
-                plainValidation('#assessment3Todate');
-                return false;
-            }
-        }
-        }
-        if (assessmentValue == 1) {
-            $('#assessment2Fromdate').val('');
-            $('#assessment2Todate').val('');
-            $('#assessment3Fromdate').val('');
-            $('#assessment3Todate').val('');
-
-        }
-        if (assessmentValue == 2) {
-            $('#assessment3Fromdate').val('');
-            $('#assessment3Todate').val('');
+            assessment_3_days_from.val('');
+            assessment_3_days_to.val('');
         }
 
         var assessment = {};
 
         assessment.AnnualAssessmentType = parseInt(assessmentValue);
 
-        assessment.Assessment1From = $('#assessment1Fromdate').val().trim();
-        assessment.Assessment1To = $('#assessment1Todate').val().trim();
-        assessment.Assessment2From = ($('#assessment2Fromdate').val().trim() == "") ? null : $('#assessment2Fromdate').val().trim();
-        assessment.Assessment2To = ($('#assessment2Todate').val().trim() == "") ? null : $('#assessment2Todate').val().trim();
-        assessment.Assessment3From = ($('#assessment3Fromdate').val().trim() == "") ? null : $('#assessment3Fromdate').val().trim();
-        assessment.Assessment3To = ($('#assessment3Todate').val().trim() == "") ? null : $('#assessment3Todate').val().trim();
+        assessment.Assessment1From = assessment_1_days_from.val().trim();
+        assessment.Assessment1To = assessment_1_days_to.val().trim();
+
+        assessment.Assessment2From = (assessment_2_days_from.val().trim() == "") ? null : assessment_2_days_from.val().trim();
+        assessment.Assessment2To = (assessment_2_days_to.val().trim() == "") ? null : assessment_2_days_to.val().trim();
+
+        assessment.Assessment3From = (assessment_3_days_from.val().trim() == "") ? null : assessment_3_days_from.val().trim();
+        assessment.Assessment3To = (assessment_3_days_to.val().trim() == "") ? null : assessment_3_days_to.val().trim();
 
         $.ajax({
-            url: "/Matrix/AddAnnualAssessment",
+
+            url: HostedDir + "/Matrix/AddAnnualAssessment",
             dataType: 'json',
             type: "POST",
             async: false,
             data: assessment,
             success: function (data) {
-                if (data) {
-                    cleanValidation();
-                    customAlert("Record saved successfully.");
-                    $('#assessmentName').html('');
-                    $('#assessmentName').html($('input[name="assesmentradio"]:checked').attr("data-text"));
+                if (data != null) {
 
+                    cleanValidation();
+                    if (data.isResult == true) {
+
+                        customAlert("Record saved successfully.");
+                    }
+
+                    else if (data.isResult == false && data.errorType > 0) {
+                        if (data.errorType == 1 || data.errorType == 2) {
+                            customAlert(' "Days Enrolled To" for Assessment 1, should be greater than or equal to " Days Enrolled From"');
+                            plainValidation(assessment_1_days_to);
+                        }
+
+                        else if (data.errorType == 3) {
+                            customAlert(' "Days Enrolled From " for Assessment 2, should be greater than Assessment 1 "Days Enrolled To" Days');
+                            plainValidation(assessment_2_days_from);
+                        }
+
+                        else if (data.errorType == 4) {
+                            customAlert('"Days Enrolled To" for Assessment 2, should be greater than Assessment 2 "Days Enrolled From"');
+                            plainValidation(assessment_2_days_to);
+                        }
+
+                        else if (data.errorType == 5) {
+                            customAlert('"Days Enrolled From" for Assessment 3, should greater than Assessment 2 "Days Enrolled To"');
+                            plainValidation(assessment_3_days_from);
+                        }
+
+                        else if (data.errorType == 6) {
+                            customAlert('"Days Enrolled To" for Assessment 3, should be greater than Assessment 3 "Days Enrolled From"');
+                            plainValidation(assessment_3_days_to);
+                        }
+                    }
                 }
 
-                else
-                    customAlert(data);
+                else {
+                    customAlert("Error occurred.Please, try again later");
+                }
+
 
             },
-            error: function (data) { alert(data); }
+            error: function (data) {
+
+                customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+
+            }
         });
 
     });
@@ -494,5 +912,12 @@ $(document).ready(function () {
                 $('.assessment1-date, .assessment2-date,.assessment3-date').removeClass('hidden');
                 break;
         }
+    });
+
+
+    $('.days-num').on('input', function () {
+
+        return annualAssessment.checkNumericOn(this);
+
     });
 });

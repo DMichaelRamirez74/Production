@@ -13,7 +13,7 @@ using System.IO;
 
 namespace FingerprintsData
 {
-    public class NurseData : Controller
+    public class NurseData
     {
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();

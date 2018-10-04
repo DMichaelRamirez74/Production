@@ -179,24 +179,7 @@ namespace FingerprintsData
 
 
 
-
-                    }
-
-                if (_dataset.Tables.Count > 2 && _dataset.Tables[3].Rows.Count > 0)
-                {
-                        List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
-                        FingerprintsModel.RosterNew.User obj = null;
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
-                        {
-                            obj = new FingerprintsModel.RosterNew.User();
-                            obj.Id = (dr["UserId"]).ToString();
-                            obj.Name = dr["Name"].ToString();
-                            _userlist.Add(obj);
-                        }
-                        Userlist.UserList = _userlist;
-
                 }
-
                 if (_dataset.Tables.Count > 2 && _dataset.Tables[3] != null &&  _dataset.Tables[3].Rows.Count > 0)
                 {
                     List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
@@ -207,7 +190,6 @@ namespace FingerprintsData
                         obj.Id = (dr["UserId"]).ToString();
                         obj.Name = dr["Name"].ToString();
                         _userlist.Add(obj);
-
                     }
                     Userlist.UserList = _userlist;
                 }
@@ -219,7 +201,7 @@ namespace FingerprintsData
 
             }
         }
-        public List<CaseNote> GetCaseNoteByTags(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string UserId, string Tagnames,int IsFromFamilySummary)
+        public List<CaseNote> GetCaseNoteByTags(ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, int Householdid, int centerid, string id, string AgencyId, string UserId, string Tagnames, int IsFromFamilySummary)
         {
             List<CaseNote> CaseNoteList = new List<CaseNote>();
             try
@@ -253,7 +235,7 @@ namespace FingerprintsData
             return CaseNoteList;
         }
 
-        public void GetCaseNotesByClient(ref DataTable dtCaseNote, string id,string householdID)
+        public void GetCaseNotesByClient(ref DataTable dtCaseNote, string id, string householdID)
         {
             dtCaseNote = new DataTable();
             try
@@ -3383,21 +3365,21 @@ namespace FingerprintsData
                 }
                 MatrixScore.MatrixScoreList = listMatrix;
 
+                }
+                if (ds.Tables[2] != null && ds.Tables[2].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[2].Rows)
+                    {
+                        Names = new ParentNames();
+                        Names.ParentID = Convert.ToInt32(dr["parentid"]);
+                        Names.ParentName = dr["ParentName"].ToString();
+                        Names.ParentInvolved = DBNull.Value == dr["ParentInvolved"] ? 0 : Convert.ToInt32(dr["ParentInvolved"]);
+                        ParentList.Add(Names);
+                    }
+                    MatrixScore.ParentList = ParentList;
+                }
             }
-            //if (ds.Tables[2] != null && ds.Tables[2].Rows.Count > 0)
-            //{
-            //    foreach (DataRow dr in ds.Tables[2].Rows)
-            //    {
-            //        Names = new ParentNames();
-            //        Names.ParentID = Convert.ToInt32(dr["parentid"]);
-            //        Names.ParentName = dr["ParentName"].ToString();
-            //        Names.ParentInvolved = DBNull.Value==dr["ParentInvolved"]?0:Convert.ToInt32(dr["ParentInvolved"]);
-            //        ParentList.Add(Names);
-            //    }
-            //    MatrixScore.ParentList = ParentList;
-            //}
-        }
-              catch (Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
 
@@ -3414,7 +3396,7 @@ namespace FingerprintsData
 
         }
 
-        public MatrixScore GetClientDetails(out List<ShowRecommendations> RecList, long houseHoldId, Guid agencyId)
+        public MatrixScore GetClientDetails(out List<ShowRecommendations> RecList, long houseHoldId)
         {
             MatrixScore score = new MatrixScore();
             DataSet ds = null;
@@ -3425,13 +3407,15 @@ namespace FingerprintsData
             try
             {
 
+                StaffDetails staff = StaffDetails.GetInstance();
+
 
                 ds = new DataSet();
                 string queryCommand = "CLIENTSTATUS";
                 command.Connection = Connection;
                 command.CommandText = "SP_MatrixScore";
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("@AgencyId", agencyId);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@HouseHoldId", houseHoldId);
                 command.Parameters.AddWithValue("@Command", queryCommand);
                 command.CommandType = CommandType.StoredProcedure;
@@ -3457,7 +3441,8 @@ namespace FingerprintsData
                         {
                             activeYearList.Add(new SelectListItem
                             {
-                                Text = dr["ActiveProgramYear"].ToString()
+                                Text = dr["ActiveProgramYear"].ToString(),
+                                Selected=Convert.ToBoolean(dr["Selected"])
                             });
                         }
                     }
@@ -3518,7 +3503,7 @@ namespace FingerprintsData
         }
 
 
-        public ArrayList GetRecommendations(long householdId, long AssessmentNo, Guid AgencyId, string activeProgamYear)
+        public ArrayList GetRecommendations(long householdId, long AssessmentNo, string activeProgamYear)
         {
             MatrixRecommendations recommendation = null;
             DataSet ds = null;
@@ -3527,11 +3512,11 @@ namespace FingerprintsData
             try
             {
 
-
+                StaffDetails staff = StaffDetails.GetInstance();
                 command.Connection = Connection;
                 command.CommandText = "USP_GetMatrixRecommendations";
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@HouseHoldId", householdId);
                 command.Parameters.AddWithValue("@AnnualAssessmentType", AssessmentNo);
                 command.Parameters.AddWithValue("@ProgramTypeYear", activeProgamYear);
@@ -3574,20 +3559,23 @@ namespace FingerprintsData
             return arraylist;
         }
 
-        public List<AssessmentResults> GetDescription(int groupId, long clientId, Guid agencyid)
+        public List<AssessmentResults> GetDescription(int groupId, long clientId)
         {
             List<AssessmentResults> resultList = new List<AssessmentResults>();
             AssessmentResults results = null;
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 string queryCommand = "GETDESCRIPTION";
+
                 DataSet ds = new DataSet();
                 command.Connection = Connection;
                 command.CommandText = "SP_MatrixScore";
                 command.Parameters.Clear();
                 command.Parameters.AddWithValue("@AssessmentGroupId", groupId);
                 command.Parameters.AddWithValue("@ClientId", clientId);
-                command.Parameters.AddWithValue("@AgencyId", agencyid);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@Command", queryCommand);
                 command.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da = new SqlDataAdapter(command);
@@ -3751,7 +3739,7 @@ namespace FingerprintsData
             return rowaffected;
         }
 
-        public List<MatrixScore> GetChartDetails(out AnnualAssessment assessment, out List<ChartDetails> chartlist, Guid? AgencyId, Guid? UserID, long houseHoldId, string date, long clientId)
+        public List<MatrixScore> GetChartDetails(out AnnualAssessment assessment, out List<ChartDetails> chartlist, long houseHoldId, string date, long clientId)
         {
             MatrixScore score = null;
             List<MatrixScore> listMatrixScore = new List<MatrixScore>();
@@ -3762,14 +3750,16 @@ namespace FingerprintsData
             assessment = null;
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 string queryCommand = (string.IsNullOrEmpty(date)) ? "GETCHARTDETAILS" : "SETCHARTDROPDOWN";
                 //  string queryCommand = "GETCHARTDETAILS";
                 DataSet ds = new DataSet();
                 command.Connection = Connection;
                 command.CommandText = "SP_MatrixScore";
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
-                command.Parameters.AddWithValue("@UserId", UserID);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
+                command.Parameters.AddWithValue("@UserId", staff.UserId);
                 command.Parameters.AddWithValue("@HouseHoldId", houseHoldId);
                 command.Parameters.AddWithValue("@ProgramTypeYear", date);
                 command.Parameters.AddWithValue("@ClientId", clientId);
@@ -3796,12 +3786,13 @@ namespace FingerprintsData
                     {
                         assess.AnnualAssessmentId = Convert.ToInt64(dr["AnnualAssessmentId"]);
                         assess.AnnualAssessmentType = Convert.ToInt64(dr["AnnualAssessmentType"]);
-                        assess.Assessment1From = dr["Assessment1FromDate"].ToString();
-                        assess.Assessment1To = dr["Assessment1ToDate"].ToString();
-                        assess.Assessment2From = dr["Assessment2FromDate"].ToString();
-                        assess.Assessment2To = dr["Assessment2ToDate"].ToString();
-                        assess.Assessment3From = dr["Assessment3FromDate"].ToString();
-                        assess.Assessment3To = dr["Assessment3ToDate"].ToString();
+                        assess.Assessment1From = string.IsNullOrEmpty(dr["Assessment1FromDays"].ToString()) ? "0" : dr["Assessment1FromDays"].ToString();
+                        assess.Assessment1To = string.IsNullOrEmpty(dr["Assessment1ToDays"].ToString()) ? "0" : dr["Assessment1ToDays"].ToString();
+                        assess.Assessment2From = string.IsNullOrEmpty(dr["Assessment2FromDays"].ToString()) ? "0" : dr["Assessment2FromDays"].ToString();
+                        assess.Assessment2To = string.IsNullOrEmpty(dr["Assessment2ToDays"].ToString()) ? "0" : dr["Assessment2ToDays"].ToString();
+                        assess.Assessment3From = string.IsNullOrEmpty(dr["Assessment3FromDays"].ToString())?"0": dr["Assessment3FromDays"].ToString();
+                        assess.Assessment3To =string.IsNullOrEmpty(dr["Assessment3ToDays"].ToString())?"0" : dr["Assessment3ToDays"].ToString();
+                        assess.EnrollmentDays = string.IsNullOrEmpty(Convert.ToString(dr["EnrollmentDays"]))?"0": Convert.ToString(dr["EnrollmentDays"]);
                         assessment = assess;
                     }
                 }
@@ -3834,18 +3825,20 @@ namespace FingerprintsData
             }
             return listMatrixScore;
         }
-        public List<MatrixScore> SetChart(Guid? AgencyId)
+        public List<MatrixScore> SetChart()
         {
             MatrixScore score = null;
             List<MatrixScore> listMatrixScore = new List<MatrixScore>();
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 string queryCommand = "SETCHART";
                 DataSet ds = new DataSet();
                 command.Connection = Connection;
                 command.CommandText = "SP_MatrixScore";
                 command.Parameters.Clear();
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@AgencyId", staff.AgencyId);
                 command.Parameters.AddWithValue("@Command", queryCommand);
                 command.CommandType = CommandType.StoredProcedure;
                 SqlDataAdapter da = new SqlDataAdapter(command);
@@ -3915,7 +3908,7 @@ namespace FingerprintsData
                             MatrixScore obj = new MatrixScore();
                             obj.StaffName = dr["StaffName"].ToString();
                             obj.AssessmentNumber = Convert.ToInt64(dr["AssessmentNumber"]);
-                            obj.Date = Convert.ToDateTime(dr["Date"]).ToString("MM/dd/yyyy");
+                            obj.Date = Convert.ToString(dr["Date"]);
                             MatrixscoreList.Add(obj);
                         }
                     }

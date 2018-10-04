@@ -20,14 +20,17 @@ namespace Fingerprints.Controllers
           roleid=82b862e6-1a0f-46d2-aad4-34f89f72369a(teacher)
           roleid=b4d86d72-0b86-41b2-adc4-5ccce7e9775b(CenterManager)
           roleid=9ad1750e-2522-4717-a71b-5916a38730ed(Health Manager)
+          roleid=3b49b025-68eb-4059-8931-68a0577e5fa2(Agency Admin)
           */
-        //[CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult Matrix()
         {
             ViewBag.Layout = (Session["AgencyId"] != null) ? "~/Views/Shared/AgencyAdminLayout.cshtml" : "~/Views/Shared/SuperAdminLayout.cshtml";
             return View();
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
 
         public ActionResult MatrixType()
         {
@@ -37,6 +40,8 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+
         public JsonResult AddMatrxiType(long matrixvalue, string matrixtype)
         {
             bool isResult = false;
@@ -71,37 +76,57 @@ namespace Fingerprints.Controllers
             return Json(returnResult);
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+
         [HttpPost]
         public JsonResult GetMatrixType(string sortOrder,string sortDirection,int pageSize,int requestedPage=0)
         {
             List<Matrix> matrixList = new List<Matrix>();
             Matrix matrix = new Matrix();
             int totalCount = 0;
-            sortOrder = (sortOrder == "") ? "CreatedDate" : (sortOrder== "thSN")?"CreatedDate":sortOrder;
-            matrix.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            matrix.UserId = new Guid(Session["UserID"].ToString());
-            matrix.Status = true;
-            sortDirection = (sortDirection == "") ? "DESC" : sortDirection;
-            int skip = pageSize * (requestedPage - 1);
-            matrixList = new MatrixData().GetMatrixType( out totalCount,matrix,sortOrder,sortDirection,pageSize,requestedPage,skip);
+            try
+            {
 
+
+                sortOrder = (sortOrder == "") ? "CreatedDate" : (sortOrder == "thSN") ? "CreatedDate" : sortOrder;
+                matrix.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                matrix.UserId = new Guid(Session["UserID"].ToString());
+                matrix.Status = true;
+                sortDirection = (sortDirection == "") ? "DESC" : sortDirection;
+                int skip = pageSize * (requestedPage - 1);
+                matrixList = new MatrixData().GetMatrixType(out totalCount, matrix, sortOrder, sortDirection, pageSize, requestedPage, skip);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(new { matrixList, totalCount }, JsonRequestBehavior.AllowGet);
 
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult GetMatrixTypeList()
         {
             List<Matrix> matrixList = new List<Matrix>();
             Matrix matrix = new Matrix();
-            matrix.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            matrix.UserId = new Guid(Session["UserID"].ToString());
-            matrix.Status = true;
-            matrixList = new MatrixData().GetMatrixTypeList(matrix);
+            try
+            {
 
+                matrix.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                matrix.UserId = new Guid(Session["UserID"].ToString());
+                matrix.Status = true;
+                matrixList = new MatrixData().GetMatrixTypeList(matrix);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(matrixList, JsonRequestBehavior.AllowGet);
 
         }
 
+
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         [HttpPost]
         public JsonResult DeleteMatrixType(long ID)
         {
@@ -109,16 +134,16 @@ namespace Fingerprints.Controllers
             int returnResult = 0;
             try
             {
-               Guid? agencyid = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-
+                Guid? agencyid = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                Guid userId = new Guid(Session["UserID"].ToString());
                 isResult = new MatrixData().CheckMatrixRef(ID, agencyid);
-                if(isResult)
+                if (isResult)
                 {
                     returnResult = 2;
                     return Json(returnResult, JsonRequestBehavior.AllowGet);
                 }
-                isResult = new MatrixData().DeleteMatrixType(ID, agencyid);
-                if(isResult)
+                isResult = new MatrixData().DeleteMatrixType(ID, agencyid, userId);
+                if (isResult)
                 {
                     returnResult = 1;
                     return Json(returnResult, JsonRequestBehavior.AllowGet);
@@ -133,9 +158,10 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
 
-        public JsonResult UpdateMatrixType( long matrixId, string matrixType, long matrixValue)
+        [HttpPost]
+        public JsonResult UpdateMatrixType(long matrixId, string matrixType, long matrixValue)
         {
             bool isResult = false;
             int returnResult = 0;
@@ -171,93 +197,177 @@ namespace Fingerprints.Controllers
             return Json(returnResult, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult AnnualAssessment()
         {
             return View();
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult GetAnnualAssessment()
         {
-            AnnualAssessment assessment = new FingerprintsModel.AnnualAssessment();
-            assessment.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+            AnnualAssessment assement = new FingerprintsModel.AnnualAssessment();
+            try
+            {
 
-            assessment.UserId = new Guid(Session["UserID"].ToString());
-            var assement = new MatrixData().GetAnnualAssessment(assessment);
-            assement.UserName = Session["FullName"].ToString();
+                assement = new MatrixData().GetAnnualAssessment();
+                assement.UserName = Session["FullName"].ToString();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(assement, JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpPost]
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult AddAnnualAssessment(AnnualAssessment assessment)
         {
             bool isResult = false;
-
+            int errorType = 0;
             try
             {
 
-                assessment.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-                assessment.UserId = new Guid(Session["UserID"].ToString());
+
+
+                #region server-side Validation
+
+
+                
+
+                if (int.Parse(assessment.Assessment1To) < int.Parse(assessment.Assessment1From))
+                {
+                    errorType = 1;
+                }
+
+
+                if (assessment.AnnualAssessmentType == 2 ||assessment.AnnualAssessmentType== 3)
+                {
+
+                    
+
+                    if (int.Parse(assessment.Assessment2From)<=int.Parse(assessment.Assessment1To))
+                    {
+                        errorType = 3;
+                    }
+
+                    if (int.Parse(assessment.Assessment2To) < int.Parse(assessment.Assessment2From))
+                    {
+                        errorType = 4;
+                    }
+
+                    if(assessment.AnnualAssessmentType==3)
+                    {
+                        
+
+                        if(int.Parse(assessment.Assessment3From)<=int.Parse(assessment.Assessment2To))
+                        {
+                            errorType = 5;
+                        }
+
+                        
+
+                        if (int.Parse(assessment.Assessment3To) <= int.Parse(assessment.Assessment3From))
+                        {
+                            errorType = 6;
+                        }
+
+
+
+                    }
+                }
+
+                if(errorType>0)
+                {
+                    return Json(new { isResult, errorType }, JsonRequestBehavior.AllowGet);
+                }
+
+                #endregion
+
+
 
                 isResult = new MatrixData().InsertAnnualAssement(assessment);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 clsError.WriteException(ex);
                 //return Json("Error occured please try again.");
             }
-            return Json(isResult, JsonRequestBehavior.AllowGet);
+            return Json(new { isResult, errorType }, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult AssessmentCategory()
         {
             return View();
         }
-        
+
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
 
         public JsonResult GetAssessmentCategoryList()
         {
-            AssessmentCategory assessmentCategory = new FingerprintsModel.AssessmentCategory();
-            Guid? agencyID = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            var category = new MatrixData().GetAssessmentCategoryList(agencyID);
+            List<AssessmentCategory> category = new List<FingerprintsModel.AssessmentCategory>();
+            try
+            {
+
+                Guid? agencyID = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                category = new MatrixData().GetAssessmentCategoryList(agencyID);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(category, JsonRequestBehavior.AllowGet);
 
         }
 
         [HttpPost]
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+
         public JsonResult GetAssessmentCategory(string sortOrder, string sortDirection, int pageSize = 0, int requestedPage = 1)
         {
             int totalCount = 0;
-            switch (sortOrder)
+            List<AssessmentCategory> category = new List<FingerprintsModel.AssessmentCategory>();
+            try
             {
-                case "":
-                    sortOrder = "CreatedDate";
-                    break;
-                case null:
-                    sortOrder = "CreatedDate";
-                    break;
-                case "thIN":
-                    sortOrder = "AssessmentCatgoryId";
-                    break;
-                case "thCust":
-                    sortOrder = "Category";
-                    break;
+
+                switch (sortOrder)
+                {
+                    case "":
+                        sortOrder = "CreatedDate";
+                        break;
+                    case null:
+                        sortOrder = "CreatedDate";
+                        break;
+                    case "thIN":
+                        sortOrder = "AssessmentCatgoryId";
+                        break;
+                    case "thCust":
+                        sortOrder = "Category";
+                        break;
+                    case "thPos":
+                        sortOrder = "CategoryPosition";
+                        break;
+                }
+
+                sortDirection = (sortDirection == "" || sortDirection == null) ? "DESC" : sortDirection;
+                int skip = pageSize * (requestedPage - 1);
+                Guid? agencyID = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                category = new MatrixData().GetAssessmentCategory(out totalCount, sortOrder, sortDirection, pageSize, requestedPage, skip, agencyID);
             }
-            AssessmentCategory assessmentCategory = new FingerprintsModel.AssessmentCategory();
-            sortDirection = (sortDirection == "" ||sortDirection==null) ? "DESC" : sortDirection;
-            int skip = pageSize * (requestedPage - 1);
-            Guid? agencyID = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            var category = new MatrixData().GetAssessmentCategory(out totalCount, sortOrder,sortDirection,pageSize,requestedPage,skip, agencyID);
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(new { category, totalCount }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-
-        public JsonResult InsertAssessmentCategory(string categoryName,long categoryPosition)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult InsertAssessmentCategory(string categoryName, long categoryPosition)
         {
             bool isResult = false;
             int returnResult = 0;
@@ -294,55 +404,30 @@ namespace Fingerprints.Controllers
             }
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         [HttpPost]
-        public JsonResult UpdateAssessmentCategory(string categoryName,long categoryId,long position)
+        public JsonResult UpdateAssessmentCategory(string categoryName, long categoryId, long position)
         {
             bool isResult = false;
             int returnResult = 0;
             string queryCommand = "CHECKUPDATE";
             AssessmentCategory assessmentCategory = new FingerprintsModel.AssessmentCategory();
-            assessmentCategory.UserId = new Guid(Session["UserID"].ToString());
-            assessmentCategory.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            assessmentCategory.Category = categoryName.Trim();
-            assessmentCategory.AssessmentCategoryId = categoryId;
-            assessmentCategory.CategoryPosition = position;
-            isResult = new MatrixData().CheckAssessmentCategory(assessmentCategory,queryCommand);
-            if(isResult)
-            {
-                returnResult = 2;
-                return Json(returnResult, JsonRequestBehavior.AllowGet);
-            }
-            isResult = new MatrixData().UpdateAssessmentCategory(assessmentCategory);
-            if(isResult)
-            {
-                returnResult = 1;
-                return Json(returnResult, JsonRequestBehavior.AllowGet);
-            }
-            return Json(returnResult, JsonRequestBehavior.AllowGet);
-
-        }
-
-        [HttpPost]
-        public JsonResult DeleteAssessmentCategory(long categoryId)
-        {
-            bool isResult = false;
-            int returnResult = 0;
             try
             {
 
-           
-            AssessmentCategory assessmentCategory = new FingerprintsModel.AssessmentCategory();
-            assessmentCategory.UserId = new Guid(Session["UserID"].ToString());
-            assessmentCategory.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            assessmentCategory.AssessmentCategoryId = categoryId;
-            const string command = "CHECKCATREF";
-            isResult = new MatrixData().CheckAssessmentCategory(assessmentCategory,command);
-            if(isResult)
-            {
-                returnResult = 2;
-                return Json(returnResult, JsonRequestBehavior.AllowGet);
-            }
-            isResult = new MatrixData().DeleteAssessmentCategory(assessmentCategory);
+                assessmentCategory.UserId = new Guid(Session["UserID"].ToString());
+                assessmentCategory.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                assessmentCategory.Category = categoryName.Trim();
+                assessmentCategory.AssessmentCategoryId = categoryId;
+                assessmentCategory.CategoryPosition = position;
+                isResult = new MatrixData().CheckAssessmentCategory(assessmentCategory, queryCommand);
+                if (isResult)
+                {
+                    returnResult = 2;
+                    return Json(returnResult, JsonRequestBehavior.AllowGet);
+                }
+                isResult = new MatrixData().UpdateAssessmentCategory(assessmentCategory);
+                if (isResult)
                 {
                     returnResult = 1;
                     return Json(returnResult, JsonRequestBehavior.AllowGet);
@@ -355,13 +440,48 @@ namespace Fingerprints.Controllers
             return Json(returnResult, JsonRequestBehavior.AllowGet);
 
         }
+
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        [HttpPost]
+        public JsonResult DeleteAssessmentCategory(long categoryId)
+        {
+            bool isResult = false;
+            int returnResult = 0;
+            try
+            {
+                AssessmentCategory assessmentCategory = new FingerprintsModel.AssessmentCategory();
+                assessmentCategory.UserId = new Guid(Session["UserID"].ToString());
+                assessmentCategory.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                assessmentCategory.AssessmentCategoryId = categoryId;
+                const string command = "CHECKCATREF";
+                isResult = new MatrixData().CheckAssessmentCategory(assessmentCategory, command);
+                if (isResult)
+                {
+                    returnResult = 2;
+                    return Json(returnResult, JsonRequestBehavior.AllowGet);
+                }
+                isResult = new MatrixData().DeleteAssessmentCategory(assessmentCategory);
+                {
+                    returnResult = 1;
+                    return Json(returnResult, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return Json(returnResult, JsonRequestBehavior.AllowGet);
+
+        }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult AssessmentGroup()
         {
             return View();
         }
 
-        public ActionResult GetAssessmentGroup( string sortOrder,string sortDirection,int pageSize=0,int requestedPage=1)
-            {
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public ActionResult GetAssessmentGroup(string sortOrder, string sortDirection, int pageSize = 0, int requestedPage = 1)
+        {
             List<AssessmentGroup> assessmentGroup = new List<FingerprintsModel.AssessmentGroup>();
             long totalCount = 0;
 
@@ -400,7 +520,8 @@ namespace Fingerprints.Controllers
             return Json(new { assessmentGroup, totalCount }, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult InsertAssessmentGroup(string groupType,long categoryId, int status)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult InsertAssessmentGroup(string groupType, long categoryId, int status)
         {
             bool isResult = false;
             int returnResult = 0;
@@ -432,6 +553,7 @@ namespace Fingerprints.Controllers
            
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         [HttpPost]
         public JsonResult UpdateAssessmentGroup(string groupType, long categoryId, int status,long groupId)
         {
@@ -466,7 +588,7 @@ namespace Fingerprints.Controllers
             }
         }
 
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult DeleteAssessmentGroup(long groupId)
         {
             bool isResult = false;
@@ -497,26 +619,36 @@ namespace Fingerprints.Controllers
             }
             return Json(returnResult, JsonRequestBehavior.AllowGet);
         }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult AssessmentQuestions()
         {
             return View();
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult Questions()
         {
             return View();
         }
 
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult GetAssessmentType()
         {
             List<SelectListItem> assessmentType = new List<SelectListItem>();
-           Guid? agencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            assessmentType = new MatrixData().GetAssessmentType(agencyId);
+            try
+            {
+                Guid? agencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                assessmentType = new MatrixData().GetAssessmentType(agencyId);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(assessmentType, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult AddQuestions(long GroupTypeVal, string GroupTypeText)
         {
             bool isResult = false;
@@ -554,50 +686,61 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetQuestions(string sortOrder,string sortDirection,int pageSize,int requestedPage=0)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+
+        public JsonResult GetQuestions(string sortOrder, string sortDirection, int pageSize, int requestedPage = 0)
         {
             List<QuestionsModel> matrixList = new List<QuestionsModel>();
             QuestionsModel question = new QuestionsModel();
             int totalCount = 0;
-
-            switch (sortOrder)
+            try
             {
-                case "":
-                    sortOrder = "CategoryPosition,AssessmentGroupType";
-                    break;
-                case null:
-                    sortOrder = "CategoryPosition,AssessmentGroupType";
-                    break;
-                case "thIN":
-                    sortOrder = "AssessmentGroupType";
-                    break;
-                case "thCust":
-                    sortOrder = "AssessmentQuestion";
-                    break;
-                case "thStatus":
-                    sortOrder = "AssessmentGroupType";
-                    break;
-            }
 
-           // sortOrder = (sortOrder == "") ? "CreatedDate" : sortOrder;
-            sortDirection = (string.IsNullOrEmpty(sortDirection)) ? "ASC" : sortDirection;
-            question.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            question.UserId = new Guid(Session["UserID"].ToString());
-            question.Status = true;
-            int skip = pageSize * (requestedPage - 1);
-            matrixList = new MatrixData().GetQuestionType( out totalCount,question,sortOrder,sortDirection,pageSize,requestedPage,skip);
+                switch (sortOrder)
+                {
+                    case "":
+                        sortOrder = "CategoryPosition,AssessmentGroupType";
+                        break;
+                    case null:
+                        sortOrder = "CategoryPosition,AssessmentGroupType";
+                        break;
+                    case "thIN":
+                        sortOrder = "AssessmentGroupType";
+                        break;
+                    case "thCust":
+                        sortOrder = "AssessmentQuestion";
+                        break;
+                    case "thStatus":
+                        sortOrder = "AssessmentGroupType";
+                        break;
+                }
+
+                // sortOrder = (sortOrder == "") ? "CreatedDate" : sortOrder;
+                sortDirection = (string.IsNullOrEmpty(sortDirection)) ? "ASC" : sortDirection;
+                question.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                question.UserId = new Guid(Session["UserID"].ToString());
+                question.Status = true;
+                int skip = pageSize * (requestedPage - 1);
+                matrixList = new MatrixData().GetQuestionType(out totalCount, question, sortOrder, sortDirection, pageSize, requestedPage, skip);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(new { matrixList, totalCount }, JsonRequestBehavior.AllowGet);
 
         }
 
         [HttpPost]
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult DeleteQuestions(int ID)
         {
             bool isResult = false;
             try
             {
-            Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-                isResult = new MatrixData().DeleteQuestionType(ID,AgencyId);
+                Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                Guid userId = new Guid(Session["UserID"].ToString());
+                isResult = new MatrixData().DeleteQuestionType(ID, AgencyId, userId);
             }
             catch (Exception ex)
             {
@@ -608,8 +751,8 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-
-        public JsonResult UpdateQuestions(long GroupType, string Questiontype,long QuestionId)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult UpdateQuestions(long GroupType, string Questiontype, long QuestionId)
         {
             bool isResult = false;
             int returnResult = 0;
@@ -646,24 +789,32 @@ namespace Fingerprints.Controllers
             return Json(returnResult, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult AssessmentResults()
         {
             return View();
         }
 
-       [HttpPost]
-
-       public JsonResult GetGroupDetails()
+        [HttpPost]
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult GetGroupDetails()
         {
             List<AssessmentGroup> groupList = new List<FingerprintsModel.AssessmentGroup>();
-             Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            groupList = new MatrixData().GetAssessmentGroupList(AgencyId);
+            try
+            {
+
+                Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                groupList = new MatrixData().GetAssessmentGroupList(AgencyId);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(groupList, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult InsertAssessmentResults(long groupID, long matrixID, string Description, bool referralSuggested, bool FPASuggessted)
         {
             int returnResult = 0;
@@ -704,8 +855,8 @@ namespace Fingerprints.Controllers
 
 
 
-
-     public ActionResult GetAssessmentResults(string sortOrder, string sortDirection, int pageSize = 0, int requestedPage = 1)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public ActionResult GetAssessmentResults(string sortOrder, string sortDirection, int pageSize = 0, int requestedPage = 1)
         {
             List<AssessmentResults> assessmentResults = new List<FingerprintsModel.AssessmentResults>();
             int totalCount = 0;
@@ -754,7 +905,8 @@ namespace Fingerprints.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateAssessmentResults(long groupId, long matrixId, bool referralStatus, bool fpaStatus,string Description, long resultID)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult UpdateAssessmentResults(long groupId, long matrixId, bool referralStatus, bool fpaStatus, string Description, long resultID)
         {
 
             int returnResult = 0;
@@ -794,7 +946,7 @@ namespace Fingerprints.Controllers
             return Json(returnResult, JsonRequestBehavior.AllowGet);
         }
 
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult DeleteAssessmentResults(long resultId)
         {
             bool isResult = false;
@@ -802,7 +954,7 @@ namespace Fingerprints.Controllers
             {
                 Guid UserId = new Guid(Session["UserID"].ToString());
                 Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-                isResult = new MatrixData().DeleteAssessmentResults(resultId,UserId, AgencyId);
+                isResult = new MatrixData().DeleteAssessmentResults(resultId, UserId, AgencyId);
             }
             catch (Exception ex)
             {
@@ -812,12 +964,14 @@ namespace Fingerprints.Controllers
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public ActionResult Acronym()
         {
             return View();
         }
 
-        public JsonResult AddAcronym(string AcronymName, long acronymId =0)
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
+        public JsonResult AddAcronym(string AcronymName, long acronymId = 0)
         {
             bool isResult = false;
             try
@@ -837,29 +991,45 @@ namespace Fingerprints.Controllers
                 return Json("Error occured please try again.");
             }
         }
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult GetAcronymList()
         {
-           
-            Acronym acronym = new Acronym();
 
-            acronym.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            acronym.UserId = new Guid(Session["UserID"].ToString());
-            acronym.Status = true;
-            acronym = new MatrixData().GetAcronym(acronym);
+            Acronym acronym = new Acronym();
+            try
+            {
+
+
+                acronym.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                acronym.UserId = new Guid(Session["UserID"].ToString());
+                acronym.Status = true;
+                acronym = new MatrixData().GetAcronym(acronym);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(acronym, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult GetAcronym()
-      {
+        {
             Acronym acronym = new Acronym();
-            acronym.UserId = new Guid(Session["UserID"].ToString());
-            acronym.AgencyId= (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-            acronym = new MatrixData().GetAcronym(acronym);
+            try
+            {
+                acronym.UserId = new Guid(Session["UserID"].ToString());
+                acronym.AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                acronym = new MatrixData().GetAcronym(acronym);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return Json(acronym, JsonRequestBehavior.AllowGet);
 
         }
-
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult UpdateAcronym(long AcronymId, string AcronymName)
         {
             bool isResult = false;
@@ -891,13 +1061,15 @@ namespace Fingerprints.Controllers
 
         }
 
+        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2")]
         public JsonResult DeleteAcronym(long ID)
         {
             bool isResult = false;
             try
             {
-               Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
-                isResult = new MatrixData().DeleteAcronym(ID,AgencyId);
+                Guid? AgencyId = (Session["AgencyId"] != null) ? new Guid(Session["AgencyId"].ToString()) : (Guid?)null;
+                Guid userId = new Guid(Session["UserID"].ToString());
+                isResult = new MatrixData().DeleteAcronym(ID, AgencyId, userId);
             }
             catch (Exception ex)
             {

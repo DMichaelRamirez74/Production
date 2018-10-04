@@ -11,8 +11,8 @@ namespace FingerprintsModel
 
         public long AnnualAssessmentId { get; set; }
         public long AnnualAssessmentType { get; set; }
-        public Guid? AgencyId { get; set; }
-        public Guid UserId { get; set; }
+        //public Guid? AgencyId { get; set; }
+        //public Guid UserId { get; set; }
 
         public string UserName { get; set; }
         public string AgencyName { get; set; }
@@ -23,6 +23,13 @@ namespace FingerprintsModel
         public string Assessment2To { get; set; }
         public string Assessment3From { get; set; }
         public string Assessment3To { get; set; }
+
+        public string EnrollmentDays { get; set; }
+
+        public bool EditAssessment1 { get; set; }
+        public bool EditAssessment2 { get; set; }
+        public bool EditAssessment3 { get; set; }
+
 
     }
 }
