@@ -45,6 +45,30 @@
     <link href="~/Scripts/jquery.signature.css" rel="stylesheet" />
 <script src="~/Scripts/jquery.touchsupport.js"></script>
     <script type="text/javascript">
+
+
+        function updateYakkr() {
+
+            $.ajax({
+
+                url: HostedDir + '/Yakkr/GetYakkrCountByUser',
+                datatype: "json",
+                type: 'post',
+                success: function (data) {
+                    $('.yakkr-span').html(data);
+                },
+                error: function (data) {
+
+                }
+
+
+            });
+
+
+
+        }
+
+
         $(document).ready(function () {
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -53,6 +77,16 @@
                 }
             });
 
+
+
+
+
+            setInterval(function () {
+
+
+                updateYakkr();
+
+            }, 300000); ///Updates for every 5 minutes///
 
 
 
@@ -926,7 +960,7 @@
                             </li>
 
                         }
-                        <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr(@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString()))</a> </li>
+                        <li> <a id="lireport" href="~/Yakkr/YakkrDetails"><i class="fa fa-dashboard fa-fw"></i>Yakkr <span class="yakkr-span"> (@Fingerprints.Utilities.Helper.GetYakkrCountByUserId(Session["UserID"].ToString(), Session["AgencyID"].ToString())) </span></a> </li>
                         @if (AccessList != null && AccessList.Count > 0)
                         {
                             <li>

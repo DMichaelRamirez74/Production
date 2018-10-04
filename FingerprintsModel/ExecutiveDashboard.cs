@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FingerprintsModel
 {
-    public class ExecutiveDashBoard
+    public class ExecutiveDashBoard:NewProgramYearTransitionDashboard
     {
         public List<AbsenceByWeek> AbsenceReport { get; set; }
         public string AttendanceIssuePercentage { get; set; }

@@ -385,5 +385,31 @@ namespace Fingerprints.Controllers
         #endregion  yakkr451
 
 
+        #region Get Yakkr Count by User
+
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public JsonResult GetYakkrCountByUser()
+        {
+            int yakkrCount = 0;
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                yakkrCount= new YakkrData().GetYakkrCountByUserId((Guid)staff.AgencyId, (Guid)staff.UserId, Status:"1");
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+
+            return Json(yakkrCount, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion Yakkr Count by User
+
+
     }
 }

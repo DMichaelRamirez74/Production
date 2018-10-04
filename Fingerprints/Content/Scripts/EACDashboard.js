@@ -31,6 +31,9 @@ function getADASeatsDaily() {
 
 
 $(function () {
+
+    prgYearMinDate = new Date($('#ProgramYearStartDate').val());
+
     $('.slots-board').click(function () {
         $('.error-message').hide();
         $('.txtslotdate').val(getYesterdaysDate());
@@ -48,7 +51,10 @@ $(function () {
     $('#slotsDatetimePicker').datetimepicker({
         timepicker: false,
         format: 'm/d/Y',
-        validateOnBlur: false
+        validateOnBlur: false,
+        maxDate: new Date(),
+        minDate: new Date(prgYearMinDate)
+
     });
 
     
@@ -68,7 +74,12 @@ $(function () {
     function getYesterdaysDate() {
         var date = new Date();
         date.setDate(date.getDate() - 1);
-        return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+
+        var monthString = (date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1);
+        var dateString = date.getDate() < 10 ? '0' + date.getDate().toString() : date.getDate();
+
+
+        return monthString + '/' + dateString + '/' + date.getFullYear();
     }
 
     function GetSlotsDetails(date) {
@@ -135,8 +146,7 @@ $(function () {
                 $('#spinner').hide();
                 $('#myModalSeats').modal('show');
                 }
-                catch(error)
-                {
+                catch (error) {
                     $('#spinner').hide();
                 }
             },
@@ -153,8 +163,15 @@ $(function () {
         if ($('.txtslotdate').val().trim() != "") {
             if (validDate($('.txtslotdate').val().trim())) {
                 $('.slots-invalid-date').hide();
-                if (Checkdate($('.txtslotdate').val().trim()))
-                    GetSlotsDetails($('.txtslotdate').val().trim());
+                if (Checkdate($('.txtslotdate').val().trim())) {
+                    if (new Date($('.txtslotdate').val()).setHours(0, 0, 0, 0) <= new Date(prgYearMinDate).setHours(0, 0, 0, 0)) {
+                        customAlert('Entered date should be greater than or equal to program year start date (' + $('#ProgramYearStartDate').val() + ')');
+                        $('.slots-invalid-date').show();
+                    }
+                    else {
+                        GetSlotsDetails($('.txtslotdate').val().trim());
+                    }
+                }
                 else
                     $('.slots-future-date').show();
             }
@@ -175,8 +192,8 @@ $(function () {
                 $('.seats-invalid-date').hide();
 
 
-                if (new Date($('.txtseatdate').val()).setHours(0, 0, 0, 0) < new Date(prgYearMinDate).setHours(0, 0, 0, 0))
-                {
+                if (new Date($('.txtseatdate').val()).setHours(0, 0, 0, 0) < new Date(prgYearMinDate).setHours(0, 0, 0, 0)) {
+                    customAlert('Entered date should be greater than or equal to program year start date (' + $('#ProgramYearStartDate').val() + ')');
                     $('.seats-invalid-date').show();
                 }
                 else if (Checkdate($('.txtseatdate').val().trim()))
@@ -315,9 +332,10 @@ $(function () {
     //updates the ADA count for every 5 minutes
     setInterval(function () {
         getADASeatsDaily()
-    }, 300000); // this will run after every 5 minutes
+    }, 120000); // this will run after every 2 minutes
     ///3000
     ///300000
+    //120000
 });
 
 

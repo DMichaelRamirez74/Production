@@ -863,5 +863,53 @@ namespace FingerprintsData
 
            return _isSuccess;
         }
+
+
+
+        public int GetYakkrCountPending()
+        {
+
+            int yakkrCount = 0;
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if(Connection.State==ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Connection = Connection;
+                    command.CommandText = "USP_GetYakkrCountPending";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    yakkrCount=Convert.ToInt32(command.ExecuteScalar());
+                    Connection.Close();
+                }
+
+
+                    
+            }
+            catch(Exception ex)
+            {
+
+                clsError.WriteException(ex);
+               
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+
+            return yakkrCount;
+        }
     }
 }

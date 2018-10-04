@@ -163,6 +163,12 @@ namespace FingerprintsData
                             Convert.ToString(_dataset.Tables[10].Rows[0]["ShowDemographic"]) == "1" ? true : false;
                     }
 
+                    /// gets the Program Year Start Date for the Executive Dashboard///
+                    if(_dataset.Tables.Count>11 && _dataset.Tables[11].Rows.Count>0)
+                    {
+                        executive.ProgramYearStartDate = Convert.ToString(_dataset.Tables[11].Rows[0]["ProgramYearStartDate"]);
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -206,9 +212,9 @@ namespace FingerprintsData
             dtSeatDetails = new DataTable();
             try
             {
-                DateTime Date = Convert.ToDateTime(date);
+             
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@Date", Date));
+                command.Parameters.Add(new SqlParameter("@Date", date));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetSlotDetailsByDate";
