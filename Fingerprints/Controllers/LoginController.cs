@@ -214,6 +214,8 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/Executive";
                 else if (Session["Roleid"].ToString() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80")
                     newLocation = "~/Home/AgencyDisabilityManagerDashboard";
+                else if (Session["Roleid"].ToString() == "699168ac-ad2d-48ac-b9de-9855d5dc9af8")
+                    newLocation = "~/MentalHealth/MentalHealthDashboard";
                 else if (Session["Roleid"].ToString() == "9c34ec8e-2359-4704-be89-d9f4b7706e82")
                     newLocation = "~/Home/DisabilityStaffDashboard";
                 else if (Session["Roleid"].ToString() == "c352f959-cfd5-4902-a529-71de1f4824cc")
@@ -307,6 +309,8 @@ namespace Fingerprints.Controllers
                     Session["isAcceptance"] = false;
                     Session["IsShowPIR"] = UserInfo.IsShowPIR;
                     Session["IsShowSectionB"] = UserInfo.IsShowSectionB;
+                    Session["IsShowScreening"] = UserInfo.IsShowScreening;
+
                     if (UserInfo.AgencyId != null)
                     {
                        Session["AgencyID"] = UserInfo.AgencyId;
@@ -366,6 +370,10 @@ namespace Fingerprints.Controllers
                     newLocation = "~/Home/Dashboard";
                 else if (Session["Roleid"].ToString() == "047c02fe-b8f1-4a9b-b01f-539d6a238d80")
                     newLocation = "~/Home/AgencyDisabilityManagerDashboard";
+
+                else if (Session["Roleid"].ToString() == "699168ac-ad2d-48ac-b9de-9855d5dc9af8")
+                    newLocation = "~/MentalHealth/MentalHealthDashboard";
+
                 else if (Session["Roleid"].ToString() == "9c34ec8e-2359-4704-be89-d9f4b7706e82")
                     newLocation = "~/Home/DisabilityStaffDashboard";
                 else if (Session["Roleid"].ToString().Contains("c352f959-cfd5-4902-a529-71de1f4824cc"))
@@ -375,7 +383,8 @@ namespace Fingerprints.Controllers
                 else if (Session["Roleid"].ToString().ToUpper().Contains("944D3851-75CC-41E9-B600-3FA904CF951F"))
                     newLocation = "~/Billing/FamilyOverride";
                 else if (Session["Roleid"].ToString().ToUpper().Contains("B65759BA-4813-4906-9A69-E180156E42FC"))
-                    newLocation = "~/ERSEA/ERSEADashboard";
+                    newLocation = "~/ERSEA/CenterAnalysis";
+
                 else if (Session["Roleid"].ToString() == "6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba")
                     newLocation = "~/Transportation/Dashboard";
                 else if (Session["Roleid"].ToString() == "825f6940-9973-42d2-b821-5b6c7c937bfe")

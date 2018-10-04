@@ -146,7 +146,7 @@ function getList(programID) {
             if (data.centerAnalysisList.length > 0) {
                 $.each(data.centerAnalysisList, function (i, centerElement) {
 
-                    bindDiv.find('.center-name').html(centerElement.CenterName).attr('center-id', centerElement.Enc_CenterId);
+                    bindDiv.find('.center-name').html(centerElement.CenterName).attr({ 'center-id': centerElement.Enc_CenterId, 'title': centerElement.CenterName,'data-toggle':'tooltip' });
                     bindDiv.find('.seats-count').html(centerElement.Seats);
 
                     if (centerElement.Enrolled > 0) {
@@ -242,47 +242,51 @@ function getList(programID) {
                            '<p><strong>' + data.calcAnalysis.TotalSeats + '</strong></p></td>';
 
             if (data.calcAnalysis.TotalEnrolled > 0) {
-                // totalPerDiv += '<td data-title="Enrolled">' +
-                //'<p><strong style="text-decoration:underline;cursor:pointer;" class="total_enroll" onclick="getEnrolledChildrens(0);">' + data.calcAnalysis.TotalEnrolled + '</strong></p></td>';
+                 totalPerDiv += '<td data-title="Enrolled">' +
+                                '<p><strong style="text-decoration:underline;cursor:pointer;" class="total_enroll" onclick="getEnrolledChildrens(0,0,1,10);">' + data.calcAnalysis.TotalEnrolled + '</strong></p></td>';
 
-                totalPerDiv += '<td data-title="Enrolled">' +
-                              '<p><strong style="text-decoration:none;" class="total_enroll">' + data.calcAnalysis.TotalEnrolled + '</strong></p></td>';
+                //totalPerDiv += '<td data-title="Enrolled">' +
+                //              '<p><strong style="text-decoration:none;" class="total_enroll">' + data.calcAnalysis.TotalEnrolled + '</strong></p></td>';
             }
             else {
                 totalPerDiv += '<td data-title="Enrolled">' +
                               '<p><strong style="text-decoration:none;" class="total_enroll">' + data.calcAnalysis.TotalEnrolled + '</strong></p></td>';
             }
             if (data.calcAnalysis.TotalWithdrawn > 0) {
-                // totalPerDiv += '<td data-title="WithDrawn"><p><strong style="text-decoration:underline;cursor:pointer;" class="total_withdrawn" onclick="getWithdrawnChildren(0);">' + data.calcAnalysis.TotalWithdrawn + '</strong></p></td>';
-                totalPerDiv += '<td data-title="WithDrawn"><p><strong style="text-decoration:none;" class="total_withdrawn">' + data.calcAnalysis.TotalWithdrawn + '</strong></p></td>';
+
+                 totalPerDiv += '<td data-title="WithDrawn"><p><strong style="text-decoration:underline;cursor:pointer;" class="total_withdrawn" onclick="getWithdrawnChildren(0,0,1,10);">' + data.calcAnalysis.TotalWithdrawn + '</strong></p></td>';
+
+            //    totalPerDiv += '<td data-title="WithDrawn"><p><strong style="text-decoration:none;" class="total_withdrawn">' + data.calcAnalysis.TotalWithdrawn + '</strong></p></td>';
 
             }
             else {
                 totalPerDiv += '<td data-title="WithDrawn"><p><strong style="text-decoration:none;" class="total_withdrawn">' + data.calcAnalysis.TotalWithdrawn + '</strong></p></td>';
             }
             if (data.calcAnalysis.TotalDropped > 0) {
-                //totalPerDiv += '<td data-title="Dropped"><p><strong style="text-decoration:underline;cursor:pointer;" class="total_dropped" onclick="getDroppedChildren(0);"  >' + data.calcAnalysis.TotalDropped + '</strong></p></td>';
 
-                totalPerDiv += '<td data-title="Dropped"><p><strong style="text-decoration:none;" class="total_dropped"  >' + data.calcAnalysis.TotalDropped + '</strong></p></td>';
+
+                totalPerDiv += '<td data-title="Dropped"><p><strong style="text-decoration:underline;cursor:pointer;" class="total_dropped" onclick="getDroppedChildren(0,0,1,10);"  >' + data.calcAnalysis.TotalDropped + '</strong></p></td>';
+
+               // totalPerDiv += '<td data-title="Dropped"><p><strong style="text-decoration:none;" class="total_dropped"  >' + data.calcAnalysis.TotalDropped + '</strong></p></td>';
 
             }
             else {
                 totalPerDiv += '<td data-title="Dropped"><p><strong style="text-decoration:none;" class="total_dropped"  >' + data.calcAnalysis.TotalDropped + '</strong></p></td>';
             }
             if (data.calcAnalysis.TotalWaiting > 0) {
-                // totalPerDiv += '<td data-title="Waiting"> <p style="text-align:right;padding-bottom:20px;"><strong ><span style="text-decoration:underline;float:left;cursor:pointer;" class="total_waiting" onclick="getWaitingChildren(0);">' + data.calcAnalysis.TotalWaiting + '</span>   <span  style="color: #0fbc0f;font-weight: bold;float:right;"> ' + parseFloat(data.calcAnalysis.TotalPercentageFilled).toFixed(1) + '% </span></strong></p></td>';
+                 totalPerDiv += '<td data-title="Waiting"> <p style="text-align:right;"><strong ><span style="text-decoration:underline;float:left;cursor:pointer;" class="total_waiting" onclick="getWaitingChildren(0,0,1,10);">' + data.calcAnalysis.TotalWaiting + '</span>   <span  style="color: #0fbc0f;font-weight: bold;float:right;"> ' + parseFloat(data.calcAnalysis.TotalPercentageFilled).toFixed(1) + '% </span></strong></p></td>';
 
-                totalPerDiv += '<td data-title="Waiting"> <p style="text-align:right;padding-bottom:20px;"><strong ><span style="text-decoration:none;float:left;" class="total_waiting">' + data.calcAnalysis.TotalWaiting + '</span>   <span  style="color: #0fbc0f;font-weight: bold;float:right;"> ' + parseFloat(data.calcAnalysis.TotalPercentageFilled).toFixed(1) + '% </span></strong></p></td>';
+                //totalPerDiv += '<td data-title="Waiting"> <p style="text-align:right;padding-bottom:20px;"><strong ><span style="text-decoration:none;float:left;" class="total_waiting">' + data.calcAnalysis.TotalWaiting + '</span>   <span  style="color: #0fbc0f;font-weight: bold;float:right;"> ' + parseFloat(data.calcAnalysis.TotalPercentageFilled).toFixed(1) + '% </span></strong></p></td>';
 
             }
             else {
-                totalPerDiv += '<td data-title="Waiting"> <p style="text-align:right;padding-bottom:20px;"><strong ><span style="text-decoration:none;float:left;" class="total_waiting">' + data.calcAnalysis.TotalWaiting + '</span>   <span  style="color: #0fbc0f;font-weight: bold;float:right;"> ' + parseFloat(data.calcAnalysis.TotalPercentageFilled).toFixed(1) + '% </span></strong></p></td>';
+                totalPerDiv += '<td data-title="Waiting"> <p style="text-align:right;"><strong ><span style="text-decoration:none;float:left;" class="total_waiting">' + data.calcAnalysis.TotalWaiting + '</span>   <span  style="color: #0fbc0f;font-weight: bold;float:right;"> ' + parseFloat(data.calcAnalysis.TotalPercentageFilled).toFixed(1) + '% </span></strong></p></td>';
 
             }
             if (data.calcAnalysis.TotalReturned > 0) {
-                // totalPerDiv += '<td data-title="Return"> <p><strong style="text-decoration:underline;cursor:pointer;" class="total_return" onclick="getReturningChildrens(0);" >' + data.calcAnalysis.TotalReturned + '</strong></p></td>';
+                 totalPerDiv += '<td data-title="Return"> <p><strong style="text-decoration:underline;cursor:pointer;" class="total_return" onclick="getReturningChildrens(0,0,1,10);" >' + data.calcAnalysis.TotalReturned + '</strong></p></td>';
 
-                totalPerDiv += '<td data-title="Return"> <p><strong style="text-decoration:none;" class="total_return"  >' + data.calcAnalysis.TotalReturned + '</strong></p></td>';
+                //totalPerDiv += '<td data-title="Return"> <p><strong style="text-decoration:none;" class="total_return"  >' + data.calcAnalysis.TotalReturned + '</strong></p></td>';
 
             }
             else {
@@ -291,9 +295,9 @@ function getList(programID) {
             }
 
             if (data.calcAnalysis.TotalGraduating > 0) {
-                //  totalPerDiv += '<td data-title="Grad"><p><strong class="total_Grad" style="text-decoration:underline;cursor:pointer;" onclick="getGraduatingChildrens(0);">' + data.calcAnalysis.TotalGraduating + '</strong></p></td>';
+                 totalPerDiv += '<td data-title="Grad"><p><strong class="total_Grad" style="text-decoration:underline;cursor:pointer;" onclick="getGraduatingChildrens(0,0,1,10);">' + data.calcAnalysis.TotalGraduating + '</strong></p></td>';
 
-                totalPerDiv += '<td data-title="Grad"><p><strong class="total_Grad" style="text-decoration:none;">' + data.calcAnalysis.TotalGraduating + '</strong></p></td>';
+                //totalPerDiv += '<td data-title="Grad"><p><strong class="total_Grad" style="text-decoration:none;">' + data.calcAnalysis.TotalGraduating + '</strong></p></td>';
 
             }
             else {
@@ -361,13 +365,17 @@ function getList(programID) {
             $('.select_programType').val(programID);
             $('.bind_body').html(appendDiv);
 
+
+            // tool-tip for center name//
+            $('.bind_body').find('.center-name').each(function () { $(this).tooltip() });
+
             //dynamic change of table body height//
             var bodyHeight = 0;
             $('.bind_body ').find('tr').each(function () {
                 bodyHeight += $(this).height();
             });
             var bindBodyHeight = $('.bind_body').height();
-            if (bodyHeight <= bindBodyHeight) {
+            if (bodyHeight <= bindBodyHeight || $('.bind_body').find('tr').length<5) {
                 $('.bind_body').css({
                     'height': bodyHeight
 
@@ -655,6 +663,9 @@ $('#centerTable').on('click', '.leads-count', function () {
 
     requestedPage = 1;
     pageSize = 10;
+
+    $('#spinner').show();
+
     getLeadsChildren(center_ID, ProgramId, requestedPage, pageSize);
     LastIndex = 0;
     $('#ExternalLeadsModal').find('#First').attr('disabled', true);
@@ -804,7 +815,9 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
 
                     if (center.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name" title="'+enrChild.CenterName+'" data-toggle="tooltip">' + enrChild.CenterName + '</td>';
+                     ///   bindEle+='<td data-title="Center Name"><p class="center-name"  title="" data-toggle="tooltip" title=="'+enrChild.CenterName+'">' + enrChild.CenterName + '</p></td>';
+
                     }
 
                     bindEle += '<td data-title="Class Start Date">' + enrChild.ClassStartDate + '</td>\
@@ -832,6 +845,14 @@ function getEnrolledChildrens(center, prog_id, reqPage, pgSize) {
                 bindEle = '<tr style="color:#333;"><th style="height:120px;">Records Not Found</th></tr>';
             }
             $('#EnrolledModal').find('.enrolledModalBody').html(bindEle);
+
+            //tool tip for center name//
+
+            //$('#EnrolledModal').find('.enrolledModalBody').find('td[data-title="Center Name"]').each(function () {
+
+            //    $(this).tooltip();
+            //});
+
 
             $('#EnrolledModal').modal({
                 backdrop: 'static',
@@ -897,7 +918,7 @@ function getWithdrawnChildren(centerId, prog_id, reqPage, pgSize) {
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId === 0) {
-                        bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name"  class="center-name-popup" title="' + enrChild.CenterName + '">' + enrChild.CenterName + '</td>';
                     }
 
                     bindEle += '<td data-title="Date on List">' + enrChild.DateOnList + '</td><td data-title="Program Type">' + enrChild.ProgramType + '</td>' +
@@ -976,7 +997,7 @@ function getDroppedChildren(centerId, prog_id, reqPage, pgSize) {
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name"  class="center-name-popup" title="' + enrChild.CenterName + '">' + enrChild.CenterName + '</td>';
                     }
 
                     bindEle += '<td data-title="Date on List">' + enrChild.DateOnList + '</td><td data-title="Program Type">' + enrChild.ProgramType + '</td>' +
@@ -1122,7 +1143,7 @@ function getReturningChildrens(centerId, prog_id, reqPage, pgSize) {
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name"  class="center-name-popup" title="' + enrChild.CenterName + '">' + enrChild.CenterName + '</td>';
                     }
 
 
@@ -1202,7 +1223,7 @@ function getGraduatingChildrens(centerId, prog_id, reqPage, pgSize) {
                     bindEle += (enrChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (enrChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name"  class="center-name-popup" title="' + enrChild.CenterName + '">' + enrChild.CenterName + '</td>';
                     }
 
 
@@ -1286,7 +1307,7 @@ function getOverIncomChildren(centerId, prog_id, reqPage, pgSize) {
                     bindEle += '<td data-title="Date Of Birth">' + enrChild.Dob + '</td>';
 
                     if (centerId.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + enrChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name" class="center-name-popup" title="' + enrChild.CenterName + '">' + enrChild.CenterName + '</td>';
 
                     }
                     bindEle += '<td data-title="Class Start Date">' + enrChild.ClassStartDate + '</td>';
@@ -1374,7 +1395,7 @@ function getFosterChild(centerId, prog_id, reqPage, pgSize) {
                     bindDiv += '<td data-title="Date Of Birth">' + fosterchild.Dob + '</td>';
 
                     if (centerId.toString() === '0') {
-                        bindDiv += '<td data-title="Center Name">' + fosterchild.CenterName + '</td>';
+                        bindDiv += '<td data-title="Center Name" class="center-name-popup" title="'+fosterchild.CenterName+'">' + fosterchild.CenterName + '</td>';
                     }
 
 
@@ -1454,7 +1475,7 @@ function getHomelessChildren(centerId, prog_id, reqPage, pgSize) {
                     bindEle += (hlChild.Gender == "1") ? '<td data-title="Gender">Male</td>' : (hlChild.Gender == "2") ? '<td data-title="Gender">Female</td>' : '<td data-title="Gender">Others</td>';
                     bindEle += '<td data-title="Date Of Birth">' + hlChild.Dob + '</td>';
                     if (centerId.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + hlChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name" class="center-name-popup" title="' + hlChild.CenterName + '">' + hlChild.CenterName + '</td>';
                     }
 
                     bindEle += '<td data-title="Class Start Date">' + hlChild.ClassStartDate + '</td></tr>';
@@ -1485,7 +1506,7 @@ function getLeadsChildren(centerId, prog_id, reqPage, pgSize) {
     searchText = $('#ExternalLeadsModal').find('.searchTextAll').val();
     isShowLoader(true);
     $.ajax({
-        url: '/ERSEA/GetLeadschildren',
+        url: HostedDir+ '/ERSEA/GetLeadschildren',
         datatype: 'json',
         type: 'post',
         async: false,
@@ -1523,7 +1544,7 @@ function getLeadsChildren(centerId, prog_id, reqPage, pgSize) {
                     bindEle += '<td data-title="Date of Birth">' + leadChild.Dob + '</td>';
                     bindEle += '<td data-title="Parent/Guardian">' + leadChild.ParentName + '</td>';
                     if (centerId.toString() === '0') {
-                        bindEle += '<td data-title="Center Name">' + leadChild.CenterName + '</td>';
+                        bindEle += '<td data-title="Center Name"  class="center-name-popup" title="' + leadChild.CenterName + '">' + leadChild.CenterName + '</td>';
 
                     }
                     bindEle += '<td data-title="FSW Assigned" style="text-align:center;">' + leadChild.FSWName + '</td>';
@@ -1804,6 +1825,7 @@ function getListafterupdation(clsName, ele) {
 
 
 function GoToNextPage(requestedPage, pageSize, clsName, centId) {
+
 
     callDisplayAjaxMethods(requestedPage, pageSize, clsName, centId);
 

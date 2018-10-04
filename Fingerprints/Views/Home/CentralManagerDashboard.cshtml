@@ -377,8 +377,7 @@
                }
             });
         }
-        function bindClassroom(data)
-        {
+        function bindClassroom(data) {
 
             if (data != null && data.length > 0) {
                 var option = "";
@@ -406,8 +405,7 @@
                 var th = "";
                 var tr = "";
                 var column = data[0];
-                if (column != null)
-                {
+                if (column != null) {
                     th += "<tr><th>Client</th>";
                     for (var i = 2; i < column.length; i++) {
                         th += "<th>" + column[i] + "</th>";
@@ -424,8 +422,7 @@
                             tr += "<td>" + rows[j] + "</td>";
                         else if (rows[j] == "M")
                             tr += "<td><span style='color:#295b8f;'>" + rows[j] + " </span></td>";
-                        else if (rows[j].indexOf("ExpiredDate") > -1)
-                        {
+                        else if (rows[j].indexOf("ExpiredDate") > -1) {
                             tr += "<td><span style='color:#FF0000;cursor: pointer;'  title=" + rows[j].replace('ExpiredDate', '') + "> " + rows[j].replace('ExpiredDate', '') + "</span></td>";
                         }
                         else if (rows[j].indexOf("ScreeningDate") > -1)
@@ -451,9 +448,8 @@
                 for (var j = 0; j < 4; j++) {
                     tr += "<tr>";
                     for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
-                        if (i == 0)
-                        {
-                            if(j==0)
+                        if (i == 0) {
+                            if (j == 0)
                                 tr += "<td>Complete</td>";
                             if (j == 1)
                                 tr += "<td style='color:#295b8f;'>Missing</td>";
@@ -462,11 +458,9 @@
                             if (j == 3)
                                 tr += "<td style='color:#FFA500;'>Expiring</td>";
                         }
-                        else
-                        {
+                        else {
                             var count = 0;
-                            if (j== 0)
-                            {
+                            if (j == 0) {
 
                                 for (var k = 1; k < data.length; k++) {
                                     var Rowi = data[k];
@@ -538,27 +532,24 @@
                 $('#Modalclientscreeningmissing').modal('toggle');
             }
         }
-        function Getsscreeningid()
-        {
+        function Getsscreeningid() {
             var screeningid = "";
             $('#DivcenterscreeningList > tbody > tr').each(function () {
                 if ($(this).find('td:eq(0)').find('input[type="checkbox"]').length > 0 && !$(this).find('td:eq(0)').find('input[type="checkbox"]').prop("disabled")
-                    && $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked"))
-                {
+                    && $(this).find('td:eq(0)').find('input[type="checkbox"]').prop("checked")) {
                     screeningid = screeningid + $(this).find('td:eq(0)').find('input[type="checkbox"]').attr("accesskey") + ',';
                 }
             });
-            if (screeningid != "" && centerid!=0) {
+            if (screeningid != "" && centerid != 0) {
                 screeningid = screeningid.substr(0, screeningid.length - 1);
-                window.location.href = HostedDir + '/Nurse/Multientryscreening?screeningids=' + screeningid+"&centerid="+centerid+"&centername="+centername;
+                window.location.href = HostedDir + '/Nurse/Multientryscreening?screeningids=' + screeningid + "&centerid=" + centerid + "&centername=" + centername;
             }
             else
                 customAlert("Please select screening.");
 
         }
 
-        function getclient(object)
-        {
+        function getclient(object) {
             $.ajax({
                 url: HostedDir + "/Nurse/Loadmissingclient",
                 type: "POST",
@@ -725,8 +716,7 @@
                 $('#div6').show();
             }
         }
-        function Loadchildmissingscreeningclear()
-        {
+        function Loadchildmissingscreeningclear() {
             $('#Classroommatrix').val('');
             cleanValidation();
             if(Center!=null)
@@ -738,8 +728,7 @@
                 customAlert("Classroom is required. ");
                 plainValidation('#Classroommatrix');
             }
-            else
-            {
+            else {
                 if (Center != null)
                     Loadchildmissingscreening(Center);
             }
@@ -748,15 +737,13 @@
 
         function DownLoadExcelFile() {
 
-            if ($('#DivclientmissingList > tbody > tr').length > 0)
-            {
+            if ($('#DivclientmissingList > tbody > tr').length > 0) {
                 if (Center != null) {
-                    var centerid= $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
+                    var centerid = $('#Classroommatrix').val() == null ? "" : $('#Classroommatrix').val();
                     window.location.href = HostedDir + "/Nurse/DownloadScreeningMatrixExcel?Centerid=" + $(Center).attr("accesskey") + "&Classroom=" + centerid;
                 }
             }
-            else
-            {
+            else {
                 customAlert("No record to print.");
             }
         }
