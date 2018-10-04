@@ -113,13 +113,12 @@ namespace Fingerprints.Controllers
                 var dec = FingerprintsModel.EncryptDecrypt.Decrypt64("ZTRjODBmYzItOGI2NC00NDdhLTk5YjQtOTVkMTUxMGIwMWU5");
                 int yakkrcount = 0;
                 int appointment = 0;
-                ViewBag.Centerlist = _family.Getcenters(ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
-
-
-
-
+                string  PYSDate = "";
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate,ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
+                ViewBag.PYStartDate = PYSDate;
+
                 return View();
             }
             catch (Exception Ex)
@@ -196,7 +195,8 @@ namespace Fingerprints.Controllers
             {
                 int yakkrcount = 0;
                 int appointment = 0;
-                ViewBag.Centerlist = _family.Getcenters(ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                string  PYSDate = "";
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate,ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 return View();

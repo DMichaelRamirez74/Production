@@ -6568,8 +6568,9 @@ namespace Fingerprints.Controllers
             var dec = FingerprintsModel.EncryptDecrypt.Decrypt64("ZTRjODBmYzItOGI2NC00NDdhLTk5YjQtOTVkMTUxMGIwMWU5");
             int yakkrcount = 0;
             int appointment = 0;
+            string PYSDate = "";
             List<HrCenterInfo> hrCenter = new List<HrCenterInfo>();
-            hrCenter = new FamilyData().Getcenters(ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            hrCenter = new FamilyData().Getcenters(out PYSDate, ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
             Session["Yakkrcount"] = yakkrcount;
             Session["Appointment"] = appointment;
 

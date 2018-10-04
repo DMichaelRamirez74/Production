@@ -6965,11 +6965,12 @@ namespace FingerprintsData
             }
             return "0";
         }
-        public List<HrCenterInfo> Getcenters(ref int yakkrcount, ref int appointment, string Agencyid, string userid)
+        // public List<HrCenterInfo> Getcenters(ref int yakkrcount, ref int appointment, out string PYSDate, string Agencyid, string userid
+        public List<HrCenterInfo> Getcenters(out string PYSDate, ref int yakkrcount, ref int appointment, string Agencyid,string userid)
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
             List<HrCenterInfo> centerList1 = new List<HrCenterInfo>();
-
+            PYSDate = "";
             try
             {
                 command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
@@ -7022,7 +7023,12 @@ namespace FingerprintsData
                         }
                     }
 
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0) {
 
+                        PYSDate = _dataset.Tables[2].Rows[0]["ProgramYearStartDate"].ToString();
+                    }
+
+                       
 
                 }
                 DataAdapter.Dispose();

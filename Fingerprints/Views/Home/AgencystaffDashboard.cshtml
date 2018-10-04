@@ -33,7 +33,7 @@
         var _Object = null;
         var AcceptObject = null;
         var Acceptwaitingobject = null;
-
+        var PYStartDate = "@ViewBag.PYStartDate";
         var reloadPage = false;
 
         $(document).ready(function () {
@@ -1757,7 +1757,7 @@
         }
         //end
         function Checkdate(value) {
-
+            var eleId = $(value).prop('id');
             isValid = true;
             if ($(value).val().trim() != "MM/DD/YYYY" && $(value).val().trim() != "") {
                 var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
@@ -1787,12 +1787,38 @@
             if (today == txtdate) {
                 return true;
             }
+
+        var _tdate = moment(new Date());
+        var _past30 = moment(_tdate.add(-30, 'days')._d).format('MM/DD/YYYY');
+       
             var testdatelocalinput = new Date(txtdate);
             var selectedTimestamp = new Date().getTime();
             var testdatelocalinputTS = testdatelocalinput.getTime();
             var timestamp = new Date().getTime() + (30 * 24 * 60 * 60 * 1000)
-            if (testdatelocalinputTS < selectedTimestamp) {
+            // if (testdatelocalinputTS < selectedTimestamp) {
+            if (testdatelocalinputTS < selectedTimestamp && eleId != 'txtclassstartdate') {
                 customAlert("Class Start Date must be greater than or equal to today's date.");
+                $(value).val('');
+                return false;
+           // } else if (eleId == 'txtclassstartdate' && new Date(txtdate).getTime() < new Date(PYStartDate).getTime()) {
+         } else if(eleId == 'txtclassstartdate' && new Date(txtdate).getTime() < new Date(_past30).getTime() ){
+
+   
+             customAlert("Class Start Date cannot be lesser than 30 days from today's date.");
+              /*  $(".pysd-msg").slideDown();
+                setTimeout(function () {
+                    $(".pysd-msg").slideUp();
+                },10000);*/
+                $(value).val('');
+                return false;
+
+        }else if (eleId == 'txtclassstartdate' && new Date(txtdate).getTime() < new Date(PYStartDate).getTime()) {
+
+                customAlert("Class Start Date must be greater than or equal to program year start  date.");
+                $(".pysd-msg").slideDown();
+                setTimeout(function () {
+                    $(".pysd-msg").slideUp();
+                },10000);
                 $(value).val('');
                 return false;
             }
@@ -3514,8 +3540,12 @@
                                                     </div>
                                                     <div class="col-sm-5">
                                                         <input id="txtclassstartdate" style="width: 100%;" type="text" placeholder="MM/DD/YYYY" onblur="Checkdate(this);" class="form-control">
+                     <p class="pysd-msg" style="color:#db4438;font-style:italic;display:none;">Program Year Start Date is @ViewBag.PYStartDate</p>
                                                     </div>
-                                                </div>
+                          @*<div class="col-sm-3" style="display:none;text-align:center;color:#327ab7;font-style:italic;">
+                                                        <p>Program Year Start Date</br>@ViewBag.PYStartDate</p>
+                                                        </div>*@
+                                                    </div>
                                                 <div class="col-sm-9" style="display:none;">
                                                     <div class="col-sm-4">
                                                         <label style="width: 100%;">Reason for Acceptance <sup>*</sup></label>
