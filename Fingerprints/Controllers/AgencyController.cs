@@ -1736,6 +1736,16 @@ namespace Fingerprints.Controllers
             return Json(result.ManagerRoleTableList, JsonRequestBehavior.AllowGet);
         }
 
+
+        public JsonResult GetManagementRole(string stfRole)
+        {
+
+            var stf = StaffDetails.GetInstance();
+            var result = agencyData.GetStaffRoleMappingDetails(stf.AgencyId.ToString(), "mgrole",null,null, stfRole);
+
+            return Json(result.RolesList, JsonRequestBehavior.AllowGet);
+        }
+
         #endregion Staff-Mang Mapping
 
 

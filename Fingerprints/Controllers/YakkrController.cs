@@ -7,6 +7,7 @@ using FingerprintsData;
 using FingerprintsModel;
 using Fingerprints.ViewModel;
 using Fingerprints.Filters;
+using System.Text;
 
 namespace Fingerprints.Controllers
 {
@@ -311,6 +312,77 @@ namespace Fingerprints.Controllers
             }
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
+
+
+        #region yakkr451
+
+        [HttpGet]
+        [CustAuthFilter()]
+        public ActionResult Yakkr451(int yakkrid,string cn, int cid,int center=0, int hid=0)
+        {
+
+          //  int centerid = 75;
+           // string id = "0";
+            //int Householdid = 0;
+            string Name = "";
+            ViewBag.Name = cn;
+            ViewBag.YakkarId = yakkrid;
+            ViewBag.HouseHoldId = hid;
+            ViewBag.ClientId = cid;
+
+            ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid,2);
+            RosterNew.Users Userlist = new RosterNew.Users();
+            var Rd = new RosterData();
+               
+                Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
+            ViewBag.Userlist = Userlist.UserList;
+
+
+
+            return View();
+        }
+
+        [CustAuthFilter()]
+        public JsonResult GetYakkr451DetailsById(int id) {
+
+           var result =  new YakkrData().GetQuestionaireByYakkrId(id,3);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        [ValidateInput(false)]
+        public ActionResult Yakkr451(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds, bool anotherref=false)
+        {
+            if (qsform.AppointmentMaked == 0)
+            {
+                StringBuilder _Ids = new StringBuilder();
+                if (TeamIds.IDS != null)
+                {
+                    foreach (string str in TeamIds.IDS)
+                    {
+                        _Ids.Append(str + ",");
+                    }
+                    CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
+                }
+
+                CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
+            }
+            var result = new YakkrData().InsertQuestionaireForm(qsform,CaseNote,Attachments);
+            //return View();
+            if (qsform.AppointmentMaked == 0 && anotherref) {
+
+                string ID = EncryptDecrypt.Encrypt64(CaseNote.ClientId);
+                return new RedirectResult("~/Roster/ReferralService?id="+ID+"&ClientName="+CaseNote.ClientName+"");
+            }
+            else
+            {
+                return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=450");
+            }
+        }
+
+        #endregion  yakkr451
 
 
     }

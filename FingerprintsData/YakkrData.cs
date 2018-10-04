@@ -723,5 +723,145 @@ namespace FingerprintsData
         }
 
    
+
+        public ReferalDetails GetQuestionaireByYakkrId(int yakkrid,int mode)
+        {
+
+            var result = new ReferalDetails();
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_QuestionaireFormDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@mode", mode)); //2,3 get
+                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrid));
+                DataAdapter = new SqlDataAdapter(command);
+                DataSet _ds = new DataSet();
+                DataAdapter.Fill(_ds);
+
+                if (_ds != null && _ds.Tables.Count > 0 && _ds.Tables[0].Rows.Count > 0)
+                {
+                    var _refDSet = _ds.Tables[0].Rows[0];
+
+                    var _tR = new ReferalDetails()
+                    {
+                        YakkrId450 = Convert.ToInt32(_refDSet["YakkrId450"].ToString()),
+                        ReferralClientServiceId = Convert.ToInt32(_refDSet["ReferralClientServiceId"].ToString()),
+                        County = _refDSet["County"].ToString(),
+                        CompanyName = _refDSet["CompanyName"].ToString(),
+                         PhoneNo= _refDSet["PhoneNo"].ToString(),
+                        City = _refDSet["City"].ToString(),
+                        Address= _refDSet["Address"].ToString()
+                    };
+
+                    if (mode == 2)
+                    {
+                        _tR.Services = _refDSet["Services"].ToString();
+                        _tR.ClientName = _refDSet["ClientName"].ToString();
+
+                    }
+                    if (mode == 3) {
+                        _tR.YakkrId451 = Convert.ToInt32(_refDSet["YakkrId451"].ToString());
+                        _tR.ReasonForNotServed = DBNull.Value == _refDSet["ReasonForNotServed"] ? 0 : Convert.ToInt32(_refDSet["ReasonForNotServed"].ToString()); 
+                        _tR.Rating = DBNull.Value == _refDSet["Rating"] ? 0 : Convert.ToInt32(_refDSet["Rating"].ToString()); 
+                    }
+
+                    result = _tR;
+
+                }
+
+
+            }
+            catch (Exception ex) {
+                clsError.WriteException(ex);
+            }
+            return result;
+        }
+		
+		
+		        public bool InsertQuestionaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments)
+        {
+
+            bool _isSuccess = false;
+
+            try
+            {
+                var stf = StaffDetails.GetInstance();
+                string message = "";
+                string Name = "";
+                //insert casenote
+                if (qsform.AppointmentMaked == 0 && !string.IsNullOrEmpty(CaseNote.CaseNotetitle))
+                {
+                   
+                    List<CaseNote> CaseNoteList = new List<CaseNote>();
+                    FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
+                    var rd = new RosterData();
+                     message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(), stf.UserId.ToString(), 2);
+
+                }
+
+                if (!string.IsNullOrEmpty(Name)) {
+                    qsform.CaseNoteId = Convert.ToInt32(Name);
+
+                }
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_QuestionaireFormDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@mode", 1));
+                command.Parameters.Add(new SqlParameter("@YakkrId", qsform.YakkrId));
+
+                command.Parameters.Add(new SqlParameter("@AppointmentMaked", qsform.AppointmentMaked));
+                command.Parameters.Add(new SqlParameter("@ServiceReceived", qsform.ServiceReceived));
+                command.Parameters.Add(new SqlParameter("@Rating", qsform.Rating));
+                command.Parameters.Add(new SqlParameter("@ReasonForNotServed", qsform.ReasonForNotServed));
+                command.Parameters.Add(new SqlParameter("@DateOfAppointment", qsform.DateOfAppointment));
+                command.Parameters.Add(new SqlParameter("@TimeOfAppointment", qsform.TimeOfAppointment));  
+
+                command.Parameters.Add(new SqlParameter("@CaseNoteId", qsform.CaseNoteId));
+
+                // command.Parameters.Add(new SqlParameter("@result", string.Empty));
+
+                // command.Parameters.Add(new SqlParameter("@result", ParameterDirection.Output));
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+
+                var result= command.ExecuteNonQuery();
+
+                _isSuccess = true;
+
+                //if (_dataset != null && _dataset.Tables[0] != null)
+                //{
+
+
+                //}
+
+            }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+            }
+
+           return _isSuccess;
+        }
     }
 }

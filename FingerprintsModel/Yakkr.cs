@@ -77,4 +77,41 @@ namespace FingerprintsModel
         public string YakkrDescription { get; set; }
         public string ListMergeFields { get; set; }
     }
+
+    #region yakkr451
+
+    public class Questionaire {
+
+public int AppointmentMaked { get; set; }
+public int ServiceReceived { get;set;}
+public int? Rating { get;set;}
+public int? ReasonForNotServed { get;set;}
+public int YakkrId { get; set; }
+public int? CaseNoteId { get; set; }
+ public string DateOfAppointment { get; set; }
+ public string TimeOfAppointment { get; set; }
+
+    }
+
+    public class ReferalDetails
+    {
+        public string ClientName { get; set; }
+        public string Services { get; set; }
+        public string County { get; set; }
+        public string City { get; set; }
+        public string CompanyName { get; set; }
+        public int ReferralClientServiceId { get; set; }
+        public int YakkrId450 { get; set; }
+        public int? ReasonForNotServed { get; set; }
+        public int? Rating { get; set; }
+        public int YakkrId451 { get; set; }
+        public string Address { get; set; }
+        public string PhoneNo { get; set; }
+
+
+    }
+
+    #endregion yakkr451
+
+
 }

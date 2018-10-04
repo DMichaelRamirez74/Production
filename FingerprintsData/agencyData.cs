@@ -6126,7 +6126,7 @@ namespace FingerprintsData
         return _access;
     }
 
-        public StaffRoleMapping GetStaffRoleMappingDetails(string agencyId, string Command="",List<string> staffRoles=null,string mRoleId=null)
+        public StaffRoleMapping GetStaffRoleMappingDetails(string agencyId, string Command="",List<string> staffRoles=null,string mRoleId=null,string StaffRoleId=null)
         {
             StaffRoleMapping SRMDetails = new StaffRoleMapping();
             SRMDetails.RolesList = new List<StaffRoleMapping.RoleList>();
@@ -6156,6 +6156,8 @@ namespace FingerprintsData
                     }
                 }
                 command.Parameters.Add(new SqlParameter("@StaffRoleIds", StaffRoleIds));
+                command.Parameters.Add(new SqlParameter("@StaffRId", StaffRoleId));  //for yakkar mapping page
+
 
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -6165,6 +6167,18 @@ namespace FingerprintsData
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
                 Connection.Close();
+
+                //for yakkarmapping page
+                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[0].Rows.Count > 0 && Command == "mgrole")
+                {
+                    var _dr = _dataset.Tables[0].Rows[0];
+
+                    var RoleLi = new StaffRoleMapping.RoleList();
+                    RoleLi.RoleId = _dr["Id"].ToString();
+                    RoleLi.RoleName = _dr["RoleName"].ToString();
+                    SRMDetails.RolesList.Add(RoleLi);
+
+                }
 
 
                 if (_dataset != null && _dataset.Tables.Count > 0 && Command == "Update")

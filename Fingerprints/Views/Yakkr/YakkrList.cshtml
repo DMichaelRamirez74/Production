@@ -364,15 +364,70 @@
             width: 100%;
         }
 
-        .addn-poup-div1 input, .addn-poup-div1 textarea {
-            position: relative;
-            color: #333;
-            background: #fff;
-            border: 1px solid #fff;
-            border-radius: 0;
-            font-style: italic;
-            box-shadow: none;
+    .addn-poup-div1 input, .addn-poup-div1 textarea {
+        position: relative;
+        color: #333;
+        background: #fff;
+        border: 1px solid #fff;
+        border-radius: 0;
+        font-style: italic;
+        box-shadow: none;
+    }
+    
+        </style>
+
+    <style type="text/css" title="for yakkr451 modal">
+            #yakkr451detail-modal .form-group{
+
+         min-height:35px;
+    }
+
+        #yakkr451detail-modal .modal-body {
+                background: #34495e none repeat scroll 0 0;
+    border: 6px solid #ffffff;
+    border-radius: 3px;
+    color: #ffffff;
+    float: left;
+    padding: 15px 3%;
+    position: relative;
+    width: 100%;
+        padding-top: 10px;
         }
+
+        #yakkr451detail-modal .close {
+        
+            opacity: 1;
+    position: absolute;
+    right: -14px;
+    top: -15px;
+        }
+        #yakkr451detail-modal h2 {
+            margin-top: 10px;
+    float: left;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+        }
+
+        #yakkr451detail-modal .form-group-al {
+        
+            background: #f1f5f8 none repeat scroll 0 0;
+    border: 3px solid #ffffff;
+    float: left;
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+        color: #333;
+         padding-top:25px;
+        }
+
+        #yakkr451detail-modal .prop-label {
+        
+         color:#1d5990;
+        }
+
     </style>
     <div class="row">
         <div class="col-lg-12">
@@ -478,9 +533,52 @@ YakkrExcludeFromFacility.Add(282);
 
                             </tbody>
                         }
-                        else if (!YakkrExcludeFromFacility.Contains(int.Parse((ViewBag.YakkrCode).ToString().Trim())) && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                        else if (ViewBag.YakkrCode == "450" || ViewBag.YakkrCode == "451")
                         {
+
+
+
                             <thead style="cursor:pointer;">
+                                <tr>
+                                    <th></th>
+                                    <th id="thIN">Client<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" value="Desc" /></th>
+                                    <th id="thCust">DOB<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" value="Desc" /></th>
+                                    <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">From User<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                    <th id="thMN">Date<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Count() > 0)
+                                {
+                                    foreach (FingerprintsModel.YakkrClientDetail detail in Model)
+                                    {
+                                    <tr>
+                                        <td class="ClientName">
+                                            <span class="YakkrID" style="display:none;">@detail.YakkrID</span>
+                                            <span class="HouseHoldId" style="display:none;">@detail.HouseHoldId</span>
+                                            <span class="ClientId" style="display:none;">@detail.ClientId</span>
+                                            <span class="FromUserID" style="display:none;">@detail.FromUserID</span>
+                                            @if (ViewBag.YakkrCode == "450")
+                                            {
+                               <a href="@Url.Action("Yakkr451", "Yakkr")?yakkrid=@detail.YakkrID&hid=@detail.HouseHoldId&cid=@detail.ClientId&cn=@detail.ClientName&center=@detail.CenterId">Select</a>
+                                            } else {  //yakkr 451
+
+<a class="showpopup451" style="cursor:pointer;" onclick="show451Details(@detail.YakkrID, '@detail.ClientName', '@detail.Date')"> Select</a>
+                                            }
+                                        </td>
+                                        <td>@detail.ClientName</td>
+                                        <td>@detail.DOB</td>
+                                        <td>@detail.CenterName</td>
+                                        <td>@detail.FromUser</td>
+                                        <td>@detail.Date</td>
+                                    </tr>
+                                    }
+                                }</tbody>
+                                }
+                                else if (!YakkrExcludeFromFacility.Contains(int.Parse((ViewBag.YakkrCode).ToString().Trim())) && int.Parse((ViewBag.YakkrCode).ToString().Trim()) >= 250 && int.Parse((ViewBag.YakkrCode).ToString().Trim()) <= 299)
+                                {
+<thead style="cursor:pointer;">
                                 <tr>
                                     <th></th>
                                      <th id="thMN">Center<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>
@@ -1424,6 +1522,209 @@ YakkrExcludeFromFacility.Add(282);
     </div>
 
 
+
+            <!-- Yakkr451 details Modal-->
+<div class="modal fade" id="yakkr451detail-modal" role="dialog" style="display: none;" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            @*<div class="modal-header">
+                <input type="hidden" name="childid" id="childid" value="">
+                <input type="hidden" name="childname" id="childname" value="">
+                <label class="alert-dismissible" for="current_password">Organizational Issue</label>
+            </div>*@
+            <div class="modal-body">
+
+
+                <button type="button" class="close" data-dismiss="modal"><img src="/images/close.png"></button>
+                <h2>Organizational Issue</h2>
+
+                <div class="form-group-al">
+                    <div class="row">
+                        <div class="col-sm-12">
+
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-6" style="text-align:right;">
+                                        <label class="control-label prop-label">Organization :</label>
+                                    </div>
+                                    <label class="col-sm-6 control-label" style="font-weight: 100;"><span class="company-name"></span></label>
+                                </div>
+
+                            </div>
+
+
+
+
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-6" style="text-align:right;">
+                                        <label class="control-label prop-label">Phone No :</label>
+                                    </div>
+                                    <label class="col-sm-6 control-label" style="font-weight: 100;">
+                                        <span class="ph-451"></span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-12">
+
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-6" style="text-align:right;">
+                                        <label class="control-label prop-label">Client :</label>
+                                    </div>
+                                    <label class="col-sm-6 control-label" style="font-weight: 100;">
+                                        <span class="client-name"></span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-6" style="text-align:right;">
+                                        <label class="control-label prop-label">Reason :</label>
+                                    </div>
+                                    <label class="col-sm-6 control-label" style="font-weight: 100;">
+                                        <span class="reason"></span>
+                                    </label>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-6" style="text-align:right;">
+                                        <label class="control-label prop-label">Address :</label>
+
+                                    </div>
+                                    <div class="col-sm-6">
+
+                                        <span class="company-address"></span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+           
+             @*<div class="modal-footer">
+               
+                <button class="btnPassword" data-dismiss="modal">Close</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+
+        @*<!-- Yakkr451 details Modal-->
+<div class="modal fade" id="yakkr451detail-modal" role="dialog" style="display: none;" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <input type="hidden" name="childid" id="childid" value="">
+                <input type="hidden" name="childname" id="childname" value="">
+                <label class="alert-dismissible" for="current_password">Organizational Issue</label>
+            </div>
+            <div class="modal-body">
+                <div class="form-group-al">
+                    <div class="row">
+                    <div class="col-sm-12">
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-6" style="text-align:right;">
+                                    <label class="control-label">Organization :</label>
+                                </div>
+                                <label class="col-sm-6 control-label" style="font-weight: 100;"><span class="company-name"></span></label>
+                            </div>
+
+                        </div>
+
+
+
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-6" style="text-align:right;">
+                                    <label class="control-label">Phone No :</label>
+                                </div>
+                                <label class="col-sm-6 control-label" style="font-weight: 100;">
+                                <span class="ph-451"></span>
+                                </label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-12">
+                   
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-6" style="text-align:right;">
+                                    <label class="control-label">Client :</label>
+                                </div>
+                                <label class="col-sm-6 control-label" style="font-weight: 100;">
+                                    <span class="client-name"></span>
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-6" style="text-align:right;">
+                                    <label class="control-label">Reason :</label>
+                                    </div>
+                                    <label class="col-sm-6 control-label" style="font-weight: 100;">
+                                        <span class="reason"></span>
+                                    </label>
+                                </div>
+
+                        </div>
+
+                    </div>
+
+                        <div class="col-sm-12">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-6" style="text-align:right;">
+                                        <label class="control-label">Address :</label>
+                                      
+                                    </div>
+                                    <div class="col-sm-6">
+
+                                        <span class="company-address"></span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                
+                </div></div>
+                </div>
+                <div class="modal-footer">
+                   
+                    <button class="btnPassword" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+    </div>
+</div>*@
+
     <input type="hidden" id="centerIdGrid" />
 
     <input type="hidden" id="isDisabilityRole" value="@Session["RoleID"].ToString()" />
@@ -2245,6 +2546,54 @@ YakkrExcludeFromFacility.Add(282);
 
 
         });
+
+        function show451Details(yakkrid,clientname,date) {
+
+            $("#spinner").show();
+
+            $.ajax({
+                type:"POST",
+                url: "@Url.Action("GetYakkr451DetailsById", "Yakkr")?id="+yakkrid,
+                datatype: "json",
+                success: function (data) {
+                   // console.log(data);
+                    $("#spinner").hide();
+                    if (data == null || data.YakkrId451 == 0) return false;
+
+                    $("#yakkr451detail-modal .company-name").text(data.CompanyName);
+                    var _address = "<p>"+data.Address+"</p><p>" + data.City + " " + data.County + "</p>";
+                    var _reson = "-";
+                    if (data.Rating == 1) {
+                        _reson = "Rating as Poor";
+                    } else if (data.ReasonForNotServed == 1) {
+                        _reson = "Asked to leave";
+                    } else if (data.ReasonForNotServed == 2) {
+                        _reson = "No interpreter";
+                    } else if (data.ReasonForNotServed == 3) {
+                        _reson="Long wait";
+                    }
+
+
+                    $("#yakkr451detail-modal .client-name").text(clientname)
+                    $("#yakkr451detail-modal .ph-451").text(data.PhoneNo)
+
+                    $("#yakkr451detail-modal .company-address").html(_address);
+
+                    $("#yakkr451detail-modal .reason").html(_reson)
+                    $("#yakkr451detail-modal").modal("show");
+                },
+                fail: function (res) {
+                    $("#spinner").hide();
+                },
+                completed: function (re) {
+
+                }
+
+            })
+
+
+
+        }
 
         function GetEventByEventId(Yakkrid)
         {

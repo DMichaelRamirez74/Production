@@ -723,7 +723,8 @@ namespace Fingerprints.Controllers
 
                 if(Success)
                 {
-                    RosterData.YakkarInsert(SaveProvider.AgencyId, UserId, ClientId);
+
+                    // RosterData.YakkarInsert(SaveProvider.AgencyId, UserId, ClientId);
 
                 }
 
@@ -759,7 +760,8 @@ namespace Fingerprints.Controllers
                     count++;
                 }
 
-                RosterData.YakkarInsert(Savereferral.AgencyId, UserId, commanclient);
+                //yakkr450 insert moved to sp_ReferalOperations SP
+                //  RosterData.YakkarInsert(Savereferral.AgencyId, UserId, commanclient);
 
             }
             catch (Exception ex)
