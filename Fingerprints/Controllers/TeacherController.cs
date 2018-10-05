@@ -1167,8 +1167,6 @@ namespace Fingerprints.Controllers
             List<TeacherModel> teacherModel = new List<TeacherModel>();
             List<OfflineAttendance> offlineAttendanceList = new List<OfflineAttendance>();
 
-
-            //  string teacherModelString = "";
             try
             {
 
@@ -1321,8 +1319,6 @@ namespace Fingerprints.Controllers
                     adultMealsList2.OrderBy(x => x.AttendanceDate).ToList();
                 }
                 offlineAttendanceList = new TeacherData().InsertOfflineAttendanceData(offlineAttendance, MealsList, adultMealsList2, userId, agencyId,dateString);
-
-                // teacherModelString = jsonSerialiser.Serialize(teacherModel);
             }
             catch (Exception ex)
             {

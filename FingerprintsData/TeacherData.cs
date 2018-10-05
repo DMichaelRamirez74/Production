@@ -2282,62 +2282,45 @@ namespace FingerprintsData
 
         public List<OfflineAttendance> InsertOfflineAttendanceData(List<OfflineAttendance> _offlineAttendance, List<TeacherModel> _mealsList, List<TeacherModel> _adultMealsList, string UserID, string AgencyID, string dateString)
         {
-            bool isRowAffected = false;
+           
             List<OfflineAttendance> teacherList = new List<OfflineAttendance>();
             try
             {
 
                 DataTable attendancetable = GetOfflineAttendanceTable(_offlineAttendance);
-                //  DataTable clientMealsTable = (_mealsList.Count() > 0) ? GetClientMealsTable(_mealsList): new DataTable(); ;
-                //  DataTable adultMealsTable =(_adultMealsList.Count()>0)?GetAdultMealsTable(_adultMealsList):new DataTable();
-
                 DataTable clientMealsTable = GetClientMealsTable(_mealsList);
                 DataTable adultMealsTable = GetAdultMealsTable(_adultMealsList);
 
-                command.Connection = Connection;
-                command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@UserID", UserID));
-                command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
-                command.Parameters.Add(new SqlParameter("@OfflineAttendanceTable", attendancetable));
-                command.Parameters.Add(new SqlParameter("@ClientMealsTable", clientMealsTable));
-                command.Parameters.Add(new SqlParameter("@AdultMealsTable", adultMealsTable));
-                command.Parameters.Add(new SqlParameter("@AttendanceDateString", dateString));
 
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "USP_InsertOfflineAttendance";
-                if (Connection.State == ConnectionState.Open) Connection.Close();
-                Connection.Open();
-                // int rowsAffected = command.ExecuteNonQuery();
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@UserID", UserID));
+                    command.Parameters.Add(new SqlParameter("@AgencyID", AgencyID));
+                    command.Parameters.Add(new SqlParameter("@OfflineAttendanceTable", attendancetable));
+                    command.Parameters.Add(new SqlParameter("@ClientMealsTable", clientMealsTable));
+                    command.Parameters.Add(new SqlParameter("@AdultMealsTable", adultMealsTable));
+                    command.Parameters.Add(new SqlParameter("@AttendanceDateString", dateString));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_InsertOfflineAttendance";
+                    if (Connection.State == ConnectionState.Open) Connection.Close();
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
                 if (_dataset != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
-                        //teacherList = (from DataRow dr in _dataset.Tables[0].Rows
-                        //               select new TeacherModel
-                        //               {
-                        //                   ClientID = dr["ClientID"].ToString(),
-                        //                   Enc_ClientId = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                        //                   CenterID = dr["CenterID"].ToString(),
-                        //                   Enc_CenterId = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
-                        //                   ClassID = dr["ClassRoomID"].ToString(),
-                        //                   Enc_ClassRoomId = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
-                        //                   AttendanceType = dr["AttendanceType"].ToString(),
-                        //                   AttendanceDate = Convert.ToDateTime(dr["AttendanceDate"]).ToString("MM/dd/yyyy"),
-                        //                   TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
-                        //                   TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
-                        //                   Breakfast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? true : false,
-                        //                   Lunch = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? true : false,
-                        //                   Snack = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? true : false,
-                        //                   ABreakfast = dr["AdultBreakFast"].ToString(),
-                        //                   ALunch = dr["AdultLunch"].ToString(),
-                        //                   ASnack = dr["AdultSnacks"].ToString(),
-                        //                   AbsenceReason = dr["AbsenceReason"].ToString(),
-                        //                   AbsenceReasonId = Convert.ToInt32(dr["AbsenceReasonId"])
-                        //               }
-                        //             ).ToList();
+
 
                         teacherList = (from DataRow dr in _dataset.Tables[0].Rows
                                        select new OfflineAttendance
@@ -2369,11 +2352,6 @@ namespace FingerprintsData
 
                     }
                 }
-                //if (rowsAffected > 0)
-                //{
-                //    isRowAffected = true;
-
-                //}
 
             }
             catch (Exception ex)
