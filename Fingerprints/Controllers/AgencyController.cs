@@ -1184,7 +1184,6 @@ namespace Fingerprints.Controllers
 
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
-        [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d,a65bb7c2-e320-42a2-aed4-409a321c08a5")]
         public ActionResult AgencyProfile(string id = "0", string SuperAdmin = "")
         {
             Agency agencyDetail = new Agency();

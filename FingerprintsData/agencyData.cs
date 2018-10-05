@@ -512,16 +512,16 @@ namespace FingerprintsData
                         }
 
                         agency.AccessDays = _dataset.Tables[0].Rows[0]["Accesstype"].ToString();
-                        agency.AccessStartDate = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["AccessStartDate"]).ToString("MM/dd/yyyy");
+                        agency.AccessStartDate = Convert.ToString(_dataset.Tables[0].Rows[0]["AccessStartDate"]);
                         agency.AccessStop = _dataset.Tables[0].Rows[0]["AccessStop"].ToString();
                         agency.AccessStart = _dataset.Tables[0].Rows[0]["AccessStart"].ToString();
                         agency.TimeZoneID = _dataset.Tables[0].Rows[0]["TimeZone_ID"].ToString();
                         if (!DBNull.Value.Equals((_dataset.Tables[0].Rows[0]["programstartDate"])))
-                            agency.programstartDate = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["programstartDate"]).ToString("MM/dd/yyyy");
+                            agency.programstartDate = Convert.ToString(_dataset.Tables[0].Rows[0]["programstartDate"]);
                         else
                             agency.programstartDate = string.Empty;
                         if (!DBNull.Value.Equals((_dataset.Tables[0].Rows[0]["programendDate"])))
-                            agency.programendDate = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["programendDate"]).ToString("MM/dd/yyyy");
+                            agency.programendDate = Convert.ToString(_dataset.Tables[0].Rows[0]["programendDate"]);
                         else
                             agency.programendDate = string.Empty;
 
@@ -731,33 +731,20 @@ namespace FingerprintsData
                         }).ToList();
                     }
 
+                    if(_dataset.Tables.Count>5 && _dataset.Tables[5]!=null && _dataset.Tables[5].Rows.Count>0)
+                    {
+                        agency.ProgramYearList = (from DataRow dr5 in _dataset.Tables[5].Rows
+                                                  select new SelectListItem
+                                                  {
+                                                      Text = Convert.ToString(dr5["ActiveProgramYear"]),
+                                                      Value = Convert.ToString(dr5["ActiveProgramYear"])
+                                                  }
+
+                                                ).ToList();
+                    }
+
                 }
 
-
-                if (agency.ActiveProgYear != "")
-                {
-
-                    string nextYear = agency.ActiveProgYear.Split('-')[1] + "-" + (Convert.ToInt32(agency.ActiveProgYear.Split('-')[1]) + 1).ToString();
-
-                    agency.ProgramYearList.Add(new SelectListItem
-                    {
-                        Text = "--Select--",
-                        Value = "0"
-                    });
-
-                    agency.ProgramYearList.Add(new SelectListItem
-                    {
-                        Text = agency.ActiveProgYear,
-                        Value = agency.ActiveProgYear
-                    });
-
-                    agency.ProgramYearList.Add(new SelectListItem
-                    {
-                        Text = nextYear,
-                        Value = nextYear
-                    });
-
-                }
                 DataAdapter.Dispose();
                 command.Dispose();
                 return agency;
