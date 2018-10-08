@@ -304,6 +304,8 @@
 
                     tr += "<td>" + ((typeof (data.list[i].Value) != 'undefined') && (data.list[i].Value != null) ? data.list[i].Value : '') + " </span></td>";
                     tr += "<td>" + ((typeof (data.list[i].Description) != 'undefined') && (data.list[i].Description != null) ? data.list[i].Description : '') + " </span></td>";
+                    tr += "<td>" + ((typeof (data.list[i].IsEnableEmail) != 'undefined') && (data.list[i].IsEnableEmail != null) ? (data.list[i].IsEnableEmail == true ? 'Yes' : 'No') : '') + " </span></td>";
+
                     //tr += "<td>" + ((typeof (data.list[i].StaffRoleName) != 'undefined') && (data.list[i].StaffRoleName != null) ? data.list[i].StaffRoleName : '') + " </span></td>";
                     //tr += "<td>" + ((typeof (data.list[i].OptionalRoleName) != 'undefined') && (data.list[i].OptionalRoleName != null) ? data.list[i].OptionalRoleName : '') + " </span></td>";
                     //tr += "<td>" + ((typeof (data.list[i].DateEntered) != 'undefined') && (data.list[i].DateEntered != null) ? data.list[i].DateEntered : '') + "</td>";
@@ -340,6 +342,11 @@
             $('#yakkrValue').val(data.Value);
             $('#DdlYakkrList').val(data.YakkrID);
             $('#txtDescription').val(data.Description);
+          
+                $('#IsEnableEmail').prop('checked', data.IsEnableEmail);
+            
+            
+           
 
           //  $('#DdlStaffList').val(data.StaffRoleID);
             //$('#DdlStaffSecondaryList').val(data.SecondaryRoleID);
@@ -406,6 +413,7 @@
             $('#hdnYakkrRoleID').val(0);
             $('#txtDescription').val('');
             $('#yakkrValue').val('');
+            $('#IsEnableEmail').prop('checked', false);
         }
         function isValidyakkrInfo() {
 
@@ -487,7 +495,14 @@
                                 @Html.TextBoxFor(m => m.Description, new { placeholder = "Description", id = "txtDescription", maxlength = "80", @class = "form-control", tabIndex = "3" })
                             </div>
                         </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <div class="form-group">
+                             
+                                @Html.CheckBoxFor(m => m.IsEnableEmail, new {  id = "IsEnableEmail", maxlength = "50", @class = "", tabIndex = "4" })
+                                <label for="txtValue">Enable Email Notification</label>
 
+                            </div>
+                        </div>
                       @*  <div class="col-lg-6 col-md-6 col-sm-12">
         <div class="form-group">
             <label for="DdlStaffList">Assigned Role <sup>*</sup></label>
@@ -547,7 +562,9 @@
                             <th id="thIN">Yakkr Code<img id="imgthIN" style="visibility:hidden" /> <input type="hidden" id="directionNA" /></th>
                             <th id="THMN">Yakkr Label<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
                             <th id="THMN">Description<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
-                            @*<th id="THDE">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
+                            <th id="THMN">Is Email Enabled<img id="imgthCust" style="visibility:hidden" /> <input type="hidden" id="directionUN" /></th>
+                        
+    @*<th id="THDE">Created On<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" value="Desc" /></th>*@
                             <th id="thCN" >Status<img id="imgthCN" style="visibility:hidden" /><input type="hidden" id="directionCN" /></th>
                         </tr>
                     </thead>

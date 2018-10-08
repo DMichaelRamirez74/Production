@@ -569,7 +569,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@Value", (info.Value));
                 command.Parameters.AddWithValue("@Description", info.Description == null ? null : info.Description.Trim());
                 //command.Parameters.AddWithValue("@StaffRoleID", info.StaffRoleID);
-                //command.Parameters.AddWithValue("@SecondaryRoleID", info.SecondaryRoleID);
+                command.Parameters.AddWithValue("@IsEnableEmail", info.IsEnableEmail);
                 command.Parameters.AddWithValue("@CreatedBy", userId);
                 command.Parameters.AddWithValue("@result", "").Direction = ParameterDirection.Output;
                 command.CommandType = CommandType.StoredProcedure;
@@ -619,7 +619,7 @@ namespace FingerprintsData
                         addYakkrRow.YakkrID = Convert.ToString(agencydataTable.Rows[i]["YakkrCode"]);
                         addYakkrRow.Description = Convert.ToString(agencydataTable.Rows[i]["Description"]);
                         addYakkrRow.Value = Convert.ToString(agencydataTable.Rows[i]["Value"]);
-                        //addYakkrRow.StaffRoleID = Convert.ToString(agencydataTable.Rows[i]["StaffRoleID"]);
+                        addYakkrRow.IsEnableEmail = Convert.ToBoolean(agencydataTable.Rows[i]["IsEnableEmail"]);
                         //addYakkrRow.SecondaryRoleID = Convert.ToString(agencydataTable.Rows[i]["OptionalRoleID"]);
                         //addYakkrRow.StaffRoleName = Convert.ToString(agencydataTable.Rows[i]["StaffRoleName"]);
                         //if (Convert.ToString(agencydataTable.Rows[i]["OptionalRole"]) != null)
@@ -664,7 +664,7 @@ namespace FingerprintsData
                 {
                     obj.YakkrRoleID = Convert.ToInt32(agencydataTable.Rows[0]["Yakkrid"]);
                     obj.Value = agencydataTable.Rows[0]["Value"].ToString();
-                    //  obj.StaffRoleID = agencydataTable.Rows[0]["StaffRoleID"].ToString();
+                    obj.IsEnableEmail = Convert.ToBoolean(agencydataTable.Rows[0]["IsEnableEmail"]);
                     obj.Description = agencydataTable.Rows[0]["Description"].ToString();
                     // obj.DateEntered = Convert.ToDateTime(agencydataTable.Rows[0]["DateEntered"]).ToString("MM/dd/yyyy");
                     //  obj.SecondaryRoleID = agencydataTable.Rows[0]["OptionalRoleID"].ToString();
@@ -1016,39 +1016,114 @@ namespace FingerprintsData
 
             }
         }
-        public string AddScreeningquestion(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid,string Screeningfor, string Programtype, bool Document,string ScreeningDate, bool Inintake)
+        public string AddScreeningquestion(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Userid, string Programtype, bool Document, string ScreeningDate, bool Inintake, string expiredPeriod, string expireIn, string screeningsYear, List<ScreeningAccess> _screeningAccessList)
         {
             string result = string.Empty;
             try
             {
+
+
+
+
+                Questionlist = Questionlist.OrderBy(x => x.QuestionOrder).ToList();
+
+                double lastvalue = 0;
+                foreach (var item in Questionlist)
+                {
+                    var or = item.QuestionOrder;
+
+                    if (lastvalue == 0 && Math.Floor(item.QuestionOrder) < or)
+                    {
+                        lastvalue = Math.Ceiling(item.QuestionOrder);
+                    }
+
+                    else if (lastvalue == 0 && Math.Floor(item.QuestionOrder) == or)
+                    {
+                        lastvalue = item.QuestionOrder;
+                    }
+                    else if (lastvalue > 0 && ((lastvalue - item.QuestionOrder) == 0 ||
+
+                        (Math.Abs(lastvalue - item.QuestionOrder) == 1) || (Math.Abs(lastvalue - item.QuestionOrder) == 0.5)))
+                    {
+                        lastvalue = (lastvalue + 1);
+                    }
+
+                    else if (lastvalue > 0 && Math.Abs(lastvalue - item.QuestionOrder) > 1)
+                    {
+                        lastvalue = (lastvalue + 2);
+                    }
+
+                    item.QuestionOrder = lastvalue;
+                }
+
+
+
+
+
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@UserId", Userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", AgencyId));
+                command.Parameters.Add(new SqlParameter("@agencyid", string.IsNullOrEmpty(AgencyId)? (Guid?)null:new Guid(AgencyId)));
                 command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
                 command.Parameters.Add(new SqlParameter("@ScreeningName", ScreeningName));
-                command.Parameters.Add(new SqlParameter("@Screeningfor", Screeningfor));
+                // command.Parameters.Add(new SqlParameter("@Screeningfor", Screeningfor));
                 command.Parameters.Add(new SqlParameter("@Programtype", Programtype));
-                command.Parameters.Add(new SqlParameter("@Document",  Document==true ?1:0));
+                command.Parameters.Add(new SqlParameter("@Document", Document == true ? 1 : 0));
                 command.Parameters.Add(new SqlParameter("@ScreeningDate", ScreeningDate));
                 command.Parameters.Add(new SqlParameter("@Inintake", Inintake == true ? 1 : 0));
                 command.Parameters.Add(new SqlParameter("@result", string.Empty));
+                command.Parameters.Add(new SqlParameter("@Expiredperiod", expiredPeriod));
+                command.Parameters.Add(new SqlParameter("@ExpireIn", expireIn));
+                command.Parameters.Add(new SqlParameter("@ScreeningsYear", screeningsYear));
                 command.Parameters["@result"].Direction = ParameterDirection.Output;
+
+                DataTable dtAccess = new DataTable();
+
+                dtAccess.Columns.AddRange(new DataColumn[3]
+                {
+                    new DataColumn("RoleId",typeof(Guid)),
+                    new DataColumn("ScreeningAccessType",typeof(int)),
+                    new DataColumn("Status",typeof(bool))
+                });
+
+
+                if (_screeningAccessList != null && _screeningAccessList.Count > 0)
+                {
+                    //foreach(var item2 in _screeningAccessList)
+                    //{
+                    //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.Enter, item2.ScreeningAccessType);
+                    //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.Review, item2.ScreeningAccessType);
+                    //    dtAccess.Rows.Add(item2.RoleID, ScreeningAccess.ScreeningAccessEnum.ViewOnly, item2.ScreeningAccessType);
+                    //}
+
+                    foreach (var item2 in _screeningAccessList)
+                    {
+                        dtAccess.Rows.Add(item2.RoleID, item2.ScreeningAccessType, true);
+                    }
+                }
+
+
                 if (Questionlist != null && Questionlist.Count > 0)
                 {
                     DataTable dt = new DataTable();
-                    dt.Columns.AddRange(new DataColumn[6] { 
+                    dt.Columns.AddRange(new DataColumn[10] {
                     new DataColumn("QuestionId", typeof(int)),
                     new DataColumn("Question",typeof(string)),
                     new DataColumn("QuestionType",typeof(int)),
                     new DataColumn("Option",typeof(string)),
                     new DataColumn("Optionid",typeof(string)),
-                    new DataColumn("Required",typeof(bool))
+                    new DataColumn("OptionDescription",typeof(string)),
+                    new DataColumn("OptionValue",typeof(string)),
+                    new DataColumn("Required",typeof(bool)),
+                    new DataColumn("QuestionOrder",typeof(int)),
+                    new DataColumn("StatusQuestion",typeof(bool))
                     });
-                  
+
                     foreach (var item in Questionlist)
                     {
                         StringBuilder _optionsid = new StringBuilder();
                         StringBuilder _optionsname = new StringBuilder();
+                        StringBuilder _optionsDescription = new StringBuilder();
+                        StringBuilder _optionValue = new StringBuilder();
                         if (item.OptionList != null)
                         {
 
@@ -1056,16 +1131,38 @@ namespace FingerprintsData
                             {
                                 _optionsid.Append(options.OptionId + "$");
                                 _optionsname.Append(options.Option + "$");
+                                _optionsDescription.Append(options.OptionDescription + "$");
+                                _optionValue.Append(options.OptionValue + "$");
 
                             }
-                            dt.Rows.Add(item.QuestionId, item.Question, item.QuestionType, _optionsname.ToString().Substring(0, _optionsname.Length - 1), _optionsid.ToString().Substring(0, _optionsid.Length - 1),item.Required);
+                            dt.Rows.Add(item.QuestionId,
+                                         item.Question,
+                                         item.QuestionType,
+                                         _optionsname.ToString().Substring(0, _optionsname.Length - 1),
+                                         _optionsid.ToString().Substring(0, _optionsid.Length - 1),
+                                         _optionsDescription.ToString().Substring(0, _optionsDescription.Length - 1),
+                                         _optionValue.ToString().Substring(0, _optionValue.Length - 1),
+                                         item.Required, Convert.ToInt32(item.QuestionOrder),
+                                         item.IsStatusQuestion
+                                         );
                         }
                         else
-                            dt.Rows.Add(item.QuestionId, item.Question, item.QuestionType, DBNull.Value,DBNull.Value,item.Required);
-                       
+                            dt.Rows.Add(item.QuestionId,
+                                         item.Question,
+                                         item.QuestionType,
+                                         DBNull.Value,
+                                         DBNull.Value,
+                                         DBNull.Value,
+                                         DBNull.Value,
+                                         item.Required,
+                                         Convert.ToInt32(item.QuestionOrder),
+                                         item.IsStatusQuestion);
+
                     }
                     command.Parameters.Add(new SqlParameter("@tblSscreening", dt));
                 }
+
+                command.Parameters.Add(new SqlParameter("@tblScreeningRoles", dtAccess));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_SaveScreeningQuestion";
                 Connection.Open();
@@ -1080,9 +1177,9 @@ namespace FingerprintsData
             }
             finally
             {
-                if(Connection!=null)
-                Connection.Close();
-             
+                if (Connection != null)
+                    Connection.Close();
+
             }
             return result;
 
@@ -1117,11 +1214,13 @@ namespace FingerprintsData
                     for (int i = 0; i < _dataTable.Rows.Count; i++)
                     {
                         addScreeningQ = new ScreeningQ();
-                        addScreeningQ.ScreeningId =  EncryptDecrypt.Encrypt64(_dataTable.Rows[i]["ScreeningID"].ToString());
-                        addScreeningQ.ScreeningName = _dataTable.Rows[i]["ScreeningName"].ToString();
-                        addScreeningQ.ScreeningFor = _dataTable.Rows[i]["Screeningfor"].ToString();
-                        addScreeningQ.AgencyName = _dataTable.Rows[i]["AgencyName"].ToString();
-                        addScreeningQ.CreatedOn = Convert.ToDateTime(_dataTable.Rows[i]["DateEntered"]).ToString("MM/dd/yyyy");
+                        addScreeningQ.ScreeningId = EncryptDecrypt.Encrypt64(_dataTable.Rows[i]["ScreeningID"].ToString());
+                        addScreeningQ.ScreeningName = Convert.ToString(_dataTable.Rows[i]["ScreeningName"]);
+                        //   addScreeningQ.ScreeningFor = _dataTable.Rows[i]["Screeningfor"].ToString();
+                        addScreeningQ.AgencyName = Convert.ToString(_dataTable.Rows[i]["AgencyName"]);
+                        addScreeningQ.CreatedOn = Convert.ToString(_dataTable.Rows[i]["DateEntered"]);
+                        addScreeningQ.ScreeningOrder = Convert.ToString(_dataTable.Rows[i]["ScreeningOrder"]);
+                        addScreeningQ.ProgramTypes = Convert.ToString(_dataTable.Rows[i]["ProgramType"]);
                         _ScreeningQlist.Add(addScreeningQ);
                     }
                     totalrecord = command.Parameters["@totalRecord"].Value.ToString();
@@ -1169,7 +1268,7 @@ namespace FingerprintsData
                 
             }
         }
-        public DataTable EditScreening(string ScreeningId,  string Userid)
+        public DataSet EditScreening(string ScreeningId, string Userid)
         {
             try
             {
@@ -1179,8 +1278,53 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetScreeningQuestion";
                 DataAdapter = new SqlDataAdapter(command);
-                _dataTable = new DataTable();
-                DataAdapter.Fill(_dataTable);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return _dataset;
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+
+
+            return _dataset;
+
+        }
+
+
+        public DataTable GetScreeningAccessRoles(string ScreeningId = "0")
+        {
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection)
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@ScreeningId", ScreeningId));
+                    command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetScreeningAccessRoles";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataTable = new DataTable();
+                    DataAdapter.Fill(_dataTable);
+                    Connection.Close();
+                }
+
             }
             catch (Exception ex)
             {

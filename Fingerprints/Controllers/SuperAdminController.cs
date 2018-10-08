@@ -1107,10 +1107,16 @@ namespace Fingerprints.Controllers
             {
                 ViewBag.mode = 0;
                 if (!string.IsNullOrEmpty(id))
-                {
+                {   
                     ViewBag.mode = 1;
                     ViewBag.screening = datalayer.EditScreening(EncryptDecrypt.Decrypt64(id), Session["UserID"].ToString());
+                    
                 }
+
+                id = string.IsNullOrEmpty(id) ? "0" : EncryptDecrypt.Decrypt64(id);
+
+                ViewBag.ScreeningAccessRoles = datalayer.GetScreeningAccessRoles(id);
+
                 return View();
 
             }
@@ -1121,12 +1127,18 @@ namespace Fingerprints.Controllers
             }
         }
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
-        public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId, string Screeningfor,
-            string Programtype, bool Document, string ScreeningDate, bool Inintake)
+        public JsonResult Screening(string ScreeningId, string ScreeningName, List<Questions> Questionlist, string AgencyId,
+            string Programtype, bool Document, string ScreeningDate, bool Inintake,string expiredPeriod,string expireIn,string screeningsYear,List<ScreeningAccess> screeningAccessList)
         {
             try
             {
-                string message = datalayer.AddScreeningquestion(ScreeningId, ScreeningName, Questionlist, AgencyId, Session["UserID"].ToString(), Screeningfor, Programtype, Document, ScreeningDate, Inintake);
+
+          
+
+                string message = datalayer.AddScreeningquestion(ScreeningId, ScreeningName, Questionlist,AgencyId, Session["UserID"].ToString(),  Programtype, Document, ScreeningDate, Inintake,expiredPeriod,expireIn,screeningsYear,screeningAccessList);
+
+                
+
                 if (message == "1")
                 {
                     TempData["message"] = "Record saved successfully.";

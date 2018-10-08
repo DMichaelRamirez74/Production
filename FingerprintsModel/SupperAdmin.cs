@@ -52,6 +52,10 @@ namespace FingerprintsModel
 
         public bool IsChecked { get; set; }
 
+        public string OptionDescription { get; set; }
+      
+        public int OptionValue { get; set; }
+
 
     }
     public class Questions
@@ -65,6 +69,9 @@ namespace FingerprintsModel
         public double QuestionOrder { get; set; }
 
         public string OptionValue { get; set; }
+
+        public string[] CheckboxValue { get; set; }
+        public bool IsStatusQuestion { get; set; }
 
     }
 

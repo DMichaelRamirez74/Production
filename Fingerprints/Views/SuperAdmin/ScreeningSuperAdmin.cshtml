@@ -12,7 +12,37 @@
     <script type="text/javascript">
         var questioncount = 1;
         var isValid = true;
+        var specialKeys = new Array();
+        specialKeys.push(8);
         $(document).ready(function () {
+
+
+
+            //$('.OptionValue[type=text]').bind("keypress", function (e) {
+            //    var keyCode = e.which ? e.which : e.keyCode
+            //    var ret = ((keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) != -1);
+            //    $(".error").css("display", ret ? "none" : "inline");
+            //    return ret;
+            //}).bind("paste", function (e) {
+            //    return false;
+            //}).bind("drop", function (e) {
+            //    return false;
+            //});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
@@ -67,14 +97,270 @@
             catch (err) {
             }
 
+
+            if ($('input:checkbox[name=Programtype][value=2]').is(':checked')) {
+                $('#hsOptionDiv').show();
+            }
+            else {
+                $('#hsOptionDiv').hide();
+            }
+
+
+            $('input:checkbox[name=Programtype]').on('click', function () {
+
+                debugger;
+
+                if ($(this).is(':checked')) {
+                    if ($(this).val() == '2') {
+
+                        $('#hsOptionDiv').find('input[type=radio]').prop('checked', false);
+
+                        $('#hsOptionDiv').show();
+                    }
+                }
+                else {
+
+                    if ($(this).val() == '2') {
+
+                        $('#hsOptionDiv').find('input[type=radio]').prop('checked', false);
+
+                        $('#hsOptionDiv').hide();
+                    }
+                }
+
+            });
+
+
+
+
+
+            $('#screeningRolesBody').children('tr').find('input[type=checkbox]').on('click', function () {
+
+                debugger;
+                var isChecked = $(this).is(':checked');
+                var $thisValue = $(this).val();
+                //var rowIndex = $(this).closest('tr').index();
+
+                switch ($thisValue) {
+                    case '1':
+                        if (isChecked) {
+                            $(this).closest('tr').children('td:eq(3)').children('input:checkbox').prop({ 'checked': false, 'disabled': true });
+                        }
+                        else {
+                            if (!$(this).closest('tr').children('td:eq(2)').children('input:checkbox').is(':checked')) {
+
+                                $(this).closest('tr').children('td:eq(3)').children('input:checkbox').prop({ 'checked': false, 'disabled': false });
+                            }
+                        }
+
+                        break;
+                    case '2':
+                        if (isChecked) {
+                            $(this).closest('tr').children('td:eq(3)').children('input:checkbox').prop({ 'checked': false, 'disabled': true });
+
+                        }
+                        else {
+                            if (!$(this).closest('tr').children('td:eq(1)').children('input:checkbox').is(':checked')) {
+
+                                $(this).closest('tr').children('td:eq(3)').children('input:checkbox').prop({ 'checked': false, 'disabled': false });
+                            }
+                        }
+                        break;
+                    case '3':
+
+                        if (isChecked) {
+                            $(this).closest('tr').children('td:eq(1)').children('input:checkbox').prop({ 'checked': false, 'disabled': true });
+                            $(this).closest('tr').children('td:eq(2)').children('input:checkbox').prop({ 'checked': false, 'disabled': true });
+                        }
+                        else {
+                            $(this).closest('tr').children('td:eq(1)').children('input:checkbox').prop({ 'checked': false, 'disabled': false });
+                            $(this).closest('tr').children('td:eq(2)').children('input:checkbox').prop({ 'checked': false, 'disabled': false });
+                        }
+
+                        break;
+                }
+
+            });
+
+
         });
 
         function AddOption(object) {
-            $(object).parent().parent().parent().append('<div class="col-lg-12 col-md-12 col-sm-12"><div class="col-lg-2 col-md-2 col-sm-2">' +
-                                        '<div class="form-group"></div> </div> <div class="col-lg-4 col-md-4 col-sm-4"><div class="form-group">' +
-                                        '<input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" /> <input value="0" type="hidden" /> <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a></div> </div></div>');
+            $(object).parent().parent().parent().append('<div class="col-lg-12 col-md-12 col-sm-12">' +
+                '<div class="col-lg-2 col-md-2 col-sm-2">' +
+                '<div class="form-group form-group-ch">' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">' +
+                '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                '<input placeholder="Option"  maxlength="100" class="form-control Option width-adjust-input1">' +
+                 '<input type="hidden" class="oid" value="0" />' +
+                '<input type="hidden" class="oValue" value="0" />' +
+                '</div>' +
+                '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                '<textarea placeholder="Enter Description" class="option-des"></textarea>' +
+                                                                            '</div>' +
+                '<a class="close-value" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);">' +
+                '<i class="fa fa-times"></i></a>' +
+                '</div>' +
+                '</div>');
         }
+
+
+
+        function bindStatusOption(ele) {
+
+            var statopLength = $(ele).closest('.Question').find('.stat-option').length
+            var satOptionDiv = '';
+            satOptionDiv += '<div class="col-lg-12 col-md-12 col-sm-12  div-stat-op">\
+                                            <div class="col-lg-2 col-md-2 col-sm-2">\
+                                                <div class="form-group form-group-ch">\
+                                                </div>\
+                                            </div>\
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">\
+                                                <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                    <input placeholder="Option" maxlength="100" value="Pass" readonly="readonly" class="form-control stat-option Option width-adjust-input1">\
+                                                    <input type="hidden" class="oid" value="0">\
+                                                  <input type="hidden" class="oValue" value="1" />\
+                                                </div>\
+                                                <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>\
+                                                </div>\
+                                            </div>\
+                                        </div>';
+
+            satOptionDiv += '<div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">\
+                                            <div class="col-lg-2 col-md-2 col-sm-2">\
+                                                <div class="form-group form-group-ch">\
+                                                </div>\
+                                            </div>\
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">\
+                                                <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                    <input placeholder="Option" style="width:100%;" value="Fail" readonly="readonly" maxlength="100" class="form-control stat-option Option width-adjust-input1">\
+                                                    <input type="hidden" class="oid" value="0">\
+     <input type="hidden" class="oValue" value="2" />\
+                                                </div>\
+                                                <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>\
+                                                </div>\
+                                            </div>\
+                                        </div>';
+
+
+            satOptionDiv += '<div class="col-lg-12 col-md-12 col-sm-12  div-stat-op">\
+                                             <div class="col-lg-2 col-md-2 col-sm-2">\
+                                                 <div class="form-group form-group-ch">\
+                                                 </div>\
+                                             </div>\
+                                             <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <input placeholder="Option" style="width:100%;" value="Complete" readonly="readonly" maxlength="100" class="form-control stat-option Option width-adjust-input1">\
+                                                     <input type="hidden" class="oid" value="0">\
+     <input type="hidden" class="oValue" value="3" />\
+                                                 </div>\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>\
+                                                 </div>\
+                                             </div>\
+                                         </div>';
+
+            satOptionDiv += '<div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">\
+                                             <div class="col-lg-2 col-md-2 col-sm-2">\
+                                                 <div class="form-group form-group-ch">\
+                                                 </div>\
+                                             </div>\
+                                             <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <input placeholder="Option" maxlength="100" class="form-control stat-option Option width-adjust-input1" value="Follow-up" readonly="readonly">\
+                                                     <input type="hidden" class="oid" value="0">\
+     <input type="hidden" class="oValue" value="4" />\
+                                                 </div>\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>\
+                                                 </div>\
+                                             </div>\
+                                         </div>';
+
+            satOptionDiv += '<div class="col-lg-12 col-md-12 col-sm-12  div-stat-op">\
+                                             <div class="col-lg-2 col-md-2 col-sm-2">\
+                                                 <div class="form-group form-group-ch">\
+                                                 </div>\
+                                             </div>\
+                                             <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <input placeholder="Option" maxlength="100" value="Rescreen" readonly="readonly" class="form-control stat-option Option width-adjust-input1">\
+                                                     <input type="hidden" class="oid" value="0">\
+     <input type="hidden" class="oValue" value="5" />\
+                                                 </div>\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>\
+                                                 </div>\
+                                             </div>\
+                                         </div>';
+
+            satOptionDiv += '<div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">\
+                                             <div class="col-lg-2 col-md-2 col-sm-2">\
+                                                 <div class="form-group form-group-ch">\
+                                                 </div>\
+                                             </div>\
+                                             <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <input placeholder="Option" maxlength="100" value="Referral" readonly="readonly" class="form-control stat-option Option width-adjust-input1">\
+                                                     <input type="hidden" class="oid" value="0">\
+     <input type="hidden" class="oValue" value="6" />\
+                                                 </div>\
+                                                 <div class="col-lg-6 col-md-6 col-sm-6">\
+                                                     <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>\
+                                                 </div>\
+                                             </div>\
+                                         </div>';
+
+
+
+            if ($(ele).is(':checked')) {
+                if (statopLength == 0) {
+
+                    $(ele).closest('.Question').find('.Addoption').find('div:eq(0)').next().before(satOptionDiv);
+                }
+            }
+            else {
+
+                $(ele).closest('.Question').find('.Addoption').find('.div-stat-op').remove();
+            }
+
+
+
+        }
+
+        //function checkOptionValue(ele) {
+        //    debugger;
+        //    $(ele).closest('.Addoption').find('.OptionValue').css({ 'background-color': '' });
+        //    let $index = $(ele).closest('.Addoption').find('.OptionValue').index(ele);
+        //    let $value = $(ele).val();
+        //    var err = 0;
+        //    $.map($(ele).closest('.Addoption').find('.OptionValue'), function (op, i) {
+
+        //        if ($(ele).closest('.Addoption').find('.OptionValue').index(op) != $index && $value == $(op).val()) {
+        //            plainValidation($(op));
+        //            err++;
+        //        }
+
+        //    });
+
+        //    if (err > 0) {
+        //        plainValidation(ele);
+        //        customAlert('Values should be unique');
+        //    }
+
+        //}
+
+
         function AddQuestion(object) {
+
+
+
+
+
             $('#divquestion').prepend('   <div class="col-sm-12 income-box Question">  ' +
     '                                       <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>  ' +
     '                                       <div class="col-lg-12 col-md-12 col-sm-12">  ' +
@@ -83,7 +369,7 @@
     '                                                   <label for="email">Question<sup>*</sup></label>  ' +
     '                                                   <input name="Question" id="Question" placeholder="Question" maxlength="100" class="form-control Ques Question' + questioncount + '" /> <input value="0" type="hidden" />  ' +
     '                                               </div>  ' +
-    '                                           </div><div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">  <input type="checkbox" class="required" style="float:none;" />' +
+    '                                           </div><div class="col-lg-6 col-md-6 col-sm-6 mandatory-block" style="margin-left:-40px;">  <input type="checkbox" class="required" style="float:none;" />' +
                                              '    <span style="color:red;"> Is Mandatory? </span> </div>' +
     '                                       </div>  ' +
     '                                       <div class="col-lg-12 col-md-12 col-sm-12">  ' +
@@ -99,36 +385,290 @@
     '                                                   </select>  ' +
     '                                               </div>  ' +
     '                                           </div>  ' +
+
+    '<div class="col-lg-6 col-md-6 col-sm-6 div-stat-qn" style="display:none;">' +
+                                                                '<input type="checkbox" class="stat-req" style="float:none;" onclick="bindStatusOption(this);">' +
+                                                                '<span style="color:red;"> Is Status Question? </span>' +
+                                                            '</div>' +
     '                                       </div>  ' +
+        '<div class="col-lg-12 col-md-12 col-sm-12">' +
+                                        '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                                            '<div class="form-group">' +
+                                                '<label for="email">Question Order <sup>*</sup></label>' +
+                                                '<select class="form-control qn-odr-select" onchange="checkQnOrder(this);">' +
+                                                '</select>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+
+
     '                                  </div>  ');
             if ($('.Question' + questioncount).val() == "")
                 $('.empty' + questioncount).val("");
             questioncount = questioncount + 1;
+
+            bindQuestionOrder();
+
         }
+
+
+        function bindQuestionOrder() {
+            debugger;
+            var qnLength = $('.Question').length;
+
+            var qnOrderOption = '';
+            var qnValue = '';
+
+            var selectArr = [];
+
+
+            $('.qn-odr-select').each(function () {
+
+                if ($(this).val() != null && $(this).val() != '') {
+                    selectArr.push($(this).val());
+
+                }
+
+            })
+
+
+            for (var qn = 1; qn <= (qnLength * 2) ; qn++) {
+
+                qnValue = (qn / 2);
+                if (!(selectArr.indexOf(qnValue.toString()) > -1)) {
+                    qnOrderOption += '<option value=' + qnValue + '>' + qnValue + '</option>';
+                }
+            }
+
+
+            $('.Question').find('.qn-odr-select').each(function (m, qnv) {
+
+                var sValue = ($(qnv).val() == null || $(qnv).val() == '') ? qnLength : $(qnv).val();
+
+                if (($(qnv).val() == null || $(qnv).val() == '')) {
+                    $(qnv).find('option').remove().end().html(qnOrderOption).val(sValue);
+
+                }
+                else {
+                    var selectlit = (qnLength - 0.5);
+
+                    $(qnv).append('<option value=' + selectlit + '>' + selectlit + '</option>');
+                }
+
+            });
+        }
+
+
+        function reOrderQn() {
+
+        }
+
+
+        function checkQnOrder(ele) {
+            debugger;
+            cleanValidation();
+            var qnValue = $(ele).val();
+            var qnIndex = $(ele).closest('.Question').index();
+
+            var qnerror = 0;
+            $('.Question').find('.qn-odr-select').each(function (i, qnselect) {
+
+                if ($(qnselect).val() == qnValue && qnIndex != $(qnselect).closest('.Question').index()) {
+                    plainValidation($(qnselect));
+                    plainValidation($(ele));
+                    qnerror++;
+                }
+                else {
+                    //  $(ele).css('background-color', '');
+                    //$(qnselect).css('background-color', '');
+                }
+
+            });
+
+            if (qnerror > 0) {
+                customAlert('Question order should be unique');
+                return false;
+            }
+            else {
+
+
+                var lastvalue = 0;
+                if (Math.ceil(parseFloat(qnValue)) > parseFloat(qnValue)) {
+                    lastvalue = (Math.ceil(parseFloat(qnValue)));
+
+                    if ($('option[value=' + lastvalue + ']', ele).length == 0) {
+                        $(ele).append('<option value=' + lastvalue + '>' + lastvalue + '</option>');
+                    }
+                    $(ele).val(lastvalue);
+                }
+
+
+                if (lastvalue > 0) {
+
+
+                    $('.Question').find('.qn-odr-select').each(function (k, sel) {
+
+                        var q2index = $(sel).closest('.Question').index();
+                        if ((qnIndex != q2index) &&
+                            ($('option[value=' + lastvalue + ']', sel).length > 0
+                            || $('option[value=' + lastvalue + ']:checked', sel).length > 0)) {
+                            $('option[value=' + lastvalue + ']', sel).remove();
+
+                            lastvalue = lastvalue + 1;
+
+                            if ($('option[value=' + lastvalue + ']', sel).length == 0) {
+                                $(sel).append('<option value=' + lastvalue + '>' + lastvalue + '</option>');
+                            }
+
+                            $(sel).val(lastvalue);
+
+                        }
+
+
+                    });
+
+
+
+                }
+
+
+
+
+                //var arr=new Array();
+
+                //$('.Question').find('.qn-odr-select').each(function () {
+
+                //    if($(this).val()!=null && $(this).val()!="")
+                //    {
+                //        arr.push(parseFloat($(this).val()));
+                //    }
+
+                //});
+
+                //arr = arr.sort();
+
+                //var lastentry = 0;
+                //var res = 0;
+
+                //$.each(arr, function (i, k) {
+
+                //    res = k;
+
+                //    if (lastentry == 0 && Math.floor(k) < res)
+                //    {
+                //        lastentry=Math.ceil(k);
+                //    }
+
+                //    else if(lastentry==0 && Math.floor(k)==res)
+                //    {
+                //        lastentry=res;
+                //    }
+                //    else if(lastentry>0 &&((lastentry-k)==0 || (Math.abs(lastentry-res)==1) || (Math.abs(lastentry-res)==0.5)))
+                //    {
+                //        lastentry=(lastentry+1);
+                //    }
+                //    else if(lastentry>0 && Math.abs(lastentry-res)>1)
+                //    {
+                //        lastentry = (lastentry + 2);
+                //    }
+
+                //    var sString = $('.Question').find('.qn-odr-select').filter(function () { return $(this).val() == res.toString() });
+
+                //    $(sString).val(lastentry.toString()).prop('checked', true);
+                //});
+
+
+            }
+
+            return true;
+
+        }
+
         function RemoveAddoption(object) {
 
             if ($(object).val() == 2 || $(object).val() == 5 || $(object).val() == 6) {
 
                 $(object).parent().parent().parent().parent().children("div.Addoption").hide();
+                $(object).parent().parent().siblings('.div-stat-qn').find('input:checkbox').prop('checked', false);
+                $(object).parent().parent().siblings('.div-stat-qn').hide();
 
             }
+
+           
+
             else {
+
+                if ($(object).val() == 3) {
+                    $(object).parent().parent().siblings('.div-stat-qn').find('input:checkbox').prop('checked', false);
+                    $(object).parent().parent().siblings('.div-stat-qn').show();
+                }
+                else {
+                    $(object).parent().parent().siblings('.div-stat-qn').find('input:checkbox').prop('checked', false);
+                    $(object).parent().parent().siblings('.div-stat-qn').hide();
+                }
+
+
+                if ($(object).val() == 1) {
+                    $(object).closest('.Question').find('.div-stat-op').remove();
+                }
 
                 if ($(object).parent().parent().parent().parent().children("div.Addoption").length < 1) {
 
 
-                    $(object).parent().parent().parent().parent().append(' <div class="Addoption">  ' +
-     '                                           <div class="col-lg-12 col-md-12 col-sm-12">  ' +
-     '                                               <div class="col-lg-6 col-md-6 col-sm-6">  ' +
-     '                                                   <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>  ' +
-     '                                               </div></div><div class="col-lg-12 col-md-12 col-sm-12">  ' +
-     '                                               <div class="col-lg-2 col-md-2 col-sm-2"><div class="form-group"></div>  </div> <div class="col-lg-4 col-md-4 col-sm-4">  ' +
-     '                                                   <div class="form-group">  ' +
-     '                                                       <input  placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" /> <input value="0" type="hidden" />  ' +
-     '                                                       <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>  ' +
-                                                     '</div>   </div> </div> <div class="col-lg-12 col-md-12 col-sm-12"><div class="col-lg-2 col-md-2 col-sm-2">' +
-                                            '<div class="form-group"></div> </div> <div class="col-lg-4 col-md-4 col-sm-4"><div class="form-group">' +
-                                            '<input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" /> <input value="0" type="hidden" /> <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a></div> </div></div>  </div>  ');
+                    $(object).parent().parent().parent().parent().append(
+
+
+
+                        '<div class="Addoption">' +
+                                       ' <div class="col-lg-12 col-md-12 col-sm-12">' +
+                                            '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                                                '<a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>' +
+                                           ' </div>' +
+                                      '  </div>' +
+                                        '<div class="col-lg-12 col-md-12 col-sm-12">' +
+                                           ' <div class="col-lg-2 col-md-2 col-sm-2">' +
+                                              '  <div class="form-group form-group-ch">' +
+                                               ' </div>' +
+                                           ' </div>' +
+                                            '<div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">' +
+                                                '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                                                '    <input placeholder="Option" maxlength="100" class="form-control Option width-adjust-input1">' +
+                                                   '<input type="hidden" class="oId" value="0"/> ' +
+
+
+                                               ' </div>' +
+
+                                               '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                                                                                '<textarea placeholder="Enter Description" class="option-des"></textarea>' +
+                                                                            '</div>' +
+                                                                               ' <a class="close-value" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>' +
+                                           ' </div>' +
+                                        '</div>' +
+
+                                      '<div class="col-lg-12 col-md-12 col-sm-12">' +
+                                           ' <div class="col-lg-2 col-md-2 col-sm-2">' +
+                                              '  <div class="form-group form-group-ch">' +
+                                               ' </div>' +
+                                           ' </div>' +
+                                            '<div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">' +
+                                                '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                                                '    <input placeholder="Option" maxlength="100" class="form-control Option width-adjust-input1">' +
+                                                   '<input type="hidden" class="oId" value="0"/> ' +
+
+                                               ' </div>' +
+
+
+                                               '<div class="col-lg-6 col-md-6 col-sm-6">' +
+                                                                                '<textarea placeholder="Enter Description" class="option-des"></textarea>' +
+                                                                            '</div>' +
+                                        ' <a class="close-value" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>' +
+
+                                           ' </div>' +
+                                        '</div>' +
+
+
+                                    '</div>'
+                                           );
 
 
                 }
@@ -140,29 +680,61 @@
             }
         }
         function isValidScreening() {
+            debugger;
             $('#spinner').show();
             cleanValidation();
+
+            $('input:checkbox[name=Programtype]').closest('.cont-sz').css('background-color', '');
+            $('input:radio[name=radioExpiredPeriod]').closest('.cont-sz').css('background-color', '');
+            $('input:radio[name=radioExpireIn]').closest('.cont-sz').css('background-color', '');
+            $('input:radio[name=radioScreeningsYear]').closest('.cont-sz').css('background-color', '');
+
+
             var isValid = true;
-            if ($('#HiddenAgencyId').val() == "" || $('#HiddenAgencyId').val() == "0") {
+
+
+            if (($('#HiddenAgencyId').val() == "" || $('#HiddenAgencyId').val() == "0") && $('#general-ag').val() == '0') {
                 customAlert("Agency is required.");
                 plainValidation('#AgencyName');
             }
+
             else if ($('#ScreeningName').val().trim() == "") {
                 customAlert("Screening name is required.");
                 plainValidation('#ScreeningName');
             }
-            else if ($('#Rolename').val() == "" || $('#Rolename').val() == null) {
-                customAlert("Screening for is required.");
-                plainValidation('#Rolename');
+
+            else if (!$("input:checkbox[name='Programtype']").is(":checked")) {
+                customAlert("Program type is required. ");
+                $('input:checkbox[name=Programtype]').closest('.cont-sz').css('background-color', 'pink');
+                $('input:checkbox[name=Programtype]').focus();
             }
 
-            else if (!$("input:radio[name='Programtype']").is(":checked")) {
-                customAlert("Program type is required. ");
+            else if ($('#hsOptionDiv').is(':visible') && $('input:checkbox[name=Programtype][value=2]').is(':checked') && !$('input:radio[name=radioExpiredPeriod]').is(':checked')) {
+                customAlert("Expired period is required.");
+                $('input:radio[name=radioExpiredPeriod]').closest('.cont-sz').css('background-color', 'pink');
+                $('input:radio[name=radioExpiredPeriod]').focus();
             }
-            //else if ($('#ScreeningDate').val().trim() == "" || $('#ScreeningDate').val() == "MM/DD/YYYY") {
-            //    customAlert("Screening date is required.");
-            //    plainValidation('#ScreeningDate');
-            //}
+
+            else if ($('#hsOptionDiv').is(':visible') && $('input:checkbox[name=Programtype][value=2]').is(':checked') && !$('input:radio[name=radioExpireIn]').is(':checked')) {
+                customAlert("Expire in is required.");
+                $('input:radio[name=radioExpireIn]').closest('.cont-sz').css('background-color', 'pink');
+                $('input:radio[name=radioExpireIn]').focus();
+            }
+
+            else if ($('#hsOptionDiv').is(':visible') && $('input:checkbox[name=Programtype][value=2]').is(':checked') && !$('input:radio[name=radioScreeningsYear]').is(':checked')) {
+                customAlert("Screening per year is required.");
+                $('input:radio[name=radioScreeningsYear]').closest('.cont-sz').css('background-color', 'pink');
+                $('input:radio[name=radioScreeningsYear]').focus();
+            }
+
+            else if ($('#screeningRolesBody').children('tr').find('input:checkbox:checked').length == 0) {
+                customAlert("Atleast one role to access screening is required");
+                $('#screeningRolesBody').children('tr').find('input:checkbox')[0].focus();
+            }
+
+
+
+
             else {
                 var question = [];
                 var _question = [];
@@ -186,11 +758,20 @@
                         isValid = false;
                         return false;
                     }
+
+                    if ($(this).children().find('.qn-odr-select').val() == "" || $(this).children().find('.qn-odr-select').val() == null) {
+                        customAlert("Question order is required.");
+                        plainValidation($(this).children().find('.qn-odr-select'));
+                        isValid = false;
+                        return false;
+                    }
+
                     if ($(this).children().find('.selectquetion').val() == 1 || $(this).children().find('.selectquetion').val() == 3
                           || $(this).children().find('.selectquetion').val() == 4) {
                         $(this).children().find('.Option').each(function () {
                             if ($(this).val().trim() == "") {
                                 customAlert("Option is required.");
+                                //$(this).css('background-color', 'pink!important');
                                 plainValidation($(this));
                                 isValid = false;
                                 return false;
@@ -223,6 +804,14 @@
                         option = [];
                         _option = [];
                     }
+
+
+                    if (!checkQnOrder($(this).children().find('.qn-odr-select'))) {
+
+                        isValid = false;
+                        return false;
+                    }
+
                 });
 
                 if (question.length > 0) {
@@ -245,11 +834,15 @@
                     var question = null;
                     var questiontype = null;
                     var required = null;
+                    var qnOrder = null;
+                    var qnStat = null;
                     $('.Question').each(function () {
                         question = $(this).children().find('.Ques').val();
                         questionid = $(this).children().find('.Ques').next().val();
                         required = $(this).children().find('.required').prop("checked");
                         questiontype = $(this).children().find('.selectquetion').val();
+                        qnOrder = $(this).children().find('.qn-odr-select').val();
+                        qnStat = $(this).children().find('.stat-req').length > 0 ? $(this).children().find('.stat-req').prop('checked') : false;
                         var i = 0;
 
                         if (questiontype == 1 || questiontype == 3 || questiontype == 4) {
@@ -257,7 +850,9 @@
                                 var _OptionList = [];
                                 _OptionList = {
                                     Option: $(this).val().replace("$", ""),
-                                    OptionId: $(this).next().val()
+                                    OptionId: $(this).next('.oid').val(),
+                                    OptionValue: $(this).siblings('.oValue').val(),
+                                    OptionDescription: $(this).closest('.pad-rt-div').find('.option-des').val()
                                 };
                                 OptionList[i] = _OptionList;
                                 i = i + 1;
@@ -270,7 +865,9 @@
                             Question: question,
                             QuestionType: questiontype,
                             OptionList: OptionList,
-                            Required: required
+                            Required: required,
+                            QuestionOrder: qnOrder,
+                            IsStatusQuestion: qnStat
                         };
                         Questionlist.push(_Questionlist);
                         OptionList = [];
@@ -278,6 +875,22 @@
                         questiontype = null;
                         i = 0;
                     });
+
+
+                    var allowScreeArr = [];
+                    if ($('#screeningRolesBody').children('tr').find('input:checkbox:checked').length > 0) {
+
+
+                        allowScreeArr = jQuery.map($('#screeningRolesBody').find('tr').children('td').find('input:checkbox:checked'), function (n, i) {
+                            return {
+                                'RoleID': $(n).closest('tr').find('td:eq(0)').find('input:hidden').val(),
+                                'RoleName': '',
+                                'ScreeningAccessType': $(n).val()
+                            }
+                        });
+
+                    }
+
 
                     if (Questionlist != null && Questionlist.length > 0) {
                         $.ajax({
@@ -287,18 +900,22 @@
                             data:
                                 JSON.stringify({
                                     'Questionlist': Questionlist,
+                                    'screeningAccessList': allowScreeArr,
                                     ScreeningId: $('#ScreeningId').val(),
                                     ScreeningName: $('#ScreeningName').val(),
                                     AgencyId: $('#HiddenAgencyId').val(),
-                                    Screeningfor: $('#Rolename').val(),
-                                    Programtype: $('input[name=Programtype]:checked').val(),
+                                    //Screeningfor: $('#Rolename').val(),
+                                    Programtype: $.map($('input:checkbox[name=Programtype]:checked'), function (ele) { return $(ele).val() }).toString(),
                                     Document: $('#Allowdoc').prop("checked"),
                                     ScreeningDate: $('#ScreeningDate').val(),
-                                    Inintake: $('#Inintake').prop("checked")
+                                    Inintake: $('#Inintake').prop("checked"),
+                                    expiredPeriod: $('input[name=radioExpiredPeriod]:checked').val(),
+                                    expireIn: $('input[name=radioExpireIn]:checked').val(),
+                                    screeningsYear: $('input[name=radioScreeningsYear]:checked').val()
                                 }),
                             dataType: "json",
                             secureuri: false,
-                            async: false,
+                            async: true,
                             success: function (response) {
                                 if (response == 1) {
                                     window.location.href = HostedDir + '/SuperAdmin/Screeninglist/';
@@ -355,7 +972,11 @@
                                 }
                             , error: function (response) {
                                 customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
-                            }
+                            },
+                                complete: function () {
+                                    bindQuestionOrder();
+                                }
+
                             });
                         }
                     });
@@ -370,6 +991,7 @@
 
                 if ($('.Question').length > 1) {
                     $(value).parent().parent().remove();
+                    bindQuestionOrder();
                 }
                 else {
                     customAlert("There should be atleast one question in screening.");
@@ -419,7 +1041,7 @@
 
 
                 if ($(value).parents('Div.Addoption').children().find('.Option').length > 2) {
-                    $(value).parent().parent().parent().remove();
+                    $(value).parent('.pad-rt-div').parent().remove();
                 }
                 else {
 
@@ -469,6 +1091,275 @@
     </script>
 }
 @section MainContentHolder{
+
+
+
+    <style>
+                .option-des {
+                    line-height: 30px;
+                    width: 100%;
+                    margin-bottom: 10px;
+                    height: 34px;
+                }
+
+                .div-stat-qn {
+                    margin-left: -40px;
+                }
+
+                .screening-popup {
+                    background: rgba(0,0,0,0.6);
+                }
+                .no-padding{padding:0;}
+                    .screening-popup .modal-body {
+                        background: #34495e none repeat scroll 0 0;
+                        border: 6px solid #ffffff;
+                        border-radius: 3px;
+                        /* color: #ffffff; */
+                        float: left;
+                        padding: 15px 3%;
+                        position: relative;
+                        width: 100%;
+                    }
+
+                    .screening-popup .close {
+                        opacity: 1;
+                        position: absolute;
+                        right: -14px;
+                        top: -15px;
+                    }
+
+                    .screening-popup .modal-body > h2 {
+                        margin-top: 10px;
+                        float: left;
+                        font-size: 24px;
+                        font-weight: 600;
+                        text-align: center;
+                        width: 100%;
+                        margin-bottom: 20px;
+                        color: #fff;
+                    }
+
+                    .screening-popup .max_items_addn {
+                        background: #f1f5f8 none repeat scroll 0 0;
+                        border: 3px solid #ffffff;
+                        float: left;
+                        padding: 10px;
+                        width: 100%;
+                        margin-bottom: 20px;
+                        border-radius: 4px;
+                    }
+
+                    .screening-popup .bdr-popup {
+                        margin-top: 20px;
+                        margin-bottom: 20px;
+                        width: 100%;
+                        height: 1px;
+                        background: #c6c3c3;
+                    }
+
+                    .screening-popup .my-btn {
+                        background-color: #295b8f;
+                        border: medium none;
+                        color: #fff;
+                        margin-right: 5px;
+                        padding: 10px;
+                        width: 100px !important;
+                    }
+
+                .ic_forsub {
+                    width: 100%;
+                    float: left;
+                    text-align: center;
+                }
+
+                    .ic_forsub h3 {
+                        width: auto;
+                        float: none;
+                        display: inline-block;
+                        margin: 0;
+                    }
+
+                .btn-submit-edu {
+                    background-color: #163e6d;
+                    float: right;
+                    color: #fff;
+                    padding: 7px 12px;
+                    border: 0;
+                }
+
+                .icefu_form {
+                    width: 100%;
+                    float: left;
+                    margin-top: 15px;
+                }
+
+                table#settab_edu {
+                    background-color: #fff;
+                    width: 100%;
+                    float: left;
+                }
+
+                .table-headfix thead {
+                    cursor: pointer;
+                    table-layout: fixed;
+                    width: calc(100% - 0px);
+                    display: table;
+                }
+
+                table#settab_edu thead th {
+                    background-color: #34495e;
+                    color: #fff;
+                    text-align: left !important;
+                }
+
+                table#settab_edu tr td:first-child {
+                    color: #163b69;
+                }
+
+                table#settab_edu tr td:nth-child(2) {
+                    text-align: center;
+                }
+
+                input.edu_next[type="checkbox"] {
+                    position: relative;
+                    outline: none;
+                    margin-right: 10px;
+                }
+
+                input[type="radio"], input[type="checkbox"] {
+                    margin-top: 3px;
+                }
+
+                input.edu_next[type="checkbox"]::before {
+                    content: "";
+                    position: absolute;
+                    width: 15px;
+                    height: 15px;
+                    background-color: #fff;
+                    border: 1px solid #174472;
+                    /*left: 0px;*/
+                    left: 17.5px;
+                }
+
+                input.edu_next[type="checkbox"]:checked::after {
+                    content: "\2713";
+                    position: absolute;
+                    color: #174472;
+                    font-size: 15px;
+                    font-weight: 600;
+                    border-color: #174472;
+                    top: -3px;
+                    /*left: 1px;*/
+                    left: 19px;
+                }
+
+                .deve-td:after {
+                    /* position: absolute; */
+                    top: 49%;
+                    /* margin-left: 81px; */
+                    float: right;
+                    width: 10px;
+                    height: 16px;
+                    margin-top: 8px;
+                    font: 18px fontawesome;
+                    color: #999;
+                    content: "\f0d7";
+                    transition: all .3s ease;
+                    margin-right: 32px;
+                    cursor: pointer;
+                }
+
+                .table-headfix tbody {
+                    height: 600px;
+                    overflow-y: scroll;
+                    width: calc(100% - 0px);
+                    float: left;
+                    display: table-column;
+                }
+
+                    .table-headfix tbody tr {
+                        display: table;
+                        table-layout: fixed;
+                        width: 100%;
+                        cursor: pointer;
+                    }
+
+                .modal-dialog-ch {
+                    width: 80%;
+                }
+
+                .width-adjust-input1 {
+                    width: 93% !important;
+                }
+
+                .width-adjust-input2 {
+                    width: 100% !important;
+                }
+
+                .width-adjust-input3 {
+                    width: 42% !important;
+                }
+
+                .pad-rt-div {
+                    padding-left: 0;
+                }
+
+                .close-value {
+                    padding: 10px;
+                }
+
+                    .close-value i {
+                        margin-top: 10px;
+                    }
+
+                .option-label {
+                    font-weight: bold !important;
+                    text-transform: capitalize;
+                    margin-bottom: 12px;
+                }
+                .pad-rt-div{position:relative;}
+                .pad-rt-div .close-value {
+            padding: 0;
+            position: absolute;
+            top: 0;
+            margin-top: 0!important;
+        }
+
+                @@media screen and (max-device-width: 1200px) and (min-device-width: 700px) {
+                    .width-adjust-input1 {
+                        width: 100% !important;
+                    }
+
+                    .form-group-ch {
+                        display: none;
+                    }
+                }
+
+                @@media (min-width: 768px) and (max-width: 991px) {
+                   .mandatory-block{margin-left:0!important;}
+                   .mandatory-block span{
+                        color: red;
+            float: left;
+            width: 100%;
+            margin-top: 10px;
+                }
+                }
+
+                  @@media (min-width: 992px) and (max-width: 1199px)
+                  {
+
+                input.edu_next[type="checkbox"]::before {left: 33.5px;}
+                  }
+
+
+
+
+
+
+    </style>
+
+
+
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
@@ -502,38 +1393,73 @@
         bool Documentupload = false;
         //string screeningdate = "";
         bool Familyintake = false;
+        int expiredPeriod = 0;
+        int expireIn = 0;
+        int screeningsPerYear = 0;
+        int screeningOrder = 0;
+        int screeningCount = 0;
+        DataSet dsScreening = new DataSet();
+
         try
         {
 
-            if (ViewBag.screening != null && (DataTable)ViewBag.screening != null && ((DataTable)ViewBag.screening).Rows.Count > 0)
+
+
+            if (ViewBag.screening != null && (DataSet)ViewBag.screening != null &&
+                ((DataSet)ViewBag.screening).Tables.Count > 0 &&
+                ((DataSet)ViewBag.screening).Tables[0] != null &&
+                ((DataSet)ViewBag.screening).Tables[0].Rows.Count > 0)
             {
-                DataTable Screening = ((DataTable)ViewBag.screening).DefaultView.ToTable(true, "ScreeningID", "ScreeningName", "AgencyId", "AgencyName", "Screeningfor", "Programtype", "DocumentUpload",  "InIntake");
+
+
+
+
+                DataTable Screening = ((DataSet)ViewBag.screening).Tables[0].DefaultView.ToTable(true, "ScreeningID", "ScreeningName", "AgencyId", "AgencyName", "ProgramType", "DocumentUpload", "InIntake", "ExpiredPeriod", "ExpireIn", "ScreeningsPerYear", "ScreeningOrder");
+
+
                 foreach (DataRow Row in Screening.Rows)
                 {
                     screeningid = Convert.ToString(@Row["ScreeningID"]);
                     screeningname = Convert.ToString(@Row["ScreeningName"]);
                     Agencyid = Convert.ToString(@Row["AgencyId"]);
                     AgencyName = Convert.ToString(@Row["AgencyName"]);
-                    roleid = Convert.ToString(@Row["Screeningfor"]);
-                    programtype = Convert.ToString(@Row["Programtype"]);
+                    //roleid = Convert.ToString(@Row["Screeningfor"]);
+                    programtype = Convert.ToString(@Row["ProgramType"]);
                     Documentupload = Convert.ToBoolean(@Row["DocumentUpload"]);
                     //screeningdate = Convert.ToDateTime(@Row["ScreeningExpiringDate"]).ToString("MM/dd/yyyy");
                     Familyintake = Convert.ToBoolean(@Row["InIntake"]);
+                    expiredPeriod = Convert.ToInt32(@Row["ExpiredPeriod"]);
+                    expireIn = Convert.ToInt32(@Row["ExpireIn"]);
+                    screeningsPerYear = Convert.ToInt32(@Row["ScreeningsPerYear"]);
+                    screeningOrder = Convert.ToInt32(Row["ScreeningOrder"]);
                 }
             }
-            
+
+            if (ViewBag.screening != null && (DataSet)ViewBag.screening != null &&
+               ((DataSet)ViewBag.screening).Tables.Count > 0 &&
+               ((DataSet)ViewBag.screening).Tables[2] != null &&
+               ((DataSet)ViewBag.screening).Tables[2].Rows.Count > 0)
+            {
+                screeningCount = Convert.ToInt32(((DataSet)ViewBag.screening).Tables[2].Rows[0]["ScreeningCount"]);
+            }
+
         }
         catch (Exception Ex)
         {
             FingerprintsModel.clsError.WriteException(Ex);
         }
     }
+
+
+
+
+
     <form method="post" role="form" id="form1" autocomplete="off">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
                 <div class="add-useragform add-screening add-screeningcheckbox ">
                     <div class="col-lg-12 col-md-12 col-sm-12">
-                        <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="col-lg-6 col-md-6 col-sm-12" id="div-agency">
                             <div class="form-group">
                                 <label for="email">Agency Name  <sup>*</sup></label>
                                 @if (ViewBag.mode == 0)
@@ -545,9 +1471,17 @@
                                     <input type="text" readonly="readonly" placeholder="Agency Name" value="@AgencyName" name="AgencyName" id="AgencyName" class="form-control" maxlength="50" />
                                 }
                                 <input name="HiddenAgencyId" id="HiddenAgencyId" type="hidden" value="@Agencyid" />
+
+                                @if (ViewBag.mode != 0 && string.IsNullOrEmpty(AgencyName) == true)
+                                { <input type="hidden" id="general-ag" value="1" /> }
+                                else
+                                {
+                                    <input type="hidden" id="general-ag" value="0" />
+                                }
+
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="email">Screening Name  <sup>*</sup></label>
                                 <input placeholder="Screening Name" id="ScreeningName" value="@screeningname" name="ScreeningName" class="form-control" maxlength="30" />
@@ -556,29 +1490,36 @@
                         </div>
                     </div>
                     <div class="col-lg-12 col-md-12 col-sm-12">
-                        <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="col-lg-6 col-md-6 col-sm-12 hidden">
                             <div class="form-group">
                                 <label for="email">Screening For  <sup>*</sup></label>
                                 <select id="Rolename" class="form-control">
 
-                                    <option value="1" @if (@roleid == "1") { <text> selected="selected" </text>  }>Health/Nurse</option>
-                                    <option value="2" @if (@roleid == "2") { <text> selected="selected" </text>   }>Home Visitor/Teacher</option>
+                                    <option value="1" @if (@roleid == "1") { <text> selected="selected" </text>          }>Health/Nurse</option>
+                                    <option value="2" @if (@roleid == "2") { <text> selected="selected" </text>          }>Home Visitor/Teacher</option>
 
                                 </select>
                                 <input name="HiddenRoleID" id="HiddenRoleID" value="@roleid" type="hidden" />
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
+
+                        @{
+
+                            string[] progTypes = programtype.Split(',').ToArray();
+
+                        }
+
+                        <div class="col-lg-6 col-md-6 col-sm-12" style="margin-top:12px;">
                             <div class="form-group">
-                                <label for="RaceSubCatDesc" class="label_full"> Program Type <sup>*</sup></label>
+                                <label for="RaceSubCatDesc" class="label_full Race_label"> Program Type <sup>*</sup></label>
                                 <div class="cont-sz">
-                                    <div class="col-sm-4 col-md-4 col-lg-4">
-                                        <input name="Programtype" id="Programtype1" @if (@programtype == "1") { <text> checked="checked" </text>    } type="radio" value="1">
+                                    <div class="col-sm-12 col-md-6 col-lg-4" style="padding:0;">
+                                        <input name="Programtype" style="float:left;margin-top:1px;" class="checkbox" id="Programtype1" @if (progTypes.Where(x => x == "1").Any() == true) { <text> checked="checked" </text>          } type="checkbox" value="1">
 
                                         <span>EHS</span>
                                     </div>
-                                    <div class="col-sm-6 col-md-6 col-lg-6">
-                                        <input name="Programtype" id="Programtype2" @if (@programtype == "2") { <text> checked="checked" </text>    } type="radio" value="2">
+                                    <div class="col-sm-12 col-md-6 col-lg-6" style="padding:0;">
+                                        <input name="Programtype" style="float:left;margin-top:1px;" class="checkbox" id="Programtype2" @if (progTypes.Where(x => x == "2").Any() == true) { <text> checked="checked" </text>          } type="checkbox" value="2">
 
                                         <span>HS</span>
                                     </div>
@@ -586,374 +1527,833 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12">
 
-                        @*<div class="col-lg-6 col-md-6 col-sm-6">
+
+
+                    <!---New Process Start-->
+
+                    <div class="col-lg-12 col-md-12 col-sm-12" id="hsOptionDiv" style="display:none;">
+
+                        <div class="col-lg-6 col-md-6 col-sm-6" id="divExpiredPeriod">
                             <div class="form-group">
-                                <label for="email">Screening Date <sup>*</sup></label>
-                                <input id="ScreeningDate" value="@screeningdate" placeholder="MM/DD/YYYY" onblur="validatedate1(this);" class="form-control" maxlength="30" />
+                                <label for="RaceSubCatDesc" class="label_full Race_label"> Expired Period <sup>*</sup></label>
+                                <div class="cont-sz">
 
+                                    <div class="col-sm-12 col-md-6 col-lg-6 adddivspace">
+                                        <input name="radioExpiredPeriod" type="radio" value="1" @if (@expiredPeriod == 1) { <text> checked="checked" </text>                                 }>
+                                        <span>90 days</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-6 adddivspace">
+                                        <input name="radioExpiredPeriod" type="radio" value="2" @if (@expiredPeriod == 2) { <text> checked="checked" </text>                            }>
+                                        <span>6 months</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-6 adddivspace">
+                                        <input name="radioExpiredPeriod" type="radio" value="3" @if (@expiredPeriod == 3) { <text> checked="checked" </text>                            }>
+                                        <span>12 months</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-6 adddivspace">
+                                        <input name="radioExpiredPeriod" type="radio" value="4" @if (@expiredPeriod == 4) { <text> checked="checked" </text>                            }>
+                                        <span>13 months</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-6 adddivspace">
+                                        <input name="radioExpiredPeriod" type="radio" value="5" @if (@expiredPeriod == 5) { <text> checked="checked" </text>                            }>
+                                        <span>never</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-6 col-md-6 col-sm-6" id="divExpireIn">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full Race_label"> Expire In  <sup>*</sup></label>
+                                <div class="cont-sz">
+
+                                    <div class="col-sm-12 col-md-6 col-lg-4 adddivspace">
+                                        <input name="radioExpireIn" type="radio" value="1" @if (@expireIn == 1) { <text> checked="checked" </text>                            }>
+                                        <span>15 days</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-4 adddivspace">
+                                        <input name="radioExpireIn" type="radio" value="2" @if (@expireIn == 2) { <text> checked="checked" </text>                            }>
+                                        <span>30 days</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-4 adddivspace">
+                                        <input name="radioExpireIn" type="radio" value="3" @if (@expireIn == 3) { <text> checked="checked" </text>                            }>
+                                        <span>60 days</span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-sm-6" id="divScreeningsYear">
+                            <div class="form-group">
+                                <label for="RaceSubCatDesc" class="label_full Race_label"> Screenigs Per year <sup>*</sup></label>
+                                <div class="cont-sz">
+
+                                    <div class="col-sm-12 col-md-6 col-lg-4">
+                                        <input name="radioScreeningsYear" type="radio" value="1" @if (@screeningsPerYear == 1) { <text> checked="checked" </text>                            }>
+                                        <span>1 Year</span>
+                                    </div>
+
+                                    <div class="col-sm-12 col-md-6 col-lg-6">
+                                        <input name="radioScreeningsYear" type="radio" value="2" @if (@screeningsPerYear == 2) { <text> checked="checked" </text>                            }>
+                                        <span>Unlimited</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!---New Process End-->
+
+
+
+                <div class="col-lg-12 add-useragform add-screening ">
+
+
+
+                    @*<div class="col-lg-12 col-md-12 col-sm-12" id="divScreeningsOrder" style="padding:0;">
+                            <div class="col-lg-6 col-sm-12 col-md-12 no-padding">
+                                <div class="form-group">
+                                    <label for="RaceSubCatDesc" class="label_full Race_label"> Screening Order <sup>*</sup></label>
+                                    <div class="cont-sz" style="margin-top:-5px;">
+                                        <div class="col-sm-12 col-md-6 col-lg-4" style="padding:0;">
+                                            <select class="form-control" id="selectScreeningOrder">
+                                                @if (AgencyName != null || AgencyName != "")
+                                                {
+                                                    for (int sc = 1; sc <= screeningCount; sc++)
+                                                    {
+                                                        <option value="@sc" @if (screeningOrder == sc) { <text> selected="selected" </text>  }>@sc</option>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    for (int sc = 1; sc <= screeningCount; sc++)
+                                                    {
+                                                        <option value="@sc">@sc</option>
+                                                    }
+
+                                                    <option value="@screeningCount+1" selected="selected">@screeningCount+1</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>*@
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="form-group">
-                                <label for="RaceSubCatDesc" class="label_full"> Document Upload?</label>
-                                <div class="cont-sz">
-                                    <div class="col-sm-4 col-md-4 col-lg-4">
-                                        <input type="checkbox" id="Allowdoc" @if (@Documentupload) { <text> checked="checked" </text>    } style="float:left;margin-top:auto;">
+
+
+
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+
+                        <label for="email">Select Access Roles<sup>*</sup></label>
+
+                    </div>
+
+
+                    <div class="max_items_addn popup-addn-scroll col-lg-12">
+
+                        <div class="ictab_content no-padding">
+                            <div class="tab-content no-padding">
+                                <div class="tab-pane fade in active">
+                                    <div class="import_frrm">
+                                        <div class="icefu_form">
+                                            <table id="settab_edu" class="table table-striped table-responsive table-headfix fold-table settab-table-color" style="border:1px solid #ddd;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:auto;">Role List</th>
+                                                        <th>Enter Screening</th>
+                                                        <th>Review/Follow up</th>
+                                                        <th>Only View</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="screeningRolesBody">
+
+
+                                                    @{
+                                                        DataTable screeningTable = ((DataTable)ViewBag.ScreeningAccessRoles).DefaultView.ToTable(true, "RoleName", "ID", "IsEnter", "IsReview", "IsViewOnly");
+
+
+                                                    }
+
+                                                    @{
+
+                                                        int i = 0;
+                                                    }
+
+
+                                                    @foreach (DataRow dr1 in screeningTable.Rows)
+                                                    {
+                                                        <tr class="view">
+
+                                                            <td enc-id="rr">
+                                                                @Convert.ToString(@dr1["RoleName"])
+                                                                <input type="hidden" class="edu_next enter-check_@i" name="Role[@i].RoleId" value="@Convert.ToString(@dr1["ID"])" onclick="set">
+                                                            </td>
+                                                            <td class="settabl-row1">
+                                                                <input type="checkbox" class="edu_next enter_@i" name="Role[@i].ToEnter" @if (Convert.ToInt16(dr1["IsEnter"]) == 1) { <text> checked="checked" </text>                      } value="1">
+
+
+                                                            </td>
+
+
+                                                            <td class="settabl-row2">
+                                                                <input type="checkbox" class="edu_next follow_@i" name="Role[@i].ToFollowUp" @if (Convert.ToInt16(dr1["IsReview"]) == 2) { <text> checked="checked" </text>                     } value="2">
+                                                            </td>
+                                                            <td class="settabl-row3">
+                                                                <input type="checkbox" class="edu_next view_@i" name="Role[@i].ToView" @if (Convert.ToInt16(dr1["IsViewOnly"]) == 3) { <text> checked="checked" </text>                     } value="3">
+                                                            </td>
+                                                        </tr>
+
+                                                        i++;
+
+                                                    }
+
+
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="form-group">
-                                <label for="RaceSubCatDesc" class="label_full"> Used for Intake?</label>
-                                <div class="cont-sz">
-                                    <div class="col-sm-4 col-md-4 col-lg-4">
-                                        <input type="checkbox" id="Inintake" @if (@Familyintake) { <text> checked="checked" </text>      } style="float:left;margin-top:auto;">
-                                    </div>
-                                </div>
+
+
                             </div>
                         </div>
 
                     </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                     
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        <div class="col-lg-5 col-md-5 col-sm-5">
-                            <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddQuestion(this);"> Add Question <i class="fa fa-plus"></i></a>
+
+                </div>
+
+
+                <div class="col-lg-12 col-md-12 col-sm-12 add-useragform add-screening add-screeningcheckbox ">
+
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc" class="label_full"> Document Upload?</label>
+                            <div class="cont-sz">
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <input type="checkbox" id="Allowdoc" @if (@Documentupload) { <text> checked="checked" </text>                                 } style="float:left;margin-top:auto;">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="divquestion">
-                        @{
-                            try
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="form-group">
+                            <label for="RaceSubCatDesc" class="label_full"> Used for Intake?</label>
+                            <div class="cont-sz">
+                                <div class="col-sm-4 col-md-4 col-lg-4">
+                                    <input type="checkbox" id="Inintake" @if (@Familyintake) { <text> checked="checked" </text>                                   } style="float:left;margin-top:auto;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12">
+
+                </div>
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <div class="col-lg-5 col-md-5 col-sm-5">
+                        <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddQuestion(this);"> Add Question <i class="fa fa-plus"></i></a>
+                    </div>
+                </div>
+                <div id="divquestion" class="col-lg-12 add-useragform add-screening ">
+                    @{
+                        try
+                        {
+
+                            if (ViewBag.mode == 0)
                             {
 
-                                if (ViewBag.mode == 0)
-                                {
-
-                                    <div class="col-sm-12 income-box Question">
-                                        <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="email">Question<sup>*</sup></label>
-                                                    <input placeholder="Question" maxlength="100" class="form-control Ques Question0" />
-                                                    <input value="0" type="hidden" />
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
-                                                <input type="checkbox" class="required" style="float:none;" />
-                                                <span style="color:red;"> Is Mandatory? </span>
+                                <div class="col-sm-12 income-box Question">
+                                    <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question<sup>*</sup></label>
+                                                <input placeholder="Question" maxlength="100" class="form-control Ques Question0" />
+                                                <input value="0" type="hidden" />
                                             </div>
                                         </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="email">Question Type  <sup>*</sup></label>
-                                                    <select class="form-control selectquetion empty0" onchange="RemoveAddoption(this);">
-                                                        <option value="1">Checkbox</option>
-                                                        <option value="2">Date</option>
-                                                        <option value="3">Dropdown</option>
-                                                        <option value="4">Radio</option>
-                                                        <option value="5">Text</option>
-                                                        <option value="6">Integer</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 mandatory-block" style="margin-left:-40px;">
+                                            <input type="checkbox" class="required" style="float:none;" />
+                                            <span style="color:red;"> Is Mandatory? </span>
                                         </div>
                                     </div>
-                                    <div class="col-sm-12 income-box Question">
-                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="email">Question<sup>*</sup></label>
-                                                    <input placeholder="Question" maxlength="100" value="Status" readonly="readonly" class="form-control Ques" />
-                                                    <input value="0" type="hidden" />
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
-                                                <input type="checkbox" class="required" style="float:none;" checked="checked" disabled="disabled" />
-                                                <span style="color:red;"> Is Mandatory? </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="email">Question Type  <sup>*</sup></label>
-                                                    <select class="form-control selectquetion" disabled="disabled" onchange=" removeaddoption(this);">
-                                                        <option value="1">Checkbox</option>
-                                                        <option value="2">Date</option>
-                                                        <option selected="selected" value="3">Dropdown</option>
-                                                        <option value="4">Radio</option>
-                                                        <option value="5">Text</option>
-                                                        <option value="6">Integer</option>
-                                                    </select>
-                                                </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question Type  <sup>*</sup></label>
+                                                <select class="form-control selectquetion empty0" onchange="RemoveAddoption(this);">
+                                                    <option value="1">Checkbox</option>
+                                                    <option value="2">Date</option>
+                                                    <option value="3">Dropdown</option>
+                                                    <option value="4">Radio</option>
+                                                    <option value="5">Text</option>
+                                                    <option value="6">Integer</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="Addoption">
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
+
+                                        <div class="col-lg-6 col-md-6 col-sm-6 div-stat-qn mandatory-block" style="margin-left:-40px;display:none;">
+                                            <input type="checkbox" class="stat-req" onclick="bindStatusOption(this);" style="float:none;" />
+                                            <span style="color:red;"> Is Status Question? </span>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question Order <sup>*</sup></label>
+                                                <select class="form-control qn-odr-select" onchange="checkQnOrder(this);">
+                                                    <option value="1" selected="selected">1</option>
+                                                    <option value="1.5">1.5</option>
+                                                    <option value="2.5">2.5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 income-box Question">
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question<sup>*</sup></label>
+                                                <input placeholder="Question" maxlength="100" value="Status" readonly="readonly" class="form-control Ques" />
+                                                <input value="0" type="hidden" />
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 mandatory-block" style="margin-left:-40px;">
+                                            <input type="checkbox" class="required" style="float:none;" checked="checked" disabled="disabled" />
+                                            <span style="color:red;"> Is Mandatory? </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question Type  <sup>*</sup></label>
+                                                <select class="form-control selectquetion" disabled="disabled" onchange="removeaddoption(this);">
+                                                    <option value="1">Checkbox</option>
+                                                    <option value="2">Date</option>
+                                                    <option selected="selected" value="3">Dropdown</option>
+                                                    <option value="4">Radio</option>
+                                                    <option value="5">Text</option>
+                                                    <option value="6">Integer</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-6 div-stat-qn mandatory-block" style="margin-left:-40px;">
+                                            <input type="checkbox" class="stat-req" onclick="bindStatusOption(this);" style="float:none;" checked="checked" disabled="disabled" />
+                                            <span style="color:red;"> Is Status Question? </span>
+                                        </div>
+
+                                    </div>
+                                    <div class="Addoption">
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>
+                                            </div>
+                                        </div>
+
+
+
+
+                                        @*Start of fixed status option*@
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
                                                 <div class="col-lg-6 col-md-6 col-sm-6">
-                                                    <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>
+                                                    <input placeholder="Option" maxlength="100" value="Pass" readonly="readonly" class="form-control stat-option Option width-adjust-input1" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="1" />
                                                 </div>
-                                            </div>
 
-                                        
-                                         
 
-                                            @*Start of fixed status option*@
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <div class="col-lg-2 col-md-2 col-sm-2">
-                                                    <div class="form-group">
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="form-group">
-                                                        <input placeholder="Option" style="width:93%;" maxlength="100" value="Pass" readonly="readonly" class="form-control Option" />
-                                                        <input value="0" type="hidden" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <div class="col-lg-2 col-md-2 col-sm-2">
-                                                    <div class="form-group">
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="form-group">
-                                                        <input placeholder="Option" style="width:93%;" value="Fail" readonly="readonly" maxlength=" 100" class="form-control Option" />
-                                                        <input value="0" type="hidden" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <div class="col-lg-2 col-md-2 col-sm-2">
-                                                    <div class="form-group">
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="form-group">
-                                                        <input placeholder="Option" style="width:93%;" maxlength="100" value="Rescreen" readonly="readonly" class="form-control Option" />
-                                                        <input value="0" type="hidden" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <div class="col-lg-2 col-md-2 col-sm-2">
-                                                    <div class="form-group">
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="form-group">
-                                                        <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="Follow-up" readonly="readonly" />
-                                                        <input value="0" type="hidden" />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
 
-                                            @*End of fixed status option*@
-                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                <div class="col-lg-2 col-md-2 col-sm-2">
-                                                    <div class="form-group">
-                                                    </div>
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>
                                                 </div>
-                                                <div class="col-lg-4 col-md-4 col-sm-4">
-                                                    <div class="form-group">
-                                                        <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" />
-                                                        <input value="0" type="hidden" />
-                                                        <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
-                                                    </div>
+
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12  div-stat-op">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
                                                 </div>
                                             </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <input placeholder="Option" style="width:100%;" value="Fail" readonly="readonly" maxlength="100" class="form-control stat-option Option width-adjust-input1" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="2" />
+                                                </div>
 
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <input placeholder="Option" style="width:100%;" value="Complete" readonly="readonly" maxlength="100" class="form-control stat-option Option width-adjust-input1" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="3" />
+                                                </div>
+
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <input placeholder="Option" maxlength="100" class="form-control stat-option Option width-adjust-input1" value="Follow-up" readonly="readonly" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="4" />
+
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <input placeholder="Option" maxlength="100" value="Rescreen" readonly="readonly" class="form-control stat-option Option width-adjust-input1" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="5" />
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-lg-12 col-md-12 col-sm-12 div-stat-op">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <input placeholder="Option" maxlength="100" value="Referral" readonly="readonly" class="form-control stat-option Option width-adjust-input1" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="6" />
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <textarea placeholder="Enter Description" class="option-des" maxlength="250"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                        @*End of fixed status option*@
+                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                                <div class="form-group form-group-ch">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                    <input placeholder="Option" maxlength="100" class="form-control Option width-adjust-input1" />
+                                                    <input type="hidden" class="oid" value="0" />
+                                                    <input type="hidden" class="oValue" value="0" />
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                    <textarea placeholder="Enter Description" class="option-des"></textarea>
+                                                </div>
+                                                <a class="close-value" href="javascript:void(0)" style="margin-top:0px;" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question Order <sup>*</sup></label>
+                                                <select class="form-control qn-odr-select" onchange="checkQnOrder(this);">
+
+                                                    <option value="0.5">0.5</option>
+                                                    <option value="2" selected="selected">2</option>
+                                                    <option value="1.5">1.5</option>
+                                                    <option value="2.5">2.5</option>
+
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
-                                   <div class="col-sm-12 income-box Question">
-                                        <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="email">Question<sup>*</sup></label>
-                                                    <input value="Screening Date" readonly="readonly" Question" maxlength="100" class="form-control Ques"> 
-                                                    <input value="0" type="hidden">
-                                                </div>
-                                            </div><div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
-                                                      <input type="checkbox" checked="checked" disabled="disabled" class="required" style="float:none;">
-                                                <span style="color:red;"> Is Mandatory? </span>
+
+                                </div>
+                                <div class="col-sm-12 income-box Question">
+                                    <div class="income-close"><a onclick="DeleteQuestion(this);" href="#"><i class="fa fa-times"></i></a></div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question<sup>*</sup></label>
+                                                <input value="Screening Date" readonly="readonly" Question" maxlength="100" class="form-control Ques">
+                                                <input value="0" type="hidden">
+                                            </div>
+                                        </div><div class="col-lg-6 col-md-6 col-sm-6 mandatory-block" style="margin-left:-40px;">
+                                            <input type="checkbox" checked="checked" disabled="disabled" class="required" style="float:none;">
+                                            <span style="color:red;"> Is Mandatory? </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question Type  <sup>*</sup></label>
+                                                <select disabled="disabled" class="form-control selectquetion" onchange="RemoveAddoption(this);">
+                                                    <option value="1">Checkbox</option>
+                                                    <option selected="selected" value="2">Date</option>
+                                                    <option value="3">Dropdown</option>
+                                                    <option value="4">Radio</option>
+                                                    <option value="5">Text</option>
+                                                    <option value="6">Integer</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12">
-                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="email">Question Type  <sup>*</sup></label>
-                                                    <select disabled="disabled" class="form-control selectquetion" onchange="RemoveAddoption(this);">
-                                                        <option value="1">Checkbox</option>
-                                                        <option selected="selected" value="2">Date</option>
-                                                        <option value="3">Dropdown</option>
-                                                        <option value="4">Radio</option>
-                                                        <option value="5">Text</option>
-                                                        <option value="6">Integer</option>
-                                                    </select>
-                                                </div>
+
+                                        <div class="col-lg-6 col-md-6 col-sm-6 div-stat-qn mandatory-block" style="margin-left:-40px;display:none;">
+                                            <input type="checkbox" class="stat-req" onclick="bindStatusOption(this);" style="float:none;" />
+                                            <span style="color:red;"> Is Status Question? </span>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="form-group">
+                                                <label for="email">Question Order <sup>*</sup></label>
+                                                <select class="form-control qn-odr-select" onchange="checkQnOrder(this);">
+                                                    <option value="0.5">0.5</option>
+                                                    <option value="3" selected="selected">3</option>
+                                                    <option value="1.5">1.5</option>
+                                                    <option value="2.5">2.5</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-                                }
-                                else
+                                </div>
+                            }
+                            else
+                            {
+                                if (ViewBag.screening != null && (DataSet)ViewBag.screening != null &&
+                                    ((DataSet)ViewBag.screening).Tables.Count > 0 &&
+                                    ((DataSet)ViewBag.screening).Tables[1] != null &&
+                                    ((DataSet)ViewBag.screening).Tables[1].Rows.Count > 0)
                                 {
-                                    if (ViewBag.screening != null && (DataTable)ViewBag.screening != null && ((DataTable)ViewBag.screening).Rows.Count > 0)
+                                    DataTable Questions = ((DataSet)ViewBag.screening).Tables[1].DefaultView.ToTable(true, "QuestionID", "Question", "QuestionType", "OptionId", "Optionname", "Required","StatusQuestion", "QuestionOrder", "OptionValue", "OptionDescription");
+
+
+                                    int[] QuestionIDList = Questions.AsEnumerable().Select(x => x.Field<int>("QuestionID")).Distinct().ToArray();
+
+
+                                    if (QuestionIDList.Length > 0)
                                     {
-                                        DataTable Questions = ((DataTable)ViewBag.screening).DefaultView.ToTable(true, "QuestionID", "Question", "QuestionType", "Required");
-                                        foreach (DataRow Row in Questions.Rows)
+                                        foreach (int question in QuestionIDList)
                                         {
 
-                                            <div class="col-sm-12 income-box Question">
-                                                <div class="income-close"><a onclick="DeleteQuestion(this);" accesskey="@Convert.ToString(@Row["QuestionID"])" href="#"><i class="fa fa-times"></i></a></div>
-                                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <div class="form-group">
-                                                            <label for="email">Question<sup>*</sup></label>
-                                                            @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
-                                                            {
-                                                                <input placeholder="Question" readonly="readonly" value="@Convert.ToString(@Row["Question"])" maxlength="100" class="form-control Ques" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <input placeholder="Question" value="@Convert.ToString(@Row["Question"])" maxlength="100" class="form-control Ques" />
-                                                            }
-                                                            <input value="@Convert.ToString(@Row["QuestionID"])" type="hidden" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-6 col-sm-6" style="margin-left:-40px;">
-                                                        @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
-                                                        {
+
+                                            var results = from myRow in Questions.AsEnumerable()
+                                                          where myRow.Field<int>("QuestionID") == question
+                                                          select myRow;
+
+                                            int qn = 0;
 
 
-                                                            if (@Convert.ToBoolean(@Row["Required"]))
-                                                            {
-                                                                <input type="checkbox" disabled="disabled" checked="checked" class="required" style="float:none;" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <input type="checkbox" disabled="disabled" class="required" style="float:none;" />
-                                                            }
 
-                                                        }
-                                                        else
-                                                        {
 
-                                                            if (@Convert.ToBoolean(@Row["Required"]))
-                                                            {
-                                                                <input type="checkbox" checked="checked" class="required" style="float:none;" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <input type="checkbox" class="required" style="float:none;" />
-                                                            }
-                                                        }
-                                                        <span style="color:red;"> Is Mandatory? </span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                                        <div class="form-group">
-                                                            <label for="email">Question Type  <sup>*</sup></label>
-                                                            @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
-                                                            {
-                                                                <select disabled="disabled" class="form-control selectquetion" onchange="RemoveAddoption(this);">
-                                                                    <option value="1" @if (Convert.ToString(@Row["QuestionType"]) == "1") { <text> selected="selected" </text>           }>Checkbox</option>
-                                                                    <option value="2" @if (Convert.ToString(@Row["QuestionType"]) == "2") { <text> selected="selected" </text>           }>Date</option>
-                                                                    <option value="3" @if (Convert.ToString(@Row["QuestionType"]) == "3") { <text> selected="selected" </text>           }>Dropdown</option>
-                                                                    <option value="4" @if (Convert.ToString(@Row["QuestionType"]) == "4") { <text> selected="selected" </text>           }>Radio</option>
-                                                                    <option value="5" @if (Convert.ToString(@Row["QuestionType"]) == "5") { <text> selected="selected" </text>           }>Text</option>
-                                                                    <option value="6" @if (Convert.ToString(@Row["QuestionType"]) == "6") { <text> selected="selected" </text>           }>Integer</option>
-                                                                </select>
-                                                            }
-                                                            else
-                                                            {
-                                                                <select class="form-control selectquetion" onchange="RemoveAddoption(this);">
-                                                                    <option value="1" @if (Convert.ToString(@Row["QuestionType"]) == "1") { <text> selected="selected" </text>           }>Checkbox</option>
-                                                                    <option value="2" @if (Convert.ToString(@Row["QuestionType"]) == "2") { <text> selected="selected" </text>           }>Date</option>
-                                                                    <option value="3" @if (Convert.ToString(@Row["QuestionType"]) == "3") { <text> selected="selected" </text>           }>Dropdown</option>
-                                                                    <option value="4" @if (Convert.ToString(@Row["QuestionType"]) == "4") { <text> selected="selected" </text>           }>Radio</option>
-                                                                    <option value="5" @if (Convert.ToString(@Row["QuestionType"]) == "5") { <text> selected="selected" </text>           }>Text</option>
-                                                                    <option value="6" @if (Convert.ToString(@Row["QuestionType"]) == "6") { <text> selected="selected" </text>           }>Integer</option>
-                                                                </select>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @if (Convert.ToString(@Row["QuestionType"]) == "1" || Convert.ToString(@Row["QuestionType"]) == "3" || Convert.ToString(@Row["QuestionType"]) == "4")
+                                            foreach (DataRow Row in results)
+                                            {
+
+                                                if (qn == 0)
                                                 {
 
-                                                    DataRow[] rows = ((DataTable)ViewBag.screening).Select("QuestionID=" + Convert.ToString(@Row["QuestionID"]));
-                                                    <div class="Addoption">
+
+                                                    <div class="col-sm-12 income-box Question">
+                                                        <div class="income-close"><a onclick="DeleteQuestion(this);" accesskey="@Convert.ToString(@Row["QuestionID"])" href="#"><i class="fa fa-times"></i></a></div>
                                                         <div class="col-lg-12 col-md-12 col-sm-12">
                                                             <div class="col-lg-6 col-md-6 col-sm-6">
-                                                                <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>
+                                                                <div class="form-group">
+                                                                    <label for="email">Question<sup>*</sup></label>
+                                                                    @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
+                                                                    {
+                                                                        <input placeholder="Question" readonly="readonly" value="@Convert.ToString(@Row["Question"])" maxlength="100" class="form-control Ques" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input placeholder="Question" value="@Convert.ToString(@Row["Question"])" maxlength="100" class="form-control Ques" />
+                                                                    }
+                                                                    <input value="@Convert.ToString(@Row["QuestionID"])" type="hidden" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-md-6 col-sm-6 mandatory-block" style="margin-left:-40px;">
+                                                                @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
+                                                                {
+
+
+                                                                    if (@Convert.ToBoolean(@Row["Required"]))
+                                                                    {
+                                                                        <input type="checkbox" disabled="disabled" checked="checked" class="required" style="float:none;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="checkbox" disabled="disabled" class="required" style="float:none;" />
+                                                                    }
+
+                                                                }
+                                                                else
+                                                                {
+
+                                                                    if (@Convert.ToBoolean(@Row["Required"]))
+                                                                    {
+                                                                        <input type="checkbox" checked="checked" class="required" style="float:none;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <input type="checkbox" class="required" style="float:none;" />
+                                                                    }
+                                                                }
+                                                                <span style="color:red;"> Is Mandatory? </span>
                                                             </div>
                                                         </div>
-                                                        @foreach (var items in rows)
-                                                        {
-                                                            <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                <div class="col-lg-2 col-md-2 col-sm-2"><div class="form-group"></div>  </div> <div class="col-lg-4 col-md-4 col-sm-4">
-                                                                    <div class="form-group">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                <div class="form-group">
+                                                                    <label for="email">Question Type  <sup>*</sup></label>
+                                                                    @if (@Convert.ToString(@Row["Question"]).ToUpper() == "STATUS" || @Convert.ToString(@Row["Question"]).Replace(" ", "").ToUpper() == "SCREENINGDATE")
+                                                                    {
+                                                                        <select disabled="disabled" class="form-control selectquetion" onchange="RemoveAddoption(this);">
+                                                                            <option value="1" @if (Convert.ToString(@Row["QuestionType"]) == "1") { <text> selected="selected" </text>                                         }>Checkbox</option>
+                                                                            <option value="2" @if (Convert.ToString(@Row["QuestionType"]) == "2") { <text> selected="selected" </text>                                         }>Date</option>
+                                                                            <option value="3" @if (Convert.ToString(@Row["QuestionType"]) == "3") { <text> selected="selected" </text>                                         }>Dropdown</option>
+                                                                            <option value="4" @if (Convert.ToString(@Row["QuestionType"]) == "4") { <text> selected="selected" </text>                                         }>Radio</option>
+                                                                            <option value="5" @if (Convert.ToString(@Row["QuestionType"]) == "5") { <text> selected="selected" </text>                                         }>Text</option>
+                                                                            <option value="6" @if (Convert.ToString(@Row["QuestionType"]) == "6") { <text> selected="selected" </text>                                         }>Integer</option>
+                                                                        </select>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <select class="form-control selectquetion" onchange="RemoveAddoption(this);">
+                                                                            <option value="1" @if (Convert.ToString(@Row["QuestionType"]) == "1") { <text> selected="selected" </text>                                         }>Checkbox</option>
+                                                                            <option value="2" @if (Convert.ToString(@Row["QuestionType"]) == "2") { <text> selected="selected" </text>                                         }>Date</option>
+                                                                            <option value="3" @if (Convert.ToString(@Row["QuestionType"]) == "3") { <text> selected="selected" </text>                                         }>Dropdown</option>
+                                                                            <option value="4" @if (Convert.ToString(@Row["QuestionType"]) == "4") { <text> selected="selected" </text>                                         }>Radio</option>
+                                                                            <option value="5" @if (Convert.ToString(@Row["QuestionType"]) == "5") { <text> selected="selected" </text>                                         }>Text</option>
+                                                                            <option value="6" @if (Convert.ToString(@Row["QuestionType"]) == "6") { <text> selected="selected" </text>                                         }>Integer</option>
+                                                                        </select>
+                                                                    }
+                                                                </div>
+                                                            </div>
 
-                                                                        @if (Convert.ToString(Row["Question"]) == "Status")
+                                                            <div class="col-lg-6 col-md-6 col-sm-6 div-stat-qn mandatory-block" @if (Convert.ToString(@Row["QuestionType"]) != "3") { <text> style="display:none;" </text>    }>
+                                                                <input type="checkbox" class="stat-req" onclick="bindStatusOption(this);"  style="float:none;"
+                                                                       @if (Convert.ToBoolean(Row["StatusQuestion"])) {<text>checked="checked"</text> }  
+                                                                       @if (Convert.ToBoolean(Row["StatusQuestion"])) { <text>disabled="disabled"</text>}
+                                                                       />
+                                                                <span style="color:red;"> Is Status Question? </span>
+                                                            </div>
+
+                                                        </div>
+
+
+
+                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                <div class="form-group">
+                                                                    <label for="email">Question Order <sup>*</sup></label>
+                                                                    <select class="form-control qn-odr-select" onchange="checkQnOrder(this);">
+
+                                                                        @for (int k = 1; k <= (QuestionIDList.Length * 2); k++)
                                                                         {
-                                                                            if (Convert.ToString(items["Optionname"]).ToUpper() == "PASS" || Convert.ToString(items["Optionname"]).ToUpper() == "FAIL"
-                                                                                || Convert.ToString(items["Optionname"]).ToUpper() == "RESCREEN" || Convert.ToString(items["Optionname"]).ToUpper() == "FOLLOW-UP")
+
+
+                                                                            var isExist = Questions.AsEnumerable().Where(x => x.Field<string>("QuestionOrder") != Convert.ToString(Row["QuestionOrder"]) && x.Field<string>("QuestionOrder") == Convert.ToDouble((Convert.ToDouble(k)) / 2).ToString()).Any();
+
+                                                                            if (!isExist)
                                                                             {
-                                                                              <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="@Convert.ToString(@items["Optionname"])"  readonly="readonly"/>   
-                                                                              <input value="@Convert.ToString(@items["Optionid"])" type="hidden" />
+                                                                                <option value="@(Convert.ToDouble((Convert.ToDouble(k)) / 2).ToString())" @if (Convert.ToString(Row["QuestionOrder"]) == Convert.ToDouble((Convert.ToDouble(k)) / 2).ToString()) { <text> selected="selected" </text>             }>@(Convert.ToDouble((Convert.ToDouble(k)) / 2).ToString())</option>
+
                                                                             }
-                                                                            else
-                                                                            {   
-                                                                             <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="@Convert.ToString(@items["Optionname"])" />    
-                                                                             <input value="@Convert.ToString(@items["Optionid"])" type="hidden" />
-                                                                             <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" accesskey="@Convert.ToString(@items["Optionid"])" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
-                                                                            }
-                                                                            
-                                                                            
+
                                                                         }
-                                                                        else
-                                                                        {
-                                                                            <input placeholder="Option" style="width:93%;" maxlength="100" class="form-control Option" value="@Convert.ToString(@items["Optionname"])" /> 
-                                                                             <input value="@Convert.ToString(@items["Optionid"])" type="hidden" />
-                                                                             <a class="pull-right" href="javascript:void(0)" style="margin-top:9px;" accesskey="@Convert.ToString(@items["Optionid"])" onclick="Removeoption(this);"> <i class="fa fa-times"></i></a>
-                                                                        }
+
+
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        @if (Convert.ToString(@Row["QuestionType"]) == "1" || Convert.ToString(@Row["QuestionType"]) == "3" || Convert.ToString(@Row["QuestionType"]) == "4")
+                                                        {
+
+                                                            // DataRow[] rows = ((DataSet)ViewBag.screening).Tables[1].Select("QuestionID=" + Convert.ToString(@Row["QuestionID"]));
+
+                                                            DataRow[] rows = results.ToArray();
+
+                                                            <div class="Addoption">
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                        <a class="pull-left" href="javascript:void(0)" style="margin-bottom:12px;" onclick="AddOption(this);"> Add Options <i class="fa fa-plus"></i></a>
                                                                     </div>
                                                                 </div>
+
+
+
+                                                                @foreach (var items in rows)
+                                                                {
+
+                                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                        <div class="col-lg-2 col-md-2 col-sm-2">
+                                                                            <div class="form-group form-group-ch">
+
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-8 col-md-12 col-sm-12 pad-rt-div">
+
+
+                                                                            @if (Convert.ToString(Row["Question"]) == "Status")
+                                                                            {
+                                                                                if (Convert.ToString(items["Optionname"]).ToUpper() == "PASS" || Convert.ToString(items["Optionname"]).ToUpper() == "FAIL"
+                                                                                    || Convert.ToString(items["Optionname"]).ToUpper() == "RESCREEN" || Convert.ToString(items["Optionname"]).ToUpper() == "FOLLOW-UP")
+                                                                                {
+                                                                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                        <input placeholder="Option" type="text" maxlength="100" class="form-control Option  width-adjust-input1" value="@Convert.ToString(@items["Optionname"])" readonly="readonly" />
+                                                                                        <input type="hidden" class="oid" value="@Convert.ToString(@items["OptionId"])" />
+                                                                                        <input type="hidden" class="oValue" value="@Convert.ToString(@items["OptionValue"])" />
+                                                                                    </div>
+
+                                                                                }
+                                                                                else
+                                                                                {
+
+                                                                                    <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                        <input placeholder="Option" type="text" maxlength="100" class="form-control Option width-adjust-input1" value="@Convert.ToString(@items["Optionname"])" />
+                                                                                        <input type="hidden" class="oid" value="@Convert.ToString(@items["OptionId"])" />
+                                                                                        <input type="hidden" class="oValue" value="@Convert.ToString(@items["OptionValue"])" />
+                                                                                    </div>
+                                                                                }
+
+
+                                                                            }
+                                                                            else
+                                                                            {
+
+                                                                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                    <input placeholder="Option" type="text" maxlength="100"  @if (Convert.ToBoolean(Row["StatusQuestion"])){<text>disabled="disabled"</text>} class="form-control Option width-adjust-input1" value="@Convert.ToString(@items["Optionname"])" />
+                                                                                    <input type="hidden" class="oid" value="@Convert.ToString(@items["OptionId"])" />   
+                                                                                    <input type="hidden" class="oValue" value="@Convert.ToString(@items["OptionValue"])" />
+                                                                                </div>
+
+                                                                            }
+
+
+                                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                                               @*  @Html.TextArea("option-des",Convert.ToString(@items["OptionDescription"]),new { @class="option-des",@placeholder="Enter Description"})*@
+
+                                                                                <textarea placeholder="Enter Description" class="option-des" >@Convert.ToString(@items["OptionDescription"])</textarea>
+                                                                            </div>
+
+                                                                        </div>
+
+
+
+                                                                    </div>
+                                                                }
                                                             </div>
                                                         }
                                                     </div>
+
                                                 }
-                                            </div>
+                                                qn++;
+
+                                            }
+
+
+
                                         }
+
+
+
+
                                     }
                                 }
                             }
-                            catch (Exception Ex)
-                            {
-                                FingerprintsModel.clsError.WriteException(Ex);
-                            }
                         }
-                    </div>
+                        catch (Exception Ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(Ex);
+                        }
+                    }
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="btnwrp_subcal">
-                            <button type="button" class="my-btn" onclick="return isValidScreening();">Submit</button>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="btnwrp_subcal">
+                        <button type="button" class="my-btn" onclick="return isValidScreening();">Submit</button>
 
-                            <button onclick="Golist();" class="my-btn" type="button">Cancel</button>
-                            <div class="clear"></div>
-                        </div>
+                        <button onclick="Golist();" class="my-btn" type="button">Cancel</button>
+                        <div class="clear"></div>
                     </div>
                 </div>
             </div>
         </div>
+
     </form>
 }
 

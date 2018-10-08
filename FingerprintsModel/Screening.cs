@@ -5,16 +5,76 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Data;
+using System.Web.Mvc;
+
 namespace FingerprintsModel
 {
+
+
+    public class ScreeningNew
+    {
+
+       
+        public int ScreeningID { get; set; }
+        public string ScreeningName { get; set; }
+
+     
+
+        public HttpPostedFileBase ApprovedFile { get; set; }
+        public string ApprovedFileName { get; set; }
+        public string ApprovedFileExtension { get; set; }
+        public int ParentAppID { get; set; }
+        public int Approved { get; set; }
+        public string ApprovedImageJson { get; set; }
+       
+        public string ApprovedImageUrl { get; set; }
+         
+        public byte[] ApprovedImageByte { get; set; }
+
+        public bool NoDocument { get; set; }
+        public List<Questions> Questionlist { get; set; }
+
+        public int LastScreeningCompleted { get; set; }
+
+        public bool IsExpired { get; set; }
+        public bool IsExpiring { get; set; }
+        public int ScreeningsPerYear { get; set; }
+
+    }
+
+    public class ScreeningPeriods
+    {
+        public double ScreeningPeriod { get; set; }
+        public int ScreeningPeriodType { get; set; }
+        public string Description { get; set; }
+        public int ScreeningPeriodFor { get; set; }
+
+        public int ScreeningFocusType { get; set; }
+
+        public double ScreeningAge { get; set; }
+
+        public long ScreeningPeriodIndex { get; set; }
+
+        public int CustomScreeningPeriod { get; set; }
+    }
+
+
+
     public class Screening
     {
+
+        public Screening _Screening { get; set; }
+
         //Changes do not update this file
         public int Consolidated { get; set; }
         public string Parentname { get; set; }
         public DataTable CustomScreening { get; set; }
         //End
+
+        public int CustomScreeningPeriod { get; set; }
         public string WellBabyExamMonth { get; set; }
+
+        public string ScreeningPeriodIndex { get; set; }
         public string ClientName {get; set;}
           public int ParentAppID { get; set; }
           public int TypeScreening { get; set; }
@@ -22,6 +82,20 @@ namespace FingerprintsModel
           public int ClientID { get; set; }
 
           public int Screeningid { get; set; }
+
+        public List<SelectListItem> ParentList { get; set; }
+
+        public List<ScreeningPeriods> ScreeningPeriodsList { get; set; }
+
+        public string ScreeningParentID { get; set; }
+        public string ParentSignature { get; set; }
+        public List<ScreeningNew> ScreeningList
+        {
+            get;set;
+        }
+
+        public List<ScreeningQ> ScreeningQuestions { get; set; }
+
           public string F001physicalDate { get; set; }
           public string F002physicalResults { get; set; }
           public string F003physicallFOReason { get; set; }
@@ -104,6 +178,7 @@ namespace FingerprintsModel
           public string s080DetailDC2 { get; set; }
           public string s081FOStatus { get; set; }
           public string AddPhysical { get; set; }
+          public string WellBabyExam { get; set; }
           public string AddVision { get; set; }
           public string AddHearing { get; set; }
           public string AddDevelop { get; set; }
@@ -156,10 +231,14 @@ namespace FingerprintsModel
           public string ScreeningAcceptImagejson { get; set; }
           public byte[] ScreeningAcceptImageByte { get; set; }
 
+        public string ScreeningAcceptImageUrl { get; set; }
 
         public string Householdid { get; set; }
         public string Childid { get; set; }
 
+        public  ChildrenInfo ChildInfo { get; set; }
+
+        public ScreeningAccess ScreeningAccessInfo { get; set; }
 
     }
 }

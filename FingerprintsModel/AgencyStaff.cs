@@ -252,6 +252,9 @@ namespace FingerprintsModel
         public int TransitionType { get; set; }
 
         public string Returning { get; set; }
+
+        public bool IsShowScreeningFollowUp { get; set; }
+
     }
   public class CenterAndClassRoom
     {
