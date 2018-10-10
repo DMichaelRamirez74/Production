@@ -28,22 +28,54 @@
         TempData.Keep();
     }
 
-            if($('#gridViewcenter > tbody > tr').length <1)
-            {
+            if ($('#gridViewcenter > tbody > tr').length < 1) {
                 $('#div1').show();
 
             }
 
+
+            $('.backto_list').on('click', function () {
+
+                $('#spinner').show();
+            });
+
         });
     </script>
 }
+@section Style{
+    
+    <style type="text/css">
+        .future-app,.future-app a {
+            color:green
+        }
+    </style>
+    
+    }
+
 @section MainContentHolder{
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">
                 @ViewBag.name
                 <span class="view-btn backto_listspan" id="BackToList">
-                    <a href="~/Home/ApplicationApprovalDashboard" class="backto_list">Back to list</a>
+
+                    @*@if (Session["RoleID"].ToString().ToLowerInvariant() == FingerprintsModel.Role.healthNurse.ToLowerInvariant())
+                    {
+                        @Html.ActionLink("Back to List", "CentralManagerDashboard", "Home", null, new { @class = "backto_list" })
+                    }
+                    else
+                    {
+                        @Html.ActionLink("Back to List", "ApplicationApprovalDashboard", "Home", null, new { @class = "backto_list" })
+
+                    }*@
+
+
+                    @Html.ActionLink("Back to List", "CentralManagerDashboard", "Home", null, new { @class = "backto_list" })
+
+
+
+
+                    @*<a href="~/Home/ApplicationApprovalDashboard" class="backto_list">Back to list</a>*@
                 </span>
             </h2>
         </div>
@@ -74,8 +106,8 @@
 
                             foreach (FingerprintsModel.Fswuserapproval user in ViewBag.userlist)
                             {
-                                <tr>
-                                    <td title="@user.routecode"><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.Yakkrid)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@ViewBag.name)&bklistUrl=CenterDetails">@user.Status</a></td>
+                                <tr class="@if (user.IsFutureApplication == true) { <text>future-app</text> } else { <text>curr-app</text>} ">
+                                    <td title="@user.routecode"><a href="~/Nurse/ChildDetails?id=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.ClientId)&Type=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.YakkrID)&Centerid=@FingerprintsModel.EncryptDecrypt.Encrypt64(@user.CenterId)&centername=@FingerprintsModel.EncryptDecrypt.Encrypt64(@ViewBag.name)&bklistUrl=CenterDetails">@user.Status</a></td>
                                     <td>@user.ClientName</td>
                                     @if (@user.routecode == "100")
                                     {

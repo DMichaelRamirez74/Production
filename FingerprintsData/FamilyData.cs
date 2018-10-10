@@ -7023,7 +7023,8 @@ namespace FingerprintsData
                         }
                     }
 
-                    if (_dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0) {
+                    if (_dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
+                    {
 
                         PYSDate = _dataset.Tables[2].Rows[0]["ProgramYearStartDate"].ToString();
                     }
@@ -7045,43 +7046,37 @@ namespace FingerprintsData
             }
             return centerList;
         }
-        public List<HrCenterInfo> GetApplicationApprovalDashboard(ref int yakkrcount, ref DataTable Screeninglist, string Agencyid, string userid)
+        public List<HrCenterInfo> GetApplicationApprovalDashboard()
         {
             List<HrCenterInfo> centerList = new List<HrCenterInfo>();
-            Screeninglist = new DataTable();
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
+                StaffDetails staff = StaffDetails.GetInstance();
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_getAppicationdashboard";
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
-                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                if (_dataset.Tables.Count>0 && _dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
                 {
 
                     foreach (DataRow dr in _dataset.Tables[0].Rows)
                     {
                         HrCenterInfo info = new HrCenterInfo();
-                        info.CenterId = dr["center"].ToString();
+                        info.CenterId = dr["CenterId"].ToString();
                         info.Name = dr["centername"].ToString();
                         info.Routecode100 = dr["Pending"].ToString();
-                        info.Routecode101 = dr["Accepted"].ToString();
+                        info.Routecode101 = dr["Approved"].ToString();
                         info.Routecode102 = dr["Rejected"].ToString();
                         centerList.Add(info);
                     }
 
                 }
-                if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
-                {
-                    yakkrcount = Convert.ToInt32(_dataset.Tables[1].Rows[0]["YakkrCountPending"]);
-                }
-                if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
-                {
-                    Screeninglist = _dataset.Tables[2];
-                }
+               
 
                 DataAdapter.Dispose();
                 command.Dispose();
@@ -7144,34 +7139,49 @@ namespace FingerprintsData
             }
             return centerList;
         }
-        public List<Fswuserapproval> Getallclients(string centerid, string Agencyid, string userid)
+        public List<Fswuserapproval> Getallclients(string centerid)
         {
             List<Fswuserapproval> FswuserapprovalList = new List<Fswuserapproval>();
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@centerid", centerid));
-                command.Connection = Connection;
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_getcentersclientfsw";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
-                if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@centerid", centerid));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_getcentersclientfsw";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+                if (_dataset.Tables.Count>0  && _dataset.Tables[0] != null &&  _dataset.Tables[0].Rows.Count > 0)
                 {
                     foreach (DataRow dr in _dataset.Tables[0].Rows)
                     {
                         Fswuserapproval info = new Fswuserapproval();
                         info.ClientId = dr["ClientId"].ToString();
                         info.ClientName = dr["Name"].ToString();
-                        info.Date = DBNull.Value == dr["DateEntered"] ? "" : Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
+                        info.Date = DBNull.Value == dr["DateEntered"] ? "" : Convert.ToString(dr["DateEntered"]);
                         info.CenterName = dr["centername"].ToString();
                         info.StaffName = dr["staffname"].ToString();
                         info.routecode = dr["RouteCode"].ToString();
                         info.Status = dr["Status"].ToString();
-                        info.Yakkrid = dr["yakkrid"].ToString();
+                        info.YakkrID = dr["yakkrid"].ToString();
                         info.CenterId = centerid;
+                        info.IsFutureApplication = Convert.ToBoolean(dr["IsFutureApplication"]);
                         FswuserapprovalList.Add(info);
                     }
 
@@ -8192,7 +8202,7 @@ namespace FingerprintsData
                         }
                     }
 
-                    if (Option == "4" && _dataset.Tables.Count>2 && _dataset.Tables[3].Rows.Count>0)
+                    if (Option == "4" && _dataset.Tables.Count > 3 && _dataset.Tables[3].Rows.Count > 0)
                     {
 
 
@@ -11503,7 +11513,7 @@ namespace FingerprintsData
                         obj.EndTime = Convert.ToString(familydataTable.Rows[0]["EndTime"]);
                         obj.Duration = Convert.ToString(familydataTable.Rows[0]["Duration"]);
                         obj.Day = Convert.ToString(familydataTable.Rows[0]["Day"]);
-                        obj.MeetingDate = Convert.ToDateTime(familydataTable.Rows[0]["Date"]).ToString("MM/dd/yyyy");
+                        obj.MeetingDate = Convert.ToString(familydataTable.Rows[0]["Date"]);
                         obj.MeetingNotes = Convert.ToString(familydataTable.Rows[0]["Notes"]);
                         obj.CenterId = Convert.ToInt64(familydataTable.Rows[0]["CenterId"]);
                         obj.CenterId = Convert.ToInt64(familydataTable.Rows[0]["CenterId"]);
@@ -14945,5 +14955,130 @@ namespace FingerprintsData
 
         }
 
+        #region Gets client approved and rejected by Acceptance staffs
+
+
+        public List<ClientAcceptList> GetAcceptanceClients(ref string centerName, string centerId, string option)
+        {
+
+            List<ClientAcceptList> clientsAccepted = new List<ClientAcceptList>();
+
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@CenterID", EncryptDecrypt.Decrypt64(centerId)));
+                    command.Parameters.Add(new SqlParameter("@Option", option));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetAcceptanceClientsByUser";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        clientsAccepted = (from DataRow dr in _dataset.Tables[0].Rows
+                                           select new ClientAcceptList
+                                           {
+                                               ClientId = EncryptDecrypt.Encrypt64(Convert.ToString(dr["ClientId"])),
+                                               CenterId = Convert.ToString(dr["CenterID"]),
+                                               DateOnList = Convert.ToString(dr["DateOnList"]),
+                                               DOB = Convert.ToString(dr["DOB"]),
+                                               Name = Convert.ToString(dr["ClientName"]),
+                                               Gender = Convert.ToString(dr["Gender"]),
+                                               IsFutureApplication=Convert.ToBoolean(dr["IsFutureApplication"]),
+                                               Description=Convert.ToString(dr["Reason"])
+                                               
+                                           }
+
+                                         ).ToList();
+                    }
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        centerName = Convert.ToString(_dataset.Tables[1].Rows[0]["CenterName"]);
+
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return clientsAccepted;
+        }
+
+
+
+        #endregion
+
+        #region Gets Screening Statistics based on the access given to the roles
+
+
+        public void GetScreeningStatistics(ref int yakkrcount, ref DataTable Screeninglist)
+        {
+            List<HrCenterInfo> centerList = new List<HrCenterInfo>();
+            Screeninglist = new DataTable();
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_GetScreeningStatistics";
+                DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
+                DataAdapter.Fill(_dataset);
+              
+                if (_dataset.Tables.Count > 0 && _dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                {
+                    yakkrcount = Convert.ToInt32(_dataset.Tables[0].Rows[0]["YakkrCountPending"]);
+                }
+                if (_dataset.Tables.Count > 1 && _dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                {
+                    Screeninglist = _dataset.Tables[1];
+                }
+
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                DataAdapter.Dispose();
+                command.Dispose();
+            }
+          
+        }
+
+
+
+        #endregion
     }
 }

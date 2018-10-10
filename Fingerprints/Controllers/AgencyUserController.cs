@@ -6927,5 +6927,23 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
+        
+        public JsonResult GetAcceptanceClientsByUser(string centerid,string option)
+        {
+            List<ClientAcceptList> ClientList = new List<ClientAcceptList>();
+            string centerName = string.Empty;
+            try
+            {
+                ClientList = new FamilyData().GetAcceptanceClients(ref centerName,centerid, option);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(new { ClientList, centerName }, JsonRequestBehavior.AllowGet);
+
+        }
     }
 }

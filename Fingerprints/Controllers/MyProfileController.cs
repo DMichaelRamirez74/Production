@@ -95,7 +95,9 @@ namespace Fingerprints.Controllers
                     Session["Roleid"] = id;
 
                    List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
-                        AccessList = new LoginData().GetAccessPageByUserId(new Guid(Session["UserId"].ToString()), new Guid(Session["AgencyID"].ToString()), new Guid(Session["RoleId"].ToString()));
+                    bool isAcceptanceProcess = false;
+
+                        AccessList = new LoginData().GetAccessPageByUserId(ref isAcceptanceProcess, new Guid(Session["UserId"].ToString()), new Guid(Session["AgencyID"].ToString()), new Guid(Session["RoleId"].ToString()));
 
                     Session["AccessList"] = AccessList;
                     //Genesis Earth Administrator alias Agency Admin- Menu Enable is false.
@@ -136,6 +138,9 @@ namespace Fingerprints.Controllers
 
                     // Executive Manager Dashboard
                     else if (Session["Roleid"].ToString() == "7c2422ba-7bd4-4278-99af-b694dcab7367")
+                        newLocation = "~/Home/Dashboard";
+
+                    else if (Session["Roleid"].ToString().ToLowerInvariant() == FingerprintsModel.Role.centerManager.ToLowerInvariant())
                         newLocation = "~/Home/Dashboard";
 
                     //Disabilities Manager Dashboard

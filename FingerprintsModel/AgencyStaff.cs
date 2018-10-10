@@ -347,18 +347,11 @@ namespace FingerprintsModel
         public string Notes { get; set; }
     }
 
-    public class Fswuserapproval
+    public class Fswuserapproval :YakkrClientDetail
     {
-        public string CenterId { get; set; }
-        public string ClientId { get; set; }
-        public string HouseholdId { get; set; }
-        public string ClientName { get; set; }
-        public string Date { get; set; }
-        public string CenterName { get; set; }
         public string StaffName { get; set; }
         public string routecode { get; set; }
         public string Status { get; set; }
-        public string Yakkrid { get; set; }
 
     }
 
@@ -513,18 +506,18 @@ namespace FingerprintsModel
         
     }
     //Changes 19Aug2016
-    public class ClientAcceptList
+    public class ClientAcceptList :YakkrClientDetail
     {
-        public string ClientId { get; set; }
+    
         public string HouseholdId { get; set; }
-        public string CenterId { get; set; }
+     
         public string Name { get; set; }
         public string Choice { get; set; }
       
         public string DateOnList { get; set; }
         public string ProgramType { get; set; }
         public string Gender { get; set; }
-        public string DOB { get; set; }
+      
         public string TotalChoice { get; set; }
         public List<ClassRoom> Classroom = new List<ClassRoom>();
 

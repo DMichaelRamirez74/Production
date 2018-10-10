@@ -54,6 +54,7 @@ namespace FingerprintsData
                             Login.AgencyId = null;
                         Login.IsShowPIR = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowPIR"]);
                         Login.IsShowSectionB = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowSectionB"]);
+                        Login.IsShowScreening = Convert.ToBoolean(_Dataset.Tables[0].Rows[0]["IsShowScreening"]);
                     }
                     if (_Dataset != null && _Dataset.Tables.Count > 1 && _Dataset.Tables[1] != null && _Dataset.Tables[1].Rows.Count > 0)
                     {
@@ -369,7 +370,7 @@ namespace FingerprintsData
             return isRowAffected;
         }
 
-        public List<Tuple<string, string>> GetAccessPageByUserId(Guid userId, Guid? AgencyId, Guid RoleId)
+        public List<Tuple<string, string>> GetAccessPageByUserId(ref bool isAcceptanceProcess, Guid userId, Guid? AgencyId, Guid RoleId)
         {
            
             List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
@@ -390,15 +391,26 @@ namespace FingerprintsData
 
                 Command.CommandText = "SP_GetAccessPageByUserId";
                 DataAdapter = new SqlDataAdapter(Command);
-                UserDataTable = new DataTable();
-                DataAdapter.Fill(UserDataTable);
-               if(UserDataTable!=null && UserDataTable.Rows.Count>0)
+                _Dataset = new DataSet();
+                DataAdapter.Fill(_Dataset);
+               if(_Dataset != null )
                 {
-                    
-                    foreach (DataRow dr in UserDataTable.Rows )
+
+                    if(_Dataset.Tables.Count > 0 && _Dataset.Tables[0].Rows.Count > 0)
+                    {
+
+                   
+
+                    foreach (DataRow dr in _Dataset.Tables[0].Rows)
                     {
 
                         AccessList.Add(new Tuple<string, string>(dr["LayoutName"].ToString(), dr["URL"].ToString()));
+                    }
+                    }
+
+                    if(_Dataset.Tables.Count>1 && _Dataset.Tables[1].Rows.Count>0)
+                    {
+                        isAcceptanceProcess = Convert.ToBoolean(_Dataset.Tables[1].Rows[0]["IsInAcceptanceProcess"]);
                     }
 
                 }

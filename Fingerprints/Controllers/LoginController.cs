@@ -199,7 +199,8 @@ namespace Fingerprints.Controllers
                 else if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
                     newLocation = "~/Home/AgencystaffDashboard";
                 else if (Session["Roleid"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26")
-                    newLocation = "~/Home/ApplicationApprovalDashboard";
+                    //  newLocation = "~/Home/ApplicationApprovalDashboard";
+                    newLocation = "~/Roster/Roster";
                 else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
                     newLocation = "~/Home/AgencystaffDashboard";
                 else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")
@@ -310,6 +311,7 @@ namespace Fingerprints.Controllers
                     Session["IsShowPIR"] = UserInfo.IsShowPIR;
                     Session["IsShowSectionB"] = UserInfo.IsShowSectionB;
                     Session["IsShowScreening"] = UserInfo.IsShowScreening;
+                    Session["IsInAcceptanceProcess"] = UserInfo.IsInAcceptanceProcess;
 
                     if (UserInfo.AgencyId != null)
                     {
@@ -318,9 +320,13 @@ namespace Fingerprints.Controllers
                        // isDemographic= new LoginData().IsDemographic(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
                        // isAcceptance = new LoginData().IsAcceptance(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
                         List<Tuple<string, string>> AccessList = new List<Tuple<string, string>>();
-                        AccessList = new LoginData().GetAccessPageByUserId(UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
+                        bool isAcceptanceProcess = false;
+                        AccessList = new LoginData().GetAccessPageByUserId(ref isAcceptanceProcess,UserInfo.UserId, UserInfo.AgencyId, UserInfo.roleId);
 
                         Session["AccessList"] = AccessList;
+                        UserInfo.IsInAcceptanceProcess = isAcceptanceProcess;
+                        Session["IsInAcceptanceProcess"] = UserInfo.IsInAcceptanceProcess;
+
                         if (isCoreTeam)
                         {
                             Session["IsCoreTeam"] = true;
@@ -355,7 +361,9 @@ namespace Fingerprints.Controllers
                 else if (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d"))
                     newLocation = "~/Home/AgencystaffDashboard";
                 else if (Session["Roleid"].ToString() == "a31b1716-b042-46b7-acc0-95794e378b26")
-                    newLocation = "~/Home/ApplicationApprovalDashboard";
+                   // newLocation = "~/Home/ApplicationApprovalDashboard";
+                newLocation = "~/Roster/Roster";
+
                 else if (Session["Roleid"].ToString() == "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
                     newLocation = "~/Home/AgencystaffDashboard";
                 else if (Session["Roleid"].ToString() == "82b862e6-1a0f-46d2-aad4-34f89f72369a")

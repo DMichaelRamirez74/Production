@@ -109,10 +109,12 @@
                 secureuri: false,
                 async: false,
                 success: function (data) {
+
+                    $('#Modalclientenrolled').find('input[name=centerIdhide]').val($(Object).attr("accesskey")),
                     BindClientenrolled(data);
                 }
                , error: function (data) {
-                      customAlert("Session Ended Log Onto The System Again.");setTimeout(function () {window.location.href= HostedDir + '/login/Loginagency';   }, 2000);
+                   customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                }
             });
         }
@@ -121,7 +123,8 @@
                 url: HostedDir + "/Nurse/Loadallenrolled",
                 type: "POST",
                 data: {
-                    Centerid: $('.divOne').find('td.hidden').html(),
+                    //   Centerid: $('.divOne').find('td.hidden').html(),
+                    Centerid :$('#Modalclientenrolled').find('input[name=centerIdhide]').val(),
                     Classroom: $("#Classroom").val()
                 },
                 dataType: "json",
@@ -172,7 +175,7 @@
                 for (var i = 0; i < data.list.Rosters.length; i++) {
                     var tr = "";
                     tr += "<tr>";
-                    tr += '<td height="70">' + data.list.Rosters[i].Name + '</td>';
+                    tr += '<td height="70"><a href="javascript:void(0);" onclick="showScreeningByClient("' + data.list.Rosters[i].Eclientid + '");"> ' + data.list.Rosters[i].Name + '</a></td>';
                     tr += '<td height="70" style="text-align:center;">';
                     if (data.list.Rosters[i].IsPresent == "1") {
                         tr += "<i  style='color:#3c763d;' title='Present' class='fa fa-check'></i>";
@@ -294,23 +297,29 @@
                     }
                     tr += '</td>';
                     //End
-                    tr += '<td style="text-align:center;width:11%;">';
-                    if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
-                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_female.png" />';
-                    }
-                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
-                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male.png" />';
-                    }
-                    else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
-                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male_default.png" />';
-                    }
-                    else if (data.list.Rosters[i].Picture != "") {
-                        tr += '<img class="roundimage" style="width:59%" src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
-                    }
-                    else {
-                        tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/download.jpg" />';
-                    }
-                    tr += '</td>';
+
+                    //tr += '<td style="text-align:center;width:11%;">';
+                    //if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "2") {
+                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_female.png" />';
+                    //}
+                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "1") {
+                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male.png" />';
+                    //}
+                    //else if (data.list.Rosters[i].Picture == "" && data.list.Rosters[i].Gender == "3") {
+                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/ic_male_default.png" />';
+                    //}
+                    //else if (data.list.Rosters[i].Picture != "") {
+                    //    tr += '<img class="roundimage" style="width:59%" src="data:image/jpg;base64,' + data.list.Rosters[i].Picture + '"/>';
+                    //}
+                    //else {
+                    //    tr += '<img class="roundimage" style="width:59%" src="' + HostedDir + '/Content/img/download.jpg" />';
+                    //}
+                    //tr += '</td>';
+
+
+                    tr += '<td height="70" style="text-align:center;width:11%;"><a href="javascript:void(0)" onclick="showImage(this);" eclientid='+data.list.Rosters[i].Eclientid+'>View</a></td>';
+
+
                     tr += '<td style="width:13%;">' + data.list.Rosters[i].DOB + '</td>';
                     // tr += '<td style="text-align:center;">' + data.list.Rosters[i].CenterName + '</td>';
                     tr += '<td style="text-align:center;" title="' + data.list.Rosters[i].FSW + '">' + data.list.Rosters[i].ClassroomName + '</td>';
@@ -520,7 +529,7 @@
                     for (var i = 0; i < $('#DivclientmissingList > thead >tr > th').length; i++) {
                         if (i == 0) {
                             if (j == 0)
-                                tr += "<td>Complete</td>";
+                                tr += "<td>Up-to-date</td>";
                             if (j == 1)
                                 tr += "<td style='color:#295b8f;'>Missing</td>";
                             if (j == 2)
@@ -582,22 +591,22 @@
                 var count1 = 0;
                 for (var record = 1; record < data.length; record++) {
                     for (var k = 2; k < data[record].length; k++) {
-                        if (data[record][k] == "M" || data[record][k].indexOf("ExpiredDate") > -1 )
+                        if (data[record][k] == "M" || data[record][k].indexOf("ExpiredDate") > -1)
                             count = count + 1;
-                        if (data[record][k].indexOf("ScreeningDate") > -1)
+                        if (data[record][k].indexOf("ScreeningDate") > -1 || data[record][k].indexOf("ExpiringDate")>-1)
                             count1 = count1 + 1;
                     }
                 }
                 $('#MissingRecord').text("Total missing or expired records : " + count);
-                $('#Completedscreening').text("Total completed screening : " + count1);
+                $('#Completedscreening').text("Total up-to-date or expiring screening : " + count1);
                 if (!$('#Modalclientscreeningmissing').hasClass('in'))
-                $('#Modalclientscreeningmissing').modal('toggle');
+                    $('#Modalclientscreeningmissing').modal('toggle');
             }
             else {
                 $('#DivclientmissingList > tbody > tr').remove();
                 $('#div3').show();
                 $('#MissingRecord').text("Total missing or expired records : 0");
-                $('#Completedscreening').text("Total completed screening : 0");
+                $('#Completedscreening').text("Total up-to-date or expiring screening : 0");
                 if (!$('#Modalclientscreeningmissing').hasClass('in'))
                 $('#Modalclientscreeningmissing').modal('toggle');
             }
@@ -833,9 +842,11 @@
 
         @Html.Partial("~/Views/Partialviews/CenterClosureAlert.cshtml")
 
-        <div class="col-lg-12">
+        @*<div class="col-lg-12">
             <h2 class="page-header">Application Approval Dashboard</h2>
-        </div>
+        </div>*@
+
+
     </div>
     
    
@@ -1060,6 +1071,15 @@
                         @*<h3 id="CenterName" class="text-center">Client Enrolled<span class="extra-title muted"></span></h3>*@
                         <h3 id="CenterName" class="text-center">Roster for Client<span class="extra-title muted"></span></h3>
                         @*End*@
+
+                        <div class="col-lg-6 pull-left">
+                            <label class="col-lg-2" style="">Center :</label>
+                            <span class="col-lg-8" style="display: inline-block;margin-top: 10px;color: #337ab7;font-weight: bold;">GLENWOOD CENTER for EARLY CHILDHOOD </span>
+                       
+                            <input type="hidden" name="centerIdhide"/>
+                         </div>
+
+
                         <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
                             <div class="btnwrp_subcal" style="padding:0; margin:0;">
                                 <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
@@ -1240,7 +1260,7 @@
                                     <div class="col-sm-12">
                                         <div class="col-sm-6">
                                             <h4 style="color: #295b8f;">    <span id="MissingRecord">Total missing or expired records :</span></h4>
-                                            <h4 style="color: #295b8f;">    <span id="Completedscreening">Total completed screening :</span></h4>
+                                            <h4 style="color: #295b8f;">    <span id="Completedscreening">Total up-to-date screening :</span></h4>
                                         </div>
                                         <div class="col-sm-6">
                                             <h4 class="pull-right">    <a onclick="DownLoadExcelFile();" style="text-decoration: underline; cursor: pointer; color: #295b8f;">Click here to print </a></h4>
@@ -1417,25 +1437,13 @@
             </div>
         </div>
     </div>
+
+    @*@{
+
+        Html.RenderPartial("~/Views/PartialScreening/ScreeningPartial.cshtml");
+    }*@
+
+
     @*---End-----*@
-<style>
- .table-headfix thead{
-    cursor: pointer;
-    table-layout: fixed;
-    width: calc(100% - 0px);
-    display: table;
-}
-    .table-headfix tbody{
-        height: 235px;
-        overflow-y: scroll;
-        width: calc(100% - 0px);
-        float: left;
-        display: table-column;
-    }
-    .table-headfix tbody tr {
-    display: table;
-    table-layout: fixed;
-    width: 100%;
-}
-    </style>
+    
 }

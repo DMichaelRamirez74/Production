@@ -755,7 +755,7 @@ namespace FingerprintsData
                         info.StaffName = dr["staffname"].ToString();
                         info.routecode = dr["RouteCode"].ToString();
                         info.Status = dr["Status"].ToString();
-                        info.Yakkrid = dr["yakkrid"].ToString();
+                        info.YakkrID = dr["yakkrid"].ToString();
                         info.CenterId = centerid;
                         FswuserapprovalList.Add(info);
                     }

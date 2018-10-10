@@ -176,7 +176,7 @@ namespace Fingerprints.Controllers
             {
                 int yakkrcount = 0;
                 DataTable Screeninglist = new DataTable(); ;
-                ViewBag.Centerlist = _family.GetApplicationApprovalDashboard(ref yakkrcount, ref Screeninglist, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+               _family.GetScreeningStatistics(ref yakkrcount, ref Screeninglist);
                 Session["YakkrCountPending"] = yakkrcount;
                 ViewBag.Screeninglists = Screeninglist;
                 return View();
@@ -306,17 +306,20 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+
+        //[CustAuthFilter("b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        //[CustAuthFilter(new string[] {Role.centerManager }) ]
+        [CustAuthFilter()]
+
         public ActionResult CentralManagerDashboard()
         {
 
             try
             {
-                int yakkrcount = 0;
-                DataTable Screeninglist = new DataTable(); ;
-                ViewBag.Centerlist = _family.GetApplicationApprovalDashboard(ref yakkrcount, ref Screeninglist, Session["AgencyID"].ToString(), Session["UserID"].ToString());
-                Session["YakkrCountPending"] = yakkrcount;
-                ViewBag.Screeninglists = Screeninglist;
+               
+                ViewBag.Centerlist = _family.GetApplicationApprovalDashboard();
+              
                 return View();
             }
             catch (Exception Ex)

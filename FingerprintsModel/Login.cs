@@ -26,6 +26,8 @@ namespace FingerprintsModel
 
         public bool IsShowSectionB { get; set; }
         public bool IsShowScreening { get; set; }
+
+        public bool IsInAcceptanceProcess { get; set; }
         
     }
 }

@@ -21,6 +21,9 @@ namespace FingerprintsData
         DataTable familydataTable = null;
         DataSet _dataset = null;
         DataTable _dataTable = null;
+
+        StaffDetails staff = StaffDetails.GetInstance();
+
         public Nurse GetData_AllDropdown(string agencyid, string userid, int i = 0, Nurse familyInfo = null)
         {
             //  List<AgencyStaff> _agencyStafflist = new List<AgencyStaff>();
@@ -2486,7 +2489,9 @@ namespace FingerprintsData
             }
             return obj;
         }
-        public List<Roster> ClientLists(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize, string userid, string agencyid,string Roleid)
+
+
+        public List<Roster> ClientLists(out string totalrecord, string sortOrder, string sortDirection, string search, int skip, int pageSize)
         {
 
             List<Roster> RosterList = new List<Roster>();
@@ -2498,9 +2503,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@skip", skip));
                 command.Parameters.Add(new SqlParameter("@sortcolumn", sortOrder));
                 command.Parameters.Add(new SqlParameter("@sortorder", sortDirection));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@Roleid", Roleid));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@Roleid", staff.RoleId));
                 command.Parameters.Add(new SqlParameter("@totalRecord", 0)).Direction = ParameterDirection.Output;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;

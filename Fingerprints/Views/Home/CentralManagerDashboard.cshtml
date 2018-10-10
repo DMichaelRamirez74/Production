@@ -2,7 +2,7 @@
 @{
     @section Title
 {
-        Dashboard
+        Application Approval Dashboard
     }
     ViewBag.Title = "CentralManagerDashboard";
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
@@ -749,12 +749,150 @@
         }
 
 
+        function loadApprovedRejectedClients(ele, centerid, mode) {
+            $.ajax({
+
+                url: HostedDir + '/AgencyUser/GetAcceptanceClientsByUser',
+                datatype: 'json',
+                type: 'post',
+                data: { centerid: centerid, option: mode },
+                beforeSend: function () { $('#spinner').show() },
+                success: function (data) {
+
+                    try {
 
 
+                        var $modal = $('#modalApprovedRejected');
+
+                        if (mode == 1) {
+                            $modal.find('#CenterName').html(data.centerName + ' (Approved)');
+                        }
+                        if (mode == 2) {
+                            $modal.find('#CenterName').html(data.centerName + ' (Returned)');
+                        }
+
+                        $modal.find('#div1').hide();
+                        var appendText = '';
+                        if (data != null && data.ClientList != null && data.ClientList.length > 0) {
+                            $.each(data.ClientList, function (i, accepted) {
+
+                                if (accepted.IsFutureApplication) {
+                                    appendText += '<tr class="future-app">';
+                                }
+                                else {
+                                    appendText += '<tr>';
+
+                                }
+
+                                appendText += '<td data-title="Client">' + accepted.Name + '</td>\
+    <td data-title="Gender">'+ accepted.Gender + '</td>\
+    <td data-title="Profile Picture" style="text-align:center;"><a href="javascript:void(0)" onclick="showImage(this);" eclientid='+ accepted.ClientId + '>View</a></td>\
+    <td data-title="Date of Birth">'+ accepted.DOB + '</td>\
+    <td data-title="Date on List">'+ accepted.DateOnList + '</td>';
+
+                                if (accepted.Description != null && accepted.Description != '') {
+                                    appendText += '<td data-title="Reason" title="' + accepted.Description + '" data-toggle="tooltip" >' + accepted.Description + '</td>';
+
+                                }
+                                else {
+                                    appendText += '<td data-title="Reason">' + accepted.Description + '</td>';
+
+                                }
+
+                                appendText += '</tr>';
+
+
+                            });
+
+                            $modal.find('tbody').html(appendText);
+
+                            $modal.find('tbody').find('tr').each(function () {
+
+                                $(this).find('td[data-toggle="tooltip"]').tooltip();
+
+                            });
+                        }
+
+                        else {
+                            $modal.find('tbody').html('');
+                            $modal.find('#div1').show();
+                        }
+                        $('#spinner').hide();
+                        $modal.modal({ 'backdrop': 'static', 'keyboard': 'false' }, 'show');
+                    }
+                    catch (error) {
+                        $('#spinner').hide();
+                        customAlert("Session Ended, Log Onto the System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    }
+                },
+                error: function (data) {
+                    customAlert("Session Ended, Log Onto the System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
+                    $('#spinner').hide();
+                },
+                complete: function (data) {
+                    $('#spinner').hide();
+                }
+
+
+            });
+
+
+        }
+
+        function showImage(ele) {
+            $('#spinner').show();
+            var enc_id = $(ele).attr('EClientId');
+            $.ajax({
+                url: HostedDir+ '/Roster/GetChildrenImage',
+                dataType: 'json',
+                type: 'post',
+                data: { enc_clientId: enc_id },
+                success: function (data) {
+
+                    var image = '';
+                    if (data.Text == "" && data.Value == "2") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_female.png" />';
+                    }
+                    else if (data.Text == "" && data.Value == "1") {
+                        image = '<img class="roundimage" width="50" height="50"   src="/Content/img/ic_male.png" />';
+                    }
+                    else if (data.Text == "" && ata.Text == "3") {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/ic_male_default.png" />';
+                    }
+                    else if (data.Text != "") {
+                        image = '<img class="roundimage" width="50" height="50"   src="data:image/jpg;base64,' + data.Text + '"/></td>'
+                    }
+                    else {
+                        image = '<img class="roundimage"  width="50" height="50"  src="/Content/img/download.jpg" />';
+                    }
+
+                    //$(ele).parent('td').find('.tooltiptext').html(image).css({ 'top': (topalignment - 30), 'height': '110px', 'width': '120px' });
+                    //$(pic).parent('td').find('.roundimage').zoomify();
+
+                    $(ele).parent('td').append(image);
+                    $(ele).parent('td').find('.roundimage').zoomify();
+                    $(ele).remove();
+                    $('#spinner').hide();
+                },
+                error: function (data) {
+                    $('#spinner').hide();
+                }
+            });
+        }
 
     </script>
 }
 
+@section Style
+{
+
+    <style type="text/css">
+        .future-app, .future-app a {
+            color: green;
+        }
+    </style>
+
+}
 
 
 
@@ -816,11 +954,11 @@
                                             <p style="text-align: right;">
                                                 @if (!string.IsNullOrEmpty(@center.Routecode101) && @center.Routecode101 != "0")
                                                 {
-                                                    <a href="#"> @center.Routecode101</a>
+                                                    <a href="javascript:void(0);" onclick="loadApprovedRejectedClients(this,'@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)',1);"> @center.Routecode101</a>
                                                 }
                                                 else
                                                 {
-                                                    <a href="#"> 0</a>
+                                                    <a href="#">0</a>
                                                 }
                                             </p>
                                         </div>
@@ -828,7 +966,7 @@
                                             <p style="text-align: right;">
                                                 @if (!string.IsNullOrEmpty(@center.Routecode102) && @center.Routecode102 != "0")
                                                 {
-                                                    <a href="#"> @center.Routecode102</a>
+                                                    <a href="javascript:void(0);" onclick="loadApprovedRejectedClients(this,'@FingerprintsModel.EncryptDecrypt.Encrypt64(@center.CenterId)',2);"> @center.Routecode102</a>
                                                 }
                                                 else
                                                 {
@@ -883,10 +1021,12 @@
             </div><!---agencybox1-->
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <h2 class="page-header">Screening Info</h2>
-        </div>
+
+
+    @*<div class="row">
+            <div class="col-lg-12">
+                <h2 class="page-header">Screening Info</h2>
+            </div>
 
         <div class="col-sm-12">
             <div class="agencybox1">
@@ -964,12 +1104,14 @@
 
                             }
 
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
-            </div><!---agencybox1-->
-        </div>
-    </div>
+            </div>
+        </div>*@
+
+
     @*Pop up total screening*@
     @*Changes on 29Dec2016*@
     <div class="row qualifierdiv">
@@ -1018,7 +1160,7 @@
                                                             <th></th>
                                                             @*End*@
                                                             <th>Gender</th>
-                                                            <th>Child's Picture</th>
+                                                            <th>Profile Picture</th>
                                                             <th>DOB</th>
                                                             <th>Classroom Name</th>
                                                             <th>Teacher</th>
@@ -1340,5 +1482,66 @@
         </div>
     </div>
     @*---End-----*@
+
+
+
+
+
+
+
+
+    <div class="row qualifierdiv">
+        <div class="modal fade scroll-modal" id="modalApprovedRejected" role="dialog">
+            <div class="modal-dialog income-popup width-auto">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="CenterName" class="text-center"><span class="extra-title muted"></span></h3>
+                        @*End*@
+                        <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
+                            <div class="btnwrp_subcal" style="padding:0; margin:0;">
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">Exit</button>
+                                <button type="button" class="my-btn pull-right" data-dismiss="modal">OK</button>
+                                <div class="clear"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div>
+                            <div class="row qualifierdiv">
+                                <div class="row" style="margin-bottom:3%;">
+                                    <div class="col-sm-12">
+
+
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                            <div class="table-responsive">
+                                                <table class="table table_size" id="tableClientAcceptReject">
+                                                    <thead style="cursor:pointer;">
+                                                        <tr>
+                                                            <th style="width: 18%;">Client</th>
+                                                            <th>Gender</th>
+                                                            <th>Profile Picture</th>
+                                                            <th>Date of Birth</th>
+                                                            <th>Date on List</th>
+                                                            <th>Reason</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                                <div id="div1" style="text-align:center;display:none;">
+                                                    <label>No result found.</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 }

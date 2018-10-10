@@ -70,6 +70,13 @@
 
 
         $(document).ready(function () {
+
+
+            $('#anchor-approval').on('click', function () {
+                $('#spinner').show();
+            });
+
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -663,6 +670,13 @@
         }
 
 
+        function GotoNurseClientList() {
+            $('#spinner').show();
+            var url = HostedDir + '/Nurse/ClientList';
+            window.location.href = url;
+            //$('#spinner').hide();
+        }
+
 
 
 
@@ -796,9 +810,16 @@
                         {
                             @*<li><a id="li1" href="~/Home/AgencyAdminDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>*@
                             <li><a id="li1" onclick="AgencyAdminDashboard();" href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
-                        }
-                        else
-                        {
+
+
+                            if (Session["IsInAcceptanceProcess"] != null && Convert.ToBoolean(Session["IsInAcceptanceProcess"]))
+                            {
+                                <li><a id="anchor-approval" href="~/Home/CentralManagerDashboard"><i class="fa fa-dashboard fa-fw"></i>Approval Dashboard</a> </li>
+                            }
+
+                           }
+                           else
+                           {
                             @*<li style="display:none;"><a id="li1" href="~/Home/AgencyAdminDashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>*@
                             <li style="display:none;"><a id="li1" onclick="AgencyAdminDashboard();" href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a> </li>
                         }

@@ -34,7 +34,8 @@ namespace Fingerprints.Controllers
         {
             return View();
         }
-        [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        //[CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+        [CustAuthFilter()]
         public ActionResult ViewCenterDetails(string id)
         {
             if (Session["AgencyID"] == null)
@@ -48,7 +49,7 @@ namespace Fingerprints.Controllers
                     id = FingerprintsModel.EncryptDecrypt.Decrypt64(Convert.ToString(Request.QueryString["id"]));
                 if (!string.IsNullOrEmpty(Request.QueryString["Name"]))
                     ViewBag.name = FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["Name"].ToString());
-                ViewBag.userlist = _family.Getallclients(id, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.userlist = _family.Getallclients(id);
                 Nurse obj = new Nurse();
                 obj.CenterID = id;
                 return View(obj);
@@ -81,6 +82,11 @@ namespace Fingerprints.Controllers
                     yakkrid = Convert.ToInt32(FingerprintsModel.EncryptDecrypt.Decrypt64(Request.QueryString["Type"].ToString()));
                     TempData["yakkrid"] = yakkrid;
                 }
+                if (!string.IsNullOrEmpty(Request.QueryString["rdPage"]))
+                {
+                    ViewBag.RedirectPage = Convert.ToString(Request.QueryString["rdPage"]);
+                }
+
                 Nurse _familyinfo = _nurse.GetData_AllDropdown(Session["AgencyID"].ToString(), Session["UserID"].ToString());
                 if (id == "0")
                 {
@@ -859,7 +865,7 @@ namespace Fingerprints.Controllers
             {
                 int skip = pageSize * (requestedPage - 1);
                 string totalrecord;
-                var list = new NurseData().ClientLists(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize, Convert.ToString(Session["UserID"]), Convert.ToString(Session["AgencyID"]), Session["Roleid"].ToString());
+                var list = new NurseData().ClientLists(out totalrecord, sortOrder, sortDirection, search.TrimEnd().TrimStart(), skip, pageSize);
                 return Json(new { list, totalrecord });
             }
             catch (Exception Ex)
