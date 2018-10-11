@@ -3327,37 +3327,66 @@ function callBackInsertGetAllMeals(weeklyData, MealsData) {
             var attendDates = weeklyAttendance.getWeekDatesFormatted($('#datetimepicker1').val());
             $.each(attendDates, function (m, dates) {
 
-                if ((attendDates.length - 1) == m) {
-                    attendanceDateString += dates;
-                }
-                else {
-                    attendanceDateString += dates + ',';
-                }
-            });
-        }
-        else {
-            attendanceDateString = weeklyAttendance.getFormattedDate(new Date());
-        }
-        $.ajax({
-            url: '/Teacher/InsertAttendanceData',
-            type: 'post',
-            //async:false,
-            datatype: 'json',
-            data: { userId: $('#userId').val(), agencyId: $('#agencyId').val(), centerId: classJson.enc_CenterId, classRoomId: classJson.enc_ClassRoomId, WeeklyAttendString: attendanceData, dailyMealsString: mealsData, dateString: attendanceDateString },
-            success: function (data) {
-                if (data.length > 0) {
-                    weeklyAttendance.ShowBusy(false);
-                    customAlert('Data saved successfully');
-                    childAttendanceJson = data;
-
-                    deleteAllUsersFromDb(JSON.parse(attendanceData), JSON.parse(mealsData));
-
-                }
-            },
-            error: function (data) {
-                weeklyAttendance.ShowBusy(false);
-                customAlert('Error Occurred.Please,try again later')
+                    if ((attendDates.length - 1) == m) {
+                        attendanceDateString += dates;
+                    }
+                    else {
+                        attendanceDateString += dates + ',';
+                    }
+                });
             }
+            else {
+                attendanceDateString = weeklyAttendance.getFormattedDate(new Date());
+            }
+            $.ajax({
+                url: '/Teacher/InsertAttendanceData',
+                type: 'post',
+                //async:false,
+                datatype: 'json',
+                data: {
+                    userId: $('#userId').val()
+                    , agencyId: $('#agencyId').val()
+                    , centerId: classJson.enc_CenterId
+                    , classRoomId: classJson.enc_ClassRoomId
+                    , WeeklyAttendString: attendanceData
+                    , dailyMealsString: mealsData
+                    , dateString: attendanceDateString
+                    , historical: weeklyAttendance.isHistorical()
+                },
+                success: function (data) {
+                    //if (data.length > 0) {
+                    //    weeklyAttendance.ShowBusy(false);
+                    //    customAlert('Data saved successfully');
+                    //    childAttendanceJson = data;
+
+                    //    deleteAllUsersFromDb(JSON.parse(attendanceData), JSON.parse(mealsData));
+
+                    //}
+                    //else {
+                    //    weeklyAttendance.ShowBusy(false);
+                    //    customAlert('Data saved successfully');
+                    //}
+                    weeklyAttendance.ShowBusy(false);
+                    if (data) {
+
+                        customAlert('Data saved successfully');
+
+                        if (weeklyAttendance.isHistorical()) {
+                            DataBaseManager.GetAllClient(getAllUserAfterUpdate);
+
+                            DataBaseManager.GetAllMeals(getAllMealsAfterUpdate,null); //Callback, data
+                        }
+
+
+                    }
+                    else {
+                        customAlert('Error Occurred.Please,try again later')
+                    }
+                },
+                error: function (data) {
+                    weeklyAttendance.ShowBusy(false);
+                    customAlert('Error Occurred.Please,try again later')
+                }
 
         });
     }
@@ -3370,6 +3399,48 @@ function insertToServer() {
     DataBaseManager.GetAllClient(InsertWeeklyAttendanceSubmit);
 }
 
+
+    //function to delete all users from the local browser db after updating the records//
+    function getAllUserAfterUpdate(data) {
+    
+        
+        if (data!=undefined && data!=null && data.length > 0) {
+
+
+            var jsonChild = $.grep(data, function (n, i) {
+                return n.UserID.indexOf('his') > -1;
+            });
+
+            $.each(jsonChild, function (m, child) {
+                DataBaseManager.DeleteUser(child.UserID, false);
+
+            });
+        }
+    }
+
+    //function to delete all meals  from the local browser db after updating the records//
+    function getAllMealsAfterUpdate(oldData, mealsData) {
+      
+      
+        if (mealsData != undefined && mealsData != null && mealsData.length > 0) {
+
+            var jsonMeals = $.grep(mealsData, function (n, i) {
+                return n.DailyID.indexOf('his') > -1;
+            });
+
+            $.each(jsonMeals, function (m, meals) {
+                DataBaseManager.DeleteMeals(meals.DailyID, false);
+
+            });
+        }
+
+    }
+
+
+
+    //function callBackUser(data) {
+    //    console.log(data);
+    //}
 
 
 

@@ -24,10 +24,27 @@ namespace Fingerprints
             AuthConfig.RegisterAuth();
         }
         protected void Application_BeginRequest()
+
         {
-            Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            Response.Cache.SetExpires(DateTime.UtcNow.AddHours(-1));
-            Response.Cache.SetNoStore();
+
+            var requestUrl = Request.Url.AbsoluteUri;
+
+           if( requestUrl.Contains("WeeklyAttendance"))
+            {
+                Response.Cache.SetCacheability(HttpCacheability.Private);
+                Response.Cache.SetExpires(DateTime.UtcNow.AddHours(2));
+             
+            }
+            else
+            {
+                Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                Response.Cache.SetExpires(DateTime.UtcNow.AddHours(-1));
+                Response.Cache.SetNoStore();
+
+            }
+
+
+            
         }
     }
 }

@@ -2030,10 +2030,10 @@ namespace FingerprintsData
                                       Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
                                       CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
                                       CDOB = Convert.ToString(dr1["DOB"]),
-                                      CenterID = dr1["CenterId"].ToString(),
-                                      Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterID"].ToString()),
-                                      ClassID = dr1["ClassRoomId"].ToString(),
-                                      Enc_ClassRoomId = EncryptDecrypt.Encrypt64(dr1["ClassRoomId"].ToString()),
+                                      CenterID = (ishistorical) ? centerId.ToString(): dr1["CenterId"].ToString(),
+                                      Enc_CenterId = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString():dr1["CenterID"].ToString()),
+                                      ClassID =(ishistorical)?classroomId.ToString(): dr1["ClassRoomId"].ToString(),
+                                      Enc_ClassRoomId = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString():dr1["ClassRoomId"].ToString()),
                                       Parent1ID = dr1["FatherId"].ToString(),
                                       Parent2ID = dr1["MotherId"].ToString(),
                                       Parent1Name = dr1["FatherName"].ToString(),
@@ -2053,8 +2053,8 @@ namespace FingerprintsData
                                select new OfflineAttendance
                                {
                                    ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                                   CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
-                                   ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
+                                   CenterID = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
+                                   ClassroomID = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString() : dr["ClassRoomID"].ToString()),
                                    AttendanceType = dr["AttendanceType"].ToString(),
                                    AttendanceDate = dr["AttendanceDate"].ToString(),
                                    TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
@@ -2065,11 +2065,11 @@ namespace FingerprintsData
                                    AdultBreakFast = dr["AdultBreakFast"].ToString(),
                                    AdultLunch = dr["AdultLunch"].ToString(),
                                    AdultSnacks = dr["AdultSnacks"].ToString(),
-                                   PSignatureIn = string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
-                                   PSignatureOut = string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
-                                   SignedInBy = string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
-                                   SignedOutBy = string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
-                                   TSignatureIn = string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
+                                   PSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
+                                   PSignatureOut = (ishistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
+                                   SignedInBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
+                                   SignedOutBy = (ishistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
+                                   TSignatureIn = (ishistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
                                    TSignatureOut = "",
                                    AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
                                }
@@ -2147,6 +2147,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                 command.Parameters.Add(new SqlParameter("@AttendanceDate", attendanceDate));
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetClientAttendanceByAttendanceDate";
                 DataAdapter = new SqlDataAdapter(command);
@@ -2161,8 +2162,8 @@ namespace FingerprintsData
                                    select new OfflineAttendance
                                    {
                                        ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                                       CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
-                                       ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
+                                       CenterID = EncryptDecrypt.Encrypt64((isHistorical) ? centerId.ToString() : dr["CenterID"].ToString()),
+                                       ClassroomID = EncryptDecrypt.Encrypt64((isHistorical) ? classRoomId.ToString() : dr["ClassRoomID"].ToString()),
                                        AttendanceType = dr["AttendanceType"].ToString(),
                                        AttendanceDate = dr["AttendanceDate"].ToString(),
                                        TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
@@ -2173,11 +2174,11 @@ namespace FingerprintsData
                                        AdultBreakFast = dr["AdultBreakFast"].ToString(),
                                        AdultLunch = dr["AdultLunch"].ToString(),
                                        AdultSnacks = dr["AdultSnacks"].ToString(),
-                                       PSignatureIn = string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
-                                       PSignatureOut = string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
-                                       SignedInBy = string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
-                                       SignedOutBy = string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
-                                       TSignatureIn = string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
+                                       PSignatureIn = (isHistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
+                                       PSignatureOut = (isHistorical) ? "" : string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
+                                       SignedInBy = (isHistorical) ? "" : string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
+                                       SignedOutBy = (isHistorical) ? "" : string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
+                                       TSignatureIn = (isHistorical) ? "" : string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
                                        TSignatureOut = "",
                                        AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
                                    }
@@ -2194,10 +2195,10 @@ namespace FingerprintsData
                                          Enc_ClientId = EncryptDecrypt.Encrypt64(dr1["ClientID"].ToString()),
                                          CName = Convert.ToString(dr1["Firstname"]) + " " + Convert.ToString(dr1["Lastname"]),
                                          CDOB = Convert.ToString(dr1["DOB"]),
-                                         CenterID = dr1["CenterId"].ToString(),
-                                         Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterID"].ToString()),
-                                         ClassID = dr1["ClassRoomId"].ToString(),
-                                         Enc_ClassRoomId = EncryptDecrypt.Encrypt64(dr1["ClassRoomId"].ToString()),
+                                         CenterID = (isHistorical) ? centerId.ToString(): dr1["CenterId"].ToString(),
+                                         Enc_CenterId = EncryptDecrypt.Encrypt64((isHistorical)?centerId.ToString(): dr1["CenterID"].ToString()),
+                                         ClassID = (isHistorical) ? classRoomId.ToString(): dr1["ClassRoomId"].ToString(),
+                                         Enc_ClassRoomId = EncryptDecrypt.Encrypt64((isHistorical)?classRoomId.ToString(): dr1["ClassRoomId"].ToString()),
                                          Parent1ID = dr1["FatherId"].ToString(),
                                          Parent2ID = dr1["MotherId"].ToString(),
                                          Parent1Name = dr1["FatherName"].ToString(),
@@ -2280,10 +2281,14 @@ namespace FingerprintsData
         }
 
 
-        public List<OfflineAttendance> InsertOfflineAttendanceData(List<OfflineAttendance> _offlineAttendance, List<TeacherModel> _mealsList, List<TeacherModel> _adultMealsList, string UserID, string AgencyID, string dateString)
+        ///public List<OfflineAttendance> InsertOfflineAttendanceData(List<OfflineAttendance> _offlineAttendance, List<TeacherModel> _mealsList, List<TeacherModel> _adultMealsList, string UserID, string AgencyID, string dateString)
+
+        public bool InsertOfflineAttendanceData(List<OfflineAttendance> _offlineAttendance, List<TeacherModel> _mealsList, List<TeacherModel> _adultMealsList, string UserID, string AgencyID, string dateString, bool isHistorical)
+
         {
-           
-            List<OfflineAttendance> teacherList = new List<OfflineAttendance>();
+
+            //  List<OfflineAttendance> teacherList = new List<OfflineAttendance>();
+            bool isRowAffected = false;
             try
             {
 
@@ -2307,51 +2312,53 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ClientMealsTable", clientMealsTable));
                     command.Parameters.Add(new SqlParameter("@AdultMealsTable", adultMealsTable));
                     command.Parameters.Add(new SqlParameter("@AttendanceDateString", dateString));
+                    command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_InsertOfflineAttendance";
                     if (Connection.State == ConnectionState.Open) Connection.Close();
                     Connection.Open();
-                    DataAdapter = new SqlDataAdapter(command);
-                    _dataset = new DataSet();
-                    DataAdapter.Fill(_dataset);
+                    //DataAdapter = new SqlDataAdapter(command);
+                    //_dataset = new DataSet();
+                    //DataAdapter.Fill(_dataset);
+                    isRowAffected = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
                     Connection.Close();
                 }
-                if (_dataset != null)
-                {
-                    if (_dataset.Tables[0].Rows.Count > 0)
-                    {
+                //if (_dataset != null)
+                //{
+                //    if (_dataset.Tables.Count>0 && _dataset.Tables[0].Rows.Count > 0)
+                //    {
 
 
-                        teacherList = (from DataRow dr in _dataset.Tables[0].Rows
-                                       select new OfflineAttendance
-                                       {
-                                           ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
-                                           CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
-                                           ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
-                                           AttendanceType = dr["AttendanceType"].ToString(),
-                                           AttendanceDate = Convert.ToString(dr["AttendanceDate"]),
-                                           TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
-                                           TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
-                                           BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                           Lunch = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                           Snacks = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
-                                           AdultBreakFast = dr["AdultBreakFast"].ToString(),
-                                           AdultLunch = dr["AdultLunch"].ToString(),
-                                           AdultSnacks = dr["AdultSnacks"].ToString(),
-                                           PSignatureIn = string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
-                                           PSignatureOut = string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
-                                           SignedInBy = string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
-                                           SignedOutBy = string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
-                                           TSignatureIn = string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
-                                           TSignatureOut = "",
-                                           AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
+                //        teacherList = (from DataRow dr in _dataset.Tables[0].Rows
+                //                       select new OfflineAttendance
+                //                       {
+                //                           ClientID = EncryptDecrypt.Encrypt64(dr["ClientID"].ToString()),
+                //                           CenterID = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
+                //                           ClassroomID = EncryptDecrypt.Encrypt64(dr["ClassRoomID"].ToString()),
+                //                           AttendanceType = dr["AttendanceType"].ToString(),
+                //                           AttendanceDate = Convert.ToString(dr["AttendanceDate"]),
+                //                           TimeIn = GetFormattedTime(dr["TimeIn"].ToString()),
+                //                           TimeOut = GetFormattedTime(dr["TimeOut"].ToString()),
+                //                           BreakFast = (dr["BreakFast"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                //                           Lunch = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                //                           Snacks = (dr["Lunch"].ToString() != "0" && dr["BreakFast"].ToString() != "") ? "1" : "0",
+                //                           AdultBreakFast = dr["AdultBreakFast"].ToString(),
+                //                           AdultLunch = dr["AdultLunch"].ToString(),
+                //                           AdultSnacks = dr["AdultSnacks"].ToString(),
+                //                           PSignatureIn = string.IsNullOrEmpty(dr["PSignatureIn"].ToString()) ? "" : dr["PSignatureIn"].ToString(),
+                //                           PSignatureOut = string.IsNullOrEmpty(dr["PSignatureOut"].ToString()) ? "" : dr["PSignatureOut"].ToString(),
+                //                           SignedInBy = string.IsNullOrEmpty(dr["SignedInBy"].ToString()) ? "" : dr["SignedInBy"].ToString(),
+                //                           SignedOutBy = string.IsNullOrEmpty(dr["SignedOutBy"].ToString()) ? "" : dr["SignedOutBy"].ToString(),
+                //                           TSignatureIn = string.IsNullOrEmpty(dr["TSignatureIn"].ToString()) ? "" : dr["TSignatureIn"].ToString(),
+                //                           TSignatureOut = "",
+                //                           AbsenceReasonId = Convert.ToString(dr["AbsenceReasonId"])
 
-                                       }
-                                     ).ToList();
+                //                       }
+                //                     ).ToList();
 
 
-                    }
-                }
+                //    }
+                //}
 
             }
             catch (Exception ex)
@@ -2363,7 +2370,8 @@ namespace FingerprintsData
                 if (Connection != null)
                     Connection.Close();
             }
-            return teacherList;
+            /// return teacherList;
+            return isRowAffected;
 
         }
 

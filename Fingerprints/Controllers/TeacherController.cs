@@ -1033,6 +1033,8 @@ namespace Fingerprints.Controllers
         {
             try
             {
+                ViewBag.PageVersion = DateTime.Now.DayOfYear.ToString();
+
                 TeacherModel model = new TeacherModel();
 
                 //model = new TeacherData().GetChildListByUserIdAndAgencyId(Session["UserID"].ToString(), Session["AgencyID"].ToString());
@@ -1161,12 +1163,12 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5,3b49b025-68eb-4059-8931-68a0577e5fa2,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,82b862e6-1a0f-46d2-aad4-34f89f72369a")]
 
-        public JsonResult InsertAttendanceData(string userId, string agencyId, string centerId, string classRoomId, string WeeklyAttendString = "", string dailyMealsString = "",string dateString = "")
+        public JsonResult InsertAttendanceData(string userId, string agencyId, string centerId, string classRoomId,bool historical, string WeeklyAttendString = "", string dailyMealsString = "",string dateString = "")
         {
 
             List<TeacherModel> teacherModel = new List<TeacherModel>();
             List<OfflineAttendance> offlineAttendanceList = new List<OfflineAttendance>();
-
+            bool isResult = false;
             try
             {
 
@@ -1318,13 +1320,18 @@ namespace Fingerprints.Controllers
                       );
                     adultMealsList2.OrderBy(x => x.AttendanceDate).ToList();
                 }
-                offlineAttendanceList = new TeacherData().InsertOfflineAttendanceData(offlineAttendance, MealsList, adultMealsList2, userId, agencyId,dateString);
+                //offlineAttendanceList = new TeacherData().InsertOfflineAttendanceData(offlineAttendance, MealsList, adultMealsList2, userId, agencyId,dateString);
+
+                isResult = new TeacherData().InsertOfflineAttendanceData(offlineAttendance, MealsList, adultMealsList2, userId, agencyId, dateString, historical);
+
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
-            return Json(offlineAttendanceList, JsonRequestBehavior.AllowGet);
+            //return Json(offlineAttendanceList, JsonRequestBehavior.AllowGet);
+            return Json(isResult, JsonRequestBehavior.AllowGet);
+
         }
     }
 }
