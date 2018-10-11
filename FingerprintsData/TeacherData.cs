@@ -2147,7 +2147,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                 command.Parameters.Add(new SqlParameter("@AttendanceDate", attendanceDate));
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
-                command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetClientAttendanceByAttendanceDate";
                 DataAdapter = new SqlDataAdapter(command);
