@@ -448,6 +448,23 @@
 
                             </div>
 
+                        <div id="clientstory-div" style="display:none;">
+
+                            <label> Notes <sup style="color:red;" title="required field">*</sup></label>
+                            <div style="display:inline-block;" class="row list-longedu">
+                                <div class="col-sm-12">
+
+                                    <textarea name="ClientStory" class="form-control" style="min-height:75px;"> </textarea>
+                                </div>
+                                </div>
+                                @*<div>
+
+                                    <textarea name="ClientStory" class="form-control" style="width:300px;"> </textarea>
+                                </div>*@
+
+                            </div>
+
+
                         </div>
 
                     <div id="casenote-div" style="display:none;">
@@ -556,9 +573,13 @@
                                 </div>
                                 <div class="col-md-8">
                                      <div class="filediv" style="display:inline-block;width:auto;">
-                                      <p>  <input type="file" name="Attachments[0].file"  style="display:inline-block;"/>
-                                        <button type="button" id="addnew-attach"><i class="fa fa-plus-square"></i> Add</button>
-                                    </p>
+                                         <div class="row"> <div class="col-md-8">
+                                                 <input type="file" class="form-control" name="Attachments[0].file" style="display:inline-block;" />
+                                                 </div>
+                                             <div class="col-md-4">
+                                                 <button type="button" id="addnew-attach"><i class="fa fa-plus-circle"></i> Add</button>
+                                                 </div>
+                                             </div>
                                     </div>
                                    
                                     @*<button type="button" id="addnew-attach" style="position:absolute;top:0;"><i class="fa fa-plus-square"></i> Add</button>*@
@@ -632,9 +653,9 @@
                 var _attachCount=1
                 $(document).on("click", "#addnew-attach", function (e) {
 
-                    $(".filediv").append('<p class="fdiv" data-index="'+_attachCount+'"><input type="file" style="display:inline-block;" name="Attachments[' + _attachCount + '].file">'
+                    $(".filediv").append('<div class="fdiv" data-index="'+_attachCount+'"> <div class="row"> <div class="col-md-8"><input type="file" class="form-control" style="display:inline-block;" name="Attachments[' + _attachCount + '].file"></div>'
 
-       +'<button type="button" data-index="'+_attachCount+'" class="remove-attach"><i class="fa fa-plus-square"></i> Remove</button><p> ');
+       +' <div class="col-md-4"><button type="button" data-index="'+_attachCount+'" class="remove-attach"><i class="fa fa-minus-circle"></i> Remove</button><div></div>');
                     _attachCount++;
 
                 });
@@ -700,6 +721,12 @@
 
                         $('#ds-div, #time-div').slideUp();
                         $("#casenote-div").slideDown();
+                        //reset yes side value
+                        $('[name="ServiceReceived"]').prop('checked', false)
+                        $('[name="ReasonForNotServed"]').prop('checked', false);
+                        $('[name="DateOfAppointment"], [name="ClientStory"]').val('');
+                        $('[name="Rating"]').prop('checked', false);
+
 
                     }else if(_val == "1"){
 
@@ -721,6 +748,14 @@
                     if (_val == "1") { //yes
                         $('#ratediv').slideDown();
                         $('#whydiv').slideUp();
+                        $("#clientstory-div").slideUp();
+
+        //reset values
+        $('[name="ClientStory"]').val('');
+        $('[name="ReasonForNotServed"]').prop("checked",false);
+
+
+
                     } else {
                         $('#ratediv').slideUp();
                         $('#whydiv').slideDown();
@@ -740,6 +775,22 @@
 
                 });
 
+                $(document).on("change", '[name="ReasonForNotServed"]', function (e) {
+
+                    var _val = $(this).val();
+
+                    if (_val == "1" || _val == "2" || _val == "3") {
+                        $("#clientstory-div").slideDown();
+                    } else {
+                        $("#clientstory-div").slideUp();
+                        $('[name="ClientStory"]').val('');
+
+                    }
+
+
+                });
+
+
                 $(document).on("click", "#submit_Qform", function (e) {
 
                     var Tags = '';
@@ -758,6 +809,7 @@
                     var _csNote = CKEDITOR.instances['Note'].getData();
                     var _csTags = $("#CaseNotetags").val();
                     var _anref = $('[name="anotherref"]:checked').val();
+                    var _cStory = $('[name="ClientStory"]').val();
 
                     if (!_ongoingVal) {
                         customAlert("Please choose Appoinment Yes or No.")
@@ -794,9 +846,16 @@
                     } else if (_ServiceReceived == "0" && !_ReasonForNotServed) {
                         customAlert("Please choose Reason.");
                         return false;
+                    }else if((_ReasonForNotServed == "1" || _ReasonForNotServed == "2" ||  _ReasonForNotServed == "3") &&  !_cStory){
+
+                     customAlert("Note is required field.");
+                        return false;
+                     }
+
+
+                    if (_ongoingVal == "0") {
+                        $('[name="TimeOfAppointment"]').val('');
                     }
-
-
                     console.log("submitted");
                       $("#QsForm").submit();
 

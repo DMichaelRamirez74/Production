@@ -1,7 +1,191 @@
 ﻿$(document).ready(function () {
+
+
+
+    getOrganization();
+
+    function getOrganization() {
+
+        var serviceId = 
+
+        $("#Org-row").slideDown();
+
+        $.ajax({
+            url: "/Roster/GetOrganizationListByAgency",
+            type: "POST",
+            data: { AgencyId: _UserAgencyId },
+            success: function (data) {
+                drawOrganization(data);
+            }, fail: function (res) {
+
+            },
+            complete: function (res) {
+
+            }
+        });
+
+    }
+
+
+
+    function drawOrganization(data) {
+
+        $("#organization-list").html('');
+
+        if (data.length == 0) return false;
+
+
+        data.forEach(function (item) {
+
+            var _badgeDis = item.ReviewCount ? 'inline' : 'none';
+
+            var _clrCode = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
+            var _coutClr = item.CRColorCode == 1 ? '#ffffff' : item.CRColorCode == 2 ? '#333333' : '#ffffff';
+            var _radioStr = '<div class="col-md-6 col-sm-12 col-xs-12" style="padding-left:0px;">'
+          // var _radioStr = '<div class="" style="padding-bottom:10px;">'
+           + '<label title="' + item.CompanyName + '" class="container-radio col-sm-11" style="display:inline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:auto;max-width:91.6%;">'
+           + '' + item.CompanyName + ''
+         //  + '<input type="radio" name="Organization" id="txtSearch" value="' + item.CommunityResourceID + '">'
+
+  + '<input type="radio" name="Organization"  value="' + item.CommunityResourceID + '">' + '<span class="checkmark"></span>'
+           + '</label>'
+          // + '<i class="fa fa-external-link agency-review" data-index="' + item.CommunityResourceID + '"></i>'
+          + '<span data-index="' + item.CommunityResourceID + '" class="badge show-reviewmodal col-sm-1" style="width:auto;background:' + _clrCode + ';color:' + _coutClr + ';display:' + _badgeDis + ';cursor:pointer;" data-toggle="tooltip" data-placement="right" title="' + item.ReviewCount + ' reviews">' + item.ReviewCount + '</span>'
+           + '</div>';
+
+            $("#organization-list").append(_radioStr);
+
+        });
+
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+
+    };
+
+
+
+    $(document).on("click", ".show-reviewmodal", function (e) {
+        var _id = $(this).data('index');
+        $('#spinner').show();
+        $.ajax({
+            url: "/Roster/GetReviewList?id=" + _id,
+            type: "GET",
+            //type: "POST",
+            //data: { id: _id},
+            success: function (data) {
+                // drawOrganization(data);
+                $('#spinner').hide();
+                renderReviewList(data);
+
+            }, fail: function (res) {
+
+            },
+            complete: function (res) {
+                $('#spinner').hide();
+            }
+        });
+
+
+
+
+    });
+
+    function renderReviewList(data) {
+
+        $("#reviewlist-modal .modal-body").html('');
+
+        if (data.length == 0) return false;
+
+        var _tblStr = '<table class="table table-bordered" id="review-modal-table"><thead><tr><th>Review Color</th><th>Notes</th><th>Entered By</th><th>Entered Date</th><tr></thead><tbody>';
+
+        data.forEach(function (item) {
+            var _clr = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
+
+            _tblStr += '<tr><td><div class="rlclrdiv" style="background:' + _clr + ';"></div></td><td>' + item.MgNotes + '</td><td>' + item.ModifiedBy + '</td><td>' + item.ModifiedDate + '</td> </tr>'
+        });
+
+        _tblStr += '<tbody></table>';
+
+        $("#reviewlist-modal .modal-body").append(_tblStr);
+        $("#reviewlist-modal").modal("show");
+
+    };
+
+
+    $(document).on("change", '[name="Organization"]', function (e) {
+        var _cID = $(this).val();
+
+        $.ajax({
+            url: "/Roster/GetOrganization",
+            type: "POST",
+            dataType: "json",
+            data: { CommunityId: _cID },
+            success: function (data) {
+                console.log(data);
+
+                if (data) {
+
+                    $('#spnOrganizationName').html(data.OrganizationName);
+                    $('#SpnCommunityAddress').html(data.Address + ',' + data.City + ', ' + data.State + ',' + data.ZipCode);
+                    $('#SpnCommunityPhone').html(data.Phone);
+                    $('#SpnCommunityEmail').html(data.Email);
+                }
+
+                // var sid = ui.item.id;
+                var sid = _cID;
+                $('#communityId').val(sid);
+                var sidi = $('#communityId').val(sid);
+                //store in session
+                //document.valueSelectedForAutocomplete = value
+
+                var AgencyVal = $('#AgencyId_').val();
+                var AgencyId = AgencyVal;
+
+                $.ajax({
+                    url: "/Roster/GetReferralType",
+                    type: "POST",
+                    data: { communityId: sid },
+                    success: function (data) {
+
+                        if (data.length > 0) {
+                            if (data.length > 1) {
+                                console.log(data);
+                                $('#FFReferral').addClass('hidden');
+                                $("#FFReferralSelect").html('');
+                                $("#FFReferralSelect").append('<option value=' + 0 + '>' + "Select Referral Type" + '</option>');
+                                for (var i = 0; i < data.length; i++) {
+                                    $("#FFReferralSelect").append('<option value=' + data[i].Value + '>' + data[i].Text + '</option>');
+                                }
+                                $("#FFReferralSelect").removeClass('hidden');
+                            }
+                            else {
+                                $("#FFReferralSelect").addClass('hidden');
+                                $('#FFReferral').html('');
+                                $('#FFReferral').html(data[0].Text);
+                                $('#FFReferral').attr('referralId', data[0].Value);
+                                $('#FFReferral').removeClass('hidden');
+                                $('#errnewspan').css('display', 'none');
+                            }
+                        }
+
+
+                    }
+
+                });
+
+            }
+        })
+
+    });
+
+
     var clientId = $('#clientId_').val();
     var arry = null;
     var flags = 0;
+
+    /*deprecated code=> org list changed to redio btns 12.10.18 - code0643*/
+    /*
     $("#txtSearch").autocomplete({
 
         source: function (request, response) {
@@ -75,7 +259,7 @@
                             $('#FFReferral').html(data[0].Text);
                             $('#FFReferral').attr('referralId', data[0].Value);
                             $('#FFReferral').removeClass('hidden');
-                            $('#errnewspan').css('display','none');
+                            $('#errnewspan').css('display', 'none');
                         }
                     }
 
@@ -85,6 +269,8 @@
             });
         }
     });
+
+    */
 
     $('#referralServiceSaveMethod').click(function () {
 
@@ -105,7 +291,9 @@
         var HouseHoldId = $('#HouseHoldId').val();
 
 
-        if ($('#ClientID:checked').val() == undefined && ($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
+        //  if ($('#ClientID:checked').val() == undefined && ($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
+        if ($('#ClientID:checked').val() == undefined && (!$('[name="Organization"]:checked').val()) && ($('#FFReferralSelect').val() == 0)) {
+           
 
             $('#errshow').css("display", "inline-block");
             $('#errshow').text("Select Family Members");
@@ -133,15 +321,19 @@
 
             return false;
         }
-        else if ($('#txtSearch').val() == "") {
-            $('#errshow').hide();
-            $('#errspan').css("display", "inline-block");
-            $('#errspan').text("Enter Organization Name");
+            // else if ($('#txtSearch').val() == "") {
+        else if(!$('[name="Organization"]:checked').val()){
+            //           $('#errshow').hide();
+            //           $('#errspan').css("display", "inline-block");
+            //           $('#errspan').text("Enter Organization Name");
 
-            $('html,body').animate({
-                scrollTop: $('#txtSearch').offset().top
-            },
- 'slow');
+            //           $('html,body').animate({
+            //               scrollTop: $('#txtSearch').offset().top
+            //           },
+            //'slow');
+
+            customAlert("Please Choose Organization");
+
             return false;
         }
         else if ($('#FFReferralSelect').is(':visible') && $('#FFReferralSelect').val() == 0) {
@@ -229,7 +421,7 @@
 
     $('#btnpdf').on('click', function () {
 
-      
+
         if ($('.CheckClient:checked').length === 0) {
             $('#errshow').css("display", "inline-block");
             $('#errshow').text("Select Family Members");
@@ -237,7 +429,8 @@
         }
 
 
-        else if (($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
+        // else if (($('#txtSearch').val() == "") && ($('#FFReferralSelect').val() == 0)) {
+        else if (!$('[name="Organization"]:checked').val() && ($('#FFReferralSelect').val() == 0)) {
             $('#errshow').hide();
             $('#errshow').text("");
             $('#errspan').css("display", "inline");
@@ -246,7 +439,8 @@
             $('#errnewspan').text("Select Referral Type");
             return false;
         }
-        else if ($('#txtSearch').val() == "") {
+        //else if ($('#txtSearch').val() == "") {
+        else if (!$('[name="Organization"]:checked').val()) {
             $('#errshow').hide();
             $('#errshow').text("");
             $('#errspan').css("display", "inline");
@@ -290,24 +484,24 @@
 
         else {
 
-       
 
-        $('#errshow').hide();
-        $('#errshow').text("");
-        $('#errnewspan').hide();
-        $('#errnewspan').text("");
-        $('#errdate').hide();
-        $('#errdate').text("");
-        $('#errspan').hide();
-        $('#errspan').text("");
-        var CommunityId = $('#communityId').val();
-        var referrlId = null;
-        if ($('#FFReferralSelect').hasClass('hidden')|| !$('#FFReferralSelect').is(':visible') ) {
-            referrlId = $('#FFReferral').attr('referralId');
-        }
-        else {
-            referrlId = $('#FFReferralSelect').val();
-        }
+
+            $('#errshow').hide();
+            $('#errshow').text("");
+            $('#errnewspan').hide();
+            $('#errnewspan').text("");
+            $('#errdate').hide();
+            $('#errdate').text("");
+            $('#errspan').hide();
+            $('#errspan').text("");
+            var CommunityId = $('#communityId').val();
+            var referrlId = null;
+            if ($('#FFReferralSelect').hasClass('hidden') || !$('#FFReferralSelect').is(':visible')) {
+                referrlId = $('#FFReferral').attr('referralId');
+            }
+            else {
+                referrlId = $('#FFReferralSelect').val();
+            }
 
         var ServiceIdPDF = $('#ReferralId').val();
         var AgencyId = $('#AgencyId_').val();
@@ -331,7 +525,8 @@
         //    return false;
         //}
 
-        if ($('#txtSearch').val() == "") {
+        // if ($('#txtSearch').val() == "") {
+        if (!$('[name="Organization"]:checked').val()) {
             $('#referralError').html('Please select organization name');
             // $('#referralCompanyModal').modal('show');
             return false;

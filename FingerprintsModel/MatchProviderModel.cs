@@ -31,5 +31,6 @@ namespace FingerprintsModel
         public long? ReferralClientServiceId { get; set; }
         public List<MatchProviderModel> MPMList { get; set; }
         public List<SelectListItem> OrganizationList { get; set; }
+        public string CRColorCode { get; set; }
     }
 }

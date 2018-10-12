@@ -723,6 +723,7 @@ namespace FingerprintsData
         }
 
    
+ #region yakkr451&453
 
         public ReferalDetails GetQuestionaireByYakkrId(int yakkrid,int mode)
         {
@@ -743,7 +744,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
                 command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
                 command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
-                command.Parameters.Add(new SqlParameter("@mode", mode)); //2,3 get
+                command.Parameters.Add(new SqlParameter("@mode", mode)); //2,3,4,5 get
                 command.Parameters.Add(new SqlParameter("@YakkrId", yakkrid));
                 DataAdapter = new SqlDataAdapter(command);
                 DataSet _ds = new DataSet();
@@ -761,7 +762,9 @@ namespace FingerprintsData
                         CompanyName = _refDSet["CompanyName"].ToString(),
                          PhoneNo= _refDSet["PhoneNo"].ToString(),
                         City = _refDSet["City"].ToString(),
-                        Address= _refDSet["Address"].ToString()
+                        Address= _refDSet["Address"].ToString(),
+                         CommunityResourceID = Convert.ToInt32(_refDSet["CommunityResourceID"].ToString()),
+
                     };
 
                     if (mode == 2)
@@ -770,10 +773,21 @@ namespace FingerprintsData
                         _tR.ClientName = _refDSet["ClientName"].ToString();
 
                     }
-                    if (mode == 3) {
+                    if (mode == 3 || mode == 5) {
                         _tR.YakkrId451 = Convert.ToInt32(_refDSet["YakkrId451"].ToString());
                         _tR.ReasonForNotServed = DBNull.Value == _refDSet["ReasonForNotServed"] ? 0 : Convert.ToInt32(_refDSet["ReasonForNotServed"].ToString()); 
                         _tR.Rating = DBNull.Value == _refDSet["Rating"] ? 0 : Convert.ToInt32(_refDSet["Rating"].ToString()); 
+                      _tR.ClientStory = _refDSet["ClientStory"].ToString();
+                        _tR.QuestionaireID = Convert.ToInt32(_refDSet["Id"].ToString());
+
+                    }
+                    if (mode == 5) {
+                        _tR.Services = _refDSet["Services"].ToString();
+                        _tR.ProblemOn = DBNull.Value == _refDSet["ProblemOn"] ? 0 : Convert.ToInt32(_refDSet["ProblemOn"].ToString());
+                        _tR.MgNotes = _refDSet["MgNotes"].ToString();
+                        _tR.CRColorCode = DBNull.Value == _refDSet["MarkAgency"] ? 0 : Convert.ToInt32(_refDSet["MarkAgency"].ToString());
+                        _tR.CaseNote = new CaseNote();
+                        _tR.CaseNote.Note = _refDSet["NoteField"].ToString();
                     }
 
                     result = _tR;
@@ -787,9 +801,9 @@ namespace FingerprintsData
             }
             return result;
         }
-		
-		
-		        public bool InsertQuestionaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments)
+
+     
+        public bool InsertQuestionaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments)
         {
 
             bool _isSuccess = false;
@@ -834,7 +848,8 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Rating", qsform.Rating));
                 command.Parameters.Add(new SqlParameter("@ReasonForNotServed", qsform.ReasonForNotServed));
                 command.Parameters.Add(new SqlParameter("@DateOfAppointment", qsform.DateOfAppointment));
-                command.Parameters.Add(new SqlParameter("@TimeOfAppointment", qsform.TimeOfAppointment));  
+                command.Parameters.Add(new SqlParameter("@TimeOfAppointment", qsform.TimeOfAppointment));
+                command.Parameters.Add(new SqlParameter("@ClientStory", qsform.ClientStory));
 
                 command.Parameters.Add(new SqlParameter("@CaseNoteId", qsform.CaseNoteId));
 
@@ -865,6 +880,75 @@ namespace FingerprintsData
         }
 
 
+
+        public bool SubmitFeedBack453(int mode,int ProblemOn, int? CRColorCode,int CommunityId,int QuestionaireID,int yakkrid,
+           string MgNotes, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments
+            ) {
+            bool result = false;
+
+
+            try
+            {
+                var CaseNoteId = 0;
+                var stf = StaffDetails.GetInstance();
+                string message = "";
+                string Name = "";
+                if (ProblemOn == 1 && !string.IsNullOrEmpty(CaseNote.CaseNotetitle))
+                {
+
+                    List<CaseNote> CaseNoteList = new List<CaseNote>();
+                    FingerprintsModel.RosterNew.Users Userlist = new FingerprintsModel.RosterNew.Users();
+                    var rd = new RosterData();
+                    message = rd.SaveCaseNotes(ref Name, ref CaseNoteList, ref Userlist, CaseNote, Attachments, stf.AgencyId.ToString(), stf.UserId.ToString(), 2);
+
+                }
+
+                if (!string.IsNullOrEmpty(Name))
+                {
+                    CaseNoteId = Convert.ToInt32(Name);
+
+                }
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_QuestionaireFormDetails";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@mode", mode)); //4 insert453
+                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrid));
+
+                command.Parameters.Add(new SqlParameter("@ProblemOn", ProblemOn));
+               // command.Parameters.Add(new SqlParameter("@FeedBackToClient", FeedBackToClient));
+                command.Parameters.Add(new SqlParameter("@CRColorCode", CRColorCode));
+              // command.Parameters.Add(new SqlParameter("@NoteTags", NoteTags));
+                command.Parameters.Add(new SqlParameter("@CommunityId", CommunityId));
+                command.Parameters.Add(new SqlParameter("@QuestionaireID", QuestionaireID));
+                command.Parameters.Add(new SqlParameter("@CaseNoteId", CaseNoteId));
+                command.Parameters.Add(new SqlParameter("@MgNotes", MgNotes));
+
+
+
+                var qu = command.ExecuteNonQuery();
+                if (qu > 0) {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+            return result;
+        }
+
+        #endregion  yakkr451&453
 
         public int GetYakkrCountPending()
         {

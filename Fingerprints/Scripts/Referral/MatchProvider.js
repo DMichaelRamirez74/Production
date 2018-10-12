@@ -1,5 +1,35 @@
 ﻿
 $(document).ready(function () {
+
+
+
+    //Agency Review PopUp
+
+    $(document).on("click", ".agency-review", function (e) {
+        var _id = $(this).data("index");
+
+        $("spinner").show();
+
+        $.ajax({
+            url: "/Roster/CommunityResourceReviewList?id="+_id,
+            type: "GET",
+            success: function (data) {
+
+            },
+            fail: function () { },
+            complete:  function () { 
+                $("spinner").show();
+            }
+        })
+
+    });
+
+
+
+
+
+
+
     var serviceId = $('#FSResources').val();
     var AgencyId = $('#AgencyId').val();
     var mpmlistcount = $('#mpmlistCount').val();
@@ -28,11 +58,16 @@ $(document).ready(function () {
 
         var communId = $('#OrganizationId').val();
 
+        if (!$('#OrganizationId').val()) return false;
+
         $.ajax({
             url: "/Roster/GetOrganization",
             type: "POST",
             data: { CommunityId: communId },
             success: function (data) {
+
+
+
                 $('#CommunityId').val(data.CommunityId);
                 if (data.Address == null) {
                     $('#SpnCommunityAddress').text("");
@@ -434,7 +469,7 @@ $('#SaveSurvey').click(function () {
 
     }
 
-  
+
     else {
         $('#errquestion6').hide();
         $('#errquestion6').text('');
@@ -745,7 +780,7 @@ $('#referralServiceSaveMethod').click(function () {
             return false;
         }
 
-        if (parseInt($('#ddFsOrganization').val()) == 0) {
+     /*   if (parseInt($('#ddFsOrganization').val()) == 0) {
             $('#err_resource').hide();
             $('#err_resource').text("");
             $('#answererror').html('Please select service organization');
@@ -755,10 +790,12 @@ $('#referralServiceSaveMethod').click(function () {
             //$('#surveyAnswerError').modal('show');
             return false;
         }
+        */
     }
 
     if (parseInt($('#organizationListCount').val()) > 1) {
-        if (parseInt($('#ddFsOrganization').val()) == 0) {
+
+     /*   if (parseInt($('#ddFsOrganization').val()) == 0) {
             $('#err_resource').hide();
             $('#err_resource').text("");
             $('#answererror').html('Please select service organization');
@@ -768,6 +805,12 @@ $('#referralServiceSaveMethod').click(function () {
             //$('#surveyAnswerError').modal('show');
             return false;
         }
+        */
+    }
+
+    if (!$('[name="company"]:checked').val()) {
+        customAlert("Please Select Organization Name");
+        return false;
     }
 
     if ($('#datepicker').val() == "") {
@@ -865,6 +908,129 @@ $('#succesMatchClose').click(function () {
 });
 
 
+//intial load when single service selected
+if (parseInt($("#FSResources").val()) > 0 && $('#AgencyId').val()) {
+    var serviceId = $('#FSResources').val();
+    var AgencyId = $('#AgencyId').val();
+    getOrganization(serviceId, AgencyId);
+}
+
+
+$('#FSResources').on('change', function () {
+
+    var serviceId = (this.value);
+    var AgencyId = $('#AgencyId').val();
+    getOrganization(serviceId, AgencyId);
+
+});
+
+
+function getOrganization(serviceId, AgencyId) {
+
+    $("#Org-row").slideDown();
+
+    $.ajax({
+        url: "/Roster/GetOrganizationList",
+        type: "POST",
+        data: { ServiceId: serviceId, AgencyId: AgencyId },
+        success: function (data) {
+            drawOrganization(data);
+        }, fail: function (res) {
+
+        },
+        complete: function (res) {
+
+        }
+    });
+
+}
+
+
+
+function drawOrganization(data) {
+
+    $("#organization-list").html('');
+
+    if (data.length == 0) return false;
+
+    
+    data.forEach(function (item) {
+
+        var _badgeDis = item.ReviewCount ? 'inline' : 'none';
+    
+        var _clrCode = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
+        var _coutClr = item.CRColorCode == 1 ? '#ffffff' : item.CRColorCode == 2 ? '#333333' : '#ffffff';
+         var _radioStr =    '<div class="col-md-6 col-sm-12 col-xs-12" style="padding-left:0px;">'
+       // var _radioStr = '<div class="" style="padding-bottom:10px;">'
+        + '<label title="' + item.CompanyName + '" class="container-radio col-sm-11" style="display:inline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:auto;max-width:91.6%;">'
+        + '' + item.CompanyName + ''
+        + '<input type="radio" name="company" value="' + item.CommunityResourceID + '">'
+        + '<span class="checkmark"></span>'
+        + '</label>'
+       // + '<i class="fa fa-external-link agency-review" data-index="' + item.CommunityResourceID + '"></i>'
+       + '<span data-index="' + item.CommunityResourceID + '" class="badge show-reviewmodal col-sm-1" style="width:auto;background:' + _clrCode + ';color:' + _coutClr + ';display:' + _badgeDis + ';cursor:pointer;" data-toggle="tooltip" data-placement="right" title="' + item.ReviewCount + ' reviews">' + item.ReviewCount + '</span>'
+        + '</div>';
+
+      $("#organization-list").append(_radioStr);
+
+    });
+
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+
+};
+
+$(document).on("click", ".show-reviewmodal", function (e) {
+    var _id = $(this).data('index');
+    $('#spinner').show();
+    $.ajax({
+        url: "/Roster/GetReviewList?id="+_id,
+        type:"GET",
+        //type: "POST",
+        //data: { id: _id},
+        success: function (data) {
+            // drawOrganization(data);
+            $('#spinner').hide();
+            renderReviewList(data);
+           
+        }, fail: function (res) {
+
+        },
+        complete: function (res) {
+            $('#spinner').hide();
+        }
+    });
+
+
+    
+
+});
+
+function renderReviewList(data) {
+
+    $("#reviewlist-modal .modal-body").html('');
+
+    if (data.length == 0) return false;
+
+    var _tblStr = '<table class="table table-bordered" id="review-modal-table"><thead><tr><th>Review Color</th><th>Notes</th><th>Entered By</th><th>Entered Date</th><tr></thead><tbody>';
+  
+    data.forEach(function (item) {
+        var _clr = item.CRColorCode == 1 ? 'red' : item.CRColorCode == 2 ? '#ffff00' : 'green';
+
+        _tblStr += '<tr><td><div class="rlclrdiv" style="background:' + _clr + ';"></div></td><td>' + item.MgNotes + '</td><td>' + item.ModifiedBy + '</td><td>' + item.ModifiedDate + '</td> </tr>'
+    });
+
+    _tblStr+='<tbody></table>';
+
+    $("#reviewlist-modal .modal-body").append(_tblStr);
+    $("#reviewlist-modal").modal("show");
+
+};
+
+
+//Old Method
+/*
 $('#FSResources').on('change', function () {
 
     var serviceId = (this.value);
@@ -886,10 +1052,17 @@ $('#FSResources').on('change', function () {
     });
 })
 
+*/
 
 
-$('#ddFsOrganization').on('change', function () {
+//$('#ddFsOrganization').on('change', function () {
+
+$(document).on('change', '[name="company"]', function (e) {
+
+
     var communityId = (this.value);
+
+   // if(communityId == )
     $('#CommunityId').val(communityId);
     $('#_CommunityId').val(communityId);
 
@@ -898,6 +1071,7 @@ $('#ddFsOrganization').on('change', function () {
         type: "POST",
         data: { CommunityId: communityId },
         success: function (data) {
+
             $('#CommunityId').val(data.CommunityId);
             if (data.Address == null) {
                 $('#SpnCommunityAddress').text("");
@@ -950,6 +1124,73 @@ $('#ddFsOrganization').on('change', function () {
     });
 })
 
+//Old Method
+/*
+
+$('#ddFsOrganization').on('change', function () {
+    var communityId = (this.value);
+    $('#CommunityId').val(communityId);
+    $('#_CommunityId').val(communityId);
+
+    $.ajax({
+        url: "/Roster/GetOrganization",
+        type: "POST",
+        data: { CommunityId: communityId },
+        success: function (data) {
+
+            $('#CommunityId').val(data.CommunityId);
+            if (data.Address == null) {
+                $('#SpnCommunityAddress').text("");
+            } else {
+                $('#SpnCommunityAddress').text(data.Address);
+            }
+            if (data.City == null) {
+                $('#SpnCommunityCity').text("");
+            }
+            else {
+                $('#SpnCommunityCity').text(data.City);
+            }
+
+            if (data.State == null) {
+                $('#SpnCommunityState').text("");
+            }
+            else {
+                $('#SpnCommunityState').text(data.State);
+            }
+
+            if (data.ZipCode == null) {
+                $('#SpnCommunityZipCode').text("");
+            }
+            else {
+                $('#SpnCommunityZipCode').text(data.ZipCode);
+            }
+
+            if (data.OrganizationName == null) {
+                $('#spnOrganizationName').text("");
+            }
+            else {
+                $('#spnOrganizationName').text(data.OrganizationName);
+            }
+
+            if (data.Phone == null) {
+                $('#SpnCommunityPhone').text("");
+            }
+            else {
+                $('#SpnCommunityPhone').text(data.Phone);
+            }
+
+            if (data.Email == null) {
+                $('#SpnCommunityEmail').text("");
+            }
+            else {
+                $('#SpnCommunityEmail').text(data.Email);
+            }
+
+        }
+    });
+})
+
+*/
 
 $('#referralLetterPdf').on('click', function () {
     if (parseInt($('#servicescount').val()) > 1) {

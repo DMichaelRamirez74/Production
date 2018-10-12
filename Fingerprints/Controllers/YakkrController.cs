@@ -382,6 +382,75 @@ namespace Fingerprints.Controllers
             }
         }
 
+        [CustAuthFilter()]
+        public ActionResult Organizationalissue(int id, string clientid, string center, string household,string clientname) {
+
+            var result = new YakkrData().GetQuestionaireByYakkrId(id, 3);
+
+            string Name = "";
+            long Client = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientid));
+            int CenterId = Convert.ToInt32(EncryptDecrypt.Decrypt64(center));
+            int HouseHoldId = Convert.ToInt32(EncryptDecrypt.Decrypt64(household));
+
+            ViewBag.ClientName = clientname;
+            ViewBag.ClientId = Client;
+            RosterNew.Users Userlist = new RosterNew.Users();
+            var Rd = new RosterData();
+            var stf = StaffDetails.GetInstance();
+
+            Rd.GetCaseNote(ref Name, ref Userlist, HouseHoldId, CenterId, Client.ToString(), stf.AgencyId.ToString(), stf.UserId.ToString());
+            ViewBag.Userlist = Userlist.UserList;
+
+            return View(result);
+        }
+
+        [HttpPost]
+        [CustAuthFilter()]
+        [ValidateInput(false)]
+        public ActionResult Organizationalissue(int ProblemOn, int? CRColorCode, int QuestionaireID, int CommunityId, int Yakkrid,
+           string MgNotes, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds)
+        {
+
+            if (ProblemOn == 1) {
+               
+                    StringBuilder _Ids = new StringBuilder();
+                    if (TeamIds.IDS != null)
+                    {
+                        foreach (string str in TeamIds.IDS)
+                        {
+                            _Ids.Append(str + ",");
+                        }
+                        CaseNote.StaffIds = _Ids.ToString().Substring(0, _Ids.Length - 1);
+                    }
+
+                    CaseNote.CaseNotetags = (CaseNote != null && !string.IsNullOrEmpty(CaseNote.CaseNotetags)) ? CaseNote.CaseNotetags.Substring(0, CaseNote.CaseNotetags.Length - 1) : "";
+                
+            }
+
+            var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, CRColorCode, CommunityId, QuestionaireID, Yakkrid,MgNotes,CaseNote, Attachments);
+
+            return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=453");
+        }
+
+
+        public PartialViewResult GetYakkr453DetailsById(int yakkrid,string clientname)
+        {
+
+            var result = new YakkrData().GetQuestionaireByYakkrId(yakkrid,5);
+
+            ViewBag.CName = clientname;
+
+            return PartialView("~/Views/Partialviews/_Yakkr453DetailPartial.cshtml", result);
+        }
+
+
+        //public ActionResult SubmitManagerFeedBack(int ProblemOn, string CaseNotetags, string FeedBackTOClient, int? CRColorCode,int QuestionaireID, int CommunityId,int Yakkrid)
+        //{
+        //    var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, FeedBackTOClient,CRColorCode, CaseNotetags, CommunityId, QuestionaireID, Yakkrid);
+
+        //    return RedirectToAction("YakkrList", new { YakkrCode = 451 });
+        //}
+
         #endregion  yakkr451
 
 

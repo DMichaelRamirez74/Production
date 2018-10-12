@@ -1516,6 +1516,7 @@ namespace FingerprintsData
                     matchProviderModel.ZipCode = dr["ZipCode"].ToString();
                     matchProviderModel.Email = dr["Email"].ToString();
                     matchProviderModel.Phone = dr["PhoneNo"].ToString();
+                   matchProviderModel.CRColorCode = dr["CRColorCode"].ToString();
                 }
             }
 
@@ -5566,6 +5567,160 @@ namespace FingerprintsData
             }
             return HouseholdTagsList;
         }
+
+
+        #region ReferalReviewList
+
+        public List<ReferalDetails> GetOrganizationListWithCount(int ServiceId, string AgencyId,int mode)
+        {
+
+            List<ReferalDetails> OrgList = new List<ReferalDetails>();
+
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+               
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Agencyid", AgencyId));
+                    command.Parameters.Add(new SqlParameter("@Roleid", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@mode", mode));
+                    command.Parameters.Add(new SqlParameter("@ServiceId", ServiceId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_RefOrgnaizationReviewList";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[0] != null)
+                    {
+                        if (_dataset.Tables[0].Rows.Count > 0)
+                        {
+                           
+                            foreach (DataRow dr in _dataset.Tables[0].Rows)
+                            {
+                                var Org = new ReferalDetails()
+                                {
+
+                              CompanyName = dr["OrganizationName"].ToString(),
+                              CommunityResourceID = Convert.ToInt32( dr["CommunityId"].ToString()),
+                              CRColorCode = DBNull.Value == dr["ColorCode"] ? 0 : Convert.ToInt32(dr["ColorCode"].ToString()),
+                              ReviewCount = DBNull.Value == dr["ReviewCount"] ? 0 : Convert.ToInt32(dr["ReviewCount"].ToString()),
+                                    
+                                };
+                                OrgList.Add(Org);
+
+                            }
+                        }
+                    }
+                }
+
+               
+                            }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+            }
+
+            return OrgList;
+
+
+        }
+
+
+        public List<ReferalDetails> GetReviewList(int communityid,int mode)
+        {
+
+            List<ReferalDetails> OrgList = new List<ReferalDetails>();
+
+            try
+            {
+                StaffDetails staffDetails = StaffDetails.GetInstance();
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@Agencyid", staffDetails.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@Roleid", staffDetails.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
+                    command.Parameters.Add(new SqlParameter("@mode", mode));
+                    command.Parameters.Add(new SqlParameter("@CommunityId", communityid));
+                    //command.Parameters.Add(new SqlParameter("@ServiceId", ServiceId));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_RefOrgnaizationReviewList";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[0] != null)
+                    {
+                        if (_dataset.Tables[0].Rows.Count > 0)
+                        {
+
+                            foreach (DataRow dr in _dataset.Tables[0].Rows)
+                            {
+                                var Org = new ReferalDetails()
+                                {
+
+                                   // CompanyName = dr["OrganizationName"].ToString(),
+               
+                                     QuestionaireID = Convert.ToInt32(dr["QuestionaireId"].ToString()),
+                                      MgNotes = dr["MgNotes"].ToString(),
+                                    CRColorCode = DBNull.Value == dr["ColorCode"] ? 0 : Convert.ToInt32(dr["ColorCode"].ToString()),
+                                   // ReviewCount = DBNull.Value == dr["ReviewCount"] ? 0 : Convert.ToInt32(dr["ReviewCount"].ToString()),
+                                     ModifiedBy = dr["ModifiedBy"].ToString(),
+                                       ModifiedDate = dr["ModifiedDate"].ToString()
+
+                                };
+                                OrgList.Add(Org);
+
+                            }
+                        }
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+                clsError.WriteException(ex);
+            }
+
+            return OrgList;
+
+
+        }
+
+
+
+        #endregion  ReferalReviewList
 
 
     }

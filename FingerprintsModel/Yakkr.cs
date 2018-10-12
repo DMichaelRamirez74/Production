@@ -90,6 +90,7 @@ public int YakkrId { get; set; }
 public int? CaseNoteId { get; set; }
  public string DateOfAppointment { get; set; }
  public string TimeOfAppointment { get; set; }
+public string ClientStory { get; set; }
 
     }
 
@@ -107,8 +108,21 @@ public int? CaseNoteId { get; set; }
         public int YakkrId451 { get; set; }
         public string Address { get; set; }
         public string PhoneNo { get; set; }
+        public string ClientStory { get; set; }
 
+        public int CommunityResourceID { get; set;}
+        public int QuestionaireID { get; set; }
 
+        public int ProblemOn { get; set; }
+        public string MgNotes { get; set; }
+
+        public int CRColorCode { get; set; }
+        public int ReviewCount { get; set; }
+
+        public string ModifiedBy { get; set; }
+        public string ModifiedDate { get; set; }
+
+        public CaseNote CaseNote { get; set; }
     }
 
     #endregion yakkr451

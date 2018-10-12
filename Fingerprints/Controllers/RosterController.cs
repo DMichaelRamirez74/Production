@@ -2688,5 +2688,34 @@ namespace Fingerprints.Controllers
             return Json(staff, JsonRequestBehavior.AllowGet);
         }
 
+
+        #region ReferalReviewList
+
+        public JsonResult GetOrganizationList(int ServiceId, string AgencyId)
+        {
+            var result = new RosterData().GetOrganizationListWithCount(ServiceId, AgencyId,1);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public JsonResult GetOrganizationListByAgency(string AgencyId)
+        {
+            var result = new RosterData().GetOrganizationListWithCount(0, AgencyId, 3);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public JsonResult GetReviewList(int id)
+        {
+            var result = new RosterData().GetReviewList(id, 2);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+        #endregion ReferalReviewList
+
     }
 }

@@ -385,6 +385,148 @@
 
     </style>
 
+    <style type="text/css" title="orggnaization list">
+        /*
+        .radio-div {
+    display: inline-block;
+    padding: 0 20px;
+}
+        .radio-div {
+    display: inline-block;
+    padding: 0 20px;
+}
+
+        .radio-div input {
+    display: none;
+}
+
+
+.radio-div label:before {
+    display: inline-block;
+    position: absolute;
+    content: " ";
+    width: 8px;
+    height: 8px;
+    left: 4px;
+    top: 5px;
+    background: transparent;
+    margin-left: -20px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+}
+
+    .radio-div label:after {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #163b69;
+    border-radius: 50%;
+    background-color: transparent;
+    top: 1px;
+}
+
+    .radio-div input:checked ~ label::before {
+    border-color: #34495e;
+}
+    */
+
+        
+/* The container */
+.container-radio {
+    display: block;
+    position: relative;
+        padding-left: 25px;
+    padding-right: 14px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.container-radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+       position: absolute;
+    top: 0;
+    left: 0;
+    height: 16px;
+    width: 16px;
+  /*  background-color: #eee;*/
+    border-radius: 50%;
+    border: 1px solid #34495e;
+}
+
+/* On mouse-over, add a grey background color */
+.container-radio:hover input ~ .checkmark {
+   /* background-color: #ccc;*/
+}
+
+/* When the radio button is checked, add a blue background */
+    /*
+.container-radio input:checked ~ .checkmark {
+    background-color: #2196F3;
+}*/
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.container-radio input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.container-radio .checkmark:after {
+     top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #34495e;
+}
+
+    label.container-radio {
+    font-weight: bold !important;
+}
+
+        .rlclrdiv {
+    width:15px;
+    height:15px;
+    background:#333;
+    left: 50%;
+    position: relative;
+
+        }
+
+        #review-modal-table {
+        text-align:center;
+        }
+   #review-modal-table thead {
+     background: #285B90;
+    color: #fff;
+}
+            
+</style>
+
+
+
     <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12 servies_lst no-padding no-print">
         <h2>Match Providers For  @ViewBag.ParentName</h2>
     </div>
@@ -453,7 +595,195 @@
         </div>
 
 
-        <div class="col-xs-12 serv_prod_main no-padding">
+        <div class="col-xs-12 serv_prod_main no-padding" style="display:none;" id="Org-row" >
+
+            <div class="cent_lst col-xs-12 no-padding">
+                <div class="fam_mem">
+                    <div class="col-xs-3 pad-right">
+                        <h3> Service Organization: </h3>
+                    </div>
+                    <div class="col-xs-9">
+
+                        <div class="col-xs-12 txt_labe">
+
+                            @*<div id="organization-list" class="row">*@
+                            @*<div id="organization-list" style="height: 100px;display: block;overflow-y: auto;border:1px solid #a9a9a9;padding:10px 0px;">*@
+
+                            <div id="organization-list" style="display: block;padding:0px;">
+
+
+                            </div></div>
+
+
+                            <!--
+            <div class="col-xs-12 txt_labe">
+
+                <div id="organization-list" class="row">
+
+
+                </div>
+
+                @if (Model.OrganizationList != null && Model.OrganizationList.Count > 0)
+                {
+                    if (Model.MPMList.FirstOrDefault().IsFunction == false)
+                    {
+
+                        if (Model.MPMList.Count > 1 || (Model.OrganizationList != null && Model.OrganizationList.Count > 1))
+                        {
+
+                            if (Model.OrganizationList != null && Model.OrganizationList.Count > 0)
+                            {
+                                if (Model.MPMList.FirstOrDefault().IsFunction == true)
+                                {
+                                    foreach (var Item in Model.OrganizationList)
+                                    {
+                                        <option value="@Item.Value" selected>@Item.Text </option>
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var Item in Model.OrganizationList)
+                                    {
+
+
+
+
+                                        <div class="row">
+                                            <div class="col-sm-4" style="padding-bottom:10px;">
+                                                <label class="container-radio" style="display:inline;">
+                                                    @Item.Text
+                                                    <input type="radio" id="client-radio_@Item.Value" name="radio">
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                                <i class="fa fa-external-link agency-review" data-index="@Item.Value"></i>
+
+                                            </div>
+                                        </div>
+
+
+                                    }
+
+                                }
+                            }
+
+
+                            @*<select id="ddFsOrganization">
+                                <option value="0">--Select Organization--</option>
+                                @if (Model.OrganizationList != null && Model.OrganizationList.Count > 0)
+                                {
+                                    if (Model.MPMList.FirstOrDefault().IsFunction == true)
+                                    {
+                                        foreach (var Item in Model.OrganizationList)
+                                        {
+                                            <option value="@Item.Value" selected>@Item.Text </option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        foreach (var Item in Model.OrganizationList)
+                                        {
+                                            <option value="@Item.Value">@Item.Text </option>
+                                        }
+
+                                    }
+                                }
+                            </select>*@
+                        }
+                        else
+                        {
+                            <input type="hidden" id="OrganizationId" value="" />  <label id="ddFsOrganization"></label>
+                        }
+                    }
+                    else
+                    {
+
+
+                        if (Model.OrganizationList != null && Model.OrganizationList.Count > 1 && Model.MPMList[0].CommunityId == 0)
+                        {
+                            if (Model.MPMList[0].CommunityId > 0)
+                            {
+                                foreach (var Itemorg in Model.OrganizationList)
+                                {
+                                    if (Itemorg.Value == Model.MPMList[0].CommunityId.ToString())
+                                    {
+
+                                        @*<option value="@Itemorg.Value" selected>@Itemorg.Text </option>*@
+
+        <div class="radio-div">
+            <input type="radio" id="client-radio_@Itemorg.Value" value="1" name="ProblemOn">
+            <label for="client-radio_@Itemorg.Value">@Itemorg.Text</label>
+        </div>
+                                    }
+                                }
+                            }
+
+                            @*<select id="ddFsOrganization">
+                                <option value="0">--Select Organization--</option>
+                                @if (Model.MPMList[0].CommunityId > 0)
+                                {
+                                    foreach (var Itemorg in Model.OrganizationList)
+                                    {
+                                        if (Itemorg.Value == Model.MPMList[0].CommunityId.ToString())
+                                        {
+                                            <option value="@Itemorg.Value" selected>@Itemorg.Text </option>
+
+                                        }
+                                        else
+                                        {
+                                            <option value="@Itemorg.Value">@Itemorg.Text </option>
+
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var Item5 in Model.OrganizationList)
+                                    {
+                                        <option value="@Item5.Value">@Item5.Text </option>
+                                    }
+
+                                }
+                            </select>*@
+                        }
+
+
+                        else
+                        {
+                            foreach (var Item4 in Model.OrganizationList)
+                            {
+                                if (Model.MPMList[0].CommunityId > 0)
+                                {
+                                    if (Item4.Value == Model.MPMList[0].CommunityId.ToString())
+                                    {
+                                        <input type="hidden" id="OrganizationId" value="@Item4.Value" />  <label id="ddFsOrganization">@Item4.Text</label>
+                                    }
+                                }
+                                else
+                                {
+                                    <input type="hidden" id="OrganizationId" value="@Item4.Value" />  <label id="ddFsOrganization">@Item4.Text</label>
+
+                                }
+
+                            }
+                        }
+
+
+                    }
+                }
+                <span class="error" id="err_organization" style="display:none; width: auto;float: left;padding: 0 8px;margin-left: 10px;line-height: 27px;font-size: 12px;font-weight: bold;margin-bottom:0;">
+                </span>
+            </div>
+            -->
+
+                        </div>
+                </div>
+            </div>
+        </div>
+       
+
+        <!-- Old Slect start-->
+
+        @*<div class="col-xs-12 serv_prod_main no-padding">
 
             <div class="cent_lst col-xs-12 no-padding">
                 <div class="fam_mem">
@@ -565,8 +895,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-
+        </div>*@
+         
+        <!-- Old Slect end-->
 
         <div class="col-xs-12 serv_prod_main no-padding">
             <div class="cent_lst col-xs-12 no-padding">
@@ -671,7 +1002,16 @@
                             {
                                 if (item2.Value.ToString() == Model.MPMList[0].CommunityId.ToString())
                                 {
-                                    <span><a id="spnOrganizationName" data-toggle="modal" data-target="#myModal" style="display:inline-block;margin-top:10px;cursor:pointer;text-decoration:underline">@item2.Text</a></span>
+                                    <span>
+                    <a id="spnOrganizationName" data-toggle="modal" data-target="#myModal" style="display:inline-block;margin-top:10px;cursor:pointer;text-decoration:underline">@item2.Text</a>
+                                 @*@if(Model.MPMList[0].CRColorCode == "1")
+                                 {
+                                        <span class="badge" style="display: inline;background: #d21010;margin-left: 10px;">2</span>
+                                        }*@
+                                 
+                                       
+                                    
+                                    </span>
 
                                 }
                             }
@@ -681,7 +1021,10 @@
                     else
                     {
 
-                        <span><a id="spnOrganizationName" data-toggle="modal" data-target="#myModal" style="display:inline-block;margin-top:10px;cursor:pointer;text-decoration:underline"></a></span>
+                        <span>
+                    <a id="spnOrganizationName" data-toggle="modal" data-target="#myModal" style="display:inline-block;margin-top:10px;cursor:pointer;text-decoration:underline"></a>
+                            <span id="crcolor-div" class="badge" style="display: none;color: #fff;margin-left: 10px;"></span> 
+                        </span>
                     }
                     <input type="hidden" id="CommunityId" />
                 </div>
@@ -768,6 +1111,22 @@
         <div class="col-xs-12" style="margin-bottom:50px;"></div>
     </div>
 
+
+    @*<script type="text/template" id="orglistradio-temp">
+
+        <div class="row">
+            <div class="col-sm-4" style="padding-bottom:10px;">
+                <label class="container-radio" style="display:inline;">
+                    <span class="text"></span>
+                    <input type="radio" id="{{idvalue}}" name="radio">
+                    <span class="checkmark"></span>
+                </label>
+                <i class="fa fa-external-link agency-review" data-index="{{value}}"></i>
+
+            </div>
+        </div>
+
+    </script>*@
 
     <div class="modal fade" id="myModal5" role="dialog">
         <div class="modal-dialog modal-width-change">
@@ -1173,7 +1532,31 @@
         </div>
     </div>
 
-    <script src="~/Scripts/Referral/MatchProvider.js"></script>
+      <!-----Reviews Modal-->
+<div class="modal fade" id="reviewlist-modal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:none;margin-bottom:0;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="">Review List</h4>
+            </div>
+            
+            <div class="modal-body">
+
+
+            </div>
+
+            @*<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>*@
+        </div>
+
+    </div>
+</div>
+
+
+    <script src="~/Scripts/Referral/MatchProvider.js?v=5"></script>
 
     <script>
 
