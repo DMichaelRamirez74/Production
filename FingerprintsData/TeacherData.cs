@@ -2149,7 +2149,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", staffDetails.UserId));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetClientAttendanceByAttendanceDate";
-                command.CommandTimeout = 120; // timeout for 2 minutes
+                command.CommandTimeout = 180; // timeout for 2 minutes
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 Connection.Open();
@@ -2245,7 +2245,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", roleId));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetCenterBasedCenters";
-                command.CommandTimeout = 120; // timeout for 2 minutes
+                command.CommandTimeout = 180; // timeout for 2 minutes
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
@@ -2316,7 +2316,7 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@IsHistorical", isHistorical));
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandText = "USP_InsertOfflineAttendance";
-                    command.CommandTimeout = 120; // timeout for 2 minutes
+                    command.CommandTimeout = 180; // timeout for 2 minutes
                     if (Connection.State == ConnectionState.Open) Connection.Close();
                     Connection.Open();
                     //DataAdapter = new SqlDataAdapter(command);
