@@ -318,7 +318,7 @@ namespace Fingerprints.Controllers
 
         [HttpGet]
         [CustAuthFilter()]
-        public ActionResult Yakkr451(int yakkrid,string cn, int cid,int center=0, int hid=0)
+        public ActionResult QuestionnaireForm(int yakkrid,string cn, int cid,int center=0, int hid=0)
         {
 
           //  int centerid = 75;
@@ -353,7 +353,7 @@ namespace Fingerprints.Controllers
         [HttpPost]
         [CustAuthFilter()]
         [ValidateInput(false)]
-        public ActionResult Yakkr451(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds, bool anotherref=false)
+        public ActionResult QuestionnaireForm(Questionaire qsform, RosterNew.CaseNote CaseNote, List<RosterNew.Attachment> Attachments, RosterNew.ClientUsers TeamIds, bool anotherref=false)
         {
             if (qsform.AppointmentMaked == 0)
             {
@@ -433,14 +433,14 @@ namespace Fingerprints.Controllers
         }
 
 
-        public PartialViewResult GetYakkr453DetailsById(int yakkrid,string clientname)
+        public PartialViewResult ReferralIssueSummary(int yakkrid,string clientname)
         {
 
             var result = new YakkrData().GetQuestionaireByYakkrId(yakkrid,5);
 
             ViewBag.CName = clientname;
 
-            return PartialView("~/Views/Partialviews/_Yakkr453DetailPartial.cshtml", result);
+            return PartialView("~/Views/Partialviews/_ReferralIssueSummaryPartial.cshtml", result);
         }
 
 

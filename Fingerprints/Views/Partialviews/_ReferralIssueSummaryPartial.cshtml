@@ -1,0 +1,243 @@
+﻿
+@model FingerprintsModel.ReferalDetails
+<div class="form-group-al">
+    <div class="row">
+        <div>
+            <div class="col-sm-12">
+                <h4><span style="text-decoration: underline;">Organization Info :</span></h4>
+
+            </div>
+
+
+            <div class="col-sm-12">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4" >
+                            <label class="control-label prop-label">Name :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: 100;">@Model.CompanyName</label>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4">
+                            <label class="control-label prop-label">Phone No :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: 100;">@Model.PhoneNo</label>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-sm-12">
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4">
+                            <label class="control-label prop-label">Services :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: 100;">@Model.Services</label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4">
+                            <label class="control-label prop-label"> Address :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: 100;">@Model.Address</label>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+        </div> <!-- Org INfo-->
+
+        <div>
+            <div class="col-sm-12">
+                <h4><span style="text-decoration: underline;">Client Info :</span></h4>
+
+            </div>
+
+            <div class="col-sm-12">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4">
+                            <label class="control-label prop-label">Name :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: 100;"><span class="client-name">@ViewBag.CName</span></label>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4" >
+                            <label class="control-label prop-label">Reason :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: bold;">
+
+                            @{
+                                var _Reason = "-";
+                                if (Model.ReasonForNotServed != null || Model.ReasonForNotServed > 0)
+                                {
+                                    switch (Model.ReasonForNotServed)
+                                    {
+
+                                        case 1:
+                                            _Reason = "Asked to leave";
+                                            break;
+                                        case 2:
+                                            _Reason = "No interpreter";
+                                            break;
+                                        case 3:
+                                            _Reason = "Long wait";
+                                            break;
+                                    }
+
+                                }
+                                if (Model.Rating == 1)
+                                {
+                                    _Reason = "Rating as Poor";
+
+
+                                }
+
+                            }
+                            @_Reason
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-sm-12">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-2">
+                            <label class="control-label prop-label">Note :</label>
+                        </div>
+                        <div class="col-sm-12 col-md-10" style="font-weight:100;line-height:1.4;">@Model.ClientStory</div>
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            </div><!-- Client INfo-->
+
+
+
+        <div>
+            <div class="col-sm-12">
+                
+                <h4><span style="text-decoration: underline;"> Manager Feedback  :</span></h4>
+            </div>
+
+
+            <div class="col-sm-12">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-4">
+                            <label class="control-label prop-label">Problem On :</label>
+                        </div>
+                        <label class="col-sm-12 col-md-8 control-label" style="font-weight: bold;">
+                            @if (@Model.ProblemOn == 1)
+                            {
+                                <k>Client Side</k>
+                            }
+                            else
+                            {
+                                <k>Agency Side</k>
+                            }
+
+                        </label>
+                    </div>
+                </div>
+                @if (@Model.ProblemOn == 2)
+                {
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div class="col-sm-12 col-md-4">
+                                <label class="control-label prop-label">Review Color:</label>
+                            </div>
+                            <label class="col-sm-12 col-md-8 control-label" style="font-weight:bold;">
+
+                                @if (Model.CRColorCode == 1)
+                                {
+                                    <k>RED</k>
+                                }
+                                else if (Model.CRColorCode == 2)
+                                {
+                                    <k>Yellow</k>
+                                }
+                                else if (Model.CRColorCode == 3)
+                                {
+                                    <k>Green</k>
+                                }
+                            </label>
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+
+
+@if (@Model.ProblemOn == 2)
+{
+
+            <div class="col-sm-12">
+
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-md-2">
+                            <label class="control-label prop-label">Note :</label>
+                        </div>
+                        <div class="col-sm-12 col-md-10" style="font-weight: 100;line-height:1.4;">
+                           @Model.MgNotes
+
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+
+}
+else if (@Model.ProblemOn == 1)
+{
+
+    <div class="col-sm-12">
+
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="col-sm-12 col-md-2">
+                    <label class="control-label prop-label">Case Note :</label>
+                </div>
+                <div class="col-sm-12 col-md-10" style="font-weight: 100;line-height:1.4;">
+                    @*@Model.CaseNote.Note*@
+
+                    @(new HtmlString(@Model.CaseNote.Note))
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+            </div> <!--  Mg Feedback-->
+
+
+
+            </div>
+</div>
