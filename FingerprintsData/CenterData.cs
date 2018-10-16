@@ -1500,19 +1500,19 @@ namespace FingerprintsData
                         parentInfoList = (from DataRow dr in _dataset.Tables[0].Rows
                                           select new ParentInfo
                                           {
-                                              ClientId = Convert.ToInt64(dr["ClientId"]),
-                                              ChildName = dr["ChildName"].ToString(),
-                                              CenterId = Convert.ToInt64(dr["CenterId"]),
-                                              ClassRoomId = Convert.ToInt64(dr["ClassroomID"]),
-                                              CenterName = dr["CenterName"].ToString(),
-                                              ClassRoomName = dr["ClassRoomName"].ToString(),
-                                              PhoneType = Convert.ToInt32(dr["PhoneType"]),
-                                              PhoneNo = dr["Phoneno"].ToString(),
-                                              IsSms = Convert.ToBoolean(dr["Sms"]),
-                                              ParentName = dr["ParentName"].ToString().Trim(',').Replace(",", "<br>"),
-                                              EmailId = dr["EmailId"].ToString().Trim(',').Replace(",", Environment.NewLine),
-                                              NoEmail = Convert.ToBoolean(dr["NoEmail"]),
-                                              IsPrimary = Convert.ToBoolean(dr["IsPrimaryContact"])
+                                              ClientId = dr["ClientId"] == DBNull.Value ? 0 : Convert.ToInt64(dr["ClientId"]),
+                                              ChildName = dr["ChildName"] == DBNull.Value ? string.Empty : Convert.ToString(dr["ChildName"]),
+                                              CenterId = dr["CenterId"]==DBNull.Value?0: Convert.ToInt64(dr["CenterId"]),
+                                              ClassRoomId = dr["ClassroomID"]==DBNull.Value?0: Convert.ToInt64(dr["ClassroomID"]),
+                                              CenterName = dr["CenterName"]==DBNull.Value?string.Empty:Convert.ToString(dr["CenterName"]),
+                                              ClassRoomName = dr["CenterName"] == DBNull.Value ? string.Empty:Convert.ToString(dr["ClassRoomName"]),
+                                              PhoneType = dr["PhoneType"] == DBNull.Value ?0:Convert.ToInt32(dr["PhoneType"]),
+                                              PhoneNo = dr["Phoneno"]==DBNull.Value?string.Empty:Convert.ToString(dr["Phoneno"]),
+                                              IsSms = dr["Sms"]==DBNull.Value?false: Convert.ToBoolean(dr["Sms"]),
+                                              ParentName = dr["ParentName"]==DBNull.Value?string.Empty: dr["ParentName"].ToString().Trim(',').Replace(",", "<br>"),
+                                              EmailId = dr["EmailId"]==DBNull.Value?string.Empty: dr["EmailId"].ToString().Trim(',').Replace(",", Environment.NewLine),
+                                              NoEmail =dr["NoEmail"]==DBNull.Value?false:  Convert.ToBoolean(dr["NoEmail"]),
+                                              IsPrimary =dr["IsPrimaryContact"]==DBNull.Value?false: Convert.ToBoolean(dr["IsPrimaryContact"])
                                           }
 
                                         ).ToList();
@@ -1526,9 +1526,9 @@ namespace FingerprintsData
                             model.CenterList = (from DataRow dr1 in _dataset.Tables[1].Rows
                                                 select new Center
                                                 {
-                                                    CenterId = Convert.ToInt32(dr1["CenterId"]),
-                                                    CenterName = dr1["CenterName"].ToString(),
-                                                    Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterId"].ToString())
+                                                    CenterId = dr1["CenterId"] == DBNull.Value ? 0 : Convert.ToInt32(dr1["CenterId"]),
+                                                    CenterName = dr1["CenterName"] == DBNull.Value ? string.Empty : Convert.ToString(dr1["CenterName"]),
+                                                    Enc_CenterId = EncryptDecrypt.Encrypt64(dr1["CenterId"] == DBNull.Value ? "0" : Convert.ToString(dr1["CenterId"]))
                                                 }
                                               ).ToList();
                         }
@@ -1538,7 +1538,6 @@ namespace FingerprintsData
                     List<long> clientIDList = new List<long>();
                     clientIDList = parentInfoList.Select(x => x.ClientId).Distinct().ToList();
 
-                    var list2 = parentInfoList.Where(c => c.ClientId == 15023).Select(c => c.PhoneNo).Distinct().ToArray();
                     foreach (var clientId in clientIDList)
                     {
                         infoList2.AddRange(parentInfoList.Select(x => new ParentInfo
@@ -1549,14 +1548,12 @@ namespace FingerprintsData
                             ClassRoomId = x.ClassRoomId,
                             CenterName = x.CenterName,
                             ClassRoomName = x.ClassRoomName,
-                            //  PhoneType = x.PhoneType,
                             HomePhone = string.Join("<br>", parentInfoList.Where(c => c.ClientId == clientId && c.PhoneType == 1).Select(c => c.PhoneNo).Distinct().ToArray()).Replace("<br>", Environment.NewLine).Replace(Environment.NewLine, Environment.NewLine + Environment.NewLine),
                             MobilePhone = string.Join("<br>", parentInfoList.Where(c => c.ClientId == clientId && c.PhoneType == 2).Select(c => c.PhoneNo).Distinct().ToArray()).Replace("<br>", Environment.NewLine).Replace(Environment.NewLine, Environment.NewLine + Environment.NewLine),
                             WorkPhone = string.Join("<br>", parentInfoList.Where(c => c.ClientId == clientId && c.PhoneType == 3).Select(c => c.PhoneNo).Distinct().ToArray()).Replace("<br>", Environment.NewLine).Replace(Environment.NewLine, Environment.NewLine + Environment.NewLine),
                             IsSmsHomePhone = parentInfoList.Where(c => c.ClientId == clientId && c.PhoneType == 1).Select(c => c.IsSms).Distinct().FirstOrDefault(),
                             IsSmsMobilePhone = parentInfoList.Where(c => c.ClientId == clientId && c.PhoneType == 2).Select(c => c.IsSms).Distinct().FirstOrDefault(),
                             IsSmsWorkPhone = parentInfoList.Where(c => c.ClientId == clientId && c.PhoneType == 3).Select(c => c.IsSms).Distinct().FirstOrDefault(),
-                            // IsSms = x.IsSms,
                             ParentName = string.Join(",", parentInfoList.Where(c => c.ClientId == clientId).Select(c => c.ParentName).Distinct().ToArray()).Replace(",", Environment.NewLine),
                             EmailId = x.EmailId,
                             NoEmail = x.NoEmail,
