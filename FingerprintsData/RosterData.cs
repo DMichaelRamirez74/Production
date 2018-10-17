@@ -755,10 +755,11 @@ namespace FingerprintsData
                                                IsScreeningFollowUpComplete = Convert.ToBoolean(dr["ScreeningFollowUpComplete"]),
                                                ReferenceProg = Convert.ToInt32(dr["ReferenceProg"]),
                                                IsFutureWithdrawal = Convert.ToBoolean(dr["StatusUpdated"]),
-                                               IsShowTransition=Convert.ToBoolean(dr["IsShowTransition"]),
-                                               TransitionColor=Convert.ToString(dr["TransitionColor"]),
-                                               TransitionType=Convert.ToInt32(dr["TransitionType"]),
-                                               Returning=Convert.ToString(dr["Returning"])
+                                               IsShowTransition = Convert.ToBoolean(dr["IsShowTransition"]),
+                                               TransitionColor = Convert.ToString(dr["TransitionColor"]),
+                                               TransitionType = Convert.ToInt32(dr["TransitionType"]),
+                                               Returning = Convert.ToString(dr["Returning"]),
+                                               IsShowScreeningFollowUp = Convert.ToBoolean(dr["ShowScreeningFollowUp"])
 
                                            }
 
@@ -1222,22 +1223,29 @@ namespace FingerprintsData
             try
             {
                 bool result = false;
-                Connection.Open();
-                command.Connection = Connection;
-                command.Parameters.Clear();
-                command.CommandText = "sp_FamilyHouseHoldOperations";
-                command.Parameters.AddWithValue("@ClientId", ClientId);
-                command.Parameters.AddWithValue("@CommonClientId", CommonClientId);
-                command.Parameters.AddWithValue("@Step", Step);
-                command.Parameters.AddWithValue("@HouseHoldStatus", Status);
-                command.Parameters.AddWithValue("@HouseHoldId", HouseHoldId);
-                command.Parameters.AddWithValue("@ReferralClientServiceId", referralClientId);
-                command.Parameters.AddWithValue("@ClinetIdArray", clientIdarray);
-                command.Parameters.AddWithValue("@Command", queryCommand);
-                command.CommandType = CommandType.StoredProcedure;
-                command.ExecuteNonQuery();
-                Connection.Close();
 
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.CommandText = "sp_FamilyHouseHoldOperations";
+                    command.Parameters.AddWithValue("@ClientId", ClientId);
+                    command.Parameters.AddWithValue("@CommonClientId", CommonClientId);
+                    command.Parameters.AddWithValue("@Step", Step);
+                    command.Parameters.AddWithValue("@HouseHoldStatus", Status);
+                    command.Parameters.AddWithValue("@HouseHoldId", HouseHoldId);
+                    command.Parameters.AddWithValue("@ReferralClientServiceId", referralClientId);
+                    command.Parameters.AddWithValue("@ClinetIdArray", clientIdarray);
+                    command.Parameters.AddWithValue("@Command", queryCommand);
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    command.ExecuteNonQuery();
+                    Connection.Close();
+                }
                 return result;
             }
             catch (Exception ex)
@@ -1247,7 +1255,7 @@ namespace FingerprintsData
             }
         }
 
-        public long SaveReferralClient(long ServiceId, long CommonClientId, Guid AgencyId, Int32 Step, bool Status, int CreatedBy, long referralclientId)
+        public long SaveReferralClient(long ServiceId, long CommonClientId, Guid AgencyId, Int32 Step, bool Status, int CreatedBy, long referralclientId, long screeningReferralYakkr)
         {
             try
             {
@@ -1262,6 +1270,7 @@ namespace FingerprintsData
                     command.CommandText = "sp_ReferralOperations";
                     command.Parameters.AddWithValue("@ServiceId", ServiceId);
                     command.Parameters.AddWithValue("@CommonClientId", CommonClientId);
+                    command.Parameters.AddWithValue("@ScreeningReferralYakkr", screeningReferralYakkr);
                     command.Parameters.AddWithValue("@Command", "SELECT");
                     command.Parameters.AddWithValue("@Step", Step);
                     command.CommandType = CommandType.StoredProcedure;
@@ -1284,6 +1293,7 @@ namespace FingerprintsData
                 command.Parameters.AddWithValue("@AgencyId", AgencyId);
                 command.Parameters.AddWithValue("@Step", Step);
                 command.Parameters.AddWithValue("@Status", Status);
+                command.Parameters.AddWithValue("@ScreeningReferralYakkr", screeningReferralYakkr);
                 command.Parameters.AddWithValue("@CreatedBy", CreatedBy);
                 command.Parameters.AddWithValue("@Command", queryCommand);
                 command.CommandType = CommandType.StoredProcedure;
@@ -1350,22 +1360,20 @@ namespace FingerprintsData
         }
 
 
-        public bool SaveMatchProviders(string PickupDate, string NotesId, int ServiceResourceId, string AgencyId, string UserId, int ClientId, long CommunityId, long ReferralClientServiceId)
+        public bool SaveMatchProviders(ListRoster matchProvider)
         {
             try
             {
                 int Step = 3;
                 bool Status = true;
-                int CreatedBy = ClientId;
-
                 bool Success = false;
 
-            //    DateTime date = Convert.ToDateTime(PickupDate);
+                StaffDetails staff = StaffDetails.GetInstance();
 
                 Connection.Open();
                 command.Connection = Connection;
                 command.CommandText = "sp_MatchProviderOperations";
-                if (ReferralClientServiceId > 0)
+                if (matchProvider.ReferralClientServiceId > 0)
                 {
                     command.Parameters.AddWithValue("@Command", "");
                 }
@@ -1373,17 +1381,18 @@ namespace FingerprintsData
                 {
                     command.Parameters.AddWithValue("@Command", "INSERT");
                 }
-                command.Parameters.AddWithValue("@ReferralDate", PickupDate);
-                command.Parameters.AddWithValue("@ClientId", ClientId);
-                command.Parameters.AddWithValue("@NotesId", NotesId);
-                command.Parameters.AddWithValue("@ServiceId", ServiceResourceId);
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
+                command.Parameters.AddWithValue("@ReferralDate", matchProvider.ReferralDate);
+                command.Parameters.AddWithValue("@ClientId", matchProvider.ClientId);
+                command.Parameters.AddWithValue("@NotesId", matchProvider.Description);
+                command.Parameters.AddWithValue("@ServiceId", matchProvider.ServiceResourceId);
+                command.Parameters.AddWithValue("@AgencyId", matchProvider.AgencyId);
                 command.Parameters.AddWithValue("@Step", Step);
                 command.Parameters.AddWithValue("@Status", Status);
-                command.Parameters.AddWithValue("@UserId", UserId);
-                command.Parameters.AddWithValue("@CreatedBy", CreatedBy);
-                command.Parameters.AddWithValue("@CommunityId", CommunityId);
-                command.Parameters.AddWithValue("@ReferralClientServiceId", ReferralClientServiceId);
+                command.Parameters.AddWithValue("@UserId", staff.UserId);
+                command.Parameters.AddWithValue("@CreatedBy", matchProvider.ClientId);
+                command.Parameters.AddWithValue("@CommunityId", matchProvider.CommunityId);
+                command.Parameters.AddWithValue("@ReferralClientServiceId", matchProvider.ReferralClientServiceId);
+                command.Parameters.AddWithValue("@ScreeningReferralYakkr", EncryptDecrypt.Decrypt64(matchProvider.ScreeningReferralYakkr));
 
                 command.CommandType = CommandType.StoredProcedure;
                 var query = command.ExecuteNonQuery();
@@ -1461,6 +1470,7 @@ namespace FingerprintsData
                     referralService.ClientId = Convert.ToInt32(dr["ClientId"]);
                     referralService.ReferralClientServiceId = Convert.ToInt32(dr["ReferralClientServiceId"]);
                     referralService.ParentName = dr["ParentName"].ToString();
+                    referralService.ScreeningReferralYakkr = dr["ScreeningReferralYakkr"] != DBNull.Value ? EncryptDecrypt.Encrypt64(dr["ScreeningReferralYakkr"].ToString()) : EncryptDecrypt.Encrypt64("0");
                     referralServiceModelList.Add(referralService);
                 }
             }
@@ -3074,53 +3084,63 @@ namespace FingerprintsData
             return RefList3;
         }
 
-        public long SaveReferral(string PickupDate, string NotesId, int ServiceResourceId, string AgencyId, string UserId, int ClientId, long CommunityId, long ReferralClientServiceId)
+        public long SaveReferral(ListRoster companyReferral)
         {
             try
             {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 int Step = 3;
                 bool Status = true;
-                int CreatedBy = ClientId;
-
                 bool IsAgency = true;
 
-                DateTime date = Convert.ToDateTime(PickupDate);
 
-                Connection.Open();
-                command.Connection = Connection;
-                command.CommandText = "sp_ReferalOperations";
-                if (ReferralClientServiceId > 0)
+                DateTime date = DateTime.Parse(companyReferral.ReferralDate, new CultureInfo("en-US", true));
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
                 {
-                    command.Parameters.AddWithValue("@Command", "");
-                }
-                else
-                {
-                    command.Parameters.AddWithValue("@Command", "INSERT");
-                }
-                command.Parameters.AddWithValue("@ReferralDate", date);
-                command.Parameters.AddWithValue("@ClientId", ClientId);
-                command.Parameters.AddWithValue("@NotesId", NotesId);
-                command.Parameters.AddWithValue("@ServiceId", ServiceResourceId);
-                command.Parameters.AddWithValue("@AgencyId", AgencyId);
-                command.Parameters.AddWithValue("@Step", Step);
-                command.Parameters.AddWithValue("@IsAgency", IsAgency);
-                command.Parameters.AddWithValue("@Status", Status);
-                command.Parameters.AddWithValue("@UserId", UserId);
-                command.Parameters.AddWithValue("@CreatedBy", CreatedBy);
-                command.Parameters.AddWithValue("@CommunityId", CommunityId);
-                command.Parameters.AddWithValue("@ReferralClientServiceId", ReferralClientServiceId);
 
-                command.CommandType = CommandType.StoredProcedure;
-                //  command.ExecuteNonQuery();
-                var obj = command.ExecuteScalar();
-                var refId = Convert.ToInt64(obj);
-                Connection.Close();
 
-                return refId;
+                    command.Connection = Connection;
+                    command.CommandText = "sp_ReferalOperations";
+                    if (Convert.ToInt32(companyReferral.ReferralClientServiceId) > 0)
+                    {
+                        command.Parameters.AddWithValue("@Command", "");
+                    }
+                    else
+                    {
+                        command.Parameters.AddWithValue("@Command", "INSERT");
+                    }
+                    command.Parameters.AddWithValue("@ReferralDate", date);
+                    command.Parameters.AddWithValue("@ClientId", Convert.ToInt32(companyReferral.CommonClientId));
+                    command.Parameters.AddWithValue("@NotesId", companyReferral.Description == null ? "" : companyReferral.Description);
+                    command.Parameters.AddWithValue("@ServiceId", Convert.ToInt32(companyReferral.ServiceResourceId));
+                    command.Parameters.AddWithValue("@AgencyId", companyReferral.AgencyId);
+                    command.Parameters.AddWithValue("@Step", Step);
+                    command.Parameters.AddWithValue("@IsAgency", IsAgency);
+                    command.Parameters.AddWithValue("@Status", Status);
+                    command.Parameters.AddWithValue("@UserId", staff.UserId);
+                    command.Parameters.AddWithValue("@CreatedBy", Convert.ToInt32(companyReferral.CommonClientId));
+                    command.Parameters.AddWithValue("@CommunityId", Convert.ToInt32(companyReferral.CommunityId));
+                    command.Parameters.AddWithValue("@ReferralClientServiceId", Convert.ToInt32(companyReferral.ReferralClientServiceId));
+                    command.Parameters.AddWithValue("@ScreeningReferralYakkr", EncryptDecrypt.Decrypt64(companyReferral.ScreeningReferralYakkr));
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    var obj = command.ExecuteScalar();
+                    var refId = Convert.ToInt64(obj);
+                    Connection.Close();
+                    return refId;
+                }
+
             }
             catch (Exception ex)
             {
-                throw ex;
+                clsError.WriteException(ex);
+                return 0;
             }
         }
 
@@ -5629,9 +5649,10 @@ namespace FingerprintsData
                     }
                 }
 
-               
-                            }
-            catch (Exception ex) {
+
+            }
+            catch (Exception ex)
+            {
 
                 clsError.WriteException(ex);
             }

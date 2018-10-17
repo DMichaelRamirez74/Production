@@ -13,12 +13,11 @@ namespace FingerprintsModel
         public int Number { get; set; }
     }
 
-    public class YakkrClientDetail
+    public class YakkrClientDetail:YakkrDetail
     {
         public string Slots { get; set; }
         public string YakkrID { get; set; }
         public string ClientId { get; set; }
-        public string YakkrCode { get; set; }
         public String ClientName { get; set; }
         public String DOB { get; set; }
         public string CenterId { get; set; }

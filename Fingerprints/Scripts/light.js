@@ -257,7 +257,11 @@ AmCharts.themes.absenceReportTheme = {
     },
 
     AmLegend: {
-        color: "#000000"
+         // color: "#000000",
+        color: "#FFFFFF",
+          backgroundColor: "#333333",
+          backgroundAlpha: 1,
+       // horizontalGap
     },
 
     AmGraph: {

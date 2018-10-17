@@ -2530,8 +2530,9 @@ namespace FingerprintsData
                             info.CenterName = dr["CenterName"].ToString();
                             info.ProgramType = dr["ProgramType"].ToString();
                             info.ProgramId = dr["ReferenceProg"].ToString();
+                            // info.ProgramId = "";
                             info.ClassroomName = dr["ClassroomName"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["DOB"]).ToString("MM/dd/yyyy");
+                            info.DOB = Convert.ToString(dr["DOB"]);
                             RosterList.Add(info);
                         }
 
@@ -2553,33 +2554,136 @@ namespace FingerprintsData
             return RosterList;
 
         }
-        public List<SelectListItem> GetScreening(string clientid, string programid, string agencyid, string Userid,string roleid)
+        //public List<SelectListItem> GetScreening(string clientid, string programid, string agencyid, string Userid,string roleid)
+        //{
+        //    List<SelectListItem> _screening = new List<SelectListItem>();
+        //    try
+        //    {
+        //        command.Connection = Connection;
+        //        command.Parameters.Add(new SqlParameter("@programid", programid));
+        //        command.Parameters.Add(new SqlParameter("@UserId", Userid));
+        //        command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+        //        command.Parameters.Add(new SqlParameter("@roleid", roleid));
+        //        command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(clientid)));
+        //        command.CommandType = CommandType.StoredProcedure;
+        //        command.CommandText = "SP_GetScreeningClient";
+        //        DataAdapter = new SqlDataAdapter(command);
+        //        _dataTable = new DataTable();
+        //        DataAdapter.Fill(_dataTable);
+        //        if (_dataTable != null && _dataTable.Rows.Count > 0)
+        //        {
+        //            SelectListItem obj = null;
+        //            foreach (DataRow dr in _dataTable.Rows)
+        //            {
+        //                obj = new SelectListItem();
+        //                obj.Value = dr["ScreeningID"].ToString();
+        //                obj.Text = dr["ScreeningName"].ToString();
+        //                _screening.Add(obj);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        clsError.WriteException(ex);
+        //        return _screening;
+
+        //    }
+        //    finally
+        //    {
+        //        if (Connection != null)
+        //            Connection.Close();
+        //    }
+        //    return _screening;
+        //}
+
+
+        public Screening GetScreening(string clientid, string programid)
         {
-            List<SelectListItem> _screening = new List<SelectListItem>();
+            Screening _screening = new Screening();
             try
             {
-                command.Connection = Connection;
-                command.Parameters.Add(new SqlParameter("@programid", programid));
-                command.Parameters.Add(new SqlParameter("@UserId", Userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@roleid", roleid));
-                command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(clientid)));
-                command.CommandType = CommandType.StoredProcedure;
-                command.CommandText = "SP_GetScreeningClient";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataTable = new DataTable();
-                DataAdapter.Fill(_dataTable);
-                if (_dataTable != null && _dataTable.Rows.Count > 0)
+
+
+                _screening.ScreeningList = new List<ScreeningNew>();
+                _screening.ScreeningPeriodsList = new List<ScreeningPeriods>();
+                _screening.ChildInfo = new ChildrenInfo();
+
+                if (Connection.State == ConnectionState.Open)
                 {
-                    SelectListItem obj = null;
-                    foreach (DataRow dr in _dataTable.Rows)
-                    {
-                        obj = new SelectListItem();
-                        obj.Value = dr["ScreeningID"].ToString();
-                        obj.Text = dr["ScreeningName"].ToString();
-                        _screening.Add(obj);
-                    }
+                    Connection.Close();
                 }
+
+
+                using (Connection = connection.returnConnection())
+                {
+
+
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@programid", programid));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@roleid", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(clientid)));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_GetScreeningClient";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0)
+                    {
+                        _screening.ScreeningList = (from DataRow dr in _dataset.Tables[0].Rows
+                                                    select new ScreeningNew
+                                                    {
+                                                        ScreeningID = Convert.ToInt32(dr["ScreeningID"]),
+                                                        ScreeningName = Convert.ToString(dr["ScreeningName"]),
+                                                        Approved = Convert.ToInt32(dr["Approved"])
+
+                                                    }
+                                                  ).ToList();
+
+
+
+                    }
+
+                    //if(_dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count>0)
+                    //{
+                    //    _screening.ScreeningPeriodsList = (from DataRow dr2 in _dataset.Tables[1].Rows
+                    //                                       select new ScreeningPeriods
+                    //                                       {
+                    //                                           ScreeningPeriod = Convert.ToInt32(dr2["ScreeningPeriod"]),
+                    //                                           ScreeningPeriodType = Convert.ToInt32(dr2["ScreeningPeriodType"]),
+                    //                                           Description = Convert.ToString(dr2["Description"])
+                    //                                       }
+
+                    //                                    ).OrderByDescending(x=>x.ScreeningPeriod).ToList();
+
+                    //}
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        _screening.ChildInfo.ClientId = Convert.ToString(_dataset.Tables[1].Rows[0]["ClientID"]);
+                        _screening.ChildInfo.ClientName = Convert.ToString(_dataset.Tables[1].Rows[0]["ClientName"]);
+                        _screening.ChildInfo.Enc_ClientId = EncryptDecrypt.Encrypt64(Convert.ToString(_dataset.Tables[1].Rows[0]["ClientID"]));
+                        _screening.ChildInfo.CenterName = Convert.ToString(_dataset.Tables[1].Rows[0]["CenterName"]);
+                        _screening.ChildInfo.ClassRoomName = Convert.ToString(_dataset.Tables[1].Rows[0]["ClassRoomName"]);
+                        _screening.ChildInfo.ProgramType = Convert.ToString(_dataset.Tables[1].Rows[0]["ProgRef"]);
+                        _screening.ChildInfo.Dob = Convert.ToString(_dataset.Tables[1].Rows[0]["DOB"]);
+                        _screening.ChildInfo.Age = Convert.ToString(_dataset.Tables[1].Rows[0]["AgeByCurrentDate"]);
+                        _screening.ChildInfo.AgeInWords = Convert.ToString(_dataset.Tables[1].Rows[0]["LDAAgeInWordsCurrentDate"]);
+                        _screening.ChildInfo.AgeInMonths = Convert.ToInt32(_dataset.Tables[1].Rows[0]["AgeInMonths"]);
+                    }
+
+                }
+
+
+
             }
             catch (Exception ex)
             {
@@ -2594,6 +2698,9 @@ namespace FingerprintsData
             }
             return _screening;
         }
+
+
+
         public DataTable GetScreeningTemplate(string ScreeningId, string agencyid, string Userid)
         {
             try
@@ -2628,10 +2735,10 @@ namespace FingerprintsData
             try
             {
                 command.Connection = Connection;
-                _dataset = new DataSet();
+
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@screeningid", screeningid));
-                command.Parameters.Add(new SqlParameter("@clientid",EncryptDecrypt.Decrypt64(clientid)));
+                command.Parameters.Add(new SqlParameter("@clientid", EncryptDecrypt.Decrypt64(clientid)));
                 command.Parameters.Add(new SqlParameter("@UserId", Userid));
                 command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
                 command.Parameters.Add(new SqlParameter("@programid", programid));
@@ -2639,6 +2746,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Screenings";
                 DataAdapter = new SqlDataAdapter(command);
+                _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
             }
             catch (Exception ex)
@@ -2654,7 +2762,176 @@ namespace FingerprintsData
             }
             return _dataset;
         }
-        public DataSet savecustomscreening(ref string message, Screening _screen, FormCollection _Collections, string ScreeningDate, string Status, string agencyid, string Userid, HttpPostedFileBase ScreeningDocument,string Programid,string roleid)
+
+
+
+        public Screening GetScreeningsbyid2(string clientid, string screeningid, string agencyid, string Userid, string programid, string roleid, string serverPath)
+        {
+
+            Screening screening = new Screening();
+            try
+            {
+            
+                screening.ScreeningList = new List<ScreeningNew>();
+                screening.ScreeningPeriodsList = new List<ScreeningPeriods>();
+                screening.ChildInfo = new ChildrenInfo();
+                StringBuilder urlString = new StringBuilder();
+                screening.ScreeningAccessInfo = new ScreeningAccess();
+
+                urlString.Clear();
+
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@screeningid", screeningid));
+                    command.Parameters.Add(new SqlParameter("@clientid", EncryptDecrypt.Decrypt64(clientid)));
+                    command.Parameters.Add(new SqlParameter("@UserId", Userid));
+                    command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                    command.Parameters.Add(new SqlParameter("@programid", programid));
+                    command.Parameters.Add(new SqlParameter("@roleid", roleid));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "SP_Screenings";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                }
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+
+
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        screening.ClientID = Convert.ToInt16(_dataset.Tables[0].Rows[0]["ClientID"]);
+                        // screening.Parentname = Convert.ToString(_dataset.Tables[0].Rows[0]["ParentName"]);
+                        screening.Consolidated = Convert.ToInt16(_dataset.Tables[0].Rows[0]["Consolidated"]);
+                        screening.TypeScreening = Convert.ToInt16(programid);
+
+                        screening.ParentSignature = String.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ParentSignature"].ToString()) ? "" : Convert.ToString(_dataset.Tables[0].Rows[0]["ParentSignature"]);
+                        screening.ScreeningAcceptImagejson = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["AcceptanceForm"].ToString()) ? "" : Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["AcceptanceForm"]);
+                        screening.ScreeningAcceptFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["AcceptFileExtension"]);
+                        screening.ScreeningAcceptFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["AcceptFileUl"]);
+                        urlString.Clear().Append(Guid.NewGuid().ToString());
+
+                        if (!string.IsNullOrEmpty(screening.ScreeningAcceptFileName))
+                        {
+                            System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + screening.ScreeningAcceptFileExtension);
+                            file.Write((byte[])_dataset.Tables[0].Rows[0]["AcceptanceForm"], 0, ((byte[])_dataset.Tables[0].Rows[0]["AcceptanceForm"]).Length);
+                            file.Close();
+                            screening.ScreeningAcceptImageUrl = "/TempAttachment/" + urlString + screening.ScreeningAcceptFileExtension;
+
+                        }
+                        screening.ParentAppID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
+
+
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            ScreeningNew newScreening = new ScreeningNew();
+                            newScreening.ScreeningID = Convert.ToInt16(dr["ScreeningID"]);
+                            newScreening.ScreeningName = Convert.ToString(dr["ScreeningName"]);
+                            newScreening.ScreeningsPerYear = Convert.ToInt32(dr["ScreeningsPerYear"]);
+                            newScreening.ParentAppID = Convert.ToInt32(dr["ID"]);
+                            newScreening.ApprovedFileName = Convert.ToString(dr["ApprovalFileUl"]);
+                            newScreening.ApprovedFileExtension = Convert.ToString(dr["ApprovalFileExtension"]);
+                            newScreening.Approved = Convert.ToInt16(dr["Approved"]);
+                            urlString.Clear().Append(Guid.NewGuid().ToString());
+
+                            newScreening.ApprovedImageJson = string.IsNullOrEmpty(dr["ApprovalForm"].ToString()) ? "" : Convert.ToBase64String((byte[])dr["ApprovalForm"]);
+
+                            if (!string.IsNullOrEmpty(newScreening.ApprovedFileName))
+                            {
+                                System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + newScreening.ApprovedFileExtension);
+                                file.Write((byte[])dr["ApprovalForm"], 0, ((byte[])dr["ApprovalForm"]).Length);
+                                file.Close();
+                                newScreening.ApprovedImageUrl = "/TempAttachment/" + urlString + newScreening.ApprovedFileExtension;
+                            }
+                            newScreening.NoDocument = Convert.ToBoolean(dr["NoDocument"]);
+                            newScreening.LastScreeningCompleted = Convert.ToInt32(dr["LastScreeningCompleted"]);
+
+
+                            screening.ScreeningList.Add(newScreening);
+
+                        }
+
+
+
+                    }
+
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+
+                        int lastScreening = 0;
+                        if (screening.ScreeningList.Count > 0)
+                        {
+                            lastScreening = screening.ScreeningList.Where(x => Convert.ToString(x.ScreeningID) == screeningid).Select(x => x.LastScreeningCompleted).FirstOrDefault();
+                        }
+
+                        screening.ScreeningPeriodsList = (from DataRow dr2 in _dataset.Tables[1].Rows
+                                                          select new ScreeningPeriods
+                                                          {
+                                                              ScreeningPeriodIndex=Convert.ToInt32(dr2["ScreeningPeriodIndex"]),
+                                                              ScreeningPeriod = Convert.ToDouble(dr2["ScreeningPeriod"]),
+                                                              ScreeningPeriodType = Convert.ToInt32(dr2["ScreeningPeriodType"]),
+                                                              Description = Convert.ToString(dr2["Description"]),
+                                                              ScreeningPeriodFor = Convert.ToInt32(dr2["ScreeningPeriodFor"]),
+                                                              ScreeningAge = Convert.ToDouble(dr2["ScreeningAge"]),
+                                                              ScreeningFocusType = Convert.ToInt32(dr2["ScreeningFocusType"]),
+                                                              CustomScreeningPeriod=Convert.ToInt32(dr2["CustomScreeningPeriod"])
+                                                          }
+
+                                                      ).OrderByDescending(x => x.ScreeningPeriod).ToList();
+                    }
+
+                    screening.ChildInfo = new ChildrenInfo();
+
+                    if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        screening.ChildInfo.AgeInMonths = Convert.ToInt32(_dataset.Tables[2].Rows[0]["AgeInMonths"]);
+                        screening.ChildInfo.Age = Convert.ToString(_dataset.Tables[2].Rows[0]["AgeInYears"]);
+                    }
+
+                    if(_dataset.Tables.Count>3 && _dataset.Tables[3]!=null && _dataset.Tables[3].Rows.Count>0)
+                    {
+                        screening.ScreeningAccessInfo = (from DataRow dr4 in _dataset.Tables[3].Rows
+                                                         select new ScreeningAccess
+                                                         {
+                                                             IsEnter = Convert.ToBoolean(dr4["EnterScreening"]),
+                                                             IsReview = Convert.ToBoolean(dr4["ReviewScreening"]),
+                                                             IsViewOnly= Convert.ToBoolean(dr4["ViewScreening"])
+                                                         }
+                                                       ).FirstOrDefault();
+                    }
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return screening;
+
+            }
+            finally
+            {
+                if (Connection != null)
+                    Connection.Close();
+            }
+            return screening;
+        }
+
+
+        public DataSet savecustomscreening(ref string message, Screening _screen, FormCollection _Collections, string ScreeningDate, string Status, string agencyid, string Userid, HttpPostedFileBase ScreeningDocument, string Programid, string roleid)
         {
             try
             {
@@ -2862,7 +3139,7 @@ namespace FingerprintsData
                             info.Eclientid = EncryptDecrypt.Encrypt64(dr["Clientid"].ToString());
                             info.EHouseholid = EncryptDecrypt.Encrypt64(dr["Householdid"].ToString());
                             info.Name = dr["name"].ToString();
-                            info.DOB = Convert.ToDateTime(dr["dob"]).ToString("MM/dd/yyyy");
+                            info.DOB = Convert.ToString(dr["dob"]);
                             info.Gender = dr["gender"].ToString();
                             info.CenterName = dr["CenterName"].ToString();
                             info.CenterId = EncryptDecrypt.Encrypt64(dr["CenterId"].ToString());
@@ -2950,7 +3227,7 @@ namespace FingerprintsData
             return List;
 
         }
-        public ScreeningMatrix Getallchildmissingscreening(string centerid,string ClassRoom , string userid, string agencyid)
+        public ScreeningMatrix Getallchildmissingscreening(string centerid, string ClassRoom, string userid, string agencyid)
         {
             List<List<string>> List = new List<List<string>>();
             ScreeningMatrix ScreeningMatrix = new ScreeningMatrix();
@@ -2958,9 +3235,20 @@ namespace FingerprintsData
             List<Roster> Rosterlist = new List<Roster>();
             try
             {
+
+                if(Connection.State==ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+
+               
+                    command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@Center", centerid));
-                if (!string.IsNullOrEmpty(ClassRoom) )
-                command.Parameters.Add(new SqlParameter("@ClassRoom", ClassRoom));
+                if (!string.IsNullOrEmpty(ClassRoom))
+                    command.Parameters.Add(new SqlParameter("@ClassRoom", ClassRoom));
                 else
                     command.Parameters.Add(new SqlParameter("@ClassRoom", DBNull.Value));
                 command.Parameters.Add(new SqlParameter("@userid", userid));
@@ -2968,9 +3256,11 @@ namespace FingerprintsData
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getchildmissingscreeningcenter";
+                    Connection.Open();
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
+                }
                 if (_dataset.Tables[0] != null)
                 {
                     if (_dataset.Tables[0].Rows.Count > 0)
@@ -3665,10 +3955,308 @@ namespace FingerprintsData
         }
 
 
+        public Screening GetScreeningByScreeningPeriod(Screening screening, string serverPath)
+        {
+            try
+            {
+                //StaffDetails staff = StaffDetails.GetInstance();
+                screening.ScreeningList = new List<ScreeningNew>();
+                screening.ScreeningPeriodsList = new List<ScreeningPeriods>();
+
+                StringBuilder urlString = new StringBuilder();
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@ScreeningID", screening.Screeningid));
+                    command.Parameters.Add(new SqlParameter("@ProgramRefID", screening.TypeScreening));
+                    command.Parameters.Add(new SqlParameter("@ScreeingPeriodIndex", screening.ScreeningPeriodIndex));
+                    command.Parameters.Add(new SqlParameter("@CustomScreeningPeriod", screening.CustomScreeningPeriod));
+                    command.Parameters.Add(new SqlParameter("@ClientID", screening.ClientID));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetScreeningQuestionsByScreeningPeriod";
+                    command.Connection = Connection;
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
 
 
 
-     
+
+                    ScreeningNew newScreening = new ScreeningNew();
+
+                    newScreening.ParentAppID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
+                    newScreening.ApprovedFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["ApprovalFileUl"]);
+                    newScreening.ApprovedFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["ApprovalFileExtension"]);
+                    urlString.Clear().Append(Guid.NewGuid().ToString());
+
+                    newScreening.ApprovedImageJson = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ApprovalForm"].ToString()) ? "" : Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["ApprovalForm"]);
+
+                    if (!string.IsNullOrEmpty(newScreening.ApprovedFileName))
+                    {
+                        System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + newScreening.ApprovedFileExtension);
+                        file.Write((byte[])(_dataset.Tables[0].Rows[0]["ApprovalForm"]), 0, ((byte[])(_dataset.Tables[0].Rows[0]["ApprovalForm"])).Length);
+                        file.Close();
+                        newScreening.ApprovedImageUrl = "/TempAttachment/" + urlString + newScreening.ApprovedFileExtension;
+                    }
+
+                    newScreening.ScreeningID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ScreeningID"]);
+                    screening.ScreeningList.Add(newScreening);
+
+
+                    if (_dataset.Tables[0] != null && _dataset.Tables[0].Rows.Count > 0 && screening != null && screening.ScreeningList.Count > 0)
+                    {
+
+                        var screeningIDList = screening.ScreeningList.Select(x => x.ScreeningID).Distinct().ToList();
+
+                        if (screeningIDList != null && screeningIDList.Count > 0)
+                        {
+                            foreach (var item in screeningIDList)
+                            {
+
+
+
+                                var qnIDList = _dataset.Tables[0].AsEnumerable().Where(x => x.Field<int>("ScreeningID") == item).Select(x => x.Field<int>("QuestionID")).Distinct().ToList();
+
+                                List<Questions> questions = new List<Questions>();
+
+                                foreach (var qn in qnIDList)
+                                {
+
+                                    var qnList = _dataset.Tables[0].AsEnumerable().Where(x => x.Field<int>("QuestionID") == qn).ToList();
+
+
+
+                                    Questions qns = new Questions
+                                    {
+                                        Question = qnList[0].Field<string>("Question"),
+                                        QuestionId = qnList[0].Field<int>("QuestionID"),
+                                        QuestionType = qnList[0].Field<int>("QuestionType").ToString(),
+                                        QuestionOrder = Convert.ToDouble(qnList[0].Field<string>("QuestionOrder")),
+                                        Required = Convert.ToBoolean(qnList[0].Field<bool>("Required")),
+
+                                        OptionList = qnList[0].Field<int>("QuestionType") == 1 || qnList[0].Field<int>("QuestionType") == 3 || qnList[0].Field<int>("QuestionType") == 4 ? qnList.Select(x => new Options
+                                        {
+                                            Option = x.Field<string>("OptionName"),
+                                            OptionId = Convert.ToInt32(x.Field<long>("OptionID")),
+                                            OptionValue = Convert.ToInt32(x.Field<int>("OptionValue")),
+                                            IsChecked = x.Field<string>("Value") == Convert.ToString(x.Field<long>("OptionID")),
+                                            OptionDescription = x.Field<string>("OptionDescription"),
+                                        }).OrderBy(x => x.OptionId).Where(x => x.OptionId != 0).ToList() : new List<Options>(),
+
+                                        OptionValue = qnList[0].Field<string>("Value"),
+
+                                        CheckboxValue = qnList[0].Field<int>("QuestionType") == 1 ? qnList[0].Field<string>("Value").Split(',').ToArray() :new string[0],
+
+
+
+                                    };
+
+
+                                    if (qns.QuestionType == "3" )
+                                    {
+                                        qns.OptionList.Insert(0, new Options
+                                        {
+
+                                            Option = string.Empty,
+                                            OptionId = 0,
+                                            OptionValue = 0,
+                                            OptionDescription="",
+                                            IsChecked = false
+
+                                        });
+                                    }
+
+
+
+                                    questions.Add(qns);
+
+
+
+                                }
+
+                                questions.OrderBy(x => x.QuestionOrder).ToList();
+                                screening.ScreeningList[screening.ScreeningList.FindIndex(x => x.ScreeningID == item)].Questionlist = questions;
+
+                            }
+                        }
+
+
+                    }
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0)
+                    {
+                        screening.ScreeningPeriodsList = (from DataRow dr2 in _dataset.Tables[1].Rows
+                                                          select new ScreeningPeriods
+                                                          {
+                                                              ScreeningPeriod = Convert.ToDouble(dr2["ScreeningPeriod"]),
+                                                              Description = Convert.ToString(dr2["Description"]),
+                                                              ScreeningPeriodFor = Convert.ToInt32(dr2["ScreeningPeriodFor"]),
+                                                              CustomScreeningPeriod=Convert.ToInt32(dr2["CustomScreeningPeriod"])
+                                                          }
+                                                        ).ToList();
+
+                    }
+
+                    if(_dataset.Tables.Count>2 && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count>0)
+                    {
+                        screening.ScreeningAccessInfo = (from DataRow dr3 in _dataset.Tables[2].Rows
+                                                         select new ScreeningAccess
+                                                         {
+                                                             IsEnter = Convert.ToBoolean(dr3["EnterScreening"]),
+                                                             IsReview = Convert.ToBoolean(dr3["ReviewScreening"]),
+                                                             IsViewOnly = Convert.ToBoolean(dr3["ViewScreening"])
+                                                         }
+                                                       ).FirstOrDefault();
+                    }
+
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+
+                Connection.Dispose();
+                command.Dispose();
+                DataAdapter.Dispose();
+                _dataset.Dispose();
+            }
+            return screening;
+        }
+
+
+        public bool SaveScreeningByScreeningPeriod(ref int screeningPeriod,Screening _scr)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+                //StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+                #region screening
+                DataTable dtScr = new DataTable();
+                dtScr.Columns.AddRange(new DataColumn[4] {
+                    new DataColumn("ScreeningID",typeof(Int32)),
+                    new DataColumn("QuestionID",typeof(Int32)),
+                    new DataColumn("Value",typeof(string)),
+                    new DataColumn("OptionID",typeof(long))
+                    });
+                #endregion
+
+                foreach (var s in _scr.ScreeningList)
+                {
+
+                    foreach (var qn in s.Questionlist)
+                    {
+
+
+                        if(qn.QuestionType!="1")
+                        {
+                            if (qn.OptionValue != null && qn.OptionValue != "" && qn.OptionValue != "0")
+                            {
+                                dtScr.Rows.Add(s.ScreeningID, qn.QuestionId, qn.OptionValue, 0);
+
+                            }
+                        }
+                        else if(qn.QuestionType=="1")
+                        {
+                            if(qn.CheckboxValue!=null && qn.CheckboxValue.Length>0)
+                            {
+                                foreach(var chk in qn.CheckboxValue)
+                                {
+                                    dtScr.Rows.Add(s.ScreeningID, qn.QuestionId, chk, 0);
+                                }
+                            }
+
+                        }
+                       
+
+                    }
+                }
+
+                #region allowed screening
+                DataTable dtDocument = new DataTable();
+                dtDocument.Columns.AddRange(new DataColumn[5] {
+                    new DataColumn("ScreeningID",typeof(Int32)),
+                    new DataColumn("Allowed",typeof(Int32)),
+                    new DataColumn("FileName",typeof(string)),
+                    new DataColumn("FileExtension",typeof(string)),
+                    new DataColumn("FileBytes",typeof(byte[]))
+                    });
+                #endregion
+
+                foreach (var s in _scr.ScreeningList)
+                {
+                    dtDocument.Rows.Add(s.ScreeningID, 1, s.ApprovedFileName, s.ApprovedFileExtension, s.ApprovedImageByte);
+                }
+
+
+
+                _scr.Screeningid = _scr.ScreeningList.Select(x => x.ScreeningID).FirstOrDefault();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@ScreeningID", _scr.Screeningid));
+                    command.Parameters.Add(new SqlParameter("@ScreeningQnTable", dtScr));
+                    command.Parameters.Add(new SqlParameter("@ScreeningDocTable", dtDocument));
+                    command.Parameters.Add(new SqlParameter("@ClientID", _scr.ClientID));
+                    command.Parameters.Add(new SqlParameter("@ScreeningPeriod", _scr.ScreeningPeriodIndex)).Direction=ParameterDirection.InputOutput;
+                    command.Parameters.Add(new SqlParameter("@CustomScreeningPeriod", _scr.CustomScreeningPeriod));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_SaveScreeningByScreeningPeriod";
+                    command.Connection = Connection;
+                    Connection.Open();
+                    isRowsAffected = Convert.ToInt32(command.ExecuteNonQuery()) > 0;
+
+                    screeningPeriod = int.Parse(command.Parameters["@ScreeningPeriod"].Value.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+
+            }
+            return isRowsAffected;
+        }
+
+
+
+
+
+
 
 
 

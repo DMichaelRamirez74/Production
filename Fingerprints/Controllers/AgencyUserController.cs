@@ -1286,6 +1286,9 @@ namespace Fingerprints.Controllers
 
             SendMail.Sendverificationemail(email, name, path, template, imagepath);
         }
+
+
+        [HttpGet]
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult FamilyDetails(string id = "0")
         {
@@ -1849,94 +1852,100 @@ namespace Fingerprints.Controllers
                     //    info.RImageByte = info.RImagejson == null ? null : Convert.FromBase64String(info.RImagejson);
 
                     //}
-                    #region Screening
-                    if (_screen.Physical != null)
-                    {
-                        _screen.PhysicalFileName = _screen.Physical.FileName;
-                        _screen.PhysicalFileExtension = Path.GetExtension(_screen.Physical.FileName);
-                        BinaryReader b = new BinaryReader(_screen.Physical.InputStream);
-                        _screen.PhysicalImageByte = b.ReadBytes(_screen.Physical.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.PhysicalImageByte = _screen.PhysicalImagejson == null ? null : Convert.FromBase64String(_screen.PhysicalImagejson);
-
-                    }
-                    if (_screen.Dental != null)
-                    {
-                        _screen.DentalFileName = _screen.Dental.FileName;
-                        _screen.DentalFileExtension = Path.GetExtension(_screen.Dental.FileName);
-                        BinaryReader b = new BinaryReader(_screen.Dental.InputStream);
-                        _screen.DentalImageByte = b.ReadBytes(_screen.Dental.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.DentalImageByte = _screen.DentalImagejson == null ? null : Convert.FromBase64String(_screen.DentalImagejson);
-
-                    }
-                    if (_screen.Vision != null)
-                    {
-                        _screen.VisionFileName = _screen.Vision.FileName;
-                        _screen.VisionFileExtension = Path.GetExtension(_screen.Vision.FileName);
-                        BinaryReader b = new BinaryReader(_screen.Vision.InputStream);
-                        _screen.VisionImageByte = b.ReadBytes(_screen.Vision.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.VisionImageByte = _screen.VisionImagejson == null ? null : Convert.FromBase64String(_screen.VisionImagejson);
-
-                    }
-                    if (_screen.Hearing != null)
-                    {
-                        _screen.HearingFileName = _screen.Hearing.FileName;
-                        _screen.HearingFileExtension = Path.GetExtension(_screen.Hearing.FileName);
-                        BinaryReader b = new BinaryReader(_screen.Hearing.InputStream);
-                        _screen.HearingImageByte = b.ReadBytes(_screen.Hearing.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.HearingImageByte = _screen.HearingImagejson == null ? null : Convert.FromBase64String(_screen.HearingImagejson);
-
-                    }
-                    if (_screen.Develop != null)
-                    {
-                        _screen.DevelopFileName = _screen.Develop.FileName;
-                        _screen.DevelopFileExtension = Path.GetExtension(_screen.Develop.FileName);
-                        BinaryReader b = new BinaryReader(_screen.Develop.InputStream);
-                        _screen.DevelopImageByte = b.ReadBytes(_screen.Develop.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.DevelopImageByte = _screen.DevelopImagejson == null ? null : Convert.FromBase64String(_screen.DevelopImagejson);
-
-                    }
-                    if (_screen.Speech != null)
-                    {
-                        _screen.SpeechFileName = _screen.Speech.FileName;
-                        _screen.SpeechFileExtension = Path.GetExtension(_screen.Speech.FileName);
-                        BinaryReader b = new BinaryReader(_screen.Speech.InputStream);
-                        _screen.SpeechImageByte = b.ReadBytes(_screen.Speech.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.SpeechImageByte = _screen.SpeechImagejson == null ? null : Convert.FromBase64String(_screen.SpeechImagejson);
-
-                    }
-                    if (_screen.ScreeningAccept != null)
-                    {
-                        _screen.ScreeningAcceptFileName = _screen.ScreeningAccept.FileName;
-                        _screen.ScreeningAcceptFileExtension = Path.GetExtension(_screen.ScreeningAccept.FileName);
-                        BinaryReader b = new BinaryReader(_screen.ScreeningAccept.InputStream);
-                        _screen.ScreeningAcceptImageByte = b.ReadBytes(_screen.ScreeningAccept.ContentLength);
-                    }
-                    else
-                    {
-                        _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImageByte == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
-
-                    }
 
 
-                    #endregion
+                    //#region Screening
+                    //if (_screen.Physical != null)
+                    //{
+                    //    _screen.PhysicalFileName = _screen.Physical.FileName;
+                    //    _screen.PhysicalFileExtension = Path.GetExtension(_screen.Physical.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.Physical.InputStream);
+                    //    _screen.PhysicalImageByte = b.ReadBytes(_screen.Physical.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.PhysicalImageByte = _screen.PhysicalImagejson == null ? null : Convert.FromBase64String(_screen.PhysicalImagejson);
+
+                    //}
+                    //if (_screen.Dental != null)
+                    //{
+                    //    _screen.DentalFileName = _screen.Dental.FileName;
+                    //    _screen.DentalFileExtension = Path.GetExtension(_screen.Dental.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.Dental.InputStream);
+                    //    _screen.DentalImageByte = b.ReadBytes(_screen.Dental.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.DentalImageByte = _screen.DentalImagejson == null ? null : Convert.FromBase64String(_screen.DentalImagejson);
+
+                    //}
+                    //if (_screen.Vision != null)
+                    //{
+                    //    _screen.VisionFileName = _screen.Vision.FileName;
+                    //    _screen.VisionFileExtension = Path.GetExtension(_screen.Vision.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.Vision.InputStream);
+                    //    _screen.VisionImageByte = b.ReadBytes(_screen.Vision.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.VisionImageByte = _screen.VisionImagejson == null ? null : Convert.FromBase64String(_screen.VisionImagejson);
+
+                    //}
+                    //if (_screen.Hearing != null)
+                    //{
+                    //    _screen.HearingFileName = _screen.Hearing.FileName;
+                    //    _screen.HearingFileExtension = Path.GetExtension(_screen.Hearing.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.Hearing.InputStream);
+                    //    _screen.HearingImageByte = b.ReadBytes(_screen.Hearing.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.HearingImageByte = _screen.HearingImagejson == null ? null : Convert.FromBase64String(_screen.HearingImagejson);
+
+                    //}
+                    //if (_screen.Develop != null)
+                    //{
+                    //    _screen.DevelopFileName = _screen.Develop.FileName;
+                    //    _screen.DevelopFileExtension = Path.GetExtension(_screen.Develop.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.Develop.InputStream);
+                    //    _screen.DevelopImageByte = b.ReadBytes(_screen.Develop.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.DevelopImageByte = _screen.DevelopImagejson == null ? null : Convert.FromBase64String(_screen.DevelopImagejson);
+
+                    //}
+                    //if (_screen.Speech != null)
+                    //{
+                    //    _screen.SpeechFileName = _screen.Speech.FileName;
+                    //    _screen.SpeechFileExtension = Path.GetExtension(_screen.Speech.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.Speech.InputStream);
+                    //    _screen.SpeechImageByte = b.ReadBytes(_screen.Speech.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.SpeechImageByte = _screen.SpeechImagejson == null ? null : Convert.FromBase64String(_screen.SpeechImagejson);
+
+                    //}
+                    //if (_screen.ScreeningAccept != null)
+                    //{
+                    //    _screen.ScreeningAcceptFileName = _screen.ScreeningAccept.FileName;
+                    //    _screen.ScreeningAcceptFileExtension = Path.GetExtension(_screen.ScreeningAccept.FileName);
+                    //    BinaryReader b = new BinaryReader(_screen.ScreeningAccept.InputStream);
+                    //    _screen.ScreeningAcceptImageByte = b.ReadBytes(_screen.ScreeningAccept.ContentLength);
+                    //}
+                    //else
+                    //{
+                    //    _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImageByte == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
+
+                    //}
+
+
+                    //#endregion
+
+
+
+
                     if (info.Releaseform != null)
                     {
                         info.ReleaseformFileName = info.Releaseform.FileName;
@@ -2322,10 +2331,11 @@ namespace Fingerprints.Controllers
 
                  family = familyData.Getchild(ChildId, HouseHoldId, Session["AgencyID"].ToString(), Server.MapPath("~//TempAttachment//"), Session["Roleid"].ToString());
 
-                wellBabyList = family.WellBabyExamModelList;
+                //    wellBabyList = family.WellBabyExamModelList;
                 // if(wellBabyList.)
-              //  family.PhysicalExamDates = PhysicalExamDatesInScreening(family.CDOB,family.DateOfEnrollment);
-                family.PhysicalExamDates = new List<WellBabyExamModel>();
+                //  family.PhysicalExamDates = new List<WellBabyExamModel>();
+                // family.PhysicalExamDates = PhysicalExamDatesInScreening(family.CDOB,family.DateOfEnrollment);
+
                 return Json(family);
             }
             catch (Exception Ex)
@@ -3716,94 +3726,97 @@ namespace Fingerprints.Controllers
                 }
                 #endregion
 
-                #region Screening
-                if (_screen.Physical != null)
-                {
-                    _screen.PhysicalFileName = _screen.Physical.FileName;
-                    _screen.PhysicalFileExtension = Path.GetExtension(_screen.Physical.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Physical.InputStream);
-                    _screen.PhysicalImageByte = b.ReadBytes(_screen.Physical.ContentLength);
-                }
-                else
-                {
-                    _screen.PhysicalImageByte = _screen.PhysicalImagejson == null ? null : Convert.FromBase64String(_screen.PhysicalImagejson);
 
-                }
-                if (_screen.Dental != null)
-                {
-                    _screen.DentalFileName = _screen.Dental.FileName;
-                    _screen.DentalFileExtension = Path.GetExtension(_screen.Dental.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Dental.InputStream);
-                    _screen.DentalImageByte = b.ReadBytes(_screen.Dental.ContentLength);
-                }
-                else
-                {
-                    _screen.DentalImageByte = _screen.DentalImagejson == null ? null : Convert.FromBase64String(_screen.DentalImagejson);
+                //#region Screening
+                //if (_screen.Physical != null)
+                //{
+                //    _screen.PhysicalFileName = _screen.Physical.FileName;
+                //    _screen.PhysicalFileExtension = Path.GetExtension(_screen.Physical.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Physical.InputStream);
+                //    _screen.PhysicalImageByte = b.ReadBytes(_screen.Physical.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.PhysicalImageByte = _screen.PhysicalImagejson == null ? null : Convert.FromBase64String(_screen.PhysicalImagejson);
 
-                }
-                if (_screen.Vision != null)
-                {
-                    _screen.VisionFileName = _screen.Vision.FileName;
-                    _screen.VisionFileExtension = Path.GetExtension(_screen.Vision.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Vision.InputStream);
-                    _screen.VisionImageByte = b.ReadBytes(_screen.Vision.ContentLength);
-                }
-                else
-                {
-                    _screen.VisionImageByte = _screen.VisionImagejson == null ? null : Convert.FromBase64String(_screen.VisionImagejson);
+                //}
+                //if (_screen.Dental != null)
+                //{
+                //    _screen.DentalFileName = _screen.Dental.FileName;
+                //    _screen.DentalFileExtension = Path.GetExtension(_screen.Dental.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Dental.InputStream);
+                //    _screen.DentalImageByte = b.ReadBytes(_screen.Dental.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.DentalImageByte = _screen.DentalImagejson == null ? null : Convert.FromBase64String(_screen.DentalImagejson);
 
-                }
-                if (_screen.Hearing != null)
-                {
-                    _screen.HearingFileName = _screen.Hearing.FileName;
-                    _screen.HearingFileExtension = Path.GetExtension(_screen.Hearing.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Hearing.InputStream);
-                    _screen.HearingImageByte = b.ReadBytes(_screen.Hearing.ContentLength);
-                }
-                else
-                {
-                    _screen.HearingImageByte = _screen.HearingImagejson == null ? null : Convert.FromBase64String(_screen.HearingImagejson);
+                //}
+                //if (_screen.Vision != null)
+                //{
+                //    _screen.VisionFileName = _screen.Vision.FileName;
+                //    _screen.VisionFileExtension = Path.GetExtension(_screen.Vision.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Vision.InputStream);
+                //    _screen.VisionImageByte = b.ReadBytes(_screen.Vision.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.VisionImageByte = _screen.VisionImagejson == null ? null : Convert.FromBase64String(_screen.VisionImagejson);
 
-                }
-                if (_screen.Develop != null)
-                {
-                    _screen.DevelopFileName = _screen.Develop.FileName;
-                    _screen.DevelopFileExtension = Path.GetExtension(_screen.Develop.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Develop.InputStream);
-                    _screen.DevelopImageByte = b.ReadBytes(_screen.Develop.ContentLength);
-                }
-                else
-                {
-                    _screen.DevelopImageByte = _screen.DevelopImagejson == null ? null : Convert.FromBase64String(_screen.DevelopImagejson);
+                //}
+                //if (_screen.Hearing != null)
+                //{
+                //    _screen.HearingFileName = _screen.Hearing.FileName;
+                //    _screen.HearingFileExtension = Path.GetExtension(_screen.Hearing.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Hearing.InputStream);
+                //    _screen.HearingImageByte = b.ReadBytes(_screen.Hearing.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.HearingImageByte = _screen.HearingImagejson == null ? null : Convert.FromBase64String(_screen.HearingImagejson);
 
-                }
-                if (_screen.Speech != null)
-                {
-                    _screen.SpeechFileName = _screen.Speech.FileName;
-                    _screen.SpeechFileExtension = Path.GetExtension(_screen.Speech.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Speech.InputStream);
-                    _screen.SpeechImageByte = b.ReadBytes(_screen.Speech.ContentLength);
-                }
-                else
-                {
-                    _screen.SpeechImageByte = _screen.SpeechImagejson == null ? null : Convert.FromBase64String(_screen.SpeechImagejson);
+                //}
+                //if (_screen.Develop != null)
+                //{
+                //    _screen.DevelopFileName = _screen.Develop.FileName;
+                //    _screen.DevelopFileExtension = Path.GetExtension(_screen.Develop.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Develop.InputStream);
+                //    _screen.DevelopImageByte = b.ReadBytes(_screen.Develop.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.DevelopImageByte = _screen.DevelopImagejson == null ? null : Convert.FromBase64String(_screen.DevelopImagejson);
 
-                }
-                if (_screen.ScreeningAccept != null)
-                {
-                    _screen.ScreeningAcceptFileName = _screen.ScreeningAccept.FileName;
-                    _screen.ScreeningAcceptFileExtension = Path.GetExtension(_screen.ScreeningAccept.FileName);
-                    BinaryReader b = new BinaryReader(_screen.ScreeningAccept.InputStream);
-                    _screen.ScreeningAcceptImageByte = b.ReadBytes(_screen.ScreeningAccept.ContentLength);
-                }
-                else
-                {
-                    _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImageByte == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
+                //}
+                //if (_screen.Speech != null)
+                //{
+                //    _screen.SpeechFileName = _screen.Speech.FileName;
+                //    _screen.SpeechFileExtension = Path.GetExtension(_screen.Speech.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Speech.InputStream);
+                //    _screen.SpeechImageByte = b.ReadBytes(_screen.Speech.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.SpeechImageByte = _screen.SpeechImagejson == null ? null : Convert.FromBase64String(_screen.SpeechImagejson);
 
-                }
+                //}
+                //if (_screen.ScreeningAccept != null)
+                //{
+                //    _screen.ScreeningAcceptFileName = _screen.ScreeningAccept.FileName;
+                //    _screen.ScreeningAcceptFileExtension = Path.GetExtension(_screen.ScreeningAccept.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.ScreeningAccept.InputStream);
+                //    _screen.ScreeningAcceptImageByte = b.ReadBytes(_screen.ScreeningAccept.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImageByte == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
+
+                //}
 
 
-                #endregion
+                //#endregion
+
+
                 if (info.Releaseform != null)
                 {
                     info.ReleaseformFileName = info.Releaseform.FileName;
@@ -5345,7 +5358,7 @@ namespace Fingerprints.Controllers
              FamilyHousehold.PostedPMService PostedPostedService, FamilyHousehold.PostedPMProblems PostedPostedPrblms, FamilyHousehold.PostedDisease PostedPostedDisease,
             FamilyHousehold.PostedDiagnosedDisease PostedPostedDiagnosedDisease, FamilyHousehold.PostedChildEHS PostedPostedMedicalEHS,
              FamilyHousehold.PostedChildEHS PostedPostedEHS, Nurse.PostedChildVitamin PostedPostedChildVitamin, Nurse.PostedChildDiet PostedPostedChildDietFull,
-           Nurse.PostedChildDrink PostedPostedChildDrink)
+           Nurse.PostedChildDrink PostedPostedChildDrink, int saveCommand)
         {
 
 
@@ -5691,78 +5704,108 @@ namespace Fingerprints.Controllers
                     }
                 }
 
-                if (_screen.Physical != null)
+
+
+                if (_screen.ScreeningList != null && _screen.ScreeningList.Count > 0)
                 {
-                    _screen.PhysicalFileName = _screen.Physical.FileName;
-                    _screen.PhysicalFileExtension = Path.GetExtension(_screen.Physical.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Physical.InputStream);
-                    _screen.PhysicalImageByte = b.ReadBytes(_screen.Physical.ContentLength);
-                }
-                else
-                {
-                    _screen.PhysicalImageByte = _screen.PhysicalImagejson == null ? null : Convert.FromBase64String(_screen.PhysicalImagejson);
+
+                    for (int i = 0; i < _screen.ScreeningList.Count; i++)
+                    {
+                        if (_screen.ScreeningList[i].ApprovedFile != null)
+                        {
+                            _screen.ScreeningList[i].ApprovedFileName = _screen.ScreeningList[i].ApprovedFile.FileName;
+                            _screen.ScreeningList[i].ApprovedFileExtension = Path.GetExtension(_screen.ScreeningList[i].ApprovedFileName);
+                            BinaryReader br = new BinaryReader(_screen.ScreeningList[i].ApprovedFile.InputStream);
+                            _screen.ScreeningList[i].ApprovedImageByte = br.ReadBytes(_screen.ScreeningList[i].ApprovedFile.ContentLength);
+                        }
+
+                        else
+                        {
+
+                            _screen.ScreeningList[i].ApprovedImageByte = _screen.ScreeningList[i].ApprovedImageJson == null ? null : Convert.FromBase64String(_screen.ScreeningList[i].ApprovedImageJson);
+
+                        }
+                    }
+
+
 
                 }
-                if (_screen.Dental != null)
-                {
-                    _screen.DentalFileName = _screen.Dental.FileName;
-                    _screen.DentalFileExtension = Path.GetExtension(_screen.Dental.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Dental.InputStream);
-                    _screen.DentalImageByte = b.ReadBytes(_screen.Dental.ContentLength);
-                }
-                else
-                {
-                    _screen.DentalImageByte = _screen.DentalImagejson == null ? null : Convert.FromBase64String(_screen.DentalImagejson);
 
-                }
-                if (_screen.Vision != null)
-                {
-                    _screen.VisionFileName = _screen.Vision.FileName;
-                    _screen.VisionFileExtension = Path.GetExtension(_screen.Vision.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Vision.InputStream);
-                    _screen.VisionImageByte = b.ReadBytes(_screen.Vision.ContentLength);
-                }
-                else
-                {
-                    _screen.VisionImageByte = _screen.VisionImagejson == null ? null : Convert.FromBase64String(_screen.VisionImagejson);
 
-                }
-                if (_screen.Hearing != null)
-                {
-                    _screen.HearingFileName = _screen.Hearing.FileName;
-                    _screen.HearingFileExtension = Path.GetExtension(_screen.Hearing.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Hearing.InputStream);
-                    _screen.HearingImageByte = b.ReadBytes(_screen.Hearing.ContentLength);
-                }
-                else
-                {
-                    _screen.HearingImageByte = _screen.HearingImagejson == null ? null : Convert.FromBase64String(_screen.HearingImagejson);
+                //if (_screen.Physical != null)
+                //{
+                //    _screen.PhysicalFileName = _screen.Physical.FileName;
+                //    _screen.PhysicalFileExtension = Path.GetExtension(_screen.Physical.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Physical.InputStream);
+                //    _screen.PhysicalImageByte = b.ReadBytes(_screen.Physical.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.PhysicalImageByte = _screen.PhysicalImagejson == null ? null : Convert.FromBase64String(_screen.PhysicalImagejson);
 
-                }
-                if (_screen.Develop != null)
-                {
-                    _screen.DevelopFileName = _screen.Develop.FileName;
-                    _screen.DevelopFileExtension = Path.GetExtension(_screen.Develop.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Develop.InputStream);
-                    _screen.DevelopImageByte = b.ReadBytes(_screen.Develop.ContentLength);
-                }
-                else
-                {
-                    _screen.DevelopImageByte = _screen.DevelopImagejson == null ? null : Convert.FromBase64String(_screen.DevelopImagejson);
+                //}
+                //if (_screen.Dental != null)
+                //{
+                //    _screen.DentalFileName = _screen.Dental.FileName;
+                //    _screen.DentalFileExtension = Path.GetExtension(_screen.Dental.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Dental.InputStream);
+                //    _screen.DentalImageByte = b.ReadBytes(_screen.Dental.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.DentalImageByte = _screen.DentalImagejson == null ? null : Convert.FromBase64String(_screen.DentalImagejson);
 
-                }
-                if (_screen.Speech != null)
-                {
-                    _screen.SpeechFileName = _screen.Speech.FileName;
-                    _screen.SpeechFileExtension = Path.GetExtension(_screen.Speech.FileName);
-                    BinaryReader b = new BinaryReader(_screen.Speech.InputStream);
-                    _screen.SpeechImageByte = b.ReadBytes(_screen.Speech.ContentLength);
-                }
-                else
-                {
-                    _screen.SpeechImageByte = _screen.SpeechImagejson == null ? null : Convert.FromBase64String(_screen.SpeechImagejson);
+                //}
+                //if (_screen.Vision != null)
+                //{
+                //    _screen.VisionFileName = _screen.Vision.FileName;
+                //    _screen.VisionFileExtension = Path.GetExtension(_screen.Vision.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Vision.InputStream);
+                //    _screen.VisionImageByte = b.ReadBytes(_screen.Vision.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.VisionImageByte = _screen.VisionImagejson == null ? null : Convert.FromBase64String(_screen.VisionImagejson);
 
-                }
+                //}
+                //if (_screen.Hearing != null)
+                //{
+                //    _screen.HearingFileName = _screen.Hearing.FileName;
+                //    _screen.HearingFileExtension = Path.GetExtension(_screen.Hearing.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Hearing.InputStream);
+                //    _screen.HearingImageByte = b.ReadBytes(_screen.Hearing.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.HearingImageByte = _screen.HearingImagejson == null ? null : Convert.FromBase64String(_screen.HearingImagejson);
+
+                //}
+                //if (_screen.Develop != null)
+                //{
+                //    _screen.DevelopFileName = _screen.Develop.FileName;
+                //    _screen.DevelopFileExtension = Path.GetExtension(_screen.Develop.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Develop.InputStream);
+                //    _screen.DevelopImageByte = b.ReadBytes(_screen.Develop.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.DevelopImageByte = _screen.DevelopImagejson == null ? null : Convert.FromBase64String(_screen.DevelopImagejson);
+
+                //}
+                //if (_screen.Speech != null)
+                //{
+                //    _screen.SpeechFileName = _screen.Speech.FileName;
+                //    _screen.SpeechFileExtension = Path.GetExtension(_screen.Speech.FileName);
+                //    BinaryReader b = new BinaryReader(_screen.Speech.InputStream);
+                //    _screen.SpeechImageByte = b.ReadBytes(_screen.Speech.ContentLength);
+                //}
+                //else
+                //{
+                //    _screen.SpeechImageByte = _screen.SpeechImagejson == null ? null : Convert.FromBase64String(_screen.SpeechImagejson);
+
+                //}
+
+
                 if (_screen.ScreeningAccept != null)
                 {
                     _screen.ScreeningAcceptFileName = _screen.ScreeningAccept.FileName;
@@ -5772,9 +5815,14 @@ namespace Fingerprints.Controllers
                 }
                 else
                 {
-                    _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImageByte == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
+                    _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImagejson == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
 
                 }
+
+
+
+
+
                 if (info.Releaseform != null)
                 {
                     info.ReleaseformFileName = info.Releaseform.FileName;
@@ -5784,9 +5832,9 @@ namespace Fingerprints.Controllers
                 }
                 string message = string.Empty;
                 if (info.HouseholdId == 0)
-                    message = familyData.addScreeningInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files, Server.MapPath("~//TempAttachment//"));
+                    message = familyData.addScreeningInfo(ref info, 0, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files, Server.MapPath("~//TempAttachment//"), saveCommand);
                 else
-                    message = familyData.addScreeningInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files, Server.MapPath("~//TempAttachment//"));
+                    message = familyData.addScreeningInfo(ref info, 1, Guid.Parse(Session["UserID"].ToString()), ParentPhone1, ParentPhoneNos1, Income1, Income2, Imminization, PhoneNos, _screen, Session["Roleid"].ToString(), collection, Request.Files, Server.MapPath("~//TempAttachment//"), saveCommand);
 
                 var list = info;
 
@@ -6400,10 +6448,10 @@ namespace Fingerprints.Controllers
         {
             //DataSet dateset = new DataSet();
             //JavaScriptSerializer serializer = new JavaScriptSerializer();
-            string serial = "";
+
 
             Agency.ProgramType programType = new Agency.ProgramType();
-            programType =  new FamilyData().GetProgramByProgramID(programID);
+            programType = new FamilyData().GetProgramByProgramID(programID);
             // serial = serializer.Serialize(dateset.Tables[0]);
             return Json(programType, JsonRequestBehavior.AllowGet);
         }
@@ -6576,6 +6624,283 @@ namespace Fingerprints.Controllers
 
             return Json(hrCenter, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
+
+        public JsonResult GetFollowUpScreenings(string clientId, int followup)
+        {
+            List<SelectListItem> followupList = new List<SelectListItem>();
+            try
+            {
+                followupList = new RosterData().GetFollowUpScreenings(clientId, followup);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(followupList, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public PartialViewResult GetScreeningDetailsByID(string clientId, string programId, string screeningId)
+        {
+
+            Screening _screening = new Screening();
+            try
+            {
+
+
+
+
+                DataSet _data = new NurseData().GetScreeningsbyid(clientId, screeningId, Session["AgencyID"].ToString(), Session["UserID"].ToString(), programId, Session["Roleid"].ToString());
+
+                DataRow documentrow = null;
+
+                if (_data != null)
+                {
+                    if (_data.Tables.Count > 0 && _data.Tables[0].Rows.Count > 0)
+                    {
+                        ViewBag.screenings = _data.Tables[0];
+                        ViewBag.uploaddocument = Convert.ToBoolean(_data.Tables[0].Rows[0]["DocumentUpload"]);
+                    }
+                    if (_data.Tables.Count > 1 && _data.Tables[1].Rows.Count > 0)
+                    {
+                        ViewBag.screeningsdata = _data.Tables[1];
+                        ViewBag.screeningdate = _data.Tables[1].Rows[0]["screeningdate"].ToString() != "" ? Convert.ToDateTime(_data.Tables[1].Rows[0]["screeningdate"]).ToString("MM/dd/yyyy") : "";
+
+                    }
+                    if (_data.Tables.Count > 2 && _data.Tables[2].Rows.Count > 0)
+                    {
+
+                        List<SelectListItem> _screeningList = new List<SelectListItem>();
+                        SelectListItem obj = null;
+                        foreach (DataRow dr in _data.Tables[2].Rows)
+                        {
+                            obj = new SelectListItem();
+                            obj.Value = dr["ScreeningID"].ToString();
+                            obj.Text = dr["ScreeningName"].ToString();
+                            _screeningList.Add(obj);
+                        }
+                        if (_screeningList != null && _screeningList.Count < 1)
+                            ViewBag.message = "No Screening found.";
+                        ViewBag.screening = _screeningList;
+                        TempData["Screen"] = _screeningList;
+                    }
+                    if (_data.Tables.Count > 3 && _data.Tables[3].Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in _data.Tables[3].Rows)
+                        {
+                            ViewBag.missingscreeningdate = dr["missingscreeningdate"].ToString() == "" ? "" : Convert.ToDateTime(dr["missingscreeningdate"]).ToString("MM/dd/yyyy");
+                            ViewBag.ScreeningStatus = dr["MissingStatus"].ToString();
+
+                        }
+
+
+                    }
+
+
+
+                }
+                ViewBag.screeningid = screeningId;
+
+                if (ViewBag.screeningid == "1" || ViewBag.screeningid == "2" || ViewBag.screeningid == "3" || ViewBag.screeningid == "4" || ViewBag.screeningid == "5" ||
+              ViewBag.screeningid == "6")
+                {
+                    DataTable Screeningvalues = null;
+                    if (ViewBag.screeningsdata != null && (DataTable)ViewBag.screeningsdata != null && ((DataTable)ViewBag.screeningsdata).Rows.Count > 0)
+                    {
+                        Screeningvalues = (DataTable)ViewBag.screeningsdata;
+                        documentrow = Screeningvalues.AsEnumerable().FirstOrDefault(P => P.Field<string>("DocumentName") != "");
+
+                        if (documentrow != null)
+                        {
+                            _screening.PhysicalFileExtension = documentrow["DocumentExtension"].ToString();
+                            _screening.PhysicalFileName = documentrow["DocumentName"].ToString();
+                            if (documentrow["Documentdata"].ToString() != "")
+                            {
+                                _screening.PhysicalImageByte = (byte[])documentrow["Documentdata"];
+                            }
+                        }
+
+                        if (ViewBag.screeningid == "1")
+                        {
+                            _screening.F001physicalDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F001physicalDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F002physicalResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F002physicalResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F003physicallFOReason = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F003physicallFOReason").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F004medFollowup = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F004medFollowup").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F005MedFOComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F005MedFOComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F006bpResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F006bpResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F007hgDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F007hgDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F008hgStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F008hgStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F009hgResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F009hgResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F010hgReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F010hgReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F011hgComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F011hgComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F012hgDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F012hgDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F013hgResults2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F013hgResults2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F014hgFOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F014hgFOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F015leadDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F015leadDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F016leadResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F016leadResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F017leadReferDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F017leadReferDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F018leadComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F018leadComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F019leadDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F019leadDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F020leadResults2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F020leadResults2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.F021leadFOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "F021leadFOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                        }
+                        if (ViewBag.screeningid == "2")
+                        {
+                            _screening.v022date = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v022date").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v023results = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v023results").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v024comments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v024comments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v025dateR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v025dateR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v026resultsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v026resultsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v027commentsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v027commentsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v028dateR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v028dateR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v029resultsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v029resultsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v030commentsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v030commentsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v031ReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v031ReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v032Treatment = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v032Treatment").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v033TreatmentComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v033TreatmentComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v034Completedate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v034Completedate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.v035ExamStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "v035ExamStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                        }
+                        if (ViewBag.screeningid == "3")
+                        {
+                            _screening.h036Date = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h036Date").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h037Results = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h037Results").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h038Comments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h038Comments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h039DateR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h039DateR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h040ResultsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h040ResultsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h041CommentsR1 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h041CommentsR1").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h042DateR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h042DateR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h043ResultsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h043ResultsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h044CommentsR2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h044CommentsR2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h045ReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h045ReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h046Treatment = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h046Treatment").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h047TreatmentComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h047TreatmentComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h048CompleteDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h048CompleteDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.h049ExamStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "h049ExamStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                        }
+                        if (ViewBag.screeningid == "4")
+                        {
+                            _screening.d050evDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d050evDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d051NameDEV = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d051NameDEV").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d052evResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d052evResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d053evResultsDetails = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d053evResultsDetails").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d054evDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d054evDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d055evResults2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d055evResults2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d056evReferral = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d056evReferral").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d057evFOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d057evFOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d058evComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d058evComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.d059evTool = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "d059evTool").Select(m => m.Field<string>("Value")).FirstOrDefault();
+
+                        }
+                        if (ViewBag.screeningid == "5")
+                        {
+                            _screening.E060denDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E060denDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.E061denResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E061denResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.E062denPrevent = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E062denPrevent").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.E063denReferralDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E063denReferralDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.E064denTreatment = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E064denTreatment").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.E065denTreatmentComments = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E065denTreatmentComments").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.E066denTreatmentReceive = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "E066denTreatmentReceive").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                        }
+                        if (ViewBag.screeningid == "6")
+                        {
+                            _screening.s067Date = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s067Date").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s068NameTCR = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s068NameTCR").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s069Details = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s069Details").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s070Results = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s070Results").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s071RescreenTCR = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s071RescreenTCR").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s072RescreenTCRDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s072RescreenTCRDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s073RescreenTCRResults = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s073RescreenTCRResults").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s074ReferralDC = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s074ReferralDC").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s075ReferDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s075ReferDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s076DCDate = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s076DCDate").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s077NameDC = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s077NameDC").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s078DetailDC = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s078DetailDC").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s079DCDate2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s079DCDate2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s080DetailDC2 = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s080DetailDC2").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                            _screening.s081FOStatus = Screeningvalues.AsEnumerable().Where(m => m.Field<string>("QuestionAcronym") == "s081FOStatus").Select(m => m.Field<string>("Value")).FirstOrDefault();
+                        }
+
+
+                    }
+
+                }
+
+
+
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+            if (screeningId == "1")
+            {
+
+                return PartialView("~/Views/PartialScreening/PhysicalScreening.cshtml", _screening);
+            }
+            if (screeningId == "2")
+            {
+
+                return PartialView("~/Views/PartialScreening/VisionScreening.cshtml", _screening);
+            }
+            if (screeningId == "3")
+            {
+
+                return PartialView("~/Views/PartialScreening/HearingScreening.cshtml", _screening);
+            }
+            if (screeningId == "4")
+            {
+
+                return PartialView("~/Views/PartialScreening/DevelopmentalScreening.cshtml", _screening);
+            }
+            if (screeningId == "5")
+            {
+
+                return PartialView("~/Views/PartialScreening/DentalScreening.cshtml", _screening);
+            }
+
+            if (screeningId == "6")
+            {
+
+                return PartialView("~/Views/PartialScreening/SpeechScreening.cshtml", _screening);
+            }
+
+            return null;
+        }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public ActionResult SaveScreeningAjax(Screening _screening, FormCollection _Collections, string screeningdate, string pId, HttpPostedFileBase ScreeningDocument, string programId, string encClientID, string Status)
+        {
+            try
+            {
+                string message = "";
+                _screening.ClientID = (encClientID == "" || encClientID == "0") ? 0 : Convert.ToInt32(EncryptDecrypt.Decrypt64(encClientID));
+
+                DataSet _data = new NurseData().savecustomscreening(ref message, _screening, _Collections, screeningdate, Status, Session["AgencyID"].ToString(), Session["UserID"].ToString(), ScreeningDocument, programId, Session["Roleid"].ToString());
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return RedirectToAction("Roster", "Roster");
+        }
+
+
+
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,2d9822cd-85a3-4269-9609-9aabb914D792,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,2af7205e-87b4-4ca7-8ca8-95827c08564c,825f6940-9973-42d2-b821-5b6c7c937bfe,9ad1750e-2522-4717-a71b-5916a38730ed,047c02fe-b8f1-4a9b-b01f-539d6a238d80,944d3851-75cc-41e9-b600-3fa904cf951f,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,7c2422ba-7bd4-4278-99af-b694dcab7367,6ed25f82-57cb-4c04-ac8f-a97c44bdb5ba,b65759ba-4813-4906-9a69-e180156e42fc,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,a65bb7c2-e320-42a2-aed4-409a321c08a5,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,a31b1716-b042-46b7-acc0-95794e378b26")]
         [HttpGet]
         public ActionResult WithdrawnClients()
@@ -6830,7 +7155,34 @@ namespace Fingerprints.Controllers
             }
             return Json(isResult, JsonRequestBehavior.AllowGet);
         }
-    
+
+
+
+        /// <summary>
+        /// Gets the Screening based on the Program Reference Type -- added on 07/05/2018 for FSW Screening
+        /// </summary>
+        /// <param name="clientID"></param>
+        /// <param name="refProg"></param>
+        /// <returns></returns>
+        [HttpPost]
+
+
+        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")]
+        public PartialViewResult GetScreeningByRefProg(string clientID, string refProg)
+        {
+            Screening _scr = new Screening();
+            try
+            {
+                _scr = new FamilyData().GetScreeningDataByRefProg(clientID, refProg, Server.MapPath("~//TempAttachment//"));
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            return PartialView("~/Views/Screening/AddScreening2.cshtml", _scr);
+        }
+
+
         [CustAuthFilter()]
         public ActionResult ClassRoomAssignment()
         {
@@ -6928,8 +7280,68 @@ namespace Fingerprints.Controllers
         }
 
         [CustAuthFilter()]
-        
-        public JsonResult GetAcceptanceClientsByUser(string centerid,string option)
+        public JsonResult GetAgeYearsBy(string currentDate = "", string clientId = "")
+        {
+            string ageString = "";
+            ageString = new FamilyData().GetAgeYearsByDate(currentDate, clientId);
+
+            return Json(ageString, JsonRequestBehavior.AllowGet);
+        }
+
+        [ValidateInput(false)]
+        [CustAuthFilter()]
+        public JsonResult SaveDocument(string clientID, string screeningID, string screeningPeriod, string customScreeningPeriod, string imageJson = "")
+        {
+            Screening _scr = new Screening();
+            try
+            {
+                _scr.ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientID));
+                _scr.Screeningid = Convert.ToInt32(screeningID);
+                _scr.ScreeningPeriodIndex = screeningPeriod;
+                _scr.CustomScreeningPeriod = int.Parse(customScreeningPeriod);
+                _scr.ScreeningAcceptImagejson = "";
+                var reqFiles = Request.Files;
+
+                if (reqFiles.AllKeys.Length > 0)
+                {
+                    _scr.ScreeningAcceptFileName = reqFiles[0].FileName;
+                    _scr.ScreeningAcceptFileExtension = System.IO.Path.GetExtension(reqFiles[0].FileName);
+                    BinaryReader br = new BinaryReader(reqFiles[0].InputStream);
+                    _scr.ScreeningAcceptImageByte = br.ReadBytes(reqFiles[0].ContentLength);
+                }
+                else
+                {
+                    _scr.ScreeningAcceptFileName = "ScreeningDocument";
+                    _scr.ScreeningAcceptFileExtension = ".png";
+                    _scr.ScreeningAcceptImageByte = string.IsNullOrEmpty(imageJson) ? null : Convert.FromBase64String(imageJson);
+
+                }
+
+                if (_scr.ScreeningAcceptImageByte == null && string.IsNullOrEmpty(imageJson))
+                {
+                    return Json(_scr, JsonRequestBehavior.AllowGet);
+                }
+
+
+                _scr = new FamilyData().SaveScreeningDocument(_scr, Server.MapPath("~//TempAttachment//"));
+                _scr.ScreeningAcceptImageByte = new byte[0];
+                return Json(_scr, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                _scr = new Screening();
+                return Json(_scr, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
+
+
+
+        [CustAuthFilter()]
+
+        public JsonResult GetAcceptanceClientsByUser(string centerid, string option)
         {
             List<ClientAcceptList> ClientList = new List<ClientAcceptList>();
             string centerName = string.Empty;
@@ -6945,5 +7357,80 @@ namespace Fingerprints.Controllers
             return Json(new { ClientList, centerName }, JsonRequestBehavior.AllowGet);
 
         }
+
+
+        #region method to save the Screening Approval and initial screening entry
+        //[CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc")]
+        [CustAuthFilter()]
+        [HttpPost]
+        [JsonMaxLengthAttribute]
+        public JsonResult SaveScreeningApprovalByClient(FamilyHousehold info,string Command,Screening _screen,int saveCommand)
+
+            
+        {
+
+            bool isResult = false;
+            try
+            { 
+
+            if (_screen.ScreeningList != null && _screen.ScreeningList.Count > 0)
+            {
+
+                for (int i = 0; i < _screen.ScreeningList.Count; i++)
+                {
+                    if (_screen.ScreeningList[i].ApprovedFile != null)
+                    {
+                        _screen.ScreeningList[i].ApprovedFileName = _screen.ScreeningList[i].ApprovedFile.FileName;
+                        _screen.ScreeningList[i].ApprovedFileExtension = Path.GetExtension(_screen.ScreeningList[i].ApprovedFileName);
+                        BinaryReader br = new BinaryReader(_screen.ScreeningList[i].ApprovedFile.InputStream);
+                        _screen.ScreeningList[i].ApprovedImageByte = br.ReadBytes(_screen.ScreeningList[i].ApprovedFile.ContentLength);
+                    }
+
+                    else
+                    {
+
+                        _screen.ScreeningList[i].ApprovedImageByte = _screen.ScreeningList[i].ApprovedImageJson == null ? null : Convert.FromBase64String(_screen.ScreeningList[i].ApprovedImageJson);
+
+                    }
+                }
+
+            }
+
+
+
+
+            if (_screen.ScreeningAccept != null)
+            {
+                _screen.ScreeningAcceptFileName = _screen.ScreeningAccept.FileName;
+                _screen.ScreeningAcceptFileExtension = Path.GetExtension(_screen.ScreeningAccept.FileName);
+                BinaryReader b = new BinaryReader(_screen.ScreeningAccept.InputStream);
+                _screen.ScreeningAcceptImageByte = b.ReadBytes(_screen.ScreeningAccept.ContentLength);
+            }
+            else
+            {
+                _screen.ScreeningAcceptImageByte = _screen.ScreeningAcceptImagejson == null ? null : Convert.FromBase64String(_screen.ScreeningAcceptImagejson);
+
+            }
+
+
+
+
+
+
+                isResult = familyData.SaveScreeningApprovalByClient(ref info, _screen, saveCommand);
+
+
+
+
+        } 
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(isResult, JsonRequestBehavior.AllowGet) ;
+        }
+
+        #endregion
     }
 }

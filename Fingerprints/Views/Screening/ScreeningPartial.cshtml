@@ -1,0 +1,935 @@
+﻿@model FingerprintsModel.Screening
+
+
+<script>
+    function getScreeningDetails(periodID, customScr) {
+
+
+
+        //$.ajax({
+        //    url: '/Nurse/GetScreeningByScreeningPeriod',
+        //    datatype: 'json',
+        //    type: 'post',
+        //    data: {screeningID, eClientID, refProgId, periodID },
+        //    success:function(data)
+        //    {
+
+        //    },
+        //    error:function(data)
+        //    {
+
+        //    }
+
+
+        //});
+
+
+
+
+        loadCurrentFocusDiv(periodID, customScr);
+
+    }
+
+
+
+    function showCameraPopupmodal(ele) {
+        $('#modalScreenDoc').find('#divcamnotfound').hide();
+        $('#modalScreenDoc').find('#divcapimage').hide();
+
+      //  $('#modalScreenDoc').find('#capt-img').attr('src','').show();
+
+        $('#modalScreenDoc').find('#capt-img').removeAttr('src');
+        $('#modalScreenDoc').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+
+
+    }
+
+    function loadCurrentFocusDiv(period, custScr) {
+
+
+        var eClientID = $('#ChildInfo_Enc_ClientId').val();
+        var refProgId = $('#refProgId').val();
+        var screeningID = $('#Screeningid').val();
+
+        $('#spinner').show();
+        $('#currentFocusDiv').load("@Url.Action("GetScreeningByScreeningPeriod","Nurse")", { 'screeningID': screeningID, 'eClientID': eClientID, 'refProgId': refProgId, 'periodID': period, 'customScreeningPeriod': custScr }, function (response, status, xhr) {
+            $('#spinner').hide();
+
+            $(this).html(response);
+
+            //$('#currentFocusDiv').find('button[data-toggle=dropdown]').parent('.bootstrap-select').each(function (i,div) {
+
+            //    $(div).find('ul').find('li').each(function () {
+
+            //        if($(this).attr('rel')!='0')
+            //        {
+            //            $(this).attr('data-show-title', $(this).find('a').children('span').text());
+            //        }
+
+
+
+
+
+
+            //        $(this).on('click', function () {
+            //            debugger;
+            //            if ($(this).attr('rel') != '0') {
+
+            //                 $(this).children('button').find('span').text($(this).attr('data-show-title'));
+
+
+            //            }
+            //        });
+
+
+
+            //    });
+
+
+
+            //});
+
+
+
+
+            $('#currentFocusDiv').find(".Sdate").mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+            $('html,body').animate({
+                scrollTop: $("#currentFocusDiv").offset().top
+            },
+       'slow');
+
+        });
+    }
+
+    function isValidScreening(ele) {
+        cleanValidation();
+
+        var qnerror = 0;
+
+        var currentDiv = $('#currentFocusDiv');
+
+        $.each(currentDiv.find('#updateScreeningForm').find('.qn-div'), function (j, qn) {
+
+            var supLength = $(qn).children('label').contents().filter(function () {
+
+                return $(this)[0].nodeName == 'SUP';
+            }).length;
+
+
+            if (supLength > 0) {
+
+
+                var nodeName = $(qn).find('.custscreeningquestin')[0].nodeName;
+
+                switch (nodeName) {
+                    case 'SELECT':
+                        if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == '0') {
+                            qnerror++;
+                            plainValidation($(qn).find('.custscreeningquestin'));
+                        }
+                        break;
+
+                    case 'INPUT':
+                        if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == undefined) {
+                            qnerror++;
+                            plainValidation($(qn).find('.custscreeningquestin'));
+                        }
+                        break;
+
+                }
+            }
+        });
+        if (qnerror > 0) {
+            customAlert('Mandatory fields are required.');
+            return false;
+        }
+
+        else {
+
+            var myform = document.getElementById("updateScreeningForm");
+            var fd = new FormData(myform);
+            $('#updateScreeningForm input:file').each(function (a, b) {
+                var fileInput = $(this);
+                fd.append($(fileInput).attr("name"), fileInput);
+            });
+
+            $.ajax({
+                url: HostedDir + "/Nurse/SaveScreeningByScreeningPeriod",
+                type: "POST",
+                data: fd,
+                dataType: "json",
+                secureuri: false,
+                processData: false,
+                contentType: false,
+                async: true,
+                beforSend: function () { $('#spinner').show() },
+                success: function (data) {
+
+                    if (data.isResult) {
+                        customAlert('Record saved successfully');
+                        //$('#btnLoadScreening').trigger('click');
+
+                        $('#currentFocusDiv').find('input[name=ScreeningPeriodIndex]').val(data.screeningPeriod);
+
+                        var scrPeriod = $('#currentFocusDiv').find('input[name=ScreeningPeriodIndex]').val();
+                        var custScr = $('#currentFocusDiv').find('input[name=CustomScreeningPeriod]').val();
+                        //  loadCurrentFocusDiv(scrPeriod, custScr);
+
+                    }
+                    else {
+                        customAlert('Error occurred.Please, try again later.');
+                    }
+
+
+                }
+                   , error: function (Data) {
+
+                       customAlert("Session Ended Log Onto The System Again.");
+                       setTimeout(function () {
+                           window.location.href = HostedDir + '/login/Loginagency';
+                       }, 2000);
+                   }
+            });
+        }
+
+    }
+
+
+    function validatedates(inputTextObject) {
+        if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+            var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+            var regex = new RegExp(dateformat);
+            if (!regex.test($(inputTextObject).val())) {
+                customAlert("Invalid date.");
+
+                $(inputTextObject).val('');
+            }
+            else if (new Date($(inputTextObject).val()) < new Date($('#ChildInfo_Dob').val())) {
+                customAlert("Entered Date should be greater than Client's date of birth");
+                $(inputTextObject).val('');
+            }
+            else if ($(inputTextObject).attr('scrdate') == '1' && $('#updateScreeningForm').find('#ScreeningPeriodIndex').val() == '0') {
+                $.ajax({
+                    url: HostedDir + '/AgencyUser/GetAgeYearsBy',
+                    type: 'post',
+                    dataType: 'json',
+                    async: true,
+                    data: { currentDate: $(inputTextObject).val(), clientId: $('#ChildInfo_Enc_ClientId').val() },
+                    beforSend: function () { $('#spinner').show() },
+                    success: function (data) {
+                        $('#crntUl').html('<li class="glossy-button glossy-button--purple" style="transform: unset;cursor: unset;"  data-period-id=' + data + ' ><span>' + data + ' Years' + '</span></li>');
+                    },
+                    error: function (data) {
+
+                    },
+                    complete: function (data) {
+                        $('#spinner').hide()
+                    }
+
+
+                });
+            }
+
+
+        }
+
+    }
+
+
+    function showIE6Tooltip(ele, e) {
+        if (!e) { var e = window.event; }
+        var obj = e.srcElement;
+        var objHeight = obj.offsetHeight;
+        var optionCount = obj.options.length;
+        var eX = e.offsetX;
+        var eY = e.offsetY;
+
+        //vertical position within select will roughly give the moused over option...
+        var hoverOptionIndex = Math.floor(eY / (objHeight / optionCount));
+
+        var tooltip = $(ele).next('.div-tooltip');
+        tooltip.innerHTML = obj.options[hoverOptionIndex].title;
+        tooltip.style.display = 'block';
+    }
+    function hideIE6Tooltip(ele, e) {
+        var tooltip = $(ele).next('.div-tooltip');
+        tooltip.innerHTML = '';
+        tooltip.style.display = 'none';
+    }
+
+    var boxWidthLeft = 0;
+
+    var slidetitle={
+        'slideLeft':'click to slide left',
+        'slideRight':'click to slide right'
+    }
+
+    function hideShowLeftPanel(ele) {
+
+        $('.left-div-panel').find('ul').find('li[data-toggle="tooltip"]').tooltip('destroy');
+
+        if ($(ele).hasClass('left-move')) {
+
+            $(ele).parent('div').attr({ 'title': slidetitle.slideRight, 'data-original-title': slidetitle.slideRight });
+            //$(ele).parent('div').tooltip('destroy')
+            //$(ele).parent('div').tooltip();
+            boxWidthLeft = $('#screeningBindDiv').find('.left-div-panel').width();
+            // $('#screeningBindDiv').find('.left-div-panel').hide('slide', { direction: 'left' }, 400);
+
+
+            if ($('.right-arw-img ').hasClass('left-move')) {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '79.93%' });
+            }
+            else {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '64.93%' });
+
+            }
+
+            $('#screeningBindDiv').find('.left-div-panel').animate({
+                width: '10%'
+            });
+
+            $('.left-div-panel').find('ul').children('.glossy-button').children('span').hide();
+
+            //$('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '64.92%' });
+            $(ele).removeClass('left-move');
+            $(ele).addClass('right-move');
+            $(ele).addClass('rotateimage');
+
+            $('.left-div-panel').find('ul').find('li[data-toggle="tooltip"]').tooltip();
+
+
+        }
+        else {
+            //$('#screeningBindDiv').find('.left-div-panel').hide('slide', { direction: 'right' }, 400);
+            $(ele).parent('div').attr({ 'title': slidetitle.slideLeft, 'data-original-title': slidetitle.slideLeft });
+           // $(ele).parent('div').tooltip('destroy').tooltip();
+            $('#screeningBindDiv').find('.left-div-panel').animate({
+                width: boxWidthLeft
+            })
+            $(ele).removeClass('right-move').addClass('left-move');
+
+            if ($('.right-arw-img ').hasClass('left-move')) {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '64.93%' });
+            }
+            else {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '49.9%' });
+
+            }
+
+            //      $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '49.9%' });
+            $(ele).removeClass('rotateimage');
+            $('.left-div-panel').find('ul').children('.glossy-button').children('span').show();
+        }
+    }
+
+
+    var boxWidthRight = 0;
+    function hideShowRightPanel(ele) {
+
+        $('.right-div-panel').find('ul').find('li[data-toggle="tooltip"]').tooltip('destroy');
+
+        if ($(ele).hasClass('right-move')) {
+
+            $(ele).parent('div').attr({ 'title': slidetitle.slideLeft, 'data-original-title': slidetitle.slideLeft });
+
+           // $(ele).parent('div').tooltip('destroy').tooltip();
+            boxWidthRight = $('#screeningBindDiv').find('.right-div-panel').width();
+            // $('#screeningBindDiv').find('.left-div-panel').hide('slide', { direction: 'left' }, 400);
+            $('#screeningBindDiv').find('.right-div-panel').animate({
+                width: '10%'
+            });
+
+
+            $('.right-div-panel').find('ul').children('.glossy-button').children('span').hide();
+            $(ele).removeClass('right-move')
+            $(ele).addClass('left-move');
+            $('#screeningBindDiv').find('.right-div-panel').addClass('pull-right');
+            $(ele).addClass('rotateimage');
+
+            if ($('.left-arw-img').hasClass('right-move')) {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '79.96%' });
+            }
+            else {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '64.93%' });
+
+            }
+            $('.right-div-panel').find('ul').find('li[data-toggle="tooltip"]').tooltip();
+        }
+        else {
+            //$('#screeningBindDiv').find('.left-div-panel').hide('slide', { direction: 'right' }, 400);
+
+            $(ele).parent('div').attr({ 'title': slidetitle.slideRight, 'data-original-title': slidetitle.slideRight });
+
+           // $(ele).parent('div').tooltip('destroy').tooltip();
+            $('#screeningBindDiv').find('.right-div-panel').animate({
+                width: boxWidthRight
+            })
+            $(ele).removeClass('left-move')
+            $(ele).addClass('right-move');
+            $('#screeningBindDiv').find('.right-div-panel').removeClass('pull-right');
+            $(ele).removeClass('rotateimage');
+
+            if ($('.left-arw-img').hasClass('right-move')) {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '64.93%' });
+            }
+            else {
+                $('#screeningBindDiv').find('.center-div-panel').animate({ 'width': '49.9%' });
+
+            }
+            $('.right-div-panel').find('ul').children('.glossy-button').children('span').show();
+        }
+    }
+
+    function returnPage(ele) {
+        $('#spinner').show();
+
+        if (returnUrl == '2') {
+            location.href = HostedDir + '/Roster/Roster';
+        }
+        else {
+            location.href = HostedDir + '/Nurse/ClientList';
+        }
+    }
+
+</script>
+
+
+<style type="text/css">
+
+    .qn-div
+    {
+        margin-top:1%;
+    }
+    .left-arw-img, .right-arw-img {
+        cursor: pointer;
+    }
+
+    .rotateimage {
+        -webkit-transform: rotateZ(180deg);
+        -moz-transform: rotateZ(180deg);
+        -o-transform: rotateZ(180deg);
+    }
+
+
+    .bootstrap-select .dropdown-menu {
+        padding: 0px !important;
+    }
+
+    .selectpicker.btn-default {
+        background: transparent !important;
+        color: #333 !important;
+        border: 0px !important;
+        padding: 10px 11px !important;
+    }
+
+    .bootstrap-select.btn-group .dropdown-menu li {
+        position: relative;
+        padding: 0px;
+        text-align: left;
+        margin-bottom: 2px;
+    }
+
+    .glossy-button a {
+        color: #fff !important;
+    }
+
+    .glossy-button {
+        display: inline-block;
+        position: relative;
+        background-color: #AAA;
+        hsla(0, 0%, 100%, 0.6), hsla(0, 0%, 100%, 0) 50%, hsla(0, 0%, 0%, 0.3) 50%, hsla(0, 0%, 100%, 0.2) );
+        font-family: sans-serif;
+        font-weight: bold;
+        color: white !important;
+        padding: 20px 40px;
+        text-shadow: 0 0 15px hsla(0, 0%, 100%, 1), /* bloom */
+        0 2px 4px hsla(0, 0%, 0%, 0.7); /* drop shadow */
+        border: none;
+        border-radius: 50px;
+        width: 100% !important;
+        box-shadow: inset 0 -5px 20px hsla(0, 0%, 0%, 0.4), /* top light */
+        inset 0 5px 20px hsla(0, 0%, 100%, 0.4), /* bottom shadow */
+        /* multiple light sources yall */
+        -8px 8px 5px hsla(0, 0%, 0%, 0.15), /* drop shadow 1 */
+        5px 18px 10px hsla(0, 0%, 0%, 0.2); /* drop shadow 2 */
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+        /* highlight */
+        .glossy-button-shadow {
+            /*content: '';*/
+            display: block;
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            top: 5px;
+            height: 30px;
+            border-radius: 15px;
+            background: linear-gradient( hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0) );
+            background: -webkit-linear-gradient( hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0) );
+            background: -moz-linear-gradient( hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0) );
+            background: -ms-linear-gradient( hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0) );
+            background: -o-linear-gradient( hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0) );
+        }
+
+    .glossy-button--blue {
+        background-color: #19F;
+    }
+
+    .glossy-button--gold {
+        background-color: #EA0;
+    }
+
+    .glossy-button--green {
+        background-color: #6C6;
+    }
+
+    .glossy-button--red {
+        background-color: #E21;
+    }
+
+    .glossy-button--purple {
+        background-color: purple;
+    }
+
+    .glossy-button:hover {
+        transform: scale(1.05);
+        -webkit-transform:scale(1.05);
+        -moz-transform:scale(1.05);
+        -o-transform:scale(1.05);
+        -ms-transform:scale();
+        box-shadow: inset 0 -5px 20px hsla(0, 0%, 0%, 0.4), /* top light */
+        inset 0 5px 20px hsla(0, 0%, 100%, 0.4), /* bottom shadow */
+        /* multiple light sources yall */
+        -12px 12px 5px hsla(0, 0%, 0%, 0.15), /* drop shadow 1 */
+        10px 25px 10px hsla(0, 0%, 0%, 0.2); /* drop shadow 2 */
+
+    -webkit-box-shadow:inset 0 -5px 20px hsla(0, 0%, 0%, 0.4), /* top light */
+        inset 0 5px 20px hsla(0, 0%, 100%, 0.4), /* bottom shadow */
+        /* multiple light sources yall */
+        -12px 12px 5px hsla(0, 0%, 0%, 0.15), /* drop shadow 1 */
+        10px 25px 10px hsla(0, 0%, 0%, 0.2); /* drop shadow 2 */
+
+                                             -o-box-shadow:inset 0 -5px 20px hsla(0, 0%, 0%, 0.4), /* top light */
+        inset 0 5px 20px hsla(0, 0%, 100%, 0.4), /* bottom shadow */
+        /* multiple light sources yall */
+        -12px 12px 5px hsla(0, 0%, 0%, 0.15), /* drop shadow 1 */
+        10px 25px 10px hsla(0, 0%, 0%, 0.2); /* drop shadow 2 */
+                                             -moz-box-shadow:inset 0 -5px 20px hsla(0, 0%, 0%, 0.4), /* top light */
+        inset 0 5px 20px hsla(0, 0%, 100%, 0.4), /* bottom shadow */
+        /* multiple light sources yall */
+        -12px 12px 5px hsla(0, 0%, 0%, 0.15), /* drop shadow 1 */
+        10px 25px 10px hsla(0, 0%, 0%, 0.2); /* drop shadow 2 */
+                                               -ms-box-shadow:inset 0 -5px 20px hsla(0, 0%, 0%, 0.4), /* top light */
+        inset 0 5px 20px hsla(0, 0%, 100%, 0.4), /* bottom shadow */
+        /* multiple light sources yall */
+        -12px 12px 5px hsla(0, 0%, 0%, 0.15), /* drop shadow 1 */
+        10px 25px 10px hsla(0, 0%, 0%, 0.2); /* drop shadow 2 */
+    }
+
+    .glossy-button span {
+        text-shadow: 0 0 10px #191818;
+    }
+
+
+
+
+    .ul-focus-drop {
+        height: 30px;
+        width: 150px;
+        border: 1px #000 solid;
+    }
+
+        .ul-focus-drop li {
+            padding: 5px 10px;
+            z-index: 2;
+        }
+
+            .ul-focus-drop li:not(.init) {
+                float: left;
+                width: 130px;
+                display: none;
+                background: #ddd;
+            }
+
+                .ul-focus-drop li:not(.init):hover, .ul-focus-drop li.selected:not(.init) {
+                    background: #09f;
+                }
+
+        .ul-focus-drop.init {
+            cursor: pointer;
+        }
+
+    .selet-mylistdrop {
+        width: 100%;
+        float: left;
+        padding: 10px 15px;
+    }
+
+        .selet-mylistdrop ul {
+            width: 100%;
+            float: left;
+            height: 38px;
+            padding-left: 0;
+            border: 1px solid #ccc;
+        }
+
+        .selet-mylistdrop .ul-focus-drop li {
+            width: 100%;
+            float: left;
+            list-style: none;
+            padding: 7px 12px;
+            position: relative;
+        }
+
+            .selet-mylistdrop .ul-focus-drop li:hover span {
+                opacity: 1;
+                transition: all 0.4s;
+            }
+
+            .selet-mylistdrop .ul-focus-drop li span {
+                position: absolute;
+                transition: all 0.4s;
+                top: 0;
+                min-width: 100px;
+                background: #000;
+                opacity: 0;
+                color: #fff;
+                padding: 5px;
+                border-radius: 4px;
+                right: 0;
+            }
+
+    .ul-focus-drop li.init {
+        background: url('../../Images/drop.png') no-repeat right;
+        background-size: 10px;
+        background-position: 99.5%;
+    }
+
+    .selet-mylistdrop .ul-focus-drop li span::before {
+        position: absolute;
+        content: "\f0d9";
+        left: -8px;
+        font-family: fontAwesome;
+    }
+
+    .screening_bg {
+        background: rgba(226,226,226,1);
+        background: -moz-linear-gradient(top, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+        background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(226,226,226,1)), color-stop(50%, rgba(219,219,219,1)), color-stop(51%, rgba(209,209,209,1)), color-stop(100%, rgba(254,254,254,1)));
+        background: -webkit-linear-gradient(top, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+        background: -o-linear-gradient(top, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+        background: -ms-linear-gradient(top, rgba(226,226,226,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%);
+    }
+
+
+    .screening-div {
+        position: relative;
+    }
+
+    .screen_lft_rgt_icon {
+        width: 100%;
+        position: absolute;
+        top: 80px;
+        z-index: 999;
+    }
+
+    .left_icon.pull-left {
+        margin-left: 24px;
+    }
+
+    .screen_lft_rgt_icon div img {
+        max-width: 24px;
+    }
+
+    .right_icon.pull-right {
+        margin-right: 24px;
+    }
+    .file_attach{float:left;width:100%;height:250px;overflow:hidden;position:relative;z-index:1;}
+        .file_attach iframe{position:absolute;}
+</style>
+
+<div class="row">
+
+    @{
+        //  string[] clrArray = { "pink", "blue", "green", "yellow" };
+
+        string[] clrArray = { "glossy-button--blue", "glossy-button--gold", "glossy-button--green", "glossy-button--red" };
+
+        int arrValue = 0;
+    }
+
+    <div class="screening-div col-xs-12 nopadding">
+
+        <div class="screen_lft_rgt_icon com-md-12 hidden-xs hidden-sm">
+            <div class="left_icon pull-left" data-toggle="tooltip" title="click to slide left"><img src="~/Images/Left_Arrow.png" class="left-move left-arw-img" onclick="hideShowLeftPanel(this);" /></div>
+            <div class="right_icon pull-right"  data-toggle="tooltip" title="click to slide right"><img src="~/Images/Right_Arrow.png" class="right-move right-arw-img" onclick="hideShowRightPanel(this);" /></div>
+        </div>
+
+        <script>
+            $('.left_icon[data-toggle="tooltip"]').tooltip();
+            $('.right_icon[data-toggle="tooltip"]').tooltip();
+        </script>
+
+        <div class="col-sm-12 col-md-3 col-lg-3 col-xs-12 nopadding screening_bg left-div-panel">
+            <h4 class="right_radius"> Past </h4>
+            <div class="pop_list" style="margin-right:10px">
+                <ul style="max-height:550px;overflow-y:auto;padding:10px;">
+
+                    @*@{
+                            var screenPeriodList = new List<FingerprintsModel.ScreeningPeriods>();
+
+                            if (Model.ScreeningList.Count>0 &&  Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == Model.ScreeningList[0].ScreeningID).Any())
+                            {
+                                screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == Model.ScreeningList[0].ScreeningID).ToList();
+                            }
+                            else
+                            {
+                                screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == 0).ToList();
+
+                            }
+                            Model.ScreeningPeriodsList = screenPeriodList;
+                        }*@
+
+
+
+
+
+                    @for (int i = 0; i < Model.ScreeningPeriodsList.Count; i++)
+                    {
+
+
+                        if (Model.ScreeningPeriodsList[i].ScreeningFocusType == 1)
+                        {
+                            arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
+
+                            <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[i].Description + " " + "(Expired)")" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[i].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[i].CustomScreeningPeriod');">
+                                
+                                <span>
+                                    @(Model.ScreeningPeriodsList[i].Description + " " + "(Expired)") &nbsp;
+
+                                    @*<img src="/Images/arrow_left.png">*@
+
+                                </span>
+                                <div class="glossy-button-shadow"></div>
+                            </li>
+
+                            arrValue++;
+                        }
+
+                    }
+
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12 nopadding current-div right_radius screening_bg center-div-panel">
+            <h4 class="currentfocushead"> Current Focus </h4>
+            <div class="pop_list form_section" id="currentFocusDiv" style="margin-right:10px;overflow-y:unset;">
+
+
+                @if (Model.ScreeningPeriodsList.Where(x => x.ScreeningFocusType == 2).Any())
+                {
+
+
+                    {
+                        Html.RenderPartial(Url.Content("~/Views/Screening/ScreeningCurrentFocusPartial.cshtml"), Model._Screening);
+
+                    }
+                }
+
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-3 col-lg-3 col-xs-12 nopadding screening_bg right-div-panel">
+            <h4 class="left_radius"> Future </h4>
+            <div class="pop_list" style="margin-left:10px">
+                <ul style="max-height:550px;overflow-y:auto;padding:10px;">
+
+
+                    @if (Model.ScreeningList.Count > 0 && Model.ScreeningList[0].ScreeningsPerYear == 2 && Model.ScreeningAccessInfo.IsEnter)
+                    {
+
+                        <li class="glossy-button--blue glossy-button" data-toggle="tooltip" data-placement="top" title="Unlimited" onclick="getScreeningDetails('0','1');"><span style="color:#fff;">Unlimited</span>
+                    
+                            <div class="glossy-button-shadow"></div>
+                     </li>
+
+                    }
+
+
+                    @if (Model.ScreeningPeriodsList.Where(x => x.ScreeningFocusType == 2).Any())
+                    {
+
+                        arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
+                        var scrPeriod = Model.ScreeningPeriodsList.Where(x => x.ScreeningFocusType == 2).FirstOrDefault();
+
+                        if (Model.ChildInfo.AgeInMonths < scrPeriod.ScreeningPeriod && scrPeriod.ScreeningPeriodType == 2)
+                        {
+                            if ((scrPeriod.ScreeningPeriod - Model.ChildInfo.AgeInMonths) <= 1)
+                            {
+                                <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description + " (Expiring)")" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
+                                    <span>
+
+                                        @*<img src="/Images/arrow_right.png">*@
+
+                                        &nbsp; @(scrPeriod.Description + " (Expiring)")
+                                    </span>
+
+                                    <div class="glossy-button-shadow"></div>
+                                </li>
+
+                            }
+                            else
+                            {
+                                <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description)" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
+                                    <span>
+                                        @*<img src="/Images/arrow_right.png">*@
+                                        &nbsp; @(scrPeriod.Description)
+                                    </span>
+
+                                    <div class="glossy-button-shadow"></div>
+                                </li>
+
+                            }
+                        }
+
+
+                        else if (Model.ChildInfo.AgeInMonths >= scrPeriod.ScreeningPeriod && scrPeriod.ScreeningPeriodType == 2)
+                        {
+
+                            <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description + " (Expired)")" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
+                                <span>
+                                    @*<img src="/Images/arrow_right.png">*@
+
+                                    &nbsp; @(scrPeriod.Description + " (Expired)")
+                                </span>
+                                <div class="glossy-button-shadow"></div>
+                            </li>
+
+                        }
+
+                        else
+                        {
+                            <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@scrPeriod.Description" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
+                                <span>
+                                    @*<img src="/Images/arrow_right.png">*@
+
+                                    &nbsp; @scrPeriod.Description
+                                </span>
+
+                                <div class="glossy-button-shadow"></div>
+                            </li>
+
+                        }
+
+                        arrValue++;
+
+                    }
+
+
+
+                    @for (int k = (Model.ScreeningPeriodsList.Count - 1); k >= 0; k--)
+                    {
+
+
+
+
+                        if (Model.ScreeningPeriodsList[k].ScreeningFocusType == 3)
+                        {
+
+                            arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
+
+                            if (Model.ChildInfo.AgeInMonths < Model.ScreeningPeriodsList[k].ScreeningPeriod && Model.ScreeningPeriodsList[k].ScreeningPeriodType == 2)
+                            {
+                                if ((Model.ScreeningPeriodsList[k].ScreeningPeriod - Model.ChildInfo.AgeInMonths) <= 1)
+                                {
+                                    <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description + " (Expiring)")" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
+                                        <span>
+
+                                            @*<img src="/Images/arrow_right.png">*@
+
+                                            &nbsp; @(Model.ScreeningPeriodsList[k].Description + " (Expiring)")
+                                        </span>
+                                        <div class="glossy-button-shadow"></div>
+                                    </li>
+
+                                }
+                                else
+                                {
+                                    <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description)" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
+                                        <span>
+
+                                            @* <img src="/Images/arrow_right.png">*@
+
+                                            &nbsp; @(Model.ScreeningPeriodsList[k].Description)
+                                        </span>
+                                        <div class="glossy-button-shadow"></div>
+                                    </li>
+
+                                }
+                            }
+
+
+                            else if (Model.ChildInfo.AgeInMonths >= Model.ScreeningPeriodsList[k].ScreeningPeriod && Model.ScreeningPeriodsList[k].ScreeningPeriodType == 2)
+                            {
+
+                                <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description + " (Expired)")" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
+                                    <span>
+
+                                        @*<img src="/Images/arrow_right.png">*@
+
+                                        &nbsp; @(Model.ScreeningPeriodsList[k].Description + " (Expired)")
+                                    </span>
+                                    <div class="glossy-button-shadow"></div>
+                                </li>
+
+                            }
+
+                            else
+                            {
+                                <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@Model.ScreeningPeriodsList[k].Description" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
+                                    <span>
+
+                                        @*<img src="/Images/arrow_right.png">*@
+
+                                        &nbsp; @Model.ScreeningPeriodsList[k].Description
+                                    </span>
+                                    <div class="glossy-button-shadow"></div>
+                                </li>
+
+                            }
+
+                            arrValue++;
+                        }
+
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="screening_footer col-xs-12 no-padding">
+
+        @if (Model.ScreeningAccessInfo.IsEnter == true || Model.ScreeningAccessInfo.IsReview == true)
+        {
+            <button type="button" class="glossy-button-button button-green" onclick="isValidScreening(this);">Save
+        
+                <span class="glossy-button-after"></span>
+                <span class="glossy-button-before"></span>
+        </button>
+        }
+
+        <button type="button" class="glossy-button-button button-red" onclick="returnPage(this);" data-dismiss="modal">Exit
+            <span class="glossy-button-after"></span>
+            <span class="glossy-button-before"></span>
+        
+        </button>
+
+
+    </div>
+
+</div>

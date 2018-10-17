@@ -403,6 +403,7 @@
         AddReferral.ReferralClientServiceId = parseInt(ReferralClientServiceId);
         AddReferral.ClientId = ClientId;
         AddReferral.HouseHoldId = parseInt(HouseHoldId);
+        AddReferral.ScreeningReferralYakkr = $('#ScreeningReferralYakkr').val();
 
         $.ajax({
             url: HostedDir+"/Roster/SaveReferral",

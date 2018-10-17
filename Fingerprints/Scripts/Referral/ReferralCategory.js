@@ -4,7 +4,7 @@
         var referralclientId = $('#referralClientId').val();
         $.ajax({
 
-            url: "/Roster/HouseHoldReferrals",
+            url: HostedDir+"/Roster/HouseHoldReferrals",
             datatype: "json/application",
             data: { referralClientId: referralclientId },
             success: function (data) {
@@ -107,7 +107,8 @@ $('#Save').click(function (e) {
         SaveReferral.HouseHoldId = parseInt(HouseHoldId);
         SaveReferral.ClientId = ClientId;
         SaveReferral.referralClientId = parseInt($('#referralClientId').val());
-
+        SaveReferral.ScreeningReferralYakkr = $('#screeningReferralYakkr').val();
+  
         $.ajax({
             url: HostedDir+"/Roster/SaveReferralClient",
             type: "POST",
@@ -176,7 +177,7 @@ $("#Matchprovider").click(function (e) {
     }
     else {
 
-        window.location.href = "/Roster/MatchProviders?AgencyId=" + AgencyValue +  "&CommunityIds=" + result + "&parentName=" + ParentName + "&referralClientId=" + $('#referralClientId').val() + "&clientName=" + $('#clientName').val() + "&id=" + $('#id').val();
+        window.location.href = HostedDir+ "/Roster/MatchProviders?AgencyId=" + AgencyValue + "&CommunityIds=" + result + "&parentName=" + ParentName + "&referralClientId=" + $('#referralClientId').val() + "&clientName=" + $('#clientName').val() + "&id=" + $('#id').val() + "&ScreeningReferralYakkr=" + $('#screeningReferralYakkr').val();
 
 
     }

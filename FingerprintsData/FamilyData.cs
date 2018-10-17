@@ -1633,68 +1633,69 @@ namespace FingerprintsData
                 }
 
                 #region screening
-                DataTable dt6 = new DataTable();
-                dt6.Columns.AddRange(new DataColumn[3] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("QuestionID",typeof(Int32)),
-                    new DataColumn("Value",typeof(string)),
-                    });
+                //DataTable dt6 = new DataTable();
+                //dt6.Columns.AddRange(new DataColumn[3] {
+                //    new DataColumn("ScreeningID",typeof(Int32)),
+                //    new DataColumn("QuestionID",typeof(Int32)),
+                //    new DataColumn("Value",typeof(string)),
+                //    });
                 #endregion
-                foreach (var s in _screen.GetType().GetProperties())
-                {
-                    int screeningid = 0;
-                    int questionid = 0;
-                    if (s.Name.Substring(0, 1) == "F")
-                        screeningid = 1;
-                    if (s.Name.Substring(0, 1) == "v")
-                        screeningid = 2;
-                    if (s.Name.Substring(0, 1) == "h")
-                        screeningid = 3;
-                    if (s.Name.Substring(0, 1) == "d")
-                        screeningid = 4;
-                    if (s.Name.Substring(0, 1) == "E")
-                        screeningid = 5;
-                    if (s.Name.Substring(0, 1) == "s")
-                        screeningid = 6;
-                    if (screeningid == 1 || screeningid == 2 || screeningid == 3 || screeningid == 4 || screeningid == 5 || screeningid == 6)
-                    {
-                        questionid = Convert.ToInt32(s.Name.Substring(1, 3));
-                        dt6.Rows.Add(screeningid, questionid, s.GetValue(_screen));
-                    }
-                }
+                //foreach (var s in _screen.GetType().GetProperties())
+                //{
+                //    int screeningid = 0;
+                //    int questionid = 0;
+                //    if (s.Name.Substring(0, 1) == "F")
+                //        screeningid = 1;
+                //    if (s.Name.Substring(0, 1) == "v")
+                //        screeningid = 2;
+                //    if (s.Name.Substring(0, 1) == "h")
+                //        screeningid = 3;
+                //    if (s.Name.Substring(0, 1) == "d")
+                //        screeningid = 4;
+                //    if (s.Name.Substring(0, 1) == "E")
+                //        screeningid = 5;
+                //    if (s.Name.Substring(0, 1) == "s")
+                //        screeningid = 6;
+                //    if (screeningid == 1 || screeningid == 2 || screeningid == 3 || screeningid == 4 || screeningid == 5 || screeningid == 6)
+                //    {
+                //        questionid = Convert.ToInt32(s.Name.Substring(1, 3));
+                //        dt6.Rows.Add(screeningid, questionid, s.GetValue(_screen));
+                //    }
+                //}
+
+                //  command.Parameters.Add(new SqlParameter("@tblscreening", dt6));
+                //Changes
+                //command.Parameters.Add(new SqlParameter("@Physical", _screen.AddPhysical));
+                //command.Parameters.Add(new SqlParameter("@Vision", _screen.AddVision));
+                //command.Parameters.Add(new SqlParameter("@Dental", _screen.AddDental));
+                //command.Parameters.Add(new SqlParameter("@Hearing", _screen.AddHearing));
+                //command.Parameters.Add(new SqlParameter("@Develop", _screen.AddDevelop));
+                //command.Parameters.Add(new SqlParameter("@Speech", _screen.AddSpeech));
+                ////    command.Parameters.Add(new SqlParameter("@ScreeningAccept", _screen.ScreeningAccept));
+                //command.Parameters.Add(new SqlParameter("@PhysicalFileName", _screen.PhysicalFileName));
+                //command.Parameters.Add(new SqlParameter("@PhysicalFileExtension", _screen.PhysicalFileExtension));
+                //command.Parameters.Add(new SqlParameter("@PhysicalImageByte", _screen.PhysicalImageByte));
+                //command.Parameters.Add(new SqlParameter("@VisionFileName", _screen.VisionFileName));
+                //command.Parameters.Add(new SqlParameter("@VisionFileExtension", _screen.VisionFileExtension));
+                //command.Parameters.Add(new SqlParameter("@VisionImageByte", _screen.VisionImageByte));
+                //command.Parameters.Add(new SqlParameter("@DevelopFileName", _screen.DevelopFileName));
+                //command.Parameters.Add(new SqlParameter("@DevelopFileExtension", _screen.DevelopFileExtension));
+                //command.Parameters.Add(new SqlParameter("@DevelopImageByte", _screen.DevelopImageByte));
+                //command.Parameters.Add(new SqlParameter("@DentalFileExtension", _screen.DentalFileExtension));
+                //command.Parameters.Add(new SqlParameter("@DentalFileName", _screen.DentalFileName));
+                //command.Parameters.Add(new SqlParameter("@DentalImageByte", _screen.DentalImageByte));
+                //command.Parameters.Add(new SqlParameter("@HearingFileName", _screen.HearingFileName));
+                //command.Parameters.Add(new SqlParameter("@HearingFileExtension", _screen.HearingFileExtension));
+                //command.Parameters.Add(new SqlParameter("@HearingImageByte", _screen.HearingImageByte));
+                //command.Parameters.Add(new SqlParameter("@SpeechFileName", _screen.SpeechFileName));
+                //command.Parameters.Add(new SqlParameter("@SpeechFileExtension", _screen.SpeechFileExtension));
+                //command.Parameters.Add(new SqlParameter("@SpeechImageByte", _screen.SpeechImageByte));
+                //command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileExtension", _screen.ScreeningAcceptFileExtension));
+                //command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileName", _screen.ScreeningAcceptFileName));
+                //command.Parameters.Add(new SqlParameter("@ScreeningAcceptImageByte", _screen.ScreeningAcceptImageByte));
+                //Changes
                 command.Parameters.Add(new SqlParameter("@tblImminization", dt5));
-                command.Parameters.Add(new SqlParameter("@tblscreening", dt6));
-                //Changes
-                command.Parameters.Add(new SqlParameter("@Physical", _screen.AddPhysical));
-                command.Parameters.Add(new SqlParameter("@Vision", _screen.AddVision));
-                command.Parameters.Add(new SqlParameter("@Dental", _screen.AddDental));
-                command.Parameters.Add(new SqlParameter("@Hearing", _screen.AddHearing));
-                command.Parameters.Add(new SqlParameter("@Develop", _screen.AddDevelop));
-                command.Parameters.Add(new SqlParameter("@Speech", _screen.AddSpeech));
-                //    command.Parameters.Add(new SqlParameter("@ScreeningAccept", _screen.ScreeningAccept));
-                command.Parameters.Add(new SqlParameter("@PhysicalFileName", _screen.PhysicalFileName));
-                command.Parameters.Add(new SqlParameter("@PhysicalFileExtension", _screen.PhysicalFileExtension));
-                command.Parameters.Add(new SqlParameter("@PhysicalImageByte", _screen.PhysicalImageByte));
-                command.Parameters.Add(new SqlParameter("@VisionFileName", _screen.VisionFileName));
-                command.Parameters.Add(new SqlParameter("@VisionFileExtension", _screen.VisionFileExtension));
-                command.Parameters.Add(new SqlParameter("@VisionImageByte", _screen.VisionImageByte));
-                command.Parameters.Add(new SqlParameter("@DevelopFileName", _screen.DevelopFileName));
-                command.Parameters.Add(new SqlParameter("@DevelopFileExtension", _screen.DevelopFileExtension));
-                command.Parameters.Add(new SqlParameter("@DevelopImageByte", _screen.DevelopImageByte));
-                command.Parameters.Add(new SqlParameter("@DentalFileExtension", _screen.DentalFileExtension));
-                command.Parameters.Add(new SqlParameter("@DentalFileName", _screen.DentalFileName));
-                command.Parameters.Add(new SqlParameter("@DentalImageByte", _screen.DentalImageByte));
-                command.Parameters.Add(new SqlParameter("@HearingFileName", _screen.HearingFileName));
-                command.Parameters.Add(new SqlParameter("@HearingFileExtension", _screen.HearingFileExtension));
-                command.Parameters.Add(new SqlParameter("@HearingImageByte", _screen.HearingImageByte));
-                command.Parameters.Add(new SqlParameter("@SpeechFileName", _screen.SpeechFileName));
-                command.Parameters.Add(new SqlParameter("@SpeechFileExtension", _screen.SpeechFileExtension));
-                command.Parameters.Add(new SqlParameter("@SpeechImageByte", _screen.SpeechImageByte));
-                command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileExtension", _screen.ScreeningAcceptFileExtension));
-                command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileName", _screen.ScreeningAcceptFileName));
-                command.Parameters.Add(new SqlParameter("@ScreeningAcceptImageByte", _screen.ScreeningAcceptImageByte));
-                //Changes
-                command.Parameters.Add(new SqlParameter("@Consolidated", _screen.Consolidated));
+               // command.Parameters.Add(new SqlParameter("@Consolidated", _screen.Consolidated));
                 command.Parameters.Add(new SqlParameter("@ParentName", _screen.Parentname));
 
                 #region Parent1,Parent2 health question
@@ -1995,121 +1996,121 @@ namespace FingerprintsData
                 //custom screenig save
 
 
-                #region custom screening
-                DataTable screeningquestion = new DataTable();
-                screeningquestion.Columns.AddRange(new DataColumn[5] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("QuestionID",typeof(Int32)),
-                    new DataColumn("Value",typeof(string)),
-                    new DataColumn("OptionID",typeof(Int32)),
-                    new DataColumn("ScreeningDate",typeof(string))
-                    });
-                #endregion
-                #region allowed screening
-                DataTable screeningallowed = new DataTable();
-                screeningallowed.Columns.AddRange(new DataColumn[5] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("Allowed",typeof(Int32)),
-                    new DataColumn("FileName",typeof(string)),
-                    new DataColumn("FileExtension",typeof(string)),
-                    new DataColumn("FileBytes",typeof(byte[]))
-                    });
-                #endregion
+                //#region custom screening
+                //DataTable screeningquestion = new DataTable();
+                //screeningquestion.Columns.AddRange(new DataColumn[5] {
+                //    new DataColumn("ScreeningID",typeof(Int32)),
+                //    new DataColumn("QuestionID",typeof(Int32)),
+                //    new DataColumn("Value",typeof(string)),
+                //    new DataColumn("OptionID",typeof(Int32)),
+                //    new DataColumn("ScreeningDate",typeof(string))
+                //    });
+                //#endregion
+                //#region allowed screening
+                //DataTable screeningallowed = new DataTable();
+                //screeningallowed.Columns.AddRange(new DataColumn[5] {
+                //    new DataColumn("ScreeningID",typeof(Int32)),
+                //    new DataColumn("Allowed",typeof(Int32)),
+                //    new DataColumn("FileName",typeof(string)),
+                //    new DataColumn("FileExtension",typeof(string)),
+                //    new DataColumn("FileBytes",typeof(byte[]))
+                //    });
+                //#endregion
 
 
 
-                if (collection != null)
-                {
-                    foreach (var radio in collection.AllKeys.Where(P => P.Contains("_allowchildcustomscreening")))
-                    {
-                        if (collection[radio].ToString() == "1")
-                        {
-                            foreach (var question in collection.AllKeys.Where(P => P.Contains("_custscreeningquestin") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
+                //if (collection != null)
+                //{
+                //    foreach (var radio in collection.AllKeys.Where(P => P.Contains("_allowchildcustomscreening")))
+                //    {
+                //        if (collection[radio].ToString() == "1")
+                //        {
+                //            foreach (var question in collection.AllKeys.Where(P => P.Contains("_custscreeningquestin") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
 
-                                string questionid = string.Empty;
-                                string optionid = string.Empty;
-                                string screeningdate = "";
-                                if (question.ToString().Contains("o") || question.ToString().Contains("k"))
-                                    questionid = question.ToString().Split('k', 'k')[2];
-                                if (question.ToString().Contains("o"))
-                                {
-                                    optionid = question.ToString().Split('o', 'o')[1];
-                                    questionid = question.ToString().Split('k', 'k')[2];
-                                }
-                                if (question.ToString().Contains("_custrad"))
-                                {
-                                    optionid = collection[question].ToString().Split('o', 'o')[1];
-                                    questionid = collection[question].ToString().Split('k', 'k')[2];
-                                }
-                                if (question.Contains("_$SD"))
-                                    screeningdate = collection[question].ToString();
-                                if (string.IsNullOrEmpty(optionid))
-                                {
-                                    if (question.ToString().Contains("select"))
-                                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString().Replace(",", ""), DBNull.Value, screeningdate);
-                                    else
-                                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString(), DBNull.Value, screeningdate);
-
-
-                                }
-                                else
-                                {
-                                    screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, DBNull.Value, optionid, screeningdate);
-                                }
-                                optionid = "";
-                                questionid = "";
+                //                string questionid = string.Empty;
+                //                string optionid = string.Empty;
+                //                string screeningdate = "";
+                //                if (question.ToString().Contains("o") || question.ToString().Contains("k"))
+                //                    questionid = question.ToString().Split('k', 'k')[2];
+                //                if (question.ToString().Contains("o"))
+                //                {
+                //                    optionid = question.ToString().Split('o', 'o')[1];
+                //                    questionid = question.ToString().Split('k', 'k')[2];
+                //                }
+                //                if (question.ToString().Contains("_custrad"))
+                //                {
+                //                    optionid = collection[question].ToString().Split('o', 'o')[1];
+                //                    questionid = collection[question].ToString().Split('k', 'k')[2];
+                //                }
+                //                if (question.Contains("_$SD"))
+                //                    screeningdate = collection[question].ToString();
+                //                if (string.IsNullOrEmpty(optionid))
+                //                {
+                //                    if (question.ToString().Contains("select"))
+                //                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString().Replace(",", ""), DBNull.Value, screeningdate);
+                //                    else
+                //                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString(), DBNull.Value, screeningdate);
 
 
-                            }
+                //                }
+                //                else
+                //                {
+                //                    screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, DBNull.Value, optionid, screeningdate);
+                //                }
+                //                optionid = "";
+                //                questionid = "";
 
 
-
-                            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                HttpPostedFileBase _file = Files[file];
-                                string filename = null;
-                                string fileextension = null;
-                                byte[] filedata = null;
-                                if (_file != null && _file.FileName != "")
-                                {
-                                    filename = _file.FileName;
-                                    fileextension = Path.GetExtension(_file.FileName);
-                                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
-                                }
-                                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
-                            }
+                //            }
 
 
 
+                //            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                HttpPostedFileBase _file = Files[file];
+                //                string filename = null;
+                //                string fileextension = null;
+                //                byte[] filedata = null;
+                //                if (_file != null && _file.FileName != "")
+                //                {
+                //                    filename = _file.FileName;
+                //                    fileextension = Path.GetExtension(_file.FileName);
+                //                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
+                //                }
+                //                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
+                //            }
 
-                        }
-                        else
-                        {
 
 
-                            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                HttpPostedFileBase _file = Files[file];
-                                string filename = null;
-                                string fileextension = null;
-                                byte[] filedata = null;
-                                if (_file != null && _file.FileName != "")
-                                {
-                                    filename = _file.FileName;
-                                    fileextension = Path.GetExtension(_file.FileName);
-                                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
-                                }
-                                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
-                            }
 
-                        }
-                    }
-                }
+                //        }
+                //        else
+                //        {
+
+
+                //            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                HttpPostedFileBase _file = Files[file];
+                //                string filename = null;
+                //                string fileextension = null;
+                //                byte[] filedata = null;
+                //                if (_file != null && _file.FileName != "")
+                //                {
+                //                    filename = _file.FileName;
+                //                    fileextension = Path.GetExtension(_file.FileName);
+                //                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
+                //                }
+                //                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
+                //            }
+
+                //        }
+                //    }
+                //}
                 //End
 
-                command.Parameters.Add(new SqlParameter("@screeningquestion", screeningquestion));
-                command.Parameters.Add(new SqlParameter("@screeningallowed", screeningallowed));
+               // command.Parameters.Add(new SqlParameter("@screeningquestion", screeningquestion));
+               // command.Parameters.Add(new SqlParameter("@screeningallowed", screeningallowed));
                 command.Parameters.Add(new SqlParameter("@ApplicationStatusChild", obj.ApplicationStatusChild));
                 command.Parameters.Add(new SqlParameter("@ApplicationStatusParent1", obj.ApplicationStatusParent1));
                 command.Parameters.Add(new SqlParameter("@ApplicationStatusParent2", obj.ApplicationStatusParent2));
@@ -2207,7 +2208,7 @@ namespace FingerprintsData
                     obj.Plastname = _dataset.Tables[0].Rows[0]["PLastName"].ToString();
                     obj.Pmidddlename = _dataset.Tables[0].Rows[0]["PMiddlename"].ToString();
                     if (_dataset.Tables[0].Rows[0]["PDOB"].ToString() != "")
-                        obj.PDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["PDOB"]).ToString("MM/dd/yyyy");
+                        obj.PDOB = Convert.ToString(_dataset.Tables[0].Rows[0]["PDOB"]);
                     obj.PGender = _dataset.Tables[0].Rows[0]["PGender"].ToString();
                     obj.Pemailid = _dataset.Tables[0].Rows[0]["PEmailid"].ToString();
                     if (_dataset.Tables[0].Rows[0]["PMilitaryStatus"].ToString() != "")
@@ -2264,7 +2265,7 @@ namespace FingerprintsData
                     if (_dataset.Tables[0].Rows[0]["PMDentalExam"].ToString() != "")
                         obj.PMDentalExam = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PMDentalExam"]);
                     if (_dataset.Tables[0].Rows[0]["PMDentalDate"].ToString() != "")
-                        obj.PMDentalExamDate = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["PMDentalDate"]).ToString("MM/dd/yyyy");
+                        obj.PMDentalExamDate = Convert.ToString(_dataset.Tables[0].Rows[0]["PMDentalDate"]);
                     if (_dataset.Tables[0].Rows[0]["PMNeedDental"].ToString() != "")
                         obj.PMNeedDental = Convert.ToInt32(_dataset.Tables[0].Rows[0]["PMNeedDental"]);
                     if (_dataset.Tables[0].Rows[0]["PMRecieveDental"].ToString() != "")
@@ -2347,7 +2348,7 @@ namespace FingerprintsData
                     obj.P1firstname = _dataset.Tables[0].Rows[1]["Pfirstname"].ToString();
                     obj.P1lastname = _dataset.Tables[0].Rows[1]["PLastName"].ToString();
                     obj.P1midddlename = _dataset.Tables[0].Rows[1]["PMiddlename"].ToString();
-                    obj.P1DOB = _dataset.Tables[0].Rows[1]["PDOB"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[0].Rows[1]["PDOB"]).ToString("MM/dd/yyyy");
+                    obj.P1DOB =  Convert.ToString(_dataset.Tables[0].Rows[1]["PDOB"]);
                     if (_dataset.Tables[0].Rows[1]["PGender"].ToString() != "")
                         obj.P1Gender = Convert.ToInt32(_dataset.Tables[0].Rows[1]["PGender"]);
                     obj.P1emailid = _dataset.Tables[0].Rows[1]["PEmailid"].ToString();
@@ -2405,7 +2406,7 @@ namespace FingerprintsData
                     if (_dataset.Tables[0].Rows[1]["PMDentalExam"].ToString() != "")
                         obj.PMDentalExam1 = Convert.ToInt32(_dataset.Tables[0].Rows[1]["PMDentalExam"]);
                     if (_dataset.Tables[0].Rows[1]["PMDentalDate"].ToString() != "")
-                        obj.PMDentalExamDate1 = Convert.ToDateTime(_dataset.Tables[0].Rows[1]["PMDentalDate"]).ToString("MM/dd/yyyy");
+                        obj.PMDentalExamDate1 = Convert.ToString(_dataset.Tables[0].Rows[1]["PMDentalDate"]);
                     if (_dataset.Tables[0].Rows[1]["PMNeedDental"].ToString() != "")
                         obj.PMNeedDental1 = Convert.ToInt32(_dataset.Tables[0].Rows[1]["PMNeedDental"]);
                     if (_dataset.Tables[0].Rows[1]["PMRecieveDental"].ToString() != "")
@@ -2493,7 +2494,7 @@ namespace FingerprintsData
                         _Qualifier = new FamilyHousehold.Qualifier();
                         _Qualifier.Name = dr["name"].ToString();
                         _Qualifier.Programtype = dr["ProgramType"].ToString();
-                        _Qualifier.Dob = dr["DOB"].ToString() == "" ? "" : Convert.ToDateTime(dr["DOB"]).ToString("MM/dd/yyyy");
+                        _Qualifier.Dob = Convert.ToString(dr["DOB"]);
                         _Qualifier.clientid = Convert.ToInt32(dr["clientid"]);
                         _Qualifier.Programid = Convert.ToInt32(dr["programid"]);
                         _Qualifier.PovertyPercentage = dr["PovertyPercentage"].ToString();
@@ -2570,12 +2571,12 @@ namespace FingerprintsData
                         familyinfo.Cfirstname = Convert.ToString(_dataset.Tables[7].Rows[i]["Firstname"]);
                         familyinfo.Clastname = Convert.ToString(_dataset.Tables[7].Rows[i]["Lastname"]);
                         familyinfo.Cmiddlename = Convert.ToString(_dataset.Tables[7].Rows[i]["Middlename"]);
-                        familyinfo.CDOB = Convert.ToDateTime(_dataset.Tables[7].Rows[i]["DOB"]).ToString("MM/dd/yyyy");
+                        familyinfo.CDOB = Convert.ToString(_dataset.Tables[7].Rows[i]["DOB"]);
                         familyinfo.CRace = Convert.ToString(_dataset.Tables[7].Rows[i]["Name"]);
                         if (_dataset.Tables[7].Rows[i]["DentalHome"].ToString() != "")
                             familyinfo.CDentalhome = Convert.ToInt32(_dataset.Tables[7].Rows[i]["DentalHome"]);
                         familyinfo.ChildId = Convert.ToInt32(_dataset.Tables[7].Rows[i]["ID"]);
-                        familyinfo.CreatedOn = Convert.ToDateTime(_dataset.Tables[7].Rows[i]["DateEntered"]).ToString("MM/dd/yyyy");
+                        familyinfo.CreatedOn = Convert.ToString(_dataset.Tables[7].Rows[i]["DateEntered"]);
                         familyinfo.Imagejson = _dataset.Tables[7].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[7].Rows[i]["ProfilePic"]);
                         if ((Convert.ToString(_dataset.Tables[7].Rows[i]["Gender"]) == "1"))
                         {
@@ -2603,7 +2604,7 @@ namespace FingerprintsData
                         familyinfo = new FamilyHousehold();
                         familyinfo.EmegencyId = Convert.ToInt32(_dataset.Tables[8].Rows[i]["ID"]);
                         familyinfo.Efirstname = Convert.ToString(_dataset.Tables[8].Rows[i]["Name"]);
-                        familyinfo.EDOB = _dataset.Tables[8].Rows[i]["DOB"].ToString() == "" ? "" : Convert.ToDateTime(_dataset.Tables[8].Rows[i]["DOB"]).ToString("MM/dd/yyyy");
+                        familyinfo.EDOB = Convert.ToString(_dataset.Tables[8].Rows[i]["DOB"]);
                         familyinfo.ERelationwithchild = Convert.ToString(_dataset.Tables[8].Rows[i]["RelationName"]);
                         familyinfo.EImagejson = _dataset.Tables[8].Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[8].Rows[i]["DocumentFile"]);
                         _Elist.Add(familyinfo);
@@ -2637,7 +2638,7 @@ namespace FingerprintsData
                         familyinfo = new FamilyHousehold();
                         familyinfo.Ofirstname = Convert.ToString(_dataset.Tables[10].Rows[i]["Name"]);
 
-                        familyinfo.ODOB = Convert.ToDateTime(_dataset.Tables[10].Rows[i]["DOB"]).ToString("MM/dd/yyyy");
+                        familyinfo.ODOB = Convert.ToString(_dataset.Tables[10].Rows[i]["DOB"]);
                         familyinfo.OthersId = Convert.ToInt32(_dataset.Tables[10].Rows[i]["ID"]);
                         familyinfo.CSSN = _dataset.Tables[10].Rows[i]["ssn"].ToString() == "" ? "" : EncryptDecrypt.Decrypt(_dataset.Tables[10].Rows[i]["ssn"].ToString());
                         familyinfo.HouseHoldImagejson = _dataset.Tables[10].Rows[i]["ProfilePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[10].Rows[i]["ProfilePic"]);
@@ -2668,7 +2669,7 @@ namespace FingerprintsData
                     {
                         _Applicationnotes = new FamilyHousehold.Applicationnotes();
                         _Applicationnotes.Name = dr["name"].ToString();
-                        _Applicationnotes.CreatedOn = Convert.ToDateTime(dr["DateEntered"]).ToString("MM/dd/yyyy");
+                        _Applicationnotes.CreatedOn = Convert.ToString(dr["DateEntered"]);
                         _Applicationnotes.notes = dr["Notes"].ToString();
                         _Nlist.Add(_Applicationnotes);
                     }
@@ -2711,16 +2712,17 @@ namespace FingerprintsData
                     obj.phoneListParent1 = _Phonelist;
                 }
 
-                if (_dataset.Tables[14] != null && _dataset.Tables[14].Rows.Count > 0)
-                {
-                    obj.customscreening = _dataset.Tables[14];
+                //if (_dataset.Tables[14] != null && _dataset.Tables[14].Rows.Count > 0)
+                //{
+                //    obj.customscreening = _dataset.Tables[14];
 
-                }
-                if (_dataset.Tables[15] != null && _dataset.Tables[15].Rows.Count > 0)
+                //}
+
+                if (_dataset.Tables[14] != null && _dataset.Tables[14].Rows.Count > 0)
                 {
                     List<FamilyHousehold.WorkshopDetails> _workshopinfo = new List<FamilyHousehold.WorkshopDetails>();
                     FamilyHousehold.WorkshopDetails WorkshopDetails = null;
-                    foreach (DataRow dr in _dataset.Tables[15].Rows)
+                    foreach (DataRow dr in _dataset.Tables[14].Rows)
                     {
                         WorkshopDetails = new FamilyHousehold.WorkshopDetails();
                         WorkshopDetails.Id = Convert.ToInt32(dr["WorkshopId"]);
@@ -2822,7 +2824,7 @@ namespace FingerprintsData
                         FamilyHousehold familyinfo = new FamilyHousehold();
                         familyinfo.EmegencyId = Convert.ToInt32(familydataTable.Rows[i]["ID"]);
                         familyinfo.Efirstname = Convert.ToString(familydataTable.Rows[i]["Name"]);
-                        familyinfo.EDOB = familydataTable.Rows[i]["DOB"].ToString() == "" ? "" : Convert.ToDateTime(familydataTable.Rows[i]["DOB"]).ToString("MM/dd/yyyy");
+                        familyinfo.EDOB = familydataTable.Rows[i]["DOB"].ToString() == "" ? "" : Convert.ToString(familydataTable.Rows[i]["DOB"]);
                         familyinfo.ERelationwithchild = Convert.ToString(familydataTable.Rows[i]["RelationName"]);
                         familyinfo.EImagejson = familydataTable.Rows[i]["DocumentFile"].ToString() == "" ? "" : Convert.ToBase64String((byte[])familydataTable.Rows[i]["DocumentFile"]);
 
@@ -3089,9 +3091,9 @@ namespace FingerprintsData
                         obj.Clastname = _dataset.Tables[0].Rows[0]["Lastname"].ToString();
                         obj.IsFutureApplication = _dataset.Tables[0].Rows[0]["IsFutureIntake"].ToString() == "1" ? true : false;
                         if (_dataset.Tables[0].Rows[0]["DOB"].ToString() != "")
-                            obj.CDOB = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DOB"]).ToString("MM/dd/yyyy");
+                            obj.CDOB = Convert.ToString(_dataset.Tables[0].Rows[0]["DOB"]);
                         if (_dataset.Tables[0].Rows[0]["DateOfEnrollment"].ToString() != "")
-                            obj.DateOfEnrollment = Convert.ToDateTime(_dataset.Tables[0].Rows[0]["DateOfEnrollment"]).ToString("MM/dd/yyyy");
+                            obj.DateOfEnrollment = Convert.ToString(_dataset.Tables[0].Rows[0]["DateOfEnrollment"]);
 
                         obj.DOBverifiedBy = _dataset.Tables[0].Rows[0]["Dobverifiedby"].ToString();
                         try
@@ -3521,23 +3523,23 @@ namespace FingerprintsData
                             obj1.ImmunizationmasterId = Convert.ToInt32(dr["Immunizationmasterid"]);
                             obj1.Dose = dr["Dose"].ToString();
                             if (dr["Dose1"].ToString() != "")
-                                obj1.Dose1 = Convert.ToDateTime(dr["Dose1"]).ToString("MM/dd/yyyy");
+                                obj1.Dose1 = Convert.ToString(dr["Dose1"]);
                             else
                                 obj1.Dose1 = dr["Dose1"].ToString();
                             if (dr["Dose2"].ToString() != "")
-                                obj1.Dose2 = Convert.ToDateTime(dr["Dose2"]).ToString("MM/dd/yyyy");
+                                obj1.Dose2 = Convert.ToString(dr["Dose2"]);
                             else
                                 obj1.Dose2 = dr["Dose2"].ToString();
                             if (dr["Dose3"].ToString() != "")
-                                obj1.Dose3 = Convert.ToDateTime(dr["Dose3"]).ToString("MM/dd/yyyy");
+                                obj1.Dose3 = Convert.ToString(dr["Dose3"]);
                             else
                                 obj1.Dose3 = dr["Dose3"].ToString();
                             if (dr["Dose4"].ToString() != "")
-                                obj1.Dose4 = Convert.ToDateTime(dr["Dose4"]).ToString("MM/dd/yyyy");
+                                obj1.Dose4 = Convert.ToString(dr["Dose4"]);
                             else
                                 obj1.Dose4 = dr["Dose4"].ToString();
                             if (dr["Dose5"].ToString() != "")
-                                obj1.Dose5 = Convert.ToDateTime(dr["Dose5"]).ToString("MM/dd/yyyy");
+                                obj1.Dose5 = Convert.ToString(dr["Dose5"]);
                             else
                                 obj1.Dose5 = dr["Dose5"].ToString();
                             if (dr["Exempt1"].ToString() != "")
@@ -3578,196 +3580,198 @@ namespace FingerprintsData
                         }
                         obj.AvailableProgram = ProgramdetailRecords;
                     }
-                    if (_dataset.Tables[3].Rows.Count > 0)
-                    {
-                        Screening _Screening = new Screening();
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
-                        {
-                            _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
-                            _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
-                            _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
-                            _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
-                            _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
-                            _Screening.F006bpResults = dr["F006bpResults"].ToString();
-                            _Screening.F007hgDate = dr["F007hgDate"].ToString();
-                            _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
-                            _Screening.F009hgResults = dr["F009hgResults"].ToString();
-                            _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
-                            _Screening.F011hgComments = dr["F011hgComments"].ToString();
-                            _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
-                            _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
-                            _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
-                            _Screening.F015leadDate = dr["F015leadDate"].ToString();
-                            _Screening.F016leadResults = dr["F016leadResults"].ToString();
-                            _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
-                            _Screening.F018leadComments = dr["F018leadComments"].ToString();
-                            _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
-                            _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
-                            _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
-                            _Screening.v022date = dr["v022date"].ToString();
-                            _Screening.v023results = dr["v023results"].ToString();
-                            _Screening.v024comments = dr["v024comments"].ToString();
-                            _Screening.v025dateR1 = dr["v025dateR1"].ToString();
-                            _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
-                            _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
-                            _Screening.v028dateR2 = dr["v028dateR2"].ToString();
-                            _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
-                            _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
-                            _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
-                            _Screening.v032Treatment = dr["v032Treatment"].ToString();
-                            _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
-                            _Screening.v034Completedate = dr["v034Completedate"].ToString();
-                            _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
-                            _Screening.h036Date = dr["h036Date"].ToString();
-                            _Screening.h037Results = dr["h037Results"].ToString();
-                            _Screening.h038Comments = dr["h038Comments"].ToString();
-                            _Screening.h039DateR1 = dr["h039DateR1"].ToString();
-                            _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
-                            _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
-                            _Screening.h042DateR2 = dr["h042DateR2"].ToString();
-                            _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
-                            _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
-                            _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
-                            _Screening.h046Treatment = dr["h046Treatment"].ToString();
-                            _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
-                            _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
-                            _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
-                            _Screening.d050evDate = dr["d050evDate"].ToString();
-                            _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
-                            _Screening.d052evResults = dr["d052evResults"].ToString();
-                            _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
-                            _Screening.d054evDate2 = dr["d054evDate2"].ToString();
-                            _Screening.d055evResults2 = dr["d055evResults2"].ToString();
-                            _Screening.d056evReferral = dr["d056evReferral"].ToString();
-                            _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
-                            _Screening.d058evComments = dr["d058evComments"].ToString();
-                            _Screening.d059evTool = dr["d059evTool"].ToString();
-                            _Screening.E060denDate = dr["E060denDate"].ToString();
-                            _Screening.E061denResults = dr["E061denResults"].ToString();
-                            _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
-                            _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
-                            _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
-                            _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
-                            _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
-                            _Screening.s067Date = dr["s067Date"].ToString();
-                            _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
-                            _Screening.s069Details = dr["s069Details"].ToString();
-                            _Screening.s070Results = dr["s070Results"].ToString();
-                            _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
-                            _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
-                            _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
-                            _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
-                            _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
-                            _Screening.s076DCDate = dr["s076DCDate"].ToString();
-                            _Screening.s077NameDC = dr["s077NameDC"].ToString();
-                            _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
-                            _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
-                            _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
-                            _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
-                        }
-                        //Screening changes
-                        if (_dataset.Tables[5].Rows.Count > 0)
-                        {
-                            _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
-                            _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
-                            _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
-                            _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
-                            _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
-                            _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
-                            _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
-                            _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
-                            _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
-                            _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
-                            _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
-                            _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
-                            _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
-                            _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
-                            _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
-                            _Screening.Consolidated = (_dataset.Tables[5].Rows[0]["Consolidated"] != DBNull.Value) ? Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"]) : 0;
 
-                            //Get screening scan document
-                            _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
-                            _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
-                            string Url = Guid.NewGuid().ToString();
-                            if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
-                                file.Close();
-                                _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //if (_dataset.Tables[3].Rows.Count > 0)
+                    //{
+                    //    Screening _Screening = new Screening();
+                    //    foreach (DataRow dr in _dataset.Tables[3].Rows)
+                    //    {
+                    //        _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
+                    //        _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
+                    //        _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
+                    //        _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
+                    //        _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
+                    //        _Screening.F006bpResults = dr["F006bpResults"].ToString();
+                    //        _Screening.F007hgDate = dr["F007hgDate"].ToString();
+                    //        _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
+                    //        _Screening.F009hgResults = dr["F009hgResults"].ToString();
+                    //        _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
+                    //        _Screening.F011hgComments = dr["F011hgComments"].ToString();
+                    //        _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
+                    //        _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
+                    //        _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
+                    //        _Screening.F015leadDate = dr["F015leadDate"].ToString();
+                    //        _Screening.F016leadResults = dr["F016leadResults"].ToString();
+                    //        _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
+                    //        _Screening.F018leadComments = dr["F018leadComments"].ToString();
+                    //        _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
+                    //        _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
+                    //        _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
+                    //        _Screening.v022date = dr["v022date"].ToString();
+                    //        _Screening.v023results = dr["v023results"].ToString();
+                    //        _Screening.v024comments = dr["v024comments"].ToString();
+                    //        _Screening.v025dateR1 = dr["v025dateR1"].ToString();
+                    //        _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
+                    //        _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
+                    //        _Screening.v028dateR2 = dr["v028dateR2"].ToString();
+                    //        _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
+                    //        _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
+                    //        _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
+                    //        _Screening.v032Treatment = dr["v032Treatment"].ToString();
+                    //        _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
+                    //        _Screening.v034Completedate = dr["v034Completedate"].ToString();
+                    //        _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
+                    //        _Screening.h036Date = dr["h036Date"].ToString();
+                    //        _Screening.h037Results = dr["h037Results"].ToString();
+                    //        _Screening.h038Comments = dr["h038Comments"].ToString();
+                    //        _Screening.h039DateR1 = dr["h039DateR1"].ToString();
+                    //        _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
+                    //        _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
+                    //        _Screening.h042DateR2 = dr["h042DateR2"].ToString();
+                    //        _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
+                    //        _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
+                    //        _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
+                    //        _Screening.h046Treatment = dr["h046Treatment"].ToString();
+                    //        _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
+                    //        _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
+                    //        _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
+                    //        _Screening.d050evDate = dr["d050evDate"].ToString();
+                    //        _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
+                    //        _Screening.d052evResults = dr["d052evResults"].ToString();
+                    //        _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
+                    //        _Screening.d054evDate2 = dr["d054evDate2"].ToString();
+                    //        _Screening.d055evResults2 = dr["d055evResults2"].ToString();
+                    //        _Screening.d056evReferral = dr["d056evReferral"].ToString();
+                    //        _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
+                    //        _Screening.d058evComments = dr["d058evComments"].ToString();
+                    //        _Screening.d059evTool = dr["d059evTool"].ToString();
+                    //        _Screening.E060denDate = dr["E060denDate"].ToString();
+                    //        _Screening.E061denResults = dr["E061denResults"].ToString();
+                    //        _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
+                    //        _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
+                    //        _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
+                    //        _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
+                    //        _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
+                    //        _Screening.s067Date = dr["s067Date"].ToString();
+                    //        _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
+                    //        _Screening.s069Details = dr["s069Details"].ToString();
+                    //        _Screening.s070Results = dr["s070Results"].ToString();
+                    //        _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
+                    //        _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
+                    //        _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
+                    //        _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
+                    //        _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
+                    //        _Screening.s076DCDate = dr["s076DCDate"].ToString();
+                    //        _Screening.s077NameDC = dr["s077NameDC"].ToString();
+                    //        _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
+                    //        _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
+                    //        _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
+                    //        _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
+                    //    }
+                    //    //Screening changes
+                    //    if (_dataset.Tables[5].Rows.Count > 0)
+                    //    {
+                    //        _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
+                    //        _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
+                    //        _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
+                    //        _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
+                    //        _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
+                    //        _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
+                    //        _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
+                    //        _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
+                    //        _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
+                    //        _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
+                    //        _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
+                    //        _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
+                    //        _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
+                    //        _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
+                    //        _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
+                    //        _Screening.Consolidated = (_dataset.Tables[5].Rows[0]["Consolidated"] != DBNull.Value) ? Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"]) : 0;
 
-                            }
-                            Url = "";
-                            _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
-                            _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
-                                file.Close();
-                                _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        //Get screening scan document
+                    //        _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
+                    //        _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
+                    //        string Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
+                    //            file.Close();
+                    //            _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            Url = "";
-                            _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
-                            _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
-                                file.Close();
-                                _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
+                    //        _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            Url = "";
-                            _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
-                            _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
-                                file.Close();
-                                _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
+                    //        _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            Url = "";
-                            _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
-                            _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
-                                file.Close();
-                                _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
+                    //        _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
+                    //            file.Close();
+                    //            _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            Url = "";
-                            _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
-                            _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
+                    //        }
+                    //        Url = "";
+                    //        _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
+                    //        _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
-                                file.Close();
-                                _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
+                    //        _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
 
-                            }
-                            //END
-                        }
-                        obj._Screening = _Screening;
-                    }
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                    //        }
+                    //        //END
+                    //    }
+                    //    obj._Screening = _Screening;
+                    //}
                 }
-                if (_dataset.Tables[4].Rows.Count > 0)
+
+                if (_dataset.Tables[3].Rows.Count > 0)
                 {
                     List<FamilyHousehold.Childhealthnutrition> _childhealthnutrition = new List<FamilyHousehold.Childhealthnutrition>();
                     FamilyHousehold.Childhealthnutrition info = null;
-                    foreach (DataRow dr in _dataset.Tables[4].Rows)
+                    foreach (DataRow dr in _dataset.Tables[3].Rows)
                     {
                         info = new FamilyHousehold.Childhealthnutrition();
                         info.Id = dr["ID"].ToString();
@@ -3780,69 +3784,67 @@ namespace FingerprintsData
                     obj._Childhealthnutrition = _childhealthnutrition;
                 }
 
-                if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
-                {
-                    List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
-                    FamilyHousehold.Childcustomscreening info = null;
-                    foreach (DataRow dr in _dataset.Tables[6].Rows)
-                    {
-                        info = new FamilyHousehold.Childcustomscreening();
-                        info.QuestionID = dr["QuestionID"].ToString();
-                        info.Screeningid = dr["Screeningid"].ToString();
-                        info.Value = dr["Value"].ToString();
-                        info.QuestionAcronym = dr["QuestionAcronym"].ToString();
-                        info.optionid = dr["optionid"].ToString();
-                        info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
-                        string Url = Guid.NewGuid().ToString();
-                        if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
-                            file.Close();
-                            info.pdfpath = "/TempAttachment/" + Url + ".pdf";
-                        }
-                        else
-                        {
-                            info.pdfpath = "";
-                            info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
-                        }
-                        _Childcustomscreenings.Add(info);
-                    }
-                    obj._childscreenings = _Childcustomscreenings;
-                }
+                //if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+                //{
+                //    List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
+                //    FamilyHousehold.Childcustomscreening info = null;
+                //    foreach (DataRow dr in _dataset.Tables[6].Rows)
+                //    {
+                //        info = new FamilyHousehold.Childcustomscreening();
+                //        info.QuestionID = dr["QuestionID"].ToString();
+                //        info.Screeningid = dr["Screeningid"].ToString();
+                //        info.Value = dr["Value"].ToString();
+                //        info.QuestionAcronym = dr["QuestionAcronym"].ToString();
+                //        info.optionid = dr["optionid"].ToString();
+                //        info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
+                //        string Url = Guid.NewGuid().ToString();
+                //        if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
+                //        {
+                //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //            file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
+                //            file.Close();
+                //            info.pdfpath = "/TempAttachment/" + Url + ".pdf";
+                //        }
+                //        else
+                //        {
+                //            info.pdfpath = "";
+                //            info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
+                //        }
+                //        _Childcustomscreenings.Add(info);
+                //    }
+                //    obj._childscreenings = _Childcustomscreenings;
+                //}
 
-                if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
-                {
-                    List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
-                    CustomScreeningAllowed info = null;
-                    foreach (DataRow dr in _dataset.Tables[7].Rows)
-                    {
-                        info = new CustomScreeningAllowed();
-                        info.ScreeningAllowed = dr["Screeningallowed"].ToString();
-                        info.Screeningid = dr["Screeningid"].ToString();
-                        info.ScreeningName = dr["screeningname"].ToString();
-                        _CustomScreeningAllowed.Add(info);
-                    }
-                    obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
-                }
-                if (_dataset.Tables[8] != null && _dataset.Tables[8].Rows.Count > 0)
-                {
-                    List<WellBabyExamModel> _WellBabyExamModel = new List<WellBabyExamModel>();
-                    WellBabyExamModel info = null;
-                    foreach (DataRow dr in _dataset.Tables[8].Rows)
-                    {
-                        info = new WellBabyExamModel();
-                        info.ExaminedDate = dr["ExamDate"].ToString();
-                        info.Month = dr["WellBabyExamMonth"].ToString();
-                        info.EnrollmentDate = dr["EnrollmentDate"].ToString();
-                        _WellBabyExamModel.Add(info);
-                    }
-                    obj.WellBabyExamModelList = _WellBabyExamModel;
-                }
+                //if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
+                //{
+                //    List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
+                //    CustomScreeningAllowed info = null;
+                //    foreach (DataRow dr in _dataset.Tables[7].Rows)
+                //    {
+                //        info = new CustomScreeningAllowed();
+                //        info.ScreeningAllowed = dr["Screeningallowed"].ToString();
+                //        info.Screeningid = dr["Screeningid"].ToString();
+                //        info.ScreeningName = dr["screeningname"].ToString();
+                //        _CustomScreeningAllowed.Add(info);
+                //    }
+                //    obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
+                //}
+                //if (_dataset.Tables[8] != null && _dataset.Tables[8].Rows.Count > 0)
+                //{
+                //    List<WellBabyExamModel> _WellBabyExamModel = new List<WellBabyExamModel>();
+                //    WellBabyExamModel info = null;
+                //    foreach (DataRow dr in _dataset.Tables[8].Rows)
+                //    {
+                //        info = new WellBabyExamModel();
+                //        info.ExaminedDate = dr["ExamDate"].ToString();
+                //        info.Month = dr["WellBabyExamMonth"].ToString();
+                //        info.EnrollmentDate = dr["EnrollmentDate"].ToString();
+                //        _WellBabyExamModel.Add(info);
+                //    }
+                //    obj.WellBabyExamModelList = _WellBabyExamModel;
+                //}
 
-                DataAdapter.Dispose();
-                command.Dispose();
-                _dataset.Dispose();
+
                 return obj;
             }
             catch (Exception ex)
@@ -5124,23 +5126,23 @@ namespace FingerprintsData
                             obj1.ImmunizationmasterId = Convert.ToInt32(dr["Immunizationmasterid"]);
                             obj1.Dose = dr["Dose"].ToString();
                             if (dr["Dose1"].ToString() != "")
-                                obj1.Dose1 = Convert.ToDateTime(dr["Dose1"]).ToString("MM/dd/yyyy");
+                                obj1.Dose1 = Convert.ToString(dr["Dose1"]);
                             else
                                 obj1.Dose1 = dr["Dose1"].ToString();
                             if (dr["Dose2"].ToString() != "")
-                                obj1.Dose2 = Convert.ToDateTime(dr["Dose2"]).ToString("MM/dd/yyyy");
+                                obj1.Dose2 = Convert.ToString(dr["Dose2"]);
                             else
                                 obj1.Dose2 = dr["Dose2"].ToString();
                             if (dr["Dose3"].ToString() != "")
-                                obj1.Dose3 = Convert.ToDateTime(dr["Dose3"]).ToString("MM/dd/yyyy");
+                                obj1.Dose3 = Convert.ToString(dr["Dose3"]);
                             else
                                 obj1.Dose3 = dr["Dose3"].ToString();
                             if (dr["Dose4"].ToString() != "")
-                                obj1.Dose4 = Convert.ToDateTime(dr["Dose4"]).ToString("MM/dd/yyyy");
+                                obj1.Dose4 = Convert.ToString(dr["Dose4"]);
                             else
                                 obj1.Dose4 = dr["Dose4"].ToString();
                             if (dr["Dose5"].ToString() != "")
-                                obj1.Dose5 = Convert.ToDateTime(dr["Dose5"]).ToString("MM/dd/yyyy");
+                                obj1.Dose5 = Convert.ToString(dr["Dose5"]);
                             else
                                 obj1.Dose5 = dr["Dose5"].ToString();
                             if (dr["Exempt1"].ToString() != "")
@@ -5181,191 +5183,194 @@ namespace FingerprintsData
                         }
                         obj.AvailableProgram = ProgramdetailRecords;
                     }
-                    if (_dataset.Tables[3].Rows.Count > 0)
-                    {
-                        Screening _Screening = new Screening();
-                        foreach (DataRow dr in _dataset.Tables[3].Rows)
-                        {
-                            _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
-                            _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
-                            _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
-                            _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
-                            _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
-                            _Screening.F006bpResults = dr["F006bpResults"].ToString();
-                            _Screening.F007hgDate = dr["F007hgDate"].ToString();
-                            _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
-                            _Screening.F009hgResults = dr["F009hgResults"].ToString();
-                            _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
-                            _Screening.F011hgComments = dr["F011hgComments"].ToString();
-                            _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
-                            _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
-                            _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
-                            _Screening.F015leadDate = dr["F015leadDate"].ToString();
-                            _Screening.F016leadResults = dr["F016leadResults"].ToString();
-                            _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
-                            _Screening.F018leadComments = dr["F018leadComments"].ToString();
-                            _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
-                            _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
-                            _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
-                            _Screening.v022date = dr["v022date"].ToString();
-                            _Screening.v023results = dr["v023results"].ToString();
-                            _Screening.v024comments = dr["v024comments"].ToString();
-                            _Screening.v025dateR1 = dr["v025dateR1"].ToString();
-                            _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
-                            _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
-                            _Screening.v028dateR2 = dr["v028dateR2"].ToString();
-                            _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
-                            _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
-                            _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
-                            _Screening.v032Treatment = dr["v032Treatment"].ToString();
-                            _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
-                            _Screening.v034Completedate = dr["v034Completedate"].ToString();
-                            _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
-                            _Screening.h036Date = dr["h036Date"].ToString();
-                            _Screening.h037Results = dr["h037Results"].ToString();
-                            _Screening.h038Comments = dr["h038Comments"].ToString();
-                            _Screening.h039DateR1 = dr["h039DateR1"].ToString();
-                            _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
-                            _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
-                            _Screening.h042DateR2 = dr["h042DateR2"].ToString();
-                            _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
-                            _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
-                            _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
-                            _Screening.h046Treatment = dr["h046Treatment"].ToString();
-                            _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
-                            _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
-                            _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
-                            _Screening.d050evDate = dr["d050evDate"].ToString();
-                            _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
-                            _Screening.d052evResults = dr["d052evResults"].ToString();
-                            _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
-                            _Screening.d054evDate2 = dr["d054evDate2"].ToString();
-                            _Screening.d055evResults2 = dr["d055evResults2"].ToString();
-                            _Screening.d056evReferral = dr["d056evReferral"].ToString();
-                            _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
-                            _Screening.d058evComments = dr["d058evComments"].ToString();
-                            _Screening.d059evTool = dr["d059evTool"].ToString();
-                            _Screening.E060denDate = dr["E060denDate"].ToString();
-                            _Screening.E061denResults = dr["E061denResults"].ToString();
-                            _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
-                            _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
-                            _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
-                            _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
-                            _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
-                            _Screening.s067Date = dr["s067Date"].ToString();
-                            _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
-                            _Screening.s069Details = dr["s069Details"].ToString();
-                            _Screening.s070Results = dr["s070Results"].ToString();
-                            _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
-                            _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
-                            _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
-                            _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
-                            _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
-                            _Screening.s076DCDate = dr["s076DCDate"].ToString();
-                            _Screening.s077NameDC = dr["s077NameDC"].ToString();
-                            _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
-                            _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
-                            _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
-                            _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
-                        }
+
+
+
+                    //if (_dataset.Tables[3].Rows.Count > 0)
+                    //{
+                    //    Screening _Screening = new Screening();
+                    //    foreach (DataRow dr in _dataset.Tables[3].Rows)
+                    //    {
+                    //        _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
+                    //        _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
+                    //        _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
+                    //        _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
+                    //        _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
+                    //        _Screening.F006bpResults = dr["F006bpResults"].ToString();
+                    //        _Screening.F007hgDate = dr["F007hgDate"].ToString();
+                    //        _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
+                    //        _Screening.F009hgResults = dr["F009hgResults"].ToString();
+                    //        _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
+                    //        _Screening.F011hgComments = dr["F011hgComments"].ToString();
+                    //        _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
+                    //        _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
+                    //        _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
+                    //        _Screening.F015leadDate = dr["F015leadDate"].ToString();
+                    //        _Screening.F016leadResults = dr["F016leadResults"].ToString();
+                    //        _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
+                    //        _Screening.F018leadComments = dr["F018leadComments"].ToString();
+                    //        _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
+                    //        _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
+                    //        _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
+                    //        _Screening.v022date = dr["v022date"].ToString();
+                    //        _Screening.v023results = dr["v023results"].ToString();
+                    //        _Screening.v024comments = dr["v024comments"].ToString();
+                    //        _Screening.v025dateR1 = dr["v025dateR1"].ToString();
+                    //        _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
+                    //        _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
+                    //        _Screening.v028dateR2 = dr["v028dateR2"].ToString();
+                    //        _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
+                    //        _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
+                    //        _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
+                    //        _Screening.v032Treatment = dr["v032Treatment"].ToString();
+                    //        _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
+                    //        _Screening.v034Completedate = dr["v034Completedate"].ToString();
+                    //        _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
+                    //        _Screening.h036Date = dr["h036Date"].ToString();
+                    //        _Screening.h037Results = dr["h037Results"].ToString();
+                    //        _Screening.h038Comments = dr["h038Comments"].ToString();
+                    //        _Screening.h039DateR1 = dr["h039DateR1"].ToString();
+                    //        _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
+                    //        _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
+                    //        _Screening.h042DateR2 = dr["h042DateR2"].ToString();
+                    //        _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
+                    //        _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
+                    //        _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
+                    //        _Screening.h046Treatment = dr["h046Treatment"].ToString();
+                    //        _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
+                    //        _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
+                    //        _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
+                    //        _Screening.d050evDate = dr["d050evDate"].ToString();
+                    //        _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
+                    //        _Screening.d052evResults = dr["d052evResults"].ToString();
+                    //        _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
+                    //        _Screening.d054evDate2 = dr["d054evDate2"].ToString();
+                    //        _Screening.d055evResults2 = dr["d055evResults2"].ToString();
+                    //        _Screening.d056evReferral = dr["d056evReferral"].ToString();
+                    //        _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
+                    //        _Screening.d058evComments = dr["d058evComments"].ToString();
+                    //        _Screening.d059evTool = dr["d059evTool"].ToString();
+                    //        _Screening.E060denDate = dr["E060denDate"].ToString();
+                    //        _Screening.E061denResults = dr["E061denResults"].ToString();
+                    //        _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
+                    //        _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
+                    //        _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
+                    //        _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
+                    //        _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
+                    //        _Screening.s067Date = dr["s067Date"].ToString();
+                    //        _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
+                    //        _Screening.s069Details = dr["s069Details"].ToString();
+                    //        _Screening.s070Results = dr["s070Results"].ToString();
+                    //        _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
+                    //        _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
+                    //        _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
+                    //        _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
+                    //        _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
+                    //        _Screening.s076DCDate = dr["s076DCDate"].ToString();
+                    //        _Screening.s077NameDC = dr["s077NameDC"].ToString();
+                    //        _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
+                    //        _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
+                    //        _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
+                    //        _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
+                    //    }
                         //    //Screening changes
-                        if (_dataset.Tables[5].Rows.Count > 0)
-                        {
-                            _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
-                            _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
-                            _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
-                            _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
-                            _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
-                            _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
-                            _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
-                            _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
-                            _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
-                            _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
-                            _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
-                            _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
-                            _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
-                            _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
-                            _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
-                            _Screening.Consolidated = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"].ToString());
-                            //    //Get screening scan document
-                            _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
-                            _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
-                            string Url = Guid.NewGuid().ToString();
-                            if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
-                                file.Close();
-                                _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //    if (_dataset.Tables[5].Rows.Count > 0)
+                    //    {
+                    //        _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
+                    //        _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
+                    //        _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
+                    //        _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
+                    //        _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
+                    //        _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
+                    //        _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
+                    //        _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
+                    //        _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
+                    //        _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
+                    //        _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
+                    //        _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
+                    //        _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
+                    //        _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
+                    //        _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
+                    //        _Screening.Consolidated = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"].ToString());
+                    //        //    //Get screening scan document
+                    //        _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
+                    //        _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
+                    //        string Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
+                    //            file.Close();
+                    //            _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            Url = "";
-                            _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
-                            _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
-                                file.Close();
-                                _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
-                            }
-                            Url = "";
-                            _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
-                            _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
-                                file.Close();
-                                _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
+                    //        _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
+                    //        _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            Url = "";
-                            _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
-                            _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
-                                file.Close();
-                                _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
-                            }
-                            Url = "";
-                            _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
-                            _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
-                                file.Close();
-                                _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
-                            }
-                            Url = "";
-                            _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
-                            _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
-                            Url = Guid.NewGuid().ToString();
-                            if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
-                                file.Close();
-                                _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
+                    //        _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
+                    //            file.Close();
+                    //            _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
+                    //        _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        Url = "";
+                    //        _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
+                    //        _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
+                    //        Url = Guid.NewGuid().ToString();
+                    //        if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
+                    //            file.Close();
+                    //            _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
 
-                            }
-                            //END
-                        }
-                        obj._Screening = _Screening;
-                    }
+                    //        }
+                    //        //END
+                    //    }
+                    //    obj._Screening = _Screening;
+                    //}
 
-                    if (_dataset.Tables[4].Rows.Count > 0)
+                    if (_dataset.Tables[3].Rows.Count > 0)
                     {
                         List<FamilyHousehold.Childhealthnutrition> _childhealthnutrition = new List<FamilyHousehold.Childhealthnutrition>();
                         FamilyHousehold.Childhealthnutrition info = null;
-                        foreach (DataRow dr in _dataset.Tables[4].Rows)
+                        foreach (DataRow dr in _dataset.Tables[3].Rows)
                         {
                             info = new FamilyHousehold.Childhealthnutrition();
                             info.Id = dr["ID"].ToString();
@@ -5378,51 +5383,51 @@ namespace FingerprintsData
                         obj._Childhealthnutrition = _childhealthnutrition;
                     }
 
-                    if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
-                    {
-                        List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
-                        FamilyHousehold.Childcustomscreening info = null;
-                        foreach (DataRow dr in _dataset.Tables[6].Rows)
-                        {
-                            info = new FamilyHousehold.Childcustomscreening();
-                            info.QuestionID = dr["QuestionID"].ToString();
-                            info.Screeningid = dr["Screeningid"].ToString();
-                            info.Value = dr["Value"].ToString();
-                            info.QuestionAcronym = dr["QuestionAcronym"].ToString();
-                            info.optionid = dr["optionid"].ToString();
-                            info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
-                            string Url = Guid.NewGuid().ToString();
-                            if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
-                            {
-                                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                                file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
-                                file.Close();
-                                info.pdfpath = "/TempAttachment/" + Url + ".pdf";
-                            }
-                            else
-                            {
-                                info.pdfpath = "";
-                                info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
-                            }
-                            _Childcustomscreenings.Add(info);
-                        }
-                        obj._childscreenings = _Childcustomscreenings;
-                    }
+                    //if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+                    //{
+                    //    List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
+                    //    FamilyHousehold.Childcustomscreening info = null;
+                    //    foreach (DataRow dr in _dataset.Tables[6].Rows)
+                    //    {
+                    //        info = new FamilyHousehold.Childcustomscreening();
+                    //        info.QuestionID = dr["QuestionID"].ToString();
+                    //        info.Screeningid = dr["Screeningid"].ToString();
+                    //        info.Value = dr["Value"].ToString();
+                    //        info.QuestionAcronym = dr["QuestionAcronym"].ToString();
+                    //        info.optionid = dr["optionid"].ToString();
+                    //        info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
+                    //        string Url = Guid.NewGuid().ToString();
+                    //        if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
+                    //        {
+                    //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                    //            file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
+                    //            file.Close();
+                    //            info.pdfpath = "/TempAttachment/" + Url + ".pdf";
+                    //        }
+                    //        else
+                    //        {
+                    //            info.pdfpath = "";
+                    //            info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
+                    //        }
+                    //        _Childcustomscreenings.Add(info);
+                    //    }
+                    //    obj._childscreenings = _Childcustomscreenings;
+                    //}
 
-                    if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
-                    {
-                        List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
-                        CustomScreeningAllowed info = null;
-                        foreach (DataRow dr in _dataset.Tables[7].Rows)
-                        {
-                            info = new CustomScreeningAllowed();
-                            info.ScreeningAllowed = dr["Screeningallowed"].ToString();
-                            info.Screeningid = dr["Screeningid"].ToString();
-                            info.ScreeningName = dr["screeningname"].ToString();
-                            _CustomScreeningAllowed.Add(info);
-                        }
-                        obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
-                    }
+                    //if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
+                    //{
+                    //    List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
+                    //    CustomScreeningAllowed info = null;
+                    //    foreach (DataRow dr in _dataset.Tables[7].Rows)
+                    //    {
+                    //        info = new CustomScreeningAllowed();
+                    //        info.ScreeningAllowed = dr["Screeningallowed"].ToString();
+                    //        info.Screeningid = dr["Screeningid"].ToString();
+                    //        info.ScreeningName = dr["screeningname"].ToString();
+                    //        _CustomScreeningAllowed.Add(info);
+                    //    }
+                    //    obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
+                    //}
 
                     DataAdapter.Dispose();
                     command.Dispose();
@@ -9181,33 +9186,34 @@ namespace FingerprintsData
                      //new DataColumn("WellBabyExamMonth",typeof(string)),
                     });
                 #endregion
-                foreach (var s in _screen.GetType().GetProperties())
-                {
-                    int screeningid = 0;
-                    int questionid = 0;
-                    string month = "";
-                    if (s.Name.Substring(0, 1) == "F")
-                    {
-                        screeningid = 1;
-                        //month = _screen.WellBabyExamMonth;
-                    }
+                //foreach (var s in _screen.GetType().GetProperties())
+                //{
+                //    int screeningid = 0;
+                //    int questionid = 0;
+                //    string month = "";
+                //    if (s.Name.Substring(0, 1) == "F")
+                //    {
+                //        screeningid = 1;
+                //        //month = _screen.WellBabyExamMonth;
+                //    }
 
-                    if (s.Name.Substring(0, 1) == "v")
-                        screeningid = 2;
-                    if (s.Name.Substring(0, 1) == "h")
-                        screeningid = 3;
-                    if (s.Name.Substring(0, 1) == "d")
-                        screeningid = 4;
-                    if (s.Name.Substring(0, 1) == "E")
-                        screeningid = 5;
-                    if (s.Name.Substring(0, 1) == "s")
-                        screeningid = 6;
-                    if (screeningid == 1 || screeningid == 2 || screeningid == 3 || screeningid == 4 || screeningid == 5 || screeningid == 6)
-                    {
-                        questionid = Convert.ToInt32(s.Name.Substring(1, 3));
-                        dt2.Rows.Add(screeningid, questionid, s.GetValue(_screen));
-                    }
-                }
+                //    if (s.Name.Substring(0, 1) == "v")
+                //        screeningid = 2;
+                //    if (s.Name.Substring(0, 1) == "h")
+                //        screeningid = 3;
+                //    if (s.Name.Substring(0, 1) == "d")
+                //        screeningid = 4;
+                //    if (s.Name.Substring(0, 1) == "E")
+                //        screeningid = 5;
+                //    if (s.Name.Substring(0, 1) == "s")
+                //        screeningid = 6;
+                //    if (screeningid == 1 || screeningid == 2 || screeningid == 3 || screeningid == 4 || screeningid == 5 || screeningid == 6)
+                //    {
+                //        questionid = Convert.ToInt32(s.Name.Substring(1, 3));
+                //        dt2.Rows.Add(screeningid, questionid, s.GetValue(_screen));
+                //    }
+                //}
+
                 command.Parameters.Add(new SqlParameter("@tblImminization", dt1));
                 command.Parameters.Add(new SqlParameter("@tblscreening", dt2));
                 //Changes
@@ -9543,78 +9549,78 @@ namespace FingerprintsData
                     new DataColumn("FileBytes",typeof(byte[]))
                     });
                 #endregion
-                if (collection != null)
-                {
-                    foreach (var radio in collection.AllKeys.Where(P => P.Contains("_allowchildcustomscreening")))
-                    {
-                        if (collection[radio].ToString() == "1")
-                        {
-                            foreach (var question in collection.AllKeys.Where(P => P.Contains("_custscreeningquestin") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                string questionid = string.Empty;
-                                string optionid = string.Empty;
-                                string screeningdate = "";
-                                if (question.ToString().Contains("o") || question.ToString().Contains("k"))
-                                    questionid = question.ToString().Split('k', 'k')[2];
-                                if (question.ToString().Contains("o"))
-                                {
-                                    optionid = question.ToString().Split('o', 'o')[1];
-                                    questionid = question.ToString().Split('k', 'k')[2];
-                                }
-                                if (question.ToString().Contains("_custrad"))
-                                {
-                                    optionid = collection[question].ToString().Split('o', 'o')[1];
-                                    questionid = collection[question].ToString().Split('k', 'k')[2];
-                                }
-                                if (question.Contains("_$SD"))
-                                    screeningdate = collection[question].ToString();
-                                if (string.IsNullOrEmpty(optionid))
-                                {
-                                    if (question.ToString().Contains("select"))
-                                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString().Replace(",", ""), DBNull.Value, screeningdate);
-                                    else
-                                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString(), DBNull.Value, screeningdate);
-                                }
+                //if (collection != null)
+                //{
+                //    foreach (var radio in collection.AllKeys.Where(P => P.Contains("_allowchildcustomscreening")))
+                //    {
+                //        if (collection[radio].ToString() == "1")
+                //        {
+                //            foreach (var question in collection.AllKeys.Where(P => P.Contains("_custscreeningquestin") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                string questionid = string.Empty;
+                //                string optionid = string.Empty;
+                //                string screeningdate = "";
+                //                if (question.ToString().Contains("o") || question.ToString().Contains("k"))
+                //                    questionid = question.ToString().Split('k', 'k')[2];
+                //                if (question.ToString().Contains("o"))
+                //                {
+                //                    optionid = question.ToString().Split('o', 'o')[1];
+                //                    questionid = question.ToString().Split('k', 'k')[2];
+                //                }
+                //                if (question.ToString().Contains("_custrad"))
+                //                {
+                //                    optionid = collection[question].ToString().Split('o', 'o')[1];
+                //                    questionid = collection[question].ToString().Split('k', 'k')[2];
+                //                }
+                //                if (question.Contains("_$SD"))
+                //                    screeningdate = collection[question].ToString();
+                //                if (string.IsNullOrEmpty(optionid))
+                //                {
+                //                    if (question.ToString().Contains("select"))
+                //                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString().Replace(",", ""), DBNull.Value, screeningdate);
+                //                    else
+                //                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString(), DBNull.Value, screeningdate);
+                //                }
 
-                                else
-                                    screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, DBNull.Value, optionid, screeningdate);
-                                optionid = "";
-                                questionid = "";
-                            }
-                            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                HttpPostedFileBase _file = Files[file];
-                                string filename = null;
-                                string fileextension = null;
-                                byte[] filedata = null;
-                                if (_file != null && _file.FileName != "")
-                                {
-                                    filename = _file.FileName;
-                                    fileextension = Path.GetExtension(_file.FileName);
-                                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
-                                }
-                                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
-                            }
-                        }
-                        else
-                        {
-                            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                HttpPostedFileBase _file = Files[file];
-                                string filename = null;
-                                string fileextension = null;
-                                byte[] filedata = null;
-                                if (_file != null && _file.FileName != "")
-                                {
-                                    filename = _file.FileName;
-                                    fileextension = Path.GetExtension(_file.FileName);
-                                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
-                                }
-                                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
-                            }
-                        }
-                    }
-                }
+                //                else
+                //                    screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, DBNull.Value, optionid, screeningdate);
+                //                optionid = "";
+                //                questionid = "";
+                //            }
+                //            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                HttpPostedFileBase _file = Files[file];
+                //                string filename = null;
+                //                string fileextension = null;
+                //                byte[] filedata = null;
+                //                if (_file != null && _file.FileName != "")
+                //                {
+                //                    filename = _file.FileName;
+                //                    fileextension = Path.GetExtension(_file.FileName);
+                //                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
+                //                }
+                //                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
+                //            }
+                //        }
+                //        else
+                //        {
+                //            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                HttpPostedFileBase _file = Files[file];
+                //                string filename = null;
+                //                string fileextension = null;
+                //                byte[] filedata = null;
+                //                if (_file != null && _file.FileName != "")
+                //                {
+                //                    filename = _file.FileName;
+                //                    fileextension = Path.GetExtension(_file.FileName);
+                //                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
+                //                }
+                //                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
+                //            }
+                //        }
+                //    }
+                //}
                 //End
                 command.Parameters.Add(new SqlParameter("@screeningquestion", screeningquestion));
                 command.Parameters.Add(new SqlParameter("@screeningallowed", screeningallowed));
@@ -10394,8 +10400,10 @@ namespace FingerprintsData
                             Info.Cmiddlename = dr["Middlename"].ToString();
                             Info.Clastname = dr["Lastname"].ToString();
                             Info.CGender = dr["Gender"].ToString();
+
+
                             if (dr["DOB"].ToString() != "")
-                                Info.CDOB = Convert.ToDateTime(dr["DOB"]).ToString("MM/dd/yyyy");
+                                Info.CDOB = Convert.ToString(dr["DOB"]);
                             try
                             {
                                 Info.CSSN = dr["SSN"].ToString() == "" ? "" : EncryptDecrypt.Decrypt(dr["SSN"].ToString());
@@ -10408,11 +10416,11 @@ namespace FingerprintsData
                         }
                     }
 
-                    if (ds.Tables[27] != null && ds.Tables[27].Rows.Count > 0)
-                    {
-                        Info.customscreening = ds.Tables[27];
+                    //if (ds.Tables[27] != null && ds.Tables[27].Rows.Count > 0)
+                    //{
+                    //    Info.customscreening = ds.Tables[27];
 
-                    }
+                    //}
 
 
                 }
@@ -11887,7 +11895,7 @@ namespace FingerprintsData
 
         public string addScreeningInfo(ref FamilyHousehold obj, int mode, Guid ID, List<FamilyHousehold.Parentphone1> ParentPhoneNos,
         List<FamilyHousehold.Parentphone2> ParentPhoneNos1, List<FamilyHousehold.calculateincome> Income, List<FamilyHousehold.calculateincome1> Income1,
-         List<FamilyHousehold.ImmunizationRecord> Imminization, List<FamilyHousehold.phone> PhoneNos, Screening _screen, string Roleid, FormCollection collection, HttpFileCollectionBase Files, string serverpath)
+         List<FamilyHousehold.ImmunizationRecord> Imminization, List<FamilyHousehold.phone> PhoneNos, Screening _screen, string Roleid, FormCollection collection, HttpFileCollectionBase Files, string serverpath, int saveCommand)
         {
             string result = string.Empty;
             try
@@ -11897,6 +11905,7 @@ namespace FingerprintsData
                     Connection.Close();
                 Connection.Open();
                 command.Connection = Connection;
+                command.Parameters.Add(new SqlParameter("@saveCommand", saveCommand));
                 command.Parameters.Add(new SqlParameter("@HouseholdId", obj.HouseholdId));
                 command.Parameters.Add(new SqlParameter("@Street", obj.Street));
                 command.Parameters.Add(new SqlParameter("@StreetName", obj.StreetName));
@@ -12467,59 +12476,105 @@ namespace FingerprintsData
                     new DataColumn("Value",typeof(string)),
                     });
                 #endregion
-                foreach (var s in _screen.GetType().GetProperties())
+
+                foreach (var s in _screen.ScreeningList)
                 {
-                    int screeningid = 0;
-                    int questionid = 0;
-                    if (s.Name.Substring(0, 1) == "F")
-                        screeningid = 1;
-                    if (s.Name.Substring(0, 1) == "v")
-                        screeningid = 2;
-                    if (s.Name.Substring(0, 1) == "h")
-                        screeningid = 3;
-                    if (s.Name.Substring(0, 1) == "d")
-                        screeningid = 4;
-                    if (s.Name.Substring(0, 1) == "E")
-                        screeningid = 5;
-                    if (s.Name.Substring(0, 1) == "s")
-                        screeningid = 6;
-                    if (screeningid == 1 || screeningid == 2 || screeningid == 3 || screeningid == 4 || screeningid == 5 || screeningid == 6)
+
+                    foreach (var qn in s.Questionlist)
                     {
-                        questionid = Convert.ToInt32(s.Name.Substring(1, 3));
-                        dt6.Rows.Add(screeningid, questionid, s.GetValue(_screen));
+
+                        if (qn.OptionValue != null && qn.OptionValue != "" && qn.OptionValue != "0")
+                        {
+                            dt6.Rows.Add(s.ScreeningID, qn.QuestionId, qn.OptionValue);
+
+                        }
+
                     }
+
                 }
+
+
+                DataTable dtScr = new DataTable();
+
+                dtScr.Columns.AddRange(new DataColumn[12] {
+                    new DataColumn("ScreeningID",typeof(int)),
+                    new DataColumn("AcceptanceForm",typeof(byte[])),
+                    new DataColumn("AcceptFileUl",typeof(string)),
+                    new DataColumn("AcceptFileExtension",typeof(string)),
+                    new DataColumn("Approved",typeof(int)),
+                    new DataColumn("ApprovalForm",typeof(byte[])),
+                    new DataColumn("ApprovalFileUl",typeof(string)),
+                    new DataColumn("ApprovalFileExtension",typeof(string)),
+                    new DataColumn("ParentID",typeof(long)),
+                    new DataColumn("ParentSignature",typeof(string)),
+                    new DataColumn("NoDocument",typeof(bool)),
+                    new DataColumn("LatestScreening",typeof(int))
+
+                });
+
+
+
+                for (int scr = 0; scr < _screen.ScreeningList.Count; scr++)
+                {
+
+
+                    dtScr.Rows.Add(_screen.ScreeningList[scr].ScreeningID,
+
+                                  _screen.ScreeningAcceptImageByte,
+                                  _screen.ScreeningAcceptFileName,
+                                  _screen.ScreeningAcceptFileExtension,
+                                  _screen.ScreeningList[scr].Approved,
+
+                                  _screen.ScreeningList[scr].ApprovedImageByte,
+                                  _screen.ScreeningList[scr].ApprovedFileName,
+                                  _screen.ScreeningList[scr].ApprovedFileExtension,
+
+                                  _screen.ScreeningParentID,
+                                  _screen.ParentSignature,
+                                  _screen.ScreeningList[scr].NoDocument,
+                                  _screen.ScreeningList[scr].LastScreeningCompleted
+
+
+                        );
+
+                }
+
+
+
                 command.Parameters.Add(new SqlParameter("@tblImminization", dt5));
                 command.Parameters.Add(new SqlParameter("@tblscreening", dt6));
+                command.Parameters.Add(new SqlParameter("@tblParentApproval", dtScr));
+
                 //Changes
-                command.Parameters.Add(new SqlParameter("@Physical", _screen.AddPhysical));
-                command.Parameters.Add(new SqlParameter("@Vision", _screen.AddVision));
-                command.Parameters.Add(new SqlParameter("@Dental", _screen.AddDental));
-                command.Parameters.Add(new SqlParameter("@Hearing", _screen.AddHearing));
-                command.Parameters.Add(new SqlParameter("@Develop", _screen.AddDevelop));
-                command.Parameters.Add(new SqlParameter("@Speech", _screen.AddSpeech));
-                //    command.Parameters.Add(new SqlParameter("@ScreeningAccept", _screen.ScreeningAccept));
-                command.Parameters.Add(new SqlParameter("@PhysicalFileName", _screen.PhysicalFileName));
-                command.Parameters.Add(new SqlParameter("@PhysicalFileExtension", _screen.PhysicalFileExtension));
-                command.Parameters.Add(new SqlParameter("@PhysicalImageByte", _screen.PhysicalImageByte));
-                command.Parameters.Add(new SqlParameter("@VisionFileName", _screen.VisionFileName));
-                command.Parameters.Add(new SqlParameter("@VisionFileExtension", _screen.VisionFileExtension));
-                command.Parameters.Add(new SqlParameter("@VisionImageByte", _screen.VisionImageByte));
-                command.Parameters.Add(new SqlParameter("@DevelopFileName", _screen.DevelopFileName));
-                command.Parameters.Add(new SqlParameter("@DevelopFileExtension", _screen.DevelopFileExtension));
-                command.Parameters.Add(new SqlParameter("@DevelopImageByte", _screen.DevelopImageByte));
-                command.Parameters.Add(new SqlParameter("@DentalFileExtension", _screen.DentalFileExtension));
-                command.Parameters.Add(new SqlParameter("@DentalFileName", _screen.DentalFileName));
-                command.Parameters.Add(new SqlParameter("@DentalImageByte", _screen.DentalImageByte));
-                command.Parameters.Add(new SqlParameter("@HearingFileName", _screen.HearingFileName));
-                command.Parameters.Add(new SqlParameter("@HearingFileExtension", _screen.HearingFileExtension));
-                command.Parameters.Add(new SqlParameter("@HearingImageByte", _screen.HearingImageByte));
-                command.Parameters.Add(new SqlParameter("@SpeechFileName", _screen.SpeechFileName));
-                command.Parameters.Add(new SqlParameter("@SpeechFileExtension", _screen.SpeechFileExtension));
-                command.Parameters.Add(new SqlParameter("@SpeechImageByte", _screen.SpeechImageByte));
-                command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileExtension", _screen.ScreeningAcceptFileExtension));
-                command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileName", _screen.ScreeningAcceptFileName));
-                command.Parameters.Add(new SqlParameter("@ScreeningAcceptImageByte", _screen.ScreeningAcceptImageByte));
+
+                //command.Parameters.Add(new SqlParameter("@Physical", _screen.AddPhysical));
+                //command.Parameters.Add(new SqlParameter("@Vision", _screen.AddVision));
+                //command.Parameters.Add(new SqlParameter("@Dental", _screen.AddDental));
+                //command.Parameters.Add(new SqlParameter("@Hearing", _screen.AddHearing));
+                //command.Parameters.Add(new SqlParameter("@Develop", _screen.AddDevelop));
+                //command.Parameters.Add(new SqlParameter("@Speech", _screen.AddSpeech));
+                ////    command.Parameters.Add(new SqlParameter("@ScreeningAccept", _screen.ScreeningAccept));
+                //command.Parameters.Add(new SqlParameter("@PhysicalFileName", _screen.PhysicalFileName));
+                //command.Parameters.Add(new SqlParameter("@PhysicalFileExtension", _screen.PhysicalFileExtension));
+                //command.Parameters.Add(new SqlParameter("@PhysicalImageByte", _screen.PhysicalImageByte));
+                //command.Parameters.Add(new SqlParameter("@VisionFileName", _screen.VisionFileName));
+                //command.Parameters.Add(new SqlParameter("@VisionFileExtension", _screen.VisionFileExtension));
+                //command.Parameters.Add(new SqlParameter("@VisionImageByte", _screen.VisionImageByte));
+                //command.Parameters.Add(new SqlParameter("@DevelopFileName", _screen.DevelopFileName));
+                //command.Parameters.Add(new SqlParameter("@DevelopFileExtension", _screen.DevelopFileExtension));
+                //command.Parameters.Add(new SqlParameter("@DevelopImageByte", _screen.DevelopImageByte));
+                //command.Parameters.Add(new SqlParameter("@DentalFileExtension", _screen.DentalFileExtension));
+                //command.Parameters.Add(new SqlParameter("@DentalFileName", _screen.DentalFileName));
+                //command.Parameters.Add(new SqlParameter("@DentalImageByte", _screen.DentalImageByte));
+                //command.Parameters.Add(new SqlParameter("@HearingFileName", _screen.HearingFileName));
+                //command.Parameters.Add(new SqlParameter("@HearingFileExtension", _screen.HearingFileExtension));
+                //command.Parameters.Add(new SqlParameter("@HearingImageByte", _screen.HearingImageByte));
+                //command.Parameters.Add(new SqlParameter("@SpeechFileName", _screen.SpeechFileName));
+                //command.Parameters.Add(new SqlParameter("@SpeechFileExtension", _screen.SpeechFileExtension));
+                //command.Parameters.Add(new SqlParameter("@SpeechImageByte", _screen.SpeechImageByte));
+                //command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileExtension", _screen.ScreeningAcceptFileExtension));
+                //command.Parameters.Add(new SqlParameter("@ScreeningAcceptFileName", _screen.ScreeningAcceptFileName));
+                //command.Parameters.Add(new SqlParameter("@ScreeningAcceptImageByte", _screen.ScreeningAcceptImageByte));
                 //Changes
                 command.Parameters.Add(new SqlParameter("@Consolidated", _screen.Consolidated));
                 command.Parameters.Add(new SqlParameter("@ParentName", _screen.Parentname));
@@ -12818,124 +12873,125 @@ namespace FingerprintsData
                 //custom screenig save
 
 
-                #region custom screening
-                DataTable screeningquestion = new DataTable();
-                screeningquestion.Columns.AddRange(new DataColumn[5] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("QuestionID",typeof(Int32)),
-                    new DataColumn("Value",typeof(string)),
-                    new DataColumn("OptionID",typeof(Int32)),
-                    new DataColumn("ScreeningDate",typeof(string))
-                    });
-                #endregion
-                #region allowed screening
-                DataTable screeningallowed = new DataTable();
-                screeningallowed.Columns.AddRange(new DataColumn[5] {
-                    new DataColumn("ScreeningID",typeof(Int32)),
-                    new DataColumn("Allowed",typeof(Int32)),
-                    new DataColumn("FileName",typeof(string)),
-                    new DataColumn("FileExtension",typeof(string)),
-                    new DataColumn("FileBytes",typeof(byte[]))
-                    });
-                #endregion
+                //#region custom screening
+                //DataTable screeningquestion = new DataTable();
+                //screeningquestion.Columns.AddRange(new DataColumn[5] {
+                //    new DataColumn("ScreeningID",typeof(Int32)),
+                //    new DataColumn("QuestionID",typeof(Int32)),
+                //    new DataColumn("Value",typeof(string)),
+                //    new DataColumn("OptionID",typeof(Int32)),
+                //    new DataColumn("ScreeningDate",typeof(string))
+                //    });
+                //#endregion
+                //#region allowed screening
+                //DataTable screeningallowed = new DataTable();
+                //screeningallowed.Columns.AddRange(new DataColumn[5] {
+                //    new DataColumn("ScreeningID",typeof(Int32)),
+                //    new DataColumn("Allowed",typeof(Int32)),
+                //    new DataColumn("FileName",typeof(string)),
+                //    new DataColumn("FileExtension",typeof(string)),
+                //    new DataColumn("FileBytes",typeof(byte[]))
+                //    });
+                //#endregion
 
 
 
-                if (collection != null)
-                {
-                    foreach (var radio in collection.AllKeys.Where(P => P.Contains("_allowchildcustomscreening")))
-                    {
-                        if (collection[radio].ToString() == "1")
-                        {
-                            foreach (var question in collection.AllKeys.Where(P => P.Contains("_custscreeningquestin") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-
-                                string questionid = string.Empty;
-                                string optionid = string.Empty;
-                                string screeningdate = "";
-                                if (question.ToString().Contains("o") || question.ToString().Contains("k"))
-                                    questionid = question.ToString().Split('k', 'k')[2];
-                                if (question.ToString().Contains("o"))
-                                {
-                                    optionid = question.ToString().Split('o', 'o')[1];
-                                    questionid = question.ToString().Split('k', 'k')[2];
-                                }
-                                if (question.ToString().Contains("_custrad"))
-                                {
-                                    optionid = collection[question].ToString().Split('o', 'o')[1];
-                                    questionid = collection[question].ToString().Split('k', 'k')[2];
-                                }
-                                if (question.Contains("_$SD"))
-                                    screeningdate = collection[question].ToString();
-                                if (string.IsNullOrEmpty(optionid))
-                                {
-                                    if (question.ToString().Contains("select"))
-                                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString().Replace(",", ""), DBNull.Value, screeningdate);
-                                    else
-                                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString(), DBNull.Value, screeningdate);
-
-
-                                }
-                                else
-                                {
-                                    screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, DBNull.Value, optionid, screeningdate);
-                                }
-                                optionid = "";
-                                questionid = "";
+                //if (collection != null)
+                //{
+                //    foreach (var radio in collection.AllKeys.Where(P => P.Contains("_allowchildcustomscreening")))
+                //    {
+                //        if (collection[radio].ToString() == "1")
+                //        {
+                //            foreach (var question in collection.AllKeys.Where(P => P.Contains("_custscreeningquestin") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                string questionid = string.Empty;
+                //                string optionid = string.Empty;
+                //                string screeningdate = "";
+                //                if (question.ToString().Contains("o") || question.ToString().Contains("k"))
+                //                    questionid = question.ToString().Split('k', 'k')[2];
+                //                if (question.ToString().Contains("o"))
+                //                {
+                //                    optionid = question.ToString().Split('o', 'o')[1];
+                //                    questionid = question.ToString().Split('k', 'k')[2];
+                //                }
+                //                if (question.ToString().Contains("_custrad"))
+                //                {
+                //                    optionid = collection[question].ToString().Split('o', 'o')[1];
+                //                    questionid = collection[question].ToString().Split('k', 'k')[2];
+                //                }
+                //                if (question.Contains("_$SD"))
+                //                    screeningdate = collection[question].ToString();
+                //                if (string.IsNullOrEmpty(optionid))
+                //                {
+                //                    if (question.ToString().Contains("select"))
+                //                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString().Replace(",", ""), DBNull.Value, screeningdate);
+                //                    else
+                //                        screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, collection[question].ToString(), DBNull.Value, screeningdate);
 
 
-                            }
+                //                }
+                //                else
+                //                {
+                //                    screeningquestion.Rows.Add(question.ToString().Split('k')[1], questionid, DBNull.Value, optionid, screeningdate);
+                //                }
+                //                optionid = "";
+                //                questionid = "";
 
 
-
-                            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                HttpPostedFileBase _file = Files[file];
-                                string filename = null;
-                                string fileextension = null;
-                                byte[] filedata = null;
-                                if (_file != null && _file.FileName != "")
-                                {
-                                    filename = _file.FileName;
-                                    fileextension = Path.GetExtension(_file.FileName);
-                                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
-                                }
-                                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
-                            }
+                //            }
 
 
 
+                //            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                HttpPostedFileBase _file = Files[file];
+                //                string filename = null;
+                //                string fileextension = null;
+                //                byte[] filedata = null;
+                //                if (_file != null && _file.FileName != "")
+                //                {
+                //                    filename = _file.FileName;
+                //                    fileextension = Path.GetExtension(_file.FileName);
+                //                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
+                //                }
+                //                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
+                //            }
 
-                        }
-                        else
-                        {
 
 
-                            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
-                            {
-                                HttpPostedFileBase _file = Files[file];
-                                string filename = null;
-                                string fileextension = null;
-                                byte[] filedata = null;
-                                if (_file != null && _file.FileName != "")
-                                {
-                                    filename = _file.FileName;
-                                    fileextension = Path.GetExtension(_file.FileName);
-                                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
-                                }
-                                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
-                            }
 
-                        }
-                    }
-                }
+                //        }
+                //        else
+                //        {
+
+
+                //            foreach (var file in Files.AllKeys.Where(P => P.Contains("_customscreeningdocument") && P.Split('k')[1] == radio.Split('@')[0]))
+                //            {
+                //                HttpPostedFileBase _file = Files[file];
+                //                string filename = null;
+                //                string fileextension = null;
+                //                byte[] filedata = null;
+                //                if (_file != null && _file.FileName != "")
+                //                {
+                //                    filename = _file.FileName;
+                //                    fileextension = Path.GetExtension(_file.FileName);
+                //                    filedata = new BinaryReader(_file.InputStream).ReadBytes(_file.ContentLength);
+                //                }
+                //                screeningallowed.Rows.Add(radio.Split('@')[0], collection[radio].ToString(), filename, fileextension, filedata);
+                //            }
+
+                //        }
+                //    }
+                //}
                 //End
 
-                command.Parameters.Add(new SqlParameter("@screeningquestion", screeningquestion));
-                command.Parameters.Add(new SqlParameter("@screeningallowed", screeningallowed));
+               // command.Parameters.Add(new SqlParameter("@screeningquestion", screeningquestion));
+               // command.Parameters.Add(new SqlParameter("@screeningallowed", screeningallowed));
+
                 command.Parameters.Add(new SqlParameter("@ApplicationStatusChild", obj.ApplicationStatusChild));
                 command.Parameters.Add(new SqlParameter("@ApplicationStatusParent1", obj.ApplicationStatusParent1));
                 command.Parameters.Add(new SqlParameter("@ApplicationStatusParent2", obj.ApplicationStatusParent2));
+                command.Parameters.Add(new SqlParameter("@IsFutureIntake", obj.IsFutureApplication));
                 command.Parameters.Add(new SqlParameter("@Roleid", Roleid));
                 command.Parameters.Add(new SqlParameter("@CreatedBy", ID));
                 command.Parameters.Add(new SqlParameter("@mode", mode));
@@ -13392,23 +13448,23 @@ namespace FingerprintsData
                         obj1.ImmunizationmasterId = Convert.ToInt32(dr["Immunizationmasterid"]);
                         obj1.Dose = dr["Dose"].ToString();
                         if (dr["Dose1"].ToString() != "")
-                            obj1.Dose1 = Convert.ToDateTime(dr["Dose1"]).ToString("MM/dd/yyyy");
+                            obj1.Dose1 = Convert.ToString(dr["Dose1"]);
                         else
                             obj1.Dose1 = dr["Dose1"].ToString();
                         if (dr["Dose2"].ToString() != "")
-                            obj1.Dose2 = Convert.ToDateTime(dr["Dose2"]).ToString("MM/dd/yyyy");
+                            obj1.Dose2 = Convert.ToString(dr["Dose2"]);
                         else
                             obj1.Dose2 = dr["Dose2"].ToString();
                         if (dr["Dose3"].ToString() != "")
-                            obj1.Dose3 = Convert.ToDateTime(dr["Dose3"]).ToString("MM/dd/yyyy");
+                            obj1.Dose3 = Convert.ToString(dr["Dose3"]);
                         else
                             obj1.Dose3 = dr["Dose3"].ToString();
                         if (dr["Dose4"].ToString() != "")
-                            obj1.Dose4 = Convert.ToDateTime(dr["Dose4"]).ToString("MM/dd/yyyy");
+                            obj1.Dose4 = Convert.ToString(dr["Dose4"]);
                         else
                             obj1.Dose4 = dr["Dose4"].ToString();
                         if (dr["Dose5"].ToString() != "")
-                            obj1.Dose5 = Convert.ToDateTime(dr["Dose5"]).ToString("MM/dd/yyyy");
+                            obj1.Dose5 = Convert.ToString(dr["Dose5"]);
                         else
                             obj1.Dose5 = dr["Dose5"].ToString();
                         if (dr["Exempt1"].ToString() != "")
@@ -13449,256 +13505,258 @@ namespace FingerprintsData
                     }
                     obj.AvailableProgram = ProgramdetailRecords;
                 }
+
+
+                //    if (_dataset.Tables[3].Rows.Count > 0)
+                //    {
+                //        Screening _Screening = new Screening();
+                //        foreach (DataRow dr in _dataset.Tables[3].Rows)
+                //        {
+                //            _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
+                //            _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
+                //            _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
+                //            _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
+                //            _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
+                //            _Screening.F006bpResults = dr["F006bpResults"].ToString();
+                //            _Screening.F007hgDate = dr["F007hgDate"].ToString();
+                //            _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
+                //            _Screening.F009hgResults = dr["F009hgResults"].ToString();
+                //            _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
+                //            _Screening.F011hgComments = dr["F011hgComments"].ToString();
+                //            _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
+                //            _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
+                //            _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
+                //            _Screening.F015leadDate = dr["F015leadDate"].ToString();
+                //            _Screening.F016leadResults = dr["F016leadResults"].ToString();
+                //            _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
+                //            _Screening.F018leadComments = dr["F018leadComments"].ToString();
+                //            _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
+                //            _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
+                //            _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
+                //            _Screening.v022date = dr["v022date"].ToString();
+                //            _Screening.v023results = dr["v023results"].ToString();
+                //            _Screening.v024comments = dr["v024comments"].ToString();
+                //            _Screening.v025dateR1 = dr["v025dateR1"].ToString();
+                //            _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
+                //            _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
+                //            _Screening.v028dateR2 = dr["v028dateR2"].ToString();
+                //            _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
+                //            _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
+                //            _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
+                //            _Screening.v032Treatment = dr["v032Treatment"].ToString();
+                //            _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
+                //            _Screening.v034Completedate = dr["v034Completedate"].ToString();
+                //            _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
+                //            _Screening.h036Date = dr["h036Date"].ToString();
+                //            _Screening.h037Results = dr["h037Results"].ToString();
+                //            _Screening.h038Comments = dr["h038Comments"].ToString();
+                //            _Screening.h039DateR1 = dr["h039DateR1"].ToString();
+                //            _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
+                //            _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
+                //            _Screening.h042DateR2 = dr["h042DateR2"].ToString();
+                //            _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
+                //            _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
+                //            _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
+                //            _Screening.h046Treatment = dr["h046Treatment"].ToString();
+                //            _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
+                //            _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
+                //            _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
+                //            _Screening.d050evDate = dr["d050evDate"].ToString();
+                //            _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
+                //            _Screening.d052evResults = dr["d052evResults"].ToString();
+                //            _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
+                //            _Screening.d054evDate2 = dr["d054evDate2"].ToString();
+                //            _Screening.d055evResults2 = dr["d055evResults2"].ToString();
+                //            _Screening.d056evReferral = dr["d056evReferral"].ToString();
+                //            _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
+                //            _Screening.d058evComments = dr["d058evComments"].ToString();
+                //            _Screening.d059evTool = dr["d059evTool"].ToString();
+                //            _Screening.E060denDate = dr["E060denDate"].ToString();
+                //            _Screening.E061denResults = dr["E061denResults"].ToString();
+                //            _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
+                //            _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
+                //            _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
+                //            _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
+                //            _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
+                //            _Screening.s067Date = dr["s067Date"].ToString();
+                //            _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
+                //            _Screening.s069Details = dr["s069Details"].ToString();
+                //            _Screening.s070Results = dr["s070Results"].ToString();
+                //            _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
+                //            _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
+                //            _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
+                //            _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
+                //            _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
+                //            _Screening.s076DCDate = dr["s076DCDate"].ToString();
+                //            _Screening.s077NameDC = dr["s077NameDC"].ToString();
+                //            _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
+                //            _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
+                //            _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
+                //            _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
+                //        }
+                //        //Screening changes
+                //        if (_dataset.Tables[5].Rows.Count > 0)
+                //        {
+                //            _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
+                //            _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
+                //            _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
+                //            _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
+                //            _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
+                //            _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
+                //            _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
+                //            _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
+                //            _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
+                //            _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
+                //            _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
+                //            _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
+                //            _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
+                //            _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
+                //            _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
+                //            _Screening.Consolidated = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"].ToString());
+
+                //            //Get screening scan document
+                //            _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
+                //            _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
+                //            string Url = Guid.NewGuid().ToString();
+                //            if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
+                //            {
+                //                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //                file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
+                //                file.Close();
+                //                _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                //            }
+                //            Url = "";
+                //            _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
+                //            _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
+                //            Url = Guid.NewGuid().ToString();
+                //            if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
+                //            {
+                //                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //                file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
+                //                file.Close();
+                //                _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                //            }
+                //            Url = "";
+                //            _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
+                //            _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
+                //            Url = Guid.NewGuid().ToString();
+                //            if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
+                //            {
+                //                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //                file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
+                //                file.Close();
+                //                _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                //            }
+                //            Url = "";
+                //            _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
+                //            _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
+                //            Url = Guid.NewGuid().ToString();
+                //            if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
+                //            {
+                //                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //                file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
+                //                file.Close();
+                //                _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                //            }
+                //            Url = "";
+                //            _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
+                //            _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
+                //            Url = Guid.NewGuid().ToString();
+                //            if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
+                //            {
+                //                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //                file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
+                //                file.Close();
+                //                _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                //            }
+                //            Url = "";
+                //            _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
+                //            _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
+
+                //            Url = Guid.NewGuid().ToString();
+                //            if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
+                //            {
+                //                System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //                file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
+                //                file.Close();
+                //                _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
+
+                //            }
+                //            //END
+                //        }
+                //        obj._Screening = _Screening;
+                //    }
+                //}
                 if (_dataset.Tables[3].Rows.Count > 0)
                 {
-                    Screening _Screening = new Screening();
+                    List<FamilyHousehold.Childhealthnutrition> _childhealthnutrition = new List<FamilyHousehold.Childhealthnutrition>();
+                    FamilyHousehold.Childhealthnutrition info = null;
                     foreach (DataRow dr in _dataset.Tables[3].Rows)
                     {
-                        _Screening.F001physicalDate = dr["F001physicalDate"].ToString();
-                        _Screening.F002physicalResults = dr["F002physicalResults"].ToString();
-                        _Screening.F003physicallFOReason = dr["F003physicallFOReason"].ToString();
-                        _Screening.F004medFollowup = dr["F004medFollowup"].ToString();
-                        _Screening.F005MedFOComments = dr["F005MedFOComments"].ToString();
-                        _Screening.F006bpResults = dr["F006bpResults"].ToString();
-                        _Screening.F007hgDate = dr["F007hgDate"].ToString();
-                        _Screening.F008hgStatus = dr["F008hgStatus"].ToString();
-                        _Screening.F009hgResults = dr["F009hgResults"].ToString();
-                        _Screening.F010hgReferralDate = dr["F010hgReferralDate"].ToString();
-                        _Screening.F011hgComments = dr["F011hgComments"].ToString();
-                        _Screening.F012hgDate2 = dr["F012hgDate2"].ToString();
-                        _Screening.F013hgResults2 = dr["F013hgResults2"].ToString();
-                        _Screening.F014hgFOStatus = dr["F014hgFOStatus"].ToString();
-                        _Screening.F015leadDate = dr["F015leadDate"].ToString();
-                        _Screening.F016leadResults = dr["F016leadResults"].ToString();
-                        _Screening.F017leadReferDate = dr["F017leadReferDate"].ToString();
-                        _Screening.F018leadComments = dr["F018leadComments"].ToString();
-                        _Screening.F019leadDate2 = dr["F019leadDate2"].ToString();
-                        _Screening.F020leadResults2 = dr["F020leadResults2"].ToString();
-                        _Screening.F021leadFOStatus = dr["F021leadFOStatus"].ToString();
-                        _Screening.v022date = dr["v022date"].ToString();
-                        _Screening.v023results = dr["v023results"].ToString();
-                        _Screening.v024comments = dr["v024comments"].ToString();
-                        _Screening.v025dateR1 = dr["v025dateR1"].ToString();
-                        _Screening.v026resultsR1 = dr["v026resultsR1"].ToString();
-                        _Screening.v027commentsR1 = dr["v027commentsR1"].ToString();
-                        _Screening.v028dateR2 = dr["v028dateR2"].ToString();
-                        _Screening.v029resultsR2 = dr["v029resultsR2"].ToString();
-                        _Screening.v030commentsR2 = dr["v030commentsR2"].ToString();
-                        _Screening.v031ReferralDate = dr["v031ReferralDate"].ToString();
-                        _Screening.v032Treatment = dr["v032Treatment"].ToString();
-                        _Screening.v033TreatmentComments = dr["v033TreatmentComments"].ToString();
-                        _Screening.v034Completedate = dr["v034Completedate"].ToString();
-                        _Screening.v035ExamStatus = dr["v035ExamStatus"].ToString();
-                        _Screening.h036Date = dr["h036Date"].ToString();
-                        _Screening.h037Results = dr["h037Results"].ToString();
-                        _Screening.h038Comments = dr["h038Comments"].ToString();
-                        _Screening.h039DateR1 = dr["h039DateR1"].ToString();
-                        _Screening.h040ResultsR1 = dr["h040ResultsR1"].ToString();
-                        _Screening.h041CommentsR1 = dr["h041CommentsR1"].ToString();
-                        _Screening.h042DateR2 = dr["h042DateR2"].ToString();
-                        _Screening.h043ResultsR2 = dr["h043ResultsR2"].ToString();
-                        _Screening.h044CommentsR2 = dr["h044CommentsR2"].ToString();
-                        _Screening.h045ReferralDate = dr["h045ReferralDate"].ToString();
-                        _Screening.h046Treatment = dr["h046Treatment"].ToString();
-                        _Screening.h047TreatmentComments = dr["h047TreatmentComments"].ToString();
-                        _Screening.h048CompleteDate = dr["h048CompleteDate"].ToString();
-                        _Screening.h049ExamStatus = dr["h049ExamStatus"].ToString();
-                        _Screening.d050evDate = dr["d050evDate"].ToString();
-                        _Screening.d051NameDEV = dr["d051NameDEV"].ToString();
-                        _Screening.d052evResults = dr["d052evResults"].ToString();
-                        _Screening.d053evResultsDetails = dr["d053evResultsDetails"].ToString();
-                        _Screening.d054evDate2 = dr["d054evDate2"].ToString();
-                        _Screening.d055evResults2 = dr["d055evResults2"].ToString();
-                        _Screening.d056evReferral = dr["d056evReferral"].ToString();
-                        _Screening.d057evFOStatus = dr["d057evFOStatus"].ToString();
-                        _Screening.d058evComments = dr["d058evComments"].ToString();
-                        _Screening.d059evTool = dr["d059evTool"].ToString();
-                        _Screening.E060denDate = dr["E060denDate"].ToString();
-                        _Screening.E061denResults = dr["E061denResults"].ToString();
-                        _Screening.E062denPrevent = dr["E062denPrevent"].ToString();
-                        _Screening.E063denReferralDate = dr["E063denReferralDate"].ToString();
-                        _Screening.E064denTreatment = dr["E064denTreatment"].ToString();
-                        _Screening.E065denTreatmentComments = dr["E065denTreatmentComments"].ToString();
-                        _Screening.E066denTreatmentReceive = dr["E066denTreatmentReceive"].ToString();
-                        _Screening.s067Date = dr["s067Date"].ToString();
-                        _Screening.s068NameTCR = dr["s068NameTCR"].ToString();
-                        _Screening.s069Details = dr["s069Details"].ToString();
-                        _Screening.s070Results = dr["s070Results"].ToString();
-                        _Screening.s071RescreenTCR = dr["s071RescreenTCR"].ToString();
-                        _Screening.s072RescreenTCRDate = dr["s072RescreenTCRDate"].ToString();
-                        _Screening.s073RescreenTCRResults = dr["s073RescreenTCRResults"].ToString();
-                        _Screening.s074ReferralDC = dr["s074ReferralDC"].ToString();
-                        _Screening.s075ReferDate = dr["s075ReferDate"].ToString();
-                        _Screening.s076DCDate = dr["s076DCDate"].ToString();
-                        _Screening.s077NameDC = dr["s077NameDC"].ToString();
-                        _Screening.s078DetailDC = dr["s078DetailDC"].ToString();
-                        _Screening.s079DCDate2 = dr["s079DCDate2"].ToString();
-                        _Screening.s080DetailDC2 = dr["s080DetailDC2"].ToString();
-                        _Screening.s081FOStatus = dr["s081FOStatus"].ToString();
+                        info = new FamilyHousehold.Childhealthnutrition();
+                        info.Id = dr["ID"].ToString();
+                        info.MasterId = dr["ChildRecieveTreatment"].ToString();
+                        info.Description = dr["Description"].ToString();
+                        info.Questionid = dr["Questionid"].ToString();
+                        info.Programid = dr["Programid"].ToString();
+                        _childhealthnutrition.Add(info);
                     }
-                    //Screening changes
-                    if (_dataset.Tables[5].Rows.Count > 0)
-                    {
-                        _Screening.AddPhysical = _dataset.Tables[5].Rows[0]["PhysicalScreening"].ToString();
-                        _Screening.AddVision = _dataset.Tables[5].Rows[0]["Vision"].ToString();
-                        _Screening.AddHearing = _dataset.Tables[5].Rows[0]["Hearing"].ToString();
-                        _Screening.AddDental = _dataset.Tables[5].Rows[0]["Dental"].ToString();
-                        _Screening.AddDevelop = _dataset.Tables[5].Rows[0]["Developmental"].ToString();
-                        _Screening.AddSpeech = _dataset.Tables[5].Rows[0]["Speech"].ToString();
-                        _Screening.ScreeningAcceptFileName = _dataset.Tables[5].Rows[0]["AcceptFileUl"].ToString();
-                        _Screening.PhysicalFileName = _dataset.Tables[5].Rows[0]["PhyImageUl"].ToString();
-                        _Screening.HearingFileName = _dataset.Tables[5].Rows[0]["HearingPicUl"].ToString();
-                        _Screening.DentalFileName = _dataset.Tables[5].Rows[0]["DentalPicUl"].ToString();
-                        _Screening.DevelopFileName = _dataset.Tables[5].Rows[0]["DevePicUl"].ToString();
-                        _Screening.VisionFileName = _dataset.Tables[5].Rows[0]["VisionPicUl"].ToString();
-                        _Screening.SpeechFileName = _dataset.Tables[5].Rows[0]["SpeechPicUl"].ToString();
-                        _Screening.ParentAppID = Convert.ToInt32(_dataset.Tables[5].Rows[0]["ID"].ToString());
-                        _Screening.Parentname = _dataset.Tables[5].Rows[0]["ParentName"].ToString();
-                        _Screening.Consolidated = Convert.ToInt32(_dataset.Tables[5].Rows[0]["Consolidated"].ToString());
-
-                        //Get screening scan document
-                        _Screening.PhysicalImagejson = _dataset.Tables[5].Rows[0]["PhyImage"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]);
-                        _Screening.PhysicalFileExtension = _dataset.Tables[5].Rows[0]["PhyFileExtension"].ToString();
-                        string Url = Guid.NewGuid().ToString();
-                        if (_Screening.PhysicalFileName != "" && _Screening.PhysicalFileExtension == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])_dataset.Tables[5].Rows[0]["PhyImage"], 0, ((byte[])_dataset.Tables[5].Rows[0]["PhyImage"]).Length);
-                            file.Close();
-                            _Screening.PhysicalImagejson = "/TempAttachment/" + Url + ".pdf";
-
-                        }
-                        Url = "";
-                        _Screening.VisionImagejson = _dataset.Tables[5].Rows[0]["VisionPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]);
-                        _Screening.VisionFileExtension = _dataset.Tables[5].Rows[0]["VisionFileExtension"].ToString();
-                        Url = Guid.NewGuid().ToString();
-                        if (_Screening.VisionFileName != "" && _Screening.VisionFileExtension == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])_dataset.Tables[5].Rows[0]["VisionPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["VisionPic"]).Length);
-                            file.Close();
-                            _Screening.VisionImagejson = "/TempAttachment/" + Url + ".pdf";
-
-                        }
-                        Url = "";
-                        _Screening.HearingImagejson = _dataset.Tables[5].Rows[0]["HearingPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]);
-                        _Screening.HearingFileExtension = _dataset.Tables[5].Rows[0]["HearingFileExtension"].ToString();
-                        Url = Guid.NewGuid().ToString();
-                        if (_Screening.HearingFileName != "" && _Screening.HearingFileExtension == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])_dataset.Tables[5].Rows[0]["HearingPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["HearingPic"]).Length);
-                            file.Close();
-                            _Screening.HearingImagejson = "/TempAttachment/" + Url + ".pdf";
-
-                        }
-                        Url = "";
-                        _Screening.DevelopImagejson = _dataset.Tables[5].Rows[0]["DevePic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DevePic"]);
-                        _Screening.DevelopFileExtension = _dataset.Tables[5].Rows[0]["DeveFileExtension"].ToString();
-                        Url = Guid.NewGuid().ToString();
-                        if (_Screening.DevelopFileName != "" && _Screening.DevelopFileExtension == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])_dataset.Tables[5].Rows[0]["DevePic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DevePic"]).Length);
-                            file.Close();
-                            _Screening.DevelopImagejson = "/TempAttachment/" + Url + ".pdf";
-
-                        }
-                        Url = "";
-                        _Screening.DentalImagejson = _dataset.Tables[5].Rows[0]["DentalPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]);
-                        _Screening.DentalFileExtension = _dataset.Tables[5].Rows[0]["DentalPicExtension"].ToString();
-                        Url = Guid.NewGuid().ToString();
-                        if (_Screening.DentalFileName != "" && _Screening.DentalFileExtension == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])_dataset.Tables[5].Rows[0]["DentalPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["DentalPic"]).Length);
-                            file.Close();
-                            _Screening.DentalImagejson = "/TempAttachment/" + Url + ".pdf";
-
-                        }
-                        Url = "";
-                        _Screening.SpeechImagejson = _dataset.Tables[5].Rows[0]["SpeechPic"].ToString() == "" ? "" : Convert.ToBase64String((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]);
-                        _Screening.SpeechFileExtension = _dataset.Tables[5].Rows[0]["SpeechFileExtension"].ToString();
-
-                        Url = Guid.NewGuid().ToString();
-                        if (_Screening.SpeechFileName != "" && _Screening.SpeechFileExtension == ".pdf")
-                        {
-                            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                            file.Write((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"], 0, ((byte[])_dataset.Tables[5].Rows[0]["SpeechPic"]).Length);
-                            file.Close();
-                            _Screening.SpeechImagejson = "/TempAttachment/" + Url + ".pdf";
-
-                        }
-                        //END
-                    }
-                    obj._Screening = _Screening;
+                    obj._Childhealthnutrition = _childhealthnutrition;
                 }
+
+                //if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
+                //{
+                //    List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
+                //    FamilyHousehold.Childcustomscreening info = null;
+                //    foreach (DataRow dr in _dataset.Tables[6].Rows)
+                //    {
+                //        info = new FamilyHousehold.Childcustomscreening();
+                //        info.QuestionID = dr["QuestionID"].ToString();
+                //        info.Screeningid = dr["Screeningid"].ToString();
+                //        info.Value = dr["Value"].ToString();
+                //        info.QuestionAcronym = dr["QuestionAcronym"].ToString();
+                //        info.optionid = dr["optionid"].ToString();
+                //        info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
+                //        string Url = Guid.NewGuid().ToString();
+                //        if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
+                //        {
+                //            System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
+                //            file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
+                //            file.Close();
+                //            info.pdfpath = "/TempAttachment/" + Url + ".pdf";
+                //        }
+                //        else
+                //        {
+                //            info.pdfpath = "";
+                //            info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
+                //        }
+                //        _Childcustomscreenings.Add(info);
+                //    }
+                //    obj._childscreenings = _Childcustomscreenings;
+                //}
+
+                //if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
+                //{
+                //    List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
+                //    CustomScreeningAllowed info = null;
+                //    foreach (DataRow dr in _dataset.Tables[7].Rows)
+                //    {
+                //        info = new CustomScreeningAllowed();
+                //        info.ScreeningAllowed = dr["Screeningallowed"].ToString();
+                //        info.Screeningid = dr["Screeningid"].ToString();
+                //        info.ScreeningName = dr["screeningname"].ToString();
+                //        _CustomScreeningAllowed.Add(info);
+                //    }
+                //    obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
+                //}
+
+
             }
-            if (_dataset.Tables[4].Rows.Count > 0)
-            {
-                List<FamilyHousehold.Childhealthnutrition> _childhealthnutrition = new List<FamilyHousehold.Childhealthnutrition>();
-                FamilyHousehold.Childhealthnutrition info = null;
-                foreach (DataRow dr in _dataset.Tables[4].Rows)
-                {
-                    info = new FamilyHousehold.Childhealthnutrition();
-                    info.Id = dr["ID"].ToString();
-                    info.MasterId = dr["ChildRecieveTreatment"].ToString();
-                    info.Description = dr["Description"].ToString();
-                    info.Questionid = dr["Questionid"].ToString();
-                    info.Programid = dr["Programid"].ToString();
-                    _childhealthnutrition.Add(info);
-                }
-                obj._Childhealthnutrition = _childhealthnutrition;
-            }
-
-            if (_dataset.Tables[6] != null && _dataset.Tables[6].Rows.Count > 0)
-            {
-                List<FamilyHousehold.Childcustomscreening> _Childcustomscreenings = new List<FamilyHousehold.Childcustomscreening>();
-                FamilyHousehold.Childcustomscreening info = null;
-                foreach (DataRow dr in _dataset.Tables[6].Rows)
-                {
-                    info = new FamilyHousehold.Childcustomscreening();
-                    info.QuestionID = dr["QuestionID"].ToString();
-                    info.Screeningid = dr["Screeningid"].ToString();
-                    info.Value = dr["Value"].ToString();
-                    info.QuestionAcronym = dr["QuestionAcronym"].ToString();
-                    info.optionid = dr["optionid"].ToString();
-                    info.ScreeningDate = dr["ScreeningDate"].ToString() != "" ? Convert.ToDateTime(dr["ScreeningDate"]).ToString("MM/dd/yyyy") : "";
-                    string Url = Guid.NewGuid().ToString();
-                    if (dr["DocumentName"].ToString() != "" && dr["DocumentExtension"].ToString() == ".pdf")
-                    {
-                        System.IO.FileStream file = System.IO.File.Create(serverpath + "//" + Url + ".pdf");
-                        file.Write((byte[])dr["Documentdata"], 0, ((byte[])dr["Documentdata"]).Length);
-                        file.Close();
-                        info.pdfpath = "/TempAttachment/" + Url + ".pdf";
-                    }
-                    else
-                    {
-                        info.pdfpath = "";
-                        info.Documentdata = dr["Documentdata"].ToString() == "" ? "" : Convert.ToBase64String((byte[])dr["Documentdata"]);
-                    }
-                    _Childcustomscreenings.Add(info);
-                }
-                obj._childscreenings = _Childcustomscreenings;
-            }
-
-            if (_dataset.Tables[7] != null && _dataset.Tables[7].Rows.Count > 0)
-            {
-                List<CustomScreeningAllowed> _CustomScreeningAllowed = new List<CustomScreeningAllowed>();
-                CustomScreeningAllowed info = null;
-                foreach (DataRow dr in _dataset.Tables[7].Rows)
-                {
-                    info = new CustomScreeningAllowed();
-                    info.ScreeningAllowed = dr["Screeningallowed"].ToString();
-                    info.Screeningid = dr["Screeningid"].ToString();
-                    info.ScreeningName = dr["screeningname"].ToString();
-                    _CustomScreeningAllowed.Add(info);
-                }
-                obj._CustomScreeningAlloweds = _CustomScreeningAllowed;
-            }
-
-
-
 
         }
 
@@ -14800,6 +14858,255 @@ namespace FingerprintsData
             }
             return isResult;
         }
+
+
+        public Screening GetScreeningDataByRefProg(string clientID, string refProg, string serverPath)
+        {
+
+            Screening screening = new Screening();
+            screening.ScreeningList = new List<ScreeningNew>();
+            screening.ParentList = new List<SelectListItem>();
+            screening.ScreeningQuestions = new List<ScreeningQ>();
+            screening.ScreeningPeriodsList = new List<ScreeningPeriods>();
+
+
+            StringBuilder urlString = new StringBuilder();
+
+            urlString.Clear();
+
+
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection)
+                {
+                    command.Parameters.Clear();
+                    command.Connection = Connection;
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", clientID));
+                    command.Parameters.Add(new SqlParameter("@ReferenceProgramID", refProg));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetScreeningByRefProgram";
+                    Connection.Open();
+                    DataAdapter = new SqlDataAdapter(command);
+                    _dataset = new DataSet();
+                    DataAdapter.Fill(_dataset);
+                    Connection.Close();
+
+                }
+
+                if (_dataset != null && _dataset.Tables.Count > 0)
+                {
+                    if (_dataset.Tables[0].Rows.Count > 0)
+                    {
+                        screening.ClientID = Convert.ToInt16(_dataset.Tables[0].Rows[0]["ClientID"]);
+                        // screening.Parentname = Convert.ToString(_dataset.Tables[0].Rows[0]["ParentName"]);
+                        screening.Consolidated = Convert.ToInt16(_dataset.Tables[0].Rows[0]["Consolidated"]);
+                        screening.TypeScreening = Convert.ToInt16(refProg);
+
+                        screening.ParentSignature = String.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ParentSignature"].ToString()) ? "" : Convert.ToString(_dataset.Tables[0].Rows[0]["ParentSignature"]);
+                        screening.ScreeningAcceptImagejson = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["AcceptanceForm"].ToString()) ? "" : Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["AcceptanceForm"]);
+                        screening.ScreeningAcceptFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["AcceptFileExtension"]);
+                        screening.ScreeningAcceptFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["AcceptFileUl"]);
+                        urlString.Clear().Append(Guid.NewGuid().ToString());
+
+                        if (!string.IsNullOrEmpty(screening.ScreeningAcceptFileName))
+                        {
+                            System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + screening.ScreeningAcceptFileExtension);
+                            file.Write((byte[])_dataset.Tables[0].Rows[0]["AcceptanceForm"], 0, ((byte[])_dataset.Tables[0].Rows[0]["AcceptanceForm"]).Length);
+                            file.Close();
+                            screening.ScreeningAcceptImageUrl = "/TempAttachment/" + urlString + screening.ScreeningAcceptFileExtension;
+
+                        }
+                        screening.ParentAppID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
+
+
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            ScreeningNew newScreening = new ScreeningNew();
+                            newScreening.ScreeningID = Convert.ToInt16(dr["ScreeningID"]);
+                            newScreening.ScreeningName = Convert.ToString(dr["ScreeningName"]);
+                            newScreening.ParentAppID = Convert.ToInt32(dr["ID"]);
+                            newScreening.ApprovedFileName = Convert.ToString(dr["ApprovalFileUl"]);
+                            newScreening.ApprovedFileExtension = Convert.ToString(dr["ApprovalFileExtension"]);
+                            newScreening.Approved = Convert.ToInt16(dr["Approved"]);
+                            urlString.Clear().Append(Guid.NewGuid().ToString());
+
+                            newScreening.ApprovedImageJson = string.IsNullOrEmpty(dr["ApprovalForm"].ToString()) ? "" : Convert.ToBase64String((byte[])dr["ApprovalForm"]);
+
+                            if (!string.IsNullOrEmpty(newScreening.ApprovedFileName))
+                            {
+                                System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + newScreening.ApprovedFileExtension);
+                                file.Write((byte[])dr["ApprovalForm"], 0, ((byte[])dr["ApprovalForm"]).Length);
+                                file.Close();
+                                newScreening.ApprovedImageUrl = "/TempAttachment/" + urlString + newScreening.ApprovedFileExtension;
+                            }
+                            newScreening.NoDocument = Convert.ToBoolean(dr["NoDocument"]);
+                            newScreening.LastScreeningCompleted = Convert.ToInt32(dr["LastScreeningCompleted"]);
+
+
+                            screening.ScreeningList.Add(newScreening);
+
+                        }
+
+
+
+                    }
+
+                    if (_dataset.Tables[1] != null && _dataset.Tables[1].Rows.Count > 0 && screening != null && screening.ScreeningList.Count > 0)
+                    {
+
+                        var screeningIDList = screening.ScreeningList.Select(x => x.ScreeningID).Distinct().ToList();
+
+                        if (screeningIDList != null && screeningIDList.Count > 0)
+                        {
+                            foreach (var item in screeningIDList)
+                            {
+
+
+
+                                var qnIDList = _dataset.Tables[1].AsEnumerable().Where(x => x.Field<int>("ScreeningID") == item).Select(x => x.Field<int>("QuestionID")).Distinct().ToList();
+
+                                List<Questions> questions = new List<Questions>();
+
+                                foreach (var qn in qnIDList)
+                                {
+
+                                    var qnList = _dataset.Tables[1].AsEnumerable().Where(x => x.Field<int>("QuestionID") == qn).ToList();
+
+
+
+                                    Questions qns = new Questions
+                                    {
+                                        Question = qnList[0].Field<string>("Question"),
+                                        QuestionId = qnList[0].Field<int>("QuestionID"),
+                                        QuestionType = qnList[0].Field<int>("QuestionType").ToString(),
+                                        QuestionOrder = Convert.ToDouble(qnList[0].Field<string>("QuestionOrder")),
+                                        Required = Convert.ToBoolean(qnList[0].Field<bool>("Required")),
+
+                                        OptionList = qnList[0].Field<int>("QuestionType") == 1 || qnList[0].Field<int>("QuestionType") == 3 || qnList[0].Field<int>("QuestionType") == 4 ? qnList.Select(x => new Options
+                                        {
+                                            Option = x.Field<string>("OptionName"),
+                                            OptionId = Convert.ToInt32(x.Field<long>("OptionID")),
+                                            OptionValue=x.Field<int>("OptionValue"),
+                                            IsChecked = x.Field<string>("Value") == Convert.ToString(x.Field<long>("OptionID")),
+
+                                        }).Where(x => x.OptionId != 0).ToList() : new List<Options>(),
+                                        OptionValue = qnList[0].Field<string>("Value")
+
+
+                                    };
+
+
+                                    if (qns.QuestionType == "1" || qns.QuestionType == "3" || qns.QuestionType == "4")
+                                    {
+                                        qns.OptionList.Insert(0, new Options
+                                        {
+
+                                            Option = string.Empty,
+                                            OptionId = 0,
+                                            IsChecked = false
+
+                                        });
+                                    }
+
+
+
+                                    questions.Add(qns);
+
+
+
+                                }
+
+
+                                //question.Questionlist = (from DataRow dr2 in _dataset.Tables[1].Rows
+                                //                         where Convert.ToInt32(dr2["ScreeningID"]) == item
+                                //                         select new Questions
+                                //                         {
+                                //                             Question = Convert.ToString(dr2["Question"]),
+                                //                             QuestionId=Convert.ToInt32(dr2["QuestionID"]),
+                                //                             QuestionType=Convert.ToString(dr2["QuestionType"]),
+                                //                             QuestionOrder=Convert.ToDouble(dr2["QuestionOrder"]),
+                                //                             Required=Convert.ToBoolean(dr2["Required"]),
+                                //                             OptionList=(from DataRow dr3 in _dataset.Tables[1].Rows
+                                //                                         where Convert.ToInt32(dr2["QuestionID"])==Convert.ToInt32(dr3["QuestionID"])
+                                //                                         select new Options
+                                //                                         {
+                                //                                             Option=Convert.ToString(dr3["OptionName"]),
+                                //                                             OptionId=Convert.ToInt32(dr3["OptionID"]),
+                                //                                             OptionValue=Convert.ToString(dr3["Value"])
+                                //                                         }).OrderBy(x=>x.OptionId).Distinct().ToList()
+                                //                         }).OrderBy(x=>x.QuestionOrder).Distinct().ToList();
+
+                                questions.OrderBy(x => x.QuestionOrder).ToList();
+
+
+                                screening.ScreeningList[screening.ScreeningList.FindIndex(x => x.ScreeningID == item)].Questionlist = questions;
+
+
+
+
+
+                                // screening.ScreeningQuestions.Add(question);
+                            }
+                        }
+
+
+                    }
+
+                    if (_dataset.Tables[2] != null && _dataset.Tables[2].Rows.Count > 0)
+                    {
+                        screening.ParentList = (from DataRow dr in _dataset.Tables[2].Rows
+                                                select new SelectListItem
+                                                {
+                                                    Text = dr["ParentName"].ToString(),
+                                                    Value = dr["ParentID"].ToString(),
+                                                    Selected = Convert.ToBoolean(dr["IsChecked"])
+                                                }
+
+                                              ).ToList();
+
+
+
+                        screening.ScreeningParentID = screening.ParentList.Any(x => x.Selected == true) ? screening.ParentList.Where(x => x.Selected == true).Select(x => x.Value).First() : "0";
+                    }
+
+                    if (_dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
+                    {
+                        screening.ScreeningPeriodsList = (from DataRow dr4 in _dataset.Tables[3].Rows
+                                                          select new ScreeningPeriods
+                                                          {
+                                                              ScreeningPeriodIndex=Convert.ToInt64(dr4["ScreeningPeriodIndex"]),
+                                                              ScreeningPeriod = Convert.ToDouble(dr4["ScreeningPeriod"]),
+                                                              Description = Convert.ToString(dr4["Description"]),
+                                                              ScreeningPeriodFor = Convert.ToInt32(dr4["ScreeningPeriodFor"])
+                                                          }
+                                                        ).ToList();
+
+                        screening.ScreeningPeriodsList.Insert(0, new ScreeningPeriods());
+                    }
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return screening;
+        }
         public AgencyStaff SaveFamilyAdvocate(string HouseholdId, string FamilyAdvocateID)
         {
             AgencyStaff familystaff = new AgencyStaff();
@@ -14955,6 +15262,135 @@ namespace FingerprintsData
 
         }
 
+
+        public string GetAgeYearsByDate(string dateString, string clientID)
+        {
+
+            string ageString = string.Empty;
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", EncryptDecrypt.Decrypt64(clientID)));
+                    command.Parameters.Add(new SqlParameter("@CurrentDate", dateString));
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_GetAgeYearsByDate";
+                    Connection.Open();
+                    ageString = command.ExecuteScalar().ToString();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return ageString;
+        }
+
+
+        public Screening SaveScreeningDocument(Screening scr, string serverPath)
+        {
+
+
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+                StringBuilder urlString = new StringBuilder();
+
+                if (Connection.State == ConnectionState.Open)
+                {
+                    Connection.Close();
+                }
+
+
+                DataTable tbAttach = new DataTable();
+
+                tbAttach.Columns.AddRange(new DataColumn[5]
+                {
+                    new DataColumn("IndexID",typeof(long)),
+                    new DataColumn("Attachment",typeof(byte[])),
+                    new DataColumn("AttachmentName",typeof(string)),
+                    new DataColumn("AttachmentExtension",typeof(string)),
+                    new DataColumn("Status",typeof(bool))
+                });
+
+                tbAttach.Rows.Add(0
+                                 , scr.ScreeningAcceptImageByte
+                                 , scr.ScreeningAcceptFileName
+                                 , scr.ScreeningAcceptFileExtension
+                                 , 1);
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", scr.ClientID));
+                    command.Parameters.Add(new SqlParameter("@ScreeningID", scr.Screeningid));
+                    command.Parameters.Add(new SqlParameter("@ScreeningPeriodIndex", scr.ScreeningPeriodIndex));
+                    command.Parameters.Add(new SqlParameter("@tblAttachment", tbAttach));
+                    command.Parameters.Add(new SqlParameter("@CustomScreeningPeriod", scr.CustomScreeningPeriod));
+                    command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
+                    command.Connection = Connection;
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_SaveScreeningDocument";
+                    Connection.Open();
+                    if (Convert.ToInt32(command.ExecuteNonQuery()) > 0 && command.Parameters["@result"].Value.ToString() == "1")
+                    {
+                        scr.ScreeningAcceptImagejson = string.IsNullOrEmpty(scr.ScreeningAcceptFileName) ? "" : Convert.ToBase64String(scr.ScreeningAcceptImageByte);
+
+
+                        if (!string.IsNullOrEmpty(scr.ScreeningAcceptFileName))
+                        {
+                            System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + scr.ScreeningAcceptFileExtension);
+                            file.Write(scr.ScreeningAcceptImageByte, 0, (scr.ScreeningAcceptImageByte.Length));
+                            file.Close();
+                            scr.ScreeningAcceptImageUrl = "/TempAttachment/" + urlString + scr.ScreeningAcceptFileExtension;
+                        }
+                    }
+                    else
+                    {
+                        scr.ScreeningAcceptImagejson = string.Empty;
+                    }
+                    Connection.Close();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            return scr;
+        }
+
+
         #region Gets client approved and rejected by Acceptance staffs
 
 
@@ -15080,5 +15516,137 @@ namespace FingerprintsData
 
 
         #endregion
+
+        #region Saves the Screening Approval and initial Screening Question update only based on the Client 
+        public bool SaveScreeningApprovalByClient(ref FamilyHousehold obj, Screening _screen, int saveCommand)
+        {
+            bool isRowsAffected = false;
+            try
+            {
+                StaffDetails staff = StaffDetails.GetInstance();
+
+
+                #region screening question option
+                DataTable dt6 = new DataTable();
+                dt6.Columns.AddRange(new DataColumn[3] {
+                    new DataColumn("ScreeningID",typeof(Int32)),
+                    new DataColumn("QuestionID",typeof(Int32)),
+                    new DataColumn("Value",typeof(string)),
+                    });
+                #endregion
+
+                foreach (var s in _screen.ScreeningList)
+                {
+
+                    foreach (var qn in s.Questionlist)
+                    {
+
+                        if (qn.OptionValue != null && qn.OptionValue != "" && qn.OptionValue != "0")
+                        {
+                            dt6.Rows.Add(s.ScreeningID, qn.QuestionId, qn.OptionValue);
+
+                        }
+
+                    }
+
+                }
+
+
+                #region Screening Parent Approval
+
+                DataTable dtScr = new DataTable();
+
+                dtScr.Columns.AddRange(new DataColumn[12] {
+                    new DataColumn("ScreeningID",typeof(int)),
+                    new DataColumn("AcceptanceForm",typeof(byte[])),
+                    new DataColumn("AcceptFileUl",typeof(string)),
+                    new DataColumn("AcceptFileExtension",typeof(string)),
+                    new DataColumn("Approved",typeof(int)),
+                    new DataColumn("ApprovalForm",typeof(byte[])),
+                    new DataColumn("ApprovalFileUl",typeof(string)),
+                    new DataColumn("ApprovalFileExtension",typeof(string)),
+                    new DataColumn("ParentID",typeof(long)),
+                    new DataColumn("ParentSignature",typeof(string)),
+                    new DataColumn("NoDocument",typeof(bool)),
+                    new DataColumn("LatestScreening",typeof(int))
+
+                });
+
+
+
+                for (int scr = 0; scr < _screen.ScreeningList.Count; scr++)
+                {
+
+
+                    dtScr.Rows.Add(_screen.ScreeningList[scr].ScreeningID,
+
+                                  _screen.ScreeningAcceptImageByte,
+                                  _screen.ScreeningAcceptFileName,
+                                  _screen.ScreeningAcceptFileExtension,
+                                  _screen.ScreeningList[scr].Approved,
+
+                                  _screen.ScreeningList[scr].ApprovedImageByte,
+                                  _screen.ScreeningList[scr].ApprovedFileName,
+                                  _screen.ScreeningList[scr].ApprovedFileExtension,
+
+                                  _screen.ScreeningParentID,
+                                  _screen.ParentSignature,
+                                  _screen.ScreeningList[scr].NoDocument,
+                                  _screen.ScreeningList[scr].LastScreeningCompleted
+
+
+                        );
+
+                }
+
+                #endregion
+
+
+
+
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@saveCommand", saveCommand));
+                    command.Parameters.Add(new SqlParameter("@HouseholdId", obj.HouseholdId));
+                    command.Parameters.Add(new SqlParameter("@ClientID", obj.ChildId));
+                    command.Parameters.Add(new SqlParameter("@tblscreening", dt6));
+                    command.Parameters.Add(new SqlParameter("@tblParentApproval", dtScr));
+                    command.Parameters.Add(new SqlParameter("@Consolidated", _screen.Consolidated));
+                    command.Parameters.Add(new SqlParameter("@ParentName", _screen.Parentname));
+                    command.Parameters.Add(new SqlParameter("@Roleid", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = "USP_SaveScreeningApprovalByClient";
+                    Connection.Open();
+                    isRowsAffected = (command.ExecuteNonQuery() > 0);
+                    Connection.Close();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+
+            }
+            finally
+            {
+                Connection.Close();
+                command.Dispose();
+            }
+            return isRowsAffected;
+
+        }
+
+
+
+        #endregion
+
     }
 }

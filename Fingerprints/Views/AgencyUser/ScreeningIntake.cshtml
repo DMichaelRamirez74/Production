@@ -1,6 +1,6 @@
 ﻿@model FingerprintsModel.CustomScreeningIntake
 
-<div class="modal fade scroll-modal" id="ApplicationScreening" role="dialog">
+<div class="modal fade scroll-modal" id="ApplicationScreening" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog income-popup width-auto">
         <!-- Modal content-->
         <div class="modal-content">
@@ -9,16 +9,52 @@
 
                 <div class="col-sm-5 col-xs-12 pull-right" style="padding-right:0;">
                     <div class="btnwrp_subcal" style="padding:0; margin:0;">
-                        <button type="button" class="my-btn pull-right" data-dismiss="modal" tabindex="8">Exit</button>
-                        <button type="button" onclick="isValidscreening()" id="SaveScreening" value="SaveScreening" class="my-btn pull-right" tabindex="8">Save</button>
+                        <button type="button" class="my-btn pull-right btn-scr-exit" tabindex="8">Exit</button>
+                        @*<button type="button" onclick="isValidscreening()" id="SaveScreening" value="SaveScreening" class="my-btn pull-right" tabindex="8">Save</button>*@
                         <div class="clear"></div>
-                    </div>	
+                    </div>
                 </div>
 
             </div>
-            <div class="control-group">
-                @{Html.RenderAction("AddScreening", "Screening", new {CustomScreening=Model.CustomScreenings });}
+            <div class="control-group" id="screeningDivStart">
+                @*@{Html.RenderAction("AddScreening", "Screening", new {CustomScreening=Model.CustomScreenings });}*@
             </div>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(function () {
+
+
+        $('.btn-scr-exit').on('click', function (ele) {
+
+            BootstrapDialog.show({
+                message: 'Any unsaved screening data will be lost. Click OK to proceed.',
+                closable: false,
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+
+
+                buttons: [{
+                    label: 'Cancel',
+                    action: function (dialogItself) {
+                        dialogItself.close();
+                    }
+                }, {
+                    label: 'OK',
+                    action: function (dialog) {
+                        debugger;
+                        $('#ApplicationScreening').modal('hide');
+
+                        dialog.close();
+                    },
+
+                }]
+
+
+            });
+
+        });
+    });
+    </script>

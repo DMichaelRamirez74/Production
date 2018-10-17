@@ -11,7 +11,7 @@ function getADASeatsDaily() {
 
             if (result != null) {
                 if ($('.ada-p').length > 0 && result.adaPercentage != undefined && result.adaPercentage != null && result.adaPercentage != '') {
-                    $('.ada-p').html(result.adaPercentage+' %');
+                    $('.ada-p').html(result.adaPercentage + ' %');
                 }
 
                 if ($('.seats-p').length > 0 && result.todaySeats != undefined && result.todaySeats != null && result.todaySeats != '') {
@@ -57,11 +57,11 @@ $(function () {
 
     });
 
-    
+  
 
 
     $(document).on('click', '.slots-icon', function () {
-       
+
         $('#slotsDatetimePicker').datetimepicker('show');
     });
 
@@ -69,7 +69,9 @@ $(function () {
 
         $('#seatsDatetimePicker').datetimepicker('show');
     });
-    
+
+
+
 
     function getYesterdaysDate() {
         var date = new Date();

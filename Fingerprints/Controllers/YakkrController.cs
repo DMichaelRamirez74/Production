@@ -21,6 +21,7 @@ namespace Fingerprints.Controllers
          role=e4c80fc2-8b64-447a-99b4-95d1510b01e9(Home Visitor)
          */
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+       //[CustAuthFilter()]
         public ActionResult Yakkr()
         {
             //if (!String.IsNullOrWhiteSpace(Convert.ToString(Session["AgencyID"])))
@@ -172,13 +173,9 @@ namespace Fingerprints.Controllers
         }
 
         [HttpGet]
+        [CustAuthFilter()]
         public ActionResult YakkrDetails()
         {
-
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Loginagency", "Login");
-            }
 
             List<YakkrDetail> listYakkr = new List<FingerprintsModel.YakkrDetail>();
             try
@@ -206,7 +203,7 @@ namespace Fingerprints.Controllers
                 ViewBag.YakkrCode = YakkrCode;
                 string Status = "1";
 
-                listYakkr = new YakkrData().GetYakkrListByCode(new Guid(Session["AgencyID"].ToString()), new Guid(Session["UserID"].ToString()), YakkrCode.ToString(), Status);
+                listYakkr = new YakkrData().GetYakkrListByCode(YakkrCode.ToString(), Status);
 
                 if (listYakkr.Count() == 0)
                 {

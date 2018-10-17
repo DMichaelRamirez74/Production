@@ -32,15 +32,19 @@ $('.ReferralServiceName').click(function () {
     var step = 2;
 
     var Step = $(this).attr('data-stepId');
+    
 
     var ClientId = $('#ClientId').val();
+
+    var screeningRefYakkr = $(this).parent('span').siblings('#screeningReferralYakkr').val().trim();
+
     if (parseInt(Step) === 2) {      
 
-        window.location.href = "/Roster/ReferralCategory?id=" + $('#id').val() + "&ReferralClientId=" + ReferralClientId + "&Step=" + 2 + "&clientName=" + $('#clientName').val() + "&parentName=" + ParentName;
+        window.location.href = "/Roster/ReferralCategory?id=" + $('#id').val() + "&ReferralClientId=" + ReferralClientId + "&Step=" + 2 + "&clientName=" + $('#clientName').val() + "&parentName=" + ParentName + "&ScreeningReferralYakkr=" + screeningRefYakkr;
     }
     else if (parseInt(Step) === 3) {
         //window.location.href = "/Roster/ReferralCategory?id=" + $('#id').val() + "&ReferralClientId=" + ReferralClientId + "&Step=" + 2 + "&clientName=" + $('#clientName').val() + "&parentName=" + ParentName;
-        window.location.href = "/Roster/MatchProviders?AgencyId=" + AgencyValue + "&CommunityId=" + result + "&parentName=" + ParentName + "&referralClientId=" + ReferralClientId + "&clientName=" + $('#clientName').val() + "&id=" + $('#id').val() + "&stepId=" + Step;
+        window.location.href = "/Roster/MatchProviders?AgencyId=" + AgencyValue + "&CommunityId=" + result + "&parentName=" + ParentName + "&referralClientId=" + ReferralClientId + "&clientName=" + $('#clientName').val() + "&id=" + $('#id').val() + "&stepId=" + Step + "&ScreeningReferralYakkr=" + screeningRefYakkr;
           
     }
 });

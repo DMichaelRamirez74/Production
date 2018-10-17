@@ -438,11 +438,13 @@ namespace FingerprintsData
         }
 
 
-        public List<YakkrClientDetail> GetYakkrListByCode(Guid AgencyId, Guid UserId, string YakkrCode, string Status)
+        public List<YakkrClientDetail> GetYakkrListByCode(string YakkrCode, string Status)
         {
             List<YakkrClientDetail> listDetail = new List<YakkrClientDetail>();
             try
             {
+                StaffDetails staff = StaffDetails.GetInstance();
+
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
                 Connection.Open();
@@ -450,17 +452,17 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetYakkrDetailsByUserId";
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", UserId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@YakkrCode", YakkrCode));
                 command.Parameters.Add(new SqlParameter("@Status", Status));
                 command.Parameters.Add(new SqlParameter("@Command", "YakkrDetailByCode"));
                 DataAdapter = new SqlDataAdapter(command);
                 _dataset = new DataSet();
                 DataAdapter.Fill(_dataset);
-                if (_dataset.Tables[0] != null)
+                if (_dataset!=null && _dataset.Tables.Count>0 && _dataset.Tables[0] != null)
                 {
-                    if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode != "750")
+                    if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode != "750" && YakkrCode !="455")
                     {
                         foreach (DataRow dr in _dataset.Tables[0].Rows)
                         {
@@ -482,6 +484,31 @@ namespace FingerprintsData
                             });
                         }
                     }
+
+                    #region Modal assignment for Screening Referral
+                    else if (_dataset.Tables[0].Rows.Count > 0 && YakkrCode == "455")
+                    {
+                        foreach (DataRow dr in _dataset.Tables[0].Rows)
+                        {
+                            listDetail.Add(new YakkrClientDetail
+                            {
+                                YakkrCode = !string.IsNullOrEmpty(dr["YakkrCode"].ToString()) ? dr["YakkrCode"].ToString() : "",
+                                ClientName = Convert.ToString(dr["FirstName"]) + " " + Convert.ToString(dr["LastName"]),
+                                DOB = !string.IsNullOrEmpty(dr["DOB"].ToString()) ? Convert.ToString(dr["DOB"]) : "N/A",
+                                CenterName = !string.IsNullOrEmpty(dr["CenterName"].ToString()) ? dr["CenterName"].ToString() : "",
+                                FromUser = !string.IsNullOrEmpty(dr["FromUser"].ToString()) ? dr["FromUser"].ToString() : "",
+                                Date = !string.IsNullOrEmpty(dr["Date"].ToString()) ? Convert.ToString(dr["Date"]) : "N/A",
+                                ClientId = !string.IsNullOrEmpty(dr["ClientId"].ToString()) ? dr["ClientId"].ToString() : "",
+                                YakkrID = !string.IsNullOrEmpty(dr["YakkrId"].ToString()) ? dr["YakkrId"].ToString() : "",
+                                Description=Convert.ToString(dr["ScreeningName"])
+                                
+
+                            });
+                        }
+
+                    }
+                    #endregion
+
                     else if (_dataset.Tables[0].Rows.Count > 0)
                     {
                         foreach (DataRow dr in _dataset.Tables[0].Rows)

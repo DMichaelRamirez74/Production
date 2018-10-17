@@ -31,8 +31,9 @@ namespace Fingerprints.Controllers
         role=e4c80fc2-8b64-447a-99b4-95d1510b01e9(Home Visitor)
         */
         agencyData _Data = new agencyData();
-        HomevisitorData hvdata = new HomevisitorData();
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        HomevisitorData homeVisitorData = new HomevisitorData();
+     
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public ActionResult Classrooms()
         {
             try
@@ -47,12 +48,12 @@ namespace Fingerprints.Controllers
             return View();
         }
 
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public ActionResult HomeBasedSocialization()
         {
             try
             {
-                ViewBag.HomeBasedlist = _Data.HomeBasedsocialization(Convert.ToString(Session["UserID"]), Convert.ToString(Session["AgencyID"]));
+                ViewBag.HomeBasedlist = new agencyData().HomeBasedsocialization(Convert.ToString(Session["UserID"]), Convert.ToString(Session["AgencyID"]));
                 return View();
             }
             catch (Exception Ex)
@@ -61,27 +62,21 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public ActionResult Scheduler()
         {
 
             return View();
         }
 
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public JsonResult getevents()
         {
             try
             {
                 List<Scheduler> m = new List<Scheduler>();
-                string userid = Session["UserID"].ToString();
-                string agencyid = Session["AgencyID"].ToString();
-                m = new HomevisitorData().getUserEvents(userid, agencyid);
-                // {
-                // new Scheduler(){title="All Day Event",start="2016-12-07",allDay=true},
-                //new Scheduler(){title="Long Event",start="2017-01-07",end= "2017-01-10"},
-                // new Scheduler(){title="Normal Event",start="2017-01-10",end= "2017-01-10"}
-                // };
+                m = homeVisitorData.getUserEvents();
+               
                 return Json(m, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -93,16 +88,15 @@ namespace Fingerprints.Controllers
             //  return Json(m);
         }
 
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public JsonResult getclients()
         {
             List<customclient> list = new List<customclient>();
             try
             {
-                string userid = Session["UserID"].ToString();
-                string agencyid = Session["AgencyID"].ToString();
-                string roleId = Session["RoleId"].ToString();
-                DataSet ds = new HomevisitorData().getclients(userid, agencyid,roleId);
+                
+                DataSet ds = homeVisitorData.getclients();
+
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
@@ -127,7 +121,7 @@ namespace Fingerprints.Controllers
 
         }
 
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public JsonResult saveEvent(Scheduler _event, FormCollection collection, Recurrence recurrence)
         {
             string result = string.Empty;
@@ -139,16 +133,9 @@ namespace Fingerprints.Controllers
                 _event.StaffId = new Guid(Session["UserId"].ToString());
                 _event.AgencyId = new Guid(Session["AgencyID"].ToString());
                 _event.MeetingDescription = _event.title;
-                string h = new HomevisitorData().saveEvent(_event);
+                string h = homeVisitorData.saveEvent(_event);
                 List<Scheduler> m = new List<Scheduler>();
-                string userid = Session["UserID"].ToString();
-                string agencyid = Session["AgencyID"].ToString();
-                m = new HomevisitorData().getUserEvents(userid, agencyid);
-                // {
-                // new Scheduler(){title="All Day Event",start="2016-12-07",allDay=true},
-                //new Scheduler(){title="Long Event",start="2017-01-07",end= "2017-01-10"},
-                // new Scheduler(){title="Normal Event",start="2017-01-10",end= "2017-01-10"}
-                // };
+                m = homeVisitorData.getUserEvents();
                 return Json(m, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -160,7 +147,7 @@ namespace Fingerprints.Controllers
         }
 
 
-        [CustAuthFilter("e4c80fc2-8b64-447a-99b4-95d1510b01e9")]
+        [CustAuthFilter(new string[] { Role.homeVisitor })]
         public ActionResult Delete(Scheduler _event)
         {
             string result = string.Empty;
@@ -172,16 +159,10 @@ namespace Fingerprints.Controllers
                 _event.StaffId = new Guid(Session["UserId"].ToString());
                 _event.AgencyId = new Guid(Session["AgencyID"].ToString());
                 _event.MeetingDescription = _event.title;
-                string h = new HomevisitorData().DeleteEvent(_event);
+                string h = homeVisitorData.DeleteEvent(_event);
                 List<Scheduler> m = new List<Scheduler>();
-                string userid = Session["UserID"].ToString();
-                string agencyid = Session["AgencyID"].ToString();
-                m = new HomevisitorData().getUserEvents(userid, agencyid);
-                // {
-                // new Scheduler(){title="All Day Event",start="2016-12-07",allDay=true},
-                //new Scheduler(){title="Long Event",start="2017-01-07",end= "2017-01-10"},
-                // new Scheduler(){title="Normal Event",start="2017-01-10",end= "2017-01-10"}
-                // };
+              
+                m = homeVisitorData.getUserEvents();
                 return Json(m, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -198,8 +179,8 @@ namespace Fingerprints.Controllers
 
             try
             {
-                string agencyId = Session["AgencyId"].ToString();
-                new HomevisitorData().GetChildDetails(ref childData, agencyId, clientId);
+
+                homeVisitorData.GetChildDetails(ref childData, clientId);
             }
             catch (Exception ex)
             {
@@ -209,7 +190,7 @@ namespace Fingerprints.Controllers
             return Json(childData);
         }
 
-
+        [CustAuthFilter()]
         public JsonResult UpdateScheduleAppointment(string scheduleString, string meetingStartTime, string meetingEndTime, string meetingDuration)
         {
             bool isResult = false;
@@ -219,11 +200,7 @@ namespace Fingerprints.Controllers
                 System.Web.Script.Serialization.JavaScriptSerializer serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
                 scheduler = serializer.Deserialize<Scheduler>(scheduleString);
                 scheduler.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(scheduler.Enc_ClientId));
-                scheduler.AgencyId = new Guid(Session["AgencyId"].ToString());
-                scheduler.StaffId = new Guid(Session["UserId"].ToString());
-                scheduler.StaffRoleId = new Guid(Session["RoleID"].ToString());
-                isResult = new HomevisitorData().UpdateScheduleAppointment(scheduler, meetingStartTime, meetingEndTime, meetingDuration);
-                var res = Session["RoleID"].ToString();
+                isResult = homeVisitorData.UpdateScheduleAppointment(scheduler, meetingStartTime, meetingEndTime, meetingDuration);
             }
             catch (Exception ex)
             {
@@ -250,9 +227,7 @@ namespace Fingerprints.Controllers
                 schedular.StartTime = startTime;
                 schedular.EndTime = endTime;
                 schedular.MeetingDate = meetingDate;
-                schedular.StaffId = new Guid(Session["UserID"].ToString());
-                schedular.AgencyId = new Guid(Session["AgencyID"].ToString());
-                isResult = new HomevisitorData().CheckAvailableAppointment(schedular);
+                isResult = homeVisitorData.CheckAvailableAppointment(schedular);
             }
             catch (Exception ex)
             {
@@ -274,10 +249,7 @@ namespace Fingerprints.Controllers
                 dates2 = serializer.Deserialize<List<string>>(listString);
                 Scheduler schedular = new FingerprintsModel.Scheduler();
                 schedular.ClientId = (clientId == null || clientId == "") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
-                schedular.StaffId = new Guid(Session["UserID"].ToString());
-                schedular.AgencyId = new Guid(Session["AgencyID"].ToString());
-
-                dates = new HomevisitorData().GetFilteredDates(dates, dates2, schedular);
+                dates = homeVisitorData.GetFilteredDates(dates, dates2, schedular);
             }
             catch (Exception ex)
             {
@@ -300,8 +272,8 @@ namespace Fingerprints.Controllers
             List<SelectListItem> familyList = new List<SelectListItem>();
             try
             {
-                string agencyId = Session["AgencyId"].ToString();
-                familyList = new HomevisitorData().GetFamiliesUnderUserId(userId, agencyId, roleId);
+            
+                familyList = homeVisitorData.GetFamiliesUnderUserId(userId, roleId);
             }
             catch (Exception ex)
             {
@@ -321,8 +293,8 @@ namespace Fingerprints.Controllers
                 schedule.AgencyId = new Guid(Session["AgencyId"].ToString());
                 schedule.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
                 schedule.MeetingDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("MM/dd/yyyy");
-                schedule.EndDate= new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1).ToString("MM/dd/yyyy");
-                schedule = new HomevisitorData().GetInitialAppointmentByClientId(ref scheduleList,schedule);
+                schedule.EndDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1).ToString("MM/dd/yyyy");
+                schedule = homeVisitorData.GetInitialAppointmentByClientId(ref scheduleList, schedule);
 
             }
             catch (Exception ex)
@@ -343,10 +315,10 @@ namespace Fingerprints.Controllers
                 schedule.MeetingDate = meetingStartdate;
                 schedule.EndDate = meetingEndDate;
                 schedule.Enc_ClientId = clientId;
-                schedule.ClientId =(clientId=="" ||clientId=="0")?0:Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
+                schedule.ClientId = (clientId == "" || clientId == "0") ? 0 : Convert.ToInt64(EncryptDecrypt.Decrypt64(clientId));
                 schedule.AgencyId = new Guid(Session["AgencyId"].ToString());
                 schedule.StaffId = new Guid(Session["UserID"].ToString());
-                schedularList = new HomevisitorData().GetHomeVisitAttendanceByFromDate(schedule);
+                schedularList = homeVisitorData.GetHomeVisitAttendanceByFromDate(schedule);
             }
             catch (Exception ex)
             {
@@ -365,13 +337,8 @@ namespace Fingerprints.Controllers
             {
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 schedulerList = serializer.Deserialize<List<Scheduler>>(scheuleString);
-                Guid agencyId = new Guid(Session["AgencyId"].ToString());
-                Guid userId = new Guid(Session["UserID"].ToString());
                 Guid homevisitor = new Guid(homeVisitorId);
-
-                isResult = new HomevisitorData().InsertHistoricalHomeVisit(schedulerList, agencyId, homevisitor, userId);
-
-
+                isResult = homeVisitorData.InsertHistoricalHomeVisit(schedulerList, homevisitor);
             }
             catch (Exception ex)
             {

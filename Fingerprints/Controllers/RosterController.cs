@@ -577,14 +577,25 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public ActionResult ReferralCategorycompany(string id, string clientName = "")
         {
+            try
+            {
+
             ViewBag.Id = id;
             ViewBag.clientName = clientName;
+            ViewBag.ScreeningReferralYakkr = String.IsNullOrEmpty(Request.QueryString["ScreeningReferralYakkr"].ToString()) ? EncryptDecrypt.Encrypt64("0") : Request.QueryString["ScreeningReferralYakkr"].ToString();
             int ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(id));
             REF obj_REF = new REF();
             var refList = new List<REF>();
             refList = RosterData.ReferralCategoryCompany(ClientId);
             obj_REF.refListData = refList;
             return View(obj_REF);
+            }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+                return View(new REF());
+            }
+        
         }
         public ActionResult ReferralCategorycompanyPopUp(string id, string clientName = "")
         {
@@ -616,6 +627,7 @@ namespace Fingerprints.Controllers
             ViewBag.Id = ReferralCategory.id;
             ViewBag.ReferalClientId = ReferralCategory.ReferralClientId;
             ViewBag.parentName = ReferralCategory.parentName;
+            ViewBag.ScreeningReferralYakkr = ReferralCategory.ScreeningReferralYakkr;
             int ClientId = 0;
             if (ReferralCategory.ReferralClientId == null)
             {
@@ -674,10 +686,18 @@ namespace Fingerprints.Controllers
                 bool Status = true;
                 int CreatedBy = Convert.ToInt32(CommanClientId_);
                 string[] serviceID_Array = SaveReferral.ServiceId.Split(',');
+
                 List<long> referralIdentity = new List<long>();
+
+                long screeningReferral = 0;
+
+                long.TryParse(string.IsNullOrEmpty(SaveReferral.ScreeningReferralYakkr) ? "0":EncryptDecrypt.Decrypt64(SaveReferral.ScreeningReferralYakkr), out screeningReferral);
+
+
+
                 foreach (var item in serviceID_Array)
                 {
-                    long referralId = RosterData.SaveReferralClient(Convert.ToInt32(item), CommanClientId_, new Guid(SaveReferral.AgencyId), Step, Status, CreatedBy, SaveReferral.referralClientId);
+                    long referralId = RosterData.SaveReferralClient(Convert.ToInt32(item), CommanClientId_, new Guid(SaveReferral.AgencyId), Step, Status, CreatedBy, SaveReferral.referralClientId, screeningReferralYakkr: screeningReferral);
                     referralIdentity.Add(referralId);
 
                 }
@@ -708,10 +728,13 @@ namespace Fingerprints.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                clsError.WriteException(ex);
+                //  throw ex;
+                return false;
             }
         }
 
+        [CustAuthFilter()]
         public bool SaveMatchProviders(ListRoster SaveProvider)
         {
             bool Success = false;
@@ -719,13 +742,14 @@ namespace Fingerprints.Controllers
             {
                 TempData.Keep("tempClientId");
                 string cId = (string.IsNullOrEmpty(SaveProvider.ClientId)) ? TempData["tempClientId"].ToString() : SaveProvider.ClientId;
-                int ClientId = Convert.ToInt32(EncryptDecrypt.Decrypt64(cId));
                 SaveProvider.Description = (SaveProvider.Description == null) ? SaveProvider.Description = "" : SaveProvider.Description;
+                SaveProvider.ClientId = EncryptDecrypt.Decrypt64(cId);
 
-                string UserId = Session["UserID"].ToString();
-                Success = RosterData.SaveMatchProviders(SaveProvider.ReferralDate, SaveProvider.Description, SaveProvider.ServiceResourceId, SaveProvider.AgencyId, UserId, ClientId, SaveProvider.CommunityId, SaveProvider.ReferralClientServiceId);
+                //  Success = RosterData.SaveMatchProviders(SaveProvider.ReferralDate, SaveProvider.Description, SaveProvider.ServiceResourceId, SaveProvider.AgencyId, UserId, ClientId, SaveProvider.CommunityId, SaveProvider.ReferralClientServiceId);
 
-                if(Success)
+                Success = RosterData.SaveMatchProviders(SaveProvider);
+
+                if (Success)
                 {
 
                     // RosterData.YakkarInsert(SaveProvider.AgencyId, UserId, ClientId);
@@ -740,6 +764,7 @@ namespace Fingerprints.Controllers
             return Success;
         }
 
+        [CustAuthFilter()]
         public bool SaveReferral(ListRoster Savereferral)
         {
             bool Success = false;
@@ -747,14 +772,19 @@ namespace Fingerprints.Controllers
             {
                 TempData.Keep("tempClientId");
                 string cId = (string.IsNullOrEmpty(Savereferral.CommonClientId)) ? TempData["tempClientId"].ToString() : Savereferral.CommonClientId;
-                // string cId = TempData["tempClientId"].ToString();
                 int commanclient = Convert.ToInt32(EncryptDecrypt.Decrypt64(cId));
+                Savereferral.CommonClientId = EncryptDecrypt.Decrypt64(cId);
+
                 int Step = 3;
 
                 long referenceID = 0;
                 bool Status = true;
-                string UserId = Session["UserID"].ToString();
-                referenceID = RosterData.SaveReferral(Savereferral.ReferralDate, Savereferral.Description == null ? "" : Savereferral.Description, Convert.ToInt32(Savereferral.ServiceResourceId), Savereferral.AgencyId, UserId, commanclient, Convert.ToInt32(Savereferral.CommunityId), Convert.ToInt32(Savereferral.ReferralClientServiceId));
+             
+                //  referenceID = RosterData.SaveReferral(Savereferral.ReferralDate, Savereferral.Description == null ? "" : Savereferral.Description, Convert.ToInt32(Savereferral.ServiceResourceId), Savereferral.AgencyId, UserId, commanclient, Convert.ToInt32(Savereferral.CommunityId), Convert.ToInt32(Savereferral.ReferralClientServiceId));
+
+                referenceID = RosterData.SaveReferral(Savereferral);
+
+
 
                 string[] ClientId_Array = Savereferral.ClientId.Split(',');
                 int count = 0;
@@ -824,6 +854,7 @@ namespace Fingerprints.Controllers
             ViewBag.Id = MatchProvider.id;
             ViewBag.ParentName = MatchProvider.parentName;
             ViewBag.StepId = stepId;
+            ViewBag.ScreeningReferralYakkr = MatchProvider.ScreeningReferralYakkr;
 
             TempData.Keep("tempClientId");
             MatchProviderModel obj_MPM = new MatchProviderModel();
@@ -887,6 +918,8 @@ namespace Fingerprints.Controllers
         {
             ViewBag.ClientName = ClientName;
             ViewBag.ClientID = id;
+            ViewBag.ScreeningReferralYakkr = Request.QueryString["scrYakkr"] != null && !string.IsNullOrEmpty(Request.QueryString["scrYakkr"].ToString())  ?  Request.QueryString["scrYakkr"].ToString() : EncryptDecrypt.Encrypt64("0");
+
             long ID = Convert.ToInt32(EncryptDecrypt.Decrypt64(id));
             ReferralServiceModel referralService = new ReferralServiceModel();
             var ReferralList = new List<ReferralServiceModel>();

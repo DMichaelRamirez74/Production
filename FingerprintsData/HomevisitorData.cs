@@ -21,9 +21,10 @@ namespace FingerprintsData
         SqlCommand command = new SqlCommand();
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
+        StaffDetails staff = StaffDetails.GetInstance();
 
 
-        public DataSet getclients(string client, string agency, string roleId)
+        public DataSet getclients()
         {
             DataSet ds = new DataSet();
             try
@@ -34,9 +35,9 @@ namespace FingerprintsData
                 cmd.CommandText = "USP_getClientsForHomeVisiter";
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@userid", client);
-                cmd.Parameters.AddWithValue("@agencyid", agency);
-                cmd.Parameters.AddWithValue("@RoleId", roleId);
+                cmd.Parameters.AddWithValue("@userid", staff.UserId);
+                cmd.Parameters.AddWithValue("@agencyid", staff.AgencyId);
+                cmd.Parameters.AddWithValue("@RoleId", staff.RoleId);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 da.Fill(ds);
 
@@ -94,7 +95,8 @@ namespace FingerprintsData
 
         }
 
-        public List<Scheduler> getUserEvents(string userid, string agencyid)
+        public List<Scheduler> getUserEvents()
+
         {
             List<Scheduler> li = new List<Scheduler>();
             try
@@ -104,10 +106,8 @@ namespace FingerprintsData
                 cmd.Connection = con;
                 cmd.CommandText = "USP_Appointment_listby_user";
                 cmd.CommandType = CommandType.StoredProcedure;
-                //cmd.Parameters.AddWithValue("@userid", obj.ClientId);
-                //cmd.Parameters.AddWithValue("@agencyid", obj.AgencyId);
-                cmd.Parameters.AddWithValue("@agencyid", agencyid);
-                cmd.Parameters.AddWithValue("@userId", userid);
+                cmd.Parameters.AddWithValue("@agencyid", staff.AgencyId);
+                cmd.Parameters.AddWithValue("@userId", staff.UserId);
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
                 da.Fill(ds);
@@ -170,8 +170,6 @@ namespace FingerprintsData
                 cmd.Connection = con;
                 cmd.CommandText = "USP_DeleteSchedule";
                 cmd.CommandType = CommandType.StoredProcedure;
-                //cmd.Parameters.AddWithValue("@userid", obj.ClientId);
-                //cmd.Parameters.AddWithValue("@agencyid", obj.AgencyId);
                 cmd.Parameters.AddWithValue("@Mode", obj.Mode);
                 cmd.Parameters.AddWithValue("@MeetingId", obj.MeetingId);
                 cmd.Parameters.AddWithValue("@ClientId", obj.ClientId);
@@ -205,14 +203,14 @@ namespace FingerprintsData
         }
 
 
-        public void GetChildDetails(ref DataSet dtTransportation, string AgencyId, string ClientId)
+        public void GetChildDetails(ref DataSet dtTransportation, string ClientId)
         {
             dtTransportation = new DataSet();
             try
             {
                 command.Parameters.Clear();
                 command.Parameters.Add(new SqlParameter("@ClientId", EncryptDecrypt.Decrypt64(ClientId)));
-                command.Parameters.Add(new SqlParameter("@AgencyId", AgencyId));
+                command.Parameters.Add(new SqlParameter("@AgencyId", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetEnrolledChildDetailsByClient";
@@ -236,25 +234,13 @@ namespace FingerprintsData
             bool isRowAffected = false;
             try
             {
-                //DataTable parentDt = new DataTable();
-                //parentDt.Columns.AddRange(new DataColumn[2] {
-                //         new DataColumn("Id", typeof(int)),
-                //    new DataColumn("ClientId",typeof(int)) });
-
-                //if (scheduler.ParentDetailsList.Count() > 0)
-                //{
-                //    for (int i = 0; i < scheduler.ParentDetailsList.Count(); i++)
-                //    {
-
-                //        parentDt.Rows.Add(i, Convert.ToInt32(scheduler.ParentDetailsList[i].ClientId));
-                //    }
-                //}
 
                 command = new SqlCommand();
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyID", scheduler.AgencyId));
-                command.Parameters.Add(new SqlParameter("@RoleId", scheduler.StaffRoleId));
-                command.Parameters.Add(new SqlParameter("@UserId", scheduler.StaffId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleId", staff.RoleId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
+
                 command.Parameters.Add(new SqlParameter("@MeetingId", scheduler.MeetingId));
                 command.Parameters.Add(new SqlParameter("@ClientId", scheduler.ClientId));
                 command.Parameters.Add(new SqlParameter("@AttendanceTypeId", scheduler.AttendanceTypeId));
@@ -264,7 +250,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@StartTime", scheduler.StartTime));
                 command.Parameters.Add(new SqlParameter("@EndTime", scheduler.EndTime));
                 command.Parameters.Add(new SqlParameter("@Duration", scheduler.Duration));
-                // command.Parameters.Add(new SqlParameter("@ParentCheckTable", parentDt));
                 command.Parameters.Add(new SqlParameter("@ParentId1", scheduler.ParentId1));
                 command.Parameters.Add(new SqlParameter("@ParentId2", scheduler.ParentId2));
                 command.Parameters.Add(new SqlParameter("@PSignature1", scheduler.PSignature1));
@@ -273,7 +258,6 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@MeetingStartTime", meetingStartTime));
                 command.Parameters.Add(new SqlParameter("@MeetingEndTime", meetingEndTime));
                 command.Parameters.Add(new SqlParameter("@MeetingDuration", meetingDuration));
-                //command.Parameters.Add(new SqlParameter("@result", string.Empty).Direction = ParameterDirection.Output;
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_UpdateScheduleHVAppointment";
@@ -303,8 +287,8 @@ namespace FingerprintsData
 
                 command = new SqlCommand();
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyID", schedular.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", schedular.StaffId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@StartTime", schedular.StartTime));
                 command.Parameters.Add(new SqlParameter("@EndTime", schedular.EndTime));
                 command.Parameters.Add(new SqlParameter("@MeetingDate", schedular.MeetingDate));
@@ -347,11 +331,12 @@ namespace FingerprintsData
             {
 
                 string datelist = string.Join(",", dates.ToArray());
+              
 
                 command = new SqlCommand();
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@AgencyID", schedular.AgencyId));
-                command.Parameters.Add(new SqlParameter("@UserId", schedular.StaffId));
+                command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                 command.Parameters.Add(new SqlParameter("@StartTime", schedular.StartTime));
                 command.Parameters.Add(new SqlParameter("@EndTime", schedular.EndTime));
                 command.Parameters.Add(new SqlParameter("@MeetingDate", datelist));
@@ -468,6 +453,7 @@ namespace FingerprintsData
 
                 if (_dataset != null)
                 {
+
                     if (_dataset.Tables[0].Rows.Count > 0)
                     {
                         schedular.ParentDetailsList = (from DataRow dr0 in _dataset.Tables[0].Rows
@@ -523,7 +509,7 @@ namespace FingerprintsData
         }
 
 
-        public List<SelectListItem> GetFamiliesUnderUserId(string userId, string agencyId, string roleId)
+        public List<SelectListItem> GetFamiliesUnderUserId(string userId, string roleId)
         {
             List<SelectListItem> usersList = new List<SelectListItem>();
             try
@@ -535,7 +521,7 @@ namespace FingerprintsData
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "USP_GetFamiliesUnderUserId";
                 command.Parameters.Clear();
-                command.Parameters.Add(new SqlParameter("@Agencyid", agencyId));
+                command.Parameters.Add(new SqlParameter("@Agencyid", staff.AgencyId));
                 command.Parameters.Add(new SqlParameter("@UserId", userId));
                 command.Parameters.Add(new SqlParameter("@RoleId", roleId));
 
@@ -570,20 +556,23 @@ namespace FingerprintsData
             return usersList;
         }
 
-        public bool InsertHistoricalHomeVisit(List<Scheduler> schedulerList, Guid agencyId, Guid homeVisitorId, Guid userId)
+        public bool InsertHistoricalHomeVisit(List<Scheduler> schedulerList,  Guid homeVisitorId)
         {
             int rowsAffected = 0;
             bool isResult = false;
             try
             {
+
+                
                 DataTable table = new DataTable();
+
 
                 schedulerList.ForEach(x =>
                 {
                     x.ClientId = Convert.ToInt64(EncryptDecrypt.Decrypt64(x.Enc_ClientId));
                     x.StaffId = homeVisitorId;
                     x.CreatedDate = x.MeetingDate;
-                    x.AgencyId = agencyId;
+                    x.AgencyId = (Guid)staff.AgencyId;
 
                 });
 
@@ -594,15 +583,14 @@ namespace FingerprintsData
                 if (Connection.State == ConnectionState.Open)
                 {
                     Connection.Close();
-
                 }
 
                 using (Connection = connection.returnConnection())
                 {
                     command.Parameters.Clear();
-                    command.Parameters.Add(new SqlParameter("@AgencyID", agencyId));
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
                     command.Parameters.Add(new SqlParameter("@HomeVisitorId", homeVisitorId));
-                    command.Parameters.Add(new SqlParameter("@UserId", userId));
+                    command.Parameters.Add(new SqlParameter("@UserId", staff.UserId));
                     command.Parameters.Add(new SqlParameter("@ScheduleTable", table));
                     command.Connection = Connection;
                     command.CommandType = CommandType.StoredProcedure;

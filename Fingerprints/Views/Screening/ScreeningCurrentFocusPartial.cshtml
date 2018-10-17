@@ -1,0 +1,358 @@
+﻿@model FingerprintsModel.Screening
+
+
+<ul style="max-height:550px;" id="crntUl">
+    @if (Model != null && Model.ScreeningPeriodsList != null & Model.ScreeningPeriodsList.Count > 0)
+    {
+        <li class="glossy-button glossy-button--purple" style="transform: unset;cursor: unset;" data-period-id="@Model.ScreeningPeriodsList[0].ScreeningPeriodIndex">
+
+            <span>@Model.ScreeningPeriodsList[0].Description</span>
+            <div class="glossy-button-shadow"></div>
+        </li>
+    }
+
+</ul>
+
+
+<form class="form_filed" action="" style="max-height:450px;overflow-y:auto;padding-left:8px;padding-right:8px;" id="updateScreeningForm">
+
+    @*<div class="file_attach">
+            <img src="/content/img/noimageavailable.jpg" class="img-responsive center-block">
+        </div>*@
+
+    @Html.HiddenFor(m => m.ScreeningPeriodIndex)
+    @Html.HiddenFor(m => m.TypeScreening)
+    @Html.HiddenFor(m => m.Childid)
+    @Html.HiddenFor(m => m.CustomScreeningPeriod)
+
+
+    @if (Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+    {
+
+
+
+
+
+
+
+
+
+
+
+
+        for (int s = 0; s < Model.ScreeningList.Count; s++)
+        {
+
+
+            @Html.HiddenFor(m => Model.ScreeningList[s].ScreeningID)
+
+            string imagedocument = Model.ScreeningList[s].ScreeningID + "_imagedocument";
+            string pdfdocument = Model.ScreeningList[s].ScreeningID + "_pdfdocument";
+
+            string imageContent = string.IsNullOrEmpty(Model.ScreeningList[s].ApprovedImageJson) ? "/Content/img/NoImageAvailable.jpg" : Model.ScreeningList[s].ApprovedImageJson;
+            string pdfSource = "";
+
+            <div class="file_attach">
+
+                @if (Model.ScreeningList[s].ApprovedFileExtension == ".pdf")
+                    {
+                        pdfSource = Model.ScreeningList[s].ApprovedImageUrl + "#zoom=70";
+                    <iframe style="width:100%;height:100%; " id="@pdfdocument" frameborder="0" scrolling="no" class="embed-responsive img-responsive center-block" src="@pdfSource"></iframe>
+
+                }
+                else
+                {
+                    <div class="customscreeningdiv" id="@imagedocument" style="width:100%;">
+
+                        @if (string.IsNullOrEmpty(Model.ScreeningList[s].ApprovedImageJson))
+                        {
+                            <script type="text/javascript">
+
+                                $(document).ready(function () {
+                                    $('input').keypress(function () {
+                                        if ($(this).val() == 'MM/DD/YYYY') {
+                                            $(this).val('');
+                                            // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                                        }
+                                    });
+
+                                    $('#@imagedocument').ZoomCrop(
+                                  {
+                                      image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                      updated: function (size, crop, position) {
+                                      }
+                                  });
+                                });
+                            </script>
+                        }
+                        else
+                        {
+                            <script type="text/javascript">
+
+                                $(document).ready(function () {
+                                    $('input').keypress(function () {
+                                        if ($(this).val() == 'MM/DD/YYYY') {
+                                            $(this).val('');
+                                            // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                                        }
+                                    });
+
+                                    $('#@imagedocument').ZoomCrop(
+                                  {
+                                      image: "data:image/png;base64," + '@Model.ScreeningList[s].ApprovedImageJson',
+                                      updated: function (size, crop, position) {
+                                      }
+                                  });
+                                });
+                            </script>
+                        }
+
+
+                    </div>
+                }
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                <div class="form-group">
+                    <label class="custom-file-upload" @if (Model.ScreeningAccessInfo.IsEnter == true) { <text> onclick="showCameraPopupmodal(this);" </text> } else { <text> style="display:none" </text> }>
+                        <input type="hidden" value="@Html.Raw(Model.ScreeningList[s].ApprovedImageJson)" name="ScreeningList[@s].ApprovedImageJson" />
+                        @Html.HiddenFor(m => m.ScreeningList[s].ApprovedFileExtension)
+                        @Html.HiddenFor(m => m.ScreeningList[s].ApprovedFileName)
+
+                        @*@Html.HiddenFor(m=>Model.ScreeningList[s].ApprovedImageJson)*@
+
+
+
+
+                        <i class="fa fa-cloud-upload"></i>&nbsp;<span class="span-upload">
+                            @if (!string.IsNullOrEmpty(Model.ScreeningList[s].ApprovedImageJson))
+                            {<text>Change document</text>}
+                            else
+                            { <text>Add new document</text>}
+
+                        </span>
+
+
+
+                    </label>
+
+
+                    <input name="ScreeningList[0].ApprovedFile" id="ScreeningList[0].ApprovedFile" class="form-control" onchange="ValidateSingleInputpdf(this)" style="display:none" type="file" value="">
+
+                </div>
+            </div>
+
+
+            for (int q = 0; q < Model.ScreeningList[s].Questionlist.Count; q++)
+            {
+                @Html.HiddenFor(m => Model.ScreeningList[s].Questionlist[q].QuestionId)
+
+                @Html.HiddenFor(m => Model.ScreeningList[s].Questionlist[q].QuestionType)
+
+
+                <div class="form-group qn-div">
+                    <label accesskey="@Model.ScreeningList[s].Questionlist[q].QuestionId" name="ScreeningList[@s].Questionlist[@q].Question">
+                        @Model.ScreeningList[s].Questionlist[q].Question @if (Model.ScreeningList[s].Questionlist[q].Required)
+                        {<text> <sup>*</sup></text>}
+                    </label>
+
+
+                    @switch (Model.ScreeningList[s].Questionlist[q].QuestionType)
+                    {
+                        case "1": /////  Checkbox  //////
+                            <div class="cont-sz">
+                                @for (int op = 0; op < Model.ScreeningList[s].Questionlist[q].OptionList.Count; op++)
+                                {
+                                    
+
+                                    <div class="col-lg-6 col-md-6 col-sm-6 text-center">
+                                        <input name="ScreeningList[@s].QuestionList[@q].CheckboxValue[@op]" class="checkselectvalue custscreeningquestin" type="checkbox" style="width:auto;" 
+                                               
+                                               @if (Model.ScreeningList[s].Questionlist[q].CheckboxValue.Length>0 &&  Array.IndexOf(@Model.ScreeningList[s].Questionlist[q].CheckboxValue, Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionValue.ToString())>-1) { <text> checked="checked" </text>            } value="@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionValue">
+                                        <span data-toggle="tooltip" data-placement="top" title="@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionDescription" >@Model.ScreeningList[s].Questionlist[q].OptionList[op].Option</span>
+                                    </div>
+
+                                    <script>
+                                        $('input:checkbox[name="ScreeningList[@s].QuestionList[@q].CheckboxValue[@op]"]').next('[data-toggle="tooltip"]').tooltip();
+                                       // $('checkbox[name="ScreeningList[@s].QuestionList[@q].OptionValue"]').next('span').tooltip();
+                                    </script>
+
+                                }
+                            </div>
+
+                            break;
+
+                        case "3": //// Select ////
+
+                            string selectcls = "sel" + q;
+                            <select class="form-control checkselectvalue selectpicker custscreeningquestin @selectcls" name="ScreeningList[@s].Questionlist[@q].OptionValue"   @if (!Model.ScreeningAccessInfo.IsEnter && !Model.ScreeningAccessInfo.IsReview && Model.ScreeningAccessInfo.IsViewOnly) {<text>disabled="disabled"</text>} >
+
+                                @for (int sel = 0; sel < Model.ScreeningList[s].Questionlist[q].OptionList.Count; sel++)
+                                {
+                                    if (Model.ScreeningList[s].Questionlist[q].OptionValue == Model.ScreeningList[s].Questionlist[q].OptionList[sel].OptionValue.ToString())
+                                    {
+                                        <option value="@Model.ScreeningList[s].Questionlist[q].OptionList[sel].OptionValue" title-original="@Model.ScreeningList[s].Questionlist[q].OptionList[sel].OptionDescription" selected="selected">@Model.ScreeningList[s].Questionlist[q].OptionList[sel].Option</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@Model.ScreeningList[s].Questionlist[q].OptionList[sel].OptionValue" title-original="@Model.ScreeningList[s].Questionlist[q].OptionList[sel].OptionDescription">@Model.ScreeningList[s].Questionlist[q].OptionList[sel].Option</option>
+
+                                    }
+                                }
+                            </select>
+                            <p id="tooltipBox_@s@q" class="col-sm-12 para-tooltip" style="z-index:9999;"></p>
+
+
+                            if (Model.ScreeningAccessInfo.IsEnter && Model.ScreeningAccessInfo.IsReview)
+                            {
+                                <script>
+                                $('select[name="ScreeningList[@s].Questionlist[@q].OptionValue"]').selectpicker({
+
+                                    mobile: true,
+                                    noneSelectedText: '--Select--',
+                                    showSubtext: true,
+                                });
+                                var title = [];
+                                $('select[name="ScreeningList[@s].Questionlist[@q].OptionValue"] option').each(function () {
+                                    title.push($(this).attr('title-original'));
+                                });
+
+                                var divselect = $('div.@selectcls');
+
+                                divselect.find('ul').find('li').each(function (i) {
+                                    $(this).attr('title', title[i]).tooltip({ container: "#tooltipBox_@s@q" });
+
+                                    if ($(this).attr('rel') != '0') {
+                                        $(this).attr('data-show-title', $(this).find('a').children('span').text());
+
+                                        $(this).on('click', function () {
+                                            $(this).children('button').find('span').text($(this).attr('data-show-title'));
+                                        });
+                                    }
+
+                                });
+
+
+
+                                </script>
+                            }
+
+
+                            break;
+                        case "4":  //// Radio Button ////
+
+                            <div class="cont-sz text-center">
+
+                                @for (int rad = 0; rad < Model.ScreeningList[s].Questionlist[q].OptionList.Count; rad++)
+                                {
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                        @Html.RadioButtonFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, Model.ScreeningList[s].Questionlist[q].OptionList[rad].OptionValue)
+
+                                        <span style="font-size: 14px;" data-toggle="tooltip"  data-placement="top" title="@Model.ScreeningList[s].Questionlist[q].OptionList[rad].OptionDescription">@Model.ScreeningList[s].Questionlist[q].OptionList[rad].Option</span>
+                                    </div>
+
+                                    <script>
+                                        $('input:radio[name="ScreeningList[@s].QuestionList[@q].OptionValue"]').next('span[data-toggle="tooltip"]').tooltip();
+                                    </script>
+                                }
+                            </div>
+                            break;
+                        case "2": //// Date ////
+
+                            if (q == 0)
+                            {
+
+                                if (Model.ScreeningAccessInfo.IsEnter)
+                                {
+                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", placeholder = "MM/DD/YYYY", maxlength = "30", onblur = "validatedates(this);", scrdate = "1" })
+
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", placeholder = "MM/DD/YYYY", maxlength = "30", onblur = "validatedates(this);", scrdate = "1", @readonly = "readonly" })
+
+                                }
+
+
+
+                            }
+                            else
+                            {
+
+                                if (!Model.ScreeningAccessInfo.IsEnter && !Model.ScreeningAccessInfo.IsReview && Model.ScreeningAccessInfo.IsViewOnly)
+                                {
+                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", placeholder = "MM/DD/YYYY", maxlength = "30", onblur = "validatedates(this);", scrdate = "0", @readonly = "readonly" })
+
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", placeholder = "MM/DD/YYYY", maxlength = "30", onblur = "validatedates(this);", scrdate = "0" })
+
+                                }
+
+
+                            }
+
+
+                            break;
+
+                        case "5": 
+
+                            if (!Model.ScreeningAccessInfo.IsEnter && !Model.ScreeningAccessInfo.IsReview && Model.ScreeningAccessInfo.IsViewOnly)
+                            {
+                                @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control  custscreeningquestin", maxlength = "100", @readonly = "readonly" })
+
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control  custscreeningquestin", maxlength = "100" })
+
+                            }
+                            break;
+                        case "6":
+
+                            if (!Model.ScreeningAccessInfo.IsEnter && !Model.ScreeningAccessInfo.IsReview && Model.ScreeningAccessInfo.IsViewOnly)
+                            {
+                                @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", maxlength = "50", onblur = "return checkNumeric(this);", @readonly = "readonly" })
+
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", maxlength = "50", onblur = "return checkNumeric(this);" })
+
+                            }
+
+                            break;
+
+                        case "0":
+                            if (!Model.ScreeningAccessInfo.IsEnter && !Model.ScreeningAccessInfo.IsReview && Model.ScreeningAccessInfo.IsViewOnly)
+                            {
+                                @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control  custscreeningquestin", @readonly = "readonly" })
+
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control  custscreeningquestin" })
+
+                            }
+
+                            break;
+                    }
+                </div>
+
+
+            }
+        }
+    }
+
+</form>

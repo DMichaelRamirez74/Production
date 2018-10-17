@@ -10,125 +10,7 @@
     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
 }
 @section Script{
-    <style>
-                /*@@media only screen and (min-width:768px) and (max-width:1200px) {
-                .title-fixed {
-            position: static;
-            padding-left: 0;
-        }
-                .protype-solid span textarea {
-            height: 50px;
-            width: 100% !important;
-        }
-                .protype-solid span {
-            width: 55% !important;
-            float: left;
-        }
-                    .protype-solid label {
-                    width: 45% !important;float: left;
-                    }
-                .protype-solid label input {
-            width: 30px !important;
-            float: left;
-        }
-                }
-                .edu-protextarea textarea {
-            width: 65%;
-            float: left;
-            height: 60px;
-            margin-bottom: 15px;
-            max-width:65%;
-        }
-                .protype-solid span textarea {
-            height:  50px;
-            width: 60%;
-        }
-                .protype-solid {
-            width:  100%;
-            float:  left;
-            margin-bottom: 15px;
-        }
-
-        .protype-solid label {
-            width: 30%;
-            float:  left;
-        }
-
-        .protype-solid span {
-            width:  70%;
-            float:  left;
-        }*/
-
-
-                .futurequalifier {
-                    color: green;
-                }
-
-
-        .billing-inner-label label, .billing-inner-label span {
-            color: #333;
-            font-weight: normal !important;
-            font-size: 15px;
-            margin-bottom: 0;
-            margin-top: 10px;
-        }
-
-        .bill-radio {
-            margin: 0.5rem;
-            display: inline-block;
-        }
-
-            .bill-radio input[type="radio"] {
-                position: absolute;
-                opacity: 0;
-            }
-
-        .billing-inner input {
-            background: transparent;
-            color: #333;
-            border: 1px solid #333;
-            border-radius: 8px !important;
-            height: 40px;
-        }
-
-        .bill-radio label {
-            padding-left: 0;
-            color: #333;
-            margin-bottom: 0;
-        }
-
-        .bill-radio input[type="radio"]:checked + .radio-label:before {
-            background-color: #295b8f;
-            box-shadow: inset 0 0 0 4px #fff;
-        }
-
-        .bill-radio input[type="radio"] + .radio-label:before {
-            content: '';
-            background: none;
-            border-radius: 100%;
-            border: 1px solid #333;
-            display: inline-block;
-            width: 1.4em;
-            height: 1.4em;
-            position: relative;
-            top: -1px;
-            margin-right: 1em;
-            vertical-align: top;
-            cursor: pointer;
-            text-align: center;
-            -webkit-transition: all 250ms ease;
-            transition: all 250ms ease;
-        }
-
-        .control-label {
-            width: 35%;
-        }
-
-        .ch-form .form-group {
-            min-height: initial;
-            padding-bottom: 10px;
-        }
-    </style>
+  
     <script type="text/javascript">
         var round = 1;
         var rounds = 1;
@@ -180,6 +62,34 @@
                 }
             }
 
+
+            var isEHsScreening = false;
+            $('[name="PostedPostedPrograms.ProgramID"]').each(function (i) {
+                if ($('[name="PostedPostedPrograms.ProgramID"]')[i].checked) {
+                   // IsProgramchecked = true;
+                    if ($('[name="PostedPostedPrograms.ProgramID"]')[i].accessKey == "1") {
+                        isEHsScreening = true;
+                    }
+                }
+            });
+
+
+            $('#AllowScreening').find('.table-main').children('div').hide()
+            if (isEHsScreening)
+            {
+                $('#AllowScreening').find('#ConsolidateHeading').show();
+                $('#AllowScreening').find('#ParentName').show();
+                $('#AllowScreening').find('#wellBabyScreening').show();
+            }
+
+            else {
+                $('#AllowScreening').find('.table-main').children('div').show();
+                $('#AllowScreening').find('#wellBabyScreening').hide();
+            }
+
+
+
+
         }
         function IEPorIFSP_Checked() {
             if ($('#IsIEP')[0].checked || $('#IsIFSP')[0].checked) {
@@ -224,10 +134,75 @@
         }
 
 
+        function validatedates(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(inputTextObject).val())) {
+                    customAlert("Invalid date.");
+                    $(inputTextObject).val('');
+                }
+            }
 
+        }
 
 
         $(document).ready(function () {
+
+
+        
+
+            $('#getScreening').on('click', function () {
+                debugger;
+                var arrlist = $.map($('#customChecklist').find('input:checkbox:checked'), function (ele, i) {
+
+                    return $(ele).attr('accesskey');
+
+                });
+
+                arrlist = $.unique(arrlist);
+
+                arrlist = (arrlist.length > 0) ? arrlist[0] : 0;
+
+                var clientID = $('#ChildId').val();
+
+
+
+
+
+                $('#spinner').show();
+
+                $('#ApplicationScreening').find('#screeningDivStart').load('@Url.Action("GetScreeningByRefProg", "AgencyUser")', { clientID: clientID, refProg: arrlist }, function (response, status, xhr) {
+                    $('#ApplicationScreening').find('#screeningDivStart').html(response);
+
+                    $('#spinner').hide();
+
+                    $('#ApplicationScreening').find('#screeningDivStart').find('.Sdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                    $('#scrSig').signature();
+
+                    if ($('#ApplicationScreening').find('#ParentSignature') != '') {
+                        var parentsig = $('#ApplicationScreening').find('#ParentSignature').val();
+                        if (parentsig.length > 0) {
+                            $('#scrSig').signature('draw', parentsig)
+                        }
+                    }
+
+
+                    $('#ApplicationScreening').find('.modal-content').height(window.height - ((window.height * 2.6) / 100));
+
+                    var divstartHeight = (window.height - ((window.height * 23.68) / 100));
+                    $('#ApplicationScreening').find('#screeningDivStart').css('max-height', divstartHeight);
+
+                 //   $('#ApplicationScreening').find('.tab-content').css('max-height', divstartHeight);
+
+
+                  //  $('#ApplicationScreening').find('.tab-content').css('max-height', (window.height - ((window.height * 40.7) / 100)))
+
+                    $('#ApplicationScreening').modal('show');
+                });
+
+            });
 
 
 
@@ -587,6 +562,7 @@
             }
             if ('@ViewBag.result' == 'Sucessemergency') {
                 emptyemergencytab();
+                AddphoneE1Grid();
             }
             if ('@ViewBag.result' == 'SucessOther') {
                 emptyOther();
@@ -827,7 +803,17 @@
                 if ('@Model.MedicalhomePreg2' == '0') {
                     $('#MedicalhomePreg2').val('');
                 }
-                $('#ERelationwithchild').val('');
+
+
+                //resets emergency contact tabs//
+               
+
+                emptyemergencytab();
+                AddphoneE1Grid();
+                emptyOther();
+                emptyrestricted();
+
+
                 if ($('#ChildId').val() == "0" || $('#ChildId').val() == "") {
                     $('#CRace').val('');
                     $('#CRaceSubCategory').val('');
@@ -1995,7 +1981,7 @@
 
 
 
-        function isValidscreening() {
+        function isValidscreening(ele, screenCommand) {
             isValid = true;
             cleanValidation();
             if ($('#Street')[0].value.trim() == "") {
@@ -2126,6 +2112,300 @@
                 $('#ApplicationScreening').modal('toggle');
                 return isValid;
             }
+
+
+
+            if (screenCommand == 1) {
+
+
+
+                //Checks for Approval of Screening by parent//
+
+                var allowScr = $('#ApplicationScreening').find('#AllowScreening');
+
+                if (allowScr.find('#ScreenAcc').find('#ScreeningAccept').val() == '' && !allowScr.find('#ScreenAcc').find('#ScreeningAcceptance').is(':visible')
+                    && !allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').is(':checked')) {
+                    isValid = false;
+                    customAlert("Permission to screening form is required.");
+                    //$('#ApplicationScreening').modal('toggle');
+                    plainValidation('#ScreeningAccept');
+                    return isValid;
+                }
+
+                if (!allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').is(':checked')
+
+                    && (allowScr.find('#ScreenAcc').find('#ScreeningAccept').val() == '' && !allowScr.find('#ScreenAcc').find('#ScreeningAcceptance').is(':visible'))) {
+                    isValid = false;
+                    customAlert("Please select parent");
+                    allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').focus();
+                    //   plainValidation('#ScreeningAcceptance');
+                    return isValid;
+                }
+
+                if (allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').is(':checked') && ($('#ParentSignature').val() == null || $('#ParentSignature').val() == '')) {
+                    isValid = false;
+                    customAlert("Parent signature is required.");
+                    plainValidation('#scrSig');
+                    $('.scr-signature-div').show('slow');
+                    return isValid;
+                }
+
+
+
+
+
+                debugger;
+                var errScr = 0;
+                allowScr.find('.screening-approval-div').each(function (i, scr) {
+                    debugger;
+                    if (!$(scr).find('input:radio[name="ScreeningList[' + i + '].Approved"]').is(':checked')) {
+                        isValid = false;
+                        customAlert('Please select Yes or No to allow screening.');
+                        plainValidation($(scr).find('input:radio[name="ScreeningList[' + i + '].Approved"]'));
+                        errScr++;
+
+                    }
+                    else if (
+
+                        $(scr).find('input:radio[name="ScreeningList[' + i + '].Approved"][value=1]').is(':checked') &&
+                        $(scr).find('input:file[name="ScreeningList[' + i + '].ApprovedFile"]').val() == '' &&
+                        !$(scr).find('#Allow_' + i).is(':visible') &&
+                        !$(scr).find('input:checkbox[name="ScreeningList[' + i + '].NoDocument"]').is(':checked')) {
+                        isValid = false;
+                        customAlert('Please upload document for screening.');
+                        plainValidation($(scr).find('input:file[name="ScreeningList[' + i + '].ApprovedFile"]'));
+                        errScr++;
+
+                    }
+
+                    if (errScr > 0) {
+                        return isValid;
+                    }
+                    else {
+
+                    }
+                });
+
+
+                if (errScr > 0) {
+                    return false;
+                }
+            }
+
+
+            //var scrtabarr = [];
+            //$('#ScreeningDiv').find('#myTab').find('li').filter(function () {
+            //    return $(this).is(':visible') == true && $(this).index()>0;
+            //}).each(function () {
+            //    scrtabarr.push($(this).attr('id').substr(-1));
+            //});
+
+            //if (scrtabarr.length > 0)
+            //{
+            //    var qnerror = 0;
+
+
+            //    for (var i = 0; i < scrtabarr.length; i++)
+            //    {
+            //        $.each($('#ScreeningDiv').find('#myTabContent').find('#add' + scrtabarr[i]+'').find('.qn-div'), function (j, qn) {
+
+            //            var ackey = $(qn).children('label').attr('accesskey');
+
+            //            if (ackey == '1' && j == 0) {
+            //                if ($(qn).find('select').val() == null || $(qn).find('select').val() == '' || $(qn).find('select').val() == '0') {
+            //                    qnerror++;
+            //                    plainValidation($(qn).find('select'));
+            //                }
+            //            }
+
+            //            else
+            //            {
+            //                var supLength=$(qn).children('label').contents().filter(function(){
+
+            //                    return $(this)[0].nodeName=='SUP';}).length;
+
+            //                if(supLength>0){
+
+
+            //                    var nodeName = $(qn).find('.custscreeningquestin')[0].nodeName;
+
+            //                    switch(nodeName)
+            //                    {
+            //                        case 'SELECT':
+            //                            if($(qn).find('.custscreeningquestin').val()==null || $(qn).find('.custscreeningquestin').val()=='' || $(qn).find('.custscreeningquestin').val()=='0')
+            //                            {
+            //                                qnerror++;
+            //                                plainValidation($(qn).find('.custscreeningquestin'));
+            //                            }
+            //                            break;
+
+            //                        case 'INPUT':
+            //                            if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == undefined) {
+            //                                qnerror++;
+            //                                plainValidation($(qn).find('.custscreeningquestin'));
+            //                            }
+            //                            break;
+
+
+
+
+            //                    }
+            //                }
+
+
+
+            //            }
+
+
+
+            //        });
+            //        if (qnerror > 0) {
+
+            //            $('#ScreeningDiv').find('#myTab').find('#tabid' + scrtabarr[i] + '').children('a').trigger('click');
+            //            return false;
+            //        }
+
+            //    }
+
+
+
+
+            //    //$.each(scrtabarr, function (tab, i) {
+
+            //    //    $('#ScreeningDiv').find('#myTabContent').find('#add' + tab).find('.qn-div').each(function (qn,j) {
+
+            //    //        var ackey=$(an).children('label first-child').attr('accesskey');
+
+            //    //        if (ackey == '1' && j == 0) {
+            //    //            if ($(qn).find('select').val() == null || $(qn).find('select').val() == '' || $(qn).find('select').val() == '0') {
+            //    //                qnerror++;
+            //    //                plainValidation($(qn).find('select'));
+            //    //            }
+            //    //        }
+
+
+            //    //    });
+
+
+
+            //    //});
+
+            //    if(qnerror>0)
+            //    {
+            //        customAlert('Mandatory fields are required.');
+            //        return false;
+
+            //    }
+            //}
+
+
+
+
+            //End
+
+            if (screenCommand == 2)
+            {
+                debugger;
+                cleanValidation();
+                var scrtabarr = [];
+
+                var qnerror = 0;
+
+                var tabid = $(ele).closest('.tab-pane').attr('id');
+
+                $.each($('#ScreeningDiv').find('#myTabContent').find('#' + tabid).find('.qn-div'), function (j, qn) {
+
+                    var ackey = $(qn).children('label').attr('accesskey');
+
+                    if (ackey == '1' && j == 0) {
+                        if ($(qn).find('select').val() == null || $(qn).find('select').val() == '' || $(qn).find('select').val() == '0') {
+                            qnerror++;
+                            plainValidation($(qn).find('select'));
+                        }
+                    }
+
+                    else {
+                        var supLength = $(qn).children('label').contents().filter(function () {
+
+                            return $(this)[0].nodeName == 'SUP';
+                        }).length;
+
+                        if (supLength > 0) {
+
+
+                            var nodeName = $(qn).find('.custscreeningquestin')[0].nodeName;
+
+                            switch (nodeName) {
+                                case 'SELECT':
+                                    if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == '0') {
+                                        qnerror++;
+                                        plainValidation($(qn).find('.custscreeningquestin'));
+                                    }
+                                    break;
+
+                                case 'INPUT':
+                                    if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == undefined) {
+                                        qnerror++;
+                                        plainValidation($(qn).find('.custscreeningquestin'));
+                                    }
+                                    break;
+
+
+
+
+                            }
+                        }
+
+
+
+                    }
+
+
+
+                });
+                if (qnerror > 0) {
+                    customAlert('Mandatory fields are required.');
+                    // $('#ScreeningDiv').find('#myTab').find('#tabid' + scrtabarr[i] + '').children('a').trigger('click');
+                    return false;
+                }
+
+
+
+
+
+
+                //$.each(scrtabarr, function (tab, i) {
+
+                //    $('#ScreeningDiv').find('#myTabContent').find('#add' + tab).find('.qn-div').each(function (qn,j) {
+
+                //        var ackey=$(an).children('label first-child').attr('accesskey');
+
+                //        if (ackey == '1' && j == 0) {
+                //            if ($(qn).find('select').val() == null || $(qn).find('select').val() == '' || $(qn).find('select').val() == '0') {
+                //                qnerror++;
+                //                plainValidation($(qn).find('select'));
+                //            }
+                //        }
+
+
+                //    });
+
+
+
+                //});
+
+                if (qnerror > 0) {
+                    customAlert('Mandatory fields are required.');
+                    return false;
+
+                }
+
+
+
+
+            }
+
+
 
             if (ssnoriginalvalue != null) {
                 if (ssnoriginalvalue != $('#CSSN').val()) {
@@ -2456,6 +2736,9 @@
                 var fileInput = $(this);
                 fd.append($(fileInput).attr("name"), fileInput);
             });
+
+            fd.append('saveCommand', screenCommand);
+
             $.ajax({
                 url: HostedDir + "/AgencyUser/SaveScreening",
                 type: "POST",
@@ -3217,12 +3500,10 @@
 
                 allowScreening.find('.table-main').children('div').each(function (i,scr) {
 
-                    if($(scr).attr('id')!='ConsolidateHeading')
-                    {
-                        if($(scr).attr('id')=='ScreenAcc' && $(scr).find('input[type=file]').val()=='')
-                        {
-                            isValid = true;
-                           // customAlert('Permission document for screening is required');
+                    if ($(scr).attr('id') != 'ConsolidateHeading') {
+                        if ($(scr).attr('id') == 'ScreenAcc' && $(scr).find('input[type=file]').val() == '') {
+                            isValid = false;
+                            customAlert('Permission document for screening is required');
                             return isValid;
                         }
                     }
@@ -3672,6 +3953,163 @@
             }
             return true;
         }
+
+
+
+        function checkNoDocument(ele) {
+
+            if ($(ele).is(':checked')) {
+                $(ele).closest('.cont-sz').find('input[type=file]').val('').prop('disabled', true);
+            }
+            else {
+                $(ele).closest('.cont-sz').find('input[type=file]').val('').prop('disabled', false);
+
+            }
+
+
+        }
+
+        function clearcustomscreening() {
+            $('.customscreeningradioallowed').prop("checked", false);
+            $('.customscreeningdocunettag').hide();
+            $('.custscreeningquestin').each(function () {
+
+                if ($(this).attr("type") == "text")
+                    $(this).val("");
+                if ($(this).attr("type") == "radio" || $(this).attr("type") == "checkbox")
+                    $(this).prop("checked", false);
+                if ($(this).is("select")) {
+                    $(this).val("");
+                }
+            });
+            $('iframe').attr("src", "");
+            $('iframe').hide();
+            $('.customscreeningdiv img').attr("src", HostedDir + "/Content/img/NoImageAvailable.jpg");
+            $('.customscreeningdiv').show();
+            $('.customtabhide').hide().removeClass("active");
+            $('.customtab').removeClass("active").removeClass("in");
+            $('.customallowscreening').each(function () {
+                $(this).show();
+            });
+
+        }
+
+        function SetCustomData(data) {
+            var filename = null;
+            var fileextension = null;
+            var filedata = null;
+     
+            var programtype = null;
+
+            $('#customChecklist input[type=checkbox]').each(function () {
+                if ($(this).prop("checked")) {
+                    programtype = $(this).attr("accesskey");
+                }
+            });
+
+            //if (programtype != null && (programtype == 1 || programtype == 2)) {
+            //    $('.customallowscreening').each(function () {
+            //        if ($(this).attr("accesskey") == programtype) {
+            //            $(this).show();
+            //        }
+            //        else {
+            //            $(this).hide();
+            //        }
+            //    });
+            //}
+            //if (data._CustomScreeningAlloweds != null && data._CustomScreeningAlloweds.length > 0) {
+            //    for (var i = 0; i < data._CustomScreeningAlloweds.length; i++) {
+            //        $('.customscreeningradioallowed').each(function () {
+            //            var screeingid = $(this).attr("name").split("@@");
+            //            if (data._CustomScreeningAlloweds[i].Screeningid == screeingid[0]) {
+            //                if (data._CustomScreeningAlloweds[i].ScreeningAllowed == 1) {
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "101").prop("checked", true);
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "tabid").show();
+            //                    //$('#add' + data._CustomScreeningAlloweds[i].ScreeningName ).show();
+            //                    if (data._childscreenings != null && data._childscreenings.length > 0) {
+            //                        for (var j = 0; j < data._childscreenings.length; j++) {
+            //                            if (data._childscreenings[j].Screeningid == data._CustomScreeningAlloweds[i].Screeningid) {
+            //                                var cusquesinputid = null;
+            //                                if (data._childscreenings[j].optionid != "0")
+            //                                    cusquesinputid = data._childscreenings[j].QuestionAcronym + "o" + data._childscreenings[j].optionid;
+            //                                else
+            //                                    cusquesinputid = data._childscreenings[j].QuestionAcronym;
+            //                                if (cusquesinputid != null) {
+            //                                    var input = $('#' + cusquesinputid);
+            //                                    if ($(input).attr("type") == "text")
+            //                                        $(input).val(data._childscreenings[j].Value);
+            //                                    if ($(input).attr("type") == "radio" || $(input).attr("type") == "checkbox")
+            //                                        $(input).prop("checked", true);
+            //                                    if ($(input).is("select")) {
+            //                                        $(input).val(data._childscreenings[j].Value);
+            //                                    }
+            //                                }
+
+            //                                //Code to display document image or pdf
+            //                                if (data._childscreenings[j].pdfpath != "") {
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').attr("src", HostedDir + data._childscreenings[j].pdfpath);
+            //                                }
+            //                                else if (data._childscreenings[j].Documentdata != "") {
+
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').ZoomCrop(
+            //                                         {
+            //                                             image: "data:image/png;base64," + data._childscreenings[j].Documentdata,
+            //                                             updated: function (size, crop, position) {
+            //                                                 console.log(size, crop, position);
+            //                                             }
+            //                                         });
+            //                                }
+            //                                ///End of code
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //                else {
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "102").prop("checked", true);
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "tabid").hide();
+            //                    if (data._childscreenings != null && data._childscreenings.length > 0) {
+            //                        for (var j = 0; j < data._childscreenings.length; j++) {
+            //                            if (data._childscreenings[j].Screeningid == data._CustomScreeningAlloweds[i].Screeningid) {
+            //                                //Code to display document image or pdf
+            //                                if (data._childscreenings[j].pdfpath != "") {
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').attr("src", HostedDir + data._childscreenings[j].pdfpath);
+            //                                }
+            //                                else if (data._childscreenings[j].Documentdata != "") {
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').ZoomCrop(
+            //                                         {
+            //                                             image: "data:image/png;base64," + data._childscreenings[j].Documentdata,
+            //                                             updated: function (size, crop, position) {
+            //                                                 console.log(size, crop, position);
+            //                                             }
+            //                                         });
+            //                                }
+            //                                ///End of code
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        });
+            //    }
+            //}
+        }
+
         var sortOrder = '';
         var sortDirection = '';
         var imgID = '';
@@ -3784,7 +4222,10 @@
                     EditChild(data);
                     SetCustomData(data);
 
-
+                    $('html,body').animate({
+                        scrollTop: 0
+                    },
+       'slow');
 
                 }
                , error: function (response) {
@@ -3882,6 +4323,10 @@
             $('#EFileName').val("");
             $('#EFileExtension').val("");
             $('#EImagejson').val("");
+            $('#ERelationwithchild').val("");
+
+            $('#gridphoneE1').find('tbody').find("tr").remove();
+
         }
         //Changes by Akansha on 19Dec2016
         function EditChild(data) {
@@ -3965,6 +4410,11 @@
                 }
 
                 $('#cutomCheckList').find('#IsFutureApplication').val(data.IsFutureApplication);
+
+
+
+
+
 
             }
 
@@ -4705,7 +5155,7 @@
             }
             $('#CDOB').val(data.CDOB);
             $('#DOBverifiedBy').val(data.DOBverifiedBy);
-            if (data!=null && data.CSSN != null && data.CSSN!='') {
+            if (data != null && data.CSSN != null && data.CSSN != '') {
                 var res = data.CSSN;
                 len = res.length;
                 max = 11;
@@ -6815,445 +7265,445 @@
 
 
 
-            $('#Physical').removeClass("active");
-            $('#Vision').removeClass("active");
-            $('#Hearing').removeClass("active");
-            $('#Develop').removeClass("active");
-            $('#Dental').removeClass("active");
-            $('#Speech').removeClass("active");
-            $('#Screeningallowed').removeClass("active");
-            $('#Screeningallowed').addClass("active");
+            //$('#Physical').removeClass("active");
+            //$('#Vision').removeClass("active");
+            //$('#Hearing').removeClass("active");
+            //$('#Develop').removeClass("active");
+            //$('#Dental').removeClass("active");
+            //$('#Speech').removeClass("active");
+            //$('#Screeningallowed').removeClass("active");
+            //$('#Screeningallowed').addClass("active");
 
 
-            $('#addPhysical').removeClass("active").removeClass("in");
-            $('#addVision').removeClass("active").removeClass("in");
-            $('#addHearing').removeClass("active").removeClass("in");
-            $('#addDevelop').removeClass("active").removeClass("in");
-            $('#addDental').removeClass("active").removeClass("in");
-            $('#addSpeech').removeClass("active").removeClass("in");
-            $('#AllowScreening').removeClass("active").removeClass("in");
-            $('#AllowScreening').addClass("active").addClass("in");
-
-
-
-
-
-            if (data._Screening != null) {
-
-                $('#F001physicalDate').val(data._Screening.F001physicalDate)
-                $('#F002physicalResults').val(data._Screening.F002physicalResults)
-                $('#F003physicallFOReason').val(data._Screening.F003physicallFOReason)
-                $('#F004medFollowup').val(data._Screening.F004medFollowup)
-                $('#F005MedFOComments').val(data._Screening.F005MedFOComments)
-                $('#F006bpResults').val(data._Screening.F006bpResults)
-                $('#F007hgDate').val(data._Screening.F007hgDate)
-                $('#FhgStatus').val(data._Screening.F008hgStatus)
-                $('#F009hgResults').val(data._Screening.F009hgResults)
-                $('#F010hgReferralDate').val(data._Screening.F010hgReferralDate)
-                $('#F011hgComments').val(data._Screening.F011hgComments)
-                $('#F012hgDate2').val(data._Screening.F012hgDate2)
-                $('#F013hgResults2').val(data._Screening.F013hgResults2)
-                $('#F014hgFOStatus').val(data._Screening.F014hgFOStatus)
-                $('#F015leadDate').val(data._Screening.F015leadDate)
-                $('#F016leadResults').val(data._Screening.F016leadResults)
-                $('#F017leadReferDate').val(data._Screening.F017leadReferDate)
-                $('#F018leadComments').val(data._Screening.F018leadComments)
-                $('#F019leadDate2').val(data._Screening.F019leadDate2)
-                $('#F020leadResults2').val(data._Screening.F020leadResults2)
-                $('#F021leadFOStatus').val(data._Screening.F021leadFOStatus)
-                $('#v022date').val(data._Screening.v022date)
-                $('#v023results').val(data._Screening.v023results)
-                $('#v024comments').val(data._Screening.v024comments)
-                $('#v025dateR1').val(data._Screening.v025dateR1)
-                $('#v026resultsR1').val(data._Screening.v026resultsR1)
-                $('#v027commentsR1').val(data._Screening.v027commentsR1)
-                $('#v028dateR2').val(data._Screening.v028dateR2)
-                $('#v029resultsR2').val(data._Screening.v029resultsR2)
-                $('#v030commentsR2').val(data._Screening.v030commentsR2)
-                $('#v031ReferralDate').val(data._Screening.v031ReferralDate)
-                $('#v032Treatment').val(data._Screening.v032Treatment)
-                $('#v033TreatmentComments').val(data._Screening.v033TreatmentComments)
-                $('#v034Completedate').val(data._Screening.v034Completedate)
-                $('#v035ExamStatus').val(data._Screening.v035ExamStatus)
-                $('#h036Date').val(data._Screening.h036Date)
-                $('#h037Results').val(data._Screening.h037Results)
-                $('#h038Comments').val(data._Screening.h038Comments)
-                $('#h039DateR1').val(data._Screening.h039DateR1)
-                $('#h040ResultsR1').val(data._Screening.h040ResultsR1)
-                $('#h041CommentsR1').val(data._Screening.h041CommentsR1)
-                $('#h042DateR2').val(data._Screening.h042DateR2)
-                $('#h043ResultsR2').val(data._Screening.h043ResultsR2)
-                $('#h044CommentsR2').val(data._Screening.h044CommentsR2)
-                $('#h045ReferralDate').val(data._Screening.h045ReferralDate)
-                $('#h046Treatment').val(data._Screening.h046Treatment)
-                $('#h047TreatmentComments').val(data._Screening.h047TreatmentComments)
-                $('#h048CompleteDate').val(data._Screening.h048CompleteDate)
-                $('#h049ExamStatus').val(data._Screening.h049ExamStatus)
-                $('#d050evDate').val(data._Screening.d050evDate)
-                $('#d051NameDEV').val(data._Screening.d051NameDEV)
-                $('#d052evResults').val(data._Screening.d052evResults)
-                $('#d053evResultsDetails').val(data._Screening.d053evResultsDetails)
-                $('#d054evDate2').val(data._Screening.d054evDate2)
-                $('#d055evResults2').val(data._Screening.d055evResults2)
-                $('#d056evReferral').val(data._Screening.d056evReferral)
-                $('#d057evFOStatus').val(data._Screening.d057evFOStatus)
-                $('#d058evComments').val(data._Screening.d058evComments)
-                $('#d059evTool').val(data._Screening.d059evTool)
-                $('#E060denDate').val(data._Screening.E060denDate)
-                $('#E061denResults').val(data._Screening.E061denResults)
-                $('#E062denPrevent').val(data._Screening.E062denPrevent)
-                $('#E063denReferralDate').val(data._Screening.E063denReferralDate)
-                $('#E064denTreatment').val(data._Screening.E064denTreatment)
-                $('#E065denTreatmentComments').val(data._Screening.E065denTreatmentComments)
-                $('#E066denTreatmentReceive').val(data._Screening.E066denTreatmentReceive)
-                $('#s067Date').val(data._Screening.s067Date)
-                $('#s068NameTCR').val(data._Screening.s068NameTCR)
-                $('#s069Details').val(data._Screening.s069Details)
-                $('#s070Results').val(data._Screening.s070Results)
-                $('#s071RescreenTCR').val(data._Screening.s071RescreenTCR)
-                $('#s072RescreenTCRDate').val(data._Screening.s072RescreenTCRDate)
-                $('#s073RescreenTCRResults').val(data._Screening.s073RescreenTCRResults)
-                $('#s074ReferralDC').val(data._Screening.s074ReferralDC)
-                $('#s075ReferDate').val(data._Screening.s075ReferDate)
-                $('#s076DCDate').val(data._Screening.s076DCDate)
-                $('#s077NameDC').val(data._Screening.s077NameDC)
-                $('#s078DetailDC').val(data._Screening.s078DetailDC)
-                $('#s079DCDate2').val(data._Screening.s079DCDate2)
-                $('#s080DetailDC2').val(data._Screening.s080DetailDC2)
-                $('#s081FOStatus').val(data._Screening.s081FOStatus)
-
-                if (data._Screening.Parentname != null)
-                    $('#Parentscreening').val(data._Screening.Parentname);
-                else
-                    $('#Parentscreening').val($('#Pfirstname').val() + ' ' + $('#Plastname').val())
+            //$('#addPhysical').removeClass("active").removeClass("in");
+            //$('#addVision').removeClass("active").removeClass("in");
+            //$('#addHearing').removeClass("active").removeClass("in");
+            //$('#addDevelop').removeClass("active").removeClass("in");
+            //$('#addDental').removeClass("active").removeClass("in");
+            //$('#addSpeech').removeClass("active").removeClass("in");
+            //$('#AllowScreening').removeClass("active").removeClass("in");
+            //$('#AllowScreening').addClass("active").addClass("in");
 
 
 
-                if (data._Screening.AddPhysical == "1") {
-                    $('#AddPhysical').prop("checked", true);
-                    $('#Physical').show();
-                }
-                else if (data._Screening.AddPhysical == "2") {
-                    $('#AddPhysical1').prop("checked", true);
-                    $('#Physical').hide();
-                }
-                else {
-                    $('#AddPhysical').prop("checked", false);
-                    $('#AddPhysical1').prop("checked", false);
-                    $('#Physical').hide();
-                }
-                if (data._Screening.AddVision == "1") {
-                    $('#AddVision').prop("checked", true);
-                    $('#Vision').show();
-                }
-                else if (data._Screening.AddVision == "2") {
-                    $('#AddVision1').prop("checked", true);
-                    $('#Vision').hide();
-                }
-                else {
-                    $('#AddVision').prop("checked", false);
-                    $('#AddVision1').prop("checked", false);
-                    $('#Vision').hide();
-                }
-                if (data._Screening.AddHearing == "1") {
-                    $('#AddHearing').prop("checked", true);
-                    $('#Hearing').show();
-
-                }
-                else if (data._Screening.AddHearing == "2") {
-                    $('#AddHearing1').prop("checked", true);
-                    $('#Hearing').hide();
-                }
-                else {
-                    $('#AddHearing').prop("checked", false);
-                    $('#AddHearing1').prop("checked", false);
-                    $('#Hearing').hide();
-                }
-                if (data._Screening.AddDental == "1") {
-                    $('#AddDental').prop("checked", true);
-                    $('#Dental').show();
-                }
-                else if (data._Screening.AddDental == "2") {
-                    $('#AddDental1').prop("checked", true);
-                    $('#Dental').hide();
-                }
-                else {
-                    $('#AddDental').prop("checked", false);
-                    $('#AddDental1').prop("checked", false);
-                    $('#Dental').hide();
-                }
-                if (data._Screening.AddDevelop == "1") {
-                    $('#AddDevelop').prop("checked", true);
-                    $('#Develop').show();
-                }
-                else if (data._Screening.AddDevelop == "2") {
-                    $('#AddDevelop1').prop("checked", true);
-                    $('#Develop').hide();
-                }
-                else {
-                    $('#AddDevelop').prop("checked", false);
-                    $('#AddDevelop1').prop("checked", false);
-                    $('#Develop').hide();
-                }
-                if (data._Screening.AddSpeech == "1") {
-                    $('#AddSpeech').prop("checked", true);
-                    $('#Speech').show();
-                }
-                else if (data._Screening.AddSpeech == "2") {
-                    $('#AddSpeech1').prop("checked", true);
-                    $('#Speech').hide();
-                }
-                else {
-                    $('#AddSpeech').prop("checked", false);
-                    $('#AddSpeech1').prop("checked", false);
-                    $('#Speech').hide();
-                }
-
-                //18-11-2016
-
-                if (data._Screening.PhysicalFileName != "" && data._Screening.PhysicalFileName != null) {
-                    $('#Allow30DayPhysical').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/1," + data._Screening.ParentAppID);
-                    $('#Allow30DayPhysical').show();
-                    if (data._Screening.PhysicalFileExtension == ".pdf") {
-
-                        $('#Phyimagedocument').hide();
-                        $('#Phypdfdocument').show();
-                        $('#Phypdfdocument').attr("src", HostedDir + data._Screening.PhysicalImagejson);
-                    }
-                    else {
-                        $('#Phyimagedocument').show();
-                        $('#Phypdfdocument').hide();
-                        $('#Phyimagedocument').ZoomCrop(
-                            {
-                                image: "data:image/png;base64," + data._Screening.PhysicalImagejson,
-                                updated: function (size, crop, position) {
-
-                                }
-                            });
-                    }
 
 
-                }
-                else {
-                    $('#Allow30DayPhysical').hide();
-                    $('#Phyimagedocument').show();
-                    $('#Phypdfdocument').hide();
-                    $('#Phyimagedocument').ZoomCrop(
-                {
-                    image: HostedDir + "/Content/img/NoImageAvailable.jpg",
-                    updated: function (size, crop, position) {
+            //if (data._Screening != null) {
 
-                    }
-                });
-                }
-                if (data._Screening.VisionFileName != "" && data._Screening.VisionFileName != null) {
-                    $('#Allow45DayVisionScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/2," + data._Screening.ParentAppID);
-                    $('#Allow45DayVisionScreening').show();
-                    if (data._Screening.VisionFileExtension == ".pdf") {
-                        $('#Visimagedocument').hide();
-                        $('#Vispdfdocument').show();
-                        $('#Vispdfdocument').attr("src", HostedDir + data._Screening.VisionImagejson);
-                    }
-                    else {
-                        $('#Visimagedocument').show();
-                        $('#Vispdfdocument').hide();
-                        $('#Visimagedocument').ZoomCrop(
-                             {
-                                 image: "data:image/png;base64," + data._Screening.VisionImagejson,
-                                 updated: function (size, crop, position) {
+            //    $('#F001physicalDate').val(data._Screening.F001physicalDate)
+            //    $('#F002physicalResults').val(data._Screening.F002physicalResults)
+            //    $('#F003physicallFOReason').val(data._Screening.F003physicallFOReason)
+            //    $('#F004medFollowup').val(data._Screening.F004medFollowup)
+            //    $('#F005MedFOComments').val(data._Screening.F005MedFOComments)
+            //    $('#F006bpResults').val(data._Screening.F006bpResults)
+            //    $('#F007hgDate').val(data._Screening.F007hgDate)
+            //    $('#FhgStatus').val(data._Screening.F008hgStatus)
+            //    $('#F009hgResults').val(data._Screening.F009hgResults)
+            //    $('#F010hgReferralDate').val(data._Screening.F010hgReferralDate)
+            //    $('#F011hgComments').val(data._Screening.F011hgComments)
+            //    $('#F012hgDate2').val(data._Screening.F012hgDate2)
+            //    $('#F013hgResults2').val(data._Screening.F013hgResults2)
+            //    $('#F014hgFOStatus').val(data._Screening.F014hgFOStatus)
+            //    $('#F015leadDate').val(data._Screening.F015leadDate)
+            //    $('#F016leadResults').val(data._Screening.F016leadResults)
+            //    $('#F017leadReferDate').val(data._Screening.F017leadReferDate)
+            //    $('#F018leadComments').val(data._Screening.F018leadComments)
+            //    $('#F019leadDate2').val(data._Screening.F019leadDate2)
+            //    $('#F020leadResults2').val(data._Screening.F020leadResults2)
+            //    $('#F021leadFOStatus').val(data._Screening.F021leadFOStatus)
+            //    $('#v022date').val(data._Screening.v022date)
+            //    $('#v023results').val(data._Screening.v023results)
+            //    $('#v024comments').val(data._Screening.v024comments)
+            //    $('#v025dateR1').val(data._Screening.v025dateR1)
+            //    $('#v026resultsR1').val(data._Screening.v026resultsR1)
+            //    $('#v027commentsR1').val(data._Screening.v027commentsR1)
+            //    $('#v028dateR2').val(data._Screening.v028dateR2)
+            //    $('#v029resultsR2').val(data._Screening.v029resultsR2)
+            //    $('#v030commentsR2').val(data._Screening.v030commentsR2)
+            //    $('#v031ReferralDate').val(data._Screening.v031ReferralDate)
+            //    $('#v032Treatment').val(data._Screening.v032Treatment)
+            //    $('#v033TreatmentComments').val(data._Screening.v033TreatmentComments)
+            //    $('#v034Completedate').val(data._Screening.v034Completedate)
+            //    $('#v035ExamStatus').val(data._Screening.v035ExamStatus)
+            //    $('#h036Date').val(data._Screening.h036Date)
+            //    $('#h037Results').val(data._Screening.h037Results)
+            //    $('#h038Comments').val(data._Screening.h038Comments)
+            //    $('#h039DateR1').val(data._Screening.h039DateR1)
+            //    $('#h040ResultsR1').val(data._Screening.h040ResultsR1)
+            //    $('#h041CommentsR1').val(data._Screening.h041CommentsR1)
+            //    $('#h042DateR2').val(data._Screening.h042DateR2)
+            //    $('#h043ResultsR2').val(data._Screening.h043ResultsR2)
+            //    $('#h044CommentsR2').val(data._Screening.h044CommentsR2)
+            //    $('#h045ReferralDate').val(data._Screening.h045ReferralDate)
+            //    $('#h046Treatment').val(data._Screening.h046Treatment)
+            //    $('#h047TreatmentComments').val(data._Screening.h047TreatmentComments)
+            //    $('#h048CompleteDate').val(data._Screening.h048CompleteDate)
+            //    $('#h049ExamStatus').val(data._Screening.h049ExamStatus)
+            //    $('#d050evDate').val(data._Screening.d050evDate)
+            //    $('#d051NameDEV').val(data._Screening.d051NameDEV)
+            //    $('#d052evResults').val(data._Screening.d052evResults)
+            //    $('#d053evResultsDetails').val(data._Screening.d053evResultsDetails)
+            //    $('#d054evDate2').val(data._Screening.d054evDate2)
+            //    $('#d055evResults2').val(data._Screening.d055evResults2)
+            //    $('#d056evReferral').val(data._Screening.d056evReferral)
+            //    $('#d057evFOStatus').val(data._Screening.d057evFOStatus)
+            //    $('#d058evComments').val(data._Screening.d058evComments)
+            //    $('#d059evTool').val(data._Screening.d059evTool)
+            //    $('#E060denDate').val(data._Screening.E060denDate)
+            //    $('#E061denResults').val(data._Screening.E061denResults)
+            //    $('#E062denPrevent').val(data._Screening.E062denPrevent)
+            //    $('#E063denReferralDate').val(data._Screening.E063denReferralDate)
+            //    $('#E064denTreatment').val(data._Screening.E064denTreatment)
+            //    $('#E065denTreatmentComments').val(data._Screening.E065denTreatmentComments)
+            //    $('#E066denTreatmentReceive').val(data._Screening.E066denTreatmentReceive)
+            //    $('#s067Date').val(data._Screening.s067Date)
+            //    $('#s068NameTCR').val(data._Screening.s068NameTCR)
+            //    $('#s069Details').val(data._Screening.s069Details)
+            //    $('#s070Results').val(data._Screening.s070Results)
+            //    $('#s071RescreenTCR').val(data._Screening.s071RescreenTCR)
+            //    $('#s072RescreenTCRDate').val(data._Screening.s072RescreenTCRDate)
+            //    $('#s073RescreenTCRResults').val(data._Screening.s073RescreenTCRResults)
+            //    $('#s074ReferralDC').val(data._Screening.s074ReferralDC)
+            //    $('#s075ReferDate').val(data._Screening.s075ReferDate)
+            //    $('#s076DCDate').val(data._Screening.s076DCDate)
+            //    $('#s077NameDC').val(data._Screening.s077NameDC)
+            //    $('#s078DetailDC').val(data._Screening.s078DetailDC)
+            //    $('#s079DCDate2').val(data._Screening.s079DCDate2)
+            //    $('#s080DetailDC2').val(data._Screening.s080DetailDC2)
+            //    $('#s081FOStatus').val(data._Screening.s081FOStatus)
 
-                                 }
-                             });
-                    }
-                }
-                else {
-                    $('#Visimagedocument').show();
-                    $('#Vispdfdocument').hide();
-                    $('#Visimagedocument').ZoomCrop(
-                      {
-                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
-                          updated: function (size, crop, position) {
-
-                          }
-                      });
-                    $('#Allow45DayVisionScreening').hide();
-                }
-                if (data._Screening.HearingFileName != "" && data._Screening.HearingFileName != null) {
-                    $('#Allow45DayHearingScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/3," + data._Screening.ParentAppID);
-                    $('#Allow45DayHearingScreening').show();
-                    if (data._Screening.HearingFileExtension == ".pdf") {
-                        $('#Hearimagedocument').hide();
-                        $('#Hearpdfdocument').show();
-                        $('#Hearpdfdocument').attr("src", HostedDir + data._Screening.HearingImagejson);
-                    }
-                    else {
-                        $('#Hearimagedocument').show();
-                        $('#Hearpdfdocument').hide();
-
-                        $('#Hearimagedocument').ZoomCrop(
-                           {
-                               image: "data:image/png;base64," + data._Screening.HearingImagejson,
-                               updated: function (size, crop, position) {
-
-                               }
-                           });
-
-
-                    }
-                }
-                else {
-
-                    $('#Hearimagedocument').show();
-                    $('#Hearpdfdocument').hide();
-                    $('#Hearimagedocument').ZoomCrop(
-                        {
-                            image: HostedDir + "/Content/img/NoImageAvailable.jpg",
-                            updated: function (size, crop, position) {
-
-                            }
-                        });
-                    $('#Allow45DayHearingScreening').hide();
-                }
-                if (data._Screening.DevelopFileName != "" && data._Screening.DevelopFileName != null) {
-                    $('#Allow45DayDevelopmentalScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/4," + data._Screening.ParentAppID);
-                    $('#Allow45DayDevelopmentalScreening').show();
-
-                    if (data._Screening.DevelopFileExtension == ".pdf") {
-                        $('#Devimagedocument').hide();
-                        $('#Devpdfdocument').show();
-                        $('#Devpdfdocument').attr("src", HostedDir + data._Screening.DevelopImagejson);
-                    }
-                    else {
-                        $('#Devimagedocument').show();
-                        $('#Devpdfdocument').hide();
-                        $('#Devimagedocument').ZoomCrop(
-                           {
-                               image: "data:image/png;base64," + data._Screening.DevelopImagejson,
-                               updated: function (size, crop, position) {
-
-                               }
-                           });
-
-                    }
-                }
-                else {
-
-                    $('#Devimagedocument').show();
-                    $('#Devpdfdocument').hide();
-                    $('#Devimagedocument').ZoomCrop(
-                        {
-                            image: HostedDir + "/Content/img/NoImageAvailable.jpg",
-                            updated: function (size, crop, position) {
-
-                            }
-                        });
-                    $('#Allow45DayDevelopmentalScreening').hide();
-                }
-                if (data._Screening.DentalFileName != "" && data._Screening.DentalFileName != null) {
-                    $('#Allow90DayDentalScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/5," + data._Screening.ParentAppID);
-                    $('#Allow90DayDentalScreening').show();
-
-
-                    if (data._Screening.DentalFileExtension == ".pdf") {
-                        $('#Dentimagedocument').hide();
-                        $('#Dentpdfdocument').show();
-                        $('#Dentpdfdocument').attr("src", HostedDir + data._Screening.DentalImagejson);
-                    }
-                    else {
-                        $('#Dentimagedocument').show();
-                        $('#Dentpdfdocument').hide();
-                        $('#Dentimagedocument').ZoomCrop(
-                          {
-                              image: "data:image/png;base64," + data._Screening.DentalImagejson,
-                              updated: function (size, crop, position) {
-
-                              }
-                          });
-
-
-                    }
-                }
-                else {
-
-                    $('#Dentimagedocument').show();
-                    $('#Dentpdfdocument').hide();
-                    $('#Dentimagedocument').ZoomCrop(
-                     {
-                         image: HostedDir + "/Content/img/NoImageAvailable.jpg",
-                         updated: function (size, crop, position) {
-
-                         }
-                     });
-                    $('#Allow90DayDentalScreening').hide();
-                }
-                if (data._Screening.SpeechFileName != "" && data._Screening.SpeechFileName != null) {
-                    $('#AllowSpeechScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/6," + data._Screening.ParentAppID);
-                    $('#AllowSpeechScreening').show();
-
-                    if (data._Screening.SpeechFileExtension == ".pdf") {
-                        $('#Speechimagedocument').hide();
-                        $('#Speechpdfdocument').show();
-                        $('#Speechpdfdocument').attr("src", HostedDir + data._Screening.SpeechImagejson);
-                    }
-                    else {
-                        $('#Speechimagedocument').show();
-                        $('#Speechpdfdocument').hide();
-                        $('#Speechimagedocument').ZoomCrop(
-                       {
-                           image: "data:image/png;base64," + data._Screening.SpeechImagejson,
-                           updated: function (size, crop, position) {
-
-                           }
-                       });
-
-                    }
-
-
-                }
-                else {
-                    $('#Speechimagedocument').show();
-                    $('#Speechpdfdocument').hide();
-                    $('#Speechimagedocument').ZoomCrop(
-                        {
-                            image: HostedDir + "/Content/img/NoImageAvailable.jpg",
-                            updated: function (size, crop, position) {
-
-                            }
-                        });
-
-                    $('#AllowSpeechScreening').hide();
-                }
-                if (data._Screening.ScreeningAcceptFileName != "" && data._Screening.ScreeningAcceptFileName != null) {
-                    $('#ScreeningAcceptance').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/7," + data._Screening.ParentAppID);
-                    $('#ScreeningAcceptance').show();
-                }
-                else {
-                    $('#ScreeningAcceptance').hide();
-                }
-                $('#PhysicalFileName').val(data._Screening.PhysicalFileName);
-                $('#VisionFileName').val(data._Screening.VisionFileName);
-                $('#HearingFileName').val(data._Screening.HearingFileName);
-                $('#DevelopFileName').val(data._Screening.DevelopFileName);
-                $('#DentalFileName').val(data._Screening.DentalFileName);
-                $('#SpeechFileName').val(data._Screening.SpeechFileName);
-                $('#ScreeningAcceptFileName').val(data._Screening.ScreeningAcceptFileName);
-                $('#ParentAppID').val(data._Screening.ParentAppID);
-            }
-            else {
-                $('#Allow30DayPhysical').hide();
-                $('#Allow45DayVisionScreening').hide();
-                $('#Allow45DayHearingScreening').hide();
-                $('#Allow45DayDevelopmentalScreening').hide();
-                $('#Allow90DayDentalScreening').hide();
-                $('#ScreeningAcceptance').hide();
-                $('#AllowSpeechScreening').hide();
-                $('#Parentscreening').val($('#Pfirstname').val() + ' ' + $('#Plastname').val());
-            }
+            //    if (data._Screening.Parentname != null)
+            //        $('#Parentscreening').val(data._Screening.Parentname);
+            //    else
+            //        $('#Parentscreening').val($('#Pfirstname').val() + ' ' + $('#Plastname').val())
 
 
 
-            var isEhsScreenn=false;
-            
+            //    if (data._Screening.AddPhysical == "1") {
+            //        $('#AddPhysical').prop("checked", true);
+            //        $('#Physical').show();
+            //    }
+            //    else if (data._Screening.AddPhysical == "2") {
+            //        $('#AddPhysical1').prop("checked", true);
+            //        $('#Physical').hide();
+            //    }
+            //    else {
+            //        $('#AddPhysical').prop("checked", false);
+            //        $('#AddPhysical1').prop("checked", false);
+            //        $('#Physical').hide();
+            //    }
+            //    if (data._Screening.AddVision == "1") {
+            //        $('#AddVision').prop("checked", true);
+            //        $('#Vision').show();
+            //    }
+            //    else if (data._Screening.AddVision == "2") {
+            //        $('#AddVision1').prop("checked", true);
+            //        $('#Vision').hide();
+            //    }
+            //    else {
+            //        $('#AddVision').prop("checked", false);
+            //        $('#AddVision1').prop("checked", false);
+            //        $('#Vision').hide();
+            //    }
+            //    if (data._Screening.AddHearing == "1") {
+            //        $('#AddHearing').prop("checked", true);
+            //        $('#Hearing').show();
+
+            //    }
+            //    else if (data._Screening.AddHearing == "2") {
+            //        $('#AddHearing1').prop("checked", true);
+            //        $('#Hearing').hide();
+            //    }
+            //    else {
+            //        $('#AddHearing').prop("checked", false);
+            //        $('#AddHearing1').prop("checked", false);
+            //        $('#Hearing').hide();
+            //    }
+            //    if (data._Screening.AddDental == "1") {
+            //        $('#AddDental').prop("checked", true);
+            //        $('#Dental').show();
+            //    }
+            //    else if (data._Screening.AddDental == "2") {
+            //        $('#AddDental1').prop("checked", true);
+            //        $('#Dental').hide();
+            //    }
+            //    else {
+            //        $('#AddDental').prop("checked", false);
+            //        $('#AddDental1').prop("checked", false);
+            //        $('#Dental').hide();
+            //    }
+            //    if (data._Screening.AddDevelop == "1") {
+            //        $('#AddDevelop').prop("checked", true);
+            //        $('#Develop').show();
+            //    }
+            //    else if (data._Screening.AddDevelop == "2") {
+            //        $('#AddDevelop1').prop("checked", true);
+            //        $('#Develop').hide();
+            //    }
+            //    else {
+            //        $('#AddDevelop').prop("checked", false);
+            //        $('#AddDevelop1').prop("checked", false);
+            //        $('#Develop').hide();
+            //    }
+            //    if (data._Screening.AddSpeech == "1") {
+            //        $('#AddSpeech').prop("checked", true);
+            //        $('#Speech').show();
+            //    }
+            //    else if (data._Screening.AddSpeech == "2") {
+            //        $('#AddSpeech1').prop("checked", true);
+            //        $('#Speech').hide();
+            //    }
+            //    else {
+            //        $('#AddSpeech').prop("checked", false);
+            //        $('#AddSpeech1').prop("checked", false);
+            //        $('#Speech').hide();
+            //    }
+
+            //    //18-11-2016
+
+            //    if (data._Screening.PhysicalFileName != "" && data._Screening.PhysicalFileName != null) {
+            //        $('#Allow30DayPhysical').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/1," + data._Screening.ParentAppID);
+            //        $('#Allow30DayPhysical').show();
+            //        if (data._Screening.PhysicalFileExtension == ".pdf") {
+
+            //            $('#Phyimagedocument').hide();
+            //            $('#Phypdfdocument').show();
+            //            $('#Phypdfdocument').attr("src", HostedDir + data._Screening.PhysicalImagejson);
+            //        }
+            //        else {
+            //            $('#Phyimagedocument').show();
+            //            $('#Phypdfdocument').hide();
+            //            $('#Phyimagedocument').ZoomCrop(
+            //                {
+            //                    image: "data:image/png;base64," + data._Screening.PhysicalImagejson,
+            //                    updated: function (size, crop, position) {
+
+            //                    }
+            //                });
+            //        }
+
+
+            //    }
+            //    else {
+            //        $('#Allow30DayPhysical').hide();
+            //        $('#Phyimagedocument').show();
+            //        $('#Phypdfdocument').hide();
+            //        $('#Phyimagedocument').ZoomCrop(
+            //    {
+            //        image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+            //        updated: function (size, crop, position) {
+
+            //        }
+            //    });
+            //    }
+            //    if (data._Screening.VisionFileName != "" && data._Screening.VisionFileName != null) {
+            //        $('#Allow45DayVisionScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/2," + data._Screening.ParentAppID);
+            //        $('#Allow45DayVisionScreening').show();
+            //        if (data._Screening.VisionFileExtension == ".pdf") {
+            //            $('#Visimagedocument').hide();
+            //            $('#Vispdfdocument').show();
+            //            $('#Vispdfdocument').attr("src", HostedDir + data._Screening.VisionImagejson);
+            //        }
+            //        else {
+            //            $('#Visimagedocument').show();
+            //            $('#Vispdfdocument').hide();
+            //            $('#Visimagedocument').ZoomCrop(
+            //                 {
+            //                     image: "data:image/png;base64," + data._Screening.VisionImagejson,
+            //                     updated: function (size, crop, position) {
+
+            //                     }
+            //                 });
+            //        }
+            //    }
+            //    else {
+            //        $('#Visimagedocument').show();
+            //        $('#Vispdfdocument').hide();
+            //        $('#Visimagedocument').ZoomCrop(
+            //          {
+            //              image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+            //              updated: function (size, crop, position) {
+
+            //              }
+            //          });
+            //        $('#Allow45DayVisionScreening').hide();
+            //    }
+            //    if (data._Screening.HearingFileName != "" && data._Screening.HearingFileName != null) {
+            //        $('#Allow45DayHearingScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/3," + data._Screening.ParentAppID);
+            //        $('#Allow45DayHearingScreening').show();
+            //        if (data._Screening.HearingFileExtension == ".pdf") {
+            //            $('#Hearimagedocument').hide();
+            //            $('#Hearpdfdocument').show();
+            //            $('#Hearpdfdocument').attr("src", HostedDir + data._Screening.HearingImagejson);
+            //        }
+            //        else {
+            //            $('#Hearimagedocument').show();
+            //            $('#Hearpdfdocument').hide();
+
+            //            $('#Hearimagedocument').ZoomCrop(
+            //               {
+            //                   image: "data:image/png;base64," + data._Screening.HearingImagejson,
+            //                   updated: function (size, crop, position) {
+
+            //                   }
+            //               });
+
+
+            //        }
+            //    }
+            //    else {
+
+            //        $('#Hearimagedocument').show();
+            //        $('#Hearpdfdocument').hide();
+            //        $('#Hearimagedocument').ZoomCrop(
+            //            {
+            //                image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+            //                updated: function (size, crop, position) {
+
+            //                }
+            //            });
+            //        $('#Allow45DayHearingScreening').hide();
+            //    }
+            //    if (data._Screening.DevelopFileName != "" && data._Screening.DevelopFileName != null) {
+            //        $('#Allow45DayDevelopmentalScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/4," + data._Screening.ParentAppID);
+            //        $('#Allow45DayDevelopmentalScreening').show();
+
+            //        if (data._Screening.DevelopFileExtension == ".pdf") {
+            //            $('#Devimagedocument').hide();
+            //            $('#Devpdfdocument').show();
+            //            $('#Devpdfdocument').attr("src", HostedDir + data._Screening.DevelopImagejson);
+            //        }
+            //        else {
+            //            $('#Devimagedocument').show();
+            //            $('#Devpdfdocument').hide();
+            //            $('#Devimagedocument').ZoomCrop(
+            //               {
+            //                   image: "data:image/png;base64," + data._Screening.DevelopImagejson,
+            //                   updated: function (size, crop, position) {
+
+            //                   }
+            //               });
+
+            //        }
+            //    }
+            //    else {
+
+            //        $('#Devimagedocument').show();
+            //        $('#Devpdfdocument').hide();
+            //        $('#Devimagedocument').ZoomCrop(
+            //            {
+            //                image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+            //                updated: function (size, crop, position) {
+
+            //                }
+            //            });
+            //        $('#Allow45DayDevelopmentalScreening').hide();
+            //    }
+            //    if (data._Screening.DentalFileName != "" && data._Screening.DentalFileName != null) {
+            //        $('#Allow90DayDentalScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/5," + data._Screening.ParentAppID);
+            //        $('#Allow90DayDentalScreening').show();
+
+
+            //        if (data._Screening.DentalFileExtension == ".pdf") {
+            //            $('#Dentimagedocument').hide();
+            //            $('#Dentpdfdocument').show();
+            //            $('#Dentpdfdocument').attr("src", HostedDir + data._Screening.DentalImagejson);
+            //        }
+            //        else {
+            //            $('#Dentimagedocument').show();
+            //            $('#Dentpdfdocument').hide();
+            //            $('#Dentimagedocument').ZoomCrop(
+            //              {
+            //                  image: "data:image/png;base64," + data._Screening.DentalImagejson,
+            //                  updated: function (size, crop, position) {
+
+            //                  }
+            //              });
+
+
+            //        }
+            //    }
+            //    else {
+
+            //        $('#Dentimagedocument').show();
+            //        $('#Dentpdfdocument').hide();
+            //        $('#Dentimagedocument').ZoomCrop(
+            //         {
+            //             image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+            //             updated: function (size, crop, position) {
+
+            //             }
+            //         });
+            //        $('#Allow90DayDentalScreening').hide();
+            //    }
+            //    if (data._Screening.SpeechFileName != "" && data._Screening.SpeechFileName != null) {
+            //        $('#AllowSpeechScreening').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/6," + data._Screening.ParentAppID);
+            //        $('#AllowSpeechScreening').show();
+
+            //        if (data._Screening.SpeechFileExtension == ".pdf") {
+            //            $('#Speechimagedocument').hide();
+            //            $('#Speechpdfdocument').show();
+            //            $('#Speechpdfdocument').attr("src", HostedDir + data._Screening.SpeechImagejson);
+            //        }
+            //        else {
+            //            $('#Speechimagedocument').show();
+            //            $('#Speechpdfdocument').hide();
+            //            $('#Speechimagedocument').ZoomCrop(
+            //           {
+            //               image: "data:image/png;base64," + data._Screening.SpeechImagejson,
+            //               updated: function (size, crop, position) {
+
+            //               }
+            //           });
+
+            //        }
+
+
+            //    }
+            //    else {
+            //        $('#Speechimagedocument').show();
+            //        $('#Speechpdfdocument').hide();
+            //        $('#Speechimagedocument').ZoomCrop(
+            //            {
+            //                image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+            //                updated: function (size, crop, position) {
+
+            //                }
+            //            });
+
+            //        $('#AllowSpeechScreening').hide();
+            //    }
+            //    if (data._Screening.ScreeningAcceptFileName != "" && data._Screening.ScreeningAcceptFileName != null) {
+            //        $('#ScreeningAcceptance').attr("href", HostedDir + "/Agencyuser/getpdfimageScreening/7," + data._Screening.ParentAppID);
+            //        $('#ScreeningAcceptance').show();
+            //    }
+            //    else {
+            //        $('#ScreeningAcceptance').hide();
+            //    }
+            //    $('#PhysicalFileName').val(data._Screening.PhysicalFileName);
+            //    $('#VisionFileName').val(data._Screening.VisionFileName);
+            //    $('#HearingFileName').val(data._Screening.HearingFileName);
+            //    $('#DevelopFileName').val(data._Screening.DevelopFileName);
+            //    $('#DentalFileName').val(data._Screening.DentalFileName);
+            //    $('#SpeechFileName').val(data._Screening.SpeechFileName);
+            //    $('#ScreeningAcceptFileName').val(data._Screening.ScreeningAcceptFileName);
+            //    $('#ParentAppID').val(data._Screening.ParentAppID);
+            //}
+            //else {
+            //    $('#Allow30DayPhysical').hide();
+            //    $('#Allow45DayVisionScreening').hide();
+            //    $('#Allow45DayHearingScreening').hide();
+            //    $('#Allow45DayDevelopmentalScreening').hide();
+            //    $('#Allow90DayDentalScreening').hide();
+            //    $('#ScreeningAcceptance').hide();
+            //    $('#AllowSpeechScreening').hide();
+            //    $('#Parentscreening').val($('#Pfirstname').val() + ' ' + $('#Plastname').val());
+            //}
+
+
+
+            var isEhsScreenn = false;
+
             if (data.AvailableProgram != null && data.AvailableProgram.length > 0) {
 
                 debugger;
@@ -7273,12 +7723,12 @@
                     $('#AllowScreening').find('.table-main').children('div').hide()
                     $('#AllowScreening').find('#ConsolidateHeading').show();
                     $('#AllowScreening').find('#ParentName').show();
-                    $('#AllowScreening').find('#wellBabyScreening').show();
+                    //$('#AllowScreening').find('#wellBabyScreening').show();
                 }
 
                 else {
                     $('#AllowScreening').find('.table-main').children('div').show();
-                    $('#AllowScreening').find('#wellBabyScreening').hide();
+                    //$('#AllowScreening').find('#wellBabyScreening').hide();
                 }
             }
 
@@ -8493,6 +8943,7 @@
             $('#Alreadyemergencycontact').val(0);
             $('#Oemergencycontact').prop('checked', false);
             $('#ParentSSN3').val('');
+            $('#OtherinHousehold').find('#HouseHoldAvatar').val('')
         }
         function EditOther(data) {
             $('#OthersId').val(data.OthersId);
@@ -9695,8 +10146,7 @@
             });
         }
 
-        function AskForAlert(arg)
-        {
+        function AskForAlert(arg) {
             var prev = $(arg).data('val');
            // alert(prev);
             if (advocate != "") {
@@ -9756,8 +10206,7 @@
                             $('#DivForFSW').show();
                             if (index == -1)
                                 $('#selAssignFSW').val('0');
-                            else
-                            {
+                            else {
                                 advocate = data[index].userId;
                                 $('#selAssignFSW').val(data[index].userId);
                             }
@@ -10486,7 +10935,7 @@
 
         function checkbacktolist() {
 
-            BootstrapDialog.confirm('Any unsaved data will be lost. Do you want to move to family list?', function (result) {
+            BootstrapDialog.confirm('Any unsaved data will be lost.Click OK to continue', function (result) {
                 if (result) {
                     window.location.href = HostedDir + "/AgencyUser/viewfamilydetails";
                 }
@@ -11973,17 +12422,17 @@
                 ShowAllMandatoryFields(Data);
                 return isValid;
             }
-         //   if (Data.PGender == "2") {
-          //      if (Data.PQuestion == "0" || Data.PQuestion == null || Data.PQuestion == "") {
-          //          $('#BtnMsave').show();
-           //         isValid = false;
-           //         customAlert("Are you currently pregnant is required. ");
-           //         activefamilytab();
-           //         $('#TabId').val(3);
-            //        ShowAllMandatoryFields(Data);
-            //        return isValid;
-            //    }
-           // }
+            if (Data.PGender == "2") {
+                if (Data.PQuestion == "0" || Data.PQuestion == null || Data.PQuestion == "") {
+                    $('#BtnMsave').show();
+                    isValid = false;
+                    customAlert("Are you currently pregnant is required. ");
+                    activefamilytab();
+                    $('#TabId').val(3);
+                    ShowAllMandatoryFields(Data);
+                    return isValid;
+                }
+            }
 
             if (Data.Pregnantmotherenrolled) {
                 if (Data.Pregnantmotherprimaryinsurance == "0" || Data.Pregnantmotherprimaryinsurance == null || Data.Pregnantmotherprimaryinsurance == "") {
@@ -12183,17 +12632,17 @@
                     ShowAllMandatoryFields(Data);
                     return isValid;
                 }
-             //   if (Data.P1Gender == "2") {
-             //       if (Data.P1Question == "0" || Data.P1Question == null || Data.P1Question == "") {
-             //           $('#BtnMsave').show();
-              //          isValid = false;
-              //          customAlert("Are you currently pregnant in parent2 is required. ");
-              //          activefamilytab();
-              //          $('#TabId').val(3);
-              //          ShowAllMandatoryFields(Data);
-              //          return isValid;
-             //       }
-             //   }
+                if (Data.P1Gender == "2") {
+                    if (Data.P1Question == "0" || Data.P1Question == null || Data.P1Question == "") {
+                        $('#BtnMsave').show();
+                        isValid = false;
+                        customAlert("Are you currently pregnant in parent2 is required. ");
+                        activefamilytab();
+                        $('#TabId').val(3);
+                        ShowAllMandatoryFields(Data);
+                        return isValid;
+                    }
+                }
                 if (Data.PregnantmotherenrolledP1) {
                     if (Data.Pregnantmotherprimaryinsurance1 == "0" || Data.Pregnantmotherprimaryinsurance1 == null || Data.Pregnantmotherprimaryinsurance1 == "") {
                         $('#BtnMsave').show();
@@ -12542,26 +12991,27 @@
                         if ($(scr).attr('id') != 'ConsolidateHeading') {
 
                             if ($(scr).attr('id') == 'ScreenAcc' && (($(scr).find('input[type=file]').val() == '' && $(scr).find('#ScreeningAcceptance').css('display') == 'none') || $(scr).find('#ScreeningAcceptance').length == 0 || $(scr).find('#ScreeningAcceptance').css('display') == 'none')) {
-                                isValid = true;
-                              //  customAlert('Permission document for screening is required');
-                               // activechildtab();
-                               // $('#TabId').val(4);
-                               // $('#ApplicationScreening').modal('show');
+                                isValid = false;
+                                customAlert('Permission document for screening is required');
+                                activechildtab();
+                                $('#TabId').val(4);
+                                // $('#ApplicationScreening').modal('show');
+
+                                $('#getScreening').trigger('click');
+
                                 return isValid
                             }
 
-                            if(($(scr).attr('id') != 'ScreenAcc'))
-                            {
-                                if($(scr).find('input[type=radio]').length>0  && $(scr).find('input[type=radio]:checked').length==0 )
-                                {
-                                    isValid = true;
-                                   // customAlert('Please select Yes or No for screening question.');
-                                    //activechildtab();
-                                    //$('#TabId').val(4);
-                                   // $(scr).find('input[type=radio]').focus();
-                                   // $('#ApplicationScreening').modal('show');
-                                   
-                                    return isValid
+                            if (($(scr).attr('id') != 'ScreenAcc')) {
+                                if ($(scr).find('input[type=radio]').length > 0 && $(scr).find('input[type=radio]:checked').length == 0) {
+                                    isValid = false;
+                                    customAlert('Please select Yes or No for screening question.');
+                                    activechildtab();
+                                    $('#TabId').val(4);
+                                    $(scr).find('input[type=radio]').focus();
+                                   /// $('#ApplicationScreening').modal('show');
+                                    $('#getScreening').trigger('click');
+                                    return isValid;
                                 }
                             }
 
@@ -13948,6 +14398,135 @@
         }
     </script>
 }
+
+@section Style{
+    
+    
+    <style type="text/css">
+      /*@@media only screen and (min-width:768px) and (max-width:1200px) {
+            .title-fixed {
+        position: static;
+        padding-left: 0;
+    }
+            .protype-solid span textarea {
+        height: 50px;
+        width: 100% !important;
+    }
+            .protype-solid span {
+        width: 55% !important;
+        float: left;
+    }
+                .protype-solid label {
+                width: 45% !important;float: left;
+                }
+            .protype-solid label input {
+        width: 30px !important;
+        float: left;
+    }
+            }
+            .edu-protextarea textarea {
+        width: 65%;
+        float: left;
+        height: 60px;
+        margin-bottom: 15px;
+        max-width:65%;
+    }
+            .protype-solid span textarea {
+        height:  50px;
+        width: 60%;
+    }
+            .protype-solid {
+        width:  100%;
+        float:  left;
+        margin-bottom: 15px;
+    }
+
+    .protype-solid label {
+        width: 30%;
+        float:  left;
+    }
+
+    .protype-solid span {
+        width:  70%;
+        float:  left;
+    }*/
+
+
+      .futurequalifier {
+          color: green;
+      }
+
+
+      .billing-inner-label label, .billing-inner-label span {
+          color: #333;
+          font-weight: normal !important;
+          font-size: 15px;
+          margin-bottom: 0;
+          margin-top: 10px;
+      }
+
+      .bill-radio {
+          margin: 0.5rem;
+          display: inline-block;
+      }
+
+          .bill-radio input[type="radio"] {
+              position: absolute;
+              opacity: 0;
+          }
+
+      .billing-inner input {
+          background: transparent;
+          color: #333;
+          border: 1px solid #333;
+          border-radius: 8px !important;
+          height: 40px;
+      }
+
+      .bill-radio label {
+          padding-left: 0;
+          color: #333;
+          margin-bottom: 0;
+      }
+
+      .bill-radio input[type="radio"]:checked + .radio-label:before {
+          background-color: #295b8f;
+          box-shadow: inset 0 0 0 4px #fff;
+      }
+
+      .bill-radio input[type="radio"] + .radio-label:before {
+          content: '';
+          background: none;
+          border-radius: 100%;
+          border: 1px solid #333;
+          display: inline-block;
+          width: 1.4em;
+          height: 1.4em;
+          position: relative;
+          top: -1px;
+          margin-right: 1em;
+          vertical-align: top;
+          cursor: pointer;
+          text-align: center;
+          -webkit-transition: all 250ms ease;
+          transition: all 250ms ease;
+      }
+
+      .control-label {
+          width: 35%;
+      }
+
+      .ch-form .form-group {
+          min-height: initial;
+          padding-bottom: 10px;
+      }
+</style>
+
+
+        
+        }
+
+
 @section MainContentHolder{
 
 
@@ -13971,14 +14550,14 @@
 
                     <span class="view-btn backto_listspan" id="BackToList">
 
-                        @if (1 == 1)
+                        @if (Model.EditAllowed == 1)
                         {
-                            <button type="submit" value="SaveFamilyDetails" onclick="return isValidnotall();" id="BtnMsave" name="Command" style=" height 26px; padding-top 4px;" class="backto_list">Save</button>
+                            <button type="submit" value="SaveFamilyDetails" onclick="return isValidnotall();" id="BtnMsave" name="Command" style="height:26px; padding-top:4px;" class="backto_list">Save</button>
                         }
-                        else
+                        @*else
                         {
                             <button type="button" id="Btnrequest" onclick="GenerateRequest();" style=" height 26px; padding-top 4px;display:none;" class="backto_list">Request for Ownership of Intake</button>
-                        }
+                        }*@
 
                         @*@if (Model.DeleteAllowed == 0)
                             {
@@ -13986,7 +14565,7 @@
                             }*@
 
 
-                        <a onclick="checkbacktolist();" style="cursor:pointer;" class="backto_list">Back to list</a>
+                        <button onclick="checkbacktolist();" type="button" style="height:26px; padding-top:4px;" class="backto_list">Back to list</button>
                         <input type="hidden" value="@Model.TabId" id="TabId" name="TabId" />
                         <input type="hidden" value="@Model.ApplicationStatusChild" id="ApplicationStatusChild" name="ApplicationStatusChild" />
                         <input type="hidden" value="@Model.ApplicationStatusParent1" id="ApplicationStatusParent1" name="ApplicationStatusParent1" />
@@ -15532,8 +16111,7 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                                                                                </div>*@
-                                                                    <div class="col-lg-6">
+                                                                                                                                </div>*@<div class="col-lg-6">
                                                                         <div class="form-group">
                                                                             <label for="email">Primary Insurance <sup>*</sup></label>
                                                                             @{
@@ -15616,7 +16194,7 @@
                                                                             <div class="col-sm-7" style=" margin-bottom:10px;">
                                                                                 Has the pregnant mom received the following services?
                                                                             </div>
-                                                                            <div class="col-sm-5" style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-5" style=" margin-bottom: 10px;">
                                                                                 <a style="margin-left:3%;" title="Add Conditions" href="#" data-toggle="modal" data-target="#PMS1"><i class="fa fa-arrow-up"></i></a>
                                                                             </div>
                                                                             <div id="PMServiceText1">
@@ -15652,7 +16230,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
                                                                                 Did the mother have any of the following problems during this pregnancy?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz">
@@ -15673,7 +16251,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace" style="margin-top:2%;">
                                                                         <div class="row">
-                                                                            <div class="col-sm-7" style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-7" style=" margin-bottom: 10px;">
                                                                                 What problems did mother have?
                                                                             </div>
                                                                             <div class="col-sm-5">
@@ -15701,7 +16279,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
                                                                                 If pregnant mom had other issues, please explain:
                                                                             </div>
                                                                             <div class="col-md-12">
@@ -15728,7 +16306,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
                                                                                 If any of the previous question are selected, please provide an explanation
                                                                             </div>
                                                                             <div class="col-md-12">
@@ -15738,7 +16316,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
 
                                                                                 Is this pregnancy considered medically high risk by a physician or health care provider?
                                                                             </div>
@@ -15757,7 +16335,7 @@
 
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
                                                                                 Has this woman received a professional dental exam and/or dental treatment in the last 12 months?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz">
@@ -15778,7 +16356,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
                                                                                 Date of the most recent professional dental exam and/or treatment
                                                                             </div>
                                                                             <div class="col-md-12">
@@ -15788,7 +16366,7 @@
                                                                     </div>
                                                                     <div class="col-md-11 col-sm-12 mb10 adddivspace">
                                                                         <div class="row">
-                                                                            <div class="col-sm-12 " style=" margin-bottom 10px;">
+                                                                            <div class="col-sm-12 " style=" margin-bottom: 10px;">
                                                                                 Did pregnant mom need a dental treatment?
                                                                             </div>
                                                                             <div class="col-sm-12 cont-sz">
@@ -16983,7 +17561,7 @@
                                                                 </div>
                                                             </div>
                                                             @*End*@
-                                                            <div class="col-sm-12">
+                                                            <div class="col-sm-12" style="margin-top:1%; margin-bottom:1%;">
                                                                 <div class="col-sm-6">
                                                                     <a href="javascript:void(0)" onclick="Showhealth();">Immunization/Screening <i class="fa fa-arrow-right"></i></a>
                                                                 </div>
@@ -17079,7 +17657,9 @@
                                                                                         <span>No </span>
                                                                                     </div>
                                                                                     <div class="col-sm-5" style="display:none;" id="Screening1">
-                                                                                        <a href="javascript:void(0)" data-toggle="modal" data-target="#ApplicationScreening">Screening <i class="fa fa-arrow-up"></i></a>
+                                                                                      @* <a href="javascript:void(0)" data-toggle="modal" data-target="#ApplicationScreening">Screening <i class="fa fa-arrow-up"></i></a>*@
+                                                                                        
+                                                                                        <a href="javascript:void(0)" id="getScreening" >Screening <i class="fa fa-arrow-up"></i></a>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -23831,6 +24411,16 @@
                 else {
                     $('#BtnMsave').show();
                 }
+
+
+
+                $('#Screening1').on('click', function () {
+
+                });
+
+
+
+
             });
 
 

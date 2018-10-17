@@ -22,6 +22,9 @@ namespace FingerprintsData
         SqlCommand command = new SqlCommand();
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
+        HttpContext context = HttpContext.Current;
+       
+
         public List<Nurse.NurseScreening> Getchildscreeningcenter(string centerid, string userid, string agencyid)
         {
             List<Nurse.NurseScreening> List = new List<Nurse.NurseScreening>();
@@ -64,13 +67,18 @@ namespace FingerprintsData
             return List;
 
         }
-        public void TeacherDashboard(ref DataTable Screeninglist, string Agencyid, string userid)
+        public async Task<DataTable> TeacherDashboard()
         {
-            Screeninglist = new DataTable();
+            DataTable Screeninglist = new DataTable();
             try
             {
-                command.Parameters.Add(new SqlParameter("@Agencyid", Agencyid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
+
+
+
+                StaffDetails staffThread = await Task.Factory.StartNew(() => StaffDetails.GetThreadedInstance(context));
+
+                command.Parameters.Add(new SqlParameter("@Agencyid", staffThread.AgencyId));
+                command.Parameters.Add(new SqlParameter("@userid", staffThread.UserId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "CS_Getteacherdashboard";
@@ -93,6 +101,7 @@ namespace FingerprintsData
                     Connection.Close();
 
             }
+            return await Task.FromResult(Screeninglist);
 
         }
         public List<Roster> GetteacherDeclinedScreenings(string centerid, string userid, string agencyid, string RoleID)

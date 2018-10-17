@@ -21,5 +21,6 @@ namespace FingerprintsModel
         public long? ReferralClientServiceId { get; set; }
         public string ParentName { get; set; }
         public List<ReferralServiceModel> referralserviceList { get; set; }
+        public string ScreeningReferralYakkr { get; set; }
     }
 }

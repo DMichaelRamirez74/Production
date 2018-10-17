@@ -216,9 +216,9 @@
                         font-size: 16px;
                     }
 
-                .my-btn:hover {
-                    padding: 8px 20px;
-                }
+                /*.my-btn:hover {
+                     padding: 8px 20px;
+                 }*/
 
                 .backto_list:hover, .backto_list:active, .backto_list:focus {
                     color: #fff;
@@ -234,7 +234,117 @@
     <script type="text/javascript">
         var ssnoriginalvalue = null;
         var isUpdate = false;
+        function setDisability() {
+
+            var IsProgramchecked = false;
+            var isEHS = false;
+            $('#forexpire').hide();
+            $('#IsIFSP')[0].checked = false;
+            $('#IsIEP')[0].checked = false;
+            $('#IsExpired')[0].checked = false;
+            if ($('#CParentdisable1')[0].checked) {
+                $('[name="PostedPostedPrograms.ProgramID"]').each(function (i) {
+                    if ($('[name="PostedPostedPrograms.ProgramID"]')[i].checked) {
+                        IsProgramchecked = true;
+                        if ($('[name="PostedPostedPrograms.ProgramID"]')[i].accessKey == "1") {
+                            isEHS = true;
+                        }
+                    }
+                });
+
+            } else {
+                $('#IsIFSP')[0].checked = false;
+                $('#IsIEP')[0].checked = false;
+                $('#IsExpired')[0].checked = false;
+                $('#disablity').hide();
+                $('#forexpire').hide();
+            }
+            if (!IsProgramchecked) {
+                $('#disablity').hide();
+                $('#forexpire').hide();
+            }
+            else {
+                $('#disablity').show();
+                if (isEHS) {
+
+                    $('#forehs').show();
+                    $('#forhs').hide();
+                }
+                else {
+
+                    $('#forehs').hide();
+                    $('#forhs').show();
+                }
+            }
+
+        }
+        function IEPorIFSP_Checked() {
+            if ($('#IsIEP')[0].checked || $('#IsIFSP')[0].checked) {
+                $('#forexpire').show();
+            } else {
+                $('#forexpire').hide();
+            }
+        }
         $(document).ready(function () {
+
+
+
+            $('.backto_list').on('click', function () {
+
+                $('#spinner').show();
+            });
+
+            $('#getScreening').on('click', function () {
+                debugger;
+                var arrlist = $.map($('#customChecklist').find('input:checkbox:checked'), function (ele, i) {
+
+                    return $(ele).attr('accesskey');
+
+                });
+
+                arrlist = $.unique(arrlist);
+
+                arrlist = (arrlist.length > 0) ? arrlist[0] : 0;
+
+                var clientID = $('#ChildId').val();
+
+
+
+
+
+                $('#spinner').show();
+
+                $('#ApplicationScreening').find('#screeningDivStart').load('@Url.Action("GetScreeningByRefProg", "AgencyUser")', { clientID: clientID, refProg: arrlist }, function (response, status, xhr) {
+                    $('#ApplicationScreening').find('#screeningDivStart').html(response);
+
+                    $('#spinner').hide();
+
+                    $('#ApplicationScreening').find('#screeningDivStart').find('.Sdate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+
+                    $('#scrSig').signature();
+
+                    if ($('#ApplicationScreening').find('#ParentSignature') != '') {
+                        var parentsig = $('#ApplicationScreening').find('#ParentSignature').val();
+                        if (parentsig.length > 0) {
+                            $('#scrSig').signature('draw', parentsig)
+                        }
+                    }
+
+
+                    $('#ApplicationScreening').find('.modal-content').height(window.height - ((window.height * 2.6) / 100));
+
+                    var divstartHeight = (window.height - ((window.height * 23.68) / 100));
+                    $('#ApplicationScreening').find('#screeningDivStart').css('max-height', divstartHeight);
+
+                    //   $('#ApplicationScreening').find('.tab-content').css('max-height', divstartHeight);
+
+
+                    //  $('#ApplicationScreening').find('.tab-content').css('max-height', (window.height - ((window.height * 40.7) / 100)))
+
+                    $('#ApplicationScreening').modal('show');
+                });
+
+            });
 
 
             //$('#WellBabyDoc').change(function () {
@@ -553,10 +663,52 @@
 
 
 
+            if ('@Session["Roleid"]' != "a31b1716-b042-46b7-acc0-95794e378b26") {
+                if ($('#ChildId').val() != "0") {
+                    $('#CDOB').attr("readonly", "readonly");
+                    $('#customChecklist input[type=checkbox]').each(function () {
+                        $(this).attr("onclick", "return false");
+                    });
+                    $('#CGenderfemale').attr("onclick", "return false");
+                    $('#CGendermale').attr("onclick", "return false");
+                    $('#CGenderother').attr("onclick", "return false");
 
+                    if ($('title').html().trim() == 'Add New Child') {
+                        Getchild();
+                    }
+
+                }
+            }
+            if ('@Session["Roleid"]' == "a31b1716-b042-46b7-acc0-95794e378b26") {
+
+
+                if ($('#ChildId').val() != "0") {
+                    if ($('#viewBagText').val() == "ChildDetails") {
+                        GetHschild();
+                    }
+                    else {
+                        Getchild();
+                    }
+
+
+                }
+
+            }
 
         });
 
+
+        function validatedates(inputTextObject) {
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(inputTextObject).val())) {
+                    customAlert("Invalid date.");
+                    $(inputTextObject).val('');
+                }
+            }
+
+        }
 
         function setDisability() {
 
@@ -611,12 +763,11 @@
                 secureuri: false,
                 async: false,
                 success: function (data) {
-                    console.log(data);
+
                     EditChild(data);
                     SetCustomData(data);
                 }
                , error: function (response) {
-                   console.log(response);
                    customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
                }
             });
@@ -696,6 +847,7 @@
                     $('#customChecklist input[type=checkbox]').each(function () {
                         if ($(this).val() == data.AvailableProgram[i].Id) {
                             $(this).prop("checked", true);
+
                             //if ($(this).val() == 10064 || $(this).val() == 10065) // id of EHS
                             //{
                             //    $('#PhysicalScreen label').html("Well Baby Exam <sup>*</sup>");
@@ -3766,7 +3918,6 @@
                             {
                                 image: "data:image/png;base64," + data._Screening.PhysicalImagejson,
                                 updated: function (size, crop, position) {
-                                    console.log(size, crop, position);
                                 }
                             });
                     }
@@ -3781,7 +3932,6 @@
                 {
                     image: HostedDir + "/Content/img/NoImageAvailable.jpg",
                     updated: function (size, crop, position) {
-                        console.log(size, crop, position);
                     }
                 });
                 }
@@ -3803,7 +3953,6 @@
                                  updated: function (size, crop, position) {
 
 
-                                     console.log(size, crop, position);
                                  }
                              });
 
@@ -3821,7 +3970,7 @@
                       {
                           image: HostedDir + "/Content/img/NoImageAvailable.jpg",
                           updated: function (size, crop, position) {
-                              console.log(size, crop, position);
+                            
                           }
                       });
                     $('#Allow45DayVisionScreening').hide();
@@ -3842,7 +3991,7 @@
                            {
                                image: "data:image/png;base64," + data._Screening.HearingImagejson,
                                updated: function (size, crop, position) {
-                                   console.log(size, crop, position);
+                                
                                }
                            });
 
@@ -3857,7 +4006,7 @@
                         {
                             image: HostedDir + "/Content/img/NoImageAvailable.jpg",
                             updated: function (size, crop, position) {
-                                console.log(size, crop, position);
+                               
                             }
                         });
                     $('#Allow45DayHearingScreening').hide();
@@ -3878,7 +4027,7 @@
                            {
                                image: "data:image/png;base64," + data._Screening.DevelopImagejson,
                                updated: function (size, crop, position) {
-                                   console.log(size, crop, position);
+                                  
                                }
                            });
 
@@ -3892,7 +4041,7 @@
                         {
                             image: HostedDir + "/Content/img/NoImageAvailable.jpg",
                             updated: function (size, crop, position) {
-                                console.log(size, crop, position);
+                              
                             }
                         });
                     $('#Allow45DayDevelopmentalScreening').hide();
@@ -3914,7 +4063,7 @@
                           {
                               image: "data:image/png;base64," + data._Screening.DentalImagejson,
                               updated: function (size, crop, position) {
-                                  console.log(size, crop, position);
+                                  
                               }
                           });
 
@@ -3929,7 +4078,7 @@
                      {
                          image: HostedDir + "/Content/img/NoImageAvailable.jpg",
                          updated: function (size, crop, position) {
-                             console.log(size, crop, position);
+                            
                          }
                      });
                     $('#Allow90DayDentalScreening').hide();
@@ -3950,7 +4099,7 @@
                        {
                            image: "data:image/png;base64," + data._Screening.SpeechImagejson,
                            updated: function (size, crop, position) {
-                               console.log(size, crop, position);
+                             
                            }
                        });
 
@@ -3965,7 +4114,7 @@
                         {
                             image: HostedDir + "/Content/img/NoImageAvailable.jpg",
                             updated: function (size, crop, position) {
-                                console.log(size, crop, position);
+                               
                             }
                         });
 
@@ -5446,11 +5595,239 @@
             return true;
         }
 
-        function isValidscreening() {
+        //function isValidscreening() {
 
-            if (CheckChild()) {
-                $('#ApplicationScreening').modal('hide');
+        //    if (CheckChild()) {
+        //        $('#ApplicationScreening').modal('hide');
+        //    }
+
+        //}
+
+
+        function isValidscreening(ele, screenCommand) {
+            isValid = true;
+            cleanValidation();
+
+
+
+
+            if (screenCommand == 1) {
+
+
+
+                //Checks for Approval of Screening by parent//
+
+                var allowScr = $('#ApplicationScreening').find('#AllowScreening');
+
+                if (allowScr.find('#ScreenAcc').find('#ScreeningAccept').val() == '' && !allowScr.find('#ScreenAcc').find('#ScreeningAcceptance').is(':visible')
+                    && !allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').is(':checked')) {
+                    isValid = false;
+                    customAlert("Permission to screening form is required.");
+                    //$('#ApplicationScreening').modal('toggle');
+                    plainValidation('#ScreeningAccept');
+                    return isValid;
+                }
+
+                if (!allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').is(':checked')
+
+                    && (allowScr.find('#ScreenAcc').find('#ScreeningAccept').val() == '' && !allowScr.find('#ScreenAcc').find('#ScreeningAcceptance').is(':visible'))) {
+                    isValid = false;
+                    customAlert("Please select parent");
+                    allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').focus();
+                    //   plainValidation('#ScreeningAcceptance');
+                    return isValid;
+                }
+
+                if (allowScr.find('#ParentName').find('input:radio[name=radioScreeningParent]').is(':checked') && ($('#ParentSignature').val() == null || $('#ParentSignature').val() == '')) {
+                    isValid = false;
+                    customAlert("Parent signature is required.");
+                    plainValidation('#scrSig');
+                    $('.scr-signature-div').show('slow');
+                    return isValid;
+                }
+
+
+
+
+
+                debugger;
+                var errScr = 0;
+                allowScr.find('.screening-approval-div').each(function (i, scr) {
+                    debugger;
+                    if (!$(scr).find('input:radio[name="ScreeningList[' + i + '].Approved"]').is(':checked')) {
+                        isValid = false;
+                        customAlert('Please select Yes or No to allow screening.');
+                        plainValidation($(scr).find('input:radio[name="ScreeningList[' + i + '].Approved"]'));
+                        errScr++;
+
+                    }
+                    else if (
+
+                        $(scr).find('input:radio[name="ScreeningList[' + i + '].Approved"][value=1]').is(':checked') &&
+                        $(scr).find('input:file[name="ScreeningList[' + i + '].ApprovedFile"]').val() == '' &&
+                        !$(scr).find('#Allow_' + i).is(':visible') &&
+                        !$(scr).find('input:checkbox[name="ScreeningList[' + i + '].NoDocument"]').is(':checked')) {
+                        isValid = false;
+                        customAlert('Please upload document for screening.');
+                        plainValidation($(scr).find('input:file[name="ScreeningList[' + i + '].ApprovedFile"]'));
+                        errScr++;
+
+                    }
+
+                    if (errScr > 0) {
+                        return isValid;
+                    }
+                    else {
+
+                    }
+                });
+
+
+                if (errScr > 0) {
+                    return false;
+                }
             }
+
+
+
+
+            if (screenCommand == 2) {
+                debugger;
+                cleanValidation();
+                var scrtabarr = [];
+
+                var qnerror = 0;
+
+                var tabid = $(ele).closest('.tab-pane').attr('id');
+
+                $.each($('#ScreeningDiv').find('#myTabContent').find('#' + tabid).find('.qn-div'), function (j, qn) {
+
+                    var ackey = $(qn).children('label').attr('accesskey');
+
+                    if (ackey == '1' && j == 0) {
+                        if ($(qn).find('select').val() == null || $(qn).find('select').val() == '' || $(qn).find('select').val() == '0') {
+                            qnerror++;
+                            plainValidation($(qn).find('select'));
+                        }
+                    }
+
+                    else {
+                        var supLength = $(qn).children('label').contents().filter(function () {
+
+                            return $(this)[0].nodeName == 'SUP';
+                        }).length;
+
+                        if (supLength > 0) {
+
+
+                            var nodeName = $(qn).find('.custscreeningquestin')[0].nodeName;
+
+                            switch (nodeName) {
+                                case 'SELECT':
+                                    if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == '0') {
+                                        qnerror++;
+                                        plainValidation($(qn).find('.custscreeningquestin'));
+                                    }
+                                    break;
+
+                                case 'INPUT':
+                                    if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == undefined) {
+                                        qnerror++;
+                                        plainValidation($(qn).find('.custscreeningquestin'));
+                                    }
+                                    break;
+
+
+
+
+                            }
+                        }
+
+
+
+                    }
+
+
+
+                });
+                if (qnerror > 0) {
+                    customAlert('Mandatory fields are required.');
+                    // $('#ScreeningDiv').find('#myTab').find('#tabid' + scrtabarr[i] + '').children('a').trigger('click');
+                    return false;
+                }
+
+
+
+
+
+
+
+
+                if (qnerror > 0) {
+                    customAlert('Mandatory fields are required.');
+                    return false;
+
+                }
+
+
+
+
+            }
+
+
+
+
+            $('#spinner').show();
+
+
+
+
+
+
+            var myform = document.getElementById("form2");
+            var fd = new FormData(myform);
+            $('#form1 input:file').each(function (a, b) {
+                var fileInput = $(this);
+                fd.append($(fileInput).attr("name"), fileInput);
+            });
+
+            fd.append('saveCommand', screenCommand);
+
+            $.ajax({
+                url: HostedDir + "/AgencyUser/SaveScreeningApprovalByClient",
+                type: "POST",
+                data: fd,
+                dataType: "json",
+                secureuri: false,
+                processData: false,
+                contentType: false,
+                async: true,
+                success: function (Data) {
+
+                    if (Data) {
+                        customAlert("Record saved successfully.");
+                        $('#ApplicationScreening').modal('hide');
+                        $('#spinner').hide();
+                    }
+                    else {
+
+                        customAlert("Error occurred. Please, try again later.");
+                        $('#spinner').hide();
+                    }
+
+
+                }
+                   , error: function (Data) {
+
+                       customAlert("Session Ended Log Onto The System Again.");
+                       setTimeout(function () {
+                           window.location.href = HostedDir + '/login/Loginagency';
+                       }, 2000);
+                   }
+            });
+
+
+
 
         }
 
@@ -5577,7 +5954,14 @@
                 customAlert("Is Foster Child is required. ");
                 return isValid;
             }
+            if ($('#IsFoster1').prop("checked") && $('#FiledFosterAvatar').val() == "") {
+                if ($('#FosterFileName').val() == '') {
+                    isValid = false;
+                    customAlert("Foster child document form is required");
+                    return isValid;
+                }
 
+            }
             if (!$('#Inwalfareagency1').prop("checked") && !$('#Inwalfareagency2').prop("checked")) {
                 isValid = false;
                 customAlert("Is child referred by a child welfare agency is required. ");
@@ -5586,6 +5970,11 @@
             if (!$('#InDualcustody1').prop("checked") && !$('#InDualcustody2').prop("checked")) {
                 isValid = false;
                 customAlert("Is child a dual custody is required. ");
+                return isValid;
+            }
+            if (!$('#InChildCareSubsidy1').prop("checked") && !$('#InChildCareSubsidy2').prop("checked")) {
+                isValid = false;
+                customAlert("Is child in child care subsidy is required? ");
                 return isValid;
             }
             if (!$('#CParentdisable1').prop("checked") && !$('#CParentdisable2').prop("checked")) {
@@ -5609,7 +5998,13 @@
                 return isValid;
 
             }
+            //if ($('#BMIStatus').val() == "" || $('#BMIStatus').val() == null) {
+            //    isValid = false;
+            //    customAlert("BMI Status is required. ");
+            //    plainValidation('#BMIStatus');
+            //    return isValid;
 
+            //}
             if (!$('#MedicalService1').prop("checked") && !$('#MedicalService2').prop("checked")) {
                 isValid = false;
                 customAlert("Is this child up-to-date on a schedule of age-appropriate health care is required. ");
@@ -5844,12 +6239,128 @@
 
         }
 
+        function SetCustomData(data) {
+            var filename = null;
+            var fileextension = null;
+            var filedata = null;
+            var programtype = null;
+
+            $('#customChecklist input[type=checkbox]').each(function () {
+                if ($(this).prop("checked")) {
+                    programtype = $(this).attr("accesskey");
+                }
+            });
+
+            if (programtype != null && (programtype == 1 || programtype == 2)) {
+                $('.customallowscreening').each(function () {
+                    if ($(this).attr("accesskey") == programtype) {
+                        $(this).show();
+                    }
+                    else {
+                        $(this).hide();
+                    }
+                });
+            }
+            //if (data._CustomScreeningAlloweds != null && data._CustomScreeningAlloweds.length > 0) {
+            //    for (var i = 0; i < data._CustomScreeningAlloweds.length; i++) {
+            //        $('.customscreeningradioallowed').each(function () {
+            //            var screeingid = $(this).attr("name").split("@@");
+            //            if (data._CustomScreeningAlloweds[i].Screeningid == screeingid[0]) {
+            //                if (data._CustomScreeningAlloweds[i].ScreeningAllowed == 1) {
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "101").prop("checked", true);
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "tabid").show();
+            //                    //$('#add' + data._CustomScreeningAlloweds[i].ScreeningName ).show();
+            //                    if (data._childscreenings != null && data._childscreenings.length > 0) {
+            //                        for (var j = 0; j < data._childscreenings.length; j++) {
+            //                            if (data._childscreenings[j].Screeningid == data._CustomScreeningAlloweds[i].Screeningid) {
+            //                                var cusquesinputid = null;
+            //                                if (data._childscreenings[j].optionid != "0")
+            //                                    cusquesinputid = data._childscreenings[j].QuestionAcronym + "o" + data._childscreenings[j].optionid;
+            //                                else
+            //                                    cusquesinputid = data._childscreenings[j].QuestionAcronym;
+            //                                if (cusquesinputid != null) {
+            //                                    var input = $('#' + cusquesinputid);
+            //                                    if ($(input).attr("type") == "text")
+            //                                        $(input).val(data._childscreenings[j].Value);
+            //                                    if ($(input).attr("type") == "radio" || $(input).attr("type") == "checkbox")
+            //                                        $(input).prop("checked", true);
+            //                                    if ($(input).is("select")) {
+            //                                        $(input).val(data._childscreenings[j].Value);
+            //                                    }
+            //                                }
+
+            //                                //Code to display document image or pdf
+            //                                if (data._childscreenings[j].pdfpath != "") {
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').attr("src", HostedDir + data._childscreenings[j].pdfpath);
+            //                                }
+            //                                else if (data._childscreenings[j].Documentdata != "") {
+
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').ZoomCrop(
+            //                                         {
+            //                                             image: "data:image/png;base64," + data._childscreenings[j].Documentdata,
+            //                                             updated: function (size, crop, position) {
+            //                                                 console.log(size, crop, position);
+            //                                             }
+            //                                         });
+            //                                }
+            //                                ///End of code
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //                else {
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "102").prop("checked", true);
+            //                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + "tabid").hide();
+            //                    if (data._childscreenings != null && data._childscreenings.length > 0) {
+            //                        for (var j = 0; j < data._childscreenings.length; j++) {
+            //                            if (data._childscreenings[j].Screeningid == data._CustomScreeningAlloweds[i].Screeningid) {
+            //                                //Code to display document image or pdf
+            //                                if (data._childscreenings[j].pdfpath != "") {
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').attr("src", HostedDir + data._childscreenings[j].pdfpath);
+            //                                }
+            //                                else if (data._childscreenings[j].Documentdata != "") {
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').attr("href", HostedDir + "/Agencyuser/GetcustompdfimageScreening/" + data._CustomScreeningAlloweds[i].Screeningid + "," + $('#ChildId').val());
+            //                                    $('#Allow' + data._CustomScreeningAlloweds[i].ScreeningName + data._CustomScreeningAlloweds[i].Screeningid + 'Screening').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').show();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_pdfdocument').hide();
+            //                                    $('#' + data._CustomScreeningAlloweds[i].ScreeningName + '_imagedocument').ZoomCrop(
+            //                                         {
+            //                                             image: "data:image/png;base64," + data._childscreenings[j].Documentdata,
+            //                                             updated: function (size, crop, position) {
+            //                                                 console.log(size, crop, position);
+            //                                             }
+            //                                         });
+            //                                }
+            //                                ///End of code
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        });
+            //    }
+            //}
+        }
+
     </script>
 
 
 }
 @section MainContentHolder{
-    <style>
+
+ <style>
         .billing-inner-label label, .billing-inner-label span {
             color: #333;
             font-weight: normal !important;
@@ -6674,7 +7185,7 @@
                                                 <span>No </span>
                                             </div>
                                             <div class="col-sm-5" style="display:none;" id="Screening1">
-                                                <a href="javascript:void(0)" data-toggle="modal" data-target="#ApplicationScreening">Screening <i class="fa fa-arrow-up"></i></a>
+                                                <a href="javascript:void(0)" id="getScreening">Screening <i class="fa fa-arrow-up"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -11460,47 +11971,7 @@
         </div>
     </div>
 
-
-    @*<div class="modal fade" id="AddPhyExamDetailsPopUp" role="dialog">
-            <div class="modal-dialog">
-                @*Modal content
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4><label id="AddPhyExamHeading" text="" /> </h4>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Expected Arrival Time <sup>*</sup>:</label>
-                        <input type="text" class="form-control txt-clear" placeholder="MM/DD/YYYY" maxlength="50" style="width:180px!important;margin-left:75px!important" id="WellPhyExamDate" onblur="return validatedate1(this);" for="current_password" />
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"  style="width:180px!important;margin-left:75px!important" for="current_password">Physical Exam Status <sup>*</sup></label>
-                        <input type="text" class="form-control txt-clear" style="width:180px!important;margin-left:75px!important" id="WellPhyExamStatus" for="current_password" />
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Reason For Follow-Up <sup>*</sup> </label>
-                        <input type="text" class="form-control txt-clear" style="width:180px!important;margin-left:75px!important" id="WellPhyExamStatus" for="current_password" />
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Medical Treatment/Follow-Up </label>
-                        <input type="text" class="form-control txt-clear" style="width:180px!important;margin-left:75px!important" id="WellPhyExamStatus" for="current_password" />
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Medical Treatment/Follow-Up Comments  </label>
-                        <input type="text" class="form-control txt-clear" style="width:180px!important;margin-left:75px!important" id="WellPhy" for="current_password" />
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label" style="width:180px!important;margin-left:75px!important" for="current_password">Blood Pressure Results   </label>
-                        <input type="text" class="form-control txt-clear" style="width:180px!important;margin-left:75px!important" id="WellPhyBloodPressure" for="current_password" />
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button"  class="my-btn1">Save</button>
-                        <button type="button" data-dismiss="modal" class="my-btn1">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>*@
-    <script src="http://maps.google.com/maps/api/js?key=AIzaSyCgueWMY-8D3Lw91hgk3yHmidmdoKEtiVU&callback=LoadMap" type="text/javascript"></script>
+  
     <script>
 
 

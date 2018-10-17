@@ -548,19 +548,93 @@
         </div>
     </div>
     @{ //for redirection
-List<int> YakkrExcludeFromFacility = new List<int>();
-YakkrExcludeFromFacility.Add(267);
-YakkrExcludeFromFacility.Add(292);
-YakkrExcludeFromFacility.Add(266);
-YakkrExcludeFromFacility.Add(265);
-YakkrExcludeFromFacility.Add(281); 
-YakkrExcludeFromFacility.Add(282); 
+        List<int> YakkrExcludeFromFacility = new List<int>();
+        YakkrExcludeFromFacility.Add(267);
+        YakkrExcludeFromFacility.Add(292);
+        YakkrExcludeFromFacility.Add(266);
+        YakkrExcludeFromFacility.Add(265);
+        YakkrExcludeFromFacility.Add(281);
+        YakkrExcludeFromFacility.Add(282);
 
     }
     <div class="row">
         <div class="col-lg-12 col-sm-12 col-xs-12 col-md-12">
 
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                @if (ViewBag.YakkrCode == "455")
+                {
+                <div class="table-responsive">
+
+                    @if (Model != null && Model.Count() > 0)
+                        {
+                            var screeningNameList = Model.Select(x => x.Description).ToList();
+
+                            foreach (var screeningName in screeningNameList)
+                            {
+                        <div class="col-xs-12">
+
+                            <h3>@screeningName Screening Referral</h3>
+                            <div class="table-responsive">
+
+
+                                <table class="table table_size">
+
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Client</th>
+                                            <th>DOB</th>
+                                            <th>Center Name</th>
+                                            <th>From User</th>
+                                            <th>Date on the List</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                                var clientList = Model.Where(x => x.Description == screeningName).ToList();
+                                        }
+
+                                        @if (clientList != null && clientList.Count > 0)
+                                            {
+                                                foreach (var client in clientList)
+                                                {
+                                                <tr>
+                                                    <td class="ClientName">
+                                                        <span class="YakkrID" style="display:none;">@FingerprintsModel.EncryptDecrypt.Encrypt64(client.YakkrID)</span>
+                                                        <span class="HouseHoldId" style="display:none;">@client.HouseHoldId</span>
+                                                        <span class="ClientId" style="display:none;">@FingerprintsModel.EncryptDecrypt.Encrypt64(client.ClientId)</span>
+                                                        <span class="FromUserID" style="display:none;">@client.FromUserID</span>
+
+                                                        <a href="javascript:void(0);">Select</a>
+
+
+                                                    </td>
+                                                    <td>@client.ClientName</td>
+                                                    <td>@client.DOB</td>
+                                                    <td>@client.CenterName</td>
+                                                    <td>@client.FromUser</td>
+                                                    <td>@client.Date</td>
+
+                                                </tr>
+                                                }
+                                            }
+
+                                    </tbody>
+
+
+                                </table>
+                            </div>
+                        </div>
+                                                        }
+
+                                                    }
+
+
+
+                </div>
+                                                    }
+                                                    else
+                                                    {
 
                 <div class="table-responsive">
                     <table class="table table_size" id="Gridclient">
@@ -1696,17 +1770,23 @@ YakkrExcludeFromFacility.Add(282);
     <input type="hidden" id="isDisabilityRole" value="@Session["RoleID"].ToString()" />
     @Html.Partial("~/Views/Partialviews/DisabilityClient.cshtml")
 
+  
+}
+
+@section Script
+    {
+
     <script src="~/Scripts/SiteScript.js"></script>
     <script>
 
 
 
-        $(function () {
-            $('#DocumentDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                        $(function () {
+                            $('#DocumentDate').mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
 
-            if ($('#isDisabilityRole').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80' || $('#isDisabilityRole').val() == '9c34ec8e-2359-4704-be89-d9f4b7706e82') {
-                BindDropdownDisable();
-            }
+                            if ($('#isDisabilityRole').val() == '047c02fe-b8f1-4a9b-b01f-539d6a238d80' || $('#isDisabilityRole').val() == '9c34ec8e-2359-4704-be89-d9f4b7706e82') {
+                                BindDropdownDisable();
+                            }
 
 
             var HouseHoldId = "", ClientId = "", YakkrID = "";
@@ -2018,20 +2098,8 @@ YakkrExcludeFromFacility.Add(282);
 
                 var record_type = $(this).attr('record-type');
 
-                //$.ajax({
-                //    type: "POST",
-                //    url: "/Yakkr/SenMailToParentsAndTeachers",
-                //    data: { 'YakkrID': YakkrID, 'RouteCode': '73', 'recordType': record_type },
-                //    async: false,
-                //    success: function (data) {
-                //        window.location.href = "/Yakkr/YakkrDetails";
-                //    },
-                //    error: function (data) {
 
-                //        console.log('Error');
-                //    }
-                //});
-            });
+                            });
 
             $('input[name=acceptradio]').on('change', function () {
 
@@ -2274,38 +2342,21 @@ YakkrExcludeFromFacility.Add(282);
                     $('#myModalApprovalForClassRoomOpenCloseRequest').modal('show');
                 }
 
-                //else if ($('.yakkr-code').text().trim() == "292") {
-                //    $.ajax({
-                //        type: "POST",
-                //        url: "/Parent/GetAlert",
-                //        data: { 'HouseHoldId': YakkrID, 'RouteCode': '292', 'Date': Date },
-                //        success: function (data) {
-                //            $('.child-referral-teachername').text(TeacherName);
-                //            $('.child-referral-centername').text(Center);
-                //            $('.child-referral-clientroom').text(ClientName);
-                //            $('.child-referral-classname').text(data[0]);
-                //           // $('.child-referral-message').text(data[1]);
-                //        },
-                //        error: function (data) {
-                //            console.log('Error');
-                //        }
-                //    });
-                //    $('#myModalChildReferralNotes').modal('show');
-                //}
-                else if ($('.yakkr-code').text().trim() == "700" || $('.yakkr-code').text().trim() == "703") {
-                    if ($('.yakkr-code').text().trim() == "703") {
-                        $('.transportation-header-text').text("Transportation Route Request");
-                        $('.btn-approve-transportation,.btn-reject-transportation').remove();
-                    }
-                    //Transportation request
-                    $('.client-name').text(ClientName);
-                    $.ajax({
-                        dataType: 'json',
-                        type: "POST",
-                        async: false,
-                        url: "/Transportation/GetTransportationandHouseholdDetails",
-                        data: { 'ClientId': ClientId },
-                        success: function (data) {
+
+                                else if ($('.yakkr-code').text().trim() == "700" || $('.yakkr-code').text().trim() == "703") {
+                                    if ($('.yakkr-code').text().trim() == "703") {
+                                        $('.transportation-header-text').text("Transportation Route Request");
+                                        $('.btn-approve-transportation,.btn-reject-transportation').remove();
+                                    }
+                                    //Transportation request
+                                    $('.client-name').text(ClientName);
+                                    $.ajax({
+                                        dataType: 'json',
+                                        type: "POST",
+                                        async: false,
+                                        url: "/Transportation/GetTransportationandHouseholdDetails",
+                                        data: { 'ClientId': ClientId },
+                                        success: function (data) {
 
                             var result = JSON.parse(data);
                             if (result.Table.length > 0) {
@@ -2415,7 +2466,18 @@ YakkrExcludeFromFacility.Add(282);
                     });
                 }
 
-            });
+                                //redirects to Referral Service Page for Screening Referral (Yakkr 455)//
+                                else if($('.yakkr-code').text().trim()=="455")
+                                {
+                                    debugger;
+                                    $('#spinner').show();
+
+                                       
+                                    location.href = HostedDir + '/Roster/ReferralService?id=' + ClientId + '&ClientName=' + ClientName + '&scrYakkr='+YakkrID+'';
+                                  
+                                }
+
+                            });
 
             $('.btn-close-transportaion').click(function () {
                 $('#transportation1').modal('hide');

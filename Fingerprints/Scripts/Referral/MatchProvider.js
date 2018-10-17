@@ -128,9 +128,9 @@ $(document).ready(function () {
         $('#Description').prop('disabled', true)
     }
 
-    if (new Date(new Date().toDateString()) > new Date(new Date($('#datepicker').val()).toDateString())) {
-        $('#surveryRef').removeClass('hidden');
-    }
+    //if (new Date(new Date().toDateString()) > new Date(new Date($('#datepicker').val()).toDateString())) {
+    //    $('#surveryRef').removeClass('hidden');
+    //}
 
 });
 
@@ -536,134 +536,134 @@ $('#SaveSurvey').click(function () {
     }
 });
 
-$('#surveryRef').click(function () {
+//$('#surveryRef').click(function () {
 
-    var referralclientId = $('#ReferralClientServiceId').val();
+//    var referralclientId = $('#ReferralClientServiceId').val();
 
-    $.ajax({
-        url: "/Roster/LoadSurveyOptions",
-        datatype: "application/json",
-        async: false,
-        data: { ReferralClientId: referralclientId },
-        success: function (data) {
+//    $.ajax({
+//        url: "/Roster/LoadSurveyOptions",
+//        datatype: "application/json",
+//        async: false,
+//        data: { ReferralClientId: referralclientId },
+//        success: function (data) {
 
-            if (data.length > 0) {
-                if (data[0].Answer == "") {
-                    $('#isupdate').val(false);
-                }
-                if (data[0].Answer != "") {
+//            if (data.length > 0) {
+//                if (data[0].Answer == "") {
+//                    $('#isupdate').val(false);
+//                }
+//                if (data[0].Answer != "") {
 
-                    $('#isupdate').val(true);
-                }
-                var updatevalue = $.parseJSON($('#isupdate').val());
-                if (!updatevalue) {
-                    var Convdate1 = new Date();
-                    var convmonth1 = Convdate1.getMonth() + 1;
-                    var convdate1 = Convdate1.getDate();
-                    var month1 = (convmonth1 < 10) ? "0" + convmonth1 : convmonth1;
-                    var date1 = (convdate1 < 10) ? "0" + convdate1 : convdate1;
-                    var convertedDate1 = (month1 + '/' + date1 + '/' + Convdate1.getFullYear());
-                    $('#datecompleted').val(convertedDate1);
-                    $('#datecompleted').html(convertedDate1);
-                }
-                else {
-                    if (data[0].CreatedDate != "") {
-                        var Convdate = new Date(data[0].CreatedDate);
-                        var convmonth = Convdate.getMonth() + 1;
-                        var convdate = Convdate.getDate();
-                        var month = (convmonth < 10) ? "0" + convmonth : convmonth;
-                        var date = (convdate < 10) ? "0" + convdate : convdate;
-                        var convertedDate = (month + '/' + date + '/' + Convdate.getFullYear());
-                        $('#datecompleted').val(convertedDate);
-                        $('#datecompleted').html(convertedDate);
-                    }
-                }
-
-
-                for (var i = 0; i < data.length; i++) {
-                    var num = i + 1;
-                    $('#question' + num).html(data[i].QuestionsId + ". " + data[i].Questions);
-                    $('#question' + num).attr('data-questionid', data[i].QuestionsId);
-                    $('#question' + num).attr('data-answerid', data[i].AnswerId);
+//                    $('#isupdate').val(true);
+//                }
+//                var updatevalue = $.parseJSON($('#isupdate').val());
+//                if (!updatevalue) {
+//                    var Convdate1 = new Date();
+//                    var convmonth1 = Convdate1.getMonth() + 1;
+//                    var convdate1 = Convdate1.getDate();
+//                    var month1 = (convmonth1 < 10) ? "0" + convmonth1 : convmonth1;
+//                    var date1 = (convdate1 < 10) ? "0" + convdate1 : convdate1;
+//                    var convertedDate1 = (month1 + '/' + date1 + '/' + Convdate1.getFullYear());
+//                    $('#datecompleted').val(convertedDate1);
+//                    $('#datecompleted').html(convertedDate1);
+//                }
+//                else {
+//                    if (data[0].CreatedDate != "") {
+//                        var Convdate = new Date(data[0].CreatedDate);
+//                        var convmonth = Convdate.getMonth() + 1;
+//                        var convdate = Convdate.getDate();
+//                        var month = (convmonth < 10) ? "0" + convmonth : convmonth;
+//                        var date = (convdate < 10) ? "0" + convdate : convdate;
+//                        var convertedDate = (month + '/' + date + '/' + Convdate.getFullYear());
+//                        $('#datecompleted').val(convertedDate);
+//                        $('#datecompleted').html(convertedDate);
+//                    }
+//                }
 
 
-                    if (data[i].Answer != "") {
-
-                        var value = data[i].Answer;
-                        if (num == 6) {
-                            if (updatevalue) {
-                                $('#answerexp6').html(data[i].Answer);
-                                $('#answerexp6').val(data[i].Answer);
-                                $('#answerexp6').attr('disabled', false);
-                            }
-                            else {
-                                $('#answerexp6').html(data[i].Answer);
-                                $('#answerexp6').val(data[i].Answer);
-                            }
-
-                        }
-                        else {
-
-                            $("input[name=answerradio" + num + "][value='" + value + "']").attr('checked', 'checked');
-
-                        }
-                    }
-                    if (num != 6) {
-                        var explanation = (data[i].Explanation == "NULL") ? "" : data[i].Explanation;
-                        if (updatevalue) {
-
-                            $('#answerexp' + num).html(explanation);
-                            $('#answerexp' + num).val(explanation);
-                            if (explanation == "") {
-                                $('#answerexp' + num).prop('disabled', true);
-                            }
-                            else {
-                                $('#answerexp' + num).prop('disabled', false);
-                            }
-
-                        }
-                        else {
-                            $('#answerexp' + num).html(explanation);
-                            $('#answerexp' + num).val(explanation);
-                        }
-
-                    }
-
-                }
-            }
-
-        },
-        error: function (data) {
-
-        }
-    });
+//                for (var i = 0; i < data.length; i++) {
+//                    var num = i + 1;
+//                    $('#question' + num).html(data[i].QuestionsId + ". " + data[i].Questions);
+//                    $('#question' + num).attr('data-questionid', data[i].QuestionsId);
+//                    $('#question' + num).attr('data-answerid', data[i].AnswerId);
 
 
-    if ($('#isupdate').val() == 'false') {
+//                    if (data[i].Answer != "") {
 
-        $('input[type=radio]').prop('checked', false)
-        $('#answerexp1').val("");
-        $('#answerexp2').val("");
-        $('#answerexp3').val("");
-        $('#answerexp4').val("");
-        $('#answerexp5').val("");
-        $('#answerexp6').val("");
+//                        var value = data[i].Answer;
+//                        if (num == 6) {
+//                            if (updatevalue) {
+//                                $('#answerexp6').html(data[i].Answer);
+//                                $('#answerexp6').val(data[i].Answer);
+//                                $('#answerexp6').attr('disabled', false);
+//                            }
+//                            else {
+//                                $('#answerexp6').html(data[i].Answer);
+//                                $('#answerexp6').val(data[i].Answer);
+//                            }
 
-    }
+//                        }
+//                        else {
+
+//                            $("input[name=answerradio" + num + "][value='" + value + "']").attr('checked', 'checked');
+
+//                        }
+//                    }
+//                    if (num != 6) {
+//                        var explanation = (data[i].Explanation == "NULL") ? "" : data[i].Explanation;
+//                        if (updatevalue) {
+
+//                            $('#answerexp' + num).html(explanation);
+//                            $('#answerexp' + num).val(explanation);
+//                            if (explanation == "") {
+//                                $('#answerexp' + num).prop('disabled', true);
+//                            }
+//                            else {
+//                                $('#answerexp' + num).prop('disabled', false);
+//                            }
+
+//                        }
+//                        else {
+//                            $('#answerexp' + num).html(explanation);
+//                            $('#answerexp' + num).val(explanation);
+//                        }
+
+//                    }
+
+//                }
+//            }
+
+//        },
+//        error: function (data) {
+
+//        }
+//    });
 
 
-    $('#Name').text($('#clientName').val());
-    if ($('#mpmlistCount').val() == 1) {
-        $('#OrganName').text($('#ddFsOrganization').html());
-        $('#ServicesName').text($('#servicesName').html());
+//    if ($('#isupdate').val() == 'false') {
 
-    }
-    else {
-        $('#OrganName').text($('#ddFsOrganization option:selected').text());
-        $('#ServicesName').text($('#FSResources option:selected').text());
-    }
-    $('#ReferralDate').text($('#datepicker').val());
-});
+//        $('input[type=radio]').prop('checked', false)
+//        $('#answerexp1').val("");
+//        $('#answerexp2').val("");
+//        $('#answerexp3').val("");
+//        $('#answerexp4').val("");
+//        $('#answerexp5').val("");
+//        $('#answerexp6').val("");
+
+//    }
+
+
+//    $('#Name').text($('#clientName').val());
+//    if ($('#mpmlistCount').val() == 1) {
+//        $('#OrganName').text($('#ddFsOrganization').html());
+//        $('#ServicesName').text($('#servicesName').html());
+
+//    }
+//    else {
+//        $('#OrganName').text($('#ddFsOrganization option:selected').text());
+//        $('#ServicesName').text($('#FSResources option:selected').text());
+//    }
+//    $('#ReferralDate').text($('#datepicker').val());
+//});
 
 
 $('.check').on('click', function (e) {
@@ -884,7 +884,7 @@ $('#referralServiceSaveMethod').click(function () {
     SaveMatchProviders.AgencyId = AgencyId;
     SaveMatchProviders.CommunityId = CommunityId;
     SaveMatchProviders.ReferralClientServiceId = parseInt(referralclientid);
-
+    SaveMatchProviders.ScreeningReferralYakkr = $('#screeningReferralYakkr').val();
 
 
     $.ajax({
@@ -904,7 +904,7 @@ $('#referralServiceSaveMethod').click(function () {
 
 
 $('#succesMatchClose').click(function () {
-    location.href = "/Roster/ReferralService?id=" + $('#encryptId').val() + "&clientName=" + $('#clientName').val();
+    location.href = "/Roster/ReferralService?id=" + $('#encryptId').val() + "&clientName=" + $('#clientName').val() + "&scrYakkr=" + $('#screeningReferralYakkr').val();
 });
 
 

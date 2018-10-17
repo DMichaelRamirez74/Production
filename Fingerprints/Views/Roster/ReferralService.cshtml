@@ -60,10 +60,21 @@
             <h2 class="page-header">
                 <span>Referral Service</span>
                 <span class="view-btn backto_listspan" id="BackToList">
-                
-            
-                
-                <a href="@Url.Content("~/Roster/Roster")" class="backto_list" style="text-transform:none;">Back to Roster</a></span>
+
+
+                    @if (ViewBag.ScreeningReferralYakkr!=null && ViewBag.ScreeningReferralYakkr!="" && FingerprintsModel.EncryptDecrypt.Decrypt64(ViewBag.ScreeningReferralYakkr) != "0")
+                    {
+                        <a href="@Url.Content("~/Yakkr/YakkrList?YakkrCode=455")" class="backto_list" style="text-transform:none;">Back to List</a>
+
+                    }
+                    else
+                    {
+                        <a href="@Url.Content("~/Roster/Roster")" class="backto_list" style="text-transform:none;">Back to Roster</a>
+
+                    }
+
+                </span>
+
             </h2>
         </div>
         <div class="col-xs-12 no-padding ht-scroll div-scroll">
@@ -75,12 +86,13 @@
                     <div class="col-xs-12" style="padding:0;position:relative;border-bottom:1px solid #ddd;margin-bottom:7px;">
                         <span class="col-xs-12" style="line-height:32px;padding:0;" id="@Item.ReferralClientServiceId">
                             <span>  Referral #@(Icount++) @(Item.ConvReferralDate)</span>
-                            <a href="#" style="margin-left:30px;" class="ReferralServiceName" data-stepId="@Item.Step" ReferralClientId="@Item.ReferralClientServiceId" parentName="@Item.ParentName">"@Item.ServiceName"</a>
+                            <a href="#" @if (Item.ConvReferralDate == "") {<text>style="margin-left:105px;"</text>} else {<text>style="margin-left:30px;"</text>}  class="ReferralServiceName" data-stepId="@Item.Step" ReferralClientId="@Item.ReferralClientServiceId" parentName="@Item.ParentName">"@Item.ServiceName"</a>
                         </span>
                         <input type="hidden" id="ClientId" value="@Item.ClientId" class="" />
                         <input type="hidden" id="ServiceId" value="@Item.ServiceId" class="" />
                         <input type="hidden" id="stepId" value="@Item.Step" class="" />
                         <input type="hidden" id="ReferralClientId" value="@Item.ReferralClientServiceId" class="" />
+                        <input type="hidden" id="screeningReferralYakkr" value="@Item.ScreeningReferralYakkr"/>
                         @if (Item.Step != 3)
                         {
                             <span style="position:absolute;right:0;top:7px;cursor:pointer;">
@@ -94,8 +106,8 @@
             }
         </div>
         <div class="refer_serv_btn col-xs-12 no-padding">
-            <span><input type="button" class="btn btn-primary" style="margin-bottom:10px;" value="New Request for Family Needs" onclick="location.href='@Url.Action("ReferralCategory", "Roster",new {id=ViewBag.ClientID,clientName=ViewBag.ClientName})'" /></span>
-            <span><input type="button" class="btn btn-primary" style="margin-bottom:10px;" value="New Referral to Specific Agency" onclick="location.href='@Url.Action("ReferralCategorycompany", "Roster",new {id=ViewBag.ClientID,clientName=ViewBag.ClientName})'" /></span>
+            <span><input type="button" class="btn btn-primary" value="New Request for Family Needs" onclick="location.href='@Url.Action("ReferralCategory", "Roster",new {id=ViewBag.ClientID,clientName=ViewBag.ClientName,ScreeningReferralYakkr=ViewBag.ScreeningReferralYakkr})'" /></span>
+            <span><input type="button" class="btn btn-primary" value="New Referral to Specific Agency" onclick="location.href='@Url.Action("ReferralCategorycompany", "Roster",new {id=ViewBag.ClientID,clientName=ViewBag.ClientName,ScreeningReferralYakkr=ViewBag.ScreeningReferralYakkr})'" /></span>
         </div>
         <div class="col-xs-12 no-padding" style="margin-bottom:50px;">
             

@@ -147,41 +147,35 @@
             var fup = $(ele).attr("follow-up");
             var pId = $(ele).attr('pId');
 
+            $('#spinner').show();
 
-            $.ajax({
+            location.href = HostedDir + "/Nurse/ScreeningClient?clientid=" + cId + "&Programid=" + pId + "&bk=2";
 
-                url: '/AgencyUser/GetFollowUpScreenings',
-                datatype: 'json',
-                type: 'post',
-                data: { clientId: cId, followup: fup },
-                success: function (data) {
-
-
-                    var $scrModal = $('#screeningFollowupModal');
-
-                    if (data != null && data.length > 0) {
-                        var appendSelect = '';
-                        appendSelect += '<option value="0">--Select--</option>';
-                        $.each(data, function (i, scr) {
-                            appendSelect += '<option value=' + scr.Value + '>' + scr.Text + '</option>';
-                        });
-
-                        $scrModal.find('#ScreeningSelect').html(appendSelect);
-
-                        $scrModal.find('#scrClientName').val($(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html());
-                        $scrModal.find('#scrClientName').attr('ecid', cId);
-                        $scrModal.find('#scrClientName').attr('pId', pId);
-                        $scrModal.find('#scrClientName').siblings('#programId').val(pId);
-                        $scrModal.find('#scrClientName').siblings('#encClientID').val(cId);
-                        $scrModal.modal('show');
-                    }
-                },
-                error: function (data) {
-
-                }
-
-
-            });
+            //$.ajax({
+            //    url: '/AgencyUser/GetFollowUpScreenings',
+            //    datatype: 'json',
+            //    type: 'post',
+            //    data: { clientId: cId, followup: fup },
+            //    success: function (data) {
+            //        var $scrModal = $('#screeningFollowupModal');
+            //        if (data != null && data.length > 0) {
+            //            var appendSelect = '';
+            //            appendSelect += '<option value="0">--Select--</option>';
+            //            $.each(data, function (i, scr) {
+            //                appendSelect += '<option value=' + scr.Value + '>' + scr.Text + '</option>';
+            //            });
+            //            $scrModal.find('#ScreeningSelect').html(appendSelect);
+            //            $scrModal.find('#scrClientName').val($(ele).parent('td').parent('tr').children('td:eq(0)').children('a').html());
+            //            $scrModal.find('#scrClientName').attr('ecid', cId);
+            //            $scrModal.find('#scrClientName').attr('pId', pId);
+            //            $scrModal.find('#scrClientName').siblings('#programId').val(pId);
+            //            $scrModal.find('#scrClientName').siblings('#encClientID').val(cId);
+            //            $scrModal.modal('show');
+            //        }
+            //    },
+            //    error: function (data) {
+            //    }
+            //});
         }
 
         function Getscreeningtemplate() {
@@ -2235,7 +2229,6 @@
 
                             }
                         }
-                        //tr += '<a title="Click here to open Family Services Assessment" style="text-decoration: underline; cursor: pointer;">FSA </a>  &nbsp';
 
                         if (roleid != 'e4c80fc2-8b64-447a-99b4-95d1510b01e9') {
                             tr += '<a title="Schedule Home Visit" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/AgencyUser/HomeVisitFSWNew/?id=' + data.list.Rosters[i].Eclientid + '&Name=' + data.list.Rosters[i].Name + '&LastName=' + (data.list.Rosters[i].Name).substr((data.list.Rosters[i].Name).indexOf(' ') + 1) + '">HV </a>  &nbsp';
@@ -2354,9 +2347,19 @@
                             }
                         }
 
-                        //if (data.list.Rosters[i].FamilyHomeless == 1) {
-                        //    tr += '<a title="Click here to update household address for family" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
-                        //}
+                        if (data.list.Rosters[i].FamilyHomeless == 1) {
+                            tr += '<a title="Click here to update household address for family" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
+                        }
+
+
+                        if (data.list.Rosters[i].IsScreeningFollowUpReq && data.list.Rosters[i].IsShowScreeningFollowUp) {
+                            tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
+
+                        }
+                        else if (data.list.Rosters[i].IsScreeningFollowUpComplete && data.list.Rosters[i].IsShowScreeningFollowUp) {
+                            tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
+
+                        }
 
                         tr += '</td></tr>';
 
@@ -2375,24 +2378,26 @@
                             tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
                             tr += '<a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="' + HostedDir + '/EducationMaterial/ShareMaterial/?ClientId=' + data.list.Rosters[i].Eclientid + '&Single=true">ED </a>&nbsp;';
                             tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
-                            if (data.list.Rosters[i].IsScreeningFollowUpReq) {
-                                tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
-
-                            }
-                            else if (data.list.Rosters[i].IsScreeningFollowUpComplete) {
-                                tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
-
-                            }
-                            tr += '</td>';
+                            
                         }
                         else
                         {
                             tr += '<td height="70" style="width:26%;">';
                             tr += '<a style="text-decoration:underline;cursor:pointer;"  EClientId="' + data.list.Rosters[i].Eclientid + '"  data-programid="' + data.list.Rosters[i].ProgramId + '"   data-classroom="' + data.list.Rosters[i].ClassroomName + '" data-centerid="' + data.list.Rosters[i].CenterId + '"  data-classroomid="' + data.list.Rosters[i].classroomid + '" data-householdid="' + data.list.Rosters[i].Householid + '" data-centername="' + data.list.Rosters[i].CenterName + '" data-CName="' + data.list.Rosters[i].Name + '" onclick="AddCaseNote(this);" title="Click here for internal referral" href="#">nREF </a>  &nbsp ';
                             tr += '<a style="text-decoration:underline;cursor:pointer;" title="Click here for Case Notes" href="' + HostedDir + '/Roster/CaseNotesclient/?id=' + data.list.Rosters[i].Eclientid + '&Householdid=0&centerid=' + data.list.Rosters[i].CenterId + '&Programid=' + data.list.Rosters[i].ProgramId + '">CN </a>  &nbsp';
-                            tr += '</td>'
                         }
 
+                        if (data.list.Rosters[i].IsScreeningFollowUpReq && data.list.Rosters[i].IsShowScreeningFollowUp) {
+                            tr += '<a title="Client here to see the Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:blue;" href="javascript:void(0);"  ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '   onclick="getScreeningByClient(this);"  follow-up="1"> SFU </a>';
+
+                        }
+                        else if (data.list.Rosters[i].IsScreeningFollowUpComplete && data.list.Rosters[i].IsShowScreeningFollowUp) {
+                            tr += '<a title="Client here to see the Completed Screening Follow-up" style="text-decoration: underline; cursor: pointer;color:green;" ecid=' + data.list.Rosters[i].Eclientid + ' pId=' + data.list.Rosters[i].ReferenceProg + '  onclick="getScreeningByClient(this);" follow-up="0"> SFU </a>';
+
+                        }
+
+                        tr += '</td>';
+                       
                         tr += '</tr>';
 
                     }
@@ -2846,7 +2851,9 @@
             padding-right: 0;
         }*/
 
-
+        .line-hgt{
+            line-height:32px;
+        }
 
         .bootstrap-dialog-title
         {
@@ -3294,20 +3301,23 @@
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 adddivspace">
             <div class="col-sm-4 col-lg-3" style="margin-bottom: 8px;">
                 @*<select id="Centers" onchange="GetClassrooms(this);" style="height:38px !important;" class="form-control"></select>*@
-                @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel" })
+                @Html.DropDownList("Centers", Fingerprints.Utilities.Helper.GetCentersByUserId(Session["UserId"].ToString(), Session["AgencyID"].ToString(), Session["RoleID"].ToString()), new { @class = "form-control center-sel line-hgt" })
             </div>
             <div class="col-sm-4 col-lg-3">
-                <select id="Classroom" style="height:38px !important;" class="form-control"></select>
+                <select id="Classroom" style="height:38px !important;" class="form-control line-hgt"></select>
             </div>
 
             @if (!ViewBag.IsManager && Session["RoleID"].ToString().ToLower() != "e4c80fc2-8b64-447a-99b4-95d1510b01e9")
             {
                 <div class="col-sm-4 col-lg-3">
-                    <select id="filterSelect" style="height:38px !important;" class="form-control">
+                    <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
                         <option value="0">--Select--</option>
                         <option value="1">ABT</option>
                         <option value="2">TRN</option>
-                        @*<option value="3">HOM</option>*@
+                        <option value="3">HOM</option>
+                        <option value="4">ALL SFU</option>
+                        <option value="5">SFU (Need Follow-up) </option>
+                        <option value="6">SFU (Follow-up Completed) </option>
                     </select>
                 </div>
             }
@@ -3315,7 +3325,7 @@
             else if (Session["RoleID"].ToString().ToLower() == "a31b1716-b042-46b7-acc0-95794e378b26")
             {
                 <div class="col-sm-4 col-lg-3">
-                    <select id="filterSelect" style="height:38px !important;" class="form-control">
+                    <select id="filterSelect" style="height:38px !important;" class="form-control line-hgt">
                         <option value="0">--Select--</option>
                         <option value="4">ALL SFU</option>
                         <option value="5">SFU (Need Follow-up) </option>

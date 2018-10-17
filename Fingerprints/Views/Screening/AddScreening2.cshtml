@@ -1,0 +1,761 @@
+﻿@model FingerprintsModel.Screening
+
+
+<script type="text/javascript">
+
+
+    function backtoApproval(ele)
+    {
+        cleanValidation();
+
+
+      
+
+            BootstrapDialog.show({
+                message: 'Any unsaved screening data will be lost. Click OK to proceed.',
+                closable: false,
+                closeByBackdrop: false,
+                closeByKeyboard: false,
+
+
+                buttons: [{
+                    label: 'Cancel',
+                    action: function (dialogItself) {
+                        dialogItself.close();
+                    }
+                }, {
+                    label: 'OK',
+                    action: function (dialog) {
+                        debugger;
+                        $('#Screeningallowed').find('a').trigger('click');
+
+                        dialog.close();
+                    },
+
+                }]
+
+
+            });
+
+     
+
+
+        //BootstrapDialog.confirm('Any unsaved screening 23data will be lost. Click OK to proceed.', function (result) {
+
+        //    buttons: [{
+        //        label: 'Cancel',
+        //        action: function (dialogItself) {
+        //            dialogItself.close();
+        //        }
+        //    }, {
+        //        label: 'OK',
+        //        action: function (dialogItself) {
+                   
+        //            $('#screeningDivStart').find('#ScreeningDiv').find('#Screeningallowed').find('a').trigger('click');
+        //           // dialogItself.close();
+            
+                 
+        //        }
+        //    }]
+
+        //});
+
+      
+    }
+
+
+    function showScreeningTab(ele) {
+        var acckey = $(ele).closest('.screening-approval-div').attr('accesskey');
+        var acYIndex = $(ele).closest('.screening-approval-div').index();
+
+
+        $(ele).closest('.screening-approval-div').find('input:file[name="ScreeningList[' + acYIndex + '].ApprovedFile"]').val('').prop('disabled', false);
+
+        $(ele).closest('.screening-approval-div').find('input:checkbox[name="ScreeningList[' + acYIndex + '].NoDocument"]').prop({ 'checked': false, 'disabled': false });
+
+
+
+        $('#tabid' + acckey).show();
+    }
+    function hideScreeningTab(ele) {
+        var acckey = $(ele).closest('.screening-approval-div').attr('accesskey');
+        var acIndex = $(ele).closest('.screening-approval-div').index();
+
+
+        $(ele).closest('.screening-approval-div').find('input:file[name="ScreeningList[' + acIndex + '].ApprovedFile"]').val('').prop('disabled', true);
+
+        $(ele).closest('.screening-approval-div').find('input:checkbox[name="ScreeningList[' + acIndex + '].NoDocument"]').prop({'checked':false, 'disabled': true });
+
+
+        $('#tabid' + acckey).hide();
+
+
+
+    }
+
+    function showHideSigDiv(ele)
+    {
+
+      //  $('#scrSig').signature();
+       
+        $(".scr-signature-div").slideToggle("slow");
+        //$("#scrSig").scrollIntoView();
+
+        $(".panelscreen").animate({ scrollTop: 500 }, 'slow');
+
+    }
+
+    function showSignaturebtn(ele)
+    {
+        debugger;
+        var pSigID = $(ele).val();
+        $('#scrSig').signature();
+        $('#scrSigBtn').show();
+        var sigP = $(".scr-signature-div").find('#ScreeningParentID');
+        if(pSigID!=sigP.val())
+        {
+            clearScrSignature(1);
+            $('#scrSigBtn').find('#sigbtnText').text('Add Signature');
+        }
+        else
+        {
+
+        }
+        sigP.val(pSigID);
+            
+    }
+
+
+    function saveScrSignature() {
+        $('#scrSig').css('background-color', '');
+        isValid = false;
+        $('#ConvertedScrImage').val(0);
+        var sigToImage = $('#scrSig').signature('toJSON');
+        if (sigToImage == '{"lines":[]}' || sigToImage.length <= 12) {
+          
+            plainValidation('#scrSig');
+            customAlert('Please enter signature');
+            return isValid;
+        }
+
+        else if (sigToImage.length <= 300) {
+         
+            plainValidation('#scrSig');
+            customAlert('Please enter valid signature');
+            return isValid;
+        }
+        else {
+            $('#ParentSignature').val(sigToImage);
+            $('#ConvertedScrImage').val(1);
+            $('#sigtype').val(1);
+            $(".scr-signature-div").slideToggle("slow");
+            $('#scrSigBtn').find('#sigbtnText').text('View Signature');
+            return isValid;
+        }
+
+    }
+
+
+    function clearScrSignature(val) {
+        isValid = false;
+        if (val === 1) {
+            $('#scrSig').css('background-color', '');
+            $('#scrSig').signature('clear');
+            $('#ConvertedScrImage').val(0);
+        }
+        else {
+            $('#scrSig').css('background-color', '');
+            $('#scrSig').signature('clear');
+            $('#ConvertedScrImage').val(0);
+        }
+
+    }
+
+
+
+   
+
+
+   
+
+</script>
+
+<style>
+    .scr-signature-div
+    {
+     padding:30px;
+    display:none;
+    }
+     .kbw-signature {
+            width: 400px;
+            height: 200px;
+        }
+
+</style>
+
+
+<div class="row" id="ScreeningDiv">
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+        <div class="panel with-nav-tabs panel-primary panelscreen">
+            <div class="panel-heading panelul">
+
+                <ul id="myTab" class="nav nav-tabs navtabs1">
+                    @{
+
+
+                        try
+                        {
+
+
+                            string TabName = "";
+                            string Tabid = "";
+
+
+                            if (Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+                            {
+
+
+                                for (int i = 0; i < Model.ScreeningList.Count; i++)
+                                {
+                                    TabName = "#add" + Model.ScreeningList[i].ScreeningID;
+                                    Tabid = "tabid" + Model.ScreeningList[i].ScreeningID;
+                                    if (i == 0)
+                                    {
+                                        <li id="Screeningallowed" class="active"><a href="#AllowScreening" data-toggle="tab">Parent Approval</a></li>
+                                    }
+
+                                    <li @if (Model.ScreeningList[i].Approved != 1) { <text> style="display:none;" </text>   } programtype="@Model.TypeScreening.ToString()" class="customtabhide" id="@Tabid"><a href="@TabName" data-toggle="tab">@Model.ScreeningList[i].ScreeningName</a></li>
+
+                                }
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            FingerprintsModel.clsError.WriteException(ex);
+                        }
+
+
+                    }
+
+                </ul>
+            </div>
+            <div id="myTabContent" class="tab-content">
+
+                <div class="tab-pane fade in active" id="AllowScreening">
+                    <div class="add-useragform">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                @Html.HiddenFor(m => m.ParentAppID, new { id = "ParentAppID" })
+                                @*@Html.HiddenFor(m => m.WellBabyExamMonth, new { id = "WellBabyExamMonth" })*@
+                                <div class="col-lg-12" id="ConsolidateHeading">
+                                    <h2 class="page-header" style="margin-top:0px !important;">
+                                        <span>Permission to Screen</span>
+                                        <span class="pull-right" style="font-size:14px;">
+                                            <button type="button" onclick="isValidscreening(this,1)" id="SaveScreening" value="SaveScreening" class="my-btn pull-right" tabindex="8">Save</button>
+
+                                        </span>
+                                             </h2>
+                                </div>
+
+                                <div class="col-xs-12 col-lg-12" style="border: 1px solid #295b8f;padding: 10px;box-shadow: 5px 5px #295b8f;margin-left: 29px;width: 94%;padding: 0">
+                                    <div class="col-xs-11 col-lg-11" style="padding: 10px;width: 100%;border-bottom: 1px solid #295b8f;">
+
+                                        <div class="col-lg-6" id="ScreenAcc">
+
+                                            <div class="form-group">
+                                                <label>Permission to screen <br />form</label>
+                                                <div class="cont-sz">
+                                                    <div class="col-sm-10">
+                                                        @Html.TextBoxFor(m => m.ScreeningAccept, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @class = "form-control", @style = "width:100% !important;" })
+                                                    
+                                                        @Html.HiddenFor(m=>m.ScreeningAcceptImagejson)
+                                                        @Html.HiddenFor(m=>m.ScreeningAcceptFileName)
+                                                        @Html.HiddenFor(m=>m.ScreeningAcceptFileExtension)
+                                                    </div>
+                                                    <div class="col-sm-1" style="margin-top: 2%;">
+
+                                                        @if (Model.ScreeningAcceptFileName != "")
+                                                    {
+                                                            <a target="_blank" id="ScreeningAcceptance" title="Click here to download" href="~/Agencyuser/getpdfimage/7,@Model.ParentAppID"><i class="fa fa-download"></i></a>
+
+                                                    }
+                                                    else
+                                                    {
+                                                            <a target="_blank" id="ScreeningAcceptance" title="Click here to download" href="~/Agencyuser/getpdfimage/7,@Model.ParentAppID" style="display:none;"><i class="fa fa-download"></i></a>
+                                                    }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6" id="ParentName">
+                                            <div class="form-group">
+                                                <label for="email">Guardian</label>
+
+                                                <div class="cont-sz">
+
+                                                    @if (Model.ParentList != null && Model.ParentList.Count > 0)
+                                                {
+                                                    for (int k = 0; k < Model.ParentList.Count; k++)
+                                                    {
+
+                                                            <div class="col-sm-12" style="margin-bottom:5px;">
+                                                                <input name="radioScreeningParent" onclick="showSignaturebtn(this);" type="radio" @if (Model.ParentList[k].Selected) { <text> checked="checked" </text>          } value="@Model.ParentList[k].Value" />
+                                                                <span style="font-size: 14px;">@Model.ParentList[k].Text</span>
+                                                            </div>
+
+
+
+                                                    }
+                                                }
+                                                </div>
+
+
+                                           
+                                                @if (!string.IsNullOrEmpty(Model.ScreeningParentID) && Model.ScreeningParentID != "0" && Model.ParentSignature != "")
+                                                {
+                                                    <button type="button" class="btn btn-primary pull-right" id="scrSigBtn" onclick="showHideSigDiv(this);" style="background-color:#295b8f;">
+                                                        <span id="sigbtnText">View Signature</span> <span class="badge badge-light"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+                                                        <span class="sr-only"></span>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-primary pull-right" id="scrSigBtn" onclick="showHideSigDiv(this);" style="background-color:#295b8f;display:none;">
+                                                        <span id="sigbtnText">Add Signature</span> <span class="badge badge-light"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+                                                        <span class="sr-only"></span>
+                                                    </button>
+                                                }
+
+                                            </div>
+
+
+                                        </div>
+
+
+
+
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 scr-signature-div" style="text-align:center;">
+                                            <div class="add-useragform student-scroll full-border full-border-margin">
+                                                <div id="scrSig"></div>
+
+
+                                                @Html.HiddenFor(m=>m.ScreeningParentID)
+
+
+                                                @Html.HiddenFor(m =>m.ParentSignature)
+
+                                        
+                                                <input type="hidden" name="convertedImage" id="ConvertedScrImage" value="0" />
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 referrals">
+                                                        <div class="add-useragform student-scroll full-border full-border-margin">
+                                                            <h4> </h4>
+                                                            <button class="btnPassword" type="button" id="clearScrSig" onclick="return clearScrSignature(1);">Clear</button>
+                                                            <button class="btnPassword" type="button" id="acceptScrSig" onclick="return saveScrSignature();">Accept Signature</button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="col-xs-11 col-lg-11" style="padding: 10px;margin-left: -11px;width: 102%;">
+
+                                        @if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+                                    {
+                                        for (int j = 0; j < Model.ScreeningList.Count; j++)
+                                        {
+
+                                                <div class="col-lg-12 screening-approval-div" accesskey="@Model.ScreeningList[j].ScreeningID" id="screening_@j">
+                                                 
+                                                        <label class="col-lg-3">Allow @Model.ScreeningList[j].ScreeningName Screening? <sup>*</sup></label>
+                                                        
+                                                        <div class="cont-sz">
+
+                                                            @Html.HiddenFor(m=>Model.ScreeningList[j].ScreeningID)
+                                                            @Html.HiddenFor(m=>Model.ScreeningList[j].ScreeningName)
+
+                                                            <div class="col-sm-6 col-lg-2">
+                                                                @Html.RadioButtonFor(m => Model.ScreeningList[j].Approved, 1, new { onchange = "showScreeningTab(this);" })
+                                                                <span style="font-size: 14px;">Yes</span>
+                                                            </div>
+                                                            <div class="col-sm-6 col-lg-2">
+                                                                @Html.RadioButtonFor(m => Model.ScreeningList[j].Approved, 2, new { onchange = "hideScreeningTab(this);" })
+                                                                <span style="font-size: 14px;">No</span>
+                                                            </div>
+
+                                                            <div class="col-sm-4">
+
+                                                                @if (Model.ScreeningList[j].NoDocument)
+                                                                {
+                                                                    @Html.TextBoxFor(m => Model.ScreeningList[j].ApprovedFile, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @style = "width:110%!important;", @class = "form-control" , @disabled="disabled" })
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.TextBoxFor(m => Model.ScreeningList[j].ApprovedFile, new { @accept = "image/*", @capture = "camera", type = "file", onchange = "ValidateSingleInputpdf2(this)", @style = "width:110%!important;", @class = "form-control" })
+
+                                                                }
+
+                                                                @Html.HiddenFor(m=>Model.ScreeningList[j].ApprovedImageJson)
+                                                                @Html.HiddenFor(m=>Model.ScreeningList[j].ApprovedFileName)
+                                                                @Html.HiddenFor(m=>Model.ScreeningList[j].ApprovedFileExtension)
+
+                                                            </div>
+
+                                                            <div class="col-sm-2 col-lg-1" style="margin-top: 2%;">
+                                                                @if (Model.ScreeningList[j].ApprovedFileName != "")
+                                                                {
+                                                                    <a target="_blank" id="Allow_@j" title="Click here to download" href="~/Agencyuser/getpdfimage/8,@Model.ScreeningList[j].ParentAppID"><i class="fa fa-download"></i></a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a target="_blank" id="Allow_@j" title="Click here to download" href="~/Agencyuser/getpdfimage/8,@Model.ScreeningList[j].ParentAppID" style="display:none;"><i class="fa fa-download"></i></a>
+
+                                                                }
+                                                            </div>
+
+                                                            <div class="col-sm-3" style="margin-top:10px;">
+                                                                @Html.CheckBoxFor(m=>Model.ScreeningList[j].NoDocument,new { onclick="checkNoDocument(this);"})
+                                                                <span style="font-size: 14px;">No Document</span>
+                                                            </div>
+
+                                                        </div>
+                                                   
+                                                </div>
+
+                                        }
+                                    }
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @if (Model != null && Model.ScreeningList != null && Model.ScreeningList.Count > 0)
+                {
+
+
+                    for (int s = 0; s < Model.ScreeningList.Count; s++)
+                    {
+
+
+
+
+                        string tabid = "add" + Model.ScreeningList[s].ScreeningID;
+                        <div class="tab-pane fade" id='@tabid'>
+                            
+
+                            <div class="add-useragform">
+                                <div class="row">
+
+                                    <div class="col-xs-12" style="margin-top:20px;">
+                                        <span class="pull-right" style="font-size:14px;">
+                                            <button type="button" onclick="backtoApproval(this);" class="my-btn pull-right" tabindex="8">Back</button>
+                                        </span>
+                                        <span class="pull-right" style="font-size:14px;">
+                                            <button type="button" onclick="isValidscreening(this,2);"  class="my-btn pull-right" tabindex="8">Save</button>
+                                        </span>
+
+                                       
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 table-main">
+                                        <div class="section-screen">
+
+                                            <div id="target" class="fill-part">
+
+                                                <h2><span id="DivScreenFieldsHeading" text="" /></h2>
+                                                <div class="col-lg-7 col-md-7 col-sm-7">
+
+                                                        <div class="col-lg-12 col-md-12 col-sm-12">
+                                                            <div class="form-group qn-div">
+                                                                <label accesskey="@Model.ScreeningList[s].ScreeningID">Latest @Model.ScreeningList[s].ScreeningName Completed <sup>*</sup></label>
+
+                                                                @{ 
+                                                                    var screenPeriodList=new List<FingerprintsModel.ScreeningPeriods>();
+
+                                                                    //if (Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == Model.ScreeningList[s].ScreeningID).Any())
+                                                                    //{
+                                                                    //    screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == Model.ScreeningList[s].ScreeningID).ToList();
+                                                                    //    screenPeriodList.Insert(0, new FingerprintsModel.ScreeningPeriods());
+                                                                    //}
+                                                                    //else
+                                                                    //{
+                                                                    //     screenPeriodList= Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == 0).ToList();
+
+                                                                    //}
+
+                                                                    if(Model.TypeScreening==1 || Model.ScreeningList[s].ScreeningID==1) //EHS Screening
+                                                                    {
+                                                                        screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == 0).ToList();
+                                                                    }
+                                                                    else //HS Screening
+                                                                    {
+                                                                        screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == 2).ToList();
+                                                                        screenPeriodList.Insert(0, new FingerprintsModel.ScreeningPeriods());
+
+                                                                    }
+
+
+
+                                                                    }
+
+                                                                    @Html.DropDownListFor(m=>Model.ScreeningList[s].LastScreeningCompleted, new SelectList(screenPeriodList, "ScreeningPeriod", "Description",Model.ScreeningList[s].LastScreeningCompleted), new { @class = "form-control custscreeningquestin" })
+                                                                
+                                                                
+                                                                @*  @Html.DropDownList(Model.ScreeningList[s].ScreeningID + "lstScreening", new SelectList(Model.ScreeningPeriodsList, "ScreeningPeriod", "Description"), new { @class = "form-control custscreeningquestin" })*@
+                                                            </div>
+                                                        </div>
+                                                  
+
+                                                    
+
+                                                    @for (int q = 0; q < Model.ScreeningList[s].Questionlist.Count; q++)
+                                                    {
+                                                    <div class="col-lg-12 col-md-12 col-sm-12">
+
+                                                        @Html.HiddenFor(m=>Model.ScreeningList[s].Questionlist[q].QuestionId)
+                                                        
+                                                        @Html.HiddenFor(m=>Model.ScreeningList[s].Questionlist[q].QuestionType)
+                                                       
+                                                        
+                                                         <div class="form-group qn-div">
+                                                            <label accesskey="@Model.ScreeningList[s].Questionlist[q].QuestionId" name="ScreeningList[@s].Questionlist[@q].Question">
+                                                                @Model.ScreeningList[s].Questionlist[q].Question @if (Model.ScreeningList[s].Questionlist[q].Required)
+                                                                {<text> <sup>*</sup></text>}
+                                                            </label>
+
+
+
+                                                            @switch (Model.ScreeningList[s].Questionlist[q].QuestionType)
+                                                            {
+                                                                case "1":
+                                                                    <div class="cont-sz">
+                                                                        @for (int op = 0; op < Model.ScreeningList[s].Questionlist[q].OptionList.Count; op++)
+                                                                        {
+                                                                            //string op = option.Option + "_" + option.OptionId;
+
+
+                                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                <input name="ScreeningList[@s].QuestionList[@q].OptionValue" class="form-control checkselectvalue custscreeningquestin" type="checkbox" style="width:auto;" @if (@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionId.ToString() == @Model.ScreeningList[s].Questionlist[q].OptionValue) { <text> checked="checked" </text>      } value="@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionValue">
+                                                                                <span>@Model.ScreeningList[s].Questionlist[q].OptionList[op].Option</span>
+                                                                            </div>
+
+                                                                        }
+                                                                    </div>
+
+                                                                    break;
+
+                                                                case "3":
+
+                                                                    @Html.DropDownListFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new SelectList(Model.ScreeningList[s].Questionlist[q].OptionList, "OptionValue", "Option", Model.ScreeningList[s].Questionlist[q].OptionValue), new { @class = "form-control checkselectvalue custscreeningquestin" })
+
+
+
+
+                                                                    break;
+                                                                case "4":
+
+                                                                    <div class="cont-sz">
+
+                                                                        @for (int rad = 0; rad < Model.ScreeningList[s].Questionlist[q].OptionList.Count; rad++)
+                                                                        {
+                                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+
+                                                                                @Html.RadioButtonFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, Model.ScreeningList[s].Questionlist[q].OptionValue)
+
+                                                                                <span style="font-size: 14px;">@Model.ScreeningList[s].Questionlist[q].OptionList[rad].Option</span>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                    break;
+                                                                case "2":
+
+                                                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control Sdate custscreeningquestin", placeholder = "MM/DD/YYYY", maxlength = "30", onblur = "validatedates(this);" })
+
+                                                                    break;
+
+                                                                case "5":
+
+                                                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control custscreeningquestin", maxlength = "100" })
+                                                                    break;
+                                                                case "6":
+
+                                                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control custscreeningquestin", maxlength = "50", onblur = "return checkNumeric(this);" })
+                                                                    break;
+
+                                                                case "0":
+                                                                    @Html.TextBoxFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, new { @class = "form-control custscreeningquestin" })
+                                                                    break;
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                    }
+
+                                                </div>
+                                                
+
+
+                                                @{
+
+                                                    string imagedocument = Model.ScreeningList[s].ScreeningID + "_imagedocument";
+                                                    string pdfdocument = Model.ScreeningList[s].ScreeningID + "_pdfdocument";
+
+                                                    string imageContent = string.IsNullOrEmpty(Model.ScreeningList[s].ApprovedImageJson) ? "/Content/img/NoImageAvailable.jpg" : Model.ScreeningList[s].ApprovedImageJson;
+                                                    string pdfSource = "";
+                                                }
+
+                                                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+
+                                                    @if (Model.ScreeningList[s].ApprovedFileExtension == ".pdf")
+                                                            {
+                                                                pdfSource = Model.ScreeningList[s].ApprovedImageUrl + "#zoom=70";
+                                                                <iframe style="width:100%;height:500px; " id="@pdfdocument" frameborder="0" scrolling="no" class="embed-responsive" src="@pdfSource"></iframe>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="customscreeningdiv" id="@imagedocument">
+
+                                                            @if (string.IsNullOrEmpty(Model.ScreeningList[s].ApprovedImageJson))
+                                                            {
+                                                                <script type="text/javascript">
+
+                                                            $(document).ready(function () {
+                                                                $('input').keypress(function () {
+                                                            if ($(this).val() == 'MM/DD/YYYY') {
+                                                                        $(this).val('');
+                                                                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                                                            }
+                                                        });
+
+                                                                $('#@imagedocument').ZoomCrop(
+                                                              {
+                                                                 image: HostedDir + "/Content/img/NoImageAvailable.jpg",
+                                                                  updated: function (size, crop, position) {
+                                                            }
+                                                        });
+                                                    });
+                                                                </script>
+                                                            }
+                                                            else
+                                                            {
+                                                                <script type="text/javascript">
+
+                                                            $(document).ready(function () {
+                                                                $('input').keypress(function () {
+                                                            if ($(this).val() == 'MM/DD/YYYY') {
+                                                                        $(this).val('');
+                                                                // $(this).mask("99/99/9999", { placeholder: 'MM/DD/YYYY' });
+                                                            }
+                                                        });
+
+                                                                $('#@imagedocument').ZoomCrop(
+                                                              {
+                                                                  image:  "data:image/png;base64," + '@Model.ScreeningList[s].ApprovedImageJson',
+                                                                  updated: function (size, crop, position) {
+                                                            }
+                                                        });
+                                                    });
+                                                                </script>
+                                                            }
+
+
+                                                        </div>
+                                                    }
+
+
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*<input type="hidden" id="WellBabyHouseHoldId" value="@Request.QueryString["id"]" />
+                            <input type="hidden" id="WellBabyChildId" value="@Request.QueryString["Clientid"]" />*@
+
+                        </div>
+
+
+            
+
+
+
+
+                       
+                                                
+                    }
+
+
+
+                  
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                @*Custom Screening generate controls starts 12-20-2016*@
+
+
+                        @*Custom Screening generate controls ends*@
+
+
+
+
+
+
+
+
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="btnwrp_subcal">
+                                    <input id="TypeScreening" name="TypeScreening" type="hidden" value="#addPhysical" />
+                                    <input id="ClientID" name="ClientID" type="hidden" value="@Model.ClientID" />
+                                    <input id="AgencyID" name="AgencyID" type="hidden" value="#@Model.AgencyID" />
+
+                                    <div class="clear"></div>
+                                </div>	<!--btnwrp_subcal--->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+   

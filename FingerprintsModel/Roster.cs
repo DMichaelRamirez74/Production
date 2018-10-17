@@ -157,6 +157,7 @@ namespace FingerprintsModel
         public long CommunityId { get; set; }
         public string CommunityIds { get; set; }
         public long ReferralClientServiceId { get; set; }
+        public string ScreeningReferralYakkr { get; set; }
     }
     public class ReferralList
     {
@@ -165,6 +166,8 @@ namespace FingerprintsModel
         public int? Step { get; set; }
         public string clientName { get; set; }
         public string parentName { get; set; }
+
+        public string ScreeningReferralYakkr { get; set; }
     }
     public class AttendenceDetailsByDate
     {

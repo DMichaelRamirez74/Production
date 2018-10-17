@@ -878,123 +878,75 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
 	    public ActionResult ScreeningClient(string id)
         {
+
+            Screening _screening = new Screening();
+
             try
             {
 
-                if (!string.IsNullOrEmpty(Request.QueryString["name"]))
-                    ViewBag.Name = Convert.ToString(Request.QueryString["name"]);
-                if (!string.IsNullOrEmpty(Request.QueryString["clientid"]))
-                    ViewBag.id = Convert.ToString(Request.QueryString["clientid"]);
-                if (!string.IsNullOrEmpty(Request.QueryString["Dob"]))
-                    ViewBag.Dob = Convert.ToString(Request.QueryString["Dob"]);
-                if (!string.IsNullOrEmpty(Request.QueryString["Programid"]))
-                    ViewBag.Programid = Convert.ToString(Request.QueryString["Programid"]);
-                if (!string.IsNullOrEmpty(Request.QueryString["dashboard"]))
-                    ViewBag.dashboard = Convert.ToString(Request.QueryString["dashboard"]);
-
-                if (!string.IsNullOrEmpty(Request.QueryString["Screeningid"]) && Convert.ToString(Request.QueryString["Screeningid"]) == "0")
-                {
-                    List<SelectListItem> _list = _nurse.GetScreening(Convert.ToString(Request.QueryString["clientid"]), Convert.ToString(Request.QueryString["Programid"]), Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["Roleid"].ToString());
-                    if (_list != null && _list.Count < 1)
-                        ViewBag.message = "No Screening found.";
-                    ViewBag.screening = _list;
-                    TempData["Screen"] = _list;
-                    ViewBag.screeningid = "0";
-                }
-                if (!string.IsNullOrEmpty(Request.QueryString["Screeningid"]) && Convert.ToString(Request.QueryString["Screeningid"]) != "0")
-                {
-                    if (Convert.ToString(Request.QueryString["Screeningid"]) == "1")
-                    {
-                        ViewBag.screeningid = "1";
-                    }
-                    else if (Convert.ToString(Request.QueryString["Screeningid"]) == "2")
-                    {
-                        ViewBag.screeningid = "2";
-                    }
-                    else if (Convert.ToString(Request.QueryString["Screeningid"]) == "3")
-                    {
-                        ViewBag.screeningid = "3";
-                    }
-                    else if (Convert.ToString(Request.QueryString["Screeningid"]) == "4")
-                    {
-                        ViewBag.screeningid = "4";
-                    }
-                    else if (Convert.ToString(Request.QueryString["Screeningid"]) == "5")
-                    {
-                        ViewBag.screeningid = "5";
-                    }
-                    else if (Convert.ToString(Request.QueryString["Screeningid"]) == "6")
-                    {
-                        ViewBag.screeningid = "6";
-                    }
-                    else
-                    {
-
-                        ViewBag.screeningid = "7";
-                    }
-                    DataSet _data = _nurse.GetScreeningsbyid(Convert.ToString(Request.QueryString["clientid"]), Convert.ToString(Request.QueryString["Screeningid"]), Session["AgencyID"].ToString(), Session["UserID"].ToString(), Convert.ToString(Request.QueryString["Programid"]), Session["Roleid"].ToString());
-                    if (_data != null)
-                    {
-                        if (_data.Tables.Count > 0 && _data.Tables[0].Rows.Count > 0)
-                        {
-                            ViewBag.screenings = _data.Tables[0];
-                            ViewBag.uploaddocument = Convert.ToBoolean(_data.Tables[0].Rows[0]["DocumentUpload"]);
-                        }
-                        if (_data.Tables.Count > 1 && _data.Tables[1].Rows.Count > 0)
-                        {
-                            ViewBag.screeningsdata = _data.Tables[1];
-                            ViewBag.screeningdate = _data.Tables[1].Rows[0]["screeningdate"].ToString() != "" ? Convert.ToDateTime(_data.Tables[1].Rows[0]["screeningdate"]).ToString("MM/dd/yyyy") : "";
-
-                        }
-                        if (_data.Tables.Count > 2 && _data.Tables[2].Rows.Count > 0)
-                        {
-
-                            List<SelectListItem> _screening = new List<SelectListItem>();
-                            SelectListItem obj = null;
-                            foreach (DataRow dr in _data.Tables[2].Rows)
-                            {
-                                obj = new SelectListItem();
-                                obj.Value = dr["ScreeningID"].ToString();
-                                obj.Text = dr["ScreeningName"].ToString();
-                                _screening.Add(obj);
-                            }
-                            if (_screening != null && _screening.Count < 1)
-                                ViewBag.message = "No Screening found.";
-                            ViewBag.screening = _screening;
-                            TempData["Screen"] = _screening;
-                        }
-                        if (_data.Tables.Count > 3 && _data.Tables[3].Rows.Count > 0)
-                        {
-                            foreach (DataRow dr in _data.Tables[3].Rows)
-                            {
-                                ViewBag.missingscreeningdate = dr["missingscreeningdate"].ToString() == "" ? "" : Convert.ToDateTime(dr["missingscreeningdate"]).ToString("MM/dd/yyyy");
-                                ViewBag.ScreeningStatus = dr["MissingStatus"].ToString();
-
-                            }
+                _screening = _nurse.GetScreening(Convert.ToString(Request.QueryString["clientid"]), Convert.ToString(Request.QueryString["Programid"]));
 
 
-                        }
+                ViewBag.ProgramID = Convert.ToString(Request.QueryString["Programid"]);
+                ViewBag.ReturnUrl = string.IsNullOrEmpty(Convert.ToString(Request.QueryString["bk"]))?"1": Convert.ToString(Request.QueryString["bk"]);
 
-
-
-                    }
-                    ViewBag.screening = TempData["Screen"];
-                    ViewBag.selectedid = Convert.ToString(Request.QueryString["Screeningid"]);
-                    TempData.Keep();
-
-                }
-
-                return View();
 
             }
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                ViewBag.screening = TempData["Screen"];
-                return View();
+
+
             }
+
+            return View(_screening);
         }
-        //   [CustAuthFilter("a31b1716-b042-46b7-acc0-95794e378b26,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
+
+        //[CustAuthFilter()]
+        [CustAuthFilter()]
+        public PartialViewResult GetScreeningByID(string screeningId, string clientId, string programId)
+        {
+            Screening _scr = new Screening();
+            try
+            {
+
+                if (Session["RoleID"] == null)
+                {
+                    return PartialView();
+                }
+
+
+
+                _scr = new NurseData().GetScreeningsbyid2(clientId, screeningId, Session["AgencyID"].ToString(), Session["UserID"].ToString(), programId, Session["Roleid"].ToString(), Server.MapPath("~//TempAttachment//"));
+
+                _scr._Screening = new Screening();
+
+
+
+                if (_scr.ScreeningPeriodsList.Where(X => X.ScreeningFocusType == 2).Any())
+                {
+
+                    _scr._Screening.Childid = clientId;
+                    _scr._Screening.ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(clientId));
+                    _scr._Screening.TypeScreening = Convert.ToInt32(programId);
+                    _scr._Screening.Screeningid = Convert.ToInt32(screeningId);
+                    _scr._Screening.ScreeningPeriodIndex = _scr.ScreeningPeriodsList.Where(X => X.ScreeningFocusType == 2).Select(x => x.ScreeningPeriodIndex).FirstOrDefault().ToString();
+
+                    _scr._Screening = new NurseData().GetScreeningByScreeningPeriod(_scr._Screening, Server.MapPath("~//TempAttachment//"));
+                }
+                return PartialView("~/Views/Screening/ScreeningPartial.cshtml", _scr);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+                return PartialView();
+            }
+
+
+        }
+
+
+
         public JsonResult GetScreeningTemplate(string Screeningid, string ClientId)
         {
             try
@@ -1406,5 +1358,86 @@ namespace Fingerprints.Controllers
             }
             return View(model);
         }
+
+
+        [HttpPost]
+        [CustAuthFilter()]
+        public PartialViewResult GetScreeningByScreeningPeriod(string screeningID, string eClientID, string refProgId, string periodID,string customScreeningPeriod)
+        {
+            Screening _screening = new Screening();
+
+            try
+            {
+                _screening.Childid = eClientID;
+                _screening.ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(eClientID));
+                _screening.TypeScreening = Convert.ToInt32(refProgId);
+                _screening.Screeningid = Convert.ToInt32(screeningID);
+                _screening.ScreeningPeriodIndex = periodID;
+                _screening.CustomScreeningPeriod = Convert.ToInt32(customScreeningPeriod);
+
+                _screening = new NurseData().GetScreeningByScreeningPeriod(_screening, Server.MapPath("~//TempAttachment//"));
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            //return Json(_screening,JsonRequestBehavior.AllowGet);
+            return PartialView("~/Views/Screening/ScreeningCurrentFocusPartial.cshtml", _screening);
+        }
+
+
+
+        public ActionResult SaveScreeningByScreeningPeriod(Screening _screen)
+        {
+
+            bool isResult = false;
+            int screeningPeriod = 0;
+            try
+            {
+
+                _screen.ClientID = Convert.ToInt32(EncryptDecrypt.Decrypt64(_screen.Childid));
+
+                if (_screen.ScreeningList != null && _screen.ScreeningList.Count > 0)
+                {
+
+                    for (int i = 0; i < _screen.ScreeningList.Count; i++)
+                    {
+                        if (_screen.ScreeningList[i].ApprovedFile != null)
+                        {
+                            _screen.ScreeningList[i].ApprovedFileName = _screen.ScreeningList[i].ApprovedFile.FileName;
+                            _screen.ScreeningList[i].ApprovedFileExtension = Path.GetExtension(_screen.ScreeningList[i].ApprovedFileName);
+                            BinaryReader br = new BinaryReader(_screen.ScreeningList[i].ApprovedFile.InputStream);
+                            _screen.ScreeningList[i].ApprovedImageByte = br.ReadBytes(_screen.ScreeningList[i].ApprovedFile.ContentLength);
+                        }
+
+                        else
+                        {
+
+                            _screen.ScreeningList[i].ApprovedImageByte = _screen.ScreeningList[i].ApprovedImageJson == null ? null : Convert.FromBase64String(_screen.ScreeningList[i].ApprovedImageJson);
+
+                        }
+                    }
+
+
+
+                }
+
+
+
+                isResult = _nurse.SaveScreeningByScreeningPeriod(ref  screeningPeriod,_screen);
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+            return Json(new { isResult, screeningPeriod }, JsonRequestBehavior.AllowGet);
+
+        }
+
     }
+
+
+
+
 }

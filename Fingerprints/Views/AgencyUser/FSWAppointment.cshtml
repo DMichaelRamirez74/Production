@@ -788,7 +788,7 @@
 
 
 
-                $('.parent-check1[type=checkbox]:checked').each(function (i, parent) {
+                $('.parent-check[type=checkbox]:checked').each(function (i, parent) {
 
                     var checkboxId = $(parent).attr('id');
                     var imageValue = $(parent).parent('.check-div').siblings('#sig_' + checkboxId + '').find('#image_canvas_' + checkboxId + '').val();
@@ -1333,9 +1333,21 @@
                         $.each(response.ParentDetailsList, function (i, family) {
 
                             var parent = family.ParentName + ' ';
-                            parent += (family.ParentRole == '1') ? '(Father)' : '(Mother)';
-                            parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><span style="margin-right:5px;">' + parent + '</span><input type="checkbox" style="position: relative;top: 3px;" id="parent_' + i + '" class="parent-check" parent=' + family.ClientId + ' role=' + family.ParentRole + ' pro-im="' + family.ProfilePicture + '" /></div>';
-                        });
+                            if (family.ParentName != "" && family.ParentRole != 0)
+                            {
+                                if(family.ParentRole==1)
+                                {
+                                    parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><input type="checkbox" class="ParentID1 parent-check"  style="position: relative;top: 3px;" id="parent_' + i + '" parent=' + family.ClientId + ' role=' + family.ParentRole + '" /><span style="margin-right:5px;padding-left: 10px;">' + parent + '</span></div>';
+
+                                }
+                                if (family.ParentRole == 2) {
+                                    parentCheck += '<div class="check-div col-xs-12" style="margin-bottom:10px;padding:0;"><input type="checkbox" class="ParentID2 parent-check" style="position: relative;top: 3px;" id="parent_' + i + '" parent=' + family.ClientId + ' role=' + family.ParentRole + '" /><span style="margin-right:5px;padding-left: 10px;">' + parent + '</span></div>';
+
+                                }
+                            }
+                               
+                          //  parent += (family.ParentRole == '1') ? '(Father)' : '(Mother)';
+                             });
 
                         var attendList = '<option acr="0" value="0">--Select Attendance Type--</option>';
 
