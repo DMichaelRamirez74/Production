@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,5 +65,67 @@ namespace FingerprintsModel
             public string Name { get; set; }
             public string Screen { get; set; }
         }
+
+
+        public List<EnrolledByCenterType> EnrollmentTypeList = new List<EnrolledByCenterType>();
+
+        public class EnrolledByCenterType
+        {
+            public string CenterType { get; set; }
+            public string Total { get; set; }
+            public string Available { get; set; }
+        }
+
+
+        public enum CenterTypeEnum
+        {
+            [Description("Center Based")]
+            CenterBased=0,
+            [Description("Home Based")]
+            HomeBased =1
+
+        }
+        //public static string GetDescription<T>(this T e) where T : IConvertible
+        //{
+        //    if (e is Enum)
+        //    {
+        //        Type type = e.GetType();
+        //        Array values = System.Enum.GetValues(type);
+
+        //        foreach (int val in values)
+        //        {
+        //            if (val == e.ToInt32(CultureInfo.InvariantCulture))
+        //            {
+        //                var memInfo = type.GetMember(type.GetEnumName(val));
+        //                var descriptionAttribute = memInfo[0]
+        //                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+        //                    .FirstOrDefault() as DescriptionAttribute;
+
+        //                if (descriptionAttribute != null)
+        //                {
+        //                    return descriptionAttribute.Description;
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return null; // could also return string.Empty
+        //}
+
+        public static string GetDescription(ExecutiveDashBoard.CenterTypeEnum Band)
+        {
+            System.Reflection.FieldInfo oFieldInfo = Band.GetType().GetField(Band.ToString());
+            DescriptionAttribute[] attributes = (DescriptionAttribute[])oFieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (attributes.Length > 0)
+            {
+                return attributes[0].Description;
+            }
+            else
+            {
+                return Band.ToString();
+            }
+        }
+
+
     }
 }

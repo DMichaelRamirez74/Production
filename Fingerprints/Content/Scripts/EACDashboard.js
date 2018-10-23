@@ -11,7 +11,7 @@ function getADASeatsDaily() {
 
             if (result != null) {
                 if ($('.ada-p').length > 0 && result.adaPercentage != undefined && result.adaPercentage != null && result.adaPercentage != '') {
-                    $('.ada-p').html(result.adaPercentage + ' %');
+                    $('.ada-p').html(parseFloat(result.adaPercentage) + ' %');
                 }
 
                 if ($('.seats-p').length > 0 && result.todaySeats != undefined && result.todaySeats != null && result.todaySeats != '') {
@@ -98,6 +98,7 @@ $(function () {
                         $('.sp-slots-count').text(val["SlotCount"]);
                         $('.sp-expiringslots-count').text(val["Expiring"]);
                         $('.sp-emptyslots-count').text(val["EmptySlots"]);
+                        $('.sp-slots-per').text(parseFloat(val["SlotsDailyPercentage"]) + ' %');
                     });
 
                     $('#spinner').hide();
@@ -118,35 +119,36 @@ $(function () {
     function GetSeatsDetail(date) {
         $.ajax({
             type: "POST",
-            url: "/Home/GetSeatsDetailByDate",
+            url: HostedDir+ "/Home/GetSeatsDetailByDate",
             data: { 'Date': date },
-            beforeSend:function(){$('#spinner').show()},
+            beforeSend: function () { $('#spinner').show() },
             success: function (data) {
 
-                try{
+                try {
 
-                $.each(JSON.parse(data), function (i, val) {
-                    $('.sp-seats-count').text(val["Count"]);
-                    $('.sp-seatpercentage-count').text(val["Percentage"]);
-                    $('.sp-seats-home-count').text(val["HomePresent"]);
-                    $('.sp-seatpercentage-home-count').text(val["HomePercentage"]);
+                    $.each(JSON.parse(data), function (i, val) {
+                        $('.sp-seats-count').text(val["Count"]);
+                        $('.sp-seatpercentage-count').text(val["Percentage"]);
+                        $('.sp-seats-home-count').text(val["HomePresent"]);
+                        $('.sp-seatpercentage-home-count').text(parseFloat(val["HomePercentage"]));
+                        $('.span-week-start-date').text('(' + val["WeekStartDate"] + ' to '+ val["WeekEndDate"]+')');
 
-                    $('#seatsDatetimePicker').datetimepicker('destroy');
+                        $('#seatsDatetimePicker').datetimepicker('destroy');
 
-                    $('#seatsDatetimePicker').datetimepicker({
-                        timepicker: false,
-                        format: 'm/d/Y',
-                        validateOnBlur: false,
-                        minDate: new Date(val["ProgramYearStartDate"]),
-                        maxDate:new Date()
+                        $('#seatsDatetimePicker').datetimepicker({
+                            timepicker: false,
+                            format: 'm/d/Y',
+                            validateOnBlur: false,
+                            minDate: new Date(val["ProgramYearStartDate"]),
+                            maxDate: new Date()
+                        });
+
+                        prgYearMinDate = val["ProgramYearStartDate"];
+
                     });
 
-                    prgYearMinDate = val["ProgramYearStartDate"];
-
-                });
-
-                $('#spinner').hide();
-                $('#myModalSeats').modal('show');
+                    $('#spinner').hide();
+                    $('#myModalSeats').modal('show');
                 }
                 catch (error) {
                     $('#spinner').hide();
@@ -354,7 +356,7 @@ $(window).load(function () {
         totHours = parseInt($('#txtTotalHours').val());
     else
         totHours = parseFloat("1" + hours);
-   
+
     var oTherm1 = new jlionThermometer(0, totHours, false, false);
     oTherm1.RefreshByID('txtThermHours');
 
@@ -362,11 +364,11 @@ $(window).load(function () {
     for (var i = 0; i < Dollars.length; i++) {
         Dollars = Dollars.replace(Dollars.charAt(i), '0');
     }
-    var totalDOllers=0;
-    if($('#txtTotalDollars').val()!="")
-        totalDOllers= parseInt($('#txtTotalDollars').val());
+    var totalDOllers = 0;
+    if ($('#txtTotalDollars').val() != "")
+        totalDOllers = parseInt($('#txtTotalDollars').val());
     else
-        totalDOllers=parseFloat("1" + Dollars);
+        totalDOllers = parseFloat("1" + Dollars);
     var oTherm = new jlionThermometerDollars(0, totalDOllers, false, false);
     oTherm.RefreshByID('txtThermDollars');
 

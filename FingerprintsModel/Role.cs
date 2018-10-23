@@ -25,7 +25,40 @@ namespace FingerprintsModel
         public bool ToEnter { get; set; }
         public List<UserDetails> UserList { get; set; }
 
+        public static readonly Dictionary<int, string> RolesDictionary = new Dictionary<int, string>()
+        {
 
+            { (int)RoleEnum.AgencyAdmin, agencyAdmin},
+            {(int)RoleEnum.AreaManager, areaManager},
+            {(int)RoleEnum.BillingManager, billingManager},
+            {(int)RoleEnum.BusDriver,busDriver },
+            { (int)RoleEnum.BusMonitor,busMonitor},
+            { (int)RoleEnum.CenterManager,centerManager},
+            { (int)RoleEnum.ChildCareProvider,childCareProvider},
+            { (int)RoleEnum.DisabilitiesManager,disabilitiesManager},
+            { (int)RoleEnum.DisabilityStaff,disabilityStaff},
+            { (int)RoleEnum.EducationManager,educationManager},
+            {(int)RoleEnum.ERSEAManager,erseaManager },
+            { (int)RoleEnum.Executive,executive},
+            { (int)RoleEnum.FacilitiesManager,facilitiesManager},
+            {(int)RoleEnum.FacilityWorker,facilityWorker },
+            { (int)RoleEnum.FamilyServiceWorker,familyServiceWorker},
+            {(int)RoleEnum.GenesisEarthAdministrator,gEarthAdministrator },
+            { (int)RoleEnum.HealthManager,healthManager},
+            { (int)RoleEnum.HealthNurse,healthNurse},
+            { (int)RoleEnum.HomeVisitor,homeVisitor},
+            { (int)RoleEnum.HRManager,hrManager},
+            { (int)RoleEnum.HRStaff,hrStaff},
+            { (int)RoleEnum.MentalHealthSpecialist,mentalHealthSpecialist},
+            { (int)RoleEnum.Nutritionist,nutritionist},
+            { (int)RoleEnum.Parent,parent},
+            { (int)RoleEnum.SocialServiceManager,socialServiceManager},
+            { (int)RoleEnum.SuperAdmin,superAdmin},
+            {(int)RoleEnum.Teacher,teacher },
+            { (int)RoleEnum.TeacherAssistant,teacherAssistant},
+            { (int)RoleEnum.TransportManager,transportManager}
+
+         };
 
         #region  Roles  (Private fields)
         public const string agencyAdmin = "3B49B025-68EB-4059-8931-68A0577E5FA2";
@@ -60,7 +93,7 @@ namespace FingerprintsModel
         #endregion
 
         //#region Roles (public fields with get properties
-       //public  static string AgencyAdmin { get { return agencyAdmin; } }
+        //public  static string AgencyAdmin { get { return agencyAdmin; } }
         //public static string AreaMangaer { get { return areaManager; } }
         //public static string BillingManager { get { return billingManager; } }
         //public static string BusDriver { get { return busDriver; } }
@@ -92,6 +125,43 @@ namespace FingerprintsModel
         //#endregion
     }
 
+
+
+
+
+    public enum RoleEnum
+    {
+
+        AgencyAdmin = 1,
+        AreaManager = 2,
+        BillingManager = 3,
+        BusDriver = 4,
+        BusMonitor = 5,
+        CenterManager = 6,
+        ChildCareProvider = 7,
+        DisabilitiesManager = 8,
+        DisabilityStaff = 9,
+        EducationManager = 10,
+        ERSEAManager = 11,
+        Executive = 12,
+        FacilitiesManager = 13,
+        FacilityWorker = 14,
+        FamilyServiceWorker = 15,
+        GenesisEarthAdministrator = 16,
+        HealthManager = 17,
+        HealthNurse = 18,
+        HomeVisitor = 19,
+        HRManager = 20,
+        HRStaff = 21,
+        MentalHealthSpecialist = 22,
+        Nutritionist = 23,
+        Parent = 24,
+        SocialServiceManager = 25,
+        SuperAdmin = 26,
+        Teacher = 27,
+        TeacherAssistant = 28,
+        TransportManager = 29
+    }
     public class UserDetails
     {
         public bool ToView { get; set; }

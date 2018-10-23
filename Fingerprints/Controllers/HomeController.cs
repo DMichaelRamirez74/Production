@@ -53,6 +53,7 @@ namespace Fingerprints.Controllers
         SuperAdminData superAdmin = new SuperAdminData();
         agencyData agencydata = new agencyData();
         FamilyData _family = new FamilyData();
+        StaffDetails staffDetails = StaffDetails.GetInstance();
 
         [CustAuthFilter("f87b4a71-f0a8-43c3-aea7-267e5e37a59d")]
         public ActionResult SuperAdminDashboard()
@@ -92,7 +93,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                ViewBag.agencyhrdashboard = agencydata.GetagencyAdmindashboard(Session["AgencyID"].ToString());
+                ViewBag.agencyhrdashboard = agencydata.GetagencyAdmindashboard(Convert.ToString(staffDetails.AgencyId));
                 return View();
 
             }
@@ -113,8 +114,8 @@ namespace Fingerprints.Controllers
                 var dec = FingerprintsModel.EncryptDecrypt.Decrypt64("ZTRjODBmYzItOGI2NC00NDdhLTk5YjQtOTVkMTUxMGIwMWU5");
                 int yakkrcount = 0;
                 int appointment = 0;
-                string PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                string  PYSDate = "";
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate,ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 ViewBag.PYStartDate = PYSDate;
@@ -133,7 +134,7 @@ namespace Fingerprints.Controllers
             try
             {
                 int yakkrcount = 0;
-                ViewBag.Centerlist = _family.GetcentersFSW(ref yakkrcount, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                ViewBag.Centerlist = _family.GetcentersFSW(ref yakkrcount, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
                 Session["YakkrCountPending"] = yakkrcount;
                 return View();
             }
@@ -157,7 +158,7 @@ namespace Fingerprints.Controllers
             {
                 List<ClientWaitingList> _clientWaitingList = new List<ClientWaitingList>();
                 Dictionary<string, Int32> slotsDictionary = new Dictionary<string, int>();
-                _clientWaitingList = _family.GetclientWaitingList(ref slotsDictionary, Centerid, Option, Programtype, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                _clientWaitingList= _family.GetclientWaitingList(ref slotsDictionary,  Centerid, Option, Programtype,Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
                 return Json(new { _clientWaitingList, slotsDictionary }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception Ex)
@@ -195,8 +196,8 @@ namespace Fingerprints.Controllers
             {
                 int yakkrcount = 0;
                 int appointment = 0;
-                string PYSDate = "";
-                ViewBag.Centerlist = _family.Getcenters(out PYSDate, ref yakkrcount, ref appointment, Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                string  PYSDate = "";
+                ViewBag.Centerlist = _family.Getcenters(out PYSDate,ref yakkrcount, ref appointment, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
                 Session["Yakkrcount"] = yakkrcount;
                 Session["Appointment"] = appointment;
                 return View();
@@ -212,7 +213,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_family.LoadClientPendinglist(Centerid, Type, Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                return Json(_family.LoadClientPendinglist(Centerid, Type, Convert.ToString(staffDetails.AgencyId),Convert.ToString(staffDetails.UserId)));
             }
             catch (Exception Ex)
             {
@@ -225,7 +226,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_family.DeletePendingClient(Id, centerid, Clientid, householdid, Programid, Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                return Json(_family.DeletePendingClient(Id, centerid, Clientid, householdid, Programid, Convert.ToString(staffDetails.AgencyId),Convert.ToString(staffDetails.UserId)));
             }
             catch (Exception Ex)
             {
@@ -238,7 +239,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_family.GetclientAcceptList(Centerid, Option, Session["AgencyID"].ToString(), Session["UserID"].ToString()));
+                return Json(_family.GetclientAcceptList(Centerid, Option, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId)));
             }
             catch (Exception Ex)
             {
@@ -252,7 +253,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_family.GetFSWListByClient(ClientId, Centerid, Session["AgencyID"].ToString(), ListType));
+                return Json(_family.GetFSWListByClient(ClientId, Centerid, Convert.ToString(staffDetails.AgencyId), ListType));
             }
             catch (Exception Ex)
             {
@@ -280,7 +281,7 @@ namespace Fingerprints.Controllers
             try
             {
 
-                return Json(_family.DeleteRejectedRecord(Id, ClientId, HouseholdId, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_family.DeleteRejectedRecord(Id, ClientId, HouseholdId,Convert.ToString(staffDetails.UserId), Convert.ToString(staffDetails.AgencyId)));
             }
             catch (Exception Ex)
             {
@@ -288,8 +289,8 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        // [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
-        [CustAuthFilter(new string[] { Role.teacher})]
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+       [CustAuthFilter(RoleEnum.Teacher)]
         public async Task<ActionResult> TeacherDashBoard()
         {
 
@@ -335,9 +336,9 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                string AgencyId = Session["AgencyID"].ToString();
+                //string AgencyId = Session["AgencyID"].ToString();
                 ExecutiveDashBoard executive;
-                executive = new ExecutiveData().GetExecutiveDetails(Session["AgencyID"].ToString(), Session["UserID"].ToString(), "AreaManager");
+                executive = new ExecutiveData().GetExecutiveDetails(Convert.ToString(staffDetails.AgencyId),Convert.ToString(staffDetails.UserId), "AreaManager");
                 TempData["CaseNote"] = executive.listCaseNote;
                 return View(executive);
             }
@@ -590,7 +591,7 @@ namespace Fingerprints.Controllers
             try
             {
                 DataTable dtSlotsDetails = new DataTable();
-                new ExecutiveData().GetSlotsDetailByDate(ref dtSlotsDetails, Session["AgencyID"].ToString(), Date);
+                new ExecutiveData().GetSlotsDetailByDate(ref dtSlotsDetails,Convert.ToString(staffDetails.AgencyId), Date);
                 JSONString = Newtonsoft.Json.JsonConvert.SerializeObject(dtSlotsDetails);
             }
             catch (Exception Ex)

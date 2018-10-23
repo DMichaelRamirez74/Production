@@ -16,8 +16,15 @@ namespace Fingerprints.Filters
 
         public CustAuthFilter(string [] userTypeArray)
         {
-            Usertype = Array.ConvertAll( userTypeArray,x=>x.ToLowerInvariant());
+            Usertype = Array.ConvertAll(userTypeArray,x=>x.ToLowerInvariant());
             
+        }
+
+        public CustAuthFilter(params FingerprintsModel.RoleEnum[] allowedRoles)
+        {
+          
+            Usertype = allowedRoles.Select(x => FingerprintsModel.Role.RolesDictionary[(int)x].ToLowerInvariant()).ToArray();
+
         }
         public CustAuthFilter()
         {

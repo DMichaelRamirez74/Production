@@ -159,14 +159,27 @@ namespace FingerprintsData
 
                     if(_dataset.Tables.Count>10 && _dataset.Tables[10].Rows.Count>0)
                     {
-                        HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(_dataset.Tables[10].Rows[0]["ShowDemographic"].ToString())) ? false :
-                            Convert.ToString(_dataset.Tables[10].Rows[0]["ShowDemographic"]) == "1" ? true : false;
+                        executive.EnrollmentTypeList = (from DataRow dr10 in _dataset.Tables[10].Rows
+                                                        select new ExecutiveDashBoard.EnrolledByCenterType
+                                                        {
+                                                            Total = Convert.ToString(dr10["EnrollmentCount"]),
+                                                            CenterType = ExecutiveDashBoard.GetDescription((ExecutiveDashBoard.CenterTypeEnum)Convert.ToInt32(dr10["HomeBased"]))
+                                                      }
+                                                      ).OrderBy(x => x.CenterType).ToList();
+                    }
+
+                    /// shows demographic menu for Access roles if the returns 1.
+
+                    if(_dataset.Tables.Count>11 && _dataset.Tables[11].Rows.Count>0)
+                    {
+                        HttpContext.Current.Session["IsDemographic"] = (string.IsNullOrEmpty(_dataset.Tables[11].Rows[0]["ShowDemographic"].ToString())) ? false :
+                            Convert.ToString(_dataset.Tables[11].Rows[0]["ShowDemographic"]) == "1" ? true : false;
                     }
 
                     /// gets the Program Year Start Date for the Executive Dashboard///
-                    if(_dataset.Tables.Count>11 && _dataset.Tables[11].Rows.Count>0)
+                    if(_dataset.Tables.Count>12 && _dataset.Tables[12].Rows.Count>0)
                     {
-                        executive.ProgramYearStartDate = Convert.ToString(_dataset.Tables[11].Rows[0]["ProgramYearStartDate"]);
+                        executive.ProgramYearStartDate = Convert.ToString(_dataset.Tables[12].Rows[0]["ProgramYearStartDate"]);
                     }
 
                 }
@@ -504,7 +517,10 @@ namespace FingerprintsData
                     }
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+            }
 
             return data;
         }
