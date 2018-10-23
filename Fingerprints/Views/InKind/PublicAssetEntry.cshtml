@@ -183,6 +183,14 @@
             });
 
 
+
+            //Validation for the Valid Entered Format date//
+            $('body').on('blur', '#activity-date', function () {
+
+
+                validatedates(this);
+            });
+
             //On Change Center Select Option, Gets the Classrooms//
 
             $('#ddlCenterDetails').on('change', function () {
@@ -540,6 +548,11 @@
                     return false;
                 }
 
+                if (activityDate.val() != '' && !validatedates(activityDate))
+                {
+                    return false;
+                }
+
 
                 if ($('input[name=activityTypeRadio]:checked').length <= 0) {
                     $('#activitytyperadiodiv').addClass('checkbox-validation');
@@ -892,6 +905,28 @@
 
 
 
+        function validatedates(inputTextObject) {
+         
+            if ($(inputTextObject).val().trim() != "MM/DD/YYYY" && $(inputTextObject).val().trim() != "") {
+                var dateformat = /^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/;
+                var regex = new RegExp(dateformat);
+                if (!regex.test($(inputTextObject).val())) {
+                    customAlert("Invalid date.");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+                else if (new Date($(inputTextObject).val()).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0)) {
+                    customAlert("Entered Date should be less than or equal to today's date");
+                    $(inputTextObject).val('');
+                    return false;
+                }
+                else {
+                    return true;
+                }
+
+            }
+
+        }
 
         //function to add more attachments for the in-kind entry//
         function addMoreInkindAtt(ele)
@@ -1320,7 +1355,7 @@
                 if (isPastPresentParent == 0) {
                     $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
                     $('#inkind-info-form').find('.individual-parent-type-div-act').show();
-                    //home shown for all
+                    //home shown for all code0643
                     //$('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').hide();
                     $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
                 }
@@ -1329,7 +1364,7 @@
                     $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
 
                     $homeCheck.prop('checked', false).parent('span').parent('div').show();
-                     //home shown for all 
+                     //home shown for all code0643
                     $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').show();
                 }
 
@@ -1423,7 +1458,7 @@
             $('#sig2').signature('clear');
 
             $('#parent-sig-div,#staff-sig-div').hide();
-            //home shown for all  
+            //home shown for all code0643 
            // $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
            //prop('checked', false).parent('span').parent('div').hide();
 
@@ -1484,7 +1519,7 @@
             $('#inkindAmountTxt').val('');
             $('.amount-div,.inkind-miles-div,.inkind-hours-div').hide();
             $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').val('');
-            //home shown for all 
+            //home shown for all code0643
           //  $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
             //    prop('checked', false).parent('span').parent('div').hide();
 
@@ -2046,7 +2081,7 @@
 
                             <label class="col-lg-4 col-form-label lbl-required">Date</label>
                             <div class='input-group date col-lg-8' id='datetimepicker1' style="padding-left:15px;padding-right:15px;">
-                                <input type="text" class="form-control" id="activity-date" placeholder="MM/DD/YYYY" />
+                                <input type="text" class="form-control" id="activity-date" placeholder="MM/DD/YYYY" maxlength="10" />
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>

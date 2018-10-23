@@ -18,7 +18,7 @@ namespace FingerprintsData
         DataSet _dataset = null;
        
         SqlDataAdapter DataAdapter = null;
-        DataTable _dataTable = null;
+        //DataTable _dataTable = null;
       
         public EducationManager GetEducationDashboard()
         {

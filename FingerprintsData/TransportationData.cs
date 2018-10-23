@@ -863,7 +863,7 @@ namespace FingerprintsData
         }
         public List<AssignedRouteAll> GetPickUpChildrenData(Guid agencyId, int CenterId)
         {
-            AssignedRouteAll allChildren = null;
+        //    AssignedRouteAll allChildren = null;
             List<AssignedRouteAll> allChildrenRoute = new List<AssignedRouteAll>();
             try
             {

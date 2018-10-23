@@ -16,7 +16,7 @@ namespace FingerprintsData
         //SqlDataReader dataReader = null;
         //SqlTransaction tranSaction = null;
         SqlDataAdapter DataAdapter = null;
-        DataTable _dataTable = null;
+        //DataTable _dataTable = null;
         DataSet _dataset = null;
 
         public ExternalLeadsFamily GetExternalLeadsData(int parentId)

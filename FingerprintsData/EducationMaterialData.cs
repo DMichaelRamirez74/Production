@@ -14,7 +14,7 @@ namespace FingerprintsData
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();
         SqlDataAdapter DataAdapter = null;
-        DataSet _dataset = null;
+       // DataSet _dataset = null;
         public bool SaveEducationMaterial(EductionMaterial objEdu)
         {
             bool isInserted = false;

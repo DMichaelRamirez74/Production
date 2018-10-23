@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace FingerprintsModel
 {
     public class Transition
     {
+        [Required()]
         public long ClientId { get; set; }
         public string EClientID { get; set; }
         public long ProgramTypeId { get; set; }

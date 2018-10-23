@@ -24,11 +24,11 @@ namespace FingerprintsData
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();
         //SqlDataReader dataReader = null;
-        SqlTransaction tranSaction = null;
+        //SqlTransaction tranSaction = null;
         SqlDataAdapter DataAdapter = null;
-        DataTable familydataTable = null;
+        //DataTable familydataTable = null;
         DataSet _dataset = null;
-        DataTable _dataTable = null;
+        //DataTable _dataTable = null;
         public List<DissabilityManagerDashboard> GetDissabilityStaffDashboard(ref DisabilityCumulative DisabilityCumulative ,ref int yakkrcount, ref int appointment, string Agencyid, string userid)
         {
             List<DissabilityManagerDashboard> centerList = new List<DissabilityManagerDashboard>();

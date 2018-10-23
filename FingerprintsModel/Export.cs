@@ -1582,9 +1582,11 @@ namespace FingerprintsModel
             }
             catch (DocumentException de)
             {
+                clsError.WriteException(de);
             }
             catch (System.IO.IOException ioe)
-            {
+            { 
+             clsError.WriteException(ioe);
             }
         }
 

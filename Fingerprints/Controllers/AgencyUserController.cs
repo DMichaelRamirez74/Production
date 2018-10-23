@@ -1292,7 +1292,7 @@ namespace Fingerprints.Controllers
         [CustAuthFilter("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,e4c80fc2-8b64-447a-99b4-95d1510b01e9,c352f959-cfd5-4902-a529-71de1f4824cc,b4d86d72-0b86-41b2-adc4-5ccce7e9775b")]
         public ActionResult FamilyDetails(string id = "0")
         {
-            int clintid = 0;
+            //int clintid = 0;
            
             if (Request.QueryString["ClientId"] != null)
             {

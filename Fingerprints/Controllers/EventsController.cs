@@ -183,7 +183,7 @@ namespace Fingerprints.Controllers
                 string imagepath = UrlExtensions.LinkToRegistrationProcess("Content/img/logo_email.png");
                 string yesPath = UrlExtensions.LinkToRegistrationProcess("/Events/MailMessage");
                 string noPath = UrlExtensions.LinkToRegistrationProcess("/Events/ConfirmMail");
-                string mode = "3";
+              //  string mode = "3";
                 string[] array = { events.EventStatusDescription, events.EventDateDescription, events.EventTimeDescription };
                 string FromEmail = Session["EmailID"].ToString();
                 string reason = string.Join(",", array.Where(s => !string.IsNullOrEmpty(s)));

@@ -523,14 +523,14 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@result", string.Empty)).Direction = ParameterDirection.Output;
                 command.Parameters.Add(new SqlParameter("@createdBy", userId));
                 DataTable dt2 = new DataTable();
-                dt2.Columns.AddRange(new DataColumn[2] { 
+                dt2.Columns.AddRange(new DataColumn[2] {
                     new DataColumn("ClassroomID", typeof(string)),
                     new DataColumn("Users",typeof(string)) 
                    //   new DataColumn("Id",typeof(string))
                     });
                 foreach (FingerprintsModel.UserInfo users in UserList)
                 {
-                    if (users.userId != null && users.ClassroomID != null)
+                    if (users.userId != null)
                     {
                         dt2.Rows.Add(users.ClassroomID, users.userId);//,users.ClassAssignId
                     }

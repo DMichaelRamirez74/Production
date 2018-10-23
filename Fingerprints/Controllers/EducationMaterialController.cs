@@ -426,7 +426,7 @@ namespace Fingerprints.Controllers
                     {
                         DataSet ds = new DataSet();
                         new EducationMaterialData().GetParentEmailbyClientId(ref ds, client, Id);
-                        string Attachments = "";
+                     
                         if (ds.Tables[0].Rows.Count > 0)
                         {
                             Template = @"<table style='width:100%;margin-top:20px;'>

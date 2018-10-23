@@ -16,7 +16,7 @@ namespace FingerprintsData
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();
         //SqlDataReader dataReader = null;
-        SqlTransaction tranSaction = null;
+        //SqlTransaction tranSaction = null;
         SqlDataAdapter DataAdapter = null;
         DataSet _dataset = null;
 

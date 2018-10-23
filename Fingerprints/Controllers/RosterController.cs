@@ -1486,7 +1486,7 @@ namespace Fingerprints.Controllers
                     obj.GoalFor = 1;
                 }
                 string message = "";
-                int Mode = 2;
+               // int Mode = 2;
                 try
                 {
                     info.Category = (collection["DdlCateList"] == null) ? null : collection["DdlCateList"].ToString();
@@ -1494,16 +1494,16 @@ namespace Fingerprints.Controllers
                     if (info.FPAID > 0)
                     {
                         //Update Data
-                        string UpdateParameter = "UPDATE";
+                       // string UpdateParameter = "UPDATE";
                         message = objdata.AddFPA(info, 1, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
-                       // objdata.CheckByClient(UpdateParameter, Mode);
+                        // objdata.CheckByClient(UpdateParameter, Mode);
                     }
                     else
                     {
                         //Insert Data
-                        string InsertParameter = "INSERT";
+                    //    string InsertParameter = "INSERT";
                         message = objdata.AddFPA(info, 0, Guid.Parse(Session["UserID"].ToString()), Session["AgencyID"].ToString());
-                       // objdata.CheckByClient(InsertParameter, Mode);
+                        // objdata.CheckByClient(InsertParameter, Mode);
                     }
                     ViewBag.result = "Success";
                     if (message.Contains("1_"))
@@ -2194,6 +2194,7 @@ namespace Fingerprints.Controllers
 
 
         [JsonMaxLengthAttribute]
+        [HttpPost]
         public JsonResult GetChildrenImage(string enc_clientId)
         {
             SelectListItem childImage = new SelectListItem();

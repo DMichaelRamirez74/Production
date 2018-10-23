@@ -256,8 +256,7 @@ namespace Fingerprints.Controllers
             {
                 string IPAddress = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
                 bool isCoreTeam = false;
-                bool isDemographic = false;
-                bool isAcceptance = false;
+              
                 if (string.IsNullOrEmpty(IPAddress))
                     IPAddress = Request.ServerVariables["REMOTE_ADDR"];
 

@@ -3818,7 +3818,7 @@ namespace FingerprintsData
                     });
                     foreach (ClassRoom slot in ClassSlot)
                     {
-                        if (slot.ClassroomID != null && slot.ClassroomID != 0)
+                        if (slot.ClassroomID != 0)
                         {
                             dt.Rows.Add(slot.ProgramId, slot.ClassroomID, slot.ActualSeats);
                         }

@@ -2454,7 +2454,7 @@ namespace Fingerprints.Controllers
                         {
                             string imagePath = "http://" + uriResource.Authority + "/Content/img/ge_logo_banner_left2.png";
                             EMailTemplate = EMailTemplate.Replace("{image}", imagePath);
-                            string Email = "", cc = "";
+                            //string Email = "", cc = "";
                            
                             if (ds.Tables[0].Rows.Count > 0)
                             {

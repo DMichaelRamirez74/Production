@@ -40,7 +40,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -55,7 +55,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -69,7 +69,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
         [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
@@ -92,7 +92,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 
@@ -102,7 +102,10 @@ namespace Fingerprints.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a,4b77aab6-eed1-4ac3-b498-f3e80cf129c0")]
+        //[CustAuthFilter(new string[] { Role.teacher,Role.educationManager})]
+
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public ActionResult Roster(string id="")
         {
             try
@@ -115,7 +118,7 @@ namespace Fingerprints.Controllers
                     ViewBag.NotChecked = true;
                     notChecked = true;
                 }
-                return View(new TeacherData().GetChildList(Session["UserID"].ToString(),notChecked));
+                return View(new TeacherData().GetChildList(notChecked));
             }
             catch (Exception Ex)
             {
@@ -123,7 +126,8 @@ namespace Fingerprints.Controllers
                 return View();
             }
         }
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter(new string[] { Role.teacher})]
         public ActionResult GetChildDevelopmentTeamByChildId(string ClientId, string CenterId)
         {
             string JSONString = string.Empty;
@@ -140,7 +144,8 @@ namespace Fingerprints.Controllers
             return Json(JSONString);
         }
 
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        //[CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter(new string[] { Role.teacher})]
         public ActionResult AddChildReferealNotes(List<YakkrRouting> yakkrdetails)
         {
             bool Result = false;
@@ -182,7 +187,7 @@ namespace Fingerprints.Controllers
                 new TeacherData().MarkAbsent(ref result, childID, Session["UserID"].ToString(), absentType, Cnotes, Session["AgencyID"].ToString(), reasonid, NewReason);
                 if (result == "1")
                     TempData["message"] = "Record saved successfully.";
-                return View(new TeacherData().GetChildList(Session["UserID"].ToString()));
+                return View(new TeacherData().GetChildList());
             }
             catch (Exception Ex)
             {
@@ -197,7 +202,7 @@ namespace Fingerprints.Controllers
             try
             {
                 ViewData["Available"] = available;
-                return View(new TeacherData().GetChildList(Session["UserID"].ToString()));
+                return View(new TeacherData().GetChildList());
             }
             catch (Exception Ex)
             {
@@ -316,7 +321,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return View(new TeacherData().GetChildList(Session["UserID"].ToString()));
+                return View(new TeacherData().GetChildList());
             }
             catch (Exception Ex)
             {
@@ -442,7 +447,7 @@ namespace Fingerprints.Controllers
             catch (Exception Ex)
             {
                 clsError.WriteException(Ex);
-                return Json("Error occured please try again.");
+                return Json("Error occurred please try again.");
             }
         }
 

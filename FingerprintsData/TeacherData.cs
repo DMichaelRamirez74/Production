@@ -263,27 +263,33 @@ namespace FingerprintsData
                     Connection.Close();
             }
         }
-        public TeacherModel GetChildList(string UserID, bool notChecked = false)
+        public TeacherModel GetChildList(bool notChecked = false)
         {
             TeacherModel _TeacherM = new TeacherModel();
             _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
 
+            try
+            {
+
+            StaffDetails staff = StaffDetails.GetInstance();
             SqlConnection Connection = connection.returnConnection();
             SqlCommand command = new SqlCommand();
             SqlDataAdapter DataAdapter = null;
             DataSet _dataset = null;
 
-            Connection.Open();
+          
             command.Connection = Connection;
             command.Parameters.Clear();
-            command.Parameters.Add(new SqlParameter("@UserID", UserID));
+            command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
             command.Parameters.Add(new SqlParameter("@ClientID", "1"));
             command.Parameters.Add(new SqlParameter("@isNotChecked", notChecked));
             command.CommandType = CommandType.StoredProcedure;
             command.CommandText = "SP_GetTeacherList";
-            DataAdapter = new SqlDataAdapter(command);
+                Connection.Open();
+                DataAdapter = new SqlDataAdapter(command);
             _dataset = new DataSet();
             DataAdapter.Fill(_dataset);
+                Connection.Close();
             DataTable dt = _dataset.Tables[0];
             List<TeacherModel> chList = new List<TeacherModel>();
             foreach (DataRow dr in _dataset.Tables[0].Rows)
@@ -379,9 +385,17 @@ namespace FingerprintsData
             _TeacherM.NotCheckedCount = _TeacherM.Itemlst.Count(x => x.NotCheckedCount == 0);
 
             _TeacherM.RosterCount = (notChecked) ? (_TeacherM.NotCheckedCount > 0 && _TeacherM.NotCheckedCount < 10) ? "0" + _TeacherM.NotCheckedCount.ToString() : _TeacherM.NotCheckedCount.ToString() : (_TeacherM.Itemlst.Count() > 0 && _TeacherM.Itemlst.Count() < 10) ? "0" + _TeacherM.Itemlst.Count().ToString() : _TeacherM.Itemlst.Count().ToString();
-
-            Connection.Close();
-            command.Dispose();
+        }
+            catch(Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+            
             return _TeacherM;
 
         }
@@ -557,7 +571,7 @@ namespace FingerprintsData
             {
                 clsError.WriteException(ex);
             }
-            return GetChildList(UserID);
+            return GetChildList();
         }
 
 
@@ -1607,7 +1621,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@UserId", UserId));
                 if (isCenter)
                     command.Parameters.Add(new SqlParameter("@Status", '0'));
-                if (objMonitoring.CenterId != null)
+                //if (objMonitoring.CenterId != null)
                     command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
@@ -1643,7 +1657,7 @@ namespace FingerprintsData
         public bool InsertWorkOrderDetail(Monitoring objMonitoring)
         {
             bool isInserted = false;
-            string result = "";
+           
             try
             {
                 command = new SqlCommand();
@@ -1780,7 +1794,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@AgencyID", objMonitoring.AgencyID));
                 command.Parameters.Add(new SqlParameter("@UserId", objMonitoring.UserID));
                 command.Parameters.Add(new SqlParameter("@RouteCode", objMonitoring.RouteCode));
-                if (objMonitoring.CenterId != null)
+                //if (objMonitoring.CenterId != null)
                     command.Parameters.Add(new SqlParameter("@CenterId", objMonitoring.CenterId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;

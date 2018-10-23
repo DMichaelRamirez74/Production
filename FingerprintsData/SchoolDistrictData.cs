@@ -15,8 +15,8 @@ namespace FingerprintsData
     {
         SqlConnection Connection = connection.returnConnection();
         SqlCommand command = new SqlCommand();
-        SqlDataReader dataReader = null;
-        SqlTransaction tranSaction = null;
+      //  SqlDataReader dataReader = null;
+      //  SqlTransaction tranSaction = null;
         SqlDataAdapter DataAdapter = null;
         DataTable schooldataTable = null;
         public string AddSchool(SchoolDistrict info, int mode, Guid userId, string AgencyId)

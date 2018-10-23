@@ -2285,9 +2285,9 @@ namespace FingerprintsData
                 strresult = command.Parameters["@result"].Value.ToString();
                 if (strresult == "0")
                 {
-                    string DeleteParameter = "DELETE";
-                    int Mode = 2;
-                  //  CheckByClient(DeleteParameter, Mode);
+                    //string DeleteParameter = "DELETE";
+                    //int Mode = 2;
+                    //  CheckByClient(DeleteParameter, Mode);
                 }
                 return strresult;
             }
@@ -4514,7 +4514,7 @@ namespace FingerprintsData
 
                     foreach (PregMomChilds objChild in Transition.PregMomChilds)
                     {
-                        string dateOfBirth = "";
+                        
                         SeatAvailability seats = new SeatAvailability();
                         Connection.Open();
                         command.Connection = Connection;

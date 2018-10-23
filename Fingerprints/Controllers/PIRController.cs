@@ -17,7 +17,7 @@ namespace Fingerprints.Controllers
     public class PIRController : Controller
     {
 
-        string userid = "ee850d45-cd00-41a1-b311-99e70d28d79e";
+      //  string userid = "ee850d45-cd00-41a1-b311-99e70d28d79e";
         //this roleid (2d9822cd-85a3-4269-9609-9aabb914d792) is for HRManager testing
         //this roleid (2d9822cd-85a3-4269-9609-9aabb914d725) is made up for staff testing since
         //it doesn't matter what it is. only matters that it's not HR Manager.

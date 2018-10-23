@@ -19,7 +19,7 @@ namespace FingerprintsData
         SqlTransaction tranSaction = null;
         SqlDataAdapter DataAdapter = null;
         DataTable agencydataTable = null;
-        DataSet _dataset = null;
+       // DataSet _dataset = null;
         public SelectPoints GetData_AllDropdown(string agencyId)
         {
             SelectPoints _prog = new SelectPoints();
