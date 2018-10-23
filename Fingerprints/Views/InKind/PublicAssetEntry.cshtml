@@ -313,9 +313,23 @@
             });
 
             //Validates the Input. allows only numericals//
-            $('#inkindHoursText,#inkindMinutesText,#inkindAmountTxt').on('keypress', function () {
+            // $('#inkindHoursText,#inkindMinutesText,#inkindAmountTxt').on('keypress', function () {
+            $('#inkindHoursText,#inkindMinutesText').on('keypress', function () {
 
                 return isNumber(this.event);
+            });
+            //currency- allow numberic with two decimal 
+            $(document).on('keydown', '#inkindAmountTxt', function (e) {
+                var input = $(this);
+                var oldVal = input.val();
+                var regex = new RegExp(input.attr('pattern'), 'g');
+               // var regex = new RegExp('^\d*(\.\d{0,2})?$', 'g');
+                setTimeout(function () {
+                    var newVal = input.val();
+                    if (!regex.test(newVal)) {
+                        input.val(oldVal);
+                    }
+                }, 0);
             });
 
 
@@ -424,7 +438,7 @@
                 }
                 else {
                     $('#text-select-email').val('').prop('disabled', false);
-                }
+                } 
 
             });
 
@@ -1306,7 +1320,8 @@
                 if (isPastPresentParent == 0) {
                     $('#inkind-info-form').find('.individual-parent-type-div-act').find('input:checkbox[name=parenttype]').prop('checked', false);
                     $('#inkind-info-form').find('.individual-parent-type-div-act').show();
-                    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').hide();
+                    //home shown for all
+                    //$('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').hide();
                     $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
                 }
                 else {
@@ -1314,7 +1329,8 @@
                     $('#inkind-info-form').find('.individual-parent-type-div-act').hide();
 
                     $homeCheck.prop('checked', false).parent('span').parent('div').show();
-
+                     //home shown for all 
+                    $('#inkind-info-form').find('#activitytyperadiodiv').find('input:radio[name=activityTypeRadio][value=2]').prop('checked', false).parent('span').parent('div').show();
                 }
 
                 if(isShowHome===1)
@@ -1407,9 +1423,9 @@
             $('#sig2').signature('clear');
 
             $('#parent-sig-div,#staff-sig-div').hide();
-
-            $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
-           prop('checked', false).parent('span').parent('div').hide();
+            //home shown for all  
+           // $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
+           //prop('checked', false).parent('span').parent('div').hide();
 
             $Inform.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
 
@@ -1468,9 +1484,9 @@
             $('#inkindAmountTxt').val('');
             $('.amount-div,.inkind-miles-div,.inkind-hours-div').hide();
             $('#inkindHoursText,#inkindMinutesText,#inkindMilesText').val('');
-
-            $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
-                prop('checked', false).parent('span').parent('div').hide();
+            //home shown for all 
+          //  $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=2]').
+            //    prop('checked', false).parent('span').parent('div').hide();
 
             $inkindForm.find('#activitytype-div').find('input:radio[name=activityTypeRadio][value=1]').trigger('click');
 
@@ -2080,7 +2096,7 @@
                         <div class="form-group row amount-div" style="display:none;">
                             <label class="col-lg-4 col-form-label lbl-required">Amount ($)</label>
                             <div class="col-lg-8">
-                                <input type="text" class="form-control" id="inkindAmountTxt" />
+                                <input type="text" class="form-control" id="inkindAmountTxt" pattern="^\d*(\.\d{0,2})?$" />
                             </div>
                         </div>
 

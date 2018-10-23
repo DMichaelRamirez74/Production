@@ -449,12 +449,14 @@ namespace FingerprintsData
                                 facilitiesModel.StaffName = dr["staffname"].ToString();
                                 facilitiesModel.workorderSequence= dr["WorkOrderNumber"].ToString();
                                 facilitiesModel.ImageCount = dr["ImageCount"].ToString();
-                               facilitiesModel.RequestedDate = (DBNull.Value == dr["RequestedDate"]) ? "--" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["RequestedDate"]).ToString("MM/dd/yyyy");
+                                //  facilitiesModel.RequestedDate = (DBNull.Value == dr["RequestedDate"]) ? "--" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["RequestedDate"]).ToString("MM/dd/yyyy");
+                                facilitiesModel.RequestedDate = (DBNull.Value == dr["RequestedDate"]) ? "--" : Convert.ToDateTime(dr["RequestedDate"]).ToString("MM/dd/yyyy");
 
-                                if(Type=="3")
+                                if (Type=="3")
                                 {
-                                    facilitiesModel.WorkOrderDate = (DBNull.Value == dr["WorkOrderDate"]) ? "--" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["WorkOrderDate"]).ToString("MM/dd/yyyy");
-                                    
+                                    //                                    facilitiesModel.WorkOrderDate = (DBNull.Value == dr["WorkOrderDate"]) ? "--" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["WorkOrderDate"]).ToString("MM/dd/yyyy");\
+                                    facilitiesModel.WorkOrderDate = (DBNull.Value == dr["WorkOrderDate"]) ? "--" : Convert.ToDateTime(dr["WorkOrderDate"]).ToString("MM/dd/yyyy");
+
                                     facilitiesModel.StaffName1 = _dataset.Tables[0].Rows[0]["staffname1"].ToString();
 
                                 }
@@ -465,7 +467,8 @@ namespace FingerprintsData
                                     facilitiesModel.ExternalAddress = dr["ExternalCompanyAddress"].ToString();
 
                                     facilitiesModel.ExternalContactNo = dr["ExternalContactNo"].ToString();
-                                    facilitiesModel.EstimatedDate = (DBNull.Value == dr["EstimatedDate"]) ? "--" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["EstimatedDate"]).ToString("MM/dd/yyyy");
+                                    // facilitiesModel.EstimatedDate = (DBNull.Value == dr["EstimatedDate"]) ? "--" : Convert.ToDateTime(_dataset.Tables[0].Rows[0]["EstimatedDate"]).ToString("MM/dd/yyyy");
+                                    facilitiesModel.EstimatedDate = (DBNull.Value == dr["EstimatedDate"]) ? "--" : Convert.ToDateTime(dr["EstimatedDate"]).ToString("MM/dd/yyyy");
                                     facilitiesModel.EstimatedTime = dr["EstimatedTime"].ToString();
 
                                 }
