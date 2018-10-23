@@ -6150,9 +6150,9 @@ namespace FingerprintsData
                 DataAdapter.Fill(_dataset);
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
-                    obj.EImageByte = (byte[])_dataset.Tables[0].Rows[0]["imagebyte"];
-                    obj.EFileExtension = _dataset.Tables[0].Rows[0]["imageExt"].ToString();
-                    obj.EFileName = _dataset.Tables[0].Rows[0]["imagename"].ToString();
+                    obj.EImageByte = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["imagebyte"].ToString())? null: (byte[])_dataset.Tables[0].Rows[0]["imagebyte"];
+                    obj.EFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["imageExt"]);
+                    obj.EFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["imagename"]);
 
                 }
                 DataAdapter.Dispose();
@@ -9040,7 +9040,7 @@ namespace FingerprintsData
                 {
                     int screeningid = 0;
                     int questionid = 0;
-                    string month = "";
+                    //string month = "";
                     if (s.Name.Substring(0, 1) == "F")
                     {
                         screeningid = 1;
@@ -14582,7 +14582,7 @@ namespace FingerprintsData
 
         public WithdrawalQuestions GetAnswerForPIRQuestions(out List<Tuple<int, string, int>> tuples, string ClientId, string QuestionNumber, bool ispregmon, long programID,string programYear="")
         {
-            string Result = "";
+          
             tuples = new List<Tuple<int, string, int>>();
             WithdrawalQuestions transWithdrawal = new WithdrawalQuestions();
             try
@@ -15024,36 +15024,11 @@ namespace FingerprintsData
 
                                 }
 
-
-                                //question.Questionlist = (from DataRow dr2 in _dataset.Tables[1].Rows
-                                //                         where Convert.ToInt32(dr2["ScreeningID"]) == item
-                                //                         select new Questions
-                                //                         {
-                                //                             Question = Convert.ToString(dr2["Question"]),
-                                //                             QuestionId=Convert.ToInt32(dr2["QuestionID"]),
-                                //                             QuestionType=Convert.ToString(dr2["QuestionType"]),
-                                //                             QuestionOrder=Convert.ToDouble(dr2["QuestionOrder"]),
-                                //                             Required=Convert.ToBoolean(dr2["Required"]),
-                                //                             OptionList=(from DataRow dr3 in _dataset.Tables[1].Rows
-                                //                                         where Convert.ToInt32(dr2["QuestionID"])==Convert.ToInt32(dr3["QuestionID"])
-                                //                                         select new Options
-                                //                                         {
-                                //                                             Option=Convert.ToString(dr3["OptionName"]),
-                                //                                             OptionId=Convert.ToInt32(dr3["OptionID"]),
-                                //                                             OptionValue=Convert.ToString(dr3["Value"])
-                                //                                         }).OrderBy(x=>x.OptionId).Distinct().ToList()
-                                //                         }).OrderBy(x=>x.QuestionOrder).Distinct().ToList();
-
-                                questions.OrderBy(x => x.QuestionOrder).ToList();
+                                questions= questions.OrderBy(x => x.QuestionOrder).ToList();
 
 
                                 screening.ScreeningList[screening.ScreeningList.FindIndex(x => x.ScreeningID == item)].Questionlist = questions;
-
-
-
-
-
-                                // screening.ScreeningQuestions.Add(question);
+                            
                             }
                         }
 
