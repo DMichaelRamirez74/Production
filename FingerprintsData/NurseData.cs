@@ -10,6 +10,7 @@ using FingerprintsModel;
 using System.Web.Mvc;
 using System.Web;
 using System.IO;
+using System.Globalization;
 
 namespace FingerprintsData
 {
@@ -2803,6 +2804,7 @@ namespace FingerprintsData
                     DataAdapter = new SqlDataAdapter(command);
                     _dataset = new DataSet();
                     DataAdapter.Fill(_dataset);
+                    Connection.Close();
                 }
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
@@ -2878,18 +2880,23 @@ namespace FingerprintsData
                         screening.ScreeningPeriodsList = (from DataRow dr2 in _dataset.Tables[1].Rows
                                                           select new ScreeningPeriods
                                                           {
-                                                              ScreeningPeriodIndex=Convert.ToInt32(dr2["ScreeningPeriodIndex"]),
+                                                              ScreeningPeriodIndex = Convert.ToInt32(dr2["ScreeningPeriodIndex"]),
                                                               ScreeningPeriod = Convert.ToDouble(dr2["ScreeningPeriod"]),
                                                               ScreeningPeriodType = Convert.ToInt32(dr2["ScreeningPeriodType"]),
                                                               Description = Convert.ToString(dr2["Description"]),
                                                               ScreeningPeriodFor = Convert.ToInt32(dr2["ScreeningPeriodFor"]),
                                                               ScreeningAge = Convert.ToDouble(dr2["ScreeningAge"]),
-                                                              ScreeningFocusType = Convert.ToInt32(dr2["ScreeningFocusType"]),
-                                                              CustomScreeningPeriod=Convert.ToInt32(dr2["CustomScreeningPeriod"])
+                                                              //ScreeningFocusType = Convert.ToInt32(dr2["ScreeningFocusType"]),
+                                                              CustomScreeningPeriod = Convert.ToInt32(dr2["CustomScreeningPeriod"])
                                                           }
 
                                                       ).OrderByDescending(x => x.ScreeningPeriod).ToList();
+
+
+
+
                     }
+
 
                     screening.ChildInfo = new ChildrenInfo();
 
@@ -2897,18 +2904,128 @@ namespace FingerprintsData
                     {
                         screening.ChildInfo.AgeInMonths = Convert.ToInt32(_dataset.Tables[2].Rows[0]["AgeInMonths"]);
                         screening.ChildInfo.Age = Convert.ToString(_dataset.Tables[2].Rows[0]["AgeInYears"]);
+                        screening.ChildInfo.Dob = Convert.ToString(_dataset.Tables[2].Rows[0]["ClientDOB"]);
                     }
 
-                    if(_dataset.Tables.Count>3 && _dataset.Tables[3]!=null && _dataset.Tables[3].Rows.Count>0)
+                    if (_dataset.Tables.Count > 3 && _dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
                     {
                         screening.ScreeningAccessInfo = (from DataRow dr4 in _dataset.Tables[3].Rows
                                                          select new ScreeningAccess
                                                          {
                                                              IsEnter = Convert.ToBoolean(dr4["EnterScreening"]),
                                                              IsReview = Convert.ToBoolean(dr4["ReviewScreening"]),
-                                                             IsViewOnly= Convert.ToBoolean(dr4["ViewScreening"])
+                                                             IsViewOnly = Convert.ToBoolean(dr4["ViewScreening"])
                                                          }
                                                        ).FirstOrDefault();
+                    }
+
+
+
+                    if (screening.ScreeningPeriodsList.Count > 0)
+                    {
+                        var clientAge = Convert.ToDouble(_dataset.Tables[1].Rows[0]["AgeClient"]);
+                        var screeningAge = screening.ScreeningPeriodsList.Where(x => x.ScreeningAge <= clientAge).Max(x => x.ScreeningAge);
+                        DateTimeFormatInfo usDtfi = new CultureInfo("en-US", false).DateTimeFormat;
+                        var convDob = Convert.ToDateTime(screening.ChildInfo.Dob, usDtfi);
+                        var clientAgeModel = new Age(convDob, DateTime.Now);
+                        var expirInPeriod =(programid=="1")?2: Convert.ToInt32(_dataset.Tables[0].Rows[0]["ExpireIn"]);
+                        var expiredPeriod = (programid == "1") ? 3: Convert.ToInt32(_dataset.Tables[0].Rows[0]["ExpiredPeriod"]);
+                        var nextScreeningAge = screening.ScreeningPeriodsList.OrderBy(x=>x.ScreeningAge).Where(x => x.ScreeningAge > screeningAge).Select(x=>x.ScreeningAge).FirstOrDefault();
+                        nextScreeningAge = string.IsNullOrEmpty(nextScreeningAge.ToString()) ? 0 : nextScreeningAge;
+                        var expireInMonths = 0.0;
+                        
+
+                        switch(expirInPeriod)
+                        {
+                            case 1:
+                                expireInMonths = 0.5;
+                                break;
+                            case 2:
+                                expireInMonths = 1.0;
+                                break;
+                            case 3:
+                                expireInMonths = 2.0;
+                                break;
+                            default:
+                                expireInMonths = 0.0;
+                                break;
+
+                        }
+
+                        var expiredPeriodMonths = 0.0;
+
+                        switch (expiredPeriod)
+                        {
+                            case 1:
+                                expiredPeriodMonths = 2.0;
+                                break;
+                            case 2:
+                                expiredPeriodMonths = 6.0;
+                                break;
+                            case 3:
+                                expiredPeriodMonths = 12.0;
+                                break;
+                            case 4:
+                                expiredPeriodMonths = 13.0;
+                                break;
+                            case 5:
+                                expiredPeriodMonths = 0.0;
+                                break;
+                            default:
+                                expiredPeriodMonths = 0.0;
+                                break;
+
+                        }
+
+
+                       
+                            for (int i = 0; i < screening.ScreeningPeriodsList.Count; i++)
+                            {
+                                if (screening.ScreeningPeriodsList[i].ScreeningAge < screeningAge)
+                                {
+                                    screening.ScreeningPeriodsList[i].ScreeningFocusType = 1;
+                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expired;
+                                }
+
+                                if (screening.ScreeningPeriodsList[i].ScreeningAge == screeningAge)
+                                {
+                                    screening.ScreeningPeriodsList[i].ScreeningFocusType = 2;
+
+                                    if((double)clientAgeModel.Months>= expiredPeriodMonths)
+                                    {
+                                        screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expired;
+                                    }
+                                //else if((double)clientAgeModel.Months < expiredPeriodMonths && (Math.Ceiling(Convert.ToDouble(screening.ChildInfo.Age)) -Convert.ToDouble(screening.ChildInfo.Age))/12<=expireInMonths )
+                                //{
+                                //    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expiring;
+
+                                //}
+
+                                else if ((double)clientAgeModel.Months < expiredPeriodMonths && (nextScreeningAge - clientAge) * 12 <= expireInMonths)
+                                {
+                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Expiring;
+
+                                }
+
+                                else
+                                    {
+                                        screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Current;
+                                    }
+
+                                   
+                                   
+                                }
+
+                                if (screening.ScreeningPeriodsList[i].ScreeningAge > screeningAge)
+                                {
+                                    screening.ScreeningPeriodsList[i].ScreeningFocusType = 3;
+                                    screening.ScreeningPeriodsList[i].ScreeningExpirationType = (int)ScreeningExpirationEnum.Current;
+                                }
+                            }
+                       
+
+                        
+
                     }
 
 

@@ -4,9 +4,11 @@
 <ul style="max-height:550px;" id="crntUl">
     @if (Model != null && Model.ScreeningPeriodsList != null & Model.ScreeningPeriodsList.Count > 0)
     {
+        string screeningExpirationtypeDesc = FingerprintsModel.EnumerationHelper.DescriptionAttr((FingerprintsModel.ScreeningExpirationEnum)Model.ScreeningPeriodsList[0].ScreeningExpirationType);
+
         <li class="glossy-button glossy-button--purple" style="transform: unset;cursor: unset;" data-period-id="@Model.ScreeningPeriodsList[0].ScreeningPeriodIndex">
 
-            <span>@Model.ScreeningPeriodsList[0].Description</span>
+            <span>@Model.ScreeningPeriodsList[0].Description @((string.IsNullOrEmpty(screeningExpirationtypeDesc)?"":"("+screeningExpirationtypeDesc+")").Trim())</span>
             <div class="glossy-button-shadow"></div>
         </li>
     }
@@ -16,9 +18,6 @@
 
 <form class="form_filed" action="" style="max-height:450px;overflow-y:auto;padding-left:8px;padding-right:8px;" id="updateScreeningForm">
 
-    @*<div class="file_attach">
-            <img src="/content/img/noimageavailable.jpg" class="img-responsive center-block">
-        </div>*@
 
     @Html.HiddenFor(m => m.ScreeningPeriodIndex)
     @Html.HiddenFor(m => m.TypeScreening)
@@ -28,17 +27,6 @@
 
     @if (Model.ScreeningList != null && Model.ScreeningList.Count > 0)
     {
-
-
-
-
-
-
-
-
-
-
-
 
         for (int s = 0; s < Model.ScreeningList.Count; s++)
         {

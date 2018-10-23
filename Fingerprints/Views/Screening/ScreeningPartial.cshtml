@@ -662,6 +662,7 @@
         string[] clrArray = { "glossy-button--blue", "glossy-button--gold", "glossy-button--green", "glossy-button--red" };
 
         int arrValue = 0;
+        string expirationTypeDesc = "";
     }
 
     <div class="screening-div col-xs-12 nopadding">
@@ -681,40 +682,18 @@
             <div class="pop_list" style="margin-right:10px">
                 <ul style="max-height:550px;overflow-y:auto;padding:10px;">
 
-                    @*@{
-                            var screenPeriodList = new List<FingerprintsModel.ScreeningPeriods>();
-
-                            if (Model.ScreeningList.Count>0 &&  Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == Model.ScreeningList[0].ScreeningID).Any())
-                            {
-                                screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == Model.ScreeningList[0].ScreeningID).ToList();
-                            }
-                            else
-                            {
-                                screenPeriodList = Model.ScreeningPeriodsList.Where(x => x.ScreeningPeriodFor == 0).ToList();
-
-                            }
-                            Model.ScreeningPeriodsList = screenPeriodList;
-                        }*@
-
-
-
-
-
                     @for (int i = 0; i < Model.ScreeningPeriodsList.Count; i++)
-                    {
+                                {
+                                     expirationTypeDesc = FingerprintsModel.EnumerationHelper.DescriptionAttr((FingerprintsModel.ScreeningExpirationEnum) Model.ScreeningPeriodsList[i].ScreeningExpirationType);
 
+                                    if (Model.ScreeningPeriodsList[i].ScreeningFocusType == 1)
+                                    {
+                                        arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
 
-                        if (Model.ScreeningPeriodsList[i].ScreeningFocusType == 1)
-                        {
-                            arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
-
-                            <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[i].Description + " " + "(Expired)")" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[i].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[i].CustomScreeningPeriod');">
+                            <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[i].Description + " " + ( string.IsNullOrEmpty(expirationTypeDesc)?"": "("+expirationTypeDesc+")"))" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[i].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[i].CustomScreeningPeriod');">
                                 
                                 <span>
-                                    @(Model.ScreeningPeriodsList[i].Description + " " + "(Expired)") &nbsp;
-
-                                    @*<img src="/Images/arrow_left.png">*@
-
+                                    @(Model.ScreeningPeriodsList[i].Description + " " +( string.IsNullOrEmpty(expirationTypeDesc) ?"": "("+ expirationTypeDesc + ")")) &nbsp;
                                 </span>
                                 <div class="glossy-button-shadow"></div>
                             </li>
@@ -767,14 +746,12 @@
                         arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
                         var scrPeriod = Model.ScreeningPeriodsList.Where(x => x.ScreeningFocusType == 2).FirstOrDefault();
 
-                        if (Model.ChildInfo.AgeInMonths < scrPeriod.ScreeningPeriod && scrPeriod.ScreeningPeriodType == 2)
+                        @*if (Model.ChildInfo.AgeInMonths < scrPeriod.ScreeningPeriod && scrPeriod.ScreeningPeriodType == 2) //For EHS if age of the child is less than screening period//
                         {
-                            if ((scrPeriod.ScreeningPeriod - Model.ChildInfo.AgeInMonths) <= 1)
+                            if ((scrPeriod.ScreeningPeriod - Model.ChildInfo.AgeInMonths) <= 1) //if screeningperiod- child age is less than or equal to 30 ays need to show as expiring//
                             {
                                 <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description + " (Expiring)")" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
                                     <span>
-
-                                        @*<img src="/Images/arrow_right.png">*@
 
                                         &nbsp; @(scrPeriod.Description + " (Expiring)")
                                     </span>
@@ -787,7 +764,6 @@
                             {
                                 <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description)" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
                                     <span>
-                                        @*<img src="/Images/arrow_right.png">*@
                                         &nbsp; @(scrPeriod.Description)
                                     </span>
 
@@ -798,13 +774,11 @@
                         }
 
 
-                        else if (Model.ChildInfo.AgeInMonths >= scrPeriod.ScreeningPeriod && scrPeriod.ScreeningPeriodType == 2)
+                        else if (Model.ChildInfo.AgeInMonths >= scrPeriod.ScreeningPeriod && scrPeriod.ScreeningPeriodType == 2) // if age of the child is greater than screening period// 
                         {
 
                             <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description + " (Expired)")" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
                                 <span>
-                                    @*<img src="/Images/arrow_right.png">*@
-
                                     &nbsp; @(scrPeriod.Description + " (Expired)")
                                 </span>
                                 <div class="glossy-button-shadow"></div>
@@ -816,15 +790,25 @@
                         {
                             <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@scrPeriod.Description" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
                                 <span>
-                                    @*<img src="/Images/arrow_right.png">*@
-
                                     &nbsp; @scrPeriod.Description
                                 </span>
 
                                 <div class="glossy-button-shadow"></div>
                             </li>
 
+                        }*@
+
+                        { 
+                             expirationTypeDesc = FingerprintsModel.EnumerationHelper.DescriptionAttr((FingerprintsModel.ScreeningExpirationEnum)scrPeriod.ScreeningExpirationType);
                         }
+                        <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(scrPeriod.Description + (string.IsNullOrEmpty(expirationTypeDesc) ? "" : "(" + expirationTypeDesc + ")").Trim())" onclick="getScreeningDetails('@scrPeriod.ScreeningPeriodIndex','@scrPeriod.CustomScreeningPeriod');">
+                            <span>
+
+                                &nbsp; @(scrPeriod.Description +" "+ (string.IsNullOrEmpty(expirationTypeDesc) ? "" : "(" + expirationTypeDesc + ")").Trim())
+                            </span>
+
+                            <div class="glossy-button-shadow"></div>
+                        </li>
 
                         arrValue++;
 
@@ -843,15 +827,12 @@
 
                             arrValue = (arrValue >= clrArray.Length) ? 0 : arrValue;
 
-                            if (Model.ChildInfo.AgeInMonths < Model.ScreeningPeriodsList[k].ScreeningPeriod && Model.ScreeningPeriodsList[k].ScreeningPeriodType == 2)
+                            @*if (Model.ChildInfo.AgeInMonths < Model.ScreeningPeriodsList[k].ScreeningPeriod && Model.ScreeningPeriodsList[k].ScreeningPeriodType == 2)
                             {
                                 if ((Model.ScreeningPeriodsList[k].ScreeningPeriod - Model.ChildInfo.AgeInMonths) <= 1)
                                 {
                                     <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description + " (Expiring)")" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
                                         <span>
-
-                                            @*<img src="/Images/arrow_right.png">*@
-
                                             &nbsp; @(Model.ScreeningPeriodsList[k].Description + " (Expiring)")
                                         </span>
                                         <div class="glossy-button-shadow"></div>
@@ -862,9 +843,6 @@
                                 {
                                     <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description)" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
                                         <span>
-
-                                            @* <img src="/Images/arrow_right.png">*@
-
                                             &nbsp; @(Model.ScreeningPeriodsList[k].Description)
                                         </span>
                                         <div class="glossy-button-shadow"></div>
@@ -879,9 +857,6 @@
 
                                 <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description + " (Expired)")" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
                                     <span>
-
-                                        @*<img src="/Images/arrow_right.png">*@
-
                                         &nbsp; @(Model.ScreeningPeriodsList[k].Description + " (Expired)")
                                     </span>
                                     <div class="glossy-button-shadow"></div>
@@ -893,15 +868,23 @@
                             {
                                 <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@Model.ScreeningPeriodsList[k].Description" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
                                     <span>
-
-                                        @*<img src="/Images/arrow_right.png">*@
-
                                         &nbsp; @Model.ScreeningPeriodsList[k].Description
                                     </span>
                                     <div class="glossy-button-shadow"></div>
                                 </li>
 
-                            }
+                            }*@
+
+                    {
+                        expirationTypeDesc = FingerprintsModel.EnumerationHelper.DescriptionAttr((FingerprintsModel.ScreeningExpirationEnum)Model.ScreeningPeriodsList[k].ScreeningExpirationType);
+                    }
+
+                            <li class="@clrArray[arrValue] glossy-button" data-toggle="tooltip" data-placement="top" title="@(Model.ScreeningPeriodsList[k].Description + (string.IsNullOrEmpty(expirationTypeDesc) ? "" : "(" + expirationTypeDesc + ")").Trim())" onclick="getScreeningDetails('@Model.ScreeningPeriodsList[k].ScreeningPeriodIndex','@Model.ScreeningPeriodsList[k].CustomScreeningPeriod');">
+                                <span>
+                                    &nbsp; @(Model.ScreeningPeriodsList[k].Description+" " + (string.IsNullOrEmpty(expirationTypeDesc) ? "" : "(" + expirationTypeDesc + ")").Trim())
+                                </span>
+                                <div class="glossy-button-shadow"></div>
+                            </li>
 
                             arrValue++;
                         }

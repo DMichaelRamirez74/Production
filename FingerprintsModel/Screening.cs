@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Data;
 using System.Web.Mvc;
+using System.ComponentModel;
 
 namespace FingerprintsModel
 {
@@ -56,6 +57,8 @@ namespace FingerprintsModel
         public long ScreeningPeriodIndex { get; set; }
 
         public int CustomScreeningPeriod { get; set; }
+
+        public int ScreeningExpirationType { get; set; }
     }
 
 
@@ -239,6 +242,43 @@ namespace FingerprintsModel
         public  ChildrenInfo ChildInfo { get; set; }
 
         public ScreeningAccess ScreeningAccessInfo { get; set; }
+
+    }
+
+
+    /// <summary>
+    /// Enumaration for determining expiration period
+    /// </summary>
+    public enum ScreeningExpirationEnum
+    {
+        [Description(null)]
+        Current=0,
+        [Description("Expiring")]
+        Expiring =1,
+        [Description("Expired")]
+        Expired =2
+    }
+
+    public enum ExpireInEnum
+    {
+        [Description("15 Days")]
+        Days15 =1,
+        [Description("30 Days")]
+        Days30 =2,
+        [Description("60 Days")]
+        Days60 =3
+
+    }
+
+
+    public enum ExpiredPeriodEnum
+    {
+        [Description("15 Days")]
+        Days90 = 1,
+        [Description("30 Days")]
+        Months60 = 2,
+        [Description("60 Days")]
+        Days60 = 3
 
     }
 }

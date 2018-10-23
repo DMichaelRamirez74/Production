@@ -30,6 +30,7 @@ namespace Fingerprints.Controllers
         */
         FamilyData _family = new FamilyData();
         NurseData _nurse = new NurseData();
+        StaffDetails staffDetails = StaffDetails.GetInstance();
         public ActionResult Index()
         {
             return View();
@@ -38,10 +39,6 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public ActionResult ViewCenterDetails(string id)
         {
-            if (Session["AgencyID"] == null)
-            {
-                return Redirect("~/Login/Loginagency");
-            }
             try
 
             {
@@ -87,7 +84,7 @@ namespace Fingerprints.Controllers
                     ViewBag.RedirectPage = Convert.ToString(Request.QueryString["rdPage"]);
                 }
 
-                Nurse _familyinfo = _nurse.GetData_AllDropdown(Session["AgencyID"].ToString(), Session["UserID"].ToString());
+                Nurse _familyinfo = _nurse.GetData_AllDropdown(Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId));
                 if (id == "0")
                 {
 
@@ -105,7 +102,7 @@ namespace Fingerprints.Controllers
                 else
                 {
                     Nurse obj = new Nurse();
-                    obj = _nurse.EditFamilyInfo(id, yakkrid, Session["AgencyID"].ToString(), Session["UserID"].ToString(), Session["RoleID"].ToString());
+                    obj = _nurse.EditFamilyInfo(id, yakkrid, Convert.ToString(staffDetails.AgencyId), Convert.ToString(staffDetails.UserId), Convert.ToString(staffDetails.RoleId));
                     Session["Docsstorage"] = obj.docstorage.ToString();
                     ViewBag.AvailableProg = obj.AvailableProgram;
                     TempData["AvailableProgram"] = ViewBag.AvailableProg;
@@ -266,9 +263,9 @@ namespace Fingerprints.Controllers
                 }
                 string message = string.Empty;
                 if (info.ParentOriginalId == 0)//parent 1
-                    message = _nurse.addParentInfo(info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()));
+                    message = _nurse.addParentInfo(info, 1, Guid.Parse(staffDetails.UserId.ToString()), Convert.ToString(staffDetails.AgencyId));
                 else
-                    message = _nurse.addParentInfo(info, 1, Guid.Parse(Session["UserID"].ToString()), (Session["AgencyID"].ToString()));//parent 2
+                    message = _nurse.addParentInfo(info, 1, Guid.Parse(staffDetails.UserId.ToString()), Convert.ToString(staffDetails.AgencyId));//parent 2
                 _familyinfo = info;
                 if (message == "1")
                 {
@@ -931,8 +928,9 @@ namespace Fingerprints.Controllers
                     _scr._Screening.TypeScreening = Convert.ToInt32(programId);
                     _scr._Screening.Screeningid = Convert.ToInt32(screeningId);
                     _scr._Screening.ScreeningPeriodIndex = _scr.ScreeningPeriodsList.Where(X => X.ScreeningFocusType == 2).Select(x => x.ScreeningPeriodIndex).FirstOrDefault().ToString();
-
+                    
                     _scr._Screening = new NurseData().GetScreeningByScreeningPeriod(_scr._Screening, Server.MapPath("~//TempAttachment//"));
+                    _scr._Screening.ScreeningPeriodsList.ForEach(x => x.ScreeningExpirationType = _scr.ScreeningPeriodsList.Where(y => y.ScreeningFocusType == 2).Select(y => y.ScreeningExpirationType).FirstOrDefault());
                 }
                 return PartialView("~/Views/Screening/ScreeningPartial.cshtml", _scr);
             }

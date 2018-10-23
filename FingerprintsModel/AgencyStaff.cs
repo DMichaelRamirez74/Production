@@ -523,7 +523,7 @@ namespace FingerprintsModel
 
         public List<FamilyHousehold.Programdetail> ProgramsList { get; set; }
         //22Aug2016
-        public string Description { get; set; }
+      //  public string Description { get; set; }
         public string CTransport { get; set; }
         public Nullable<Boolean> ChildDisability { get; set; }
         public string ChildWeight { get; set; }
