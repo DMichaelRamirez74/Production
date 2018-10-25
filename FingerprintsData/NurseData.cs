@@ -4207,7 +4207,7 @@ namespace FingerprintsData
 
                                 }
 
-                                questions.OrderBy(x => x.QuestionOrder).ToList();
+                              questions=  questions.OrderBy(x => x.QuestionOrder).ToList();
                                 screening.ScreeningList[screening.ScreeningList.FindIndex(x => x.ScreeningID == item)].Questionlist = questions;
 
                             }
