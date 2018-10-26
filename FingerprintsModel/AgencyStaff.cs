@@ -172,6 +172,7 @@ namespace FingerprintsModel
         public string EHouseholid { get; set; }
         public string ProgramId { get; set; }
         public string ProgramType { get; set; }
+        [Required()]
         public string Eclientid { get; set; }
         public string Name { get; set; }
         public string CenterName { get; set; }

@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using System.Web;
 using System.IO;
 using System.Reflection;
+using System.Globalization;
 //using System.Web.Script.Serialization;
 
 namespace FingerprintsData
@@ -266,7 +267,7 @@ namespace FingerprintsData
         public TeacherModel GetChildList(bool notChecked = false)
         {
             TeacherModel _TeacherM = new TeacherModel();
-            _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
+            _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
 
             try
             {
@@ -301,6 +302,7 @@ namespace FingerprintsData
                     Programid = Convert.ToString(dr["ProgramID"]),
                     CenterID = Convert.ToString(dr["CenterID"]),
                     Enc_CenterId = EncryptDecrypt.Encrypt64(dr["CenterID"].ToString()),
+                        Enc_ClassRoomId=EncryptDecrypt.Encrypt64(dr["ClassroomID"].ToString()),
                     Enc_ProgramId = EncryptDecrypt.Encrypt64(dr["ProgramID"].ToString()),
                     Enc_HouseholdId = EncryptDecrypt.Encrypt64(dr["HouseholdId"].ToString()),
                     CName = Convert.ToString(dr["CName"]),
@@ -308,7 +310,7 @@ namespace FingerprintsData
                     CImage = Convert.ToString(dr["FileNameul"]),
                     // CIFileData = (byte[])dr["profilepic"],
                     EnrollmentDays = Convert.ToString(dr["EnrollmentDays"]),
-                    PercentAbsent = Convert.ToInt16(dr["AbsentPercent"]),
+                        PercentAbsent = Convert.ToDecimal(dr["AbsentPercent"]),
                     AttendanceType = Convert.ToString(dr["AttendanceType"]),
                     CNotes = Convert.ToString(dr["Notes"]),
                     Parent1ID = Convert.ToString(dr["A1ID"]),
@@ -325,10 +327,13 @@ namespace FingerprintsData
                     Dateofclassstartdate = Convert.ToString(dr["Dateofclassstartdate"]),
                     IsLateArrival = Convert.ToBoolean(dr["IsLateArrival"]),
                     NotCheckedCount = Convert.ToInt32(dr["AttendanceTypChecked"]),
-                    IsCaseNoteEntered = Convert.ToInt32(dr["IsCaseNoteEntered"])
+                        IsCaseNoteEntered = Convert.ToInt32(dr["IsCaseNoteEntered"]),
+                        CenterName=Convert.ToString(dr["CenterName"]),
+                        ClassroomName=Convert.ToString(dr["ClassroomName"])
                 });
 
             }
+                chList.ForEach(x => x.PercentAbsent = (x.PercentAbsent == 0 || x.PercentAbsent >= 100) ? Math.Round(x.PercentAbsent) : x.PercentAbsent);
 
             _TeacherM.AbsenceReasonList = new List<SelectListItem>();
 
@@ -600,7 +605,7 @@ namespace FingerprintsData
                 Connection.Close();
 
                 _TeacherM.EmergencyContactList = new List<FamilyHousehold>();
-                _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
+                _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
 
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
@@ -892,7 +897,7 @@ namespace FingerprintsData
                 ParentID = (ParentID == "00000") ? (Convert.ToInt32(emergency) > 0) ? emergency : ParentID : ParentID;
                 if (Connection.State == ConnectionState.Open)
                     Connection.Close();
-                Connection.Open();
+             
                 command.Connection = Connection;
                 command.Parameters.Add(new SqlParameter("@UserID", UserID));
                 command.Parameters.Add(new SqlParameter("@clientID", clientID));
@@ -902,9 +907,11 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@BadgeNo", ProtectiveBadge));
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_UpdateAttendanceDetails";
-                DataAdapter = new SqlDataAdapter(command);
-                _dataset = new DataSet();
-                DataAdapter.Fill(_dataset);
+                //DataAdapter = new SqlDataAdapter(command);
+                //_dataset = new DataSet();
+                //DataAdapter.Fill(_dataset);
+                Connection.Open();
+                command.ExecuteNonQuery();
                 Connection.Close();
                 command.Dispose();
                 return GetParentList(ref result1, clientID, 2, UserID, agencyid, TAvailable);
@@ -916,7 +923,7 @@ namespace FingerprintsData
             TeacherModel _TeacherM = new TeacherModel();
             try
             {
-                _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
+                _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
                 Guid agency = new Guid(agencyid);
                 SqlConnection Connection = connection.returnConnection();
                 SqlCommand command = new SqlCommand();
@@ -2004,7 +2011,7 @@ namespace FingerprintsData
 
             try
             {
-                _TeacherM.Tdate = System.DateTime.Now.ToString("MM/dd/yyyy");
+                _TeacherM.Tdate = String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/');
                 SqlConnection Connection = connection.returnConnection();
                 SqlCommand command = new SqlCommand();
                 SqlDataAdapter DataAdapter = null;
@@ -2057,13 +2064,14 @@ namespace FingerprintsData
                                       Enc_CenterId = EncryptDecrypt.Encrypt64((ishistorical) ? centerId.ToString():dr1["CenterID"].ToString()),
                                       ClassID =(ishistorical)?classroomId.ToString(): dr1["ClassRoomId"].ToString(),
                                       Enc_ClassRoomId = EncryptDecrypt.Encrypt64((ishistorical) ? classroomId.ToString():dr1["ClassRoomId"].ToString()),
-                                      Parent1ID = dr1["FatherId"].ToString(),
-                                      Parent2ID = dr1["MotherId"].ToString(),
-                                      Parent1Name = dr1["FatherName"].ToString(),
-                                      Parent2Name = dr1["MotherName"].ToString(),
-                                      AccessDateString = dr1["AccessDateString"].ToString(),
-                                      Dateofclassstartdate=Convert.ToString(dr1["DateOfClassStartDate"])
+                                      Parent1ID = dr1["Parent1ID"].ToString(),
+                                      Parent2ID = dr1["Parent2ID"].ToString(),
+                                      Parent1Name = dr1["Parent1Name"].ToString(),
+                                      Parent2Name = dr1["Parent2Name"].ToString(),
+                                      //AccessDateString = dr1["AccessDateString"].ToString(),
                                       //RestrictedDateString = dr1["RestrictedDateString"].ToString()
+                                      AccessDateString = string.Empty,
+                                      Dateofclassstartdate = string.Empty
                                   }
 
 
@@ -2128,9 +2136,110 @@ namespace FingerprintsData
 
                 }
 
+                List<Tuple<int, DateTime, long,DateTime>> classStartDateList = new List<Tuple<int, DateTime, long, DateTime>>();
+                List<Tuple<int, DateTime, long, DateTime>> droppedList = new List<Tuple<int, DateTime, long, DateTime>>();
+                List<Tuple<int, DateTime, long, DateTime>> withdrawnList = new List<Tuple<int, DateTime, long, DateTime>>();
+                var inputDatesString = attendanceDate.Split(',').OrderBy(x => DateTime.Parse(x
+                                                  , new CultureInfo("en-US", true))).ToList();
+                var inputDates = inputDatesString.OrderBy(x => x).Select(x => DateTime.Parse(x
+                                                    , new CultureInfo("en-US", true))).ToList();
+                if (_dataset.Tables.Count > 4 && _dataset.Tables[4].Rows.Count > 0)
+                {
+                    classStartDateList = (from DataRow dr4 in _dataset.Tables[4].Rows
+                                          select
+                                                  Tuple.Create(1, DateTime.Parse(Convert.ToString(dr4["ClassStartDate"])
+                                                  , new CultureInfo("en-US", true))
+                                                  , Convert.ToInt64(dr4["ClientID"])
+                                                  , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
+                                                  , new CultureInfo("en-US", true)))
+                        ).OrderBy(x => x.Item2).ToList();
+                }
+                if (_dataset.Tables.Count > 5 && _dataset.Tables[5].Rows.Count > 0)
+                {
+                    droppedList = (from DataRow dr4 in _dataset.Tables[5].Rows
+                                   select
+                                           Tuple.Create(2, DateTime.Parse(Convert.ToString(dr4["DateDropped"])
+                                           , new CultureInfo("en-US", true))
+                                           , Convert.ToInt64(dr4["ClientID"])
+                                             , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
+                                                  , new CultureInfo("en-US", true)))
+                        ).OrderBy(x => x.Item2).ToList();
+                }
+                if (_dataset.Tables.Count > 5 && _dataset.Tables[6].Rows.Count > 0)
+                {
+                    withdrawnList = (from DataRow dr4 in _dataset.Tables[6].Rows
+                                     select
+                                             Tuple.Create(3, DateTime.Parse(Convert.ToString(dr4["DateWithDrawn"])
+                                             , new CultureInfo("en-US", true))
+                                             , Convert.ToInt64(dr4["ClientID"])
+                                               , DateTime.Parse(Convert.ToString(dr4["DateEntered"])
+                                                  , new CultureInfo("en-US", true)))
+                       ).OrderBy(x => x.Item2).ToList();
+                }
+                if (chList.Count > 0)
+                {
+                    Parallel.ForEach(chList,(child,loopState,index)=>
+                     {
+                         var dateList = new List<DateTime>();
+                         var _clientClassStartDateList = classStartDateList.Where(x => x.Item3.ToString() == child.ClientID).ToList();
+                         var finalEnrolledList = _clientClassStartDateList
+                           .Union(droppedList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
+                           .Union(withdrawnList.Where(x => x.Item3.ToString() == child.ClientID).ToList())
+                           .OrderBy(x => x.Item2).ThenBy(x => x.Item4).ToList();
+                         if (finalEnrolledList.Select(x => x.Item1).Last() == 1)
+                         {
+                             var alldayslist = Enumerable.Range(0, 1 + inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)
+                             .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset)).ToList();
+                             var allDays = Enumerable.Range(0, 1 + inputDates.Select(y => y).Last().Subtract(finalEnrolledList.Select(x => x.Item2).Last()).Days)
+               .Select(offset => finalEnrolledList.Select(x => x.Item2).Last().AddDays(offset))
+               .Intersect(inputDates).ToList();
+                             dateList.AddRange(
+                                 allDays
+                                 );
+                         }
+                         int i = 0;
+                         while (i < finalEnrolledList.Count - 1)
+                         {
+                             var status1 = finalEnrolledList[i].Item1;
+                             var date1 = finalEnrolledList[i].Item2;
+                             var status2 = finalEnrolledList[i + 1].Item1;
+                             var date2 = finalEnrolledList[i + 1].Item2;
+                             if (status1 == 1)
+                             {
+                                 var allDays2 = Enumerable.Range(0, 1 + date2.Subtract(date1).Days)
+              .Select(offset => date1.AddDays(offset)).Intersect(inputDates)
+              .ToList();
+                                 dateList.AddRange(allDays2);
+                             }
+                             else
+                             {
+                                 date1 = date1.AddDays(1);
+                                 if (status2 == 1)
+                                 {
+                                     if (inputDates.Where(x => x == date2).Any())
+                                     {
+                                         dateList.Add(date2);
+                                     }
+                                     date2 = date2.AddDays(-1);
+                                 }
+                                 if (status2 == 3)
+                                 {
+                                     if (inputDates.Where(x => x == date2).Any())
+                                     {
+                                         dateList.Add(date2);
+                                     }
+                                 }
+                             }
+                             i += 1;
+                         }
+                         chList[Convert.ToInt32(index)].Dateofclassstartdate = string.Join(",", _clientClassStartDateList.Select(x => String.Format("{0:MM/dd/yyyy}", x.Item2).Replace('-', '/')));
+                         chList[Convert.ToInt32(index)].AccessDateString = string.Join(",", dateList.Select(x => String.Format("{0:MM/dd/yyyy}", x).Replace('-', '/')));
+                     });
+                }
                 _TeacherM.CenterList = _centerList;
                 _TeacherM.Itemlst = chList;
                 _TeacherM.WeeklyAttendance = teacherList;
+                var lsits = chList.Where(x => x.AccessDateString != "").ToList();
             }
             catch (Exception ex)
             {

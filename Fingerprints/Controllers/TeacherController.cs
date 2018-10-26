@@ -1102,8 +1102,8 @@ namespace Fingerprints.Controllers
             {
                 long _centerId = Convert.ToInt64(EncryptDecrypt.Decrypt64(centerId));
                 long _classroomId = Convert.ToInt64(EncryptDecrypt.Decrypt64(classroomId));
-                model = new TeacherData().GetChildAttendanceDetailsByDate(Session["AgencyId"].ToString(),attendaneDate, isHistorical, _centerId, _classroomId);
-
+                // model = new TeacherData().GetChildAttendanceDetailsByDate(Session["AgencyId"].ToString(),attendaneDate, isHistorical, _centerId, _classroomId);
+              model = new TeacherData().GetChildListByUserIdByCenter(Session["UserID"].ToString(), Session["AgencyID"].ToString(), _centerId, _classroomId, isHistorical, attendaneDate);
                 var jsonSerialiser = new JavaScriptSerializer();
                 jsonSerialiser.MaxJsonLength = Int32.MaxValue;
                 model.WeeklyAttendancestring = jsonSerialiser.Serialize(model.WeeklyAttendance);

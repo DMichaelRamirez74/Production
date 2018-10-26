@@ -32,7 +32,7 @@ namespace FingerprintsModel
         public string CIFileName { get; set; }
         public string CIFileExtension { get; set; }
         public byte[] CIFileData { get; set; }
-        public int PercentAbsent { get; set; }
+        public decimal PercentAbsent { get; set; }
         public string EnrollmentDays { get; set; }
         public string AttendanceType { get; set; }
         public string CNotes { get; set; }
@@ -131,6 +131,8 @@ namespace FingerprintsModel
         public int IsCaseNoteEntered { get; set; }
         public string RoleId { get; set; }
 
+        public string CenterName { get; set; }
+        public string ClassroomName { get; set; }
     }
 
     public class OfflineAttendance

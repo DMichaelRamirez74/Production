@@ -402,7 +402,9 @@ $(document).ready(function () {
             }
         },
         isHistorical: function () {
-            return ($('#historicalatt').is(':checked'))
+          
+            //return ($('#historicalatt').is(':checked'))
+            return ($('input:radio[name=attentyperadio]:checked').val()=="1")
         },
         getAttendanceDate: function (date) {
             var returnDate = '';
@@ -437,13 +439,28 @@ $(document).ready(function () {
             var childList = this.getChildInfoList();
             if (childList.length > 0) {
                 $.each(childList, function (i, child) {
+                   
+                    var acessDays = $.grep(child.AccessDateString.split(','), function (dates, s) {
+                        return dates != null && dates != ''
+                    });
+                    if (acessDays != null && acessDays.length > 0)
+                    {
 
                     childInfoAppend += '<tr id="childinfo_' + i + '">\
-                                          <td class="weekly-table-text-al1"><p style="text-align:left;" >'+ child.CName + '</p></td>\
-                                        <td class="weekly-table-text-al1"><p style="text-align:left;">'+ child.CDOB + '</p></td>\
+                                          <td class="weekly-table-text-al1"><p style="text-align:left;padding-left:10px;" >'+ child.CName + '</p></td>\
+                                        <td class="weekly-table-text-al1"><p style="text-align:left;padding-left:10px;">'+ child.CDOB + '</p></td>\
                                          <input type="hidden" id="father_'+ i + '" father_name="' + child.Parent1Name + '" value=' + child.Parent1ID + ' />\
                                          <input type="hidden" id="mother_' + i + '" mother_name="' + child.Parent2Name + '" value=' + child.Parent2ID + ' />\
                                          </tr>';
+                    }
+                    else {
+                        childInfoAppend += '<tr id="childinfo_' + i + '">\
+                                          <td class="weekly-table-text-al1"><p style="text-align:left;color:red;padding-left:10px;" >'+ child.CName + '</p></td>\
+                                        <td class="weekly-table-text-al1"><p style="text-align:left;color:red;padding-left:10px;">' + child.CDOB + '</p></td>\
+                                         <input type="hidden" id="father_'+ i + '" father_name="' + child.Parent1Name + '" value=' + child.Parent1ID + ' />\
+                                         <input type="hidden" id="mother_' + i + '" mother_name="' + child.Parent2Name + '" value=' + child.Parent2ID + ' />\
+                                         </tr>';
+                    }
                 });
             }
 
@@ -719,8 +736,9 @@ $('#offline-hist-div').find('input[name=attentyperadio]').on('click', function (
       
     var center_class = weeklyAttendance.getCenterClassId();
     var attendanceDates = '';
+        var _isHistorical = ($(this).val() === '1')
     //if (weeklyAttendance.isHistorical()) {
-    if ($(this).val() === '1') {
+        if (_isHistorical) {
         //  var weekDates = weeklyAttendance.getWeekDatesFormatted(new Date());
         var weekDates=weeklyAttendance.getWeekDatesFormatted(new Date($('#datetimepicker1').val()))
         $.each(weekDates, function (l, dates) {
@@ -743,7 +761,7 @@ $('#offline-hist-div').find('input[name=attentyperadio]').on('click', function (
         type: 'post',
         datatype: 'json',
         beforeSend:function(){ weeklyAttendance.ShowBusy(true);},
-        data: { centerId: center_class.enc_CenterId.toString(), classroomId: center_class.enc_ClassRoomId.toString(), isHistorical: weeklyAttendance.isHistorical(), attendanceDate: attendanceDates },
+            data: { centerId: center_class.enc_CenterId.toString(), classroomId: center_class.enc_ClassRoomId.toString(), isHistorical: _isHistorical, attendanceDate: attendanceDates },
         success: function (data) {
 
           //  weeklyAttendance.ShowBusy(false);
@@ -1376,6 +1394,7 @@ function loadWeeklyDailyAttendance() {
             }
         }
         no_data_div.html('No records found').show();
+            weeklyAttendance.ShowBusy(false);
     }
 
    weeklyAttendance.ShowBusy(false);
@@ -3253,9 +3272,9 @@ function alertCall(data) {
         }
         else {
             customAlert('No Changes to Save.');
+            weeklyAttendance.ShowBusy(false);
         }
        
-        weeklyAttendance.ShowBusy(false);
     }
 
 
@@ -3343,6 +3362,9 @@ function callBackInsertGetAllMeals(weeklyData, MealsData) {
                 type: 'post',
                 //async:false,
                 datatype: 'json',
+                beforeSend:function(){
+                    weeklyAttendance.ShowBusy(true);
+                },
                 data: {
                     userId: $('#userId').val()
                     , agencyId: $('#agencyId').val()
@@ -3391,6 +3413,8 @@ function callBackInsertGetAllMeals(weeklyData, MealsData) {
         });
     }
     else {
+            customAlert('No changes to save');
+            weeklyAttendance.ShowBusy(false);
     }
 }
 
