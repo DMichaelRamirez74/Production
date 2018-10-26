@@ -1384,7 +1384,7 @@ namespace Fingerprints.Controllers
         }
 
 
-
+        [CustAuthFilter()]
         public ActionResult SaveScreeningByScreeningPeriod(Screening _screen)
         {
 

@@ -980,8 +980,11 @@
                 height: 'auto',
                 delimiter: [',', ';'],
                 autocomplete: {
-
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInputnREF(),
+                    'appendTo': "#ModalAddCasenote"
                 },
+                autocomplete_url: '',
                 autocomplete_url: '',
             });
             $('#nREF_status_CaseNotetags').importTags("nREF,,;");
@@ -2347,9 +2350,9 @@
                             }
                         }
 
-                        if (data.list.Rosters[i].FamilyHomeless == 1) {
-                            tr += '<a title="Click here to update household address for family" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
-                        }
+                        //if (data.list.Rosters[i].FamilyHomeless == 1) {
+                        //    tr += '<a title="Click here to update household address for family" style="text-decoration: underline; cursor: pointer;" href="javascript:void(0);"  data-cli=' + data.list.Rosters[i].Eclientid + '   data-house=' + data.list.Rosters[i].EHouseholid + '  onclick="loadHouselessClient(this);" >HOM </a>';
+                        //}
 
 
                         if (data.list.Rosters[i].IsScreeningFollowUpReq && data.list.Rosters[i].IsShowScreeningFollowUp) {
@@ -2840,6 +2843,29 @@
             return tagsArr;
         }
 
+        function getTagsOnInputnREF() {
+            var tagInp = $('#nREF_status_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: tagInp },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            return tagsArr;
+        }
     </script>
 }
 
@@ -3316,7 +3342,7 @@
                         <option value="0">--Select--</option>
                         <option value="1">ABT</option>
                         <option value="2">TRN</option>
-                        <option value="3">HOM</option>
+                        @*<option value="3">HOM</option>*@
                         <option value="4">ALL SFU</option>
                         <option value="5">SFU (Need Follow-up) </option>
                         <option value="6">SFU (Follow-up Completed) </option>

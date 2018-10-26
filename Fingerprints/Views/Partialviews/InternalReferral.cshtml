@@ -124,15 +124,16 @@
         $('.divReferTo').hide();
         $('#Modalclientenrolled').modal('hide');
         $('.internal_reference').css("overflow", 'auto');
-        $('#lblClientName').text($(arg).attr('data-CName'));
-        $('#lblCenterName').text($(arg).attr('data-centername'));
-        $('#lblClassroom').text($(arg).attr('data-classroom'));
+        $('#ModalAddCasenote')
+        $('#ModalAddCasenote').find('#lblClientName').text($(arg).attr('data-CName'));
+        $('#ModalAddCasenote').find('#lblCenterName').text($(arg).attr('data-centername'));
+        $('#ModalAddCasenote').find('#lblClassroom').text($(arg).attr('data-classroom'));
         cid = $(arg).attr('EClientId');
-        $('#ClassroomId').val($(arg).attr('data-classroomid'));
-        $('#CaseNoteCenterId').val($(arg).attr('data-centerid'));
-        $('#nREF_CaseNoteClientId').val($(arg).attr('eclientid'));
-        $('#HouseholdId').val($(arg).attr('data-householdid'));
-        $('#CaseNoteProgramId').val($(arg).attr('data-programid'));
+        $('#ModalAddCasenote').find('#ClassroomId').val($(arg).attr('data-classroomid'));
+        $('#ModalAddCasenote').find('#CaseNoteCenterId').val($(arg).attr('data-centerid'));
+        $('#ModalAddCasenote').find('#nREF_CaseNoteClientId').val($(arg).attr('eclientid'));
+        $('#ModalAddCasenote').find('#HouseholdId').val($(arg).attr('data-householdid'));
+        $('#ModalAddCasenote').find('#CaseNoteProgramId').val($(arg).attr('data-programid'));
         $.ajax({
             url: HostedDir + "/Home/GetInternalRefDetails",
             type: "POST",
@@ -147,7 +148,7 @@
                 // customAlert("Record saved successfully");
                 if (data != null) {
                     debugger;
-                    $('#DivAppendRoles').empty();
+                    $('#ModalAddCasenote').find('#DivAppendRoles').empty();
 
                     var divContent = '  <div class=" col-lg-6 col-xs-12 internal_reference_radiobtn no-padding">\
                                                             <div class="radio radio-info">\
@@ -160,11 +161,11 @@
                         result = result + divContent;
                         result = result.replace("LabelContent", data.RoleList[i].RoleName);
                         result = result.replace("NewValue", data.RoleList[i].RoleId);
-                        $('#DivAppendRoles').append(result);
+                        $('#ModalAddCasenote').find('#DivAppendRoles').append(result);
                     }
                     if (data.AssignedRoles != null && data.AssignedRoles != "") {
-                        $('.divReferTo').show();
-                        $('#spnReferTo').text('This client already refered to ' + data.AssignedRoles)
+                        $('#ModalAddCasenote').find('.divReferTo').show();
+                        $('#ModalAddCasenote').find('#spnReferTo').text('This client already referred to ' + data.AssignedRoles)
                     }
                     //bindClients//
                     var clientAppend = '';
@@ -176,7 +177,7 @@
                                                 </div>';
                         });
                     }
-                    $('#nREF_statusclientsDiv').html(clientAppend);
+                    $('#ModalAddCasenote').find('#nREF_statusclientsDiv').html(clientAppend);
 
                 }
             }
@@ -184,7 +185,26 @@
        customAlert("Session Ended Log Onto The System Again."); setTimeout(function () { window.location.href = HostedDir + '/login/Loginagency'; }, 2000);
    }
         });
-        $('#ModalAddCasenote').modal('show');
+        $('#ModalAddCasenote').find('#yakkrcode').find('input:checkbox').prop('checked', false);
+        $('#ModalAddCasenote').find('#chkYakkrDiv').hide();
+        $('#ModalAddCasenote').find('#FirstFile').val('');
+        $('#ModalAddCasenote').find('#txtNotes').val('');
+        $('#ModalAddCasenote').find('#addAttachmentDiv').html('');
+        if (CKEDITOR.instances['nREFNote']) {
+            CKEDITOR.instances['nREFNote'].destroy(true);
+        }
+        CKEDITOR.replace('nREFNote', {
+            language: 'en-gb',
+            uiColor: '#295b8f',
+            disableNativeSpellChecker: false
+        });
+        $('#ModalAddCasenote').find('#txtStatusCaseNoteTitle').val('Internal Referral');
+        $('#ModalAddCasenote').find('#txtStatusCaseNoteDate').val(getFormattedDate(new Date()));
+        $('#ModalAddCasenote').find('#nREF_status_CaseNotetags').importTags("nREF,,;");
+        $('#ModalAddCasenote').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
         // $('#Modalclientenrolled').modal('toggle');
     }
 
@@ -817,6 +837,12 @@
     margin-right: 10px;
 }
 .ersea-detl-title h3{font-weight:bold;}
+#ModalAddCasenote .close {
+    opacity: 1;
+    position: absolute;
+    right: -14px;
+    top: -12px;
+}
 </style>
 
 
@@ -828,7 +854,7 @@
     <div class="modal-dialog income-popup width-auto">
         <div class="modal-content">
             <div class="modal-header">
-               
+                <button type="button" class="close" data-dismiss="modal"><img src="/Content/CaseNote/images/close.png"></button>
                 <div class="col-xs-12 ersea-detl-title">
                     <h3>Internal Referral</h3>
                     <div class="ersea_ovr"><img src="/images/text-bdr.png" class="img-responsive"></div>
@@ -946,42 +972,13 @@
                                            
                                         </div>
                                     </div> 
-                                    @*<div class="col-xs-12 col-sm-12" style="margin-bottom: 1px;margin-top:10px;display:none;" id="disablity">
-                                        <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
-                                            <div class="enroll-sec" style="padding-left: 0;">
-                                                <div class="transition-content-desc" style="position: relative;">
-                                                    <p style="background: none;border: none;">Disablity</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-8 col-sm-7" style="padding:0;">
-
-                                            <div class="col-lg-12 col-xs-12">
-
-                                                <div class="transition-radio-btn enroll-sec margin-enroll" id="InsuranceTypeID" style="margin-left:0px;">
-                                                    <div class="col-xs-12 no-padding" style="width:auto;display:inline-block;margin-right: 15px;">
-
-                                                        <div class="fa-checkbox">
-                                                            <input type="checkbox" value="" name="IsIEP" id="IsIEP" style="display:none;" onclick="IEPorIFSP_Checked()" />
-                                                             <label for="IsIEP" id="IsIEP" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;">IEP</label>
-                                                        </div>
-                                                        <div class="fa-checkbox">
-                                                            <input type="checkbox" value="" name="IsIFSP" id="IsIFSP" style="display:none;"  onclick="IEPorIFSP_Checked()" />
-                                                            <label for="IsIFSP" id="IsIFSP" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;">IFSP</label>
-                                                        </div>
-                                                        <div class="fa-checkbox">
-                                                            <input type="checkbox" value="" name="IsExpired" id="IsExpired" style="display:none;"  onclick="IEPorIFSP_Checked()" />
-                                                            <label for="IsExpired" id="IsExpired" style="color:black;font-size:14px;text-align:left;margin-bottom:12px;margin-bottom: 0;width: 100%;padding-top: 0;">Expired</label>
-                                                        </div>
-                                                    </div>
 
 
-                                                </div>
-                                            </div>
 
 
-                                        </div>
-                                    </div>*@ 
+
+
+
                         
                                     <div class="col-xs-12 col-sm-12 adddivspace">
                                         <div class="col-lg-3 col-xs-5" style="padding-left: 0;">
@@ -1033,7 +1030,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-lg-5 col-sm-7">
-                                                <input type="text" class="form-control" id="txtStatusCaseNoteDate" name="Date" value="@DateTime.Now.ToString("MM/dd/yyyy")" placeholder="MM/DD/YYYY" />
+                                                <input type="text" class="form-control" id="txtStatusCaseNoteDate" name="Date" value="@String.Format("{0:MM/dd/yyyy}", DateTime.Now.ToString("MM/dd/yyyy")).Replace('-', '/')" placeholder="MM/DD/YYYY" />
                                             </div>
                                         </div>
                                         <div class="col-xs-12 col-sm-12 adddivspace">

@@ -1496,6 +1496,7 @@ namespace Fingerprints.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [CustAuthFilter()]
         public JsonResult GetInternalRefDetails(string ClientId)
         {
            Role result =new Role();
@@ -1548,25 +1549,45 @@ namespace Fingerprints.Controllers
                 _caseNote.CaseNoteAttachmentList = Attachments;
 
                 casenoteid = new RosterData().SaveCaseNotes(ref name, ref caseNote, ref _users, _caseNote, Attachments, Session["AgencyId"].ToString(), Session["UserId"].ToString(), 2);
+                if (casenoteid == "1")
+                {
                 result = fd.SaveInternalReferral(internRef, name);                       
+                }
             }
             catch (Exception ex)
             {
                 clsError.WriteException(ex);
             }
+            if (Role.disabilitiesManager.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            {
             return RedirectToAction("AgencyDisabilityManagerDashboard");
+            }
+            else if (Role.disabilityStaff.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            {
+                return RedirectToAction("DisabilityStaffDashboard");
+            }
+            else if (Role.teacher.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant() || Role.teacherAssistant.ToLowerInvariant() == staffDetails.RoleId.ToString().ToLowerInvariant())
+            {
+                return RedirectToAction("Roster", "Teacher");
+            }
+            else
+            {
+                return RedirectToAction("Roster", "Roster");
+            }
 
         }
 
         #region Absence Report
         //executive,edu Mg, Agency Admin,GenesisEarth Admin,FSW, Center Mg , Area Mg 
         [CustAuthFilter("7c2422ba-7bd4-4278-99af-b694dcab7367,4b77aab6-eed1-4ac3-b498-f3e80cf129c0,3b49b025-68eb-4059-8931-68a0577e5fa2,a65bb7c2-e320-42a2-aed4-409a321c08a5,94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d,b4d86d72-0b86-41b2-adc4-5ccce7e9775b,2af7205e-87b4-4ca7-8ca8-95827c08564c")]
-        public ActionResult AbsenceReport() {
+        public ActionResult AbsenceReport()
+        {
             if (agencydata.GetSingleAccessStatus(14))
             {
                 return View();
             }
-            else {
+            else
+            {
                 return new RedirectResult("~/login/Loginagency");
             }
         }
