@@ -126,6 +126,26 @@
             });
             $('#myModalApprovalForClassRoomOpenCloseRequest').modal('show');
         });
+        // nREF Case Note Initializations//
+        CKEDITOR.replace('nREFNote', {
+            language: 'en-gb',
+            uiColor: '#195180',
+            allowedContent: true,
+            disableNativeSpellChecker: false
+        });
+        $('#nREF_status_CaseNotetags').tagsInput({
+            width: 'auto',
+            height: 'auto',
+            delimiter: [',', ';'],
+            autocomplete: {
+                //'source': tags_array[0].split(/,\s*/)
+                'source': getTagsOnInput(),
+                'appendTo': "#ModalAddCasenote"
+            },
+            autocomplete_url: '',
+        });
+        $('#nREF_status_CaseNotetags').importTags("nREF,,;");
+        //nREF Case Note Initializations//
     });
     var YakkrDetails = [];
     $('body').on('click', '.btn-send', function () {
@@ -330,6 +350,38 @@
         $('#not-check-a').children('#notCheckIn').text('(' + count + ')');
     }
 
+    function getTagsOnInput() {
+        var tagInp = $('#nREF_status_CaseNotetags').val();
+        var tagsArr = [];
+        $.ajax({
+            url: '/Roster/GetCaseNoteTagonInput',
+            datatype: 'json',
+            type: 'post',
+            async: true,
+            data: { searchText: tagInp },
+            success: function (data) {
+                if (data != null) {
+                    if (data.length > 0) {
+                        $.each(data, function (i, tags) {
+                            tagsArr.push(tags.Text);
+                        });
+                    }
+                }
+            },
+            error: function (data) {
+            }
+        });
+        return tagsArr;
+    }
+    function getFormattedDate(date) {
+        date = new Date(date);
+        var year = date.getFullYear();
+        var month = (1 + date.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+        var day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+        return month + '/' + day + '/' + year;
+    }
 </script>
 }
 
@@ -532,7 +584,7 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
 
         </div>
                 <div class="edu_clrtable table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th style="text-align: left !important;">Client</th>
@@ -649,21 +701,22 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
 
                                         @if (Model.ClosedDetails.ClosedToday > 0)
                                         {
-                                            <a href="#" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN</a>
+                                    <a href="#" style="text-decoration:underline;cursor:pointer;pointer-events:none;display:none;" title="Click here for Manual Attendance" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
 
                                         }
                                         else
                                         {
-                                    <a href="#myModalattendance" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" data-toggle="modal" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN</a>
+                                    <a href="#myModalattendance" style="text-decoration:underline;cursor:pointer;" title="Click here for Manual Attendance" data-toggle="modal" class="open-myModalAb" data-id="@j.ClientID-@j.CName">ATN&nbsp;</a>
 
                                         }
 
 
-                                        <a style="text-decoration:underline;cursor:pointer;" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON</a>
+                                <a style="text-decoration:underline;cursor:pointer;" title="Click here for Observation Notes" href="~/Teacher/DomainObservationResults?ChildId=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)&ChildName=@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.CName)">ON&nbsp;</a>
+                                 <a style="text-decoration:underline;cursor:pointer;" eclientid="@FingerprintsModel.EncryptDecrypt.Encrypt64(@j.ClientID)" data-programid="@j.Enc_ProgramId"  data-centerid="@j.Enc_CenterId" data-classroomid="@j.Enc_ClassRoomId" data-householdid="@FingerprintsModel.EncryptDecrypt.Decrypt64(@j.Enc_HouseholdId)" data-centername="@j.CenterName" data-classroom="@j.ClassroomName" data-CName="@j.CName" onclick="AddCaseNote(this);" title="Click here for internal referral" href="javascript:void(0);">nREF &nbsp;</a>
 
-                                        <a class="referral-icon" style="text-decoration:underline;cursor:pointer;"  title="Click here for Referrals" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />REF</a>
+                                <a class="referral-icon" style="text-decoration:underline;cursor:pointer;" title="Referrals for Child Developmental Team" href="javascript:void(0);"><input type="hidden" class="child-id" value="@j.ClientID" /><input type="hidden" class="child-center-id" value="@j.CenterID" />xREF&nbsp;</a>
                                     
-                                        <a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED </a>
+                                <a title="Click here to get white paper on education of parents" style="text-decoration: underline; cursor: pointer;" href="/EducationMaterial/ShareMaterial/?ClientId=@j.Enc_ClientId&Single=true">ED&nbsp;</a>
                                        
                             </td>
                                     </tr>
@@ -724,4 +777,5 @@ select.form-control.edu_arr{background:#fff url(../images/class-room/arr-down.pn
 </div>
 
     @* New Design *@
+@Html.Partial("~/Views/Partialviews/InternalReferral.cshtml")
 }

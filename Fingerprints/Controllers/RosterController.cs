@@ -843,6 +843,9 @@ namespace Fingerprints.Controllers
 
         public ActionResult MatchProviders(ListRoster MatchProvider, string CommunityIds, string stepId = "")
         {
+            MatchProviderModel obj_MPM = new MatchProviderModel();
+            try
+            {
             ViewBag.ReferralClientId = 0;
             if (MatchProvider.AgencyId != "" || MatchProvider.AgencyId != null)
             {
@@ -857,7 +860,7 @@ namespace Fingerprints.Controllers
             ViewBag.ScreeningReferralYakkr = MatchProvider.ScreeningReferralYakkr;
 
             TempData.Keep("tempClientId");
-            MatchProviderModel obj_MPM = new MatchProviderModel();
+
             var matchProvidersList = new List<MatchProviderModel>();
             List<SelectListItem> OrganizationList = new List<SelectListItem>();
             matchProvidersList = RosterData.MatchProviders(MatchProvider.AgencyId, CommunityIds, MatchProvider.referralClientId);
@@ -873,6 +876,11 @@ namespace Fingerprints.Controllers
 
 
             obj_MPM.OrganizationList = OrganizationList;
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
             return View(obj_MPM);
         }
 

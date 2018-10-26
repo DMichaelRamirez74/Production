@@ -980,8 +980,11 @@
                 height: 'auto',
                 delimiter: [',', ';'],
                 autocomplete: {
-
+                    //'source': tags_array[0].split(/,\s*/)
+                    'source': getTagsOnInputnREF(),
+                    'appendTo': "#ModalAddCasenote"
                 },
+                autocomplete_url: '',
                 autocomplete_url: '',
             });
             $('#nREF_status_CaseNotetags').importTags("nREF,,;");
@@ -2840,6 +2843,29 @@
             return tagsArr;
         }
 
+        function getTagsOnInputnREF() {
+            var tagInp = $('#nREF_status_CaseNotetags').val();
+            var tagsArr = [];
+            $.ajax({
+                url: '/Roster/GetCaseNoteTagonInput',
+                datatype: 'json',
+                type: 'post',
+                async: true,
+                data: { searchText: tagInp },
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
+                            $.each(data, function (i, tags) {
+                                tagsArr.push(tags.Text);
+                            });
+                        }
+                    }
+                },
+                error: function (data) {
+                }
+            });
+            return tagsArr;
+        }
     </script>
 }
 
