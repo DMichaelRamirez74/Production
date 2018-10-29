@@ -1230,7 +1230,23 @@ $('#referralLetterPdf').on('click', function () {
             $('#err_organization').css('display', 'none');
         }
 
-    }
+     }
+
+     if (!$('[name="company"]:checked').val()) {
+
+         customAlert("Please Choose Service Organization");
+
+         $('#err_resource').hide();
+         $('#err_resource').text("");
+         $('#err_organization').hide();
+         $('#err_organization').text("");
+         //$('#answererror').html('Please Choose Service Organization');
+
+
+         return false;
+     }
+
+
      if ($('#datepicker').val() == "") {
         $('#err_resource').hide();
         $('#err_resource').text("");
@@ -1265,6 +1281,9 @@ $('#referralLetterPdf').on('click', function () {
     else {
         var communityId = $('#_CommunityId').val();
     }
+
+    
+
     var notes = $('#Description').val();
     window.location.href = "/Roster/CompleteServicePdf?ServiceId=" + $('#_ServiceId').val() + "&AgencyID=" + $('#_AgencyId').val() + "&ClientID=" + $('#encryptId').val() + "&CommunityID=" + communityId + "&Notes=" + notes + "&referralDate=" + $('#datepicker').val();
 });

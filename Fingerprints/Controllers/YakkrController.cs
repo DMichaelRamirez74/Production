@@ -317,24 +317,29 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public ActionResult QuestionnaireForm(int yakkrid,string cn, int cid,int center=0, int hid=0)
         {
+            try
+            {
+                //  int centerid = 75;
+                // string id = "0";
+                //int Householdid = 0;
+                string Name = "";
+                ViewBag.Name = cn;
+                ViewBag.YakkarId = yakkrid;
+                ViewBag.HouseHoldId = hid;
+                ViewBag.ClientId = cid;
 
-          //  int centerid = 75;
-           // string id = "0";
-            //int Householdid = 0;
-            string Name = "";
-            ViewBag.Name = cn;
-            ViewBag.YakkarId = yakkrid;
-            ViewBag.HouseHoldId = hid;
-            ViewBag.ClientId = cid;
+                ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid, 2);
+                RosterNew.Users Userlist = new RosterNew.Users();
+                var Rd = new RosterData();
 
-            ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid,2);
-            RosterNew.Users Userlist = new RosterNew.Users();
-            var Rd = new RosterData();
-               
                 Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
-            ViewBag.Userlist = Userlist.UserList;
+                ViewBag.Userlist = Userlist.UserList;
 
-
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
 
             return View();
         }
