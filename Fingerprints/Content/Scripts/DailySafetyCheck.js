@@ -283,7 +283,8 @@ $(function () {
             //        isAllowed = val.PassFailCode
 
             //});
-            if ($('.img-cross:visible').length > 0) {
+            // if ($('.img-cross:visible').length > 0) {
+            if ($('.trans-cross:visible').length > 0) {
 
                 $('.btn-room').show();
                 $('#myModalClassRoom').modal('show');
