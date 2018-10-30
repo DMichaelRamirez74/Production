@@ -2924,7 +2924,13 @@ namespace FingerprintsData
                     if (screening.ScreeningPeriodsList.Count > 0)
                     {
                         var clientAge = Convert.ToDouble(_dataset.Tables[1].Rows[0]["AgeClient"]);
-                        var screeningAge = screening.ScreeningPeriodsList.Where(x => x.ScreeningAge <= clientAge).Max(x => x.ScreeningAge);
+                        var screeningAge = 0.0;
+                        if (screening.ScreeningPeriodsList.Where(x => x.ScreeningAge <= clientAge).Any())
+                        {
+                             screeningAge = screening.ScreeningPeriodsList.Where(x => x.ScreeningAge <= clientAge).Max(x => x.ScreeningAge);
+                        }
+                       
+
                         DateTimeFormatInfo usDtfi = new CultureInfo("en-US", false).DateTimeFormat;
                         var convDob = Convert.ToDateTime(screening.ChildInfo.Dob, usDtfi);
                         var clientAgeModel = new Age(convDob, DateTime.Now);
@@ -3302,14 +3308,14 @@ namespace FingerprintsData
             return _roster;
 
         }
-        public List<Nurse.NurseScreening> Getchildscreeningcenter(string centerid, string userid, string agencyid)
+        public List<Nurse.NurseScreening> Getchildscreeningcenter(StaffDetails staff, string centerid)
         {
             List<Nurse.NurseScreening> List = new List<Nurse.NurseScreening>();
             try
             {
                 command.Parameters.Add(new SqlParameter("@Center", centerid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getchildscreeningcenter";
@@ -3344,7 +3350,7 @@ namespace FingerprintsData
             return List;
 
         }
-        public ScreeningMatrix Getallchildmissingscreening(string centerid, string ClassRoom, string userid, string agencyid)
+        public ScreeningMatrix Getallchildmissingscreening(StaffDetails staff, string centerid, string ClassRoom)
         {
             List<List<string>> List = new List<List<string>>();
             ScreeningMatrix ScreeningMatrix = new ScreeningMatrix();
@@ -3368,8 +3374,8 @@ namespace FingerprintsData
                     command.Parameters.Add(new SqlParameter("@ClassRoom", ClassRoom));
                 else
                     command.Parameters.Add(new SqlParameter("@ClassRoom", DBNull.Value));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
+                    command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getchildmissingscreeningcenter";
@@ -3638,16 +3644,16 @@ namespace FingerprintsData
 
 
         }
-        public List<Roster> Loadmissingclient(string Screeningid, string Centerid, string userid, string agencyid, string RoleID)
+        public List<Roster> Loadmissingclient(StaffDetails staff, string Screeningid, string Centerid)
         {
             List<Roster> RosterList = new List<Roster>();
             try
             {
                 command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
                 command.Parameters.Add(new SqlParameter("@Screeningid", EncryptDecrypt.Decrypt64(Screeningid)));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@RoleID", RoleID));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_Getmissingclients";
@@ -3684,7 +3690,7 @@ namespace FingerprintsData
             return RosterList;
 
         }
-        public List<Roster> Loadclients(string Classroomid, string Centerid, string Screeningid, string userid, string agencyid,string Roleid)
+        public List<Roster> Loadclients(StaffDetails staff, string Classroomid, string Centerid, string Screeningid)
         {
             List<Roster> RosterList = new List<Roster>();
             try
@@ -3692,9 +3698,9 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@Classroomid", Classroomid));
                 command.Parameters.Add(new SqlParameter("@Centerid", Centerid));
                 command.Parameters.Add(new SqlParameter("@Screeningid", Screeningid));
-                command.Parameters.Add(new SqlParameter("@userid", userid));
-                command.Parameters.Add(new SqlParameter("@agencyid", agencyid));
-                command.Parameters.Add(new SqlParameter("@Roleid", Roleid));
+                command.Parameters.Add(new SqlParameter("@userid", staff.UserId));
+                command.Parameters.Add(new SqlParameter("@agencyid", staff.AgencyId));
+                command.Parameters.Add(new SqlParameter("@Roleid", staff.RoleId));
                 command.Connection = Connection;
                 command.CommandType = CommandType.StoredProcedure;
                 command.CommandText = "SP_GetmissingclasssclientScreening";
@@ -4112,24 +4118,27 @@ namespace FingerprintsData
                 if (_dataset != null && _dataset.Tables.Count > 0)
                 {
 
-
-
-
                     ScreeningNew newScreening = new ScreeningNew();
 
                     newScreening.ParentAppID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ID"]);
-                    newScreening.ApprovedFileName = Convert.ToString(_dataset.Tables[0].Rows[0]["ApprovalFileUl"]);
-                    newScreening.ApprovedFileExtension = Convert.ToString(_dataset.Tables[0].Rows[0]["ApprovalFileExtension"]);
-                    urlString.Clear().Append(Guid.NewGuid().ToString());
 
-                    newScreening.ApprovedImageJson = string.IsNullOrEmpty(_dataset.Tables[0].Rows[0]["ApprovalForm"].ToString()) ? "" : Convert.ToBase64String((byte[])_dataset.Tables[0].Rows[0]["ApprovalForm"]);
-
-                    if (!string.IsNullOrEmpty(newScreening.ApprovedFileName))
+                    if(_dataset.Tables.Count>3 && _dataset.Tables[3].Rows.Count>0)
                     {
-                        System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + newScreening.ApprovedFileExtension);
-                        file.Write((byte[])(_dataset.Tables[0].Rows[0]["ApprovalForm"]), 0, ((byte[])(_dataset.Tables[0].Rows[0]["ApprovalForm"])).Length);
-                        file.Close();
-                        newScreening.ApprovedImageUrl = "/TempAttachment/" + urlString + newScreening.ApprovedFileExtension;
+
+                        newScreening.ApprovedFileName = Convert.ToString(_dataset.Tables[3].Rows[0]["ApprovalFileUl"]);
+                        newScreening.ApprovedFileExtension = Convert.ToString(_dataset.Tables[3].Rows[0]["ApprovalFileExtension"]);
+                        urlString.Clear().Append(Guid.NewGuid().ToString());
+
+                        newScreening.ApprovedImageJson = string.IsNullOrEmpty(_dataset.Tables[3].Rows[0]["ApprovalForm"].ToString()) ? "" : Convert.ToBase64String((byte[])_dataset.Tables[3].Rows[0]["ApprovalForm"]);
+
+                        if (!string.IsNullOrEmpty(newScreening.ApprovedFileName))
+                        {
+                            System.IO.FileStream file = System.IO.File.Create(serverPath + "//" + urlString + newScreening.ApprovedFileExtension);
+                            file.Write((byte[])(_dataset.Tables[3].Rows[0]["ApprovalForm"]), 0, ((byte[])(_dataset.Tables[3].Rows[0]["ApprovalForm"])).Length);
+                            file.Close();
+                            newScreening.ApprovedImageUrl = "/TempAttachment/" + urlString + newScreening.ApprovedFileExtension;
+                        }
+
                     }
 
                     newScreening.ScreeningID = Convert.ToInt32(_dataset.Tables[0].Rows[0]["ScreeningID"]);

@@ -1050,7 +1050,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.Getchildscreeningcenter(Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_nurse.Getchildscreeningcenter(staffDetails, Centerid));
             }
             catch (Exception Ex)
             {
@@ -1065,7 +1065,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.Getallchildmissingscreening(Centerid, ClassRoom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                return Json(_nurse.Getallchildmissingscreening(staffDetails, Centerid, ClassRoom));
             }
             catch (Exception Ex)
             {
@@ -1165,7 +1165,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.Loadmissingclient(Screeningid, Centerid, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString()));
+                return Json(_nurse.Loadmissingclient(staffDetails,Screeningid, Centerid));
             }
             catch (Exception Ex)
             {
@@ -1180,7 +1180,7 @@ namespace Fingerprints.Controllers
         {
             try
             {
-                return Json(_nurse.Loadclients(Classroomid, Centerid, Screeningid, Session["UserID"].ToString(), Session["AgencyID"].ToString(), Session["Roleid"].ToString()));
+                return Json(_nurse.Loadclients(staffDetails, Classroomid, Centerid, Screeningid));
             }
             catch (Exception Ex)
             {
@@ -1328,7 +1328,7 @@ namespace Fingerprints.Controllers
                 Response.Charset = "";
                 Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 Response.AddHeader("content-disposition", "attachment;filename=Screening Status Report " + DateTime.Now.ToString("MM/dd/yyyy") + ".xlsx");
-                MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(Centerid, Classroom, Session["UserID"].ToString(), Session["AgencyID"].ToString()));
+                MemoryStream ms = export.ExportExcelScreeningMatrix(_nurse.Getallchildmissingscreening(staffDetails,Centerid, Classroom));
                 ms.WriteTo(Response.OutputStream);
                 Response.Flush();
                 Response.End();
