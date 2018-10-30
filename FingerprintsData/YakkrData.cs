@@ -975,6 +975,51 @@ namespace FingerprintsData
             return result;
         }
 
+
+        public bool ClearYakkrOfReferralIssueSummary(int yakkrid)
+        {
+            var success = false;
+
+
+            try
+            {
+
+                var stf = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+                Connection.Open();
+                command.Parameters.Clear();
+                command.Connection = Connection;
+                command.CommandType = CommandType.StoredProcedure;
+                command.CommandText = "USP_ClearOrgIssueFeedbackYakkr";
+                command.Parameters.Add(new SqlParameter("@AgencyId", stf.AgencyId));
+                command.Parameters.Add(new SqlParameter("@UserId", stf.UserId));
+                command.Parameters.Add(new SqlParameter("@RoleId", stf.RoleId));
+                command.Parameters.Add(new SqlParameter("@YakkrId", yakkrid));
+
+                var result = command.ExecuteNonQuery();
+
+                if (result > 0)
+                {
+                    success = true;
+                }
+
+            }
+            catch (Exception ex) {
+
+                clsError.WriteException(ex);
+            }
+            finally
+            {
+                Connection.Dispose();
+                command.Dispose();
+            }
+
+            return success;
+
+        }
+
         #endregion  yakkr451&453
 
         public int GetYakkrCountPending()

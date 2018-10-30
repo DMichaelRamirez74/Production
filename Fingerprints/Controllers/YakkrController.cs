@@ -20,6 +20,8 @@ namespace Fingerprints.Controllers
          role=94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d(Family Service Worker)
          role=e4c80fc2-8b64-447a-99b4-95d1510b01e9(Home Visitor)
          */
+
+
         [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
        //[CustAuthFilter()]
         public ActionResult Yakkr()
@@ -193,6 +195,7 @@ namespace Fingerprints.Controllers
 
 
         [HttpGet]
+
         [CustAuthFilter()]
         public ActionResult YakkrList(string YakkrCode)
         {
@@ -311,35 +314,30 @@ namespace Fingerprints.Controllers
         }
 
 
-        #region yakkr451
+        #region yakkr451&453
 
         [HttpGet]
         [CustAuthFilter()]
         public ActionResult QuestionnaireForm(int yakkrid,string cn, int cid,int center=0, int hid=0)
         {
-            try
-            {
-                //  int centerid = 75;
-                // string id = "0";
-                //int Householdid = 0;
-                string Name = "";
-                ViewBag.Name = cn;
-                ViewBag.YakkarId = yakkrid;
-                ViewBag.HouseHoldId = hid;
-                ViewBag.ClientId = cid;
 
-                ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid, 2);
-                RosterNew.Users Userlist = new RosterNew.Users();
-                var Rd = new RosterData();
+          //  int centerid = 75;
+           // string id = "0";
+            //int Householdid = 0;
+            string Name = "";
+            ViewBag.Name = cn;
+            ViewBag.YakkarId = yakkrid;
+            ViewBag.HouseHoldId = hid;
+            ViewBag.ClientId = cid;
 
+            ViewBag.QSDetails = new YakkrData().GetQuestionaireByYakkrId(yakkrid,2);
+            RosterNew.Users Userlist = new RosterNew.Users();
+            var Rd = new RosterData();
+               
                 Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
-                ViewBag.Userlist = Userlist.UserList;
+            ViewBag.Userlist = Userlist.UserList;
 
-            }
-            catch (Exception ex)
-            {
-                clsError.WriteException(ex);
-            }
+
 
             return View();
         }
@@ -434,26 +432,38 @@ namespace Fingerprints.Controllers
             return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=453");
         }
 
-
+        [CustAuthFilter()]
         public PartialViewResult ReferralIssueSummary(int yakkrid,string clientname)
         {
 
             var result = new YakkrData().GetQuestionaireByYakkrId(yakkrid,5);
 
             ViewBag.CName = clientname;
+            ViewBag.Yakkr453 = yakkrid;
 
             return PartialView("~/Views/Partialviews/_ReferralIssueSummaryPartial.cshtml", result);
         }
 
+        [CustAuthFilter()]
+        public ActionResult ClearYakkrOfReferralIssueSummary(int yakkrid)
+        {
+            var result = false;
+            try
+            {
+                 result = new YakkrData().ClearYakkrOfReferralIssueSummary(yakkrid);
+            }
+            catch(Exception ex) {
+                clsError.WriteException(ex);
+            }
 
-        //public ActionResult SubmitManagerFeedBack(int ProblemOn, string CaseNotetags, string FeedBackTOClient, int? CRColorCode,int QuestionaireID, int CommunityId,int Yakkrid)
-        //{
-        //    var result = new YakkrData().SubmitFeedBack453(4, ProblemOn, FeedBackTOClient,CRColorCode, CaseNotetags, CommunityId, QuestionaireID, Yakkrid);
+            // return new RedirectResult("~/Yakkr/YakkrList?YakkrCode=453");
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
 
-        //    return RedirectToAction("YakkrList", new { YakkrCode = 451 });
-        //}
 
-        #endregion  yakkr451
+
+
+        #endregion  yakkr451&453
 
 
         #region Get Yakkr Count by User

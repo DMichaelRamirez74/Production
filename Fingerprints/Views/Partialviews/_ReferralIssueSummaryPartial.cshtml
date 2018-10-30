@@ -1,7 +1,21 @@
 ﻿
 @model FingerprintsModel.ReferalDetails
+
+<style type="text/css">
+
+    .button-red {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #E21;
+    border-color: #E21 #E21 #E21;
+}
+
+</style>
+
+
 <div class="form-group-al">
     <div class="row">
+
+
         <div>
             <div class="col-sm-12">
                 <h4><span style="text-decoration: underline;">Organization Info :</span></h4>
@@ -13,7 +27,7 @@
 
                 <div class="col-sm-6">
                     <div class="form-group">
-                        <div class="col-sm-12 col-md-4" >
+                        <div class="col-sm-12 col-md-4">
                             <label class="control-label prop-label">Name :</label>
                         </div>
                         <label class="col-sm-12 col-md-8 control-label" style="font-weight: 100;">@Model.CompanyName</label>
@@ -79,7 +93,7 @@
 
                 <div class="col-sm-6">
                     <div class="form-group">
-                        <div class="col-sm-12 col-md-4" >
+                        <div class="col-sm-12 col-md-4">
                             <label class="control-label prop-label">Reason :</label>
                         </div>
                         <label class="col-sm-12 col-md-8 control-label" style="font-weight: bold;">
@@ -133,13 +147,13 @@
 
             </div>
 
-            </div><!-- Client INfo-->
+        </div><!-- Client INfo-->
 
 
 
         <div>
             <div class="col-sm-12">
-                
+
                 <h4><span style="text-decoration: underline;"> Manager Feedback  :</span></h4>
             </div>
 
@@ -194,22 +208,22 @@
 
 
 
-@if (@Model.ProblemOn == 2)
+            @if (@Model.ProblemOn == 2)
 {
 
-            <div class="col-sm-12">
-
                 <div class="col-sm-12">
-                    <div class="form-group">
-                        <div class="col-sm-12 col-md-2">
-                            <label class="control-label prop-label">Note :</label>
-                        </div>
-                        <div class="col-sm-12 col-md-10" style="font-weight: 100;line-height:1.4;">
-                           @Model.MgNotes
 
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="col-sm-12 col-md-2">
+                                <label class="control-label prop-label">Note :</label>
+                            </div>
+                            <div class="col-sm-12 col-md-10" style="font-weight: 100;line-height:1.4;">
+                                @Model.MgNotes
+
+                            </div>
                         </div>
                     </div>
-                </div>
                 </div>
 
 
@@ -217,27 +231,104 @@
 else if (@Model.ProblemOn == 1)
 {
 
-    <div class="col-sm-12">
+                <div class="col-sm-12">
 
-        <div class="col-sm-12">
-            <div class="form-group">
-                <div class="col-sm-12 col-md-2">
-                    <label class="control-label prop-label">Case Note :</label>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="col-sm-12 col-md-2">
+                                <label class="control-label prop-label">Case Note :</label>
+                            </div>
+                            <div class="col-sm-12 col-md-10" style="font-weight: 100;line-height:1.4;">
+                                @*@Model.CaseNote.Note*@
+
+                                @(new HtmlString(@Model.CaseNote.Note))
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-12 col-md-10" style="font-weight: 100;line-height:1.4;">
-                    @*@Model.CaseNote.Note*@
-
-                    @(new HtmlString(@Model.CaseNote.Note))
-
-                </div>
-            </div>
-        </div>
-    </div>
 
 }
-            </div> <!--  Mg Feedback-->
+        </div> <!--  Mg Feedback-->
+
+
+
+
+        <div>
+           
+
+                <div class="col-sm-12 text-center" style="margin-top:15px;">
+                  
+
+                    <button title="remove this yakkr" type="button" id="clear-453" data-yakkrid="@ViewBag.Yakkr453" style="margin-right:15px;"
+                            class="glossy-button-button button-red">Clear</button>
+
+                    <button title="keep this yakkr" type="button" class="glossy-button-button button-green" data-dismiss="modal">Keep</button>
+
+              
+
+
+
+                </div></div>   <!-- Btn row-->
+
 
 
 
             </div>
-</div>
+        </div>
+
+
+
+
+<script type="text/javascript">
+
+
+    $(document).on("click", "#clear-453", function (e) {
+        e.preventDefault();
+
+        var _yakkr453 = $(this).data("yakkrid");
+
+        $.ajax({
+            url: "@Url.Action("ClearYakkrOfReferralIssueSummary", "Yakkr")?yakkrid=" + _yakkr453,
+            type: "POST",
+            contentType: "application/json;",
+            beforeSend:function(){
+                $('#spinner').show();
+            },
+            success: function (data) {
+
+                if (data) {
+                   
+                    $('#spinner').hide();
+                    $("#yakkr453detail-modal").modal("hide");
+
+                    customAlert("Yakkr details removed successfully");
+
+                    setTimeout(function () {
+                        window.location.reload()
+                    }, 1000);
+                    
+                } else {
+                    //customAlert("Something went wrong, Please try again");
+
+                }
+            },
+            fail: function (res) {
+
+
+            },
+            complete: function (res) {
+
+                cosnole.log('complete');
+                $('#spinner').hide();
+            }
+
+
+
+        });
+
+    });
+
+
+
+</script>
