@@ -43,8 +43,8 @@ namespace Fingerprints.Controllers
         agencyData agencyData = new agencyData();
         FamilyData familyData = new FamilyData();
         CommunityResourceData communitydata = new CommunityResourceData();
-        List<WellBabyExamModel> wellBabyList=new List<WellBabyExamModel>();
-        [CustAuthFilter()]
+        List<WellBabyExamModel> wellBabyList = new List<WellBabyExamModel>();
+       // [CustAuthFilter()]
         public ActionResult staffRegistration()
         {
             try
@@ -61,7 +61,7 @@ namespace Fingerprints.Controllers
 
         }
         [HttpPost]
-        [CustAuthFilter()]
+      //  [CustAuthFilter()]
         public ActionResult staffRegistration(staffRegistration staffregistration)
         {
             try
