@@ -117,7 +117,7 @@ namespace FingerprintsData
         public void SetCaseNoteDetails(List<CaseNote> CaseNoteList, ref string Name, ref FingerprintsModel.RosterNew.Users Userlist, DataSet _dataset)
         {
 
-            if (_dataset.Tables[0] != null)
+            if (_dataset!=null && _dataset.Tables.Count>0 && _dataset.Tables[0] != null)
             {
                 if (_dataset.Tables[0].Rows.Count > 0)
                 {
@@ -140,7 +140,7 @@ namespace FingerprintsData
                         CaseNoteList.Add(info);
                     }
                 }
-                if (_dataset != null && _dataset.Tables.Count > 0 && _dataset.Tables[1].Rows.Count > 0)
+                if (_dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[1]!=null && _dataset.Tables[1].Rows.Count > 0)
 
                 {
 
@@ -153,7 +153,7 @@ namespace FingerprintsData
 
                 }
 
-                if( _dataset != null && _dataset.Tables.Count > 1 && _dataset.Tables[2].Rows.Count > 0)
+                if (_dataset != null && _dataset.Tables.Count > 2 && _dataset.Tables[2]!=null && _dataset.Tables[2].Rows.Count > 0)
 
                 {
 
@@ -180,7 +180,7 @@ namespace FingerprintsData
 
 
                 }
-                if (_dataset.Tables.Count > 2 && _dataset.Tables[3] != null &&  _dataset.Tables[3].Rows.Count > 0)
+                if (_dataset.Tables.Count > 3 && _dataset.Tables[3] != null && _dataset.Tables[3].Rows.Count > 0)
                 {
                     List<FingerprintsModel.RosterNew.User> _userlist = new List<FingerprintsModel.RosterNew.User>();
                     FingerprintsModel.RosterNew.User obj = null;

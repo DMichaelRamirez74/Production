@@ -7034,6 +7034,7 @@ namespace FingerprintsData
                         PYSDate = _dataset.Tables[2].Rows[0]["ProgramYearStartDate"].ToString();
                     }
 
+                    centerList.ForEach(x => x.Attendance = Convert.ToDecimal(x.Attendance) >= 100|| Convert.ToDecimal(x.Attendance) == 0 ? Math.Round(Convert.ToDecimal(x.Attendance)).ToString():x.Attendance);
                        
 
                 }
@@ -12483,9 +12484,20 @@ namespace FingerprintsData
                     foreach (var qn in s.Questionlist)
                     {
 
-                        if (qn.OptionValue != null && qn.OptionValue != "" && qn.OptionValue != "0")
+                        if ((qn.OptionValue != null && qn.OptionValue != "" && qn.OptionValue != "0") || (qn.QuestionType==Convert.ToString((int)EnumScreeningQuestionType.Checkbox) && qn.CheckboxValue!=null && qn.CheckboxValue.Length>0))
+                        {
+
+                            if(qn.QuestionType !=Convert.ToString((int)EnumScreeningQuestionType.Checkbox))
                         {
                             dt6.Rows.Add(s.ScreeningID, qn.QuestionId, qn.OptionValue);
+                            }
+                            else
+                            {
+                                foreach (var chkOption in qn.CheckboxValue)
+                                {
+                                    dt6.Rows.Add(s.ScreeningID, qn.QuestionId, chkOption);
+                                }
+                            }
 
                         }
 
@@ -14995,16 +15007,17 @@ namespace FingerprintsData
                                             Option = x.Field<string>("OptionName"),
                                             OptionId = Convert.ToInt32(x.Field<long>("OptionID")),
                                             OptionValue=x.Field<int>("OptionValue"),
-                                            IsChecked = x.Field<string>("Value") == Convert.ToString(x.Field<long>("OptionID")),
+                                            IsChecked = qnList[0].Field<int>("QuestionType") != (int)EnumScreeningQuestionType.Checkbox? x.Field<string>("Value") == Convert.ToString(x.Field<int>("OptionValue")):Array.IndexOf(x.Field<string>("Value").Split(','), x.Field<int>("OptionValue").ToString())>-1
 
                                         }).Where(x => x.OptionId != 0).ToList() : new List<Options>(),
-                                        OptionValue = qnList[0].Field<string>("Value")
+                                        OptionValue = qnList[0].Field<string>("Value"),
+                                        CheckboxValue= qnList[0].Field<int>("QuestionType") != (int)EnumScreeningQuestionType.Checkbox ? null: qnList[0].Field<string>("Value").Split(',')
 
 
                                     };
 
 
-                                    if (qns.QuestionType == "1" || qns.QuestionType == "3" || qns.QuestionType == "4")
+                                    if ( qns.QuestionType == EnumScreeningQuestionType.Dropdown.ToString())
                                     {
                                         qns.OptionList.Insert(0, new Options
                                         {
@@ -15023,6 +15036,7 @@ namespace FingerprintsData
 
 
                                 }
+                       //         var checkboxquestions = questions.Select(x => int.Parse(x.QuestionType) == (int)EnumScreeningQuestionType.Checkbox);
 
                                 questions= questions.OrderBy(x => x.QuestionOrder).ToList();
 

@@ -22,7 +22,7 @@ namespace Fingerprints.Controllers
          */
 
 
-        [CustAuthFilter("a65bb7c2-e320-42a2-aed4-409a321c08a5")]
+        [CustAuthFilter(RoleEnum.GenesisEarthAdministrator,RoleEnum.AgencyAdmin)]
        //[CustAuthFilter()]
         public ActionResult Yakkr()
         {
@@ -320,7 +320,8 @@ namespace Fingerprints.Controllers
         [CustAuthFilter()]
         public ActionResult QuestionnaireForm(int yakkrid,string cn, int cid,int center=0, int hid=0)
         {
-
+            try
+            {
           //  int centerid = 75;
            // string id = "0";
             //int Householdid = 0;
@@ -337,7 +338,11 @@ namespace Fingerprints.Controllers
                 Rd.GetCaseNote(ref Name, ref Userlist, hid, center, cid.ToString(), Session["AgencyID"].ToString(), Session["UserID"].ToString());
             ViewBag.Userlist = Userlist.UserList;
 
-
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
 
             return View();
         }

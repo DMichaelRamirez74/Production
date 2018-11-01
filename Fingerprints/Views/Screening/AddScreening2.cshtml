@@ -1,11 +1,28 @@
 ﻿@model FingerprintsModel.Screening
 
 
-<script type="text/javascript">
+<style type="text/css">
 
-
-    function backtoApproval(ele)
+    .checked-text
     {
+        white-space:nowrap;
+    }
+
+
+    @@media screen and (max-device-width: 1200px) and (min-device-width: 700px)
+    {
+        .check-radio-div
+    {
+        width:40%;
+        margin-bottom :4px;
+    }
+    }
+    /*.check-left.check-left-move {
+    margin-top: -10px;
+}*/
+</style>
+<script type="text/javascript">
+    function backtoApproval(ele) {
         cleanValidation();
 
 
@@ -93,8 +110,7 @@
 
     }
 
-    function showHideSigDiv(ele)
-    {
+    function showHideSigDiv(ele) {
 
       //  $('#scrSig').signature();
        
@@ -105,20 +121,17 @@
 
     }
 
-    function showSignaturebtn(ele)
-    {
+    function showSignaturebtn(ele) {
         debugger;
         var pSigID = $(ele).val();
         $('#scrSig').signature();
         $('#scrSigBtn').show();
         var sigP = $(".scr-signature-div").find('#ScreeningParentID');
-        if(pSigID!=sigP.val())
-        {
+        if (pSigID != sigP.val()) {
             clearScrSignature(1);
             $('#scrSigBtn').find('#sigbtnText').text('Add Signature');
         }
-        else
-        {
+        else {
 
         }
         sigP.val(pSigID);
@@ -540,18 +553,28 @@
 
                                                             @switch (Model.ScreeningList[s].Questionlist[q].QuestionType)
                                                             {
-                                                                case "1":
-                                                                    <div class="cont-sz">
+                                                                    case "1": ///checkbox///
+                                                                        <div class="cont-sz check-radio-div">
                                                                         @for (int op = 0; op < Model.ScreeningList[s].Questionlist[q].OptionList.Count; op++)
                                                                         {
                                                                             //string op = option.Option + "_" + option.OptionId;
 
 
-                                                                            <div class="col-lg-6 col-md-6 col-sm-6">
-                                                                                <input name="ScreeningList[@s].QuestionList[@q].OptionValue" class="form-control checkselectvalue custscreeningquestin" type="checkbox" style="width:auto;" @if (@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionId.ToString() == @Model.ScreeningList[s].Questionlist[q].OptionValue) { <text> checked="checked" </text>      } value="@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionValue">
+                                                                                <div class="col-lg-6 col-md-12 col-sm-6 text-center adddivspace">
+                                                                                    <div class="row">
+                                                                                        <div class="col-lg-2 check-left check-left-move">
+                                                                                            <input name="ScreeningList[@s].QuestionList[@q].CheckboxValue" class="checkselectvalue custscreeningquestin" type="checkbox" style="width:auto;" @if (@Model.ScreeningList[s].Questionlist[q].OptionList[op].IsChecked==true) { <text> checked="checked" </text>          } value="@Model.ScreeningList[s].Questionlist[q].OptionList[op].OptionValue">
+                                                                                        </div>
+                                                                                        <div class="col-lg-10  checked-text text-left">
                                                                                 <span>@Model.ScreeningList[s].Questionlist[q].OptionList[op].Option</span>
                                                                             </div>
+                                                                                    </div>
 
+                                                                                </div>
+                                                                                <script>
+                                                                                    $('input:checkbox[name="ScreeningList[@s].QuestionList[@q].CheckboxValue[@op]"]').next('[data-toggle="tooltip"]').tooltip();
+                                                                                    // $('checkbox[name="ScreeningList[@s].QuestionList[@q].OptionValue"]').next('span').tooltip();
+                                                                                </script>
                                                                         }
                                                                     </div>
 
@@ -565,18 +588,23 @@
 
 
                                                                     break;
-                                                                case "4":
+                                                                    case "4": ///Radio/////
 
-                                                                    <div class="cont-sz">
+                                                                        <div class="cont-sz  check-radio-div">
 
                                                                         @for (int rad = 0; rad < Model.ScreeningList[s].Questionlist[q].OptionList.Count; rad++)
                                                                         {
-                                                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                                                <div class="col-lg-6 col-md-12 col-sm-6 text-center adddivspace">
 
-                                                                                @Html.RadioButtonFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, Model.ScreeningList[s].Questionlist[q].OptionValue)
-
+                                                                                        <div class="row">
+                                                                                            <div class="col-lg-2 check-left">
+                                                                                                @Html.RadioButtonFor(m => Model.ScreeningList[s].Questionlist[q].OptionValue, Model.ScreeningList[s].Questionlist[q].OptionList[rad].OptionValue)
+                                                                                            </div>
+                                                                                            <div class="col-lg-10  checked-text text-left">
                                                                                 <span style="font-size: 14px;">@Model.ScreeningList[s].Questionlist[q].OptionList[rad].Option</span>
                                                                             </div>
+                                                                                          </div>
+                                                                                    </div>
                                                                         }
                                                                     </div>
                                                                     break;

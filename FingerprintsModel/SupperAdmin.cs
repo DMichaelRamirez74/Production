@@ -75,5 +75,17 @@ namespace FingerprintsModel
 
     }
 
+    /// <summary>
+    /// Enum for Screening Question Type
+    /// </summary>
+    public enum EnumScreeningQuestionType
+    {
+        Checkbox=1,
+        Date=2,
+        Dropdown=3,
+        Radio=4,
+        Text=5,
+        Integer=6
 
+    }
 }

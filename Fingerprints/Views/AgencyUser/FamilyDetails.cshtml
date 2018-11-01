@@ -2315,6 +2315,7 @@
 
                 $.each($('#ScreeningDiv').find('#myTabContent').find('#' + tabid).find('.qn-div'), function (j, qn) {
 
+                   
                     var ackey = $(qn).children('label').attr('accesskey');
 
                     if (ackey == '1' && j == 0) {
@@ -2329,11 +2330,22 @@
 
                             return $(this)[0].nodeName == 'SUP';
                         }).length;
-
+                        
                         if (supLength > 0) {
 
-
-                            var nodeName = $(qn).find('.custscreeningquestin')[0].nodeName;
+                            var nodeName = null;
+                            var lastChar = parseInt(tabid[tabid.length - 1])-1;
+                            var index = j - 1;
+                            var qnType = (ackey != '1' && j > 0) ? $('input[name="ScreeningList[' + lastChar + '].Questionlist[' + index + '].QuestionType"]').val() : '0';
+                            console.log(qnType);
+                            if (qnType=='1' || qnType=='4')
+                            {
+                                nodeName = (qnType == '1') ? 'CHECKBOX' : 'RADIO';
+                            }
+                            else
+                            {
+                                nodeName = $(qn).find('.custscreeningquestin')[0].nodeName;
+                            }
 
                             switch (nodeName) {
                                 case 'SELECT':
@@ -2345,6 +2357,18 @@
 
                                 case 'INPUT':
                                     if ($(qn).find('.custscreeningquestin').val() == null || $(qn).find('.custscreeningquestin').val() == '' || $(qn).find('.custscreeningquestin').val() == undefined) {
+                                        qnerror++;
+                                        plainValidation($(qn).find('.custscreeningquestin'));
+                                    }
+                                    break;
+                                case 'CHECKBOX':
+                                    if ($(qn).find('input:checkbox:checked').length === 0)
+                                    {
+                                        qnerror++;
+                                        plainValidation($(qn).find('.custscreeningquestin'));
+                                    }
+                                case 'RADIO':
+                                    if ($(qn).find('input:radio:checked').length === 0) {
                                         qnerror++;
                                         plainValidation($(qn).find('.custscreeningquestin'));
                                     }
