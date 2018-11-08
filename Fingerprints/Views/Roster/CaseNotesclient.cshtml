@@ -2,10 +2,21 @@
     @section Title
 {
         Case Notes Client
-        
+
     }
-    ViewBag.Title = "Roster";
-    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+
+
+
+    //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("a65bb7c2-e320-42a2-aed4-409a321c08a5") || Session["Roleid"].ToString().Contains("3b49b025-68eb-4059-8931-68a0577e5fa2")))
+    //{
+    //    Layout = "~/Views/Shared/AgencyAdminLayout.cshtml";
+    //}
+    //else
+    //{
+    //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
+    //}
+
+     Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     //if (Session["Roleid"] != null && (Session["Roleid"].ToString().Contains("94cdf8a2-8d81-4b80-a2c6-cdbdc5894b6d")))
     //{
     //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
@@ -36,13 +47,14 @@
     //    Layout = "~/Views/Shared/AgencyStaffLayout.cshtml";
     //}
 }
+
+@using FingerprintsModel;
 @section Script{
 
     <script type="text/javascript">
         var count = 1;
-       //var tags_array = ["lorem, ipsum, dolar, sit, amet"];
-        function ShowSecurityAlert()
-        {
+        //var tags_array = ["lorem, ipsum, dolar, sit, amet"];
+        function ShowSecurityAlert() {
             BootstrapDialog.show({
                 title: 'Secure Case Note Alert',
                 message: "Can't view the secured Case Note",
@@ -51,13 +63,186 @@
                     action: function (dialog) {
                         dialog.close();
                     }
-                
+
                 }]
             });
-         
+
         }
 
         $(document).ready(function () {
+
+
+
+            $(document).on("change", '[name="maincase"]', function () {
+
+                var _val = $(this).prop("checked");
+
+                if (_val) {
+                    //$(".subcasecheck").
+                    $(".subcasecheck").prop("checked", true);
+                    $(".subcasecheck").prop("disabled", true);
+
+                } else {
+                    $(".subcasecheck").prop("checked", false);
+                    $(".subcasecheck").prop("disabled", false)
+                }
+
+            });
+
+            $(document).on("click", "#deletecasenote_btn", function () {
+
+                var _MainSlcted = $('[name="maincase"]').prop("checked"); 
+                var _MainId = $('[name="maincase"]').val(), appendId = [];
+                //if (_MainSlcted) {
+                //    _MainId = $('[name="maincase"]:checked').val();
+                //}
+
+                $.each($(".subcasecheck:checked"), function (ind, ele) {
+                    //console.log(ele.value);
+
+                    appendId.push(ele.value);
+                });
+
+                if (!_MainSlcted && !appendId.length) {
+
+                    customAlert("Please select case note or append case note");
+                    return false;
+                }
+
+                $.ajax({
+                    type:"POST",
+                    datatype: "json",
+                    contentType: 'application/json',
+                    beforeSend: function () { $("#spinner").show() },
+                    url: "@Url.Action("DeleteCaseNote", "Roster")",
+                    data: JSON.stringify({ casenoteid: _MainId, appendcid: appendId, deletemain: _MainSlcted }),
+                success:function(data){
+                    if (data) {
+                        customAlert("Case Note has been deleted successfully");
+                        // $('tr[casenoteid="10743"]').hide()
+                        setTimeout(function () {
+                            //   window.location.reload();
+                            window.location.href = window.location.href.replace("#", "")
+                        }, 2000);
+
+                    } else {
+                        customAlert("Something went wrong");
+                    }
+                }, fail: function (res) {
+                    customAlert("Something went wrong, try again");
+                }, complete: function (res) {
+                    $("#spinner").hide();
+                    $("#DeleteCaseNote_Modal").modal("hide");
+                }
+
+
+                });
+
+            });
+
+            $(document).on("click", ".delete-casenote", function (e) {
+                e.preventDefault();
+
+                var _cid = $(this).data('id');
+                var _noteLoaded = false, _subnoteLoaded = false, _mainNote = {}, _subNotes = [];
+
+                $("#spinner").show();
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Getcasenotedetails", "Roster")?CaseNoteId=" + _cid,
+                    success: function (data) {
+                        _noteLoaded = true;
+                        _mainNote = data;//_mainNote = data[0];
+                    },
+                    fail: function (res) {
+
+                    },
+                    complete: function (res) {
+                        if (_subnoteLoaded == true) {
+                            //  $("#spinner").hide();
+                            loadModalData(_mainNote, _subNotes);
+                        }
+
+                    }
+
+                });
+
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("GetSubNotes", "Roster")?CaseNoteId=" + _cid,
+                    success: function (data) {
+                        _subnoteLoaded = true; _subNotes = data;
+                    },
+                    fail: function (res) {
+
+                    },
+                    complete: function (res) {
+                        if (_noteLoaded == true) {
+                           // $("#spinner").hide();
+                            loadModalData(_mainNote, _subNotes);
+                           
+                        }
+
+                    }
+
+                });
+
+
+
+
+            });
+
+            function loadModalData(mainNote,subNote)
+            {
+                $("#spinner").hide();
+                $("#DeleteCaseNote_Modal").modal("show");
+                var _mNt={};
+                if (Array.isArray(mainNote) && mainNote.length > 0) {
+                    _mNt = mainNote[0];
+                } else {
+                    _mNt = mainNote;
+                }
+
+                $("#mainnote-tbl tbody, #subnote-tbl tbody").html('');
+
+               
+                var str = '<tr><td><input type="checkbox" data-CaseNoteid="' + _mNt.CaseNoteid + '" name="maincase" value="' + _mNt.CaseNoteid + '" /></td>';
+                str += '<td>' + _mNt.Date + '</td><td>' + $('<div>' + _mNt.Note + '</div>').text().slice(0, 70) + "..." + '</td></tr>';
+               
+                $("#mainnote-tbl tbody").html(str);
+
+                var _subStr = "";
+
+                if (Array.isArray(subNote) && subNote.length > 0) {
+
+                    subNote.forEach(function (obj, ind) {
+
+                        _subStr += '<tr><td><input class="subcasecheck" data-SubCasenoteid="' + obj.SubCasenoteid + '" type="checkbox" name="subcase_' + ind + '" value="' + obj.SubCasenoteid + '" /></td>';
+
+          _subStr += '<td>' + moment(obj.WrittenDate).format('MM/DD/YYYY') + '</td><td>' + $('<div>' +obj.Notes + '</div>').text().slice(0, 70) + "..." + '</td></tr>';
+                    });
+
+                   
+                } else {
+                    _subStr+='<tr><td colspan="3">No append Notes</td></tr>';
+                }
+                $("#subnote-tbl tbody").html(_subStr);
+               //<tr><td><input type="checkbox" name="maincase" /></td>
+               //                     <td>11/05/2018</td><td>Test String</td></tr>
+
+               //                     subnote-tbl
+
+               // <tr>
+               //                         <td><input type="checkbox" name="subcase[0]" /></td>
+               //                         <td>11/07/2018</td>
+               //                         <td>Test append1</td>
+               //                     </tr>
+
+                console.log(mainNote, subNote);
+            };
+
+
             $('input').keypress(function () {
                 if ($(this).val() == 'MM/DD/YYYY') {
                     $(this).val('');
@@ -140,15 +325,13 @@
                     type:'POST',
                     beforeSend: function () { $('#spinner').show() },
                     data: { 'clientId': $(this).val(), 'householdId': $('#HouseHoldId').val() },
-                    success:function(data)
-                    {
+                    success: function (data) {
                         $('#spinner').hide();
 
                         bindCaseNoteTableSection(data);
 
                     },
-                    error:function(data)
-                    {
+                    error: function (data) {
                         $('#spinner').hide();
                     }
 
@@ -185,8 +368,7 @@
         });
 
 
-        function bindCaseNoteTableSection(data)
-        {
+        function bindCaseNoteTableSection(data) {
             $('.addn-table-head').empty();
             $('.appendRole').val(data.Role);
             console.log(data);
@@ -258,8 +440,7 @@
         }
         
 
-        function getTagsOnInput()
-        {
+        function getTagsOnInput() {
             var tagInp = $('#CaseNotetags').val();
             var tagsArr = [];
             $.ajax({
@@ -269,20 +450,16 @@
                 type: 'post',
                 async:true,
                 data: { searchText: tagInp },
-                success:function(data)
-                {
-                    if(data!=null)
-                    {
-                        if(data.length>0)
-                        {
+                success: function (data) {
+                    if (data != null) {
+                        if (data.length > 0) {
                             $.each(data, function (i, tags) {
                                 tagsArr.push(tags.Text);
                             });
                         }
                     }
                 },
-                error:function(data)
-                {
+                error: function (data) {
 
                 }
 
@@ -322,8 +499,7 @@
             }
             });
         }
-        function GetSubNotes(id)
-        {
+        function GetSubNotes(id) {
             debugger;
             $.ajax({
                 type: "POST",
@@ -496,10 +672,9 @@
                     $('#ClientName').text(Data[0].Name);
                     $('#ClientNameModel').text(Data[0].Name);
 
-                    if (Data[0].SecurityLevel)
-                    {
-                          $('#CaseNoteSecurity').prop("checked", true);
-                       
+                    if (Data[0].SecurityLevel) {
+                        $('#CaseNoteSecurity').prop("checked", true);
+
                     }
                       
                     for (var i = 0; i < Data.length; i++) {
@@ -1183,26 +1358,111 @@
         .sub-text{float:left;width:100%;line-height:25px;}
         .addn-poup-div,.tag-text-block{float:left;width:100%;}
 
-        .sub-text-block{padding:10px;background:#f9f9f9;margin-top:5px;}
-         .sub-text-block p{margin:0;padding:0;font-weight:bold;color: #34495e;}
-         .tag-text-block{padding:0;}
-         .tag-text-block label{width:auto;display:inline-block;float:left;    font-size: 16px;
-    font-weight: normal;}
-         .tag-text{width:auto;display:inline-block;float:left;
-    padding: 10px;
-    text-decoration: none;
-    background: #295b8f;
-    color: #fff;
-    margin-left: 5px;
-    margin-bottom: 5px;
-    font-family: helvetica;
-    font-size: 13px;margin-top:7px;}
-         .sub-text-block{box-shadow:0 0 10px rgba(0,0,0,0.1);-webkit-box-shadow:0 0 10px rgba(0,0,0,0.1);}
-         .tag-text-block p, .tag-text-block i{width:auto;display:inline-block;float:left;margin-top:6px;margin-left:5px;}
-    .tag-text-block i{margin-top:10px;}
-    .page-header {
-    margin: 8px 0px 20px !important;
+                .sub-text-block{padding:10px;background:#f9f9f9;margin-top:5px;}
+                 .sub-text-block p{margin:0;padding:0;font-weight:bold;color: #34495e;}
+                 .tag-text-block{padding:0;}
+                 .tag-text-block label{width:auto;display:inline-block;float:left;    font-size: 16px;
+            font-weight: normal;}
+                 .tag-text{width:auto;display:inline-block;float:left;
+            padding: 10px;
+            text-decoration: none;
+            background: #295b8f;
+            color: #fff;
+            margin-left: 5px;
+            margin-bottom: 5px;
+            font-family: helvetica;
+            font-size: 13px;margin-top:7px;}
+                 .sub-text-block{box-shadow:0 0 10px rgba(0,0,0,0.1);-webkit-box-shadow:0 0 10px rgba(0,0,0,0.1);}
+                 .tag-text-block p, .tag-text-block i{width:auto;display:inline-block;float:left;margin-top:6px;margin-left:5px;}
+            .tag-text-block i{margin-top:10px;}
+            .page-header {
+            margin: 8px 0px 20px !important;
+        }
+            
+#DeleteCaseNote_Modal .modal-body {
+    position: relative;
 }
+#DeleteCaseNote_Modal .modal-body {
+    background: #34495e none repeat scroll 0 0;
+    border: 6px solid #ffffff;
+    border-radius: 3px;
+    /* color: #ffffff; */
+    float: left;
+    padding: 15px 3%;
+    position: relative;
+    width: 100%;
+}
+#DeleteCaseNote_Modal .modal-body > h2 {
+    margin-top: 10px;
+    float: left;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+    color: #fff;
+}
+#DeleteCaseNote_Modal .close {
+    opacity: 1;
+    position: absolute;
+    right: -14px;
+    top: -15px;
+}
+
+
+    .glossy-button-button {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    overflow: hidden;
+    min-width: 96px;
+    line-height: 34px !important;
+    padding: 0 24px;
+    font-size: 14px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 1px #154c86;
+    background-color: #247edd;
+    background-clip: padding-box;
+    border: 1px solid;
+    border-color: #1c65b2 #18589c #18589c;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.2);
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04));
+}
+    .button-green {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #1ca913;
+    border-color: #147b0e #11640b #11640b;
+}
+    .button-red {
+    text-shadow: 0 1px #0d4d09;
+    background-color: #E21;
+    border-color: #E21 #E21 #E21;
+}
+
+        #subnote-tbl thead tr,
+        #mainnote-tbl thead tr {
+         background:#9B58B4;
+         color:#fff;
+        }
+        #subnote-tbl tbody tr,
+        #mainnote-tbl tbody tr {
+         text-align:center;
+        }
+
+        [name="maincase"],
+        .subcasecheck
+        {
+            width: 20px;
+            height: 20px;
+        }
+
     </style>
 
     <div class="container-fluid">
@@ -1378,27 +1638,28 @@
                                                                                                             </div>
                                                                                                         </td>
                                                                                                     }
-                                                                                                    <td data-title="By">
-                                                                                                        <div class="addn-content-desc" style="position: relative;">
-                                                                                                            <p>@item1.BY</p>
-                                                                                                        </div>
-                                                                                                    </td>
-                                                                                                    <td data-title="Attachments">
-                                                                                                        <div class="addn-content-desc">
-                                                                                                            <p>@item1.Attachment</p>
-                                                                                                        </div>
-                                                                                                    </td>
-                                                                                                    <td data-title="References">
-                                                                                                        <div class="addn-content-desc">
-                                                                                                            <p>@item1.References</p>
-                                                                                                        </div>
-                                                                                                    </td>
-                                                                                                    <td data-title="Actions">
-                                                                                                        <div class="addn-content-desc">
-                                                                                                            @if (item1.IsAllowSecurityCN)
-                                                                                                            {
-                                                                                                                <p style="padding: 5px;">
-                                                                                                                    <span class="Status-title-addn">
+                                                <td data-title="By">
+                                                    <div class="addn-content-desc" style="position: relative;">
+                                                        <p>@item1.BY</p>
+                                                    </div>
+                                                </td>
+                                                <td data-title="Attachments">
+                                                    <div class="addn-content-desc">
+                                                        <p>@item1.Attachment</p>
+                                                    </div>
+                                                </td>
+                                                <td data-title="References">
+                                                    <div class="addn-content-desc">
+                                                        <p>@item1.References</p>
+                                                    </div>
+                                                </td>
+                                                @*<td data-title="Actions" style="width:250px;">*@
+                                                <td data-title="Actions">
+                                                    <div class="addn-content-desc">
+                                                        @if (item1.IsAllowSecurityCN)
+                                                        {
+                                                            <p style="padding: 5px;width:157px;display:inline-block;">
+                                                                <span class="Status-title-addn">
 
                                                                                                                         <a href="#" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">
                                                                                                                             <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
@@ -1406,13 +1667,13 @@
                                                                                                                         </a>
 
 
-                                                                                                                    </span>
-                                                                                                                </p>
-                                                                                                            }
-                                                                                                            else if (item1.WrittenBy == Session["UserId"].ToString() && item1.SecurityLevel)
-                                                                                                            {
-                                                                                                                <p style="padding: 5px;">
-                                                                                                                    <span class="Status-title-addn">
+                                                                </span>
+                                                            </p>
+                                                        }
+                                                        else if (item1.WrittenBy == Session["UserId"].ToString() && item1.SecurityLevel)
+                                                        {
+                                                            <p style="padding: 5px;width:157px;display:inline-block;">
+                                                                <span class="Status-title-addn">
 
                                                                                                                         <a href="#" data-toggle="modal" class="add-new" style="margin-top: 0;padding-left: 15px;">
                                                                                                                             <span style="width: auto;display: inline-block;margin-right: 2px;font-size: 20px;">+</span>
@@ -1420,18 +1681,27 @@
                                                                                                                         </a>
 
 
-                                                                                                                    </span>
-                                                                                                                </p>
-                                                                                                            }
-                                                                                                            else
-                                                                                                            {
-                                                                                                                <p style="padding: 5px;height:50px;">
+                                                                </span>
+                                                            </p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p style="padding: 5px;height:50px;width:157px;display: inline-block;">
 
-                                                                                                                </p>
-                                                                                                            }
-</div>
-                                                        </td>
-                                                    </tr>
+                                                            </p>
+                                                        }
+                      @if (Role.RolesDictionary[(int)RoleEnum.AgencyAdmin].ToLowerInvariant() == Session["RoleId"].ToString()
+                          || Role.RolesDictionary[(int)RoleEnum.GenesisEarthAdministrator].ToLowerInvariant() == Session["RoleId"].ToString())
+                      {
+                                                        <button type="button" class="btn delete-casenote" style="border-radius: 0px;color: #fff;margin-left: 8px;background: #e43838;" data-id="@item1.CaseNoteid">Delete</button>
+                                             }
+                                                        @*<i class="fa fa-edit delete-casenote text-info" style="margin-left: 10px;font-size: 23px;" data-id="@item1.CaseNoteid"></i>*@
+
+                                                        @*<i class="fa fa-trash delete-casenote text-danger" style="margin-left: 10px;font-size: 23px;" data-id="@item1.CaseNoteid"></i>*@
+                                                    </div>
+                                                </td>
+
+                                            </tr>
                                                 }
                                             }
                                         </tbody>
@@ -1759,13 +2029,67 @@
 
                 </div>
 
-            </div>
         </div>
     </div>
+</div></div>
 
 
 
 
+
+    <!--Delete Case Note Modal-->
+<div class="modal fade" id="DeleteCaseNote_Modal" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-ch">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><img src="~/Content/CaseNote/images/close.png" /></button>
+                <h2>Delete Case Note</h2>
+                <div class="max_items_addn popup-addn-scroll">
+                    <div class="col-xs-12 addn-al" style="padding: 0;">
+                        
+                        <div>
+                            <h4>Main Case Note</h4>
+
+                            <table class="table table-bordered table-responsive table-striped" id="mainnote-tbl">
+                                <thead><tr><th style="width:100px;">Delete</th><th style="width:200px;">Date</th style="width:15px;"><th>Note</th></tr></thead>
+                                <tbody>
+
+                                @*<tr><td><input type="checkbox" name="maincase" /></td>
+                                    <td>11/05/2018</td><td>Test String</td></tr>*@
+                                
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+
+                            <h4>Append Case Note</h4>
+
+                            <table class="table table-bordered table-responsive table-striped" id="subnote-tbl">
+                                @*<thead><tr><th></th><th>Date</th><th>Note</th></tr></thead>*@
+                                <thead><tr><th style="width:100px;">Delete</th><th style="width:200px;">Date</th><th>Note</th></tr></thead>
+                                <tbody>
+
+                                
+
+                                </tbody>
+                            </table>
+                       
+                             
+                        </div>
+
+                        <div class="col-md-12 text-center" style="margin-top:20px;">
+                            <button type="button" class="glossy-button-button button-red" id="deletecasenote_btn">Delete</button>
+
+                            @*<button type="button" class="glossy-button-button button-red" data-dismiss="modal">Cancel</button>*@
+                        </div>
+                    
+                    </div>
+                    </div></div></div>
+
+        </div></div>
 
     @*<script src="~/Content/CaseNote/js/jquery.js"></script>*@
     <script src="~/Content/CaseNote/js/bootstrap.js"></script>

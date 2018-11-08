@@ -477,6 +477,7 @@ namespace FingerprintsData
                             info.Attachment = dr["AttachmentId"].ToString();
                             info.SecurityLevel = Convert.ToBoolean(dr["SecurityLevel"]);
                             info.GroupCaseNote = dr["GroupCaseNote"].ToString();
+                            info.CaseNoteid = dr["CaseNoteID"].ToString();
                             CaseNoteList.Add(info);
                         }
                     }
@@ -5743,6 +5744,60 @@ namespace FingerprintsData
 
         #endregion  ReferalReviewList
 
+
+
+        public bool DeleteCaseNote(int casenoteid,int[] appendcid,bool deletemain,int mode)
+        {
+            var success = false;
+            try
+            {
+
+                StaffDetails staff = StaffDetails.GetInstance();
+
+                if (Connection.State == ConnectionState.Open)
+                    Connection.Close();
+
+
+                using (Connection = connection.returnConnection())
+                {
+                    command.Connection = Connection;
+                    command.Parameters.Clear();
+                    command.Parameters.Add(new SqlParameter("@AgencyID", staff.AgencyId));
+                    command.Parameters.Add(new SqlParameter("@UserID", staff.UserId));
+                    command.Parameters.Add(new SqlParameter("@RoleID", staff.RoleId));
+                    command.Parameters.Add(new SqlParameter("@CaseNoteId", casenoteid));
+                    command.Parameters.Add(new SqlParameter("@IsDeleteMainCN", deletemain ? 1 : 0));
+                    command.Parameters.Add(new SqlParameter("@Mode", mode));
+                    DataTable T1 = new DataTable();
+                    T1.Columns.AddRange(new DataColumn[2] {
+                        new DataColumn("CaseNoteId", typeof(int)),
+                        new DataColumn("SubCaseNoteID", typeof(int))
+                    });
+                    if (appendcid != null && appendcid.Length > 0)
+                    {
+
+                        for (int i = 0; i < appendcid.Length; i++) {
+                            T1.Rows.Add(casenoteid, appendcid[i]);
+                        }
+                    }
+                    command.Parameters.Add(new SqlParameter("@AppendCaseNoteIds", T1));
+                    command.CommandText = "USP_DeleteCaseNote";
+                    command.CommandType = CommandType.StoredProcedure;
+                    Connection.Open();
+                    success = (Convert.ToInt32(command.ExecuteNonQuery()) > 0);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                clsError.WriteException(ex);
+            }
+
+
+            return success;
+
+        }
 
     }
 }

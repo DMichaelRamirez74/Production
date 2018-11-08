@@ -2759,5 +2759,13 @@ namespace Fingerprints.Controllers
 
         #endregion ReferalReviewList
 
+
+        public ActionResult DeleteCaseNote(int casenoteid,int[] appendcid, bool deletemain)
+        {
+            var result = new RosterData().DeleteCaseNote(casenoteid, appendcid,deletemain,1);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }
