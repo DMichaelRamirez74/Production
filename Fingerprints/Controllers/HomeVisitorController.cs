@@ -352,9 +352,9 @@ namespace Fingerprints.Controllers
         #region TCR&FSW Scheduler
 
         [CustAuthFilter(RoleEnum.Teacher, RoleEnum.FamilyServiceWorker)]
-        public ActionResult TeacherScheduler(string clientid,int yakkr,int Yakkrid) {
+        public ActionResult TeacherScheduler(string clientid,long yakkr,long Yakkrid) {
 
-         var result= homeVisitorData.getVisitingDetailsByclient(clientid,yakkr,1);
+         var result= homeVisitorData.getVisitingDetailsByclient(clientid,yakkr, Yakkrid, 1);
             ViewBag.Details = result;
             ViewBag.YakkrId = Yakkrid;
             ViewBag.YakkrCode = yakkr;

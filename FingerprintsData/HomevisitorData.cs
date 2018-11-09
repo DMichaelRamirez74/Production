@@ -804,7 +804,7 @@ namespace FingerprintsData
 
         #region TCR&FSW Scheduler
 
-        public AppoinmentClientDetail getVisitingDetailsByclient(string clientid,int yakkr,int mode)
+        public AppoinmentClientDetail getVisitingDetailsByclient(string clientid,long yakkr,long YakkrId, int mode)
         {
 
             var result = new AppoinmentClientDetail();
@@ -822,6 +822,7 @@ namespace FingerprintsData
                 command.Parameters.Add(new SqlParameter("@RoleId", StfDe.RoleId));
                 command.Parameters.Add(new SqlParameter("@UserId", StfDe.UserId));
                 command.Parameters.Add(new SqlParameter("@Yakkr", yakkr));
+                command.Parameters.Add(new SqlParameter("@YakkrId", YakkrId));
                 command.Parameters.Add(new SqlParameter("@ClientId", clientid));
                 command.Parameters.Add(new SqlParameter("@Mode", mode));
                 DataAdapter = new SqlDataAdapter(command);

@@ -72,7 +72,7 @@ namespace Fingerprints.Controllers
                 return Json("Error occurred please try again.");
             }
         }
-        [CustAuthFilter("82b862e6-1a0f-46d2-aad4-34f89f72369a")]
+        [CustAuthFilter(RoleEnum.Teacher,RoleEnum.TeacherAssistant)]
         public ActionResult DownloadScreeningMatrixExcel(string Centerid, string Classroom = "")
         {
             try
